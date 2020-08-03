@@ -57,6 +57,10 @@ import java.util.Map;
 @Configuration
 public class AuthConfiguration {
 
+  private static final String[] BY_PASS_URLS = {"/prometheus/**", "/metrics/**", "/openapi/**",
+      "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path",
+      "/health"};
+
   /**
    * spring.profiles.active = ctrip
    */
@@ -271,7 +275,7 @@ public class AuthConfiguration {
       http.csrf().disable();
       http.headers().frameOptions().sameOrigin();
       http.authorizeRequests()
-          .antMatchers("/prometheus/**","/metrics/**","/openapi/**", "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path").permitAll()
+          .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").hasAnyRole(USER_ROLE);
       http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
           .httpBasic();
@@ -403,7 +407,7 @@ public class AuthConfiguration {
       http.csrf().disable();
       http.headers().frameOptions().sameOrigin();
       http.authorizeRequests()
-          .antMatchers("/prometheus/**","/metrics/**","/openapi/**", "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path").permitAll()
+          .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").authenticated();
       http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
               .httpBasic();

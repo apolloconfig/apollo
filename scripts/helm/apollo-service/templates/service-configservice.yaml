@@ -1,0 +1,15 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "apollo.configService.serviceName" . }}
+  labels:
+    {{- include "apollo.service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.configService.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.configService.service.port }}
+      targetPort: {{ .Values.configService.service.targetPort }}
+  selector:
+    app: {{ include "apollo.configService.fullName" . }}

@@ -54,6 +54,7 @@ public class XmlConfigFileTest {
 
   @After
   public void tearDown() throws Exception {
+    MockInjector.reset();
     System.clearProperty(PropertiesFactory.APOLLO_PROPERTY_ORDER_ENABLE);
   }
 

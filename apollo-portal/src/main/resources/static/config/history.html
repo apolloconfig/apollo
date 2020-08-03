@@ -104,6 +104,7 @@
                     <div class="panel-heading">
 
                         <span ng-bind="history.releaseTitle"></span>
+                        <span class="label label-warning no-radius" ng-if="history.isReleaseAbandoned">{{'Config.History.Abandoned' | translate }}</span>
                         <span class="pull-right" ng-bind="history.releaseTime | date: 'yyyy-MM-dd HH:mm:ss'"></span>
 
                         <div class="row" style="padding-top: 10px;">
@@ -111,6 +112,14 @@
                                 <small ng-show="history.releaseComment" ng-bind="history.releaseComment"></small>
                             </div>
                             <div class="col-md-7 text-right">
+                                <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Config.History.RollbackToTips' | translate }}"
+                                        ng-show="namespace.hasReleasePermission && !history.isReleaseAbandoned
+                                            && (history.operation == 0 || history.operation == 1 || history.operation == 4)"
+                                        ng-click="preRollback()">
+                                    <img src="../img/rollback.png">
+                                    {{'Config.History.RollbackTo' | translate }}
+                                </button>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-sm"
                                         ng-class="{'active':history.viewType == 'diff'}" data-tooltip="tooltip"
@@ -256,6 +265,15 @@
         </section>
 
         <showtextmodal text="text"></showtextmodal>
+
+        <rollbackmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
+        </rollbackmodal>
+
+        <apolloconfirmdialog apollo-dialog-id="'rollbackAlertDialog'"
+                             apollo-title="'Config.RollbackAlert.DialogTitle' | translate"
+                             apollo-detail="'Config.RollbackAlert.DialogContent' | translate" apollo-show-cancel-btn="true"
+                             apollo-confirm="rollback">
+        </apolloconfirmdialog>
     </div>
 
 
@@ -291,6 +309,7 @@
     <script type="application/javascript" src="../scripts/services/ReleaseHistoryService.js"></script>
     <script type="application/javascript" src="../scripts/services/ConfigService.js"></script>
     <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/services/EventManager.js"></script>
 
     <script type="application/javascript" src="../scripts/AppUtils.js"></script>
     <script type="application/javascript" src="../scripts/controller/config/ReleaseHistoryController.js"></script>
@@ -299,6 +318,7 @@
     <script type="application/javascript" src="../scripts/directive/directive.js"></script>
     <script type="application/javascript" src="../scripts/directive/show-text-modal-directive.js"></script>
     <script type="application/javascript" src="../scripts/directive/diff-directive.js"></script>
+    <script type="application/javascript" src="../scripts/directive/rollback-modal-directive.js"></script>
 </body>
 
 </html>

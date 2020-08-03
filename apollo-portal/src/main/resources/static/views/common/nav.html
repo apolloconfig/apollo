@@ -34,19 +34,33 @@
                         <li value="zh-CN"><a href="javascript:void(0)" ng-click="changeLanguage('zh-CN')">简体中文</a></li>
                     </ul>
                 </li>
-                <li class="dropdown" ng-if="hasRootPermission">
+
+                <!-- admin tool -->
+                <li class="dropdown" ng-if="hasRootPermission == true">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.AdminTools' | translate }}
                         <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu" >
                         <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
                         <li><a href="{{ '/system-role-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemRoleManage' | translate }}</a></li>
                         <li><a href="{{ '/open/manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.OpenMange' | translate }}</a></li>
                         <li><a href="{{ '/server_config.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemConfig' | translate }}</a></li>
                         <li><a href="{{ '/delete_app_cluster_namespace.html' | prefixPath }}" target="_blank">{{'Common.Nav.DeleteApp-Cluster-Namespace' | translate }}</a></li>
                         <li><a href="{{ '/system_info.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemInfo' | translate }}</a></li>
+                        <li><a href="{{ '/config_export.html' | prefixPath }}" target="_blank">{{'Common.Nav.ConfigExport' | translate }}</a></li>
                     </ul>
                 </li>
+
+                <!-- normal user tool (not admin)-->
+                <li class="dropdown" ng-if="hasRootPermission == false">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.NonAdminTools' | translate }}
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu" >
+                        <li><a href="{{ '/config_export.html' | prefixPath }}" target="_blank">{{'Common.Nav.ConfigExport' | translate }}</a></li>
+                    </ul>
+                </li>
+
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-user"></span>&nbsp;{{userName}}

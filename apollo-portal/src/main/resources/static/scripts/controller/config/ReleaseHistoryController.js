@@ -1,10 +1,10 @@
 release_history_module.controller("ReleaseHistoryController",
-    ['$scope', '$location', '$translate', 'AppUtil',
-        'ReleaseService', 'ConfigService', 'ReleaseHistoryService', releaseHistoryController
+    ['$scope', '$location', '$translate', 'AppUtil', 'EventManager',
+        'ReleaseService', 'ConfigService', 'PermissionService', 'ReleaseHistoryService', releaseHistoryController
     ]);
 
-function releaseHistoryController($scope, $location, $translate, AppUtil,
-    ReleaseService, ConfigService, ReleaseHistoryService) {
+function releaseHistoryController($scope, $location, $translate, AppUtil, EventManager,
+    ReleaseService, ConfigService, PermissionService, ReleaseHistoryService) {
 
     var params = AppUtil.parseParams($location.$$url);
     $scope.pageContext = {
@@ -20,7 +20,9 @@ function releaseHistoryController($scope, $location, $translate, AppUtil,
         DIFF: 'diff',
         ALL: 'all'
     };
+    var selectedReleaseId = -1;
 
+    $scope.namespace = {};
     $scope.page = 0;
     $scope.releaseHistories = [];
     $scope.hasLoadAll = false;
@@ -30,9 +32,15 @@ function releaseHistoryController($scope, $location, $translate, AppUtil,
     $scope.isConfigHidden = false;
 
     $scope.showReleaseHistoryDetail = showReleaseHistoryDetail;
+    $scope.rollback = rollback;
+    $scope.preRollback = preRollback;
     $scope.switchConfigViewType = switchConfigViewType;
     $scope.findReleaseHistory = findReleaseHistory;
     $scope.showText = showText;
+
+    EventManager.subscribe(EventManager.EventType.REFRESH_RELEASE_HISTORY, function () {
+        location.reload(true);
+    });
 
     init();
 
@@ -41,6 +49,14 @@ function releaseHistoryController($scope, $location, $translate, AppUtil,
         findReleaseHistory();
 
         loadNamespace();
+    }
+
+    function preRollback() {
+        EventManager.emit(EventManager.EventType.PRE_ROLLBACK_NAMESPACE, { namespace: $scope.namespace, toReleaseId: selectedReleaseId });
+    }
+
+    function rollback() {
+        EventManager.emit(EventManager.EventType.ROLLBACK_NAMESPACE, { toReleaseId: selectedReleaseId });
     }
 
     function findReleaseHistory() {
@@ -97,11 +113,13 @@ function releaseHistoryController($scope, $location, $translate, AppUtil,
             $scope.pageContext.clusterName,
             $scope.pageContext.namespaceName)
             .then(function (result) {
+                $scope.namespace = result;
                 $scope.isTextNamespace = result.format != "properties";
                 if ($scope.isTextNamespace) {
                     fixTextNamespaceViewType();
                 }
                 $scope.isConfigHidden = result.isConfigHidden;
+                initPermission();
             })
     }
 
@@ -109,11 +127,31 @@ function releaseHistoryController($scope, $location, $translate, AppUtil,
 
         $scope.history = history;
         $scope.selectedReleaseHistory = history.id;
+        selectedReleaseId = history.releaseId;
         if (!history.viewType) {//default view type
             history.viewType = CONFIG_VIEW_TYPE.DIFF;
             getReleaseDiffConfiguration(history);
         }
 
+    }
+
+    function initPermission() {
+        PermissionService.has_release_namespace_permission(
+            $scope.pageContext.appId,
+            $scope.namespace.baseInfo.namespaceName)
+            .then(function (result) {
+                if (!result.hasPermission) {
+                    PermissionService.has_release_namespace_env_permission(
+                        $scope.pageContext.appId,
+                        $scope.pageContext.env,
+                        $scope.namespace.baseInfo.namespaceName)
+                        .then(function (result) {
+                            $scope.namespace.hasReleasePermission = result.hasPermission;
+                        });
+                } else {
+                    $scope.namespace.hasReleasePermission = result.hasPermission;
+                }
+            });
     }
 
     function fixTextNamespaceViewType() {

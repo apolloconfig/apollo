@@ -1,0 +1,83 @@
+configdb:
+  name: apollo-configdb
+  # apolloconfigdb host
+  host: ""
+  port: 3306
+  dbName: ApolloConfigDB
+  # apolloconfigdb user name
+  userName: ""
+  # apolloconfigdb password
+  password: ""
+  connectionStringProperties: characterEncoding=utf8
+  service:
+    # whether to create a Service for this host or not
+    enabled: false
+    fullNameOverride: ""
+    port: 3306
+    type: ClusterIP
+
+configService:
+  name: apollo-configservice
+  fullNameOverride: ""
+  replicaCount: 2
+  containerPort: 8080
+  image:
+    repository: apolloconfig/apollo-configservice
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  service:
+    fullNameOverride: ""
+    port: 8080
+    targetPort: 8080
+    type: ClusterIP
+  liveness:
+    initialDelaySeconds: 100
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+  config:
+    # spring profiles to activate
+    profiles: "github,kubernetes"
+    # override apollo.config-service.url: config service url to be accessed by apollo-client 
+    configServiceUrlOverride: ""
+    # override apollo.admin-service.url: admin service url to be accessed by apollo-portal 
+    adminServiceUrlOverride: ""
+  # environment variables passed to the container, e.g. JAVA_OPTS
+  env: {}
+  strategy: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+
+adminService:
+  name: apollo-adminservice
+  fullNameOverride: ""
+  replicaCount: 2
+  containerPort: 8090
+  image:
+    repository: apolloconfig/apollo-adminservice
+    pullPolicy: IfNotPresent
+  imagePullSecrets: []
+  service:
+    fullNameOverride: ""
+    port: 8090
+    targetPort: 8090
+    type: ClusterIP
+  liveness:
+    initialDelaySeconds: 100
+    periodSeconds: 10
+  readiness:
+    initialDelaySeconds: 30
+    periodSeconds: 5
+  config:
+    # spring profiles to activate
+    profiles: "github,kubernetes"
+  # environment variables passed to the container, e.g. JAVA_OPTS
+  env: {}
+  strategy: {}
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}

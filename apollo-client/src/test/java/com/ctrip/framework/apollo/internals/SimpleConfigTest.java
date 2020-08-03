@@ -10,6 +10,7 @@ import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +51,11 @@ public class SimpleConfigTest {
       }
     });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

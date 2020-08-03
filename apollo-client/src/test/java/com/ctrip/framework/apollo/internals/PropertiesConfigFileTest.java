@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.Properties;
 
 import java.util.concurrent.TimeUnit;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,6 @@ public class PropertiesConfigFileTest {
   @Before
   public void setUp() throws Exception {
     someNamespace = "someName";
-    MockInjector.reset();
     when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
       @Override
       public Properties answer(InvocationOnMock invocation) {
@@ -48,6 +48,11 @@ public class PropertiesConfigFileTest {
       }
     });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

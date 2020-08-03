@@ -1,0 +1,89 @@
+<!doctype html>
+<html ng-app="config_export">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="img/config.png">
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+    <title>{{'ConfigExport.Title' | translate }}</title>
+</head>
+
+<body>
+    <apollonav></apollonav>
+    <div class="container-fluid">
+        <div class="col-md-8 col-md-offset-2 panel">
+            <section class="panel-body">
+                <div class="row">
+                    <header class="panel-heading">
+                        {{'ConfigExport.Title' | translate }}
+                        <small>
+                            {{'ConfigExport.TitleTips' | translate}}
+                        </small>
+                    </header>
+                    <div class="col-sm-offset-2 col-sm-9">
+                        <a href="export" target="_blank">
+                            <button class="btn btn-block btn-lg btn-primary">
+                                {{'ConfigExport.Download' | translate }}
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div ng-include="'views/common/footer.html'"></div>
+
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-route.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script src="vendor/lodash.min.js"></script>
+
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/ClusterService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+    <script type="application/javascript" src="scripts/services/SystemInfoService.js"></script>
+
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+
+    <script type="application/javascript" src="scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/valdr.js"></script>
+
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
+</body>
+
+</html>

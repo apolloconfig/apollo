@@ -1,0 +1,16 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ include "apollo.portal.serviceName" . }}
+  labels:
+    {{- include "apollo.portal.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+  selector:
+    app: {{ include "apollo.portal.fullName" . }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}

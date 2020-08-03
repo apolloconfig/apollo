@@ -1,0 +1,92 @@
+---
+# configmap for apollo-configservice
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  {{- $configServiceFullName := include "apollo.configService.fullName" . }}
+  name: {{ $configServiceFullName }}
+data:
+  application-github.properties: |
+    spring.datasource.url = jdbc:mysql://{{include "apollo.configdb.serviceName" .}}:{{ .Values.configdb.service.port }}/{{ .Values.configdb.dbName }}{{ if .Values.configdb.connectionStringProperties }}?{{ .Values.configdb.connectionStringProperties }}{{ end }}
+    spring.datasource.username = {{ required "configdb.userName is required!" .Values.configdb.userName }}
+    spring.datasource.password = {{ required "configdb.password is required!" .Values.configdb.password }}
+    apollo.config-service.url = {{ include "apollo.configService.serviceUrl" .}}
+    apollo.admin-service.url = {{ include "apollo.adminService.serviceUrl" .}}
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $configServiceFullName }}
+  labels:
+    {{- include "apollo.service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.configService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $configServiceFullName }}
+  {{- with .Values.configService.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $configServiceFullName }}
+    spec:
+      {{- with .Values.configService.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: volume-configmap-{{ $configServiceFullName }}
+          configMap:
+            name: {{ $configServiceFullName }}
+            items:
+              - key: application-github.properties
+                path: application-github.properties
+            defaultMode: 420
+      containers:
+        - name: {{ .Values.configService.name }}
+          image: "{{ .Values.configService.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.configService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.configService.containerPort }}
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.configService.config.profiles | quote }}
+          {{- range $key, $value := .Values.configService.env }}
+            - name: {{ $key }}
+              value: {{ $value }}
+          {{- end }}
+          volumeMounts:
+            - name: volume-configmap-{{ $configServiceFullName }}
+              mountPath: /apollo-configservice/config/application-github.properties
+              subPath: application-github.properties
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.configService.containerPort }}
+            initialDelaySeconds: {{ .Values.configService.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.configService.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.configService.containerPort }}
+            initialDelaySeconds: {{ .Values.configService.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.configService.readiness.periodSeconds }}
+          resources:
+            {{- toYaml .Values.configService.resources | nindent 12 }}
+    {{- with .Values.configService.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.configService.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.configService.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

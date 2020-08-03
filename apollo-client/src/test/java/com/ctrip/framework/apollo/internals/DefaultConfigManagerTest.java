@@ -9,6 +9,7 @@ import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import java.util.Properties;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,11 +30,15 @@ public class DefaultConfigManagerTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.reset();
     MockInjector.setInstance(ConfigFactoryManager.class, new MockConfigFactoryManager());
     MockInjector.setInstance(ConfigUtil.class, new ConfigUtil());
     defaultConfigManager = new DefaultConfigManager();
     someConfigContent = "someContent";
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

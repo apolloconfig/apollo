@@ -168,9 +168,15 @@ public class ReleaseController {
   @Transactional
   @PutMapping("/releases/{releaseId}/rollback")
   public void rollback(@PathVariable("releaseId") long releaseId,
+                       @RequestParam(name="toReleaseId", defaultValue = "-1") long toReleaseId,
                        @RequestParam("operator") String operator) {
 
-    Release release = releaseService.rollback(releaseId, operator);
+    Release release;
+    if (toReleaseId > -1) {
+      release = releaseService.rollbackTo(releaseId, toReleaseId, operator);
+    } else {
+      release = releaseService.rollback(releaseId, operator);
+    }
 
     String appId = release.getAppId();
     String clusterName = release.getClusterName();

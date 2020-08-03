@@ -11,6 +11,7 @@ import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.ctrip.framework.apollo.util.yaml.YamlParser;
 import java.util.Properties;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,6 @@ public class YamlConfigFileTest {
   public void setUp() throws Exception {
     someNamespace = "someName";
 
-    MockInjector.reset();
     MockInjector.setInstance(YamlParser.class, yamlParser);
 
     when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
@@ -46,6 +46,11 @@ public class YamlConfigFileTest {
       }
     });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

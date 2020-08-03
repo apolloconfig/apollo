@@ -421,6 +421,9 @@ INSERT INTO `ReleaseHistory` (`AppId`, `ClusterName`, `NamespaceName`, `BranchNa
 VALUES
   ('SampleApp', 'default', 'application', 'default', 1, 0, 0, '{}', 'apollo', 'apollo');
 
+INSERT INTO `ReleaseMessage` (`Message`)
+VALUES
+	('SampleApp+default+application');
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

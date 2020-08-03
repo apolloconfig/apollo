@@ -25,6 +25,8 @@ public interface ReleaseRepository extends PagingAndSortingRepository<Release, L
 
   List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(String appId, String clusterName, String namespaceName, Pageable page);
 
+  List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(String appId, String clusterName, String namespaceName, long fromId, long toId);
+
   List<Release> findByReleaseKeyIn(Set<String> releaseKey);
 
   List<Release> findByIdIn(Set<Long> releaseIds);

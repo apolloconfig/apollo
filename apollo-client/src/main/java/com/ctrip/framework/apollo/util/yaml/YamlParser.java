@@ -13,7 +13,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.parser.ParserException;
 
@@ -147,7 +147,10 @@ public class YamlParser {
     void process(Properties properties, Map<String, Object> map);
   }
 
-  private static class StrictMapAppenderConstructor extends Constructor {
+  /**
+   * A specialized {@link SafeConstructor} that checks for duplicate keys.
+   */
+  private static class StrictMapAppenderConstructor extends SafeConstructor {
 
     // Declared as public for use in subclasses
     StrictMapAppenderConstructor() {

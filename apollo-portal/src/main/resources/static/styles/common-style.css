@@ -679,6 +679,11 @@ table th {
     padding: 15px;
 }
 
+.release-history .panel-heading button img {
+    width: 12px;
+    height: 12px;
+}
+
 .empty-container {
     padding: 15px;
 }

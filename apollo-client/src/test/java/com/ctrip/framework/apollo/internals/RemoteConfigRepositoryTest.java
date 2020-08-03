@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +81,6 @@ public class RemoteConfigRepositoryTest {
 
     when(pollResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_NOT_MODIFIED);
 
-    MockInjector.reset();
     configUtil = new MockConfigUtil();
     MockInjector.setInstance(ConfigUtil.class, configUtil);
 
@@ -109,6 +109,11 @@ public class RemoteConfigRepositoryTest {
 
     someAppId = "someAppId";
     someCluster = "someCluster";
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

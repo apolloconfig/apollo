@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -334,10 +335,9 @@ public class NotificationControllerV2Test {
     //in batch mode, at most one of them should have result
     assertFalse(deferredResult.hasResult() && anotherDeferredResult.hasResult());
 
-    TimeUnit.MILLISECONDS.sleep(someBatchInterval * 10);
-
     //now both of them should have result
-    assertTrue(deferredResult.hasResult() && anotherDeferredResult.hasResult());
+    await().atMost(someBatchInterval * 500, TimeUnit.MILLISECONDS).untilAsserted(
+        () -> assertTrue(deferredResult.hasResult() && anotherDeferredResult.hasResult()));
   }
 
   @Test

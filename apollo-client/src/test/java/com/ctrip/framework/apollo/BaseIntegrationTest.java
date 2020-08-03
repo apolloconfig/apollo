@@ -67,12 +67,18 @@ public abstract class BaseIntegrationTest {
     refreshTimeUnit = TimeUnit.MINUTES;
     propertiesOrderEnabled = false;
 
+    MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
+  }
+
+  @After
+  public void tearDown() throws Exception {
     //as ConfigService is singleton, so we must manually clear its container
     ConfigService.reset();
     MockInjector.reset();
-    MockInjector.setDelegate(new DefaultInjector());
 
-    MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
+    if (server != null && server.isStarted()) {
+      server.stop();
+    }
   }
 
   /**
@@ -92,13 +98,6 @@ public abstract class BaseIntegrationTest {
     server.start();
 
     return server;
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (server != null && server.isStarted()) {
-      server.stop();
-    }
   }
 
   protected ContextHandler mockMetaServerHandler() {

@@ -77,6 +77,7 @@ public class CtripUserService implements UserService {
     return userInfoList.get(0);
   }
 
+  @Override
   public List<UserInfo> findByUserIds(List<String> userIds) {
     UserServiceRequest request = assembleFindUserRequest(Lists.newArrayList(userIds));
 

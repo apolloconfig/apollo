@@ -347,6 +347,12 @@ public class AdminServiceAPI {
           "releases/{releaseId}/rollback?operator={operator}",
           null, releaseId, operator);
     }
+
+    public void rollbackTo(Env env, long releaseId, long toReleaseId, String operator) {
+      restTemplate.put(env,
+              "releases/{releaseId}/rollback?toReleaseId={toReleaseId}&operator={operator}",
+              null, releaseId, toReleaseId, operator);
+    }
   }
 
   @Service

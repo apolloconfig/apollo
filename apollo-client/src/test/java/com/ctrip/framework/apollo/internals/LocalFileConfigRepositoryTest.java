@@ -59,7 +59,6 @@ public class LocalFileConfigRepositoryTest {
     when(upstreamRepo.getConfig()).thenReturn(someProperties);
     when(upstreamRepo.getSourceType()).thenReturn(someSourceType);
 
-    MockInjector.reset();
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
     PropertiesFactory propertiesFactory = mock(PropertiesFactory.class);
     when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
@@ -73,6 +72,7 @@ public class LocalFileConfigRepositoryTest {
 
   @After
   public void tearDown() throws Exception {
+    MockInjector.reset();
     recursiveDelete(someBaseDir);
   }
 

@@ -59,6 +59,6 @@ public class MockInjector implements Injector {
   public static void reset() {
     classMap.clear();
     classTable.clear();
-    delegate = null;
+    delegate = new DefaultInjector();
   }
 }

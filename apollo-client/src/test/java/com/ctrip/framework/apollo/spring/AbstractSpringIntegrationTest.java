@@ -147,12 +147,12 @@ public abstract class AbstractSpringIntegrationTest {
     ReflectionUtils.invokeMethod(PROPERTY_SOURCES_PROCESSOR_RESET, null);
     DefaultInjector defaultInjector = new DefaultInjector();
     ConfigManager defaultConfigManager = defaultInjector.getInstance(ConfigManager.class);
-    MockInjector.reset();
     MockInjector.setInstance(ConfigManager.class, new MockConfigManager(defaultConfigManager));
     MockInjector.setDelegate(defaultInjector);
   }
 
   protected static void doTearDown() {
+    MockInjector.reset();
     CONFIG_REGISTRY.clear();
   }
 

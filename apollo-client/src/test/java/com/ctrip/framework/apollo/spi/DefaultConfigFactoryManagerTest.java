@@ -5,6 +5,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,9 +22,13 @@ public class DefaultConfigFactoryManagerTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.reset();
     MockInjector.setInstance(ConfigRegistry.class, new MockConfigRegistry());
     defaultConfigFactoryManager = new DefaultConfigFactoryManager();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

@@ -1,0 +1,90 @@
+---
+# configmap for apollo-adminservice
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  {{- $adminServiceFullName := include "apollo.adminService.fullName" . }}
+  name: {{ $adminServiceFullName }}
+data:
+  application-github.properties: |
+    spring.datasource.url = jdbc:mysql://{{include "apollo.configdb.serviceName" .}}:{{ .Values.configdb.service.port }}/{{ .Values.configdb.dbName }}{{ if .Values.configdb.connectionStringProperties }}?{{ .Values.configdb.connectionStringProperties }}{{ end }}
+    spring.datasource.username = {{ required "configdb.userName is required!" .Values.configdb.userName }}
+    spring.datasource.password = {{ required "configdb.password is required!" .Values.configdb.password }}
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ $adminServiceFullName }}
+  labels:
+    {{- include "apollo.service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.adminService.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $adminServiceFullName }}
+  {{- with .Values.adminService.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        app: {{ $adminServiceFullName }}
+    spec:
+      {{- with .Values.adminService.imagePullSecrets }}
+        imagePullSecrets:
+          {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: volume-configmap-{{ $adminServiceFullName }}
+          configMap:
+            name: {{ $adminServiceFullName }}
+            items:
+              - key: application-github.properties
+                path: application-github.properties
+            defaultMode: 420
+      containers:
+        - name: {{ .Values.adminService.name }}
+          image: "{{ .Values.adminService.image.repository }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.adminService.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.adminService.containerPort }}
+              protocol: TCP
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.adminService.config.profiles | quote }}
+          {{- range $key, $value := .Values.adminService.env }}
+            - name: {{ $key }}
+              value: {{ $value }}
+          {{- end }}
+          volumeMounts:
+            - name: volume-configmap-{{ $adminServiceFullName }}
+              mountPath: /apollo-adminservice/config/application-github.properties
+              subPath: application-github.properties
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.adminService.containerPort }}
+            initialDelaySeconds: {{ .Values.adminService.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.adminService.liveness.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.adminService.containerPort }}
+            initialDelaySeconds: {{ .Values.adminService.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.adminService.readiness.periodSeconds }}
+          resources:
+            {{- toYaml .Values.adminService.resources | nindent 12 }}
+    {{- with .Values.adminService.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.adminService.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.adminService.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

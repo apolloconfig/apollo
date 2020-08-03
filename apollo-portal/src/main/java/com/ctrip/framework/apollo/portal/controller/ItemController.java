@@ -33,6 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkModel;
 
@@ -214,7 +219,8 @@ public class ItemController {
       @PathVariable String namespaceName) {
     configService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName);
   }
-  private void doSyntaxCheck(NamespaceTextModel model) {
+
+  void doSyntaxCheck(NamespaceTextModel model) {
     if (StringUtils.isBlank(model.getConfigText())) {
       return;
     }
@@ -225,7 +231,7 @@ public class ItemController {
     }
 
     // use YamlPropertiesFactoryBean to check the yaml syntax
-    YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
+    TypeLimitedYamlPropertiesFactoryBean yamlPropertiesFactoryBean = new TypeLimitedYamlPropertiesFactoryBean();
     yamlPropertiesFactoryBean.setResources(new ByteArrayResource(model.getConfigText().getBytes()));
     // this call converts yaml to properties and will throw exception if the conversion fails
     yamlPropertiesFactoryBean.getObject();
@@ -235,5 +241,14 @@ public class ItemController {
     return Objects.nonNull(item) && !StringUtils.isContainEmpty(item.getKey());
   }
 
+  private static class TypeLimitedYamlPropertiesFactoryBean extends YamlPropertiesFactoryBean {
+    @Override
+    protected Yaml createYaml() {
+      LoaderOptions loaderOptions = new LoaderOptions();
+      loaderOptions.setAllowDuplicateKeys(false);
+      return new Yaml(new SafeConstructor(), new Representer(),
+          new DumperOptions(), loaderOptions);
+    }
+  }
 
 }

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
  */
 public class ConfigToFileUtils {
 
+  @Deprecated
   public static void itemsToFile(OutputStream os, List<String> items) {
     try {
       PrintWriter printWriter = new PrintWriter(os);

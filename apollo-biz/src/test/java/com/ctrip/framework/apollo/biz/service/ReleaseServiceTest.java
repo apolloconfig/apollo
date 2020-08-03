@@ -9,6 +9,7 @@ import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
@@ -108,6 +109,38 @@ public class ReleaseServiceTest extends AbstractUnitTest {
     Assert.assertEquals(user, firstRelease.getDataChangeLastModifiedBy());
   }
 
+  @Test
+  public void testRollbackTo() {
+    List<Release> releaseList = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      Release release = new Release();
+      release.setId(3 - i);
+      release.setAppId(appId);
+      release.setClusterName(clusterName);
+      release.setNamespaceName(namespaceName);
+      release.setAbandoned(false);
+      releaseList.add(release);
+    }
+    long releaseId1 = 1;
+    long releaseId3 = 3;
+    when(releaseRepository.findById(releaseId1)).thenReturn(Optional.of(releaseList.get(2)));
+    when(releaseRepository.findById(releaseId3)).thenReturn(Optional.of(releaseList.get(0)));
+    when(releaseRepository.findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(appId,
+                                                                                                                 clusterName,
+                                                                                                                 namespaceName,
+                                                                                                                 releaseId1,
+                                                                                                                 releaseId3))
+        .thenReturn(releaseList);
+
+    releaseService.rollbackTo(releaseId3, releaseId1, user);
+
+    verify(releaseRepository).saveAll(releaseList);
+    Assert.assertTrue(releaseList.get(0).isAbandoned());
+    Assert.assertTrue(releaseList.get(1).isAbandoned());
+    Assert.assertFalse(releaseList.get(2).isAbandoned());
+    Assert.assertEquals(user, releaseList.get(0).getDataChangeLastModifiedBy());
+    Assert.assertEquals(user, releaseList.get(1).getDataChangeLastModifiedBy());
+  }
 
   @Test
   public void testFindRelease() throws Exception {

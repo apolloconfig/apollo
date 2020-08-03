@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,8 +62,6 @@ public class RemoteConfigLongPollServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.reset();
-
     MockInjector.setInstance(HttpUtil.class, httpUtil);
 
     someServerUrl = "http://someServer";
@@ -80,6 +79,11 @@ public class RemoteConfigLongPollServiceTest {
 
     someAppId = "someAppId";
     someCluster = "someCluster";
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

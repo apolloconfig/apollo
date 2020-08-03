@@ -1,5 +1,9 @@
 appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($resource, $q,AppUtil) {
     var resource = $resource('', {}, {
+        get: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/envs/:env/releases/:releaseId'
+        },
         find_all_releases: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/all',
@@ -24,7 +28,7 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
         },
         rollback: {
             method: 'PUT',
-            url: "envs/:env/releases/:releaseId/rollback"
+            url: AppUtil.prefixPath() + "/envs/:env/releases/:releaseId/rollback"
         }
     });
 
@@ -60,6 +64,19 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
                                   releaseComment: comment,
                                   isEmergencyPublish: isEmergencyPublish
                               }, function (result) {
+            d.resolve(result);
+        }, function (result) {
+            d.reject(result);
+        });
+        return d.promise;
+    }
+
+    function get(env, releaseId) {
+        var d = $q.defer();
+        resource.get({
+                         env: env,
+                         releaseId: releaseId
+                         }, function (result) {
             d.resolve(result);
         }, function (result) {
             d.reject(result);
@@ -153,13 +170,31 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
 
     }
 
+    function rollbackTo(env, releaseId, toReleaseId) {
+        var d = $q.defer();
+        resource.rollback({
+                              env: env,
+                              releaseId: releaseId,
+                              toReleaseId: toReleaseId
+                          }, {}, function (result) {
+                              d.resolve(result);
+                          }, function (result) {
+                              d.reject(result);
+                          }
+        );
+        return d.promise;
+
+    }
+
     return {
         publish: createRelease,
         grayPublish: createGrayRelease,
+        get: get,
         findAllRelease: findAllReleases,
         findActiveReleases: findActiveReleases,
         findLatestActiveRelease: findLatestActiveRelease,
         compare: compare,
-        rollback: rollback
+        rollback: rollback,
+        rollbackTo: rollbackTo
     }
 }]);

@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: github-ci
+name: build
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jdk: [7, 11]
+        jdk: [7, 8, 11]
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK
@@ -32,6 +32,14 @@ jobs:
     - name: Build SDK with JDK 7
       if: matrix.jdk == '7'
       run: mvn clean compile -pl apollo-client,apollo-mockserver,apollo-openapi -am -Dmaven.gitcommitid.skip=true
-    - name: Full Build
-      if: matrix.jdk != '7'
+    - name: JDK 8
+      if: matrix.jdk == '8'
+      run: mvn -B package -P travis jacoco:report -Dmaven.gitcommitid.skip=true
+    - name: JDK 11 
+      if: matrix.jdk == '11'
       run: mvn clean compile -Dmaven.gitcommitid.skip=true
+    - name: Upload coverage to Codecov
+      if: matrix.jdk == '8'
+      uses: codecov/codecov-action@v1
+      with:
+        file: ${{ github.workspace }}/apollo-*/target/site/jacoco/jacoco.xml

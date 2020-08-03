@@ -143,6 +143,10 @@ public class ReleaseService {
     releaseAPI.rollback(env, releaseId, operator);
   }
 
+  public void rollbackTo(Env env, long releaseId, long toReleaseId, String operator) {
+    releaseAPI.rollbackTo(env, releaseId, toReleaseId, operator);
+  }
+
   public ReleaseCompareResult compare(Env env, long baseReleaseId, long toCompareReleaseId) {
 
     ReleaseDTO baseRelease = null;

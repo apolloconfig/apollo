@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -172,19 +173,19 @@ public class ReleaseMessageServiceWithCacheTest {
     when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(someMessageId)).thenReturn(Lists
         .newArrayList(newMessage));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
+    await().atMost(scanInterval * 500, scanIntervalTimeUnit).untilAsserted(() -> {
+      ReleaseMessage newLatestReleaseMsg =
+          releaseMessageServiceWithCache
+              .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
 
-    ReleaseMessage newLatestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
+      List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent =
+          releaseMessageServiceWithCache
+              .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
 
-    List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
-
-    assertEquals(newMessageId, newLatestReleaseMsg.getId());
-    assertEquals(someMessageContent, newLatestReleaseMsg.getMessage());
-    assertEquals(newLatestReleaseMsg, newLatestReleaseMsgGroupByMsgContent.get(0));
+      assertEquals(newMessageId, newLatestReleaseMsg.getId());
+      assertEquals(someMessageContent, newLatestReleaseMsg.getMessage());
+      assertEquals(newLatestReleaseMsg, newLatestReleaseMsgGroupByMsgContent.get(0));
+    });
   }
 
   @Test

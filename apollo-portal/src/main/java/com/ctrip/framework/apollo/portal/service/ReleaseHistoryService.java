@@ -118,6 +118,7 @@ public class ReleaseHistoryService {
     if (release != null) {
       bo.setReleaseTitle(release.getName());
       bo.setReleaseComment(release.getComment());
+      bo.setReleaseAbandoned(release.isAbandoned());
 
       Map<String, String> configuration = gson.fromJson(release.getConfigurations(), GsonType.CONFIG);
       List<EntityPair<String>> items = new ArrayList<>(configuration.size());

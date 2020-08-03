@@ -1,0 +1,18 @@
+Get meta service url for current release by running these commands:
+{{- if contains "NodePort" .Values.configService.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "apollo.configService.fullName" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.configService.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "apollo.configService.fullName" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "apollo.configService.serviceName" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.configService.service.type }}
+  echo http://{{ include "apollo.configService.serviceName" .}}.{{ .Release.Namespace }}:{{ .Values.configService.service.port }}
+
+For local test use:
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app={{ include "apollo.configService.fullName" . }}" -o jsonpath="{.items[0].metadata.name}")
+  echo http://127.0.0.1:8080
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:8080
+{{- end }}

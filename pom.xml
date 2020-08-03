@@ -5,7 +5,7 @@
 
 	<groupId>com.ctrip.framework.apollo</groupId>
 	<artifactId>apollo</artifactId>
-	<version>1.7.0-SNAPSHOT</version>
+	<version>${revision}</version>
 	<name>Apollo</name>
 	<packaging>pom</packaging>
 	<description>Ctrip Configuration Center</description>
@@ -73,6 +73,7 @@
 	</developers>
 
 	<properties>
+		<revision>1.7.0</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<platform-bom.version>Cairo-SR4</platform-bom.version>
@@ -278,7 +279,7 @@
 			<dependency>
 				<groupId>mysql</groupId>
 				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.46</version>
+				<version>8.0.16</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject</groupId>
@@ -290,6 +291,13 @@
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
 				<version>1.4.191</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>4.0.3</version>
+				<scope>test</scope>
 			</dependency>
 			<!-- declare Spring BOMs in order -->
 			<dependency>
@@ -361,6 +369,11 @@
 					<groupId>org.springframework.boot</groupId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -512,6 +525,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<trimStackTrace>false</trimStackTrace>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -566,6 +582,31 @@
 					<generateGitPropertiesFile>true</generateGitPropertiesFile>
 					<failOnNoGitDirectory>false</failOnNoGitDirectory>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>resolveCiFriendliesOnly</flattenMode>
+				</configuration>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<resources>
@@ -903,7 +944,7 @@
 							<dependency>
 								<groupId>mysql</groupId>
 								<artifactId>mysql-connector-java</artifactId>
-								<version>5.1.46</version>
+								<version>8.0.16</version>
 							</dependency>
 						</dependencies>
 						<configuration>
@@ -926,7 +967,7 @@
 							<dependency>
 								<groupId>mysql</groupId>
 								<artifactId>mysql-connector-java</artifactId>
-								<version>5.1.46</version>
+								<version>8.0.16</version>
 							</dependency>
 						</dependencies>
 						<configuration>

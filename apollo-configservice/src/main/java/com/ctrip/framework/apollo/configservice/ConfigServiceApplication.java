@@ -20,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 
 @EnableAspectJAutoProxy
-@EnableAutoConfiguration // (exclude = EurekaClientConfigBean.class)
+@EnableAutoConfiguration
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:configservice.properties"})

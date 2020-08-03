@@ -75,7 +75,7 @@ public class PortalConfig extends RefreshableConfig {
       // try to parse
       map = gson.fromJson(jsonContent, META_SERVERS);
     } catch (Exception e) {
-      logger.error("wrong format with key: {}", key);
+      logger.error("Wrong format for: {}", key, e);
     }
     return map;
   }

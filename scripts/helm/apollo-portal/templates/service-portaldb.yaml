@@ -1,0 +1,31 @@
+{{- if .Values.portaldb.service.enabled -}}
+---
+# service definition for mysql
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{include "apollo.portaldb.serviceName" .}}
+  labels:
+    {{- include "apollo.portal.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.portaldb.service.type }}
+{{- if eq .Values.portaldb.service.type "ExternalName" }}
+  externalName: {{ required "portaldb.host is required!" .Values.portaldb.host }}
+{{- else }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.portaldb.service.port }}
+      targetPort: {{ .Values.portaldb.port }}
+---
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: {{include "apollo.portaldb.serviceName" .}}
+subsets:
+  - addresses:
+      - ip: {{ required "portaldb.host is required!" .Values.portaldb.host }}
+    ports:
+      - protocol: TCP
+        port: {{ .Values.portaldb.port }}
+{{- end }}
+{{- end }}

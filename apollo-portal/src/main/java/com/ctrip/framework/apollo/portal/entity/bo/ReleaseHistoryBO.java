@@ -32,6 +32,8 @@ public class ReleaseHistoryBO {
 
   private List<EntityPair<String>> configuration;
 
+  private boolean isReleaseAbandoned;
+
   private long previousReleaseId;
 
   private int operation;
@@ -158,5 +160,13 @@ public class ReleaseHistoryBO {
   public void setConfiguration(
       List<EntityPair<String>> configuration) {
     this.configuration = configuration;
+  }
+
+  public boolean isReleaseAbandoned() {
+    return isReleaseAbandoned;
+  }
+
+  public void setReleaseAbandoned(boolean releaseAbandoned) {
+    isReleaseAbandoned = releaseAbandoned;
   }
 }

@@ -1,0 +1,31 @@
+{{- if .Values.configdb.service.enabled -}}
+---
+# service definition for mysql
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{include "apollo.configdb.serviceName" .}}
+  labels:
+    {{- include "apollo.service.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.configdb.service.type }}
+{{- if eq .Values.configdb.service.type "ExternalName" }}
+  externalName: {{ required "configdb.host is required!" .Values.configdb.host }}
+{{- else }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.configdb.service.port }}
+      targetPort: {{ .Values.configdb.port }}
+---
+kind: Endpoints
+apiVersion: v1
+metadata:
+  name: {{include "apollo.configdb.serviceName" .}}
+subsets:
+  - addresses:
+      - ip: {{ required "configdb.host is required!" .Values.configdb.host }}
+    ports:
+      - protocol: TCP
+        port: {{ .Values.configdb.port }}
+{{- end }}
+{{- end }}

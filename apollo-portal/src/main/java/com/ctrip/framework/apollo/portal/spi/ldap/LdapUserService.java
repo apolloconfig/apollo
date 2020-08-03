@@ -290,12 +290,10 @@ public class LdapUserService implements UserService {
     if (CollectionUtils.isEmpty(userIds)) {
       return Collections.emptyList();
     }
-    List<UserInfo> userList = new ArrayList<>();
     if (StringUtils.isNotBlank(groupSearch)) {
       List<UserInfo> userListByGroup = searchUserInfoByGroup(groupBase, groupSearch, null,
           userIds);
-      userList.addAll(userListByGroup);
-      return userList;
+      return userListByGroup;
     }
     ContainerCriteria criteria = query().where(loginIdAttrName).is(userIds.get(0));
     userIds.stream().skip(1).forEach(userId -> criteria.or(loginIdAttrName).is(userId));

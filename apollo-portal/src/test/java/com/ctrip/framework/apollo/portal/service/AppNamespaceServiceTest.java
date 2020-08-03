@@ -72,6 +72,7 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     AppNamespace appNamespace = assembleBaseAppNamespace();
     appNamespace.setPublic(true);
     appNamespace.setName("old");
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
 
     appNamespaceService.createAppNamespaceInLocal(appNamespace);
   }
@@ -95,6 +96,7 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     AppNamespace appNamespace = assembleBaseAppNamespace();
     appNamespace.setPublic(true);
     appNamespace.setName("old");
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
 
     AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, false);
 
@@ -109,6 +111,7 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     AppNamespace appNamespace = assembleBaseAppNamespace();
     appNamespace.setPublic(true);
     appNamespace.setName("datasource");
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
 
     appNamespaceService.createAppNamespaceInLocal(appNamespace, false);
   }
@@ -127,6 +130,24 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
   }
+
+  @Test
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testCreatePublicAppNamespaceWithWrongFormatNotExisted() {
+    AppNamespace appNamespace = assembleBaseAppNamespace();
+    appNamespace.setPublic(true);
+    appNamespace.setFormat(ConfigFileFormat.YAML.getValue());
+
+    appNamespaceService.createAppNamespaceInLocal(appNamespace);
+
+    AppNamespace createdAppNamespace = appNamespaceService.findPublicAppNamespace(appNamespace.getName());
+
+    Assert.assertNotNull(createdAppNamespace);
+    Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
+    Assert.assertEquals(ConfigFileFormat.Properties.getValue(), createdAppNamespace.getFormat());
+  }
+
 
   @Test(expected = BadRequestException.class)
   @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)

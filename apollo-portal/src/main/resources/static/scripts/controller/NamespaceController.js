@@ -133,6 +133,11 @@ namespace_module.controller("LinkNamespaceController",
                         return;
                     }
 
+                    // public namespaces only allow properties format
+                    if ($scope.appNamespace.isPublic) {
+                        $scope.appNamespace.format = 'properties';
+                    }
+
                     $scope.submitBtnDisabled = true;
                     //only append namespace prefix for public app namespace
                     var appendNamespacePrefix = shouldAppendNamespacePrefix();

@@ -3,6 +3,7 @@ package com.ctrip.framework.apollo.configservice.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
+import static org.awaitility.Awaitility.*;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
@@ -10,6 +11,7 @@ import com.ctrip.framework.apollo.biz.repository.AccessKeyRepository;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import org.awaitility.Awaitility;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +42,10 @@ public class AccessKeyServiceWithCacheTest {
     when(bizConfig.accessKeyCacheScanIntervalTimeUnit()).thenReturn(scanIntervalTimeUnit);
     when(bizConfig.accessKeyCacheRebuildInterval()).thenReturn(scanInterval);
     when(bizConfig.accessKeyCacheRebuildIntervalTimeUnit()).thenReturn(scanIntervalTimeUnit);
+
+    Awaitility.reset();
+    Awaitility.setDefaultTimeout(scanInterval * 100, scanIntervalTimeUnit);
+    Awaitility.setDefaultPollInterval(scanInterval, scanIntervalTimeUnit);
   }
 
   @Test
@@ -63,8 +69,7 @@ public class AccessKeyServiceWithCacheTest {
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty();
+    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
 
     // Update access key, enable both of them
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", true, false, 1577808002000L);
@@ -74,8 +79,8 @@ public class AccessKeyServiceWithCacheTest {
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).containsExactly("secret-1", "secret-2");
+    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
+        .containsExactly("secret-1", "secret-2"));
 
     // Update access key, disable the first one
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false, false, 1577808004000L);
@@ -84,15 +89,15 @@ public class AccessKeyServiceWithCacheTest {
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).containsExactly("secret-2");
+    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
+        .containsExactly("secret-2"));
 
     // Delete access key, delete the second one
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty();
+    await().untilAsserted(
+        () -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
 
     // Add new access key in runtime, enable by default
     when(accessKeyRepository.findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(new Date(1577808004000L)))
@@ -100,8 +105,8 @@ public class AccessKeyServiceWithCacheTest {
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, thirdAccessKey));
 
-    scanIntervalTimeUnit.sleep(scanInterval * 10);
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).containsExactly("secret-3");
+    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
+        .containsExactly("secret-3"));
   }
 
   public AccessKey assembleAccessKey(Long id, String appId, String secret, boolean enabled,

@@ -122,7 +122,7 @@ public class NamespaceService {
       String namespaceName) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException("namespaces not exist");
+      throw new BadRequestException(String.format("Namespace: %s not exist.", namespaceName));
     }
     return namespace;
   }
@@ -256,20 +256,24 @@ public class NamespaceService {
 
   private void fillAppNamespaceProperties(NamespaceBO namespace) {
 
-    NamespaceDTO namespaceDTO = namespace.getBaseInfo();
+    final NamespaceDTO namespaceDTO = namespace.getBaseInfo();
+    final String appId = namespaceDTO.getAppId();
+    final String clusterName = namespaceDTO.getClusterName();
+    final String namespaceName = namespaceDTO.getNamespaceName();
     //先从当前appId下面找,包含私有的和公共的
     AppNamespace appNamespace =
         appNamespaceService
-            .findByAppIdAndName(namespaceDTO.getAppId(), namespaceDTO.getNamespaceName());
+            .findByAppIdAndName(appId, namespaceName);
     //再从公共的app namespace里面找
     if (appNamespace == null) {
-      appNamespace = appNamespaceService.findPublicAppNamespace(namespaceDTO.getNamespaceName());
+      appNamespace = appNamespaceService.findPublicAppNamespace(namespaceName);
     }
 
-    String format;
-    boolean isPublic;
+    final String format;
+    final boolean isPublic;
     if (appNamespace == null) {
       //dirty data
+      logger.warn("Dirty data, cannot find appNamespace by namespaceName [{}], appId = {}, cluster = {}, set it format to {}, make public", namespaceName, appId, clusterName, ConfigFileFormat.Properties.getValue());
       format = ConfigFileFormat.Properties.getValue();
       isPublic = true; // set to true, because public namespace allowed to delete by user
     } else {

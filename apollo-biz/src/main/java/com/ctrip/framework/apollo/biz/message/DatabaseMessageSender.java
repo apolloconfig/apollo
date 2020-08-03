@@ -44,7 +44,7 @@ public class DatabaseMessageSender implements MessageSender {
   public void sendMessage(String message, String channel) {
     logger.info("Sending message {} to channel {}", message, channel);
     if (!Objects.equals(channel, Topics.APOLLO_RELEASE_TOPIC)) {
-      logger.warn("Channel {} not supported by DatabaseMessageSender!");
+      logger.warn("Channel {} not supported by DatabaseMessageSender!", channel);
       return;
     }
 
@@ -82,12 +82,12 @@ public class DatabaseMessageSender implements MessageSender {
   }
 
   private void cleanMessage(Long id) {
-    boolean hasMore = true;
     //double check in case the release message is rolled back
     ReleaseMessage releaseMessage = releaseMessageRepository.findById(id).orElse(null);
     if (releaseMessage == null) {
       return;
     }
+    boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
       List<ReleaseMessage> messages = releaseMessageRepository.findFirst100ByMessageAndIdLessThanOrderByIdAsc(
           releaseMessage.getMessage(), releaseMessage.getId());

@@ -1,0 +1,4 @@
+root:
+  key1: "someValue"
+  key2: 100
+  key1: "anotherValue"

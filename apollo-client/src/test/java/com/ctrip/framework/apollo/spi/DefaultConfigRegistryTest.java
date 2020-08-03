@@ -20,7 +20,6 @@ public class DefaultConfigRegistryTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.reset();
     defaultConfigRegistry = new DefaultConfigRegistry();
   }
 

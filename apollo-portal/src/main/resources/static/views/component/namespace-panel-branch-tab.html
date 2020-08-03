@@ -5,7 +5,8 @@
 
         <div class="row">
             <div class="col-md-6 col-sm-6 header-namespace">
-                <b class="namespace-name" ng-bind="namespace.viewName"></b>
+                <b class="namespace-name" ng-bind="namespace.viewName"
+                   data-tooltip="tooltip" data-placement="bottom" title="{{namespace.comment}}"></b>
                 <span class="label label-warning no-radius namespace-label"
                     ng-show="namespace.branch.itemModifiedCnt > 0">{{'Component.Namespace.Branch.IsChanged' | translate }}
                     <span class="badge label badge-white namespace-label"
@@ -31,7 +32,7 @@
                     {{'Component.Namespace.Branch.AllPublish' | translate }}
                 </a>
                 <a type="button" class="btn btn-warning btn-sm" data-tooltip="tooltip" data-placement="bottom"
-                    title="{{'Component.Namespace.Branch.DiscardGrayscaleVesion' | translate }}" ng-show="(namespace.hasReleasePermission
+                    title="{{'Component.Namespace.Branch.DiscardGrayscaleVersion' | translate }}" ng-show="(namespace.hasReleasePermission
                        || (!namespace.branch.latestRelease && namespace.hasModifyPermission))"
                     ng-click="preDeleteBranch(namespace.branch)">
                     {{'Component.Namespace.Branch.DiscardGrayscale' | translate }}

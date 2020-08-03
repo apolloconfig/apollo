@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
 import java.util.Properties;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -43,9 +44,13 @@ public class DefaultConfigFactoryTest {
   public void setUp() throws Exception {
     someAppId = "someId";
     someEnv = Env.DEV;
-    MockInjector.reset();
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
     defaultConfigFactory = spy(new DefaultConfigFactory());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
   }
 
   @Test

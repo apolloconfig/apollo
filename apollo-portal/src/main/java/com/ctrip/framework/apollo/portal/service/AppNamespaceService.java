@@ -111,6 +111,11 @@ public class AppNamespaceService {
       throw new BadRequestException("App not exist. AppId = " + appId);
     }
 
+    // public namespaces only allow properties format
+    if (appNamespace.isPublic()) {
+      appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
+    }
+
     StringBuilder appNamespaceName = new StringBuilder();
     //add prefix postfix
     appNamespaceName

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import java.util.Set;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,11 +27,14 @@ public class ConfigServiceTest {
   public void setUp() throws Exception {
     someAppId = "someAppId";
 
+    MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
+  }
+
+  @After
+  public void tearDown() throws Exception {
     //as ConfigService is singleton, so we must manually clear its container
     ConfigService.reset();
     MockInjector.reset();
-    MockInjector.setDelegate(new DefaultInjector());
-    MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
   }
 
   @Test

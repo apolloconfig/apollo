@@ -80,6 +80,7 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
 
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, applicationConfig);
     mockConfig(FX_APOLLO_NAMESPACE, fxApolloConfig);
+    prepareYamlConfigFile(APPLICATION_YAML_NAMESPACE, readYamlContentAsConfigFileProperties("case9.yml"));
 
     TestApolloChildConfigBean bean = getBean(TestApolloChildConfigBean.class, AppConfig6.class);
 

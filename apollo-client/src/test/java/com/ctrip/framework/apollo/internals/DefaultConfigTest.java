@@ -60,7 +60,6 @@ public class DefaultConfigTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.reset();
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
 
     propertiesFactory = mock(PropertiesFactory.class);
@@ -80,6 +79,7 @@ public class DefaultConfigTest {
 
   @After
   public void tearDown() throws Exception {
+    MockInjector.reset();
     recursiveDelete(someResourceDir);
   }
 

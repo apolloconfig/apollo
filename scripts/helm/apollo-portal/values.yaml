@@ -1,0 +1,66 @@
+name: apollo-portal
+fullNameOverride: ""
+replicaCount: 2
+containerPort: 8070
+image:
+  repository: apolloconfig/apollo-portal
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+service:
+  fullNameOverride: ""
+  port: 8070
+  targetPort: 8070
+  type: ClusterIP
+  sessionAffinity: ClientIP
+ingress:
+  enabled: false
+  annotations: {}
+  hosts:
+    - host: ""
+      paths: []
+  tls: []
+liveness:
+  initialDelaySeconds: 100
+  periodSeconds: 10
+readiness:
+  initialDelaySeconds: 30
+  periodSeconds: 5
+# environment variables passed to the container, e.g. JAVA_OPTS
+env: {}
+strategy: {}
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+config:
+  # spring profiles to activate
+  profiles: "github,auth"
+  # specify the env names, e.g. dev,pro
+  envs: ""
+  # specify the meta servers, e.g.
+  # dev: http://apollo-configservice-dev:8080
+  # pro: http://apollo-configservice-pro:8080
+  metaServers: {}
+  # specify the context path, e.g. /apollo
+  contextPath: ""
+  # extra config files for apollo-portal, e.g. application-ldap.yml
+  files: {}
+
+portaldb:
+  name: apollo-portaldb
+  # apolloportaldb host
+  host:
+  port: 3306
+  dbName: ApolloPortalDB
+  # apolloportaldb user name
+  userName:
+  # apolloportaldb password
+  password:
+  connectionStringProperties: characterEncoding=utf8
+  service:
+    # whether to create a Service for this host or not
+    enabled: false
+    fullNameOverride: ""
+    port: 3306
+    type: ClusterIP
