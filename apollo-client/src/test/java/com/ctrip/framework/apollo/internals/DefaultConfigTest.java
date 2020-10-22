@@ -286,9 +286,9 @@ public class DefaultConfigTest {
     String someStringValue = "someStringValue";
 
     String someKey = "someKey";
-    Long someValue = 2l;
+    Long someValue = 2L;
 
-    Long someDefaultValue = -1l;
+    Long someDefaultValue = -1L;
 
     //set up config repo
     someProperties = new Properties();

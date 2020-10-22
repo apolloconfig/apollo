@@ -61,7 +61,7 @@ public class ApolloThreadFactory implements ThreadFactory {
     return false;
   }
 
-  private static interface ClassifyStandard<T> {
+  private interface ClassifyStandard<T> {
     boolean satisfy(T thread);
   }
 

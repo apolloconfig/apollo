@@ -24,9 +24,8 @@ import java.util.Set;
 @Service
 public class ReleaseHistoryService {
 
-  private Gson gson = new Gson();
-
-
+  private final static Gson GSON = new Gson();
+  
   private final AdminServiceAPI.ReleaseHistoryAPI releaseHistoryAPI;
   private final ReleaseService releaseService;
 
@@ -120,7 +119,7 @@ public class ReleaseHistoryService {
       bo.setReleaseComment(release.getComment());
       bo.setReleaseAbandoned(release.isAbandoned());
 
-      Map<String, String> configuration = gson.fromJson(release.getConfigurations(), GsonType.CONFIG);
+      Map<String, String> configuration = GSON.fromJson(release.getConfigurations(), GsonType.CONFIG);
       List<EntityPair<String>> items = new ArrayList<>(configuration.size());
       for (Map.Entry<String, String> entry : configuration.entrySet()) {
         EntityPair<String> entityPair = new EntityPair<>(entry.getKey(), entry.getValue());

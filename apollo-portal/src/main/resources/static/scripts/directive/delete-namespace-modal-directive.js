@@ -58,7 +58,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                             var masterUsers = [];
 
                             appRoleUsers.masterUsers.forEach(function (user) {
-                                masterUsers.push(user.userId);
+                                masterUsers.push(_.escape(user.userId));
 
                                 if (currentUser.userId == user.userId) {
                                     isAppMasterUser = true;

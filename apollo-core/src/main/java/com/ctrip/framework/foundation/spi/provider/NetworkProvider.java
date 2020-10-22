@@ -7,10 +7,10 @@ public interface NetworkProvider extends Provider {
   /**
    * @return the host address, i.e. ip
    */
-  public String getHostAddress();
+  String getHostAddress();
 
   /**
    * @return the host name
    */
-  public String getHostName();
+  String getHostName();
 }

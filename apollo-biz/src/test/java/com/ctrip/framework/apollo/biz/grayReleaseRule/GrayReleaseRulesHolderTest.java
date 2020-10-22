@@ -43,7 +43,7 @@ public class GrayReleaseRulesHolderTest {
   private BizConfig bizConfig;
   @Mock
   private GrayReleaseRuleRepository grayReleaseRuleRepository;
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private AtomicLong idCounter;
 
   @Before
@@ -145,7 +145,7 @@ public class GrayReleaseRulesHolderTest {
     rule.setClusterName(clusterName);
     rule.setNamespaceName(namespaceName);
     rule.setBranchName("someBranch");
-    rule.setRules(gson.toJson(ruleItems));
+    rule.setRules(GSON.toJson(ruleItems));
     rule.setReleaseId(releaseId);
     rule.setBranchStatus(branchStatus);
 

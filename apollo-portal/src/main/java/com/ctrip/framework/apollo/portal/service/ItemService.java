@@ -37,7 +37,7 @@ import java.util.Map;
 
 @Service
 public class ItemService {
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
@@ -176,7 +176,7 @@ public class ItemService {
     Map<String, String> releaseItemDTOs = new HashMap<>();
     ReleaseDTO latestRelease = releaseAPI.loadLatestRelease(appId,env,clusterName,namespaceName);
     if (latestRelease != null) {
-      releaseItemDTOs = gson.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
+      releaseItemDTOs = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
     }
     List<ItemDTO> baseItems = itemAPI.findItems(appId, env, clusterName, namespaceName);
     Map<String, ItemDTO> oldKeyMapItem = BeanUtils.mapByKey("key", baseItems);

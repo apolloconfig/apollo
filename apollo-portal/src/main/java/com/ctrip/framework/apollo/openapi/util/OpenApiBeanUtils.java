@@ -34,7 +34,7 @@ import com.google.gson.Gson;
 
 public class OpenApiBeanUtils {
 
-  private static Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private static Type type = new TypeToken<Map<String, String>>() {}.getType();
 
   public static OpenItemDTO transformFromItemDTO(ItemDTO item) {
@@ -62,7 +62,7 @@ public class OpenApiBeanUtils {
 
     OpenReleaseDTO openReleaseDTO = BeanUtils.transform(OpenReleaseDTO.class, release);
 
-    Map<String, String> configs = gson.fromJson(release.getConfigurations(), type);
+    Map<String, String> configs = GSON.fromJson(release.getConfigurations(), type);
 
     openReleaseDTO.setConfigurations(configs);
     return openReleaseDTO;

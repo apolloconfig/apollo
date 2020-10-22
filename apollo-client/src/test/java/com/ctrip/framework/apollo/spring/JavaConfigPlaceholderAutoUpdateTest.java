@@ -373,7 +373,7 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
     assertEquals(DEFAULT_BATCH, bean.getBatch());
 
     Properties newApplicationProperties = assembleProperties(TIMEOUT_PROPERTY, String.valueOf(initialTimeout),
-        anotherIrrelevantKey, String.valueOf(anotherIrrelevantValue));
+        anotherIrrelevantKey, anotherIrrelevantValue);
 
     applicationConfig.onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newApplicationProperties);
 
@@ -829,8 +829,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
     properties.setProperty("doubleProperty", String.valueOf(someDouble));
     properties.setProperty("byteProperty", String.valueOf(someByte));
     properties.setProperty("booleanProperty", String.valueOf(someBoolean));
-    properties.setProperty("stringProperty", String.valueOf(someString));
-    properties.setProperty("dateFormat", String.valueOf(someDateFormat));
+    properties.setProperty("stringProperty", someString);
+    properties.setProperty("dateFormat", someDateFormat);
     properties.setProperty("dateProperty", simpleDateFormat.format(someDate));
     properties.setProperty("jsonProperty", someJsonProperty);
 
@@ -862,8 +862,8 @@ public class JavaConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegrati
     newProperties.setProperty("doubleProperty", String.valueOf(someNewDouble));
     newProperties.setProperty("byteProperty", String.valueOf(someNewByte));
     newProperties.setProperty("booleanProperty", String.valueOf(someNewBoolean));
-    newProperties.setProperty("stringProperty", String.valueOf(someNewString));
-    newProperties.setProperty("dateFormat", String.valueOf(someDateFormat));
+    newProperties.setProperty("stringProperty", someNewString);
+    newProperties.setProperty("dateFormat", someDateFormat);
     newProperties.setProperty("dateProperty", simpleDateFormat.format(someNewDate));
     newProperties.setProperty("jsonProperty", someNewJsonProperty);
 

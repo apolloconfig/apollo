@@ -32,7 +32,7 @@ import java.util.Set;
 @Service
 public class ReleaseService {
 
-  private static final Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ReleaseAPI releaseAPI;
@@ -101,7 +101,7 @@ public class ReleaseService {
       release.setBaseInfo(releaseDTO);
 
       Set<KVEntity> kvEntities = new LinkedHashSet<>();
-      Map<String, String> configurations = gson.fromJson(releaseDTO.getConfigurations(), GsonType.CONFIG);
+      Map<String, String> configurations = GSON.fromJson(releaseDTO.getConfigurations(), GsonType.CONFIG);
       Set<Map.Entry<String, String>> entries = configurations.entrySet();
       for (Map.Entry<String, String> entry : entries) {
         kvEntities.add(new KVEntity(entry.getKey(), entry.getValue()));
@@ -164,9 +164,9 @@ public class ReleaseService {
 
   public ReleaseCompareResult compare(ReleaseDTO baseRelease, ReleaseDTO toCompareRelease) {
     Map<String, String> baseReleaseConfiguration = baseRelease == null ? new HashMap<>() :
-                                                   gson.fromJson(baseRelease.getConfigurations(), GsonType.CONFIG);
+                                                   GSON.fromJson(baseRelease.getConfigurations(), GsonType.CONFIG);
     Map<String, String> toCompareReleaseConfiguration = toCompareRelease == null ? new HashMap<>() :
-                                                        gson.fromJson(toCompareRelease.getConfigurations(),
+                                                        GSON.fromJson(toCompareRelease.getConfigurations(),
                                                                       GsonType.CONFIG);
 
     ReleaseCompareResult compareResult = new ReleaseCompareResult();

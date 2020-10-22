@@ -6,7 +6,7 @@ function appValdr(valdrProvider) {
         'App': {
             'appId': {
                 'size': {
-                    'max': 32,
+                    'max': 64,
                     'message': 'Valdr.App.AppId.Size'
                 },
                 'required': {

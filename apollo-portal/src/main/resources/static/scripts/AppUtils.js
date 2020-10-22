@@ -56,7 +56,7 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
             if (!query) {
                 //如果不传这个参数或者false则返回到首页(参数出错)
                 if (!notJumpToHomePage) {
-                    $window.location.href = '/index.html';
+                    $window.location.href = prefixLocation + '/index.html';
                 } else {
                     return {};
                 }

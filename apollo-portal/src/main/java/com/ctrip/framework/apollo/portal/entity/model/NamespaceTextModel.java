@@ -30,7 +30,7 @@ public class NamespaceTextModel implements Verifiable {
   }
 
   public Env getEnv() {
-    return Env.fromString(env);
+    return Env.valueOf(env);
   }
 
   public void setEnv(String env) {

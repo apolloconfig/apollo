@@ -24,5 +24,5 @@ public interface PropertiesFactory {
    *
    * @return
    */
-  public Properties getPropertiesInstance();
+  Properties getPropertiesInstance();
 }

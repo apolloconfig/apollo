@@ -1,18 +1,30 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.exception.ServiceException;
-import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
-import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.net.SocketTimeoutException;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -21,10 +33,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriTemplateHandler;
-
-import javax.annotation.PostConstruct;
-import java.net.SocketTimeoutException;
-import java.util.List;
 
 /**
  * 封装RestTemplate. admin server集群在某些机器宕机或者超时的情况下轮询重试
@@ -36,20 +44,31 @@ public class RetryableRestTemplate {
 
   private UriTemplateHandler uriTemplateHandler = new DefaultUriBuilderFactory();
 
+  private static final Gson GSON = new Gson();
+  /**
+   * Admin service access tokens in "PortalDB.ServerConfig"
+   */
+  private static final Type ACCESS_TOKENS = new TypeToken<Map<String, String>>(){}.getType();
+
   private RestTemplate restTemplate;
 
   private final RestTemplateFactory restTemplateFactory;
   private final AdminServiceAddressLocator adminServiceAddressLocator;
   private final PortalMetaDomainService portalMetaDomainService;
+  private final PortalConfig portalConfig;
+  private volatile String lastAdminServiceAccessTokens;
+  private volatile Map<Env, String> adminServiceAccessTokenMap;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
-      final PortalMetaDomainService portalMetaDomainService
+      final PortalMetaDomainService portalMetaDomainService,
+      final PortalConfig portalConfig
   ) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
+    this.portalConfig = portalConfig;
   }
 
 
@@ -87,7 +106,7 @@ public class RetryableRestTemplate {
                         Object... uriVariables) {
 
     if (path.startsWith("/")) {
-      path = path.substring(1, path.length());
+      path = path.substring(1);
     }
 
     String uri = uriTemplateHandler.expand(path, uriVariables).getPath();
@@ -95,11 +114,12 @@ public class RetryableRestTemplate {
     ct.addData("Env", env);
 
     List<ServiceDTO> services = getAdminServices(env, ct);
+    HttpHeaders extraHeaders = assembleExtraHeaders(env);
 
     for (ServiceDTO serviceDTO : services) {
       try {
 
-        T result = doExecute(method, serviceDTO, path, request, responseType, uriVariables);
+        T result = doExecute(method, extraHeaders, serviceDTO, path, request, responseType, uriVariables);
 
         ct.setStatus(Transaction.SUCCESS);
         ct.complete();
@@ -129,7 +149,7 @@ public class RetryableRestTemplate {
   private <T> ResponseEntity<T> exchangeGet(Env env, String path, ParameterizedTypeReference<T> reference,
                                             Object... uriVariables) {
     if (path.startsWith("/")) {
-      path = path.substring(1, path.length());
+      path = path.substring(1);
     }
 
     String uri = uriTemplateHandler.expand(path, uriVariables).getPath();
@@ -137,12 +157,13 @@ public class RetryableRestTemplate {
     ct.addData("Env", env);
 
     List<ServiceDTO> services = getAdminServices(env, ct);
+    HttpEntity<Void> entity = new HttpEntity<>(assembleExtraHeaders(env));
 
     for (ServiceDTO serviceDTO : services) {
       try {
 
         ResponseEntity<T> result =
-            restTemplate.exchange(parseHost(serviceDTO) + path, HttpMethod.GET, null, reference, uriVariables);
+            restTemplate.exchange(parseHost(serviceDTO) + path, HttpMethod.GET, entity, reference, uriVariables);
 
         ct.setStatus(Transaction.SUCCESS);
         ct.complete();
@@ -171,6 +192,18 @@ public class RetryableRestTemplate {
 
   }
 
+  private HttpHeaders assembleExtraHeaders(Env env) {
+    String adminServiceAccessToken = getAdminServiceAccessToken(env);
+
+    if (!Strings.isNullOrEmpty(adminServiceAccessToken)) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add(HttpHeaders.AUTHORIZATION, adminServiceAccessToken);
+      return headers;
+    }
+
+    return null;
+  }
+
   private List<ServiceDTO> getAdminServices(Env env, Transaction ct) {
 
     List<ServiceDTO> services = adminServiceAddressLocator.getServiceList(env);
@@ -188,23 +221,61 @@ public class RetryableRestTemplate {
     return services;
   }
 
-  private <T> T doExecute(HttpMethod method, ServiceDTO service, String path, Object request,
-                          Class<T> responseType,
-                          Object... uriVariables) {
+  private String getAdminServiceAccessToken(Env env) {
+    String accessTokens = portalConfig.getAdminServiceAccessTokens();
+
+    if (Strings.isNullOrEmpty(accessTokens)) {
+      return null;
+    }
+
+    if (!accessTokens.equals(lastAdminServiceAccessTokens)) {
+      synchronized (this) {
+        adminServiceAccessTokenMap = parseAdminServiceAccessTokens(accessTokens);
+        lastAdminServiceAccessTokens = accessTokens;
+      }
+    }
+
+    return adminServiceAccessTokenMap.get(env);
+  }
+
+  private Map<Env, String> parseAdminServiceAccessTokens(String accessTokens) {
+    Map<Env, String> tokenMap = Maps.newHashMap();
+    try {
+      // try to parse
+      Map<String, String> map = GSON.fromJson(accessTokens, ACCESS_TOKENS);
+      map.forEach((env, token) -> {
+        if (Env.exists(env)) {
+          tokenMap.put(Env.valueOf(env), token);
+        }
+      });
+    } catch (Exception e) {
+      logger.error("Wrong format of admin service access tokens: {}", accessTokens, e);
+    }
+    return tokenMap;
+  }
+  private <T> T doExecute(HttpMethod method, HttpHeaders extraHeaders, ServiceDTO service, String path, Object request,
+                          Class<T> responseType, Object... uriVariables) {
     T result = null;
     switch (method) {
       case GET:
-        result = restTemplate.getForObject(parseHost(service) + path, responseType, uriVariables);
-        break;
       case POST:
-        result =
-            restTemplate.postForEntity(parseHost(service) + path, request, responseType, uriVariables).getBody();
-        break;
       case PUT:
-        restTemplate.put(parseHost(service) + path, request, uriVariables);
-        break;
       case DELETE:
-        restTemplate.delete(parseHost(service) + path, uriVariables);
+        HttpEntity entity;
+        if (request instanceof HttpEntity) {
+          entity = (HttpEntity) request;
+          if (!CollectionUtils.isEmpty(extraHeaders)) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.addAll(entity.getHeaders());
+            headers.addAll(extraHeaders);
+            entity = new HttpEntity<>(entity.getBody(), headers);
+          }
+        } else {
+          entity = new HttpEntity<>(request, extraHeaders);
+        }
+        result = restTemplate
+            .exchange(parseHost(service) + path, method, entity, responseType, uriVariables)
+            .getBody();
         break;
       default:
         throw new UnsupportedOperationException(String.format("unsupported http method(method=%s)", method));

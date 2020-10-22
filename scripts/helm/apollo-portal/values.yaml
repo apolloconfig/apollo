@@ -4,6 +4,7 @@ replicaCount: 2
 containerPort: 8070
 image:
   repository: apolloconfig/apollo-portal
+  tag: ""
   pullPolicy: IfNotPresent
 imagePullSecrets: []
 service:

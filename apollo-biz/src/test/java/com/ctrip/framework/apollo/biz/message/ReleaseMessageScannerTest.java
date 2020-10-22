@@ -11,7 +11,6 @@ import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.concurrent.TimeUnit;

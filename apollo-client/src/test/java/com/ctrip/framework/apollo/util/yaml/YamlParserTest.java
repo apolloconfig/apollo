@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.build.MockInjector;
-import com.ctrip.framework.apollo.internals.DefaultInjector;
 import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.google.common.base.Charsets;
@@ -69,7 +68,7 @@ public class YamlParserTest {
 
     Properties nonOrderedProperties = parser.yamlToProperties(yamlContent);
 
-    PropertiesFactory propertiesFactory = mock(PropertiesFactory.class);;
+    PropertiesFactory propertiesFactory = mock(PropertiesFactory.class);
     when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
       @Override
       public Properties answer(InvocationOnMock invocation) {

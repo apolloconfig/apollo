@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @Service
 public class NamespaceService {
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final NamespaceRepository namespaceRepository;
   private final AuditService auditService;
@@ -400,7 +400,7 @@ public class NamespaceService {
       return false;
     }
 
-    Map<String, String> publishedConfiguration = gson.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
+    Map<String, String> publishedConfiguration = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
     for (Item item : itemsModifiedAfterLastPublish) {
       if (!Objects.equals(item.getValue(), publishedConfiguration.get(item.getKey()))) {
         return true;

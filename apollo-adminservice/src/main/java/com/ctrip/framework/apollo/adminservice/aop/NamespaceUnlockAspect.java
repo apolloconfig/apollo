@@ -37,7 +37,7 @@ import java.util.Map;
 @Component
 public class NamespaceUnlockAspect {
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final NamespaceLockService namespaceLockService;
   private final NamespaceService namespaceService;
@@ -109,7 +109,7 @@ public class NamespaceUnlockAspect {
       return hasNormalItems(items);
     }
 
-    Map<String, String> releasedConfiguration = gson.fromJson(release.getConfigurations(), GsonType.CONFIG);
+    Map<String, String> releasedConfiguration = GSON.fromJson(release.getConfigurations(), GsonType.CONFIG);
     Map<String, String> configurationFromItems = generateConfigurationFromItems(namespace, items);
 
     MapDifference<String, String> difference = Maps.difference(releasedConfiguration, configurationFromItems);
@@ -139,7 +139,7 @@ public class NamespaceUnlockAspect {
     } else {//child namespace
       Release parentRelease = releaseService.findLatestActiveRelease(parentNamespace);
       if (parentRelease != null) {
-        configurationFromItems = gson.fromJson(parentRelease.getConfigurations(), GsonType.CONFIG);
+        configurationFromItems = GSON.fromJson(parentRelease.getConfigurations(), GsonType.CONFIG);
       }
       generateMapFromItems(namespaceItems, configurationFromItems);
     }

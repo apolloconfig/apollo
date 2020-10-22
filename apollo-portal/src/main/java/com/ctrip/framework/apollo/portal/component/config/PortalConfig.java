@@ -24,7 +24,7 @@ public class PortalConfig extends RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
   }.getType();
 
@@ -73,7 +73,7 @@ public class PortalConfig extends RefreshableConfig {
     Map<String, String> map = Collections.emptyMap();
     try {
       // try to parse
-      map = gson.fromJson(jsonContent, META_SERVERS);
+      map = GSON.fromJson(jsonContent, META_SERVERS);
     } catch (Exception e) {
       logger.error("Wrong format for: {}", key, e);
     }
@@ -97,7 +97,22 @@ public class PortalConfig extends RefreshableConfig {
     }
 
     for (String env : configurations) {
-      result.add(Env.fromString(env));
+      result.add(Env.valueOf(env));
+    }
+
+    return result;
+  }
+
+  public Set<Env> webHookSupportedEnvs() {
+    String[] configurations = getArrayProperty("webhook.supported.envs", null);
+
+    Set<Env> result = Sets.newHashSet();
+    if (configurations == null || configurations.length == 0) {
+      return result;
+    }
+
+    for (String env : configurations) {
+      result.add(Env.valueOf(env));
     }
 
     return result;
@@ -129,7 +144,7 @@ public class PortalConfig extends RefreshableConfig {
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");
-    return organizations == null ? Collections.emptyList() : gson.fromJson(organizations, ORGANIZATION);
+    return organizations == null ? Collections.emptyList() : GSON.fromJson(organizations, ORGANIZATION);
   }
 
   public String portalAddress() {
@@ -162,7 +177,7 @@ public class PortalConfig extends RefreshableConfig {
     }
 
     for (String env : configurations) {
-      result.add(Env.fromString(env));
+      result.add(Env.valueOf(env));
     }
 
     return result;
@@ -206,6 +221,10 @@ public class PortalConfig extends RefreshableConfig {
 
   public boolean isManageAppMasterPermissionEnabled() {
     return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
+  }
+
+  public String getAdminServiceAccessTokens() {
+    return getValue("admin-service.access.tokens");
   }
 
   /***
@@ -272,6 +291,10 @@ public class PortalConfig extends RefreshableConfig {
 
   public String hermesServerAddress() {
     return getValue("hermes.server.address");
+  }
+
+  public String[] webHookUrls() {
+    return getArrayProperty("config.release.webhook.service.url", null);
   }
 
 }

@@ -27,7 +27,7 @@ import org.springframework.util.ReflectionUtils;
 public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFactoryAware {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloJsonValueProcessor.class);
-  private static final Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final ConfigUtil configUtil;
   private final PlaceholderHelper placeholderHelper;
@@ -110,7 +110,7 @@ public class ApolloJsonValueProcessor extends ApolloProcessor implements BeanFac
 
   private Object parseJsonValue(String json, Type targetType) {
     try {
-      return gson.fromJson(json, targetType);
+      return GSON.fromJson(json, targetType);
     } catch (Throwable ex) {
       logger.error("Parsing json '{}' to type {} failed!", json, targetType, ex);
       throw ex;

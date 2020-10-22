@@ -70,12 +70,18 @@ The following table lists the configurable parameters of the apollo-service char
 | `configService.replicaCount` | Replica count of apollo-configservice | `2` |
 | `configService.containerPort` | Container port of apollo-configservice | `8080` |
 | `configService.image.repository` | Image repository of apollo-configservice | `apolloconfig/apollo-configservice` |
+| `configService.image.tag` | Image tag of apollo-configservice, e.g. `1.8.0`, leave it to `nil` to use the default version | `nil` |
 | `configService.image.pullPolicy`                | Image pull policy of apollo-configservice | `IfNotPresent` |
 | `configService.imagePullSecrets`                | Image pull secrets of apollo-configservice | `[]` |
 | `configService.service.fullNameOverride` | Override the service name for apollo-configservice | `nil` |
 | `configService.service.port` | The port for the service of apollo-configservice | `8080` |
 | `configService.service.targetPort` | The target port for the service of apollo-configservice | `8080` |
 | `configService.service.type` | The service type of apollo-configservice                     | `ClusterIP` |
+| `configService.ingress.enabled` | Whether to enable the ingress for config-service or not | `false` |
+| `configService.ingress.annotations` | The annotations of the ingress for config-service | `{}` |
+| `configService.ingress.hosts.host` | The host of the ingress for config-service | `nil` |
+| `configService.ingress.hosts.paths` | The paths of the ingress for config-service | `[]` |
+| `configService.ingress.tls` | The tls definition of the ingress for config-service | `[]` |
 | `configService.liveness.initialDelaySeconds` | The initial delay seconds of liveness probe | `100` |
 | `configService.liveness.periodSeconds` | The period seconds of liveness probe | `10` |
 | `configService.readiness.initialDelaySeconds` | The initial delay seconds of readiness probe | `30` |
@@ -83,6 +89,7 @@ The following table lists the configurable parameters of the apollo-service char
 | `configService.config.profiles` | specify the spring profiles to activate | `github,kubernetes` |
 | `configService.config.configServiceUrlOverride` | Override `apollo.config-service.url`: config service url to be accessed by apollo-client | `nil` |
 | `configService.config.adminServiceUrlOverride` | Override `apollo.admin-service.url`: admin service url to be accessed by apollo-portal | `nil` |
+| `configService.config.contextPath` | specify the context path, e.g. `/apollo`, then users could access config service via `http://{config_service_address}/apollo` | `nil` |
 | `configService.env` | Environment variables passed to the container, e.g. <br />`JAVA_OPTS: -Xss256k` | `{}` |
 | `configService.strategy` | The deployment strategy of apollo-configservice | `{}` |
 | `configService.resources` | The resources definition of apollo-configservice | `{}` |
@@ -93,17 +100,24 @@ The following table lists the configurable parameters of the apollo-service char
 | `adminService.replicaCount` | Replica count of apollo-adminservice | `2` |
 | `adminService.containerPort` | Container port of apollo-adminservice | `8090` |
 | `adminService.image.repository` | Image repository of apollo-adminservice | `apolloconfig/apollo-adminservice` |
+| `adminService.image.tag` | Image tag of apollo-adminservice, e.g. `1.8.0`, leave it to `nil` to use the default version | `nil` |
 | `adminService.image.pullPolicy`                | Image pull policy of apollo-adminservice | `IfNotPresent` |
 | `adminService.imagePullSecrets`                | Image pull secrets of apollo-adminservice | `[]` |
 | `adminService.service.fullNameOverride` | Override the service name for apollo-adminservice | `nil` |
 | `adminService.service.port` | The port for the service of apollo-adminservice | `8090` |
 | `adminService.service.targetPort` | The target port for the service of apollo-adminservice | `8090` |
 | `adminService.service.type` | The service type of apollo-adminservice                     | `ClusterIP` |
+| `adminService.ingress.enabled` | Whether to enable the ingress for admin-service or not | `false` |
+| `adminService.ingress.annotations` | The annotations of the ingress for admin-service | `{}` |
+| `adminService.ingress.hosts.host` | The host of the ingress for admin-service | `nil` |
+| `adminService.ingress.hosts.paths` | The paths of the ingress for admin-service | `[]` |
+| `adminService.ingress.tls` | The tls definition of the ingress for admin-service | `[]` |
 | `adminService.liveness.initialDelaySeconds` | The initial delay seconds of liveness probe | `100` |
 | `adminService.liveness.periodSeconds` | The period seconds of liveness probe | `10` |
 | `adminService.readiness.initialDelaySeconds` | The initial delay seconds of readiness probe | `30` |
 | `adminService.readiness.periodSeconds` | The period seconds of readiness probe | `5` |
 | `adminService.config.profiles` | specify the spring profiles to activate | `github,kubernetes` |
+| `adminService.config.contextPath` | specify the context path, e.g. `/apollo`, then users could access admin service via `http://{admin_service_address}/apollo` | `nil` |
 | `adminService.env` | Environment variables passed to the container, e.g. <br />`JAVA_OPTS: -Xss256k` | `{}` |
 | `adminService.strategy` | The deployment strategy of apollo-adminservice | `{}` |
 | `adminService.resources` | The resources definition of apollo-adminservice | `{}` |
@@ -149,6 +163,35 @@ configdb:
   password: somePassword
   connectionStringProperties: characterEncoding=utf8&useSSL=false
 ```
+
+4. Expose config service as Ingress with custom path `/config`
+
+```yaml
+# use /config as root, should specify configService.config.contextPath as /config
+configService:
+  config:
+    contextPath: /config
+  ingress:
+    enabled: true
+    hosts:
+      - paths:
+          - /config
+```
+
+5. Expose admin service as Ingress with custom path `/admin`
+
+```yaml
+# use /admin as root, should specify adminService.config.contextPath as /admin
+adminService:
+  config:
+    contextPath: /admin
+  ingress:
+    enabled: true
+    hosts:
+      - paths:
+          - /admin
+```
+
 ## 5. Deployments of apollo-portal
 
 ### 5.1 Install
@@ -193,6 +236,7 @@ The following table lists the configurable parameters of the apollo-portal chart
 | `replicaCount` | Replica count of apollo-portal | `2` |
 | `containerPort` | Container port of apollo-portal | `8070` |
 | `image.repository` | Image repository of apollo-portal | `apolloconfig/apollo-portal` |
+| `image.tag` | Image tag of apollo-portal, e.g. `1.8.0`, leave it to `nil` to use the default version | `nil` |
 | `image.pullPolicy`                | Image pull policy of apollo-portal | `IfNotPresent` |
 | `imagePullSecrets`                | Image pull secrets of apollo-portal | `[]` |
 | `service.fullNameOverride` | Override the service name for apollo-portal | `nil` |

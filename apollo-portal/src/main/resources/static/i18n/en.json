@@ -712,7 +712,7 @@
   "App.Setting.Deleted": "Delete Successfully",
   "App.Setting.DeleteFailed": "Failed to Delete",
   "App.Setting.Modified": "Update Successfully",
-  "Valdr.App.AppId.Size": "AppId cannot be longer than 32 characters",
+  "Valdr.App.AppId.Size": "AppId cannot be longer than 64 characters",
   "Valdr.App.AppId.Required": "AppId cannot be empty",
   "Valdr.App.appName.Size": "The app name cannot be longer than 128 characters",
   "Valdr.App.appName.Required": "App name cannot be empty",

@@ -1,6 +1,7 @@
 package com.ctrip.framework.apollo.core.signature;
 
 import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -16,7 +17,6 @@ public class Signature {
   private static final String AUTHORIZATION_FORMAT = "Apollo %s:%s";
   private static final String DELIMITER = "\n";
 
-  public static final String HTTP_HEADER_AUTHORIZATION = "Authorization";
   public static final String HTTP_HEADER_TIMESTAMP = "Timestamp";
 
   public static String signature(String timestamp, String pathWithQuery, String secret) {
@@ -32,7 +32,7 @@ public class Signature {
     String signature = signature(timestamp, pathWithQuery, secret);
 
     Map<String, String> headers = Maps.newHashMap();
-    headers.put(HTTP_HEADER_AUTHORIZATION, String.format(AUTHORIZATION_FORMAT, appId, signature));
+    headers.put(HttpHeaders.AUTHORIZATION, String.format(AUTHORIZATION_FORMAT, appId, signature));
     headers.put(HTTP_HEADER_TIMESTAMP, timestamp);
     return headers;
   }

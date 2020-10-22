@@ -11,5 +11,5 @@ public interface RepositoryChangeListener {
    * @param namespace the namespace of this repository change
    * @param newProperties the properties after change
    */
-  public void onRepositoryChange(String namespace, Properties newProperties);
+  void onRepositoryChange(String namespace, Properties newProperties);
 }

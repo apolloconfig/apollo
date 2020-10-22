@@ -118,7 +118,7 @@ function createAppController($scope, $window, $translate, toastr, AppService, Ap
         if (owner) {
             $(".adminSelector").parent().find(".select2-selection__rendered").prepend(
                 '<li class="select2-selection__choice J_owner">'
-                + owner.text + '</li>')
+                + _.escape(owner.text) + '</li>')
         }
     }
 }

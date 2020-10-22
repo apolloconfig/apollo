@@ -41,7 +41,7 @@ public class ItemController {
   public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName, @PathVariable String key) {
 
-    ItemDTO itemDTO = itemService.loadItem(Env.fromString(env), appId, clusterName, namespaceName, key);
+    ItemDTO itemDTO = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
 
     return itemDTO == null ? null : OpenApiBeanUtils.transformFromItemDTO(itemDTO);
   }
@@ -73,7 +73,7 @@ public class ItemController {
     toCreate.setDataChangeLastModifiedTime(null);
     toCreate.setDataChangeCreatedTime(null);
 
-    ItemDTO createdItem = itemService.createItem(appId, Env.fromString(env),
+    ItemDTO createdItem = itemService.createItem(appId, Env.valueOf(env),
         clusterName, namespaceName, toCreate);
     return OpenApiBeanUtils.transformFromItemDTO(createdItem);
   }
@@ -103,13 +103,13 @@ public class ItemController {
 
     try {
       ItemDTO toUpdateItem = itemService
-          .loadItem(Env.fromString(env), appId, clusterName, namespaceName, item.getKey());
+          .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, item.getKey());
       //protect. only value,comment,lastModifiedBy can be modified
       toUpdateItem.setComment(item.getComment());
       toUpdateItem.setValue(item.getValue());
       toUpdateItem.setDataChangeLastModifiedBy(item.getDataChangeLastModifiedBy());
 
-      itemService.updateItem(appId, Env.fromString(env), clusterName, namespaceName, toUpdateItem);
+      itemService.updateItem(appId, Env.valueOf(env), clusterName, namespaceName, toUpdateItem);
     } catch (Throwable ex) {
       if (ex instanceof HttpStatusCodeException) {
         // check createIfNotExists
@@ -134,12 +134,12 @@ public class ItemController {
       throw new BadRequestException("user(operator) not exists");
     }
 
-    ItemDTO toDeleteItem = itemService.loadItem(Env.fromString(env), appId, clusterName, namespaceName, key);
+    ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null){
       throw new BadRequestException("item not exists");
     }
 
-    itemService.deleteItem(Env.fromString(env), toDeleteItem.getId(), operator);
+    itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
   }
 
 }

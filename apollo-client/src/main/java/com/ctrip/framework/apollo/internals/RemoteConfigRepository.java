@@ -63,7 +63,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
   private final RateLimiter m_loadConfigRateLimiter;
   private final AtomicBoolean m_configNeedForceRefresh;
   private final SchedulePolicy m_loadConfigFailSchedulePolicy;
-  private final Gson gson;
+  private static final Gson GSON = new Gson();
 
   static {
     m_executorService = Executors.newScheduledThreadPool(1,
@@ -88,7 +88,6 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     m_configNeedForceRefresh = new AtomicBoolean(true);
     m_loadConfigFailSchedulePolicy = new ExponentialSchedulePolicy(m_configUtil.getOnErrorRetryInterval(),
         m_configUtil.getOnErrorRetryInterval() * 8);
-    gson = new Gson();
     this.trySync();
     this.schedulePeriodicRefresh();
     this.scheduleLongPollingRefresh();
@@ -296,7 +295,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     }
 
     if (remoteMessages != null) {
-      queryParams.put("messages", queryParamEscaper.escape(gson.toJson(remoteMessages)));
+      queryParams.put("messages", queryParamEscaper.escape(GSON.toJson(remoteMessages)));
     }
 
     String pathExpanded = String.format(path, pathParams.toArray());

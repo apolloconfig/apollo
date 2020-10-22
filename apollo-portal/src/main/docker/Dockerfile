@@ -7,7 +7,7 @@ FROM openjdk:8-jre-alpine
 MAINTAINER ameizi <sxyx2008@163.com>
 
 ENV APOLLO_RUN_MODE "Docker"
-ENV VERSION 1.7.0
+ENV VERSION 1.8.0-SNAPSHOT
 ENV SERVER_PORT 8070
 
 RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories \

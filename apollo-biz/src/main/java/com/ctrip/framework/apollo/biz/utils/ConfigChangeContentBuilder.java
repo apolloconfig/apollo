@@ -12,7 +12,7 @@ import org.springframework.beans.BeanUtils;
 
 public class ConfigChangeContentBuilder {
 
-  private static final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+  private static final Gson GSON = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
   private List<Item> createItems = new LinkedList<>();
   private List<ItemPair> updateItems = new LinkedList<>();
@@ -60,7 +60,7 @@ public class ConfigChangeContentBuilder {
     for (Item item : deleteItems) {
       item.setDataChangeLastModifiedTime(now);
     }
-    return gson.toJson(this);
+    return GSON.toJson(this);
   }
 
   static class ItemPair {
@@ -83,7 +83,7 @@ public class ConfigChangeContentBuilder {
   }
 
   public static ConfigChangeContentBuilder convertJsonString(String content) {
-    return gson.fromJson(content, ConfigChangeContentBuilder.class);
+    return GSON.fromJson(content, ConfigChangeContentBuilder.class);
   }
 
   public List<Item> getCreateItems() {

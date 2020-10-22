@@ -1,14 +1,14 @@
 #!/bin/sh
 
 # apollo config db info
-apollo_config_db_url=jdbc:mysql://fill-in-the-correct-server:3306/ApolloConfigDB?characterEncoding=utf8
-apollo_config_db_username=FillInCorrectUser
-apollo_config_db_password=FillInCorrectPassword
+apollo_config_db_url='jdbc:mysql://fill-in-the-correct-server:3306/ApolloConfigDB?characterEncoding=utf8'
+apollo_config_db_username='FillInCorrectUser'
+apollo_config_db_password='FillInCorrectPassword'
 
 # apollo portal db info
-apollo_portal_db_url=jdbc:mysql://fill-in-the-correct-server:3306/ApolloPortalDB?characterEncoding=utf8
-apollo_portal_db_username=FillInCorrectUser
-apollo_portal_db_password=FillInCorrectPassword
+apollo_portal_db_url='jdbc:mysql://fill-in-the-correct-server:3306/ApolloPortalDB?characterEncoding=utf8'
+apollo_portal_db_username='FillInCorrectUser'
+apollo_portal_db_password='FillInCorrectPassword'
 
 # meta server url, different environments should have different meta server addresses
 dev_meta=http://fill-in-dev-meta-server:8080
@@ -20,7 +20,7 @@ META_SERVERS_OPTS="-Ddev_meta=$dev_meta -Dfat_meta=$fat_meta -Duat_meta=$uat_met
 
 # =============== Please do not modify the following content =============== #
 # go to script directory
-cd "${0%/*}"
+cd "${0%/*}" || exit 
 
 cd ..
 

@@ -83,7 +83,7 @@ public class PortalSettings {
 
   public boolean isEnvActive(Env env) {
     Boolean mark = envStatusMark.get(env);
-    return mark == null ? false : mark;
+    return mark != null && mark;
   }
 
   private class HealthCheckTask implements Runnable {

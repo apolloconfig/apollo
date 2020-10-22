@@ -20,7 +20,7 @@ public class Env {
     private final String name;
 
     // use to cache Env
-    private static final Map<String, Env> STRING_ENV_MAP = new ConcurrentHashMap<>();;
+    private static final Map<String, Env> STRING_ENV_MAP = new ConcurrentHashMap<>();
 
     // default environments
     public static final Env LOCAL = addEnvironment("LOCAL");

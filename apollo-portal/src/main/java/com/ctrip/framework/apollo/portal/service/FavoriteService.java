@@ -6,6 +6,7 @@ import com.ctrip.framework.apollo.portal.entity.po.Favorite;
 import com.ctrip.framework.apollo.portal.repository.FavoriteRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.util.Collections;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -86,7 +87,7 @@ public class FavoriteService {
     }
 
     //search by userId and appId
-    return Arrays.asList(favoriteRepository.findByUserIdAndAppId(userId, appId));
+    return Collections.singletonList(favoriteRepository.findByUserIdAndAppId(userId, appId));
   }
 
 

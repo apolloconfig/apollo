@@ -33,14 +33,14 @@ public class AccessKeyController {
     String secret = UUID.randomUUID().toString().replaceAll("-", "");
     accessKeyDTO.setAppId(appId);
     accessKeyDTO.setSecret(secret);
-    return accessKeyService.createAccessKey(Env.fromString(env), accessKeyDTO);
+    return accessKeyService.createAccessKey(Env.valueOf(env), accessKeyDTO);
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @GetMapping(value = "/apps/{appId}/envs/{env}/accesskeys")
   public List<AccessKeyDTO> findByAppId(@PathVariable String appId,
       @PathVariable String env) {
-    return accessKeyService.findByAppId(Env.fromString(env), appId);
+    return accessKeyService.findByAppId(Env.valueOf(env), appId);
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
@@ -49,7 +49,7 @@ public class AccessKeyController {
       @PathVariable String env,
       @PathVariable long id) {
     String operator = userInfoHolder.getUser().getUserId();
-    accessKeyService.deleteAccessKey(Env.fromString(env), appId, id, operator);
+    accessKeyService.deleteAccessKey(Env.valueOf(env), appId, id, operator);
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
@@ -58,7 +58,7 @@ public class AccessKeyController {
       @PathVariable String env,
       @PathVariable long id) {
     String operator = userInfoHolder.getUser().getUserId();
-    accessKeyService.enable(Env.fromString(env), appId, id, operator);
+    accessKeyService.enable(Env.valueOf(env), appId, id, operator);
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
@@ -67,6 +67,6 @@ public class AccessKeyController {
       @PathVariable String env,
       @PathVariable long id) {
     String operator = userInfoHolder.getUser().getUserId();
-    accessKeyService.disable(Env.fromString(env), appId, id, operator);
+    accessKeyService.disable(Env.valueOf(env), appId, id, operator);
   }
 }

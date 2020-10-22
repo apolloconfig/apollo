@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS `AppNamespace`;
 CREATE TABLE `AppNamespace` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `Name` varchar(32) NOT NULL DEFAULT '' COMMENT 'namespace名字，注意，需要全局唯一',
-  `AppId` varchar(32) NOT NULL DEFAULT '' COMMENT 'app id',
+  `AppId` varchar(64) NOT NULL DEFAULT '' COMMENT 'app id',
   `Format` varchar(32) NOT NULL DEFAULT 'properties' COMMENT 'namespace的format类型',
   `IsPublic` bit(1) NOT NULL DEFAULT b'0' COMMENT 'namespace是否为公共',
   `Comment` varchar(64) NOT NULL DEFAULT '' COMMENT '注释',
@@ -93,7 +93,7 @@ DROP TABLE IF EXISTS `Cluster`;
 CREATE TABLE `Cluster` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `Name` varchar(32) NOT NULL DEFAULT '' COMMENT '集群名字',
-  `AppId` varchar(32) NOT NULL DEFAULT '' COMMENT 'App id',
+  `AppId` varchar(64) NOT NULL DEFAULT '' COMMENT 'App id',
   `ParentClusterId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '父cluster',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DataChange_CreatedBy` varchar(32) NOT NULL DEFAULT '' COMMENT '创建人邮箱前缀',
@@ -139,7 +139,7 @@ DROP TABLE IF EXISTS `GrayReleaseRule`;
 
 CREATE TABLE `GrayReleaseRule` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `AppId` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name',
   `NamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name',
   `BranchName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'branch name',
@@ -164,7 +164,7 @@ DROP TABLE IF EXISTS `Instance`;
 
 CREATE TABLE `Instance` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
-  `AppId` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
   `DataCenter` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'Data Center Name',
   `Ip` varchar(32) NOT NULL DEFAULT '' COMMENT 'instance ip',
@@ -186,7 +186,7 @@ DROP TABLE IF EXISTS `InstanceConfig`;
 CREATE TABLE `InstanceConfig` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
   `InstanceId` int(11) unsigned DEFAULT NULL COMMENT 'Instance Id',
-  `ConfigAppId` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Config App Id',
+  `ConfigAppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'Config App Id',
   `ConfigClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Config Cluster Name',
   `ConfigNamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Config Namespace Name',
   `ReleaseKey` varchar(64) NOT NULL DEFAULT '' COMMENT '发布的Key',
@@ -303,7 +303,7 @@ DROP TABLE IF EXISTS `ReleaseHistory`;
 
 CREATE TABLE `ReleaseHistory` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
-  `AppId` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
   `NamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
   `BranchName` varchar(32) NOT NULL DEFAULT 'default' COMMENT '发布分支名',

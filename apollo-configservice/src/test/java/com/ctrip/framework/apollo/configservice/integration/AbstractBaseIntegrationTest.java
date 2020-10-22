@@ -44,7 +44,7 @@ public abstract class AbstractBaseIntegrationTest {
   @Autowired
   private ReleaseRepository releaseRepository;
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();
 
@@ -86,7 +86,7 @@ public abstract class AbstractBaseIntegrationTest {
     release.setAppId(namespace.getAppId());
     release.setClusterName(namespace.getClusterName());
     release.setNamespaceName(namespace.getNamespaceName());
-    release.setConfigurations(gson.toJson(configurations));
+    release.setConfigurations(GSON.toJson(configurations));
     release = releaseRepository.save(release);
 
     return release;

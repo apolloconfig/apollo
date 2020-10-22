@@ -40,7 +40,8 @@ public class FileTextResolverTest extends AbstractUnitTest {
     existedItem.setKey(ConfigConsts.CONFIG_FILE_CONTENT_KEY);
     existedItem.setValue("before");
 
-    ItemChangeSets changeSets = resolver.resolve(NAMESPACE, CONFIG_TEXT, Arrays.asList(existedItem));
+    ItemChangeSets changeSets = resolver.resolve(NAMESPACE, CONFIG_TEXT,
+        Collections.singletonList(existedItem));
 
     Assert.assertEquals(0, changeSets.getCreateItems().size());
     Assert.assertEquals(1, changeSets.getUpdateItems().size());

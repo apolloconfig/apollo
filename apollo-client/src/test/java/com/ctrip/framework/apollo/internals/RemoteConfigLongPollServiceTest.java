@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.util.http.HttpResponse;
 import com.ctrip.framework.apollo.util.http.HttpUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import com.google.common.net.HttpHeaders;
 import com.google.common.util.concurrent.SettableFuture;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -213,7 +214,7 @@ public class RemoteConfigLongPollServiceTest {
         Map<String, String> headers = request.getHeaders();
         assertNotNull(headers);
         assertTrue(headers.containsKey(Signature.HTTP_HEADER_TIMESTAMP));
-        assertTrue(headers.containsKey(Signature.HTTP_HEADER_AUTHORIZATION));
+        assertTrue(headers.containsKey(HttpHeaders.AUTHORIZATION));
 
         return pollResponse;
       }

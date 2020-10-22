@@ -57,7 +57,7 @@ Config service url to be accessed by apollo-client
 {{- if .Values.configService.config.configServiceUrlOverride -}}
 {{ .Values.configService.config.configServiceUrlOverride }}
 {{- else -}}
-http://{{ include "apollo.configService.serviceName" .}}.{{ .Release.Namespace }}:{{ .Values.configService.service.port }}
+http://{{ include "apollo.configService.serviceName" .}}.{{ .Release.Namespace }}:{{ .Values.configService.service.port }}{{ .Values.configService.config.contextPath }}
 {{- end -}}
 {{- end -}}
 
@@ -94,6 +94,6 @@ Admin service url to be accessed by apollo-portal
 {{- if .Values.configService.config.adminServiceUrlOverride -}}
 {{ .Values.configService.config.adminServiceUrlOverride -}}
 {{- else -}}
-http://{{ include "apollo.adminService.serviceName" .}}.{{ .Release.Namespace }}:{{ .Values.adminService.service.port }}
+http://{{ include "apollo.adminService.serviceName" .}}.{{ .Release.Namespace }}:{{ .Values.adminService.service.port }}{{ .Values.adminService.config.contextPath }}
 {{- end -}}
 {{- end -}}

@@ -4,8 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import java.util.Stack;
-import java.util.Objects;
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

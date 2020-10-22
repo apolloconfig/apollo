@@ -23,6 +23,7 @@ configService:
   containerPort: 8080
   image:
     repository: apolloconfig/apollo-configservice
+    tag: ""
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   service:
@@ -30,6 +31,13 @@ configService:
     port: 8080
     targetPort: 8080
     type: ClusterIP
+  ingress:
+    enabled: false
+    annotations: { }
+    hosts:
+      - host: ""
+        paths: [ ]
+    tls: [ ]
   liveness:
     initialDelaySeconds: 100
     periodSeconds: 10
@@ -43,6 +51,8 @@ configService:
     configServiceUrlOverride: ""
     # override apollo.admin-service.url: admin service url to be accessed by apollo-portal 
     adminServiceUrlOverride: ""
+    # specify the context path, e.g. /apollo
+    contextPath: ""
   # environment variables passed to the container, e.g. JAVA_OPTS
   env: {}
   strategy: {}
@@ -58,6 +68,7 @@ adminService:
   containerPort: 8090
   image:
     repository: apolloconfig/apollo-adminservice
+    tag: ""
     pullPolicy: IfNotPresent
   imagePullSecrets: []
   service:
@@ -65,6 +76,13 @@ adminService:
     port: 8090
     targetPort: 8090
     type: ClusterIP
+  ingress:
+    enabled: false
+    annotations: { }
+    hosts:
+      - host: ""
+        paths: [ ]
+    tls: [ ]
   liveness:
     initialDelaySeconds: 100
     periodSeconds: 10
@@ -74,6 +92,8 @@ adminService:
   config:
     # spring profiles to activate
     profiles: "github,kubernetes"
+    # specify the context path, e.g. /apollo
+    contextPath: ""
   # environment variables passed to the container, e.g. JAVA_OPTS
   env: {}
   strategy: {}

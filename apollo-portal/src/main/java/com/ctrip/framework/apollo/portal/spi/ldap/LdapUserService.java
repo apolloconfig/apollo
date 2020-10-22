@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.naming.Name;
 import javax.naming.directory.Attribute;
 import javax.naming.ldap.LdapName;
 import org.apache.commons.lang.StringUtils;

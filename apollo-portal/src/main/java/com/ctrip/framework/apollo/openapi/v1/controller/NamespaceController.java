@@ -96,14 +96,14 @@ public class NamespaceController {
 
     return OpenApiBeanUtils
         .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
-            .fromString(env), clusterName));
+            .valueOf(env), clusterName));
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
   public OpenNamespaceDTO loadNamespace(@PathVariable String appId, @PathVariable String env,
                                         @PathVariable String clusterName, @PathVariable String
                                             namespaceName) {
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.fromString
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
         (env), clusterName, namespaceName);
     if (namespaceBO == null) {
       return null;
@@ -117,9 +117,9 @@ public class NamespaceController {
                                                    String namespaceName) {
 
     NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env
-        .fromString(env), clusterName, namespaceName);
+        .valueOf(env), clusterName, namespaceName);
     NamespaceLockDTO lockDTO = namespaceLockService.getNamespaceLock(appId, Env
-        .fromString(env), clusterName, namespaceName);
+        .valueOf(env), clusterName, namespaceName);
     return OpenApiBeanUtils.transformFromNamespaceLockDTO(namespace.getNamespaceName(), lockDTO);
   }
 

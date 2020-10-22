@@ -78,6 +78,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   5. [Apollo开放平台接入指南](https://github.com/ctripcorp/apollo/wiki/Apollo%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0)
   6. [Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)
   7. [Apollo实践案例](https://github.com/ctripcorp/apollo/wiki/Apollo-%E5%AE%9E%E8%B7%B5%E6%A1%88%E4%BE%8B)
+  8. [Apollo安全相关最佳实践](https://github.com/ctripcorp/apollo/wiki/Apollo%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97#71-%E5%AE%89%E5%85%A8%E7%9B%B8%E5%85%B3)
 
 # Design
   * [Apollo配置中心设计](https://github.com/ctripcorp/apollo/wiki/Apollo%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83%E8%AE%BE%E8%AE%A1)
@@ -494,6 +495,22 @@ The project is licensed under the [Apache 2 license](https://github.com/ctripcor
 <tr>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/wsecar.png" alt="万顺叫车"></td>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/shouqinba.jpg" alt="收钱吧"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/baozun.png" alt="宝尊电商"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/xbnwl.png" alt="喜百年供应链"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/gwwisdom.png" alt="南京观为智慧软件科技有限公司"></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/ztrip.png" alt="在途商旅"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/hualala.png" alt="哗啦啦"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/xin.png" alt="优信二手车"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/maycur.png" alt="每刻科技"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/bullyun.png" alt="杭州蛮牛"></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/bestpay.png" alt="翼支付"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/mockuai.png" alt="魔筷科技"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/ct108.png" alt="畅唐网络"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/jusdaglobal.jpg" alt="准时达"></td>
 </tr>
 </table>
 

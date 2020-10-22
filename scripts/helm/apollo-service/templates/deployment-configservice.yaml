@@ -12,6 +12,9 @@ data:
     spring.datasource.password = {{ required "configdb.password is required!" .Values.configdb.password }}
     apollo.config-service.url = {{ include "apollo.configService.serviceUrl" .}}
     apollo.admin-service.url = {{ include "apollo.adminService.serviceUrl" .}}
+    {{- if .Values.configService.config.contextPath }}
+    server.servlet.context-path = {{ .Values.configService.config.contextPath }}
+    {{- end }}
 
 ---
 kind: Deployment
@@ -35,8 +38,8 @@ spec:
         app: {{ $configServiceFullName }}
     spec:
       {{- with .Values.configService.imagePullSecrets }}
-        imagePullSecrets:
-          {{- toYaml . | nindent 8 }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
         - name: volume-configmap-{{ $configServiceFullName }}
@@ -48,7 +51,7 @@ spec:
             defaultMode: 420
       containers:
         - name: {{ .Values.configService.name }}
-          image: "{{ .Values.configService.image.repository }}:{{ .Chart.AppVersion }}"
+          image: "{{ .Values.configService.image.repository }}:{{ .Values.configService.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.configService.image.pullPolicy }}
           ports:
             - name: http
@@ -72,7 +75,7 @@ spec:
             periodSeconds: {{ .Values.configService.liveness.periodSeconds }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: {{ .Values.configService.config.contextPath }}/health
               port: {{ .Values.configService.containerPort }}
             initialDelaySeconds: {{ .Values.configService.readiness.initialDelaySeconds }}
             periodSeconds: {{ .Values.configService.readiness.periodSeconds }}

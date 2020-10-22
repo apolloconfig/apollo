@@ -30,7 +30,8 @@ public class BizConfig extends RefreshableConfig {
   private static final int DEFAULT_RELEASE_MESSAGE_NOTIFICATION_BATCH_INTERVAL_IN_MILLI = 100;//100ms
   private static final int DEFAULT_LONG_POLLING_TIMEOUT = 60; //60s
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
+
   private static final Type namespaceValueLengthOverrideTypeReference =
       new TypeToken<Map<Long, Integer>>() {
       }.getType();
@@ -81,7 +82,7 @@ public class BizConfig extends RefreshableConfig {
     Map<Long, Integer> namespaceValueLengthOverride = Maps.newHashMap();
     if (!Strings.isNullOrEmpty(namespaceValueLengthOverrideString)) {
       namespaceValueLengthOverride =
-          gson.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
+          GSON.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
     }
 
     return namespaceValueLengthOverride;
@@ -173,4 +174,11 @@ public class BizConfig extends RefreshableConfig {
     return defaultValue;
   }
 
+  public boolean isAdminServiceAccessControlEnabled() {
+    return getBooleanProperty("admin-service.access.control.enabled", false);
+  }
+
+  public String getAdminServiceAccessTokens() {
+    return getValue("admin-service.access.tokens");
+  }
 }

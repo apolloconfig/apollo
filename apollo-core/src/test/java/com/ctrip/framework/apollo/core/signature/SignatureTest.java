@@ -3,6 +3,7 @@ package com.ctrip.framework.apollo.core.signature;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.google.common.net.HttpHeaders;
 import java.util.Map;
 import org.junit.Test;
 
@@ -31,7 +32,7 @@ public class SignatureTest {
 
     Map<String, String> actualHttpHeaders = Signature.buildHttpHeaders(url, appId, secret);
 
-    assertTrue(actualHttpHeaders.containsKey(Signature.HTTP_HEADER_AUTHORIZATION));
+    assertTrue(actualHttpHeaders.containsKey(HttpHeaders.AUTHORIZATION));
     assertTrue(actualHttpHeaders.containsKey(Signature.HTTP_HEADER_TIMESTAMP));
   }
 }

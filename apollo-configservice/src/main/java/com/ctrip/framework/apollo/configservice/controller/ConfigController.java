@@ -189,7 +189,7 @@ public class ConfigController {
     if (!Strings.isNullOrEmpty(dataCenter)) {
       keyParts.add(dataCenter);
     }
-    return keyParts.stream().collect(Collectors.joining(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR));
+    return String.join(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR, keyParts);
   }
 
   private void auditReleases(String appId, String cluster, String dataCenter, String clientIp,

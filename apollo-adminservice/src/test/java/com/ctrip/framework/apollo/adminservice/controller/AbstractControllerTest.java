@@ -31,7 +31,7 @@ public abstract class AbstractControllerTest {
   }
 
   @Value("${local.server.port}")
-  int port;
+  protected int port;
 
   protected String url(String path) {
     return "http://localhost:" + port + path;

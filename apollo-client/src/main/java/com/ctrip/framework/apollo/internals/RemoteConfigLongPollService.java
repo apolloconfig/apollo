@@ -63,7 +63,7 @@ public class RemoteConfigLongPollService {
   private final ConcurrentMap<String, Long> m_notifications;
   private final Map<String, ApolloNotificationMessages> m_remoteNotificationMessages;//namespaceName -> watchedKey -> notificationId
   private Type m_responseType;
-  private Gson gson;
+  private static final Gson GSON = new Gson();
   private ConfigUtil m_configUtil;
   private HttpUtil m_httpUtil;
   private ConfigServiceLocator m_serviceLocator;
@@ -83,7 +83,6 @@ public class RemoteConfigLongPollService {
     m_remoteNotificationMessages = Maps.newConcurrentMap();
     m_responseType = new TypeToken<List<ApolloConfigNotification>>() {
     }.getType();
-    gson = new Gson();
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     m_httpUtil = ApolloInjector.getInstance(HttpUtil.class);
     m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
@@ -306,7 +305,7 @@ public class RemoteConfigLongPollService {
       ApolloConfigNotification notification = new ApolloConfigNotification(entry.getKey(), entry.getValue());
       notifications.add(notification);
     }
-    return gson.toJson(notifications);
+    return GSON.toJson(notifications);
   }
 
   private List<ServiceDTO> getConfigServices() {

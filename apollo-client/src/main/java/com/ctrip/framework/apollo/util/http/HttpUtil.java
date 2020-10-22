@@ -21,14 +21,13 @@ import java.util.Map;
  */
 public class HttpUtil {
   private ConfigUtil m_configUtil;
-  private Gson gson;
+  private static final Gson GSON = new Gson();
 
   /**
    * Constructor.
    */
   public HttpUtil() {
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
-    gson = new Gson();
   }
 
   /**
@@ -43,7 +42,7 @@ public class HttpUtil {
     Function<String, T> convertResponse = new Function<String, T>() {
       @Override
       public T apply(String input) {
-        return gson.fromJson(input, responseType);
+        return GSON.fromJson(input, responseType);
       }
     };
 
@@ -62,7 +61,7 @@ public class HttpUtil {
     Function<String, T> convertResponse = new Function<String, T>() {
       @Override
       public T apply(String input) {
-        return gson.fromJson(input, responseType);
+        return GSON.fromJson(input, responseType);
       }
     };
 

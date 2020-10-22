@@ -35,7 +35,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             .then(function (result) {
                 var masterUsers = '';
                 result.masterUsers.forEach(function (user) {
-                    masterUsers += user.userId + ',';
+                    masterUsers += _.escape(user.userId) + ',';
                 });
                 $scope.masterUsers = masterUsers.substring(0, masterUsers.length - 1);
             }, function (result) {

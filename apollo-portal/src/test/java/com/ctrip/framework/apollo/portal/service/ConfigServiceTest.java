@@ -15,6 +15,7 @@ import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 
+import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,7 +101,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
   @Test
   public void testCompareTargetNamespaceHasNoItems() {
     ItemDTO sourceItem1 = new ItemDTO("a", "b", "comment", 1);
-    List<ItemDTO> sourceItems = Arrays.asList(sourceItem1);
+    List<ItemDTO> sourceItems = Collections.singletonList(sourceItem1);
 
     String appId = "6666", env = "LOCAL", clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT,
         namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
@@ -213,7 +214,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     targetNamespace.setEnv(env);
     targetNamespace.setClusterName(clusterName);
     targetNamespace.setNamespaceName(namespaceName);
-    return Arrays.asList(targetNamespace);
+    return Collections.singletonList(targetNamespace);
   }
 
 }

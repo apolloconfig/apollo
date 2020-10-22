@@ -26,8 +26,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -195,8 +193,8 @@ public class ConfigControllerTest {
     when(someRelease.getReleaseKey()).thenReturn(someServerSideReleaseKey);
 
     ApolloConfig result =
-        configController.queryConfig(someAppId, someClusterName, defaultNamespaceName, someDataCenter, String.valueOf
-            (someClientSideReleaseKey), someClientIp, someMessagesAsString, someRequest, someResponse);
+        configController.queryConfig(someAppId, someClusterName, defaultNamespaceName, someDataCenter,
+            someClientSideReleaseKey, someClientIp, someMessagesAsString, someRequest, someResponse);
 
     assertNull(result);
     verify(someResponse, times(1)).setStatus(HttpServletResponse.SC_NOT_MODIFIED);

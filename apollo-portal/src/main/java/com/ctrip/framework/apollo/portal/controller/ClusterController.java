@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Objects;
-
-import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkModel;
 
 @RestController
 public class ClusterController {
@@ -44,14 +41,14 @@ public class ClusterController {
   @DeleteMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,
                                             @PathVariable String clusterName){
-    clusterService.deleteCluster(Env.fromString(env), appId, clusterName);
+    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
     return ResponseEntity.ok().build();
   }
 
   @GetMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
   public ClusterDTO loadCluster(@PathVariable("appId") String appId, @PathVariable String env, @PathVariable("clusterName") String clusterName) {
 
-    return clusterService.loadCluster(appId, Env.fromString(env), clusterName);
+    return clusterService.loadCluster(appId, Env.valueOf(env), clusterName);
   }
 
 }

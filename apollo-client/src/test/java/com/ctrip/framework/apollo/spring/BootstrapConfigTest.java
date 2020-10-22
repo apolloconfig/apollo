@@ -5,8 +5,6 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.spring.annotation.ApolloConfig;
 import com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -407,13 +405,13 @@ public class BootstrapConfigTest {
     @Test
     public void test() {
       List<EnvironmentPostProcessor> processorList =  SpringFactoriesLoader.loadFactories(EnvironmentPostProcessor.class, getClass().getClassLoader());
-
-      Boolean containsApollo = !Collections2.filter(processorList, new Predicate<EnvironmentPostProcessor>() {
-            @Override
-            public boolean apply(EnvironmentPostProcessor input) {
-                return input instanceof ApolloApplicationContextInitializer;
-            }
-        }).isEmpty();
+      boolean containsApollo = false;
+      for (EnvironmentPostProcessor postProcessor : processorList) {
+        if (postProcessor instanceof ApolloApplicationContextInitializer) {
+          containsApollo = true;
+          break;
+        }
+      }
       Assert.assertTrue(containsApollo);
     }
   }

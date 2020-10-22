@@ -25,7 +25,8 @@ import java.util.Map;
 @RestController
 public class ReleaseHistoryController {
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
+
   private Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
   }.getType();
 
@@ -87,7 +88,7 @@ public class ReleaseHistoryController {
   private ReleaseHistoryDTO transformReleaseHistory2DTO(ReleaseHistory releaseHistory) {
     ReleaseHistoryDTO dto = new ReleaseHistoryDTO();
     BeanUtils.copyProperties(releaseHistory, dto, "operationContext");
-    dto.setOperationContext(gson.fromJson(releaseHistory.getOperationContext(),
+    dto.setOperationContext(GSON.fromJson(releaseHistory.getOperationContext(),
                                           configurationTypeReference));
 
     return dto;

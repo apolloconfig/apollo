@@ -51,7 +51,7 @@ public class ControllerExceptionTest {
 
   @Test
   public void testFindEmpty() {
-    when(appService.findAll(any(Pageable.class))).thenReturn(new ArrayList<App>());
+    when(appService.findAll(any(Pageable.class))).thenReturn(new ArrayList<>());
     Pageable pageable = PageRequest.of(0, 10);
     List<AppDTO> appDTOs = appController.find(null, pageable);
     Assert.assertNotNull(appDTOs);

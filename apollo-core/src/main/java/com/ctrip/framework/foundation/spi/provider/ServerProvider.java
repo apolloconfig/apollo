@@ -10,27 +10,27 @@ public interface ServerProvider extends Provider {
   /**
    * @return current environment or {@code null} if not set
    */
-  public String getEnvType();
+  String getEnvType();
 
   /**
    * @return whether current environment is set or not
    */
-  public boolean isEnvTypeSet();
+  boolean isEnvTypeSet();
 
   /**
    * @return current data center or {@code null} if not set
    */
-  public String getDataCenter();
+  String getDataCenter();
 
   /**
    * @return whether data center is set or not
    */
-  public boolean isDataCenterSet();
+  boolean isDataCenterSet();
 
   /**
    * Initialize server provider with the specified input stream
    *
    * @throws IOException
    */
-  public void initialize(InputStream in) throws IOException;
+  void initialize(InputStream in) throws IOException;
 }

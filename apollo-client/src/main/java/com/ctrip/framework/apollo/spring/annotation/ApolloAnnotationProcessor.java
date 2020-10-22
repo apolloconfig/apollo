@@ -7,7 +7,6 @@ import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.google.common.base.Preconditions;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Sets;

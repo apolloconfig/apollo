@@ -100,7 +100,7 @@ public class PropertyResolver implements ConfigTextResolver {
 
     String[] kv = new String[2];
     kv[0] = item.substring(0, kvSeparator).trim();
-    kv[1] = item.substring(kvSeparator + 1, item.length()).trim();
+    kv[1] = item.substring(kvSeparator + 1).trim();
     return kv;
   }
 
@@ -108,13 +108,13 @@ public class PropertyResolver implements ConfigTextResolver {
     String oldComment = oldItemByLine == null ? "" : oldItemByLine.getComment();
     //create comment. implement update comment by delete old comment and create new comment
     if (!(isCommentItem(oldItemByLine) && newItem.equals(oldComment))) {
-      changeSets.addCreateItem(buildCommentItem(0l, namespaceId, newItem, lineCounter));
+      changeSets.addCreateItem(buildCommentItem(0L, namespaceId, newItem, lineCounter));
     }
   }
 
   private void handleBlankLine(Long namespaceId, ItemDTO oldItem, int lineCounter, ItemChangeSets changeSets) {
     if (!isBlankItem(oldItem)) {
-      changeSets.addCreateItem(buildBlankItem(0l, namespaceId, lineCounter));
+      changeSets.addCreateItem(buildBlankItem(0L, namespaceId, lineCounter));
     }
   }
 
@@ -133,7 +133,7 @@ public class PropertyResolver implements ConfigTextResolver {
     ItemDTO oldItem = keyMapOldItem.get(newKey);
 
     if (oldItem == null) {//new item
-      changeSets.addCreateItem(buildNormalItem(0l, namespaceId, newKey, newValue, "", lineCounter));
+      changeSets.addCreateItem(buildNormalItem(0L, namespaceId, newKey, newValue, "", lineCounter));
     } else if (!newValue.equals(oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {//update item
       changeSets.addUpdateItem(
           buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(),

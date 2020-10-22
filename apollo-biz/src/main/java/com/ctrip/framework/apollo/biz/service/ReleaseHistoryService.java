@@ -18,7 +18,7 @@ import java.util.Set;
  */
 @Service
 public class ReleaseHistoryService {
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final ReleaseHistoryRepository releaseHistoryRepository;
   private final AuditService auditService;
@@ -65,7 +65,7 @@ public class ReleaseHistoryService {
     if (operationContext == null) {
       releaseHistory.setOperationContext("{}"); //default empty object
     } else {
-      releaseHistory.setOperationContext(gson.toJson(operationContext));
+      releaseHistory.setOperationContext(GSON.toJson(operationContext));
     }
     releaseHistory.setDataChangeCreatedTime(new Date());
     releaseHistory.setDataChangeCreatedBy(operator);

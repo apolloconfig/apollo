@@ -64,7 +64,7 @@ public class OrderedPropertiesTest {
     assertNull(value1);
 
     assertNull(orderedProperties.get("key1"));
-    assertFalse(orderedProperties.keySet().contains("key1"));
+    assertFalse(orderedProperties.containsKey("key1"));
   }
 
   @Test

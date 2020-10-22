@@ -40,7 +40,7 @@ import java.util.*;
 public class ReleaseService {
 
   private static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
-  private static final Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private static final Set<Integer> BRANCH_RELEASE_OPERATIONS = Sets
       .newHashSet(ReleaseOperation.GRAY_RELEASE, ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
           ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY);
@@ -218,8 +218,8 @@ public class ReleaseService {
                                          String operator, boolean isEmergencyPublish, Set<String> grayDelKeys) {
     Release parentLatestRelease = findLatestActiveRelease(parentNamespace);
     Map<String, String> parentConfigurations = parentLatestRelease != null ?
-            gson.fromJson(parentLatestRelease.getConfigurations(),
-                    GsonType.CONFIG) : new LinkedHashMap<>();
+            GSON.fromJson(parentLatestRelease.getConfigurations(),
+                          GsonType.CONFIG) : new LinkedHashMap<>();
     long baseReleaseId = parentLatestRelease == null ? 0 : parentLatestRelease.getId();
 
     Map<String, String> configsToPublish = mergeConfiguration(parentConfigurations, childNamespaceItems);
@@ -274,7 +274,7 @@ public class ReleaseService {
     Map<String, String> childReleaseConfiguration;
     Collection<String> branchReleaseKeys;
     if (childNamespaceLatestActiveRelease != null) {
-      childReleaseConfiguration = gson.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
+      childReleaseConfiguration = GSON.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
       branchReleaseKeys = getBranchReleaseKeys(childNamespaceLatestActiveRelease.getId());
     } else {
       childReleaseConfiguration = Collections.emptyMap();
@@ -282,8 +282,8 @@ public class ReleaseService {
     }
 
     Map<String, String> parentNamespaceOldConfiguration = masterPreviousRelease == null ?
-                                                          null : gson.fromJson(masterPreviousRelease.getConfigurations(),
-                                                                        GsonType.CONFIG);
+                                                          null : GSON.fromJson(masterPreviousRelease.getConfigurations(),
+                                                                               GsonType.CONFIG);
 
     Map<String, String> childNamespaceToPublishConfigs =
         calculateChildNamespaceToPublishConfiguration(parentNamespaceOldConfiguration, parentNamespaceItems,
@@ -306,7 +306,7 @@ public class ReleaseService {
       return null;
     }
 
-    Map<String, Object> operationContext = gson
+    Map<String, Object> operationContext = GSON
         .fromJson(releaseHistories.getContent().get(0).getOperationContext(), OPERATION_CONTEXT_TYPE_REFERENCE);
 
     if (operationContext == null || !operationContext.containsKey(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
@@ -420,7 +420,7 @@ public class ReleaseService {
     release.setAppId(namespace.getAppId());
     release.setClusterName(namespace.getClusterName());
     release.setNamespaceName(namespace.getNamespaceName());
-    release.setConfigurations(gson.toJson(configurations));
+    release.setConfigurations(GSON.toJson(configurations));
     release = releaseRepository.save(release);
 
     namespaceLockService.unlock(namespace.getId());
@@ -520,7 +520,7 @@ public class ReleaseService {
     Map<String, String> childReleaseConfiguration;
     Collection<String> branchReleaseKeys;
     if (childNamespaceLatestActiveRelease != null) {
-      childReleaseConfiguration = gson.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
+      childReleaseConfiguration = GSON.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
       branchReleaseKeys = getBranchReleaseKeys(childNamespaceLatestActiveRelease.getId());
     } else {
       childReleaseConfiguration = Collections.emptyMap();
@@ -530,12 +530,12 @@ public class ReleaseService {
     Release abandonedRelease = parentNamespaceTwoLatestActiveRelease.get(0);
     Release parentNamespaceNewLatestRelease = parentNamespaceTwoLatestActiveRelease.get(1);
 
-    Map<String, String> parentNamespaceAbandonedConfiguration = gson.fromJson(abandonedRelease.getConfigurations(),
+    Map<String, String> parentNamespaceAbandonedConfiguration = GSON.fromJson(abandonedRelease.getConfigurations(),
                                                                               GsonType.CONFIG);
 
     Map<String, String>
         parentNamespaceNewLatestConfiguration =
-        gson.fromJson(parentNamespaceNewLatestRelease.getConfigurations(), GsonType.CONFIG);
+        GSON.fromJson(parentNamespaceNewLatestRelease.getConfigurations(), GsonType.CONFIG);
 
     Map<String, String>
         childNamespaceNewConfiguration =

@@ -6,6 +6,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,7 +16,7 @@ public class DefaultUserService implements UserService {
 
   @Override
   public List<UserInfo> searchUsers(String keyword, int offset, int limit) {
-    return Arrays.asList(assembleDefaultUser());
+    return Collections.singletonList(assembleDefaultUser());
   }
 
   @Override

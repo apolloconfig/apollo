@@ -44,7 +44,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   private String someDefaultCluster;
   private String grayClientIp;
   private String nonGrayClientIp;
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private ExecutorService executorService;
   private Type mapResponseType = new TypeToken<Map<String, String>>(){}.getType();
 
@@ -143,7 +143,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
             .getForEntity("http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
                 getHostUrl(), someAppId, someCluster, someNamespace);
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("v2", configs.get("k2"));
@@ -158,7 +158,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
             .getForEntity("http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
                 getHostUrl(), someAppId, someCluster, someNamespace.toUpperCase());
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("v2", configs.get("k2"));
@@ -176,7 +176,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
                 String.class,
                 getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, someDC);
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("override-someDC-v1", configs.get("k1"));
@@ -195,7 +195,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
                 String.class,
                 getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace.toUpperCase(), someDC);
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals("override-someDC-v1", configs.get("k1"));
@@ -230,8 +230,8 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
                 String.class,
                 getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, nonGrayClientIp);
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
-    Map<String, String> anotherConfigs = gson.fromJson(anotherResponse.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> anotherConfigs = GSON.fromJson(anotherResponse.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(HttpStatus.OK, anotherResponse.getStatusCode());
@@ -271,8 +271,8 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
                 String.class,
                 getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace.toUpperCase(), nonGrayClientIp);
 
-    Map<String, String> configs = gson.fromJson(response.getBody(), mapResponseType);
-    Map<String, String> anotherConfigs = gson.fromJson(anotherResponse.getBody(), mapResponseType);
+    Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
+    Map<String, String> anotherConfigs = GSON.fromJson(anotherResponse.getBody(), mapResponseType);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(HttpStatus.OK, anotherResponse.getStatusCode());

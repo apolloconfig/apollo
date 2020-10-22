@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Objects;
 
 public enum NetworkInterfaceManager {
   INSTANCE;
@@ -19,7 +18,7 @@ public enum NetworkInterfaceManager {
 
   private InetAddress m_localHost;
 
-  private NetworkInterfaceManager() {
+  NetworkInterfaceManager() {
     load();
   }
 

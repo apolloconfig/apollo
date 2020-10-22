@@ -109,11 +109,11 @@ public class ItemController {
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable long itemId) {
-    ItemDTO item = configService.loadItemById(Env.fromString(env), itemId);
-    NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env.fromString(env), clusterName, namespaceName);
+    ItemDTO item = configService.loadItemById(Env.valueOf(env), itemId);
+    NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
 
     // In case someone constructs an attack scenario
-    if (item.getNamespaceId() != namespace.getId()) {
+    if (namespace == null || item.getNamespaceId() != namespace.getId()) {
       throw new BadRequestException("Invalid request, item and namespace do not match!");
     }
 

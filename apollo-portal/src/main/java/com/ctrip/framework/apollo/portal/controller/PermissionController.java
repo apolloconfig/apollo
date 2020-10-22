@@ -118,7 +118,7 @@ public class PermissionController {
     NamespaceEnvRolesAssignedUsers assignedUsers = new NamespaceEnvRolesAssignedUsers();
     assignedUsers.setNamespaceName(namespaceName);
     assignedUsers.setAppId(appId);
-    assignedUsers.setEnv(Env.fromString(env));
+    assignedUsers.setEnv(Env.valueOf(env));
 
     Set<UserInfo> releaseNamespaceUsers =
         rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseNamespaceRoleName(appId, namespaceName, env));

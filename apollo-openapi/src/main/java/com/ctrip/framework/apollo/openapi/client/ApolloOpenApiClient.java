@@ -41,20 +41,20 @@ public class ApolloOpenApiClient {
   private final ReleaseOpenApiService releaseService;
   private final NamespaceOpenApiService namespaceService;
   private final ClusterOpenApiService clusterService;
+  private static final Gson GSON = new GsonBuilder().setDateFormat(ApolloOpenApiConstants.JSON_DATE_FORMAT).create();
 
   private ApolloOpenApiClient(String portalUrl, String token, RequestConfig requestConfig) {
     this.portalUrl = portalUrl;
     this.token = token;
     CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(requestConfig)
         .setDefaultHeaders(Lists.newArrayList(new BasicHeader("Authorization", token))).build();
-    Gson gson = new GsonBuilder().setDateFormat(ApolloOpenApiConstants.JSON_DATE_FORMAT).create();
 
     String baseUrl = this.portalUrl + ApolloOpenApiConstants.OPEN_API_V1_PREFIX;
-    appService = new AppOpenApiService(client, baseUrl, gson);
-    clusterService = new ClusterOpenApiService(client, baseUrl, gson);
-    namespaceService = new NamespaceOpenApiService(client, baseUrl, gson);
-    itemService = new ItemOpenApiService(client, baseUrl, gson);
-    releaseService = new ReleaseOpenApiService(client, baseUrl, gson);
+    appService = new AppOpenApiService(client, baseUrl, GSON);
+    clusterService = new ClusterOpenApiService(client, baseUrl, GSON);
+    namespaceService = new NamespaceOpenApiService(client, baseUrl, GSON);
+    itemService = new ItemOpenApiService(client, baseUrl, GSON);
+    releaseService = new ReleaseOpenApiService(client, baseUrl, GSON);
   }
 
   /**

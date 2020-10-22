@@ -71,7 +71,7 @@ public class NamespaceUnlockAspectTest {
     Namespace namespace = createNamespace(namespaceId);
 
     Release release = createRelease("{\"k1\":\"v1\"}");
-    List<Item> items = Arrays.asList(createItem("k1", "v2"));
+    List<Item> items = Collections.singletonList(createItem("k1", "v2"));
 
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
     when(itemService.findItemsWithoutOrdered(namespaceId)).thenReturn(items);
@@ -88,7 +88,7 @@ public class NamespaceUnlockAspectTest {
     Namespace namespace = createNamespace(namespaceId);
 
     Release release = createRelease("{\"k1\":\"v1\"}");
-    List<Item> items = Arrays.asList(createItem("k2", "v2"));
+    List<Item> items = Collections.singletonList(createItem("k2", "v2"));
 
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
     when(itemService.findItemsWithoutOrdered(namespaceId)).thenReturn(items);
@@ -106,7 +106,7 @@ public class NamespaceUnlockAspectTest {
     Namespace parentNamespace = createNamespace(parentNamespaceId);
 
     Release childRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
-    List<Item> childItems = Arrays.asList(createItem("k1", "v3"));
+    List<Item> childItems = Collections.singletonList(createItem("k1", "v3"));
     Release parentRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
 
     when(releaseService.findLatestActiveRelease(childNamespace)).thenReturn(childRelease);
@@ -126,7 +126,7 @@ public class NamespaceUnlockAspectTest {
     Namespace parentNamespace = createNamespace(parentNamespaceId);
 
     Release childRelease = createRelease("{\"k1\":\"v3\", \"k2\":\"v2\"}");
-    List<Item> childItems = Arrays.asList(createItem("k1", "v3"));
+    List<Item> childItems = Collections.singletonList(createItem("k1", "v3"));
     Release parentRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
 
     when(releaseService.findLatestActiveRelease(childNamespace)).thenReturn(childRelease);

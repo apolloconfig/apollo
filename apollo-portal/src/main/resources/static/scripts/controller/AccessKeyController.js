@@ -79,7 +79,7 @@ function AccessKeyController($scope, $location, $translate, toastr,
             $scope.appRoleUsers = result;
             $scope.admins = [];
             $scope.appRoleUsers.masterUsers.forEach(function (user) {
-                $scope.admins.push(user.userId);
+                $scope.admins.push(_.escape(user.userId));
             });
         });
     }

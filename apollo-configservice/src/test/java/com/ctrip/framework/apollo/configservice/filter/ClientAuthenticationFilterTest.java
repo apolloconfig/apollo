@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpHeaders;
 
 /**
  * @author nisiyong
@@ -95,7 +96,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.findAvailableSecret(appId)).thenReturn(secrets);
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
-    when(request.getHeader(Signature.HTTP_HEADER_AUTHORIZATION)).thenReturn(errorAuthorization);
+    when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(errorAuthorization);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
@@ -115,7 +116,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.findAvailableSecret(appId)).thenReturn(secrets);
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
-    when(request.getHeader(Signature.HTTP_HEADER_AUTHORIZATION)).thenReturn(correctAuthorization);
+    when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(correctAuthorization);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 

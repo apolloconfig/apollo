@@ -223,7 +223,7 @@ public class XmlConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegratio
     assertEquals(DEFAULT_BATCH, bean.getBatch());
 
     Properties newApplicationProperties = assembleProperties(TIMEOUT_PROPERTY,
-        String.valueOf(initialTimeout), anotherIrrelevantKey, String.valueOf(anotherIrrelevantValue));
+        String.valueOf(initialTimeout), anotherIrrelevantKey, anotherIrrelevantValue);
 
     applicationConfig
         .onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newApplicationProperties);
@@ -447,8 +447,8 @@ public class XmlConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegratio
     properties.setProperty("doubleProperty", String.valueOf(someDouble));
     properties.setProperty("byteProperty", String.valueOf(someByte));
     properties.setProperty("booleanProperty", String.valueOf(someBoolean));
-    properties.setProperty("stringProperty", String.valueOf(someString));
-    properties.setProperty("dateFormat", String.valueOf(someDateFormat));
+    properties.setProperty("stringProperty", someString);
+    properties.setProperty("dateFormat", someDateFormat);
     properties.setProperty("dateProperty", simpleDateFormat.format(someDate));
 
     SimpleConfig config = prepareConfig(ConfigConsts.NAMESPACE_APPLICATION, properties);
@@ -476,8 +476,8 @@ public class XmlConfigPlaceholderAutoUpdateTest extends AbstractSpringIntegratio
     newProperties.setProperty("doubleProperty", String.valueOf(someNewDouble));
     newProperties.setProperty("byteProperty", String.valueOf(someNewByte));
     newProperties.setProperty("booleanProperty", String.valueOf(someNewBoolean));
-    newProperties.setProperty("stringProperty", String.valueOf(someNewString));
-    newProperties.setProperty("dateFormat", String.valueOf(someDateFormat));
+    newProperties.setProperty("stringProperty", someNewString);
+    newProperties.setProperty("dateFormat", someDateFormat);
     newProperties.setProperty("dateProperty", simpleDateFormat.format(someNewDate));
 
     config.onRepositoryChange(ConfigConsts.NAMESPACE_APPLICATION, newProperties);
