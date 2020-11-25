@@ -1,6 +1,6 @@
 name: apollo-portal
 fullNameOverride: ""
-replicaCount: 2
+replicaCount: 1
 containerPort: 8070
 image:
   repository: apolloconfig/apollo-portal

@@ -18,6 +18,15 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
  * private Config config;
  * </pre>
  *
+ * <p>Usage example with placeholder:</p>
+ * <pre class="code">
+ * // The namespace could also be specified as a placeholder, e.g. ${redis.namespace:xxx},
+ * // which will use the value of the key "redis.namespace" or "xxx" if this key is not configured.
+ * &#064;ApolloConfig("${redis.namespace:xxx}")
+ * private Config config;
+ * </pre>
+ *
+ *
  * @author Jason Song(song_s@ctrip.com)
  */
 @Retention(RetentionPolicy.RUNTIME)

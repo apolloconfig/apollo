@@ -7,7 +7,7 @@ metadata:
   name: {{ $portalFullName }}
 data:
   application-github.properties: |
-    spring.datasource.url = jdbc:mysql://{{include "apollo.portaldb.serviceName" .}}:{{ .Values.portaldb.service.port }}/{{ .Values.portaldb.dbName }}{{ if .Values.portaldb.connectionStringProperties }}?{{ .Values.portaldb.connectionStringProperties }}{{ end }}
+    spring.datasource.url = jdbc:mysql://{{include "apollo.portaldb.serviceName" .}}:{{include "apollo.portaldb.servicePort" .}}/{{ .Values.portaldb.dbName }}{{ if .Values.portaldb.connectionStringProperties }}?{{ .Values.portaldb.connectionStringProperties }}{{ end }}
     spring.datasource.username = {{ required "portaldb.userName is required!" .Values.portaldb.userName }}
     spring.datasource.password = {{ required "portaldb.password is required!" .Values.portaldb.password }}
     {{- if .Values.config.envs }}

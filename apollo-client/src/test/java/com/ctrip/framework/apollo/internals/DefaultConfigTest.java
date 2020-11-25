@@ -1,5 +1,6 @@
 package com.ctrip.framework.apollo.internals;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -27,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import org.awaitility.core.ThrowingRunnable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -252,10 +254,10 @@ public class DefaultConfigTest {
 
   @Test
   public void testGetIntPropertyMultipleTimesWithShortExpireTime() throws Exception {
-    String someKey = "someKey";
-    Integer someValue = 2;
+    final String someKey = "someKey";
+    final Integer someValue = 2;
 
-    Integer someDefaultValue = -1;
+    final Integer someDefaultValue = -1;
 
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtilWithShortExpireTime());
 
@@ -264,7 +266,7 @@ public class DefaultConfigTest {
     when(someProperties.getProperty(someKey)).thenReturn(String.valueOf(someValue));
     when(configRepository.getConfig()).thenReturn(someProperties);
 
-    DefaultConfig defaultConfig =
+    final DefaultConfig defaultConfig =
         new DefaultConfig(someNamespace, configRepository);
 
     assertEquals(someValue, defaultConfig.getIntProperty(someKey, someDefaultValue));
@@ -272,12 +274,15 @@ public class DefaultConfigTest {
 
     verify(someProperties, times(1)).getProperty(someKey);
 
-    TimeUnit.MILLISECONDS.sleep(50);
+    await().atMost(500, TimeUnit.MILLISECONDS).untilAsserted(new ThrowingRunnable() {
+      @Override
+      public void run() throws Throwable {
+        assertEquals(someValue, defaultConfig.getIntProperty(someKey, someDefaultValue));
+        assertEquals(someValue, defaultConfig.getIntProperty(someKey, someDefaultValue));
 
-    assertEquals(someValue, defaultConfig.getIntProperty(someKey, someDefaultValue));
-    assertEquals(someValue, defaultConfig.getIntProperty(someKey, someDefaultValue));
-
-    verify(someProperties, times(2)).getProperty(someKey);
+        verify(someProperties, times(2)).getProperty(someKey);
+      }
+    });
   }
 
   @Test

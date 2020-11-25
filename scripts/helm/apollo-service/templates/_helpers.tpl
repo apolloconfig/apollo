@@ -25,6 +25,17 @@ Service name for configdb
 {{- end -}}
 
 {{/*
+Service port for configdb
+*/}}
+{{- define "apollo.configdb.servicePort" -}}
+{{- if .Values.configdb.service.enabled -}}
+{{- .Values.configdb.service.port -}}
+{{- else -}}
+{{- .Values.configdb.port -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Full name for config service
 */}}
 {{- define "apollo.configService.fullName" -}}

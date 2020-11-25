@@ -49,3 +49,14 @@ Service name for portaldb
 {{- .Values.portaldb.host -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Service port for portaldb
+*/}}
+{{- define "apollo.portaldb.servicePort" -}}
+{{- if .Values.portaldb.service.enabled -}}
+{{- .Values.portaldb.service.port -}}
+{{- else -}}
+{{- .Values.portaldb.port -}}
+{{- end -}}
+{{- end -}}

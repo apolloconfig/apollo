@@ -2,7 +2,6 @@ package com.ctrip.framework.apollo.spring.spi;
 
 import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor;
-import com.ctrip.framework.apollo.spring.annotation.ApolloJsonValueProcessor;
 import com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor;
 import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
@@ -26,8 +25,6 @@ public class DefaultConfigPropertySourcesProcessorHelper implements ConfigProper
         ApolloAnnotationProcessor.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class.getName(),
         SpringValueProcessor.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloJsonValueProcessor.class.getName(),
-        ApolloJsonValueProcessor.class);
 
     processSpringValueDefinition(registry);
   }

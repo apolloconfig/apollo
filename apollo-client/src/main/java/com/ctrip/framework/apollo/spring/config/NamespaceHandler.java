@@ -4,6 +4,7 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
 import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 import org.springframework.core.Ordered;
+import org.springframework.util.SystemPropertyUtils;
 import org.w3c.dom.Element;
 
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -14,7 +15,9 @@ import com.google.common.base.Strings;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class NamespaceHandler extends NamespaceHandlerSupport {
-  private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
+
+  private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings()
+      .trimResults();
 
   @Override
   public void init() {
@@ -22,6 +25,7 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
   }
 
   static class BeanParser extends AbstractSingleBeanDefinitionParser {
+
     @Override
     protected Class<?> getBeanClass(Element element) {
       return ConfigPropertySourcesProcessor.class;
@@ -32,13 +36,18 @@ public class NamespaceHandler extends NamespaceHandlerSupport {
       return true;
     }
 
+    private String resolveNamespaces(Element element) {
+      String namespaces = element.getAttribute("namespaces");
+      if (Strings.isNullOrEmpty(namespaces)) {
+        //default to application
+        return ConfigConsts.NAMESPACE_APPLICATION;
+      }
+      return SystemPropertyUtils.resolvePlaceholders(namespaces);
+    }
+
     @Override
     protected void doParse(Element element, BeanDefinitionBuilder builder) {
-      String namespaces = element.getAttribute("namespaces");
-      //default to application
-      if (Strings.isNullOrEmpty(namespaces)) {
-        namespaces = ConfigConsts.NAMESPACE_APPLICATION;
-      }
+      String namespaces = this.resolveNamespaces(element);
 
       int order = Ordered.LOWEST_PRECEDENCE;
       String orderAttribute = element.getAttribute("order");

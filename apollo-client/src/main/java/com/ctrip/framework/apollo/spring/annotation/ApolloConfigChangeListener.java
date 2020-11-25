@@ -18,6 +18,12 @@ import java.lang.annotation.Target;
  *     //handle change event
  * }
  * <br />
+ * //The namespace could also be specified as a placeholder, e.g. ${redis.namespace:xxx}, which will use the value of the key "redis.namespace" or "xxx" if this key is not configured.
+ * &#064;ApolloConfigChangeListener({"${redis.namespace:xxx}"})
+ * private void onChange(ConfigChangeEvent changeEvent) {
+ *     //handle change event
+ * }
+ * <br />
  * //Listener on namespaces of "someNamespace" and "anotherNamespace", will only be notified when "someKey" or "anotherKey" is changed
  * &#064;ApolloConfigChangeListener(value = {"someNamespace","anotherNamespace"}, interestedKeys = {"someKey", "anotherKey"})
  * private void onChange(ConfigChangeEvent changeEvent) {
