@@ -1,10 +1,13 @@
 package com.ctrip.framework.foundation.internals.provider;
 
+import static com.ctrip.framework.foundation.internals.provider.DefaultServerProvider.DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX;
+import static com.ctrip.framework.foundation.internals.provider.DefaultServerProvider.DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.ctrip.framework.foundation.internals.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -31,6 +34,20 @@ public class DefaultServerProviderTest {
   private void cleanUp() {
     System.clearProperty("env");
     System.clearProperty("idc");
+    System.clearProperty("apollo.path.server.properties");
+  }
+
+  @Test
+  public void testGetServerPropertiesPathDefault() {
+    assertEquals(Utils.isOSWindows() ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
+        : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX, defaultServerProvider.getServerPropertiesPath());
+  }
+
+  @Test
+  public void testGetServerPropertiesPathCustom() {
+    final String customPath = "/simple/custom/path";
+    System.setProperty("apollo.path.server.properties", customPath);
+    assertEquals(customPath, defaultServerProvider.getServerPropertiesPath());
   }
 
   @Test

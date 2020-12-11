@@ -523,6 +523,12 @@ The project is licensed under the [Apache 2 license](https://github.com/ctripcor
 <tr>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/czbank.png" alt="浙商银行"></td>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/czbyqy.png" alt="易企银科技"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/yundun.jpg" alt="上海云盾"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/gaiaworks.jpg" alt="苏州盖雅信息技术有限公司"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/mengxiang.png" alt="爱库存"></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/jidouauto.png" alt="极豆车联网"></td>
 </tr>
 </table>
 
