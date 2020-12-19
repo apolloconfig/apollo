@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Apollo</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="keywords" content="apollo,configuration,server,java,microservice" />
+  <meta name="description" content="A reliable configuration management system" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+
+  <!-- theme -->
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css" title="vue" />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/dark.css" title="dark" disabled />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/buble.css" title="buble" disabled />
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/pure.css" title="pure" disabled />
+</head>
+
+<body>
+  <div id="app">Loading ...</div>
+  <script>
+    window.$docsify = {
+      alias: {
+        '/zh/.*/_sidebar.md': '/zh/_sidebar.md',
+        '/en/.*/_sidebar.md': '/en/_sidebar.md',
+        '/.*/_navbar.md': '/_navbar.md',
+        '/zh/(.*)': 'zh/$1',
+        '/en/(.*)': 'en/$1',
+      },
+      auto2top: true,
+      // Only coverpage is loaded when visiting the home page.
+      onlyCover: true,
+      coverpage: true,
+      loadSidebar: true,
+      loadNavbar: true,
+      mergeNavbar: true,
+      maxLevel: 6,
+      subMaxLevel: 5,
+      name: 'Apollo',
+      repo: 'https://github.com/ctripcorp/apollo/',
+      search: {
+        noData: {
+          '/zh/': '没有结果!',
+          '/en/': 'No results!',
+          '/': '没有结果!',
+        },
+        paths: 'auto',
+        placeholder: {
+          '/zh/': '搜索',
+          '/en/': 'Search',
+          '/': '搜索',
+        },
+      },
+      // click to copy.
+      copyCode: {
+        buttonText: {
+          '/zh/': '点击复制',
+          '/en/': 'Copy to clipboard',
+          '/': 'Copy to clipboard',
+        },
+        errorText: {
+          '/zh/': '错误',
+          '/en/': 'Error',
+          '/': 'Error',
+        },
+        successText: {
+          '/zh/': '复制成功',
+          '/en': 'Copied',
+          '/': 'Copied',
+        },
+      },
+      plugins: [
+        // Edit Document Button in each page
+        function (hook, vm) {
+          hook.beforeEach(function (html) {
+            if (/githubusercontent\.com/.test(vm.route.file)) {
+              url = vm.route.file
+                .replace('raw.githubusercontent.com', 'github.com')
+                .replace(/\/master/, '/blob/master')
+            } else {
+              url = 'https://github.com/ctripcorp/apollo/blob/master/docs/' + vm.route.file
+            }
+            var editHtml = '[:memo: Edit Document](' + url + ')\n\n'
+
+            return editHtml
+              + html
+              + '\n\n----\n\n'
+              + '<a href="https://docsify.js.org" target="_blank" style="color: inherit; font-weight: normal; text-decoration: none;">Powered by docsify</a>'
+          })
+        },
+      ],
+    };
+  </script>
+
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <!-- plugins -->
+  <!-- support search -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <!-- Support docsify sidebar catalog expand and collapse -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+  <!-- Medium's image zoom -->
+  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <!-- Add a simple Click to copy button to all preformatted code blocks to effortlessly allow users to copy example code from your docs -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+
+  <!-- code highlight -->
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-csharp.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-nginx.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-properties.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-sql.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-xml-doc.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+</body>
+
+</html>

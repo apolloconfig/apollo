@@ -745,7 +745,6 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                         }
                     );
                 namespace.commited = true;
-                toggleTextEditStatus(namespace);
             }
 
             function syntaxCheck(namespace) {

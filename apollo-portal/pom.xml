@@ -50,6 +50,10 @@
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+		</dependency>
 		<!-- end of JDK 1.8+ -->
 		<!-- JDK 11+ -->
 		<dependency>

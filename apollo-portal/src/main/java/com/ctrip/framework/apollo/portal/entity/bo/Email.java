@@ -21,6 +21,10 @@ public class Email {
     return recipients;
   }
 
+  public String getRecipientsString() {
+    return String.join(",", recipients);
+  }
+
   public void setRecipients(List<String> recipients) {
     this.recipients = recipients;
   }

@@ -8,6 +8,7 @@ import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.google.common.base.Strings;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,9 +36,9 @@ public class PropertyResolver implements ConfigTextResolver {
     oldKeyMapItem.remove("");
 
     String[] newItems = configText.split(ITEM_SEPARATOR);
-
-    if (isHasRepeatKey(newItems)) {
-      throw new BadRequestException("config text has repeat key please check.");
+    Set<String> repeatKeys = new HashSet<>();
+    if (isHasRepeatKey(newItems, repeatKeys)) {
+      throw new BadRequestException(String.format("Config text has repeated keys: %s, please check your input.", repeatKeys.toString()));
     }
 
     ItemChangeSets changeSets = new ItemChangeSets();
@@ -72,24 +73,24 @@ public class PropertyResolver implements ConfigTextResolver {
     return changeSets;
   }
 
-  private boolean isHasRepeatKey(String[] newItems) {
+  private boolean isHasRepeatKey(String[] newItems, @NotNull Set<String> repeatKeys) {
     Set<String> keys = new HashSet<>();
     int lineCounter = 1;
-    int keyCount = 0;
     for (String item : newItems) {
       if (!isCommentItem(item) && !isBlankItem(item)) {
-        keyCount++;
         String[] kv = parseKeyValueFromItem(item);
         if (kv != null) {
-          keys.add(kv[0].toLowerCase());
+          String key = kv[0].toLowerCase();
+          if(!keys.add(key)){
+            repeatKeys.add(key);
+          }
         } else {
           throw new BadRequestException("line:" + lineCounter + " key value must separate by '='");
         }
       }
       lineCounter++;
     }
-
-    return keyCount > keys.size();
+    return !repeatKeys.isEmpty();
   }
 
   private String[] parseKeyValueFromItem(String item) {

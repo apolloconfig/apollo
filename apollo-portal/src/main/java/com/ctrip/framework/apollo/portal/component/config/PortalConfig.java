@@ -187,8 +187,28 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("consumer.token.salt", "apollo-portal");
   }
 
+  public boolean isEmailEnabled() {
+    return getBooleanProperty("email.enabled", false);
+  }
+
+  public String emailConfigHost() {
+    return getValue("email.config.host", "");
+  }
+
+  public String emailConfigUser() {
+    return getValue("email.config.user", "");
+  }
+
+  public String emailConfigPassword() {
+    return getValue("email.config.password", "");
+  }
+
   public String emailSender() {
-    return getValue("email.sender");
+    String value = getValue("email.sender", "");
+    if (Strings.isNullOrEmpty(value)) {
+      value = emailConfigUser();
+    }
+    return value;
   }
 
   public String emailTemplateFramework() {

@@ -1,0 +1,69 @@
+apiVersion: v1
+entries:
+  apollo-portal:
+  - apiVersion: v2
+    appVersion: 1.7.1
+    created: "2020-08-16T22:21:06.70687+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 7c1b4efa13d4cc54a714b3ec836f609a8f97286c465789f6d807d1227cfc5b74
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.7.0
+    created: "2020-08-16T22:21:06.705726+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: b838e4478f0c031093691defeffb5805d51189989db0eb9caaa2dc67905c8391
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.1.0.tgz
+    version: 0.1.0
+  apollo-service:
+  - apiVersion: v2
+    appVersion: 1.7.1
+    created: "2020-08-16T22:21:06.708833+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 787a26590d68735341b7839c14274492097fed4a0843fc9a1e5c692194199707
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.7.0
+    created: "2020-08-16T22:21:06.708165+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 65c08f39b54ad1ac1d849cc841ce978bd6e95b0b6cbd2423d9f17f66bc7e8d3e
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.1.0.tgz
+    version: 0.1.0
+generated: "2020-08-16T22:21:06.703126+08:00"

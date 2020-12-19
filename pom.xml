@@ -79,9 +79,10 @@
 		<platform-bom.version>Cairo-SR4</platform-bom.version>
 		<spring-boot.version>2.0.5.RELEASE</spring-boot.version>
 		<spring-cloud.version>Finchley.SR1</spring-cloud.version>
-        <jaxb.version>2.3.0</jaxb.version>
-        <javax.activation.version>1.1.1</javax.activation.version>
-        <javassist.version>3.23.1-GA</javassist.version>
+		<jaxb.version>2.3.0</jaxb.version>
+		<javax.activation.version>1.1.1</javax.activation.version>
+		<javax.mail.version>1.6.2</javax.mail.version>
+		<javassist.version>3.23.1-GA</javassist.version>
 		<!-- Plugins Version -->
 		<maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
@@ -349,13 +350,18 @@
 				<artifactId>activation</artifactId>
 				<version>${javax.activation.version}</version>
 			</dependency>
-            <!-- JDK 11+ -->
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-            <!-- end of JDK 11+ -->
+			<dependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>javax.mail</artifactId>
+				<version>${javax.mail.version}</version>
+			</dependency>
+			<!-- JDK 11+ -->
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${javassist.version}</version>
+			</dependency>
+			<!-- end of JDK 11+ -->
 		</dependencies>
 	</dependencyManagement>
 

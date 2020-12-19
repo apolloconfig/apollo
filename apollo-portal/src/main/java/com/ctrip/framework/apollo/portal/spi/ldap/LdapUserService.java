@@ -21,6 +21,7 @@ import javax.naming.ldap.LdapName;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.ContextMapper;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -177,15 +178,20 @@ public class LdapUserService implements UserService {
   }
 
   private UserInfo searchUserById(String userId) {
-    return ldapTemplate.searchForObject(query().where(loginIdAttrName).is(userId),
-        ctx -> {
-          UserInfo userInfo = new UserInfo();
-          DirContextAdapter contextAdapter = (DirContextAdapter) ctx;
-          userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
-          userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
-          userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
-          return userInfo;
-        });
+    try {
+      return ldapTemplate.searchForObject(query().where(loginIdAttrName).is(userId),
+          ctx -> {
+            UserInfo userInfo = new UserInfo();
+            DirContextAdapter contextAdapter = (DirContextAdapter) ctx;
+            userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
+            userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
+            userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
+            return userInfo;
+          });
+    } catch (EmptyResultDataAccessException ex) {
+      // EmptyResultDataAccessException means no record found
+      return null;
+    }
   }
 
   /**
@@ -279,9 +285,14 @@ public class LdapUserService implements UserService {
       }
       return null;
     }
-    return ldapTemplate
-        .searchForObject(ldapQueryCriteria().and(loginIdAttrName).is(userId), ldapUserInfoMapper);
 
+    try {
+      return ldapTemplate
+          .searchForObject(ldapQueryCriteria().and(loginIdAttrName).is(userId), ldapUserInfoMapper);
+    } catch (EmptyResultDataAccessException ex) {
+      // EmptyResultDataAccessException means no record found
+      return null;
+    }
   }
 
   @Override
