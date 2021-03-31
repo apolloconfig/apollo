@@ -24,13 +24,14 @@ then
     export SPRING_DATASOURCE_USERNAME=$DS_USERNAME
     export SPRING_DATASOURCE_PASSWORD=$DS_PASSWORD
 fi
-export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file=$LOG_DIR/$SERVICE_NAME.log -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
+export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$LOG_DIR/$SERVICE_NAME.log -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
+export APP_NAME=$SERVICE_NAME
 
 PATH_TO_JAR=$SERVICE_NAME".jar"
 SERVER_URL="http://localhost:$SERVER_PORT"
 
 function checkPidAlive {
-    for i in `ls -t $SERVICE_NAME*.pid 2>/dev/null`
+    for i in `ls -t $APP_NAME/$APP_NAME.pid 2>/dev/null`
     do
         read pid < $i
 
@@ -118,7 +119,7 @@ fi
 
 # For Docker environment, start in foreground mode
 if [[ -n "$APOLLO_RUN_MODE" ]] && [[ "$APOLLO_RUN_MODE" == "Docker" ]]; then
-    $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR
+    exec $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR
 else
     if [[ -f $SERVICE_NAME".jar" ]]; then
         rm -rf $SERVICE_NAME".jar"

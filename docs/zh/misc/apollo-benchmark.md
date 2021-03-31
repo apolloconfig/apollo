@@ -34,7 +34,7 @@ QPS: 160
 
 999线响应时间: 2.5ms
 
->注：config service开启了配置缓存，更多信息可以参考[分布式部署指南中的缓存配置](zh/deployment/distributed-deployment-guide#_3-config-servicecacheenabled-是否开启配置缓存)
+>注：config service开启了配置缓存，更多信息可以参考[分布式部署指南中的缓存配置](zh/deployment/distributed-deployment-guide#_323-config-servicecacheenabled-是否开启配置缓存)
 
 #### 2.2 Config Server GC情况
 

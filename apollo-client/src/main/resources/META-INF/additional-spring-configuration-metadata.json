@@ -1,0 +1,72 @@
+{
+  "properties": [
+    {
+      "name": "apollo.accesskey.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.foundation.internals.provider.DefaultApplicationProvider",
+      "description": "apollo client access key.",
+      "defaultValue": ""
+    },
+    {
+      "name": "apollo.autoUpdateInjectedSpringProperties",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
+      "description": "whether to auto update spring placeholder or not.",
+      "defaultValue": true
+    },
+    {
+      "name": "apollo.bootstrap.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.spring.config.PropertySourcesConstants",
+      "description": "enable injecting namespaces in bootstrap phase.",
+      "defaultValue": false
+    },
+    {
+      "name": "apollo.bootstrap.namespaces",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.apollo.spring.config.PropertySourcesConstants",
+      "description": "namespaces to be injected during bootstrap phase, multiple namespaces should be comma-separated.",
+      "defaultValue": "application"
+    },
+    {
+      "name": "apollo.bootstrap.eagerLoad.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.spring.config.PropertySourcesConstants",
+      "description": "enable apollo initialization before logging system initialization.",
+      "defaultValue": false
+    },
+    {
+      "name": "apollo.cacheDir",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
+      "description": "local cache directory. the default value on windows is 'c:\\opt\\data', while on mac/linux is '/opt/data'.",
+      "defaultValue": "/opt/data"
+    },
+    {
+      "name": "apollo.cluster",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.apollo.core.ConfigConsts",
+      "description": "cluster name.",
+      "defaultValue": "default"
+    },
+    {
+      "name": "apollo.meta",
+      "type": "java.net.URI",
+      "sourceType": "com.ctrip.framework.apollo.core.ConfigConsts",
+      "description": "apollo meta server address."
+    },
+    {
+      "name": "apollo.property.order.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.util.factory.PropertiesFactory",
+      "description": "enable property order.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.id",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.foundation.spi.provider.ApplicationProvider",
+      "description": "apollo client app id. if it's empty apollo will only load public namespace configurations!."
+    }
+  ]
+}

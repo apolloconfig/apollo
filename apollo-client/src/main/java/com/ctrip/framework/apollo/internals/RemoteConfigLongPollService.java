@@ -18,7 +18,7 @@ import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpUtil;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
@@ -65,7 +65,7 @@ public class RemoteConfigLongPollService {
   private Type m_responseType;
   private static final Gson GSON = new Gson();
   private ConfigUtil m_configUtil;
-  private HttpUtil m_httpUtil;
+  private HttpClient m_httpClient;
   private ConfigServiceLocator m_serviceLocator;
 
   /**
@@ -84,7 +84,7 @@ public class RemoteConfigLongPollService {
     m_responseType = new TypeToken<List<ApolloConfigNotification>>() {
     }.getType();
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
-    m_httpUtil = ApolloInjector.getInstance(HttpUtil.class);
+    m_httpClient = ApolloInjector.getInstance(HttpClient.class);
     m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
     m_longPollRateLimiter = RateLimiter.create(m_configUtil.getLongPollQPS());
   }
@@ -171,7 +171,7 @@ public class RemoteConfigLongPollService {
         transaction.addData("Url", url);
 
         final HttpResponse<List<ApolloConfigNotification>> response =
-            m_httpUtil.doGet(request, m_responseType);
+            m_httpClient.doGet(request, m_responseType);
 
         logger.debug("Long polling response: {}, url: {}", response.getStatusCode(), url);
         if (response.getStatusCode() == 200 && response.getBody() != null) {

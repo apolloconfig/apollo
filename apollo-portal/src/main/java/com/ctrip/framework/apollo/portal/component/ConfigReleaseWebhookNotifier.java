@@ -50,7 +50,7 @@ public class ConfigReleaseWebhookNotifier {
       try {
         restTemplate.postForObject(url, entity, String.class, env);
       } catch (Exception e) {
-        logger.error("Notify webHook server failed. webHook server url:{}", env, url, e);
+        logger.error("Notify webHook server failed, env: {}, webHook server url:{}", env, url, e);
       }
     }
   }

@@ -6,7 +6,23 @@
 	<include resource="org/springframework/boot/logging/logback/file-appender.xml" />
 	<include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 	<root level="INFO">
-		<appender-ref ref="FILE" />
-		<appender-ref ref="CONSOLE" />
+		<if condition='isDefined("LOG_APPENDERS")'>
+			<then>
+				<if condition='property("LOG_APPENDERS").contains("CONSOLE")'>
+					<then>
+						<appender-ref ref="CONSOLE"/>
+					</then>
+				</if>
+				<if condition='property("LOG_APPENDERS").contains("FILE")'>
+					<then>
+						<appender-ref ref="FILE"/>
+					</then>
+				</if>
+			</then>
+			<else>
+				<appender-ref ref="FILE" />
+				<appender-ref ref="CONSOLE" />
+			</else>
+		</if>
 	</root>
 </configuration>

@@ -27,6 +27,14 @@
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-openapi</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
 		<!-- yml processing -->
 		<dependency>
 			<groupId>org.yaml</groupId>
@@ -81,9 +89,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<executable>true</executable>
-				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -115,6 +120,9 @@
 					</imageTags>
 					<dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
 					<serverId>docker-hub</serverId>
+					<buildArgs>
+						<VERSION>${project.version}</VERSION>
+					</buildArgs>
 					<resources>
 						<resource>
 							<targetPath>/</targetPath>

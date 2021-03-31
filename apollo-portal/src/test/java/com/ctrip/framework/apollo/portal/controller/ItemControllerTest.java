@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.yaml.snakeyaml.constructor.ConstructorException;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ItemControllerTest {
@@ -46,7 +47,7 @@ public class ItemControllerTest {
     itemController.doSyntaxCheck(assemble(ConfigFileFormat.YAML.getValue(), yaml));
   }
 
-  @Test(expected = IllegalStateException.class)
+  @Test(expected = DuplicateKeyException.class)
   public void yamlSyntaxCheckWithDuplicatedValue() throws Exception {
     String yaml = loadYaml("case2.yaml");
 

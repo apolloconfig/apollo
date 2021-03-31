@@ -274,7 +274,7 @@ Spring从3.1版本开始增加了`ConfigurableEnvironment`和`PropertySource`：
 <tr>
 <td>数据库宕机</td>
 <td>客户端无影响，Portal无法更新配置</td>
-<td>Config Service开启<a href="/#/zh/deployment/distributed-deployment-guide?id=_3-config-servicecacheenabled-是否开启配置缓存">配置缓存</a>后，对配置的读取不受数据库宕机影响</td>
+<td>Config Service开启<a href="/#/zh/deployment/distributed-deployment-guide?id=_323-config-servicecacheenabled-是否开启配置缓存">配置缓存</a>后，对配置的读取不受数据库宕机影响</td>
 <td></td>
 </tr>
 </tbody>

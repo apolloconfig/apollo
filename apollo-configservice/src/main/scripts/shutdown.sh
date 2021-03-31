@@ -1,5 +1,6 @@
 #!/bin/bash
 SERVICE_NAME=apollo-configservice
+export APP_NAME=$SERVICE_NAME
 
 if [[ -z "$JAVA_HOME" && -d /usr/java/latest/ ]]; then
     export JAVA_HOME=/usr/java/latest/

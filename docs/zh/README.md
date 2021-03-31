@@ -77,7 +77,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   - [Apollo配置中心设计](zh/design/apollo-design.md)
   - [Apollo配置中心介绍](zh/design/apollo-introduction.md)
   - [Apollo核心概念之“Namespace”](zh/design/apollo-core-concept-namespace.md)
-  * [Apollo源码解析](http://www.iocoder.cn/categories/Apollo/)（据说Apollo非常适合作为初学者第一个通读源码学习的分布式中间件产品）
+  - [Apollo源码解析](http://www.iocoder.cn/categories/Apollo/)（据说Apollo非常适合作为初学者第一个通读源码学习的分布式中间件产品）
 
 # Development
   - [Apollo开发指南](zh/development/apollo-development-guide.md)
@@ -85,7 +85,8 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
     - [Eclipse Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     - [Intellij Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
   - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
-  - [邮件模板样例](zh/development/email-template-samples.md)
+  - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
+  - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
 
 # Deployment
   - [Quick Start](zh/deployment/quick-start.md)
@@ -112,16 +113,16 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
 # Support
 <table>
   <thead>
-    <th>Apollo技术支持⑤群<br />群号：914839843（未满）</th>
     <th>Apollo技术支持②群<br />群号：904287263（未满）</th>
+    <th>Apollo技术支持⑤群<br />群号：914839843（已满）</th>
     <th>Apollo技术支持④群<br />群号：516773934（已满）</th>
     <th>Apollo技术支持③群<br />群号：742035428（已满）</th>
     <th>Apollo技术支持①群<br />群号：375526581（已满）</th>
   </thead>
   <tbody>
     <tr>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-5.png" alt="tech-support-qq-5"></td>
       <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-2.png" alt="tech-support-qq-2"></td>
+      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-5.png" alt="tech-support-qq-5"></td>
       <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-4.png" alt="tech-support-qq-4"></td>
       <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-3.png" alt="tech-support-qq-3"></td>
       <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-1.png" alt="tech-support-qq-1"></td>
@@ -525,6 +526,24 @@ The project is licensed under the [Apache 2 license](https://github.com/ctripcor
 </tr>
 <tr>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/jidouauto.png" alt="极豆车联网"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/ipalfish.png" alt="伴鱼少儿英语"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/iqboard.png" alt="锐达科技"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/koolearn.png" alt="新东方在线"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/kingcome.png" alt="金康高科"></td>
+</tr>
+ <tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/soulapp.png" alt="soul"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/ezrpro.png" alt="驿氪"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/hc360.png" alt="慧聪"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/21cp.png" alt="中塑在线"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/goinglink.jpg" alt="甄云科技"></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/aitrace.jpg" alt="追溯科技"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/moqipobing.png" alt="玩吧"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/cassan.png" alt="广州卡桑信息技术有限公司"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/shuidichou.png" alt="水滴"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/kuwo.png" alt="酷我音乐"></td>
 </tr>
 </table>
 

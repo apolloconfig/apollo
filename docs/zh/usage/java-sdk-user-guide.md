@@ -77,8 +77,8 @@ Apollo支持应用在不同的环境有不同的配置，所以需要在运行�
     * 注意key为全大写，且中间是`_`分隔
 4. 通过`server.properties`配置文件
     * 可以在`server.properties`配置文件中指定`apollo.meta=http://config-service-url`
-    * 对于Mac/Linux，文件位置为`/opt/settings/server.properties`
-    * 对于Windows，文件位置为`C:\opt\settings\server.properties`
+    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 5. 通过`app.properties`配置文件
     * 可以在`classpath:/META-INF/app.properties`指定`apollo.meta=http://config-service-url`
 6. 通过Java system property `${env}_meta`
@@ -137,8 +137,8 @@ MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github
     * 注意key为全大写，且中间是`_`分隔
 4. 通过`server.properties`配置文件
     * 可以在`server.properties`配置文件中指定`apollo.configService=http://config-service-url:port`
-    * 对于Mac/Linux，文件位置为`/opt/settings/server.properties`
-    * 对于Windows，文件位置为`C:\opt\settings\server.properties`
+    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
 ### 1.2.3 本地缓存路径
 Apollo客户端会把从服务端获取到的配置在本地文件系统缓存一份，用于在遇到服务不可用，或网络不通的时候，依然能从本地恢复配置，不影响应用正常运行。
@@ -178,8 +178,8 @@ batch=2000
     * 注意key为全大写，且中间是`_`分隔
 4. 通过`server.properties`配置文件
     * 可以在`server.properties`配置文件中指定`apollo.cacheDir=/opt/data/some-cache-dir`
-    * 对于Mac/Linux，文件位置为`/opt/settings/server.properties`
-    * 对于Windows，文件位置为`C:\opt\settings\server.properties`
+    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
 > 注：本地缓存路径也可用于容灾目录，如果应用在所有config service都挂掉的情况下需要扩容，那么也可以先把配置从已有机器上的缓存路径复制到新机器上的相同缓存路径
 
@@ -201,8 +201,8 @@ Environment可以通过以下3种方式的任意一个配置：
 
 3. 通过配置文件
     * 最后一个推荐的方式是通过配置文件来指定`env=YOUR-ENVIRONMENT`
-    * 对于Mac/Linux，文件位置为`/opt/settings/server.properties`
-    * 对于Windows，文件位置为`C:\opt\settings\server.properties`
+    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
 文件内容形如：
 ```properties
@@ -244,8 +244,8 @@ Apollo支持配置按照集群划分，也就是说对于一个appId和一个环
     * 注意key为全大写
 5. 通过`server.properties`配置文件
     * 可以在`server.properties`配置文件中指定`idc=xxx`
-    * 对于Mac/Linux，文件位置为`/opt/settings/server.properties`
-    * 对于Windows，文件位置为`C:\opt\settings\server.properties`
+    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
 **Cluster Precedence**（集群顺序）
 
@@ -301,6 +301,21 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
     * 注意key为全大写
 4. 通过`app.properties`配置文件
     * 可以在`classpath:/META-INF/app.properties`指定`apollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`
+
+#### 1.2.4.5 自定义server.properties路径
+
+> 适用于1.8.0及以上版本
+
+1.8.0版本开始支持以下方式自定义server.properties路径，按照优先级从高到低分别为：
+
+1. 通过Java System Property `apollo.path.server.properties`
+   * 可以通过Java的System Property `apollo.path.server.properties`来指定
+   * 在Java程序启动脚本中，可以指定`-Dapollo.path.server.properties=/some-dir/some-file.properties`
+      * 如果是运行jar文件，需要注意格式是`java -Dapollo.path.server.properties=/some-dir/some-file.properties -jar xxx.jar`
+   * 也可以通过程序指定，如`System.setProperty("apollo.path.server.properties", "/some-dir/some-file.properties");`
+2. 通过操作系统的System Environment`APOLLO_PATH_SERVER_PROPERTIES`
+   * 可以通过操作系统的System Environment `APOLLO_PATH_SERVER_PROPERTIES`来指定
+   * 注意key为全大写，且中间是`_`分隔
 
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。

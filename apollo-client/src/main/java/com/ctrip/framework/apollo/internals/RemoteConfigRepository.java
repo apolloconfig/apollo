@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpUtil;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -52,7 +52,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
   private static final Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
 
   private final ConfigServiceLocator m_serviceLocator;
-  private final HttpUtil m_httpUtil;
+  private final HttpClient m_httpClient;
   private final ConfigUtil m_configUtil;
   private final RemoteConfigLongPollService remoteConfigLongPollService;
   private volatile AtomicReference<ApolloConfig> m_configCache;
@@ -79,7 +79,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     m_namespace = namespace;
     m_configCache = new AtomicReference<>();
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
-    m_httpUtil = ApolloInjector.getInstance(HttpUtil.class);
+    m_httpClient = ApolloInjector.getInstance(HttpClient.class);
     m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
     remoteConfigLongPollService = ApolloInjector.getInstance(RemoteConfigLongPollService.class);
     m_longPollServiceDto = new AtomicReference<>();
@@ -218,7 +218,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
         transaction.addData("Url", url);
         try {
 
-          HttpResponse<ApolloConfig> response = m_httpUtil.doGet(request, ApolloConfig.class);
+          HttpResponse<ApolloConfig> response = m_httpClient.doGet(request, ApolloConfig.class);
           m_configNeedForceRefresh.set(false);
           m_loadConfigFailSchedulePolicy.success();
 

@@ -11,55 +11,7 @@
 
 ### 3. admin server 或者 config server 注册了内网IP，导致portal或者client访问不了admin server或config server
 
-分布式部署的时候，`apollo-configservice`和`apollo-adminservice`需要把自己的IP和端口注册到Meta Server（apollo-configservice本身）。
-
-Apollo客户端和Portal会从Meta Server获取服务的地址（IP+端口），然后通过服务地址直接访问。
-
-所以如果实际部署的机器有多块网卡（如docker），或者存在某些网卡的IP是Apollo客户端和Portal无法访问的（如网络安全限制），那么我们就需要在`apollo-configservice`和`apollo-adminservice`中做相关限制以避免Eureka将这些网卡的IP注册到Meta Server。
-
-#### 方案一： 忽略某些网卡
-具体文档可以参考[Ignore Network Interfaces](http://projects.spring.io/spring-cloud/spring-cloud.html#ignore-network-interfaces)章节。具体而言，就是分别编辑[apollo-configservice/src/main/resources/application.yml](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/resources/application.yml)和[apollo-adminservice/src/main/resources/application.yml](https://github.com/ctripcorp/apollo/blob/master/apollo-adminservice/src/main/resources/application.yml)，然后把需要忽略的网卡加进去。
-
-如下面这个例子就是对于`apollo-configservice`，把docker0和veth.*的网卡在注册到Eureka时忽略掉。
-
-```yaml
-    spring:
-      application:
-          name: apollo-configservice
-      profiles:
-        active: ${apollo_profile}
-      cloud:
-        inetutils:
-          ignoredInterfaces:
-            - docker0
-            - veth.*
-```
-> 注意，对于application.yml修改时要小心，千万不要把其它信息改错了，如spring.application.name等。
-
-#### 方案二：强制指定admin server和config server向eureka注册的IP
-
-可以修改startup.sh，通过JVM System Property在运行时传入，如`-Deureka.instance.ip-address=${指定的IP}`，或者也可以修改apollo-adminservice或apollo-configservice 的bootstrap.yml文件，加入以下配置
-
-``` yaml
-eureka:
-  instance:
-    ip-address: ${指定的IP}
-```
-#### 方案三：强制指定admin server和config server向eureka注册的IP和Port
-
-可以修改startup.sh，通过JVM System Property在运行时传入，如`-Deureka.instance.homePageUrl=http://${指定的IP}:${指定的Port}`，或者也可以修改apollo-adminservice或apollo-configservice 的bootstrap.yml文件，加入以下配置
-
-``` yaml
-eureka:
-  instance:
-    homePageUrl: http://${指定的IP}:${指定的Port}
-    preferIpAddress: false
-```
-
-做完上述修改并重启后，可以查看Eureka页面（http://${config-service-url:port}）检查注册上来的IP信息是否正确。
-
-> 注：如果Apollo部署在公有云上，本地开发环境无法连接，但又需要做开发测试的话，客户端可以升级到0.11.0版本及以上，然后通过`-Dapollo.configService=http://config-service的公网IP:端口`来跳过meta service的服务发现，记得要对公网 SLB 设置 IP 白名单，避免数据泄露
-
+请参考[网络策略](zh/deployment/distributed-deployment-guide?id=_14-网络策略)。
 
 ### 4. Portal如何增加环境？
 
@@ -67,10 +19,10 @@ eureka:
 
 1.6.0版本增加了自定义环境的功能，可以在不修改代码的情况增加环境
 
-1. protaldb增加环境，参考[分布式部署指南 2.1.3.1一节](zh/deployment/distributed-deployment-guide?id=_2131-调整apolloportaldb配置)
+1. protaldb增加环境，参考[3.1 调整ApolloPortalDB配置](zh/deployment/distributed-deployment-guide?id=_31-调整apolloportaldb配置)
 2. 为apollo-portal添加新增环境对应的meta server地址，具体参考：[2.2.1.1.2.4 配置apollo-portal的meta service信息](zh/deployment/distributed-deployment-guide?id=_221124-配置apollo-portal的meta-service信息)。apollo-client在新的环境下使用时也需要做好相应的配置，具体参考：[1.2.2 Apollo Meta Server](zh/usage/java-sdk-user-guide?id=_122-apollo-meta-server)。
 
->注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[2.1.3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_2132-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
+>注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_32-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
 
 > 注2：如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](zh/deployment/distributed-deployment-guide?id=_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化
 
@@ -78,10 +30,10 @@ eureka:
 ##### 4.2.1 添加Apollo预先定义好的环境
 
 如果需要添加的环境是Apollo预先定义的环境（DEV, FAT, UAT, PRO），需要两步操作：
-1. protaldb增加环境，参考[分布式部署指南 2.1.3.1一节](zh/deployment/distributed-deployment-guide?id=_2131-调整apolloportaldb配置)
+1. protaldb增加环境，参考[3.1 调整ApolloPortalDB配置](zh/deployment/distributed-deployment-guide?id=_31-调整apolloportaldb配置)
 2. 为apollo-portal添加新增环境对应的meta server地址，具体参考：[2.2.1.1.2.4 配置apollo-portal的meta service信息](zh/deployment/distributed-deployment-guide?id=_221124-配置apollo-portal的meta-service信息)。apollo-client在新的环境下使用时也需要做好相应的配置，具体参考：[1.2.2 Apollo Meta Server](zh/usage/java-sdk-user-guide?id=_122-apollo-meta-server)。
 
->注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[2.1.3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_2132-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
+>注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_32-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
 
 > 注2：如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](zh/deployment/distributed-deployment-guide?id=_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化
 
@@ -134,10 +86,10 @@ public class LegacyMetaServerProvider {
     ...
 }
 ```
-6. protaldb增加`BETA`环境，参考[分布式部署指南 2.1.3.1一节](zh/deployment/distributed-deployment-guide?id=_2131-调整apolloportaldb配置)
+6. protaldb增加`BETA`环境，参考[3.1 调整ApolloPortalDB配置](zh/deployment/distributed-deployment-guide?id=_31-调整apolloportaldb配置)
 7. 为apollo-portal添加新增环境对应的meta server地址，具体参考：[2.2.1.1.2.4 配置apollo-portal的meta service信息](zh/deployment/distributed-deployment-guide?id=_221124-配置apollo-portal的meta-service信息)。apollo-client在新的环境下使用时也需要做好相应的配置，具体参考：[1.2.2 Apollo Meta Server](zh/usage/java-sdk-user-guide?id=_122-apollo-meta-server)。
 
->注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[2.1.3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_2132-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
+>注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](zh/deployment/distributed-deployment-guide?id=_212-创建apolloconfigdb)，[3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_32-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](zh/deployment/distributed-deployment-guide?id=_22112-配置数据库连接信息)
 
 > 注2：如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](zh/deployment/distributed-deployment-guide?id=_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化
 

@@ -34,7 +34,7 @@ jobs:
       run: mvn clean compile -pl apollo-client,apollo-mockserver,apollo-openapi -am -Dmaven.gitcommitid.skip=true
     - name: JDK 8
       if: matrix.jdk == '8'
-      run: mvn -B package -P travis jacoco:report -Dmaven.gitcommitid.skip=true
+      run: mvn -B clean package -P travis jacoco:report -Dmaven.gitcommitid.skip=true
     - name: JDK 11 
       if: matrix.jdk == '11'
       run: mvn clean compile -Dmaven.gitcommitid.skip=true

@@ -14,7 +14,7 @@ The apollo-service and apollo-portal charts create deployments for apollo-config
 ## 3. Add Apollo Helm Chart Repository
 
 ```bash
-$ helm repo add apollo http://ctripcorp.github.io/apollo/charts
+$ helm repo add apollo https://ctripcorp.github.io/apollo/charts
 $ helm search repo apollo
 ```
 

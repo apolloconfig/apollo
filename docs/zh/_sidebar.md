@@ -17,9 +17,10 @@
     - [Eclipse Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     - [Intellij Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
   - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
-  - [邮件模板样例](zh/development/email-template-samples.md)
+  - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
+  - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
 
-- 系统使用文档
+- 使用文档
   - [Apollo使用指南](zh/usage/apollo-user-guide.md)
   - [Java客户端使用指南](zh/usage/java-sdk-user-guide.md)
   - [.Net客户端使用指南](zh/usage/dotnet-sdk-user-guide.md)

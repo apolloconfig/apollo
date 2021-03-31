@@ -113,12 +113,12 @@ Apollo服务端需要知道如何连接到你前面创建的数据库，所以�
 
 ```sh
 #apollo config db info
-apollo_config_db_url=jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8
+apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
 apollo_config_db_username=用户名
 apollo_config_db_password=密码（如果没有密码，留空即可）
 
 # apollo portal db info
-apollo_portal_db_url=jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8
+apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
 apollo_portal_db_username=用户名
 apollo_portal_db_password=密码（如果没有密码，留空即可）
 ```

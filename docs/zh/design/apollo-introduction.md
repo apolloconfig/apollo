@@ -104,7 +104,7 @@ Apollo支持4个维度管理Key-Value格式的配置：
 
 ## 3.2 界面概览
 
-![apollo-home-screenshot](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-home-screenshot.png)
+![apollo-home-screenshot](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-home-screenshot.jpg)
 
 上图是Apollo配置中心中一个项目的配置首页
 

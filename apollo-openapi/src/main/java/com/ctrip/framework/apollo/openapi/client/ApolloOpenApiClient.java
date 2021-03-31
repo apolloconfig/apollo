@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * This class contains collections of methods to access Apollo Open Api.
  * <br />
- * For more information, please refer <a href="https://github.com/ctripcorp/apollo/wiki/">Apollo Wiki</a>.
+ * For more information, please refer <a href="https://ctripcorp.github.io/apollo/#/zh/usage/apollo-open-api-platform">Apollo Wiki</a>.
  *
  */
 public class ApolloOpenApiClient {

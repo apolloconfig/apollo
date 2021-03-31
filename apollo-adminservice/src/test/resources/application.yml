@@ -8,7 +8,25 @@ server:
 logging:
   level:
     org.springframework.cloud: 'DEBUG'
-  file: /opt/logs/${ctrip.appid}/apollo-adminservice.log
+  file:
+    name: /opt/logs/${ctrip.appid}/apollo-adminservice.log
 
 ctrip:
   appid: 100003172
+
+eureka:
+  instance:
+    hostname: ${hostname:localhost}
+    preferIpAddress: true
+    status-page-url-path: /info
+    health-check-url-path: /health
+  client:
+    serviceUrl:
+      defaultZone: http://${eureka.instance.hostname}:8090/eureka/
+    healthcheck:
+      enabled: true
+
+management:
+  health:
+    status:
+      order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP

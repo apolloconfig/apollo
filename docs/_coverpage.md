@@ -8,4 +8,4 @@
 - Great authentication, authorization and audit control
 
 [GitHub](https://github.com/ctripcorp/apollo/)
-[快速开始](zh/deployment/quick-start.md)
+[Get Started](zh/README)

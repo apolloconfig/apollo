@@ -17,11 +17,12 @@ server:
     use-relative-redirects: true
 
 logging:
-  file: /opt/logs/100003173/apollo-portal.log
+  file:
+    name: /opt/logs/100003173/apollo-portal.log
 
 management:
   health:
     status:
       order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
-
-
+    ldap:
+      enabled: false # disable ldap health check by default

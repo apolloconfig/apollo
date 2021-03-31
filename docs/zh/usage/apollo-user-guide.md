@@ -449,10 +449,10 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 Apollo 支持细粒度的权限控制，请务必根据实际情况做好权限控制：
 1. [项目管理员权限](#_121-项目管理员权限)
-    * Apollo 默认允许所有登录用户创建项目，如果只允许部分用户创建项目，可以开启[创建项目权限控制](zh/deployment/distributed-deployment-guide?id=_10-rolecreate-applicationenabled-是否开启创建项目权限控制)
+    * Apollo 默认允许所有登录用户创建项目，如果只允许部分用户创建项目，可以开启[创建项目权限控制](zh/deployment/distributed-deployment-guide?id=_3110-rolecreate-applicationenabled-是否开启创建项目权限控制)
 2. [配置编辑、发布权限](#_122-配置编辑、发布权限)
     * 配置编辑、发布权限支持按环境配置，比如开发环境开发人员可以自行完成配置编辑和发布的过程，但是生产环境发布权限交由测试或运维人员
-    * 生产环境建议同时开启[发布审核](zh/deployment/distributed-deployment-guide?id=_2-namespacelockswitch-一次发布只能有一个人修改开关，用于发布审核)，从而控制一次配置发布只能由一个人修改，另一个人发布，确保配置修改得到充分检查
+    * 生产环境建议同时开启[发布审核](zh/deployment/distributed-deployment-guide?id=_322-namespacelockswitch-一次发布只能有一个人修改开关，用于发布审核)，从而控制一次配置发布只能由一个人修改，另一个人发布，确保配置修改得到充分检查
 3. [配置查看权限](#_61-配置查看权限)
     * 可以指定某个环境只允许项目成员查看私有Namespace的配置，从而避免敏感配置泄露，如生产环境
 
@@ -462,4 +462,4 @@ Apollo 支持细粒度的权限控制，请务必根据实际情况做好权限�
 
 1. `apollo-configservice`和`apollo-adminservice`是基于内网可信网络设计的，所以出于安全考虑，禁止`apollo-configservice`和`apollo-adminservice`直接暴露在公网
 2. 对敏感配置可以考虑开启[访问秘钥](#_62-%e9%85%8d%e7%bd%ae%e8%ae%bf%e9%97%ae%e5%af%86%e9%92%a5)，从而只有经过身份验证的客户端才能访问敏感配置
-3. 1.7.1及以上版本可以考虑为`apollo-adminservice`开启[访问控制](zh/deployment/distributed-deployment-guide?id=_6-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，从而只有合法的`apollo-portal`才能访问对应接口，增强安全性
+3. 1.7.1及以上版本可以考虑为`apollo-adminservice`开启[访问控制](zh/deployment/distributed-deployment-guide?id=_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，从而只有[受控的](zh/deployment/distributed-deployment-guide?id=_3112-admin-serviceaccesstokens-设置apollo-portal访问各环境apollo-adminservice所需的access-token)`apollo-portal`才能访问对应接口，增强安全性

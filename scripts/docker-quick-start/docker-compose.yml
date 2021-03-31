@@ -8,6 +8,7 @@ services:
       - apollo-db
     ports:
       - "8080:8080"
+      - "8090:8090"
       - "8070:8070"
     links:
       - apollo-db

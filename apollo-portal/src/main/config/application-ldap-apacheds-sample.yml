@@ -15,8 +15,8 @@ ldap:
     rdnKey: "cn" # ldap rdn key，可选项，如需启用group search需要配置
     userDisplayName: "displayName" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
-  group: # 配置ldap group，可选配置，启用后只有特定group的用户可以登录apollo
-    objectClass: "groupOfNames"  # 配置groupClassName
-    groupBase: "ou=group" # group search base
-    groupSearch: "(&(cn=dev))" # group filter
-    groupMembership: "member" # group memberShip eg. member or memberUid
+#  group: # 配置ldap group，可选配置，启用后只有特定group的用户可以登录apollo
+#    objectClass: "groupOfNames"  # 配置groupClassName
+#    groupBase: "ou=group" # group search base
+#    groupSearch: "(&(cn=dev))" # group filter
+#    groupMembership: "member" # group memberShip eg. member or memberUid

@@ -46,9 +46,9 @@ Apollo本地开发需要以下组件：
 
 >注1：spring.datasource相关配置替换成你自己的数据库连接信息，注意数据库是`ApolloConfigDB`
 >
->注2：程序默认日志输出为/opt/logs/100003171/apollo-assembly.log，如果需要修改日志文件路径，可以增加`logging.file`参数，如下：
+>注2：程序默认日志输出为/opt/logs/100003171/apollo-assembly.log，如果需要修改日志文件路径，可以增加`logging.file.name`参数，如下：
 >
->-Dlogging.file=/your-path/apollo-assembly.log
+>-Dlogging.file.name=/your-path/apollo-assembly.log
 
 ### 2.1.4 Program arguments配置
 `--configservice --adminservice`
@@ -61,6 +61,21 @@ Apollo本地开发需要以下组件：
 启动完后，打开[http://localhost:8080](http://localhost:8080)可以看到`apollo-configservice`和`apollo-adminservice`都已经启动完成并注册到Eureka。
 
 ![ConfigAdminApplication-Eureka](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/ConfigAdminApplication-Eureka.png)
+
+> 注：除了在Eureka确认服务状态外，还可以通过健康检查接口确认服务健康状况：
+>
+> apollo-adminservice： [http://localhost:8090/health](http://localhost:8090/health)
+> apollo-configservice： [http://localhost:8080/health](http://localhost:8080/health)
+>
+> 如果服务健康，返回内容中的status.code应当为`UP`：
+>
+>     {
+>       "status": {
+>         "code": "UP",
+>         ...
+>       },
+>       ...
+>     }
 
 ## 2.2 Apollo-Portal
 
@@ -92,9 +107,9 @@ Apollo本地开发需要以下组件：
 >
 >注4：这里指定了server.port=8070是因为`apollo-configservice`启动在8080端口，所以这里配置`apollo-portal`启动在8070端口。
 >
->注5：程序默认日志输出为/opt/logs/100003173/apollo-portal.log，如果需要修改日志文件路径，可以增加`logging.file`参数，如下：
+>注5：程序默认日志输出为/opt/logs/100003173/apollo-portal.log，如果需要修改日志文件路径，可以增加`logging.file.name`参数，如下：
 >
->-Dlogging.file=/your-path/apollo-portal.log
+>-Dlogging.file.name=/your-path/apollo-portal.log
 
 ### 2.2.4 运行
 对新建的运行配置点击Run或Debug皆可。
@@ -221,29 +236,6 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 
 请参考[Portal 实现用户登录功能](zh/development/portal-how-to-implement-user-login-function)
 
-## 3.2 Portal接入邮件服务
+## 3.2 Portal 接入邮件服务
 
-在配置发布时候，我们希望发布信息邮件通知到相关的负责人。现支持发送邮件的动作有：普通发布、灰度发布、全量发布、回滚，通知对象包括：具有namespace编辑和发布权限的人员以及App负责人。
-和SSO类似，每个公司也有自己的邮件服务实现，所以我们相应的定义了[EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)接口，现有两个实现类：
-1. CtripEmailService：携程实现的EmailService
-2. DefaultEmailService：空实现
-
-### 3.2.1 接入步骤
-1. 提供自己公司的[EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)实现，并在[EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中注册。
-2. 构建邮件内容需要在PortalDB，serverconfig表内配置一些参数，如下：
-  * **apollo.portal.address** Apollo Portal的地址。方便用户从邮件点击跳转到Apollo Portal查看详细的发布信息。
-  * **email.supported.envs** 支持发送邮件的环境列表，英文逗号隔开。我们不希望发布邮件变成用户的垃圾邮件，只有某些环境下的发布动作才会发送邮件。
-  * **email.sender** 邮件的发送人。
-  * **email.template.framework** 邮件内容模板框架。将邮件内容模板化、可配置化，方便管理和变更邮件内容。
-  * **email.template.release.module.diff** 发布邮件的diff模块。
-  * **email.template.rollback.module.diff** 回滚邮件的diff模块。
-  * **email.template.release.module.rules** 灰度发布的灰度规则模块。
-   我们提供了以上[邮件模板样例](zh/development/email-template-samples)，方便大家使用。
-
->注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的Email实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中修改默认实现的条件`@Profile({"!custom"})`。
-
-### 3.2.2 相关代码
-1. [ConfigPublishListener](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/listener/ConfigPublishListener.java)监听发布事件，调用emailbuilder构建邮件内容，然后调用EmailService发送邮件
-2. [emailbuilder](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/components/emailbuilder)包是构建邮件内容的实现
-3. [EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java) 邮件发送服务
-4. [EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java) 邮件服务注册类
+请参考[Portal 接入邮件服务](zh/development/portal-how-to-enable-email-service)

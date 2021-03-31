@@ -28,7 +28,7 @@ import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpUtil;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -63,7 +63,7 @@ public class RemoteConfigRepositoryTest {
   private String someNamespace;
   private String someServerUrl;
   private ConfigUtil configUtil;
-  private HttpUtil httpUtil;
+  private HttpClient httpClient;
   @Mock
   private static HttpResponse<ApolloConfig> someResponse;
   @Mock
@@ -93,8 +93,8 @@ public class RemoteConfigRepositoryTest {
     when(configServiceLocator.getConfigServices()).thenReturn(Lists.newArrayList(serviceDTO));
     MockInjector.setInstance(ConfigServiceLocator.class, configServiceLocator);
 
-    httpUtil = spy(new MockHttpUtil());
-    MockInjector.setInstance(HttpUtil.class, httpUtil);
+    httpClient = spy(new MockHttpClient());
+    MockInjector.setInstance(HttpClient.class, httpClient);
 
     remoteConfigLongPollService = new RemoteConfigLongPollService();
 
@@ -191,7 +191,7 @@ public class RemoteConfigRepositoryTest {
 
         return someResponse;
       }
-    }).when(httpUtil).doGet(any(HttpRequest.class), any(Class.class));
+    }).when(httpClient).doGet(any(HttpRequest.class), any(Class.class));
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
 
@@ -304,7 +304,7 @@ public class RemoteConfigRepositoryTest {
 
     final ArgumentCaptor<HttpRequest> httpRequestArgumentCaptor = ArgumentCaptor
         .forClass(HttpRequest.class);
-    verify(httpUtil, atLeast(2)).doGet(httpRequestArgumentCaptor.capture(), eq(ApolloConfig.class));
+    verify(httpClient, atLeast(2)).doGet(httpRequestArgumentCaptor.capture(), eq(ApolloConfig.class));
 
     HttpRequest request = httpRequestArgumentCaptor.getValue();
 
@@ -407,7 +407,7 @@ public class RemoteConfigRepositoryTest {
     }
   }
 
-  public static class MockHttpUtil extends HttpUtil {
+  public static class MockHttpClient implements HttpClient {
 
     @Override
     public <T> HttpResponse<T> doGet(HttpRequest httpRequest, Class<T> responseType) {

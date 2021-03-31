@@ -14,5 +14,5 @@ ldap:
     loginId: "sAMAccountName" # ldap 用户惟一 id，用来作为登录的 id
     userDisplayName: "cn" # ldap 用户名，用来作为显示名
     email: "userPrincipalName" # ldap 邮箱属性
-  filter: # 可选项，配置过滤，目前只支持 memberOf
-    memberOf: "CN=ServiceDEV,OU=test,DC=example,DC=com|CN=WebDEV,OU=test,DC=example,DC=com" # 只允许 memberOf 属性为 ServiceDEV 和 WebDEV 的用户访问
+#  filter: # 可选项，配置过滤，目前只支持 memberOf
+#    memberOf: "CN=ServiceDEV,OU=test,DC=example,DC=com|CN=WebDEV,OU=test,DC=example,DC=com" # 只允许 memberOf 属性为 ServiceDEV 和 WebDEV 的用户访问

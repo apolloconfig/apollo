@@ -16,16 +16,16 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class KubernetesHomePageControllerTest {
+public class HomePageControllerTest {
 
   @Mock
   private DiscoveryService discoveryService;
 
-  private KubernetesHomePageController homePageController;
+  private HomePageController homePageController;
 
   @Before
   public void setUp() throws Exception {
-    homePageController = new KubernetesHomePageController(discoveryService);
+    homePageController = new HomePageController(discoveryService);
   }
 
   @Test

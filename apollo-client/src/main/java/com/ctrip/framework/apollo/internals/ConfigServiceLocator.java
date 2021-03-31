@@ -22,7 +22,7 @@ import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpUtil;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -33,7 +33,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class ConfigServiceLocator {
   private static final Logger logger = LoggerFactory.getLogger(ConfigServiceLocator.class);
-  private HttpUtil m_httpUtil;
+  private HttpClient m_httpClient;
   private ConfigUtil m_configUtil;
   private AtomicReference<List<ServiceDTO>> m_configServices;
   private Type m_responseType;
@@ -49,7 +49,7 @@ public class ConfigServiceLocator {
     m_configServices = new AtomicReference<>(initial);
     m_responseType = new TypeToken<List<ServiceDTO>>() {
     }.getType();
-    m_httpUtil = ApolloInjector.getInstance(HttpUtil.class);
+    m_httpClient = ApolloInjector.getInstance(HttpClient.class);
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     this.m_executorService = Executors.newScheduledThreadPool(1,
         ApolloThreadFactory.create("ConfigServiceLocator", true));
@@ -151,7 +151,7 @@ public class ConfigServiceLocator {
       Transaction transaction = Tracer.newTransaction("Apollo.MetaService", "getConfigService");
       transaction.addData("Url", url);
       try {
-        HttpResponse<List<ServiceDTO>> response = m_httpUtil.doGet(request, m_responseType);
+        HttpResponse<List<ServiceDTO>> response = m_httpClient.doGet(request, m_responseType);
         transaction.setStatus(Transaction.SUCCESS);
         List<ServiceDTO> services = response.getBody();
         if (services == null || services.isEmpty()) {

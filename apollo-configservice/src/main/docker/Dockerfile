@@ -4,24 +4,36 @@
 # 3. Run with: docker run -p 8080:8080 -e SPRING_DATASOURCE_URL="jdbc:mysql://fill-in-the-correct-server:3306/ApolloConfigDB?characterEncoding=utf8" -e SPRING_DATASOURCE_USERNAME=FillInCorrectUser -e SPRING_DATASOURCE_PASSWORD=FillInCorrectPassword -d -v /tmp/logs:/opt/logs --name apollo-configservice apolloconfig/apollo-configservice
 
 FROM openjdk:8-jre-alpine
-MAINTAINER ameizi <sxyx2008@163.com>
+LABEL maintainer="finchcn@gmail.com;ameizi<sxyx2008@163.com>"
+
+RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories \
+    && echo "http://mirrors.aliyun.com/alpine/v3.8/community" >> /etc/apk/repositories \
+    && apk update upgrade \
+    && apk add --no-cache unzip
+
+ARG VERSION
+ENV VERSION $VERSION
+
+COPY apollo-configservice-${VERSION}-github.zip /apollo-configservice/apollo-configservice-${VERSION}-github.zip
+
+RUN unzip /apollo-configservice/apollo-configservice-${VERSION}-github.zip -d /apollo-configservice \
+    && rm -rf /apollo-configservice/apollo-configservice-${VERSION}-github.zip \
+    && chmod +x /apollo-configservice/scripts/startup.sh
+
+FROM openjdk:8-jre-alpine
+LABEL maintainer="finchcn@gmail.com;ameizi<sxyx2008@163.com>"
 
 ENV APOLLO_RUN_MODE "Docker"
-ENV VERSION 1.8.0-SNAPSHOT
 ENV SERVER_PORT 8080
 
 RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories \
     && echo "http://mirrors.aliyun.com/alpine/v3.8/community" >> /etc/apk/repositories \
     && apk update upgrade \
-    && apk add --no-cache procps unzip curl bash tzdata \
+    && apk add --no-cache procps curl bash tzdata \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
 
-ADD apollo-configservice-${VERSION}-github.zip /apollo-configservice/apollo-configservice-${VERSION}-github.zip
-
-RUN unzip /apollo-configservice/apollo-configservice-${VERSION}-github.zip -d /apollo-configservice \
-    && rm -rf /apollo-configservice/apollo-configservice-${VERSION}-github.zip \
-    && chmod +x /apollo-configservice/scripts/startup.sh
+COPY --from=0 /apollo-configservice /apollo-configservice
 
 EXPOSE $SERVER_PORT
 

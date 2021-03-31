@@ -34,8 +34,6 @@ function SettingController($scope, $location, $translate, toastr,
         initOrganization();
         initPermission();
         initAdmins();
-        initApplication();
-
     }
 
     function initOrganization() {
@@ -53,6 +51,7 @@ function SettingController($scope, $location, $translate, toastr,
                 width: '100%',
                 data: organizations
             });
+            initApplication();
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), "load organizations error");
         });

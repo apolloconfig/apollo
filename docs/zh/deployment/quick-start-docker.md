@@ -50,3 +50,5 @@ apollo-quick-start    | Portal started. You can visit http://localhost:8070 now!
 ```bash
 docker exec -i apollo-quick-start /apollo-quick-start/demo.sh client
 ```
+
+默认情况下 apollo-configservice 只会注册内网 IP，只有通过上述命令启动的客户端能连通，如果希望外部的客户端也能访问，请参考[网络策略](zh/deployment/distributed-deployment-guide?id=_14-网络策略)。

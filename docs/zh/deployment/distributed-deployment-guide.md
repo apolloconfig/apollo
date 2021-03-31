@@ -88,44 +88,60 @@ Apollo客户端和Portal会从Meta Server获取服务的地址（IP+端口），
 
 需要注意的是，`apollo-configservice`和`apollo-adminservice`是基于内网可信网络设计的，所以出于安全考虑，**请不要将`apollo-configservice`和`apollo-adminservice`直接暴露在公网**。
 
-所以如果实际部署的机器有多块网卡（如docker），或者存在某些网卡的IP是Apollo客户端和Portal无法访问的（如网络安全限制），那么我们就需要在`apollo-configservice`和`apollo-adminservice`中做相关限制以避免Eureka将这些网卡的IP注册到Meta Server。
+所以如果实际部署的机器有多块网卡（如docker），或者存在某些网卡的IP是Apollo客户端和Portal无法访问的（如网络安全限制），那么我们就需要在`apollo-configservice`和`apollo-adminservice`中做相关配置来解决连通性问题。
 
-具体文档可以参考[Ignore Network Interfaces](http://projects.spring.io/spring-cloud/spring-cloud.html#ignore-network-interfaces)章节。具体而言，就是分别编辑[apollo-configservice/src/main/resources/application.yml](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/resources/application.yml)和[apollo-adminservice/src/main/resources/application.yml](https://github.com/ctripcorp/apollo/blob/master/apollo-adminservice/src/main/resources/application.yml)，然后把需要忽略的网卡加进去。
+### 1.4.1 忽略某些网卡
 
-如下面这个例子就是对于`apollo-configservice`，把docker0和veth.*的网卡在注册到Eureka时忽略掉。
+可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会把`docker0`和`veth`开头的网卡在注册到Eureka时忽略掉。
 
-```
-    spring:
-      application:
-          name: apollo-configservice
-      profiles:
-        active: ${apollo_profile}
-      cloud:
-        inetutils:
-          ignoredInterfaces:
-            - docker0
-            - veth.*
-```
-> 注意，对于application.yml修改时要小心，千万不要把其它信息改错了，如spring.application.name等。
+JVM System Property示例：
 
-另外一种方式是直接指定要注册的IP，可以修改startup.sh，通过JVM System Property在运行时传入，如`-Deureka.instance.ip-address=${指定的IP}`，也可以通过OS Environment Variable，如`EUREKA_INSTANCE_IP_ADDRESS=${指定的IP}`，或者也可以修改apollo-adminservice或apollo-configservice 的bootstrap.yml文件，加入以下配置
-
-``` yaml
-eureka:
-  instance:
-    ip-address: ${指定的IP}
+```properties
+-Dspring.cloud.inetutils.ignoredInterfaces[0]=docker0
+-Dspring.cloud.inetutils.ignoredInterfaces[1]=veth.*
 ```
 
-最后一种方式是直接指定要注册的IP+PORT，可以修改startup.sh，通过JVM System Property在运行时传入，如`-Deureka.instance.homePageUrl=http://${指定的IP}:${指定的Port}`，也可以通过OS Environment Variable，如`EUREKA_INSTANCE_HOME_PAGE_URL=http://${指定的IP}:${指定的Port}`，或者也可以修改apollo-adminservice或apollo-configservice 的bootstrap.yml文件，加入以下配置
+OS Environment Variable示例：
 
-``` yaml
-eureka:
-  instance:
-    homePageUrl: http://${指定的IP}:${指定的Port}
-    preferIpAddress: false
+```properties
+SPRING_CLOUD_INETUTILS_IGNORED_INTERFACES[0]=docker0
+SPRING_CLOUD_INETUTILS_IGNORED_INTERFACES[1]=veth.*
 ```
 
-做完上述修改并重启后，可以查看Eureka页面（http://${config-service-url:port}）检查注册上来的IP信息是否正确。
+### 1.4.2 指定要注册的IP
+可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会指定注册的IP为`1.2.3.4`。
+
+JVM System Property示例：
+
+```properties
+-Deureka.instance.ip-address=1.2.3.4
+```
+
+OS Environment Variable示例：
+
+```properties
+EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
+```
+
+### 1.4.3 指定要注册的URL
+
+可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会指定注册的URL为`http://1.2.3.4:8080`。
+
+JVM System Property示例：
+
+```properties
+-Deureka.instance.homePageUrl=http://1.2.3.4:8080
+-Deureka.instance.preferIpAddress=false
+```
+
+OS Environment Variable示例：
+
+```properties
+EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
+EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+```
+
+### 1.4.4 直接指定apollo-configservice地址
 
 如果Apollo部署在公有云上，本地开发环境无法连接，但又需要做开发测试的话，客户端可以升级到0.11.0版本及以上，然后配置[跳过Apollo Meta Server服务发现](zh/usage/java-sdk-user-guide#_1222-跳过apollo-meta-server服务发现)
 
@@ -234,198 +250,10 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloConfigDB`.`ServerConfig` limi
 > 如果是为正在运行的环境迁移数据，建议迁移完重启一下config service，因为config service中有appnamespace的缓存数据
 
 ### 2.1.3 调整服务端配置
-Apollo自身的一些配置是放在数据库里面的，所以需要针对实际情况做一些调整。
 
-> 以下配置除了支持在数据库中配置以外，也支持通过-D参数、application.properties等配置，且-D参数、application.properties等优先级高于数据库中的配置
+Apollo自身的一些配置是放在数据库里面的，所以需要针对实际情况做一些调整，具体参数说明请参考[三、服务端配置说明](#三、服务端配置说明)。
 
-#### 2.1.3.1 调整ApolloPortalDB配置
-配置项统一存储在ApolloPortalDB.ServerConfig表中，也可以通过`管理员工具 - 系统参数`页面进行配置，无特殊说明则修改完一分钟实时生效。
-
-##### 1. apollo.portal.envs - 可支持的环境列表
-
-默认值是dev，如果portal需要管理多个环境的话，以逗号分隔即可（大小写不敏感），如：
-```
-DEV,FAT,UAT,PRO
-```
-
-修改完需要重启生效。
-
->注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](#_212-创建apolloconfigdb)，[2.1.3.2 调整ApolloConfigDB配置](#_2132-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](#_22112-配置数据库连接信息)，另外如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](#_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化。
-
->注2：只在数据库添加环境是不起作用的，还需要为apollo-portal添加新增环境对应的meta server地址，具体参考：[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)。apollo-client在新的环境下使用时也需要做好相应的配置，具体参考：[1.2.2 Apollo Meta Server](zh/usage/java-sdk-user-guide#_122-apollo-meta-server)。
-
->注3：如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)。
-
->注4：1.1.0版本增加了系统信息页面（`管理员工具` -> `系统信息`），可以通过该页面检查配置是否正确
-
-##### 2. apollo.portal.meta.servers - 各环境Meta Service列表
-
-> 适用于1.6.0及以上版本
-
-Apollo Portal需要在不同的环境访问不同的meta service(apollo-configservice)地址，所以我们需要在配置中提供这些信息。默认情况下，meta service和config service是部署在同一个JVM进程，所以meta service的地址就是config service的地址。
-
-样例如下：
-```json
-{
-    "DEV":"http://1.1.1.1:8080",
-    "FAT":"http://apollo.fat.xxx.com",
-    "UAT":"http://apollo.uat.xxx.com",
-    "PRO":"http://apollo.xxx.com"
-}
-```
-
-修改完需要重启生效。
-
-> 该配置优先级高于其它方式设置的Meta Service地址，更多信息可以参考[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)。
-
-##### 3. organizations - 部门列表
-
-Portal中新建的App都需要选择部门，所以需要在这里配置可选的部门信息，样例如下：
-```json
-[{"orgId":"TEST1","orgName":"样例部门1"},{"orgId":"TEST2","orgName":"样例部门2"}]
-```
-
-##### 4. superAdmin - Portal超级管理员
-
-超级管理员拥有所有权限，需要谨慎设置。
-
-如果没有接入自己公司的SSO系统的话，可以先暂时使用默认值apollo（默认用户）。等接入后，修改为实际使用的账号，多个账号以英文逗号分隔(,)。
-
-##### 5. consumer.token.salt - consumer token salt
-
-如果会使用开放平台API的话，可以设置一个token salt。如果不使用，可以忽略。
-
-##### 6. wiki.address
-
-portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可自行设置。
-
-##### 7. admin.createPrivateNamespace.switch
-
-是否允许项目管理员创建private namespace。设置为`true`允许创建，设置为`false`则项目管理员在页面上看不到创建private namespace的选项。[了解更多Namespace](zh/design/apollo-core-concept-namespace)
-
-##### 8. emergencyPublish.supported.envs
-
-配置允许紧急发布的环境列表，多个env以英文逗号分隔。
-
-当config service开启一次发布只能有一个人修改开关(`namespace.lock.switch`)后，一次配置发布只能是一个人修改，另一个发布。为了避免遇到紧急情况时（如非工作时间、节假日）无法发布配置，可以配置此项以允许某些环境可以操作紧急发布，即同一个人可以修改并发布配置。
-
-##### 9. configView.memberOnly.envs
-
-只对项目成员显示配置信息的环境列表，多个env以英文逗号分隔。
-
-对设定了只对项目成员显示配置信息的环境，只有该项目的管理员或拥有该namespace的编辑或发布权限的用户才能看到该私有namespace的配置信息和发布历史。公共namespace始终对所有用户可见。
-
-> 从1.1.0版本开始支持，详见[PR 1531](https://github.com/ctripcorp/apollo/pull/1531)
-
-##### 10. role.create-application.enabled - 是否开启创建项目权限控制
-
-> 适用于1.5.0及以上版本
-
-默认为false，所有用户都可以创建项目
-
-如果设置为true，那么只有超级管理员和拥有创建项目权限的帐号可以创建项目，超级管理员可以通过`管理员工具 - 系统权限管理`给用户分配创建项目权限
-
-##### 11. role.manage-app-master.enabled - 是否开启项目管理员分配权限控制
-
-> 适用于1.5.0及以上版本
-
-默认为false，所有项目的管理员可以为项目添加/删除管理员
-
-如果设置为true，那么只有超级管理员和拥有项目管理员分配权限的帐号可以为特定项目添加/删除管理员，超级管理员可以通过`管理员工具 - 系统权限管理`给用户分配特定项目的管理员分配权限
-
-##### 12. admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
-
-> 适用于1.7.1及以上版本
-
-如果对应环境的apollo-adminservice开启了[访问控制](#_6-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
-
-格式为json，如下所示：
-
-```json
-{
-    "dev" : "098f6bcd4621d373cade4e832627b4f6",
-    "pro" : "ad0234829205b9033196ba818f7a872b"
-}
-```
-
-#### 2.1.3.2 调整ApolloConfigDB配置
-配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。
-
-##### 1. eureka.service.url - Eureka服务Url
-
-> 不适用于基于Kubernetes原生服务发现场景
-
-不管是apollo-configservice还是apollo-adminservice都需要向eureka服务注册，所以需要配置eureka服务地址。
-按照目前的实现，apollo-configservice本身就是一个eureka服务，所以只需要填入apollo-configservice的地址即可，如有多个，用逗号分隔（注意不要忘了/eureka/后缀）。
-
-需要注意的是每个环境只填入自己环境的eureka服务地址，比如FAT的apollo-configservice是1.1.1.1:8080和2.2.2.2:8080，UAT的apollo-configservice是3.3.3.3:8080和4.4.4.4:8080，PRO的apollo-configservice是5.5.5.5:8080和6.6.6.6:8080，那么：
-
-1. 在FAT环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
-```
-http://1.1.1.1:8080/eureka/,http://2.2.2.2:8080/eureka/
-```
-
-2. 在UAT环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
-```
-http://3.3.3.3:8080/eureka/,http://4.4.4.4:8080/eureka/
-```
-
-3. 在PRO环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
-```
-http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
-```
-
->注1：这里需要填写本环境中全部的eureka服务地址，因为eureka需要互相复制注册信息
-
->注2：如果希望将Config Service和Admin Service注册到公司统一的Eureka上，可以参考[部署&开发遇到的常见问题 - 将Config Service和Admin Service注册到单独的Eureka Server上](zh/faq/common-issues-in-deployment-and-development-phase#_8-将config-service和admin-service注册到单独的eureka-server上)章节
-
->注3：在多机房部署时，往往希望config service和admin service只向同机房的eureka注册，要实现这个效果，需要利用`ServerConfig`表中的cluster字段，config service和admin service会读取所在机器的`/opt/settings/server.properties`（Mac/Linux）或`C:\opt\settings\server.properties`（Windows）中的idc属性，如果该idc有对应的eureka.service.url配置，那么就只会向该机房的eureka注册。比如config service和admin service会部署到`SHAOY`和`SHAJQ`两个IDC，那么为了实现这两个机房中的服务只向该机房注册，那么可以在`ServerConfig`表中新增两条记录，分别填入`SHAOY`和`SHAJQ`两个机房的eureka地址即可，`default` cluster的记录可以保留，如果有config service和admin service不是部署在`SHAOY`和`SHAJQ`这两个机房的，就会使用这条默认配置。
-
-| Key                |Cluster    | Value                         | Comment             |
-|--------------------|-----------|-------------------------------|---------------------|
-| eureka.service.url | default   | http://1.1.1.1:8080/eureka/   | 默认的Eureka服务Url  |
-| eureka.service.url | SHAOY     | http://2.2.2.2:8080/eureka/   | SHAOY的Eureka服务Url |
-| eureka.service.url | SHAJQ     | http://3.3.3.3:8080/eureka/   | SHAJQ的Eureka服务Url |
-
-##### 2. namespace.lock.switch - 一次发布只能有一个人修改开关，用于发布审核
-
-这是一个功能开关，如果配置为true的话，那么一次配置发布只能是一个人修改，另一个发布。
-
-> 生产环境建议开启此选项
-
-##### 3. config-service.cache.enabled - 是否开启配置缓存
-
-这是一个功能开关，如果配置为true的话，config service会缓存加载过的配置信息，从而加快后续配置获取性能。
-
-默认为false，开启前请先评估总配置大小并调整config service内存配置。
-
-> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
-
-##### 4. item.key.length.limit - 配置项 key 最大长度限制
-
-默认配置是128。
-
-##### 5. item.value.length.limit - 配置项 value 最大长度限制
-
-默认配置是20000。
-
-##### 6. admin-service.access.control.enabled - 配置apollo-adminservice是否开启访问控制
-
-> 适用于1.7.1及以上版本
-
-默认为false，如果配置为true，那么apollo-portal就需要[正确配置](#_12-admin-serviceaccesstokens-设置apollo-portal访问各环境apollo-adminservice所需的access-token)访问该环境的access token，否则访问会被拒绝
-
-##### 7. admin-service.access.tokens - 配置允许访问apollo-adminservice的access token列表
-
-> 适用于1.7.1及以上版本
-
-如果该配置项为空，那么访问控制不会生效。如果允许多个token，token 之间以英文逗号分隔
-
-样例：
-```properties
-admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6
-admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b9033196ba818f7a872b
-```
+大部分配置可以先使用默认值，不过 [apollo.portal.envs](#_311-apolloportalenvs-可支持的环境列表) 和 [eureka.service.url](#_321-eurekaserviceurl-eureka服务url) 请务必配置正确后再进行下面的部署步骤。
 
 ## 2.2 虚拟机/物理机部署
 ### 2.2.1 获取安装包
@@ -496,7 +324,7 @@ spring.datasource.password = somepwd
 
 Apollo Portal需要在不同的环境访问不同的meta service(apollo-configservice)地址，所以我们需要在配置中提供这些信息。默认情况下，meta service和config service是部署在同一个JVM进程，所以meta service的地址就是config service的地址。
 
-> 对于1.6.0及以上版本，可以通过ApolloPortalDB.ServerConfig中的配置项来配置Meta Service地址，详见[apollo.portal.meta.servers - 各环境Meta Service列表](#_2-apolloportalmetaservers-各环境meta-service列表)
+> 对于1.6.0及以上版本，可以通过ApolloPortalDB.ServerConfig中的配置项来配置Meta Service地址，详见[apollo.portal.meta.servers - 各环境Meta Service列表](#_312-apolloportalmetaservers-各环境meta-service列表)
 
 使用程序员专用编辑器（如vim，notepad++，sublime等）打开`apollo-portal-x.x.x-github.zip`中`config`目录下的`apollo-env.properties`文件。
 
@@ -602,6 +430,30 @@ META_SERVERS_OPTS="-Ddev_meta=$dev_meta -Dfat_meta=$fat_meta -Duat_meta=$uat_met
 ##### 2.2.1.2.6 获取apollo-portal安装包
 
 位于`apollo-portal/target/`目录下的`apollo-portal-x.x.x-github.zip`
+
+##### 2.2.1.2.7 启用外部nacos服务注册中心替换内置eureka
+
+1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
+```shell
+mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,nacos-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置nacos服务器地址
+```properties
+nacos.discovery.server-addr=127.0.0.1:8848
+```
+##### 2.2.1.2.8 启用外部Consul服务注册中心替换内置eureka
+
+1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置consul服务器地址
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
 
 ### 2.2.2 部署Apollo服务端
 
@@ -728,8 +580,15 @@ docker run -p 8070:8070 \
 * SPRING_DATASOURCE_URL: 对应环境ApolloPortalDB的地址
 * SPRING_DATASOURCE_USERNAME: 对应环境ApolloPortalDB的用户名
 * SPRING_DATASOURCE_PASSWORD: 对应环境ApolloPortalDB的密码
-* APOLLO_PORTAL_ENVS(可选): 对应ApolloPortalDB中的[apollo.portal.envs](#_1-apolloportalenvs-可支持的环境列表)配置项，如果没有在数据库中配置的话，可以通过此环境参数配置
-* DEV_META/PRO_META(可选): 配置对应环境的Meta Service地址，以${ENV}_META命名，需要注意的是如果配置了ApolloPortalDB中的[apollo.portal.meta.servers](#_2-apolloportalmetaservers-各环境meta-service列表)配置，则以apollo.portal.meta.servers中的配置为准
+* APOLLO_PORTAL_ENVS(可选): 对应ApolloPortalDB中的[apollo.portal.envs](#_311-apolloportalenvs-可支持的环境列表)配置项，如果没有在数据库中配置的话，可以通过此环境参数配置
+* DEV_META/PRO_META(可选): 配置对应环境的Meta Service地址，以${ENV}_META命名，需要注意的是如果配置了ApolloPortalDB中的[apollo.portal.meta.servers](#_312-apolloportalmetaservers-各环境meta-service列表)配置，则以apollo.portal.meta.servers中的配置为准
+
+#### 2.3.1.4 通过源码构建 Docker 镜像
+
+如果修改了 apollo 服务端的代码，希望通过源码构建 Docker 镜像，可以参考下面的步骤：
+
+1. 通过源码构建安装包：`./scripts/build.sh`
+2. 构建 Docker 镜像：`mvn docker:build -pl apollo-configservice,apollo-adminservice,apollo-portal`
 
 ### 2.3.2 1.7.0之前的版本
 
@@ -756,7 +615,7 @@ Apollo 1.7.0版本增加了基于Kubernetes原生服务发现的部署模式，�
 #### 2.4.1.2 添加Apollo Helm Chart仓库
 
 ```bash
-$ helm repo add apollo http://ctripcorp.github.io/apollo/charts
+$ helm repo add apollo https://ctripcorp.github.io/apollo/charts
 $ helm search repo apollo
 ```
 
@@ -1174,12 +1033,205 @@ config:
           email: "mail"
 ```
 
+#### 2.4.1.5 通过源码构建 Docker 镜像
+
+如果修改了 apollo 服务端的代码，希望通过源码构建 Docker 镜像，可以参考[2.3.1.4 通过源码构建 Docker 镜像](#_2314-通过源码构建-docker-镜像)的步骤。
+
 ### 2.4.2 基于内置的Eureka服务发现
 
 感谢[AiotCEO](https://github.com/AiotCEO)提供了k8s的部署支持，使用说明可以参考[apollo-on-kubernetes](https://github.com/ctripcorp/apollo/blob/master/scripts/apollo-on-kubernetes/README.md)。
 
 感谢[qct](https://github.com/qct)提供的Helm Chart部署支持，使用说明可以参考[qct/apollo-helm](https://github.com/qct/apollo-helm)。
 
-# 三、Portal 实现用户登录功能
+# 三、服务端配置说明
 
-请参考[Portal 实现用户登录功能](zh/development/portal-how-to-implement-user-login-function)
+> 以下配置除了支持在数据库中配置以外，也支持通过-D参数、application.properties等配置，且-D参数、application.properties等优先级高于数据库中的配置
+
+## 3.1 调整ApolloPortalDB配置
+配置项统一存储在ApolloPortalDB.ServerConfig表中，也可以通过`管理员工具 - 系统参数`页面进行配置，无特殊说明则修改完一分钟实时生效。
+
+### 3.1.1 apollo.portal.envs - 可支持的环境列表
+
+默认值是dev，如果portal需要管理多个环境的话，以逗号分隔即可（大小写不敏感），如：
+```
+DEV,FAT,UAT,PRO
+```
+
+修改完需要重启生效。
+
+>注1：一套Portal可以管理多个环境，但是每个环境都需要独立部署一套Config Service、Admin Service和ApolloConfigDB，具体请参考：[2.1.2 创建ApolloConfigDB](#_212-创建apolloconfigdb)，[3.2 调整ApolloConfigDB配置](zh/deployment/distributed-deployment-guide?id=_32-调整apolloconfigdb配置)，[2.2.1.1.2 配置数据库连接信息](#_22112-配置数据库连接信息)，另外如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](#_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化。
+
+>注2：只在数据库添加环境是不起作用的，还需要为apollo-portal添加新增环境对应的meta server地址，具体参考：[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)。apollo-client在新的环境下使用时也需要做好相应的配置，具体参考：[1.2.2 Apollo Meta Server](zh/usage/java-sdk-user-guide#_122-apollo-meta-server)。
+
+>注3：如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)。
+
+>注4：1.1.0版本增加了系统信息页面（`管理员工具` -> `系统信息`），可以通过该页面检查配置是否正确
+
+### 3.1.2 apollo.portal.meta.servers - 各环境Meta Service列表
+
+> 适用于1.6.0及以上版本
+
+Apollo Portal需要在不同的环境访问不同的meta service(apollo-configservice)地址，所以我们需要在配置中提供这些信息。默认情况下，meta service和config service是部署在同一个JVM进程，所以meta service的地址就是config service的地址。
+
+样例如下：
+```json
+{
+    "DEV":"http://1.1.1.1:8080",
+    "FAT":"http://apollo.fat.xxx.com",
+    "UAT":"http://apollo.uat.xxx.com",
+    "PRO":"http://apollo.xxx.com"
+}
+```
+
+修改完需要重启生效。
+
+> 该配置优先级高于其它方式设置的Meta Service地址，更多信息可以参考[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)。
+
+### 3.1.3 organizations - 部门列表
+
+Portal中新建的App都需要选择部门，所以需要在这里配置可选的部门信息，样例如下：
+```json
+[{"orgId":"TEST1","orgName":"样例部门1"},{"orgId":"TEST2","orgName":"样例部门2"}]
+```
+
+### 3.1.4 superAdmin - Portal超级管理员
+
+超级管理员拥有所有权限，需要谨慎设置。
+
+如果没有接入自己公司的SSO系统的话，可以先暂时使用默认值apollo（默认用户）。等接入后，修改为实际使用的账号，多个账号以英文逗号分隔(,)。
+
+### 3.1.5 consumer.token.salt - consumer token salt
+
+如果会使用开放平台API的话，可以设置一个token salt。如果不使用，可以忽略。
+
+### 3.1.6 wiki.address
+
+portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可自行设置。
+
+### 3.1.7 admin.createPrivateNamespace.switch
+
+是否允许项目管理员创建private namespace。设置为`true`允许创建，设置为`false`则项目管理员在页面上看不到创建private namespace的选项。[了解更多Namespace](zh/design/apollo-core-concept-namespace)
+
+### 3.1.8 emergencyPublish.supported.envs
+
+配置允许紧急发布的环境列表，多个env以英文逗号分隔。
+
+当config service开启一次发布只能有一个人修改开关(`namespace.lock.switch`)后，一次配置发布只能是一个人修改，另一个发布。为了避免遇到紧急情况时（如非工作时间、节假日）无法发布配置，可以配置此项以允许某些环境可以操作紧急发布，即同一个人可以修改并发布配置。
+
+### 3.1.9 configView.memberOnly.envs
+
+只对项目成员显示配置信息的环境列表，多个env以英文逗号分隔。
+
+对设定了只对项目成员显示配置信息的环境，只有该项目的管理员或拥有该namespace的编辑或发布权限的用户才能看到该私有namespace的配置信息和发布历史。公共namespace始终对所有用户可见。
+
+> 从1.1.0版本开始支持，详见[PR 1531](https://github.com/ctripcorp/apollo/pull/1531)
+
+### 3.1.10 role.create-application.enabled - 是否开启创建项目权限控制
+
+> 适用于1.5.0及以上版本
+
+默认为false，所有用户都可以创建项目
+
+如果设置为true，那么只有超级管理员和拥有创建项目权限的帐号可以创建项目，超级管理员可以通过`管理员工具 - 系统权限管理`给用户分配创建项目权限
+
+### 3.1.11 role.manage-app-master.enabled - 是否开启项目管理员分配权限控制
+
+> 适用于1.5.0及以上版本
+
+默认为false，所有项目的管理员可以为项目添加/删除管理员
+
+如果设置为true，那么只有超级管理员和拥有项目管理员分配权限的帐号可以为特定项目添加/删除管理员，超级管理员可以通过`管理员工具 - 系统权限管理`给用户分配特定项目的管理员分配权限
+
+### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
+
+> 适用于1.7.1及以上版本
+
+如果对应环境的apollo-adminservice开启了[访问控制](#_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
+
+格式为json，如下所示：
+
+```json
+{
+    "dev" : "098f6bcd4621d373cade4e832627b4f6",
+    "pro" : "ad0234829205b9033196ba818f7a872b"
+}
+```
+
+## 3.2 调整ApolloConfigDB配置
+配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。
+
+### 3.2.1 eureka.service.url - Eureka服务Url
+
+> 不适用于基于Kubernetes原生服务发现场景
+
+不管是apollo-configservice还是apollo-adminservice都需要向eureka服务注册，所以需要配置eureka服务地址。
+按照目前的实现，apollo-configservice本身就是一个eureka服务，所以只需要填入apollo-configservice的地址即可，如有多个，用逗号分隔（注意不要忘了/eureka/后缀）。
+
+需要注意的是每个环境只填入自己环境的eureka服务地址，比如FAT的apollo-configservice是1.1.1.1:8080和2.2.2.2:8080，UAT的apollo-configservice是3.3.3.3:8080和4.4.4.4:8080，PRO的apollo-configservice是5.5.5.5:8080和6.6.6.6:8080，那么：
+
+1. 在FAT环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
+```
+http://1.1.1.1:8080/eureka/,http://2.2.2.2:8080/eureka/
+```
+
+2. 在UAT环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
+```
+http://3.3.3.3:8080/eureka/,http://4.4.4.4:8080/eureka/
+```
+
+3. 在PRO环境的ApolloConfigDB.ServerConfig表中设置eureka.service.url为：
+```
+http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
+```
+
+>注1：这里需要填写本环境中全部的eureka服务地址，因为eureka需要互相复制注册信息
+
+>注2：如果希望将Config Service和Admin Service注册到公司统一的Eureka上，可以参考[部署&开发遇到的常见问题 - 将Config Service和Admin Service注册到单独的Eureka Server上](zh/faq/common-issues-in-deployment-and-development-phase#_8-将config-service和admin-service注册到单独的eureka-server上)章节
+
+>注3：在多机房部署时，往往希望config service和admin service只向同机房的eureka注册，要实现这个效果，需要利用`ServerConfig`表中的cluster字段，config service和admin service会读取所在机器的`/opt/settings/server.properties`（Mac/Linux）或`C:\opt\settings\server.properties`（Windows）中的idc属性，如果该idc有对应的eureka.service.url配置，那么就只会向该机房的eureka注册。比如config service和admin service会部署到`SHAOY`和`SHAJQ`两个IDC，那么为了实现这两个机房中的服务只向该机房注册，那么可以在`ServerConfig`表中新增两条记录，分别填入`SHAOY`和`SHAJQ`两个机房的eureka地址即可，`default` cluster的记录可以保留，如果有config service和admin service不是部署在`SHAOY`和`SHAJQ`这两个机房的，就会使用这条默认配置。
+
+| Key                |Cluster    | Value                         | Comment             |
+|--------------------|-----------|-------------------------------|---------------------|
+| eureka.service.url | default   | http://1.1.1.1:8080/eureka/   | 默认的Eureka服务Url  |
+| eureka.service.url | SHAOY     | http://2.2.2.2:8080/eureka/   | SHAOY的Eureka服务Url |
+| eureka.service.url | SHAJQ     | http://3.3.3.3:8080/eureka/   | SHAJQ的Eureka服务Url |
+
+### 3.2.2 namespace.lock.switch - 一次发布只能有一个人修改开关，用于发布审核
+
+这是一个功能开关，如果配置为true的话，那么一次配置发布只能是一个人修改，另一个发布。
+
+> 生产环境建议开启此选项
+
+### 3.2.3 config-service.cache.enabled - 是否开启配置缓存
+
+这是一个功能开关，如果配置为true的话，config service会缓存加载过的配置信息，从而加快后续配置获取性能。
+
+默认为false，开启前请先评估总配置大小并调整config service内存配置。
+
+> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
+
+### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
+
+默认配置是128。
+
+### 3.2.5 item.value.length.limit - 配置项 value 最大长度限制
+
+默认配置是20000。
+
+### 3.2.6 admin-service.access.control.enabled - 配置apollo-adminservice是否开启访问控制
+
+> 适用于1.7.1及以上版本
+
+默认为false，如果配置为true，那么apollo-portal就需要[正确配置](#_3112-admin-serviceaccesstokens-设置apollo-portal访问各环境apollo-adminservice所需的access-token)访问该环境的access token，否则访问会被拒绝
+
+### 3.2.7 admin-service.access.tokens - 配置允许访问apollo-adminservice的access token列表
+
+> 适用于1.7.1及以上版本
+
+如果该配置项为空，那么访问控制不会生效。如果允许多个token，token 之间以英文逗号分隔
+
+样例：
+```properties
+admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6
+admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b9033196ba818f7a872b
+```

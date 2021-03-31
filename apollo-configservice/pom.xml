@@ -64,7 +64,16 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey.contribs</groupId>
+			<artifactId>jersey-apache-client4</artifactId>
+		</dependency>
 		<!-- end of eureka -->
+		<dependency>
+			<groupId>com.alibaba.nacos</groupId>
+			<artifactId>nacos-api</artifactId>
+			<version>${nacos-discovery-api.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -100,9 +109,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<executable>true</executable>
-				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -134,6 +140,9 @@
 					</imageTags>
 					<dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
 					<serverId>docker-hub</serverId>
+					<buildArgs>
+						<VERSION>${project.version}</VERSION>
+					</buildArgs>
 					<resources>
 						<resource>
 							<targetPath>/</targetPath>
@@ -145,4 +154,21 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>nacos-discovery</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.alibaba.boot</groupId>
+					<artifactId>nacos-discovery-spring-boot-starter</artifactId>
+				</dependency>
+				<dependency>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+
 </project>

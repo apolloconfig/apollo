@@ -3,7 +3,9 @@ spring:
     name: apollo-configservice
   profiles:
     active: ${apollo_profile}
-
+  cloud:
+    consul:
+      enabled: false
 ctrip:
   appid: 100003171
 
@@ -11,4 +13,27 @@ server:
   port: 8080
 
 logging:
-  file: /opt/logs/100003171/apollo-configservice.log
+  file:
+    name: /opt/logs/100003171/apollo-configservice.log
+
+eureka:
+  instance:
+    hostname: ${hostname:localhost}
+    preferIpAddress: true
+    status-page-url-path: /info
+    health-check-url-path: /health
+  server:
+    peerEurekaNodesUpdateIntervalMs: 60000
+    enableSelfPreservation: false
+  client:
+    serviceUrl:
+      # This setting will be overridden by eureka.service.url setting from ApolloConfigDB.ServerConfig or System Property
+      # see com.ctrip.framework.apollo.biz.eureka.ApolloEurekaClientConfig
+      defaultZone: http://${eureka.instance.hostname}:8080/eureka/
+    healthcheck:
+      enabled: true
+    eurekaServiceUrlPollIntervalSeconds: 60
+management:
+  health:
+    status:
+      order: DOWN, OUT_OF_SERVICE, UNKNOWN, UP
