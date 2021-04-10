@@ -81,6 +81,11 @@ public class AccessKeyServiceWithCacheTest {
 
     await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
         .containsExactly("secret-1", "secret-2"));
+    // should also work with appid in different case
+    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId.toUpperCase()))
+        .containsExactly("secret-1", "secret-2");
+    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId.toLowerCase()))
+        .containsExactly("secret-1", "secret-2");
 
     // Update access key, disable the first one
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false, false, 1577808004000L);

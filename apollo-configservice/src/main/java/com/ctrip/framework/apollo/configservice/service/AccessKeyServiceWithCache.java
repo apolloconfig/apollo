@@ -63,7 +63,7 @@ public class AccessKeyServiceWithCache implements InitializingBean {
         ApolloThreadFactory.create("AccessKeyServiceWithCache", true));
     lastTimeScanned = new Date(0L);
 
-    ListMultimap<String, AccessKey> multimap = ListMultimapBuilder.hashKeys(128)
+    ListMultimap<String, AccessKey> multimap = ListMultimapBuilder.treeKeys(String.CASE_INSENSITIVE_ORDER)
         .arrayListValues().build();
     accessKeyCache = Multimaps.synchronizedListMultimap(multimap);
     accessKeyIdCache = Maps.newConcurrentMap();

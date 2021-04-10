@@ -283,6 +283,20 @@
 <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
 <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
+<script type="application/javascript">
+    function getPrefixPath() {
+        $.ajax({
+            method: 'get',
+            async: false,
+            url: 'prefix-path',
+            success: function (res) {
+                window.localStorage.setItem("prefixPath", res);
+            }
+        })
+    }
+    getPrefixPath();
+</script>
+
 <script type="application/javascript" src="scripts/app.js"></script>
 <script type="application/javascript" src="scripts/AppUtils.js"></script>
 <script type="application/javascript" src="scripts/directive/directive.js"></script>
@@ -306,11 +320,6 @@
             $(this).addClass('active');
             e.preventDefault();
         });
-
-        $.get("prefix-path", function(result){
-            window.localStorage.setItem("prefixPath",result);
-        });
-
     });
 
 </script>

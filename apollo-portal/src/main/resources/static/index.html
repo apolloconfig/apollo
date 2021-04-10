@@ -124,6 +124,20 @@
     <!-- bootstrap.js -->
     <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
+    <script type="application/javascript">
+        function getPrefixPath() {
+            $.ajax({
+                method: 'get',
+                async: false,
+                url: 'prefix-path',
+                success: function (res) {
+                    window.localStorage.setItem("prefixPath", res);
+                }
+            })
+        }
+        getPrefixPath();
+    </script>
+
     <script type="application/javascript" src="scripts/app.js"></script>
     <script type="application/javascript" src="scripts/services/AppService.js"></script>
     <script type="application/javascript" src="scripts/services/EnvService.js"></script>

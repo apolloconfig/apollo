@@ -545,6 +545,10 @@ The project is licensed under the [Apache 2 license](https://github.com/ctripcor
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/shuidichou.png" alt="水滴"></td>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/kuwo.png" alt="酷我音乐"></td>
 </tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/mi.png" alt="小米"></td>
+<td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/mvmyun.png" alt="今典"></td>
+</tr>
 </table>
 
 # Awards
