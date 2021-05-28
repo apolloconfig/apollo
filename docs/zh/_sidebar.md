@@ -38,3 +38,9 @@
 - 其它
    - [版本历史](https://github.com/ctripcorp/apollo/releases)
    - [Apollo性能测试报告](zh/misc/apollo-benchmark.md)
+
+- 社区
+  - [团队](zh/community/team.md)
+  - [社区治理](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
+  - [贡献指南](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
+

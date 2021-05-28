@@ -567,7 +567,7 @@ Spring Boot除了支持上述两种集成方式以外，还支持通过applicati
 
 3. 将Apollo配置加载提到初始化日志系统之前(1.2.0+)
 
-从1.2.0版本开始，如果希望把日志相关的配置（如`logging.level.root=info`或`logback-spring.xml`中的参数）也放在Apollo管理，那么可以额外配置`apollo.bootstrap.eagerLoad.enabled=true`来使Apollo的加载顺序放到日志系统加载之前，不过这会导致Apollo的启动过程无法通过日志的方式输出(因为执行Apollo加载的时候，日志系统压根没有准备好呢！所以在Apollo代码中使用Slf4j的日志输出便没有任何内容)，更多信息可以参考[PR 1614](https://github.com/ctripcorp/apollo/pull/1614)。参考配置示例如下：
+从1.2.0版本开始，如果希望把日志相关的配置（如`logging.level.root=info`或`logback-spring.xml`中的参数）也放在Apollo管理，那么可以额外配置`apollo.bootstrap.eagerLoad.enabled=true`来使Apollo的加载顺序放到日志系统加载之前，更多信息可以参考[PR 1614](https://github.com/ctripcorp/apollo/pull/1614)。参考配置示例如下：
 
 ```properties
      # will inject 'application' namespace in bootstrap phase

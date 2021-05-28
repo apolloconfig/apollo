@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
@@ -22,6 +38,7 @@ import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
 import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcAuthenticationSuccessEventListener;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
@@ -226,8 +243,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder() {
-      return new SpringSecurityUserInfoHolder();
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
+      return new SpringSecurityUserInfoHolder(userService);
     }
 
     @Bean
@@ -319,8 +336,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder() {
-      return new SpringSecurityUserInfoHolder();
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
+      return new SpringSecurityUserInfoHolder(userService);
     }
 
     @Bean
@@ -444,8 +461,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder oidcUserInfoHolder() {
-      return new OidcUserInfoHolder();
+    public UserInfoHolder oidcUserInfoHolder(UserService userService) {
+      return new OidcUserInfoHolder(userService);
     }
 
     @Bean
@@ -465,7 +482,7 @@ public class AuthConfiguration {
     @ConditionalOnMissingBean(UserService.class)
     public OidcLocalUserService oidcLocalUserService(JdbcUserDetailsManager userDetailsManager,
         UserRepository userRepository) {
-      return new OidcLocalUserService(userDetailsManager, userRepository);
+      return new OidcLocalUserServiceImpl(userDetailsManager, userRepository);
     }
 
     @Bean

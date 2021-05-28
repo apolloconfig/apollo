@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.springsecurity;
 
 import com.google.common.collect.Lists;
@@ -58,27 +74,37 @@ public class SpringSecurityUserService implements UserService {
 
     UserPO managedUser = userRepository.findByUsername(username);
     managedUser.setEmail(user.getEmail());
+    managedUser.setUserDisplayName(user.getUserDisplayName());
 
     userRepository.save(managedUser);
   }
 
   @Override
   public List<UserInfo> searchUsers(String keyword, int offset, int limit) {
-    List<UserPO> users;
-    if (StringUtils.isEmpty(keyword)) {
-      users = userRepository.findFirst20ByEnabled(1);
-    } else {
-      users = userRepository.findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-    }
-
-    List<UserInfo> result = Lists.newArrayList();
+    List<UserPO> users = this.findUsers(keyword);
     if (CollectionUtils.isEmpty(users)) {
-      return result;
+      return Collections.emptyList();
     }
+    return users.stream().map(UserPO::toUserInfo)
+        .collect(Collectors.toList());
+  }
 
-    result.addAll(users.stream().map(UserPO::toUserInfo).collect(Collectors.toList()));
-
-    return result;
+  private List<UserPO> findUsers(String keyword) {
+    if (StringUtils.isEmpty(keyword)) {
+      return userRepository.findFirst20ByEnabled(1);
+    }
+    List<UserPO> users = new ArrayList<>();
+    List<UserPO> byUsername = userRepository
+        .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUserDisplayName = userRepository
+        .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+    if (!CollectionUtils.isEmpty(byUsername)) {
+      users.addAll(byUsername);
+    }
+    if (!CollectionUtils.isEmpty(byUserDisplayName)) {
+      users.addAll(byUserDisplayName);
+    }
+    return users;
   }
 
   @Override

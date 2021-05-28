@@ -1,8 +1,25 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.spring.boot;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.utils.DeferredLogger;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
@@ -91,7 +108,8 @@ public class ApolloApplicationContextInitializer implements
   protected void initialize(ConfigurableEnvironment environment) {
 
     if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
-      //already initialized
+      //already initialized, replay the logs that were printed before the logging system was initialized
+      DeferredLogger.replayTo();
       return;
     }
 
@@ -160,6 +178,7 @@ public class ApolloApplicationContextInitializer implements
     Boolean bootstrapEnabled = configurableEnvironment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false);
 
     if (bootstrapEnabled) {
+      DeferredLogger.enable();
       initialize(configurableEnvironment);
     }
 

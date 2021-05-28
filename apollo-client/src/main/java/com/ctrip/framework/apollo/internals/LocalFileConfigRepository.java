@@ -1,5 +1,22 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.internals;
 
+import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +30,6 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -31,7 +47,7 @@ import com.google.common.base.Preconditions;
  */
 public class LocalFileConfigRepository extends AbstractConfigRepository
     implements RepositoryChangeListener {
-  private static final Logger logger = LoggerFactory.getLogger(LocalFileConfigRepository.class);
+  private static final Logger logger = DeferredLoggerFactory.getLogger(LocalFileConfigRepository.class);
   private static final String CONFIG_DIR = "/config-cache";
   private final String m_namespace;
   private File m_baseDir;
@@ -103,7 +119,6 @@ public class LocalFileConfigRepository extends AbstractConfigRepository
       m_upstream.removeChangeListener(this);
     }
     m_upstream = upstreamConfigRepository;
-    trySyncFromUpstream();
     upstreamConfigRepository.addChangeListener(this);
   }
 

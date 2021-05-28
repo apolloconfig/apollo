@@ -104,6 +104,8 @@
 ### Apollo PHP 客户端 2
 项目地址：[apollo-sdk-config](https://github.com/fengzhibin/apollo-sdk-config)
 
+项目地址：[apollo-sdk-clientd](https://github.com/fengzhibin/apollo-sdk-clientd)
+
 > 非常感谢[@fengzhibin](https://github.com/fengzhibin)提供PHP Apollo客户端的支持
 
 ## 5. C

@@ -1,3 +1,18 @@
+--
+-- Copyright 2021 Apollo Authors
+--
+-- Licensed under the Apache License, Version 2.0 (the "License");
+-- you may not use this file except in compliance with the License.
+-- You may obtain a copy of the License at
+--
+-- http://www.apache.org/licenses/LICENSE-2.0
+--
+-- Unless required by applicable law or agreed to in writing, software
+-- distributed under the License is distributed on an "AS IS" BASIS,
+-- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-- See the License for the specific language governing permissions and
+-- limitations under the License.
+--
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -282,8 +297,9 @@ DROP TABLE IF EXISTS `Users`;
 
 CREATE TABLE `Users` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
-  `Username` varchar(64) NOT NULL DEFAULT 'default' COMMENT '用户名',
+  `Username` varchar(64) NOT NULL DEFAULT 'default' COMMENT '用户登录账户',
   `Password` varchar(64) NOT NULL DEFAULT 'default' COMMENT '密码',
+  `UserDisplayName` varchar(512) NOT NULL DEFAULT 'default' COMMENT '用户名称',
   `Email` varchar(64) NOT NULL DEFAULT 'default' COMMENT '邮箱地址',
   `Enabled` tinyint(4) DEFAULT NULL COMMENT '是否有效',
   PRIMARY KEY (`Id`)
@@ -316,9 +332,9 @@ VALUES
     ('configView.memberOnly.envs', 'dev', '只对项目成员显示配置信息的环境列表，多个env以英文逗号分隔'),
     ('apollo.portal.meta.servers', '{}', '各环境Meta Service列表');
 
-INSERT INTO `Users` (`Username`, `Password`, `Email`, `Enabled`)
+INSERT INTO `Users` (`Username`, `Password`, `UserDisplayName`, `Email`, `Enabled`)
 VALUES
-	('apollo', '$2a$10$7r20uS.BQ9uBpf3Baj3uQOZvMVvB1RN3PYoKE94gtz2.WAOuiiwXS', 'apollo@acme.com', 1);
+    ('apollo', '$2a$10$7r20uS.BQ9uBpf3Baj3uQOZvMVvB1RN3PYoKE94gtz2.WAOuiiwXS', 'apollo', 'apollo@acme.com', 1);
 
 INSERT INTO `Authorities` (`Username`, `Authority`) VALUES ('apollo', 'ROLE_user');
 

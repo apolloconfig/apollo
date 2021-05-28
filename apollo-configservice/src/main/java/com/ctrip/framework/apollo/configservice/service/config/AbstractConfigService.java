@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.service.config;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -25,7 +41,7 @@ public abstract class AbstractConfigService implements ConfigService {
       Release clusterRelease = findRelease(clientAppId, clientIp, configAppId, configClusterName, configNamespace,
           clientMessages);
 
-      if (!Objects.isNull(clusterRelease)) {
+      if (Objects.nonNull(clusterRelease)) {
         return clusterRelease;
       }
     }
@@ -34,7 +50,7 @@ public abstract class AbstractConfigService implements ConfigService {
     if (!Strings.isNullOrEmpty(dataCenter) && !Objects.equals(dataCenter, configClusterName)) {
       Release dataCenterRelease = findRelease(clientAppId, clientIp, configAppId, dataCenter, configNamespace,
           clientMessages);
-      if (!Objects.isNull(dataCenterRelease)) {
+      if (Objects.nonNull(dataCenterRelease)) {
         return dataCenterRelease;
       }
     }
