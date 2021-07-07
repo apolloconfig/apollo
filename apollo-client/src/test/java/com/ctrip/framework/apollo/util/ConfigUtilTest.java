@@ -46,6 +46,7 @@ public class ConfigUtilTest {
     System.clearProperty("apollo.autoUpdateInjectedSpringProperties");
     System.clearProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR);
     System.clearProperty(PropertiesFactory.APOLLO_PROPERTY_ORDER_ENABLE);
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE);
   }
 
   @Test
@@ -252,5 +253,15 @@ public class ConfigUtilTest {
 
     assertEquals(propertiesOrdered,
         configUtil.isPropertiesOrderEnabled());
+  }
+
+  @Test
+  public void test() {
+    ConfigUtil configUtil = new ConfigUtil();
+    assertFalse(configUtil.isPropertyNamesCacheEnabled());
+
+    System.setProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE, "true");
+    configUtil = new ConfigUtil();
+    assertTrue(configUtil.isPropertyNamesCacheEnabled());
   }
 }

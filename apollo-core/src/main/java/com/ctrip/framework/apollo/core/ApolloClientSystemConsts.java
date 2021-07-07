@@ -126,4 +126,14 @@ public class ApolloClientSystemConsts {
    * enable property order environment variables
    */
   public static final String APOLLO_PROPERTY_ORDER_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_ORDER_ENABLE";
+
+  /**
+   * enable property names cache
+   */
+  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE = "apollo.property.names.cache.enable";
+
+  /**
+   * enable property names cache environment variables
+   */
+  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_NAMES_CACHE_ENABLE";
 }
