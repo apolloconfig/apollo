@@ -59,6 +59,7 @@ Apollo 1.9.0
 * [support release apollo-client-config-data](https://github.com/ctripcorp/apollo/pull/3822)
 * [Reduce bootstrap time in the situation with large properties](https://github.com/ctripcorp/apollo/pull/3816)
 * [docs: English catalog in sidebar](https://github.com/ctripcorp/apollo/pull/3831)
+* [fix the issue that release messages might be missed in certain scenarios](https://github.com/ctripcorp/apollo/pull/3819)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
 
