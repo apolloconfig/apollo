@@ -316,6 +316,8 @@
   "Index.GetCreateAppRoleFailed": "获取创建应用权限信息失败",
   "Index.Topped": "置顶成功",
   "Index.CancelledFavorite": "取消收藏成功",
+  "Index.PublicProject": "公共项目",
+  "Index.PublicTip": "您还没有任何公共项目，在项目配置中可以设置哟~",
   "Cluster.CreateCluster": "新建集群",
   "Cluster.Tips.1": "通过添加集群，可以使同一份程序在不同的集群（如不同的数据中心）使用不同的配置",
   "Cluster.Tips.2": "如果不同集群使用一样的配置，则没有必要创建集群",

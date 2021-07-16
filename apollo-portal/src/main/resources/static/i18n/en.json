@@ -316,6 +316,8 @@
   "Index.GetCreateAppRoleFailed": "Failed to get the information of create project permission",
   "Index.Topped": "Top Successfully",
   "Index.CancelledFavorite": "Remove favorite successfully",
+  "Index.PublicProject": "Public projects",
+  "Index.PublicTip": "You haven't created any public projects yet. You can set public projects on the project settings.",
   "Cluster.CreateCluster": "Create Cluster",
   "Cluster.Tips.1": "By adding clusters, the same program can use different configuration in different clusters (such as different data centers)",
   "Cluster.Tips.2": "If the different clusters use the same configuration, there is no need to create clusters",

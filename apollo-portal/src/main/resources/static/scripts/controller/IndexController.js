@@ -15,16 +15,16 @@
  *
  */
 index_module.controller('IndexController', ['$scope', '$window', '$translate', 'toastr', 'AppUtil', 'AppService',
-    'UserService', 'FavoriteService',
+    'UserService', 'FavoriteService', 'NamespaceService',
     IndexController]);
 
-function IndexController($scope, $window, $translate, toastr, AppUtil, AppService, UserService, FavoriteService) {
+function IndexController($scope, $window, $translate, toastr, AppUtil, AppService, UserService, FavoriteService, NamespaceService) {
 
     $scope.userId = '';
 
     $scope.getUserCreatedApps = getUserCreatedApps;
     $scope.getUserFavorites = getUserFavorites;
-
+    $scope.getPublicProjects = getPublicProjects;
     $scope.goToAppHomePage = goToAppHomePage;
     $scope.goToCreateAppPage = goToCreateAppPage;
     $scope.toggleOperationBtn = toggleOperationBtn;
@@ -51,13 +51,19 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         $scope.favoritesPage = 0;
         $scope.favorites = [];
         $scope.hasMoreFavorites = true;
+        $scope.publicProjectPage = 0;
+        $scope.publicProjects = [];
+        $scope.hasMorePublicProjects = true;
         $scope.visitedApps = [];
+
 
         initCreateApplicationPermission();
 
         getUserCreatedApps();
 
         getUserFavorites();
+
+        getPublicProjects();
 
         initUserVisitedApps();
     });
@@ -116,6 +122,15 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
                         });
 
                     });
+            })
+    }
+
+    function getPublicProjects() {//TODO
+        var size = 10;
+        NamespaceService.find_public_namespaces()
+            .then(function (result){
+                console.log("public",result);
+                $scope.publicProjects=result;
             })
     }
 
