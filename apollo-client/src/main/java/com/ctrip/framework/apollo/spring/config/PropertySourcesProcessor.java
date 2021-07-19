@@ -80,7 +80,12 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
       //already initialized
       return;
     }
-    CompositePropertySource composite = new CompositePropertySource(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME);
+    CompositePropertySource composite;
+    if (configUtil.isPropertyNamesCacheEnabled()) {
+      composite = new CachedCompositePropertySource(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME);
+    } else {
+      composite = new CompositePropertySource(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME);
+    }
 
     //sort by order asc
     ImmutableSortedSet<Integer> orders = ImmutableSortedSet.copyOf(NAMESPACE_NAMES.keySet());

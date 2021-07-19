@@ -18,14 +18,20 @@ package com.ctrip.framework.apollo.spring.boot;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
+import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.spring.config.CachedCompositePropertySource;
+import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MutablePropertySources;
 
 public class ApolloApplicationContextInitializerTest {
 
@@ -42,6 +48,8 @@ public class ApolloApplicationContextInitializerTest {
     System.clearProperty(ConfigConsts.APOLLO_CLUSTER_KEY);
     System.clearProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR);
     System.clearProperty(ConfigConsts.APOLLO_META_KEY);
+
+    MockInjector.reset();
   }
 
   @Test
@@ -108,5 +116,31 @@ public class ApolloApplicationContextInitializerTest {
     assertNull(System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY));
     assertNull(System.getProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR));
     assertNull(System.getProperty(ConfigConsts.APOLLO_META_KEY));
+  }
+
+  @Test
+  public void testPropertyNamesCacheEnabled() {
+    ConfigurableEnvironment environment = mock(ConfigurableEnvironment.class);
+    MutablePropertySources propertySources = new MutablePropertySources();
+    when(environment.getPropertySources()).thenReturn(propertySources);
+    when(environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_NAMESPACES,
+        ConfigConsts.NAMESPACE_APPLICATION)).thenReturn("");
+
+    apolloApplicationContextInitializer.initialize(environment);
+
+    assertTrue(propertySources.contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME));
+    assertFalse(propertySources.iterator().next() instanceof CachedCompositePropertySource);
+
+    ConfigUtil configUtil = new ConfigUtil();
+    configUtil = spy(configUtil);
+    when(configUtil.isPropertyNamesCacheEnabled()).thenReturn(true);
+    MockInjector.setInstance(ConfigUtil.class, configUtil);
+    apolloApplicationContextInitializer = new ApolloApplicationContextInitializer();
+    propertySources.remove(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+
+    apolloApplicationContextInitializer.initialize(environment);
+
+    assertTrue(propertySources.contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME));
+    assertTrue(propertySources.iterator().next() instanceof CachedCompositePropertySource);
   }
 }
