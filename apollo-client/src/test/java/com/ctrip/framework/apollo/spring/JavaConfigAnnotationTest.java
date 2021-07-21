@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.spring;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigFileChangeListener;
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.internals.SimpleConfig;
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
@@ -93,6 +94,7 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
     System.clearProperty(SystemPropertyKeyConstants.FROM_SYSTEM_YAML_NAMESPACE);
     System.clearProperty(SystemPropertyKeyConstants.FROM_NAMESPACE_APPLICATION_KEY);
     System.clearProperty(SystemPropertyKeyConstants.FROM_NAMESPACE_APPLICATION_KEY_YAML);
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE);
     super.tearDown();
   }
 
@@ -456,13 +458,17 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
     Config applicationConfig = mock(Config.class);
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, applicationConfig);
 
+    System.setProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE, "true");
+
     getSimpleBean(TestApolloConfigChangeListenerResolveExpressionSimpleConfiguration.class);
 
     // no using
     verify(ignoreConfig, never()).addChangeListener(any(ConfigChangeListener.class));
 
-    // one invocation for spring value auto update and another for the @ApolloConfigChangeListener annotation
-    verify(applicationConfig, times(2)).addChangeListener(any(ConfigChangeListener.class));
+    // one invocation for spring value auto update
+    // one invocation for the @ApolloConfigChangeListener annotation
+    // one invocation for CachedCompositePropertySource clear cache listener
+    verify(applicationConfig, times(3)).addChangeListener(any(ConfigChangeListener.class));
   }
 
   /**

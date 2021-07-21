@@ -56,6 +56,7 @@ public class ConfigUtil {
   private boolean autoUpdateInjectedSpringProperties = true;
   private final RateLimiter warnLogRateLimiter;
   private boolean propertiesOrdered = false;
+  private boolean propertyNamesCacheEnabled = false;
 
   public ConfigUtil() {
     warnLogRateLimiter = RateLimiter.create(0.017); // 1 warning log output per minute
@@ -68,6 +69,7 @@ public class ConfigUtil {
     initLongPollingInitialDelayInMills();
     initAutoUpdateInjectedSpringProperties();
     initPropertiesOrdered();
+    initPropertyNamesCacheEnabled();
   }
 
   /**
@@ -393,5 +395,29 @@ public class ConfigUtil {
 
   public boolean isPropertiesOrderEnabled() {
     return propertiesOrdered;
+  }
+
+  public boolean isPropertyNamesCacheEnabled() {
+    return propertyNamesCacheEnabled;
+  }
+
+  private void initPropertyNamesCacheEnabled() {
+    String propertyName = ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE;
+    String propertyEnvName = ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES;
+    String enablePropertyNamesCache = System.getProperty(propertyName);
+    if (Strings.isNullOrEmpty(enablePropertyNamesCache)) {
+      enablePropertyNamesCache = System.getenv(propertyEnvName);
+    }
+    if (Strings.isNullOrEmpty(enablePropertyNamesCache)) {
+      enablePropertyNamesCache = Foundation.app().getProperty(propertyName, "false");
+    }
+    if (!Strings.isNullOrEmpty(enablePropertyNamesCache)) {
+      try {
+        propertyNamesCacheEnabled = Boolean.parseBoolean(enablePropertyNamesCache);
+      } catch (Throwable ex) {
+        logger.warn("Config for {} is invalid: {}, set default value: false",
+            propertyName, enablePropertyNamesCache);
+      }
+    }
   }
 }

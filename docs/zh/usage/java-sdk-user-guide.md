@@ -317,6 +317,26 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
    * 可以通过操作系统的System Environment `APOLLO_PATH_SERVER_PROPERTIES`来指定
    * 注意key为全大写，且中间是`_`分隔
 
+#### 1.2.4.6 开启`propertyNames`缓存，在大量配置场景下可以显著改善启动速度
+
+> 适用于1.9.0及以上版本
+
+在使用`@ConfigurationProperties`和存在大量配置项场景下，Spring容器的启动速度会变慢。通过开启该配置可以显著提升启动速度，当配置发生变化时缓存会自动清理，默认为`false`。详见：[issue 3800](https://github.com/ctripcorp/apollo/issues/3800)
+
+配置方式按照优先级从高到低依次为：
+1. 通过Java System Property `apollo.property.names.cache.enable`
+   * 可以通过Java的System Property `apollo.property.names.cache.enable`来指定
+   * 在Java程序启动脚本中，可以指定`-Dapollo.property.names.cache.enable=true`
+      * 如果是运行jar文件，需要注意格式是`java -Dapollo.property.names.cache.enable=true -jar xxx.jar`
+   * 也可以通过程序指定，如`System.setProperty("apollo.property.names.cache.enable", "true");`
+2. 通过系统环境变量
+   * 在启动程序前配置环境变量`APOLLO_PROPERTY_NAMES_CACHE_ENABLE=true`来指定
+   * 注意key为全大写，且中间是`_`分隔
+3. 通过Spring Boot的配置文件
+   * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.property.names.cache.enable=true`
+4. 通过`app.properties`配置文件
+   * 可以在`classpath:/META-INF/app.properties`指定`apollo.property.names.cache.enable=true`
+
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
 ```xml
