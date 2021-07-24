@@ -13,5 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-appId=100003171
-jdkVersion=1.8
+---
+kind: Service
+apiVersion: v1
+metadata:
+  namespace: sre
+  name: service-mysql-for-apollo-uat-env
+  labels:
+    app: service-mysql-for-apollo-uat-env
+spec:
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+  sessionAffinity: None
+
+---
+kind: Endpoints
+apiVersion: v1
+metadata:
+  namespace: sre
+  name: service-mysql-for-apollo-uat-env
+subsets:
+  - addresses:
+      - ip: your-mysql-addresses
+    ports:
+      - protocol: TCP
+        port: 3306

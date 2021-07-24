@@ -14,34 +14,34 @@
 # limitations under the License.
 #
 ---
-# configmap for apollo-admin-server-test-alpha
+# configmap for apollo-admin-server-fat
 kind: ConfigMap
 apiVersion: v1
 metadata:
   namespace: sre
-  name: configmap-apollo-admin-server-test-alpha
+  name: configmap-apollo-admin-server-fat
 data:
   application-github.properties: |
-    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-test-alpha-env.sre:3306/TestAlphaApolloConfigDB?characterEncoding=utf8
+    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-fat-env.sre:3306/ApolloConfigDB?characterEncoding=utf8
     spring.datasource.username = FillInCorrectUser
     spring.datasource.password = FillInCorrectPassword
-    eureka.service.url = http://statefulset-apollo-config-server-test-alpha-0.service-apollo-meta-server-test-alpha:8080/eureka/,http://statefulset-apollo-config-server-test-alpha-1.service-apollo-meta-server-test-alpha:8080/eureka/,http://statefulset-apollo-config-server-test-alpha-2.service-apollo-meta-server-test-alpha:8080/eureka/
+    eureka.service.url = http://statefulset-apollo-config-server-fat-0.service-apollo-meta-server-fat:8080/eureka/,http://statefulset-apollo-config-server-fat-1.service-apollo-meta-server-fat:8080/eureka/
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
   namespace: sre
-  name: service-apollo-admin-server-test-alpha
+  name: service-apollo-admin-server-fat
   labels:
-    app: service-apollo-admin-server-test-alpha
+    app: service-apollo-admin-server-fat
 spec:
   ports:
     - protocol: TCP
       port: 8090
       targetPort: 8090
   selector:
-    app: pod-apollo-admin-server-test-alpha
+    app: pod-apollo-admin-server-fat
   type: ClusterIP
   sessionAffinity: ClientIP
 
@@ -50,14 +50,14 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   namespace: sre
-  name: deployment-apollo-admin-server-test-alpha
+  name: deployment-apollo-admin-server-fat
   labels:
-    app: deployment-apollo-admin-server-test-alpha
+    app: deployment-apollo-admin-server-fat
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      app: pod-apollo-admin-server-test-alpha
+      app: pod-apollo-admin-server-fat
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -66,7 +66,7 @@ spec:
   template:
     metadata:
       labels:
-        app: pod-apollo-admin-server-test-alpha
+        app: pod-apollo-admin-server-fat
     spec:
       affinity:
         podAntiAffinity:
@@ -78,40 +78,35 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - pod-apollo-admin-server-test-alpha
+                  - pod-apollo-admin-server-fat
               topologyKey: kubernetes.io/hostname
       
       volumes:
-        - name: volume-configmap-apollo-admin-server-test-alpha
+        - name: volume-configmap-apollo-admin-server-fat
           configMap:
-            name: configmap-apollo-admin-server-test-alpha
+            name: configmap-apollo-admin-server-fat
             items:
               - key: application-github.properties
                 path: application-github.properties
       
-      initContainers:
-        - image: alpine-bash:3.8
-          name: check-service-apollo-config-server-test-alpha
-          command: ['bash', '-c', "curl --connect-timeout 2 --max-time 5 --retry 60 --retry-delay 1 --retry-max-time 120 service-apollo-config-server-test-alpha.sre:8080"]
-      
       containers:
-        - image: apollo-admin-server:v1.0.0
+        - image: apolloconfig/apollo-adminservice:1.9.0-SNAPSHOT
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
-          name: container-apollo-admin-server-test-alpha
+          name: container-apollo-admin-server-fat
           ports:
             - protocol: TCP
               containerPort: 8090
           
           volumeMounts:
-            - name: volume-configmap-apollo-admin-server-test-alpha
-              mountPath: /apollo-admin-server/config/application-github.properties
+            - name: volume-configmap-apollo-admin-server-fat
+              mountPath: /apollo-adminservice/config/application-github.properties
               subPath: application-github.properties
           
           env:
             - name: APOLLO_ADMIN_SERVICE_NAME
-              value: "service-apollo-admin-server-test-alpha.sre"
+              value: "service-apollo-admin-server-fat.sre"
           
           readinessProbe:
             tcpSocket:
