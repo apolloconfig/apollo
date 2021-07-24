@@ -30,6 +30,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     $scope.toggleOperationBtn = toggleOperationBtn;
     $scope.toTop = toTop;
     $scope.deleteFavorite = deleteFavorite;
+    $scope.morePublicProject = morePublicProject;
 
     function initCreateApplicationPermission() {
         AppService.has_create_application_role($scope.userId).then(
@@ -54,6 +55,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         $scope.publicProjectPage = 0;
         $scope.publicProjects = [];
         $scope.hasMorePublicProjects = true;
+        $scope.allPublicProjects= [];
         $scope.visitedApps = [];
 
 
@@ -129,9 +131,17 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         var size = 10;
         NamespaceService.find_public_namespaces()
             .then(function (result){
+                //$scope.hasMorePublicProjects = result.length==size;
+                console.log("public",result);
+                $scope.allPublicProjects=result;
+                morePublicProject();
+            })
+        /*NamespaceService.getPublicAppNamespaceAllNamespaces('','',$scope.publicProjectPage,size)
+            .then(function (result){
+                $scope.publicProjectPage +=1;
                 console.log("public",result);
                 $scope.publicProjects=result;
-            })
+            })*/
     }
 
     function initUserVisitedApps() {
@@ -195,6 +205,22 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         $scope.hasMoreFavorites = true;
 
         getUserFavorites();
+    }
+
+    function morePublicProject() {
+        var rest = $scope.allPublicProjects.length - $scope.publicProjectPage*10;
+        if (rest <= 10) {
+            for (var i=0; i<rest; i++) {
+                $scope.publicProjects.push($scope.allPublicProjects[$scope.publicProjectPage*10+i])
+            }
+            $scope.hasMorePublicProjects = false;
+        }
+        else {
+            for(var j=0; j<10; j++){
+                $scope.publicProjects.push($scope.allPublicProjects[$scope.publicProjectPage*10+j])
+            }
+        }
+        $scope.publicProjectPage += 1;
     }
 
 }

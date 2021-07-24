@@ -738,7 +738,8 @@ table th {
 }
 
 #app-list .media-left {
-    width: 1000px;
+    min-width: 200px;
+    max-width: 400px;
     color: #fff;
     display: table-cell;
     vertical-align: middle;
@@ -783,6 +784,14 @@ table th {
 }
 
 .favorites-app-list .no-favorites {
+    padding-bottom: 15px;
+}
+
+.public-app-list .media-left {
+    background: #65c294;
+}
+
+.public-app-list .no-public {
     padding-bottom: 15px;
 }
 
