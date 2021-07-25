@@ -1,8 +1,8 @@
 Apollo has supported  **webhook** since 1.8.0 edition, which is triggered to send you a message when your configuration is released.
 
-## how to Enable webhook
+## how to enable webhook
 
-The configuration items are stored in the table named ApolloPortalDB.ServerConfig. "admin—system parameter" page is an alternative is to configuration. All the configurations will be valid in one minutes.
+The configuration items are stored in the table named ApolloPortalDB.ServerConfig. "admin—system parameter" page is an alternative to configuration. All the configurations will be valid in one minutes.
 
 1. webhook.supported.envs
 
@@ -14,9 +14,7 @@ DEV, FAT, UAT, PRO
 
 2. config.release.webhook.service.url
 
-Config the url that receives HTTP post request sent by webhook for notifying.
-
-Multiple urls should be split by comma, like
+Config the url that receives HTTP post request sent by webhook for notifying. Multiple urls should be split by comma, like
 ```
 http://www.xxx.com/webhook1,http://www.xxx.com/webhook2
 ```
