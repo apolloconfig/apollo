@@ -62,6 +62,7 @@ Apollo 1.9.0
 * [docs: English catalog in sidebar](https://github.com/ctripcorp/apollo/pull/3831)
 * [fix the issue that release messages might be missed in certain scenarios](https://github.com/ctripcorp/apollo/pull/3819)
 * [use official docker images for manual kubernetes deployment](https://github.com/ctripcorp/apollo/pull/3840)
+* [fix size of create project button](https://github.com/ctripcorp/apollo/pull/3849)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
 
