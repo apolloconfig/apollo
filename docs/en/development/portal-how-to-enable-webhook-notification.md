@@ -2,7 +2,7 @@ Apollo has supported  **webhook** since 1.8.0 edition, which is triggered to sen
 
 ## How to enable webhook
 
-The configuration items are stored in the table named ApolloPortalDB.ServerConfig. "admin—system parameter" page is an alternative to configuration. All the configurations will be valid in one minutes.
+> The configuration items are stored in the table named ApolloPortalDB.ServerConfig. `admin—system parameter` page is an alternative to configuration. All the configurations will be valid in one minute.
 
 1. webhook.supported.envs
 
@@ -21,9 +21,9 @@ http://www.xxx.com/webhook1,http://www.xxx.com/webhook2
 
 ## How to use
 
-1. URL params
+1. URL parameters
 
-param name    | param annotation
+parameter name    | parameter annotation
 --- | ---
  env   | env of the configuration to be released
 
