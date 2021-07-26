@@ -21,7 +21,6 @@ import com.google.common.cache.CacheBuilder;
 import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -36,7 +35,6 @@ final class DeferredLogCache {
   private static final AtomicInteger LOG_INDEX = new AtomicInteger(0);
   private static final Cache<Integer, Line> LOG_CACHE = CacheBuilder.newBuilder()
       .maximumSize(MAX_LOG_SIZE)
-      .expireAfterWrite(1, TimeUnit.MINUTES)
       .build();
 
   private DeferredLogCache() {
@@ -85,7 +83,9 @@ final class DeferredLogCache {
   static void replayTo() {
     for (int i = 1; i <= LOG_INDEX.get(); i++) {
       Line logLine = LOG_CACHE.getIfPresent(i);
-      assert logLine != null;
+      if (logLine == null) {
+        continue;
+      }
       Logger logger = logLine.getLogger();
       Level level = logLine.getLevel();
       String message = logLine.getMessage();

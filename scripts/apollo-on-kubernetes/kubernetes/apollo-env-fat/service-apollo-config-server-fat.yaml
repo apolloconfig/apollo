@@ -14,34 +14,34 @@
 # limitations under the License.
 #
 ---
-# configmap for apollo-config-server-test-alpha
+# configmap for apollo-config-server-fat
 kind: ConfigMap
 apiVersion: v1
 metadata:
   namespace: sre
-  name: configmap-apollo-config-server-test-alpha
+  name: configmap-apollo-config-server-fat
 data:
   application-github.properties: |
-    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-test-alpha-env.sre:3306/TestAlphaApolloConfigDB?characterEncoding=utf8
+    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-fat-env.sre:3306/ApolloConfigDB?characterEncoding=utf8
     spring.datasource.username = FillInCorrectUser
     spring.datasource.password = FillInCorrectPassword
-    eureka.service.url = http://statefulset-apollo-config-server-test-alpha-0.service-apollo-meta-server-test-alpha:8080/eureka/,http://statefulset-apollo-config-server-test-alpha-1.service-apollo-meta-server-test-alpha:8080/eureka/,http://statefulset-apollo-config-server-test-alpha-2.service-apollo-meta-server-test-alpha:8080/eureka/
+    eureka.service.url = http://statefulset-apollo-config-server-fat-0.service-apollo-meta-server-fat:8080/eureka/,http://statefulset-apollo-config-server-fat-1.service-apollo-meta-server-fat:8080/eureka/
 
 ---
 kind: Service
 apiVersion: v1
 metadata:
   namespace: sre
-  name: service-apollo-meta-server-test-alpha
+  name: service-apollo-meta-server-fat
   labels:
-    app: service-apollo-meta-server-test-alpha
+    app: service-apollo-meta-server-fat
 spec:
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
   selector:
-    app: pod-apollo-config-server-test-alpha
+    app: pod-apollo-config-server-fat
   type: ClusterIP
   clusterIP: None
   sessionAffinity: ClientIP
@@ -51,9 +51,9 @@ kind: Service
 apiVersion: v1
 metadata:
   namespace: sre
-  name: service-apollo-config-server-test-alpha
+  name: service-apollo-config-server-fat
   labels:
-    app: service-apollo-config-server-test-alpha
+    app: service-apollo-config-server-fat
 spec:
   ports:
     - protocol: TCP
@@ -61,7 +61,7 @@ spec:
       targetPort: 8080
       nodePort: 30003
   selector:
-    app: pod-apollo-config-server-test-alpha
+    app: pod-apollo-config-server-fat
   type: NodePort
   sessionAffinity: ClientIP
 
@@ -70,21 +70,21 @@ kind: StatefulSet
 apiVersion: apps/v1
 metadata:
   namespace: sre
-  name: statefulset-apollo-config-server-test-alpha
+  name: statefulset-apollo-config-server-fat
   labels:
-    app: statefulset-apollo-config-server-test-alpha
+    app: statefulset-apollo-config-server-fat
 spec:
-  serviceName: service-apollo-meta-server-test-alpha
-  replicas: 3
+  serviceName: service-apollo-meta-server-fat
+  replicas: 2
   selector:
     matchLabels:
-      app: pod-apollo-config-server-test-alpha
+      app: pod-apollo-config-server-fat
   updateStrategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: pod-apollo-config-server-test-alpha
+        app: pod-apollo-config-server-fat
     spec:
       affinity:
         podAntiAffinity:
@@ -96,34 +96,34 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - pod-apollo-config-server-test-alpha
+                  - pod-apollo-config-server-fat
               topologyKey: kubernetes.io/hostname
       
       volumes:
-        - name: volume-configmap-apollo-config-server-test-alpha
+        - name: volume-configmap-apollo-config-server-fat
           configMap:
-            name: configmap-apollo-config-server-test-alpha
+            name: configmap-apollo-config-server-fat
             items:
               - key: application-github.properties
                 path: application-github.properties
       
       containers:
-        - image: apollo-config-server:v1.0.0
+        - image: apolloconfig/apollo-configservice:1.9.0-SNAPSHOT
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
-          name: container-apollo-config-server-test-alpha
+          name: container-apollo-config-server-fat
           ports:
             - protocol: TCP
               containerPort: 8080
           
           volumeMounts:
-            - name: volume-configmap-apollo-config-server-test-alpha
-              mountPath: /apollo-config-server/config/application-github.properties
+            - name: volume-configmap-apollo-config-server-fat
+              mountPath: /apollo-configservice/config/application-github.properties
               subPath: application-github.properties
           env:
             - name: APOLLO_CONFIG_SERVICE_NAME
-              value: "service-apollo-config-server-test-alpha.sre"
+              value: "service-apollo-config-server-fat.sre"
           
           readinessProbe:
             tcpSocket:

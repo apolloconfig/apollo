@@ -22,10 +22,10 @@ metadata:
   name: configmap-apollo-config-server-dev
 data:
   application-github.properties: |
-    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-dev-env.sre:3306/DevApolloConfigDB?characterEncoding=utf8
+    spring.datasource.url = jdbc:mysql://service-mysql-for-apollo-dev-env.sre:3306/ApolloConfigDB?characterEncoding=utf8
     spring.datasource.username = FillInCorrectUser
     spring.datasource.password = FillInCorrectPassword
-    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-1.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-2.service-apollo-meta-server-dev:8080/eureka/
+    eureka.service.url = http://statefulset-apollo-config-server-dev-0.service-apollo-meta-server-dev:8080/eureka/,http://statefulset-apollo-config-server-dev-1.service-apollo-meta-server-dev:8080/eureka/
 
 ---
 kind: Service
@@ -75,7 +75,7 @@ metadata:
     app: statefulset-apollo-config-server-dev
 spec:
   serviceName: service-apollo-meta-server-dev
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: pod-apollo-config-server-dev
@@ -108,7 +108,7 @@ spec:
                 path: application-github.properties
       
       containers:
-        - image: apollo-config-server:v1.0.0
+        - image: apolloconfig/apollo-configservice:1.9.0-SNAPSHOT
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
@@ -119,7 +119,7 @@ spec:
           
           volumeMounts:
             - name: volume-configmap-apollo-config-server-dev
-              mountPath: /apollo-config-server/config/application-github.properties
+              mountPath: /apollo-configservice/config/application-github.properties
               subPath: application-github.properties
           
           env:
