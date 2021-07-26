@@ -303,6 +303,7 @@ table th {
 
 #treeview .list-group {
     margin: 0;
+
 }
 
 #treeview .list-group .list-group-item {
@@ -367,6 +368,7 @@ table th {
 
 .config-item-container .second-panel-heading .nav-tabs .node_active {
     border-bottom: 3px #1b6d85 solid;
+
 }
 
 .config-item-container .config-items {
@@ -432,6 +434,7 @@ table th {
     cursor: pointer;
     width: 23px;
     height: 23px;
+
 }
 
 .namespace-panel .namespace-view-table table {
@@ -763,7 +766,7 @@ table th {
 
 .create-app-list .create-btn {
     background: #a9d96c;
-    color: #fff;
+    color: #fff
 }
 
 .create-app-list .create-btn:hover {
@@ -772,8 +775,7 @@ table th {
 
 .create-app-list .create-btn img {
     width: 26px;
-    height: 26px;
-    margin-top: 4px;
+    height: 26px
 }
 
 .favorites-app-list .media-left {
@@ -821,7 +823,7 @@ table th {
 }
 
 .project-setting .panel-body {
-    padding-top: 35px;
+    padding-top: 35px
 }
 
 .project-setting .panel-body .context {
