@@ -787,11 +787,11 @@ table th {
     padding-bottom: 15px;
 }
 
-.public-app-list .media-left {
+.public-namespace-list .media-left {
     background: #65c294;
 }
 
-.public-app-list .no-public {
+.public-namespace-list .no-public {
     padding-bottom: 15px;
 }
 

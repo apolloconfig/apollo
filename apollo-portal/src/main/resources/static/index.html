@@ -103,12 +103,12 @@
             </aside>
         </section>
 
-        <section class="media public-app-list">
+        <section class="media public-namespace-list">
             <aside class="media-left text-center">
-                <h5>{{'Index.PublicProject' | translate }}</h5>
+                <h5>{{'Index.PublicNamespace' | translate }}</h5>
             </aside>
             <aside class="media-body">
-                <div class="app-panel col-md-2 text-center" ng-repeat="app in publicProjects"
+                <div class="app-panel col-md-2 text-center" ng-repeat="app in publicNamespaces"
                      ng-click="goToAppHomePage(app.appId)" ng-mouseover="toggleOperationBtn(app)"
                      ng-mouseout="toggleOperationBtn(app)">
                     <div class="thumbnail hover">
@@ -116,14 +116,14 @@
                         <h5 ng-bind="app.name"></h5>
                     </div>
                 </div>
-                <div class="col-md-2 text-center" ng-show="hasMorePublicProjects" ng-click="morePublicProject()">
+                <div class="col-md-2 text-center" ng-show="hasMorePublicNamespaces" ng-click="morePublicNamespace()">
                     <div href="#" class="thumbnail hover cursor-pointer">
                         <img class="more-img" src="img/more.png" />
                         <h5>{{'Index.LoadMore' | translate }}</h5>
                     </div>
                 </div>
-                <div class="no-public text-center" ng-show="!publicProjects || publicProjects.length == 0">
-                    <h4>{{'Index.PublicTip' | translate }}</h4>
+                <div class="no-public text-center" ng-show="!publicNamespaces || publicNamespaces.length == 0">
+                    <h4>{{'Index.PublicNamespaceTip' | translate }}</h4>
                 </div>
             </aside>
         </section>

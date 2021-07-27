@@ -24,13 +24,13 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
 
     $scope.getUserCreatedApps = getUserCreatedApps;
     $scope.getUserFavorites = getUserFavorites;
-    $scope.getPublicProjects = getPublicProjects;
+    $scope.getPublicNamespaces = getPublicNamespaces;
     $scope.goToAppHomePage = goToAppHomePage;
     $scope.goToCreateAppPage = goToCreateAppPage;
     $scope.toggleOperationBtn = toggleOperationBtn;
     $scope.toTop = toTop;
     $scope.deleteFavorite = deleteFavorite;
-    $scope.morePublicProject = morePublicProject;
+    $scope.morePublicNamespace = morePublicNamespace;
 
     function initCreateApplicationPermission() {
         AppService.has_create_application_role($scope.userId).then(
@@ -52,10 +52,10 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         $scope.favoritesPage = 0;
         $scope.favorites = [];
         $scope.hasMoreFavorites = true;
-        $scope.publicProjectPage = 0;
-        $scope.publicProjects = [];
-        $scope.hasMorePublicProjects = true;
-        $scope.allPublicProjects= [];
+        $scope.publicNamespacePage = 0;
+        $scope.publicNamespaces = [];
+        $scope.hasMorePublicNamespaces = true;
+        $scope.allPublicNamespaces= [];
         $scope.visitedApps = [];
 
 
@@ -65,7 +65,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
 
         getUserFavorites();
 
-        getPublicProjects();
+        getPublicNamespaces();
 
         initUserVisitedApps();
     });
@@ -127,21 +127,14 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
             })
     }
 
-    function getPublicProjects() {//TODO
+    function getPublicNamespaces() {//TODO
         var size = 10;
         NamespaceService.find_public_namespaces()
             .then(function (result){
-                //$scope.hasMorePublicProjects = result.length==size;
-                console.log("public",result);
-                $scope.allPublicProjects=result;
-                morePublicProject();
+                //console.log("public",result);
+                $scope.allPublicNamespaces=result;
+                morePublicNamespace();
             })
-        /*NamespaceService.getPublicAppNamespaceAllNamespaces('','',$scope.publicProjectPage,size)
-            .then(function (result){
-                $scope.publicProjectPage +=1;
-                console.log("public",result);
-                $scope.publicProjects=result;
-            })*/
     }
 
     function initUserVisitedApps() {
@@ -207,20 +200,20 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         getUserFavorites();
     }
 
-    function morePublicProject() {
-        var rest = $scope.allPublicProjects.length - $scope.publicProjectPage*10;
+    function morePublicNamespace() {
+        var rest = $scope.allPublicNamespaces.length - $scope.publicNamespacePage*10;
         if (rest <= 10) {
             for (var i=0; i<rest; i++) {
-                $scope.publicProjects.push($scope.allPublicProjects[$scope.publicProjectPage*10+i])
+                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage*10+i])
             }
-            $scope.hasMorePublicProjects = false;
+            $scope.hasMorePublicNamespaces = false;
         }
         else {
             for(var j=0; j<10; j++){
-                $scope.publicProjects.push($scope.allPublicProjects[$scope.publicProjectPage*10+j])
+                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage*10+j])
             }
         }
-        $scope.publicProjectPage += 1;
+        $scope.publicNamespacePage += 1;
     }
 
 }
