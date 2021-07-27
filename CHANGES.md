@@ -63,7 +63,7 @@ Apollo 1.9.0
 * [fix the issue that release messages might be missed in certain scenarios](https://github.com/ctripcorp/apollo/pull/3819)
 * [use official docker images for manual kubernetes deployment](https://github.com/ctripcorp/apollo/pull/3840)
 * [fix size of create project button](https://github.com/ctripcorp/apollo/pull/3849)
-* [feature: add history detail for not key-value type of namespace]()
+* [feature: add history detail for not key-value type of namespace](https://github.com/ctripcorp/apollo/pull/3856)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
 
