@@ -163,11 +163,15 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 | Authorization | Apollo ${appId}:${signature}                   | appId: 应用的appId，signature：使用访问密钥对当前时间以及所访问的URL加签后的值，具体实现可以参考[Signature.signature](https://github.com/ctripcorp/apollo/blob/aa184a2e11d6e7e3f519d860d69f3cf30ccfcf9c/apollo-core/src/main/java/com/ctrip/framework/apollo/core/signature/Signature.java#L22)  |
 | Timestamp     | 从`1970-1-1 00:00:00 UTC+0`到现在所经过的毫秒数 | 可以参考[System.currentTimeMillis](https://docs.oracle.com/javase/7/docs/api/java/lang/System.html#currentTimeMillis()) |
 ### 1.5.1 例子，使用shell脚本从开启访问密钥的config server读取配置。需要`curl` 和 `openssl`
-```
-appid="app1"                                                  // 修改需要读取的appid
-host="http://apollo-service-dev.svc.cluster.local:8080"       // 修改为需要读取的config server
-path="/configfiles/json/${appid}/default/application"         // cluster = default, namespace = application，按需修改
-key=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa                            // 该ENV配置的访问密钥
+```bash
+#修改需要读取的appi
+appid="app1"
+#修改为需要读取的config server
+host="http://apollo-service-dev.svc.cluster.local:8080"
+#cluster = default, namespace = application，按需修改
+path="/configfiles/json/${appid}/default/application"
+#该ENV配置的访问密钥
+key=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ts=$(echo $(($(date +%s)*1000)))
 echo ">>> TS is ${ts}"
 sign=$(printf "%s\n%s" ${ts} ${path})
@@ -178,6 +182,7 @@ curl -H "Authorization:Apollo $appid:$sig"  \
      -H 'Content-Type:application/json;charset=UTF-8'  \
      $host${path}
 echo ""
+# 后续处理，可以把curl拿到的config写入一个文件，等等
 ```
 
 ## 1.6 错误码说明
