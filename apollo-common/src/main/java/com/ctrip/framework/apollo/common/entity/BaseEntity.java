@@ -44,6 +44,9 @@ public abstract class BaseEntity {
   @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
   protected boolean isDeleted = false;
 
+  @Column(name = "DataChange_DeletedTime")
+  private Date dataChangeDeletedTime;
+
   @Column(name = "DataChange_CreatedBy", nullable = false)
   private String dataChangeCreatedBy;
 
@@ -56,52 +59,62 @@ public abstract class BaseEntity {
   @Column(name = "DataChange_LastTime")
   private Date dataChangeLastModifiedTime;
 
-  public String getDataChangeCreatedBy() {
-    return dataChangeCreatedBy;
-  }
-
-  public Date getDataChangeCreatedTime() {
-    return dataChangeCreatedTime;
-  }
-
-  public String getDataChangeLastModifiedBy() {
-    return dataChangeLastModifiedBy;
-  }
-
-  public Date getDataChangeLastModifiedTime() {
-    return dataChangeLastModifiedTime;
-  }
-
   public long getId() {
     return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 
   public boolean isDeleted() {
     return isDeleted;
   }
 
+  public void setDeleted(boolean deleted) {
+    isDeleted = deleted;
+    // also update the deletedTime
+    this.dataChangeDeletedTime = new Date();
+  }
+
+  public Date getDataChangeDeletedTime() {
+    return dataChangeDeletedTime;
+  }
+
+  public void setDataChangeDeletedTime(Date dataChangeDeletedTime) {
+    this.dataChangeDeletedTime = dataChangeDeletedTime;
+  }
+
+  public String getDataChangeCreatedBy() {
+    return dataChangeCreatedBy;
+  }
+
   public void setDataChangeCreatedBy(String dataChangeCreatedBy) {
     this.dataChangeCreatedBy = dataChangeCreatedBy;
+  }
+
+  public Date getDataChangeCreatedTime() {
+    return dataChangeCreatedTime;
   }
 
   public void setDataChangeCreatedTime(Date dataChangeCreatedTime) {
     this.dataChangeCreatedTime = dataChangeCreatedTime;
   }
 
+  public String getDataChangeLastModifiedBy() {
+    return dataChangeLastModifiedBy;
+  }
+
   public void setDataChangeLastModifiedBy(String dataChangeLastModifiedBy) {
     this.dataChangeLastModifiedBy = dataChangeLastModifiedBy;
   }
 
+  public Date getDataChangeLastModifiedTime() {
+    return dataChangeLastModifiedTime;
+  }
+
   public void setDataChangeLastModifiedTime(Date dataChangeLastModifiedTime) {
     this.dataChangeLastModifiedTime = dataChangeLastModifiedTime;
-  }
-
-  public void setDeleted(boolean deleted) {
-    isDeleted = deleted;
-  }
-
-  public void setId(long id) {
-    this.id = id;
   }
 
   @PrePersist
@@ -121,7 +134,10 @@ public abstract class BaseEntity {
 
   @PreRemove
   protected void preRemove() {
-    this.dataChangeLastModifiedTime = new Date();
+    Date date = new Date();
+    this.dataChangeLastModifiedTime = date;
+    this.dataChangeDeletedTime = date;
+    this.isDeleted = true;
   }
 
   protected ToStringHelper toStringHelper() {

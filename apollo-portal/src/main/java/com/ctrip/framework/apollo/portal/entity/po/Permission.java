@@ -30,7 +30,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "Permission")
-@SQLDelete(sql = "Update Permission set isDeleted = 1 where id = ?")
+@SQLDelete(sql = "Update Permission set IsDeleted = 1, DataChange_DeletedTime = CURRENT_TIMESTAMP() where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class Permission extends BaseEntity {
   @Column(name = "PermissionType", nullable = false)

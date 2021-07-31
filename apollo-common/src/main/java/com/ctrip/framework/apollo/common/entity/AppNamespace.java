@@ -31,7 +31,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "AppNamespace")
-@SQLDelete(sql = "Update AppNamespace set isDeleted = 1 where id = ?")
+@SQLDelete(sql = "Update AppNamespace set IsDeleted = 1, DataChange_DeletedTime = CURRENT_TIMESTAMP() where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class AppNamespace extends BaseEntity {
 

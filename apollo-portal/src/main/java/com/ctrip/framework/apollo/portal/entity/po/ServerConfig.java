@@ -31,7 +31,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ServerConfig")
-@SQLDelete(sql = "Update ServerConfig set isDeleted = 1 where id = ?")
+@SQLDelete(sql = "Update ServerConfig set IsDeleted = 1, DataChange_DeletedTime = CURRENT_TIMESTAMP() where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class ServerConfig extends BaseEntity {
   @NotBlank(message = "ServerConfig.Key cannot be blank")
