@@ -26,7 +26,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "AccessKey")
-@SQLDelete(sql = "Update AccessKey set IsDeleted = 1, DataChange_DeletedTime = CURRENT_TIMESTAMP() where Id = ?")
+@SQLDelete(sql = "Update AccessKey set IsDeleted = 1, DeletedAt = UNIX_TIMESTAMP() where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class AccessKey extends BaseEntity {
 

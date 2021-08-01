@@ -28,7 +28,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "App")
-@SQLDelete(sql = "Update App set IsDeleted = 1, DataChange_DeletedTime = CURRENT_TIMESTAMP() where Id = ?")
+@SQLDelete(sql = "Update App set IsDeleted = 1, DeletedAt = UNIX_TIMESTAMP() where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class App extends BaseEntity {
 

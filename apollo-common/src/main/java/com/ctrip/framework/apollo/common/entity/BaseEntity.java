@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.common.entity;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.time.Instant;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -44,8 +45,8 @@ public abstract class BaseEntity {
   @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
   protected boolean isDeleted = false;
 
-  @Column(name = "DataChange_DeletedTime")
-  private Date dataChangeDeletedTime;
+  @Column(name = "DeletedAt")
+  protected long deletedAt;
 
   @Column(name = "DataChange_CreatedBy", nullable = false)
   private String dataChangeCreatedBy;
@@ -73,16 +74,16 @@ public abstract class BaseEntity {
 
   public void setDeleted(boolean deleted) {
     isDeleted = deleted;
-    // also update the deletedTime
-    this.dataChangeDeletedTime = new Date();
+    // also set deletedAt value as epoch second
+    this.deletedAt = Instant.now().getEpochSecond();
   }
 
-  public Date getDataChangeDeletedTime() {
-    return dataChangeDeletedTime;
+  public long getDeletedAt() {
+    return deletedAt;
   }
 
-  public void setDataChangeDeletedTime(Date dataChangeDeletedTime) {
-    this.dataChangeDeletedTime = dataChangeDeletedTime;
+  public void setDeletedAt(long deletedAt) {
+    this.deletedAt = deletedAt;
   }
 
   public String getDataChangeCreatedBy() {
@@ -134,10 +135,7 @@ public abstract class BaseEntity {
 
   @PreRemove
   protected void preRemove() {
-    Date date = new Date();
-    this.dataChangeLastModifiedTime = date;
-    this.dataChangeDeletedTime = date;
-    this.isDeleted = true;
+    this.dataChangeLastModifiedTime = new Date();
   }
 
   protected ToStringHelper toStringHelper() {
