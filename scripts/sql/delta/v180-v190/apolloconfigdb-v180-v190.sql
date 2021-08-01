@@ -18,66 +18,66 @@
 Use ApolloConfigDB;
 
 ALTER TABLE `App`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `AppNamespace`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Audit`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Cluster`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Commit`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `GrayReleaseRule`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Item`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Namespace`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `NamespaceLock`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `Release`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `ReleaseHistory`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `ServerConfig`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
 
 ALTER TABLE `AccessKey`
-    ADD COLUMN `DataChange_DeletedTime` timestamp NULL COMMENT 'Deleted Time' AFTER `IsDeleted`,
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on seconds' AFTER `IsDeleted`,
     MODIFY COLUMN `DataChange_CreatedBy` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
     MODIFY COLUMN `DataChange_LastModifiedBy` VARCHAR(64) DEFAULT '' COMMENT '最后修改人邮箱前缀';
