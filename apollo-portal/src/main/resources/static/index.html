@@ -36,37 +36,221 @@
     <apollonav></apollonav>
 
     <div id="app-list" class="hidden" ng-controller="IndexController">
+        <div class="left-bar">
+            <div class="app-list-show" ng-click="changeContent('1')" ng-show="whichContent==='1'">
+                <h5>{{'Index.MyProject' | translate }}</h5>
+            </div>
+            <div class="app-list-choose" ng-click="changeContent('1')" ng-show="whichContent!=='1'">
+                <h5>{{'Index.MyProject' | translate }}</h5>
+            </div>
 
-        <section class="media create-app-list">
+            <div class="favorite-list-show" ng-click="changeContent('2')" ng-show="whichContent==='2'">
+                <h5>{{'Index.FavoriteItems' | translate }}</h5>
+            </div>
+            <div class="favorite-list-choose" ng-click="changeContent('2')" ng-show="whichContent!=='2'">
+                <h5>{{'Index.FavoriteItems' | translate }}</h5>
+            </div>
+
+            <div class="public-namespace-list-show" ng-click="changeContent('3')" ng-show="whichContent==='3'">
+                <h5>{{'Index.PublicNamespace' | translate }}</h5>
+            </div>
+            <div class="public-namespace-list-choose" ng-click="changeContent('3')" ng-show="whichContent!=='3'">
+                <h5>{{'Index.PublicNamespace' | translate }}</h5>
+            </div>
+
+            <div class="visited-list-show" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent==='4'">
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+            <div class="visited-list-choose" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent!=='4'">
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+        </div>
+        <div class="main-table">
+            <div class="create-app-list" ng-show="whichContent==='1'">
+                <div style="width: 180px;margin-left: 30px" ng-click="goToCreateAppPage()"
+                     ng-if="hasCreateApplicationPermission">
+                    <div href="#" class="thumbnail create-btn hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img src="img/plus-white.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.CreateProject' | translate }}</h5></div>
+                    </div>
+                </div>
+                <div class="display-table" ng-show="createdApps.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.orgName' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in createdApps" ng-click="goToAppHomePage(app.appId)" href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.appId }}</td>
+                            <td style="width: 30%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
+                            <td style="width: 30%">{{ app.orgName }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
+                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreCreatedApps"
+                     ng-click="getUserCreatedApps()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="favorites-app-list" ng-show="whichContent==='2'">
+                <div class="display-table" ng-show="favorites && favorites.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.orgName' | translate }}</th>
+                            <th style="width: 10%">{{'Index.appTable.operation' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in favorites" ng-click="goToAppHomePage(app.appId)"
+                            ng-mouseover="toggleOperationBtn(app)" ng-mouseout="toggleOperationBtn(app)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.appId }}</td>
+                            <td style="width: 30%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
+                            <td style="width: 20%">{{ app.orgName }}</td>
+                            <td style="width: 10%">
+                                <button class="btn btn-default btn-xs" title="{{'Index.Topping' | translate }}"
+                                        ng-click="toTop(app.favoriteId);$event.stopPropagation();">
+                                    <img src="img/top.png" class="i-15">
+                                </button>
+                                <button class="btn btn-default btn-xs" title="{{'Index.FavoriteCancel' | translate }}"
+                                        ng-click="deleteFavorite(app.favoriteId);$event.stopPropagation();">
+                                    <img src="img/like.png" class="i-15">
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="no-favorites text-center" ng-show="!favorites || favorites.length == 0">
+                    <h4>{{'Index.FavoriteTip' | translate }}</h4>
+                </div>
+                <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
+                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreFavorites"
+                     ng-click="getUserFavorites()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="public-namespace-list" ng-show="whichContent==='3'">
+                <div class="display-table" ng-show="publicNamespaces.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.nameSpace' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.LastModifiedTime' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in publicNamespaces" ng-click="goToAppHomePage(app.appId)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.appId }}</td>
+                            <td style="width: 30%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
+                            <td style="width: 30%">{{ app.dataChangeLastModifiedTime.slice(0,10) }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="no-public text-center" ng-show="!publicNamespaces || publicNamespaces.length == 0">
+                    <h4>{{'Index.FavoriteTip' | translate }}</h4>
+                </div>
+                <div ng-show="!hasMorePublicNamespaces" style="height: 15px"></div>
+                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMorePublicNamespaces"
+                     ng-click="morePublicNamespace()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
+                </div>
+            </div>
+            <div class="visit-app-list" ng-show="whichContent==='4'">
+                <div class="display-table" ng-show="visitedApps.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.orgName' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in visitedApps" ng-click="goToAppHomePage(app.appId)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.appId }}</td>
+                            <td style="width: 30%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
+                            <td style="width: 30%">{{ app.orgName }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="height: 15px"></div>
+            </div>
+        </div>
+        <!--<section class="media create-app-list">
             <aside class="media-left text-center">
                 <h5>{{'Index.MyProject' | translate }}</h5>
             </aside>
             <aside class="media-body">
-                <div class="app-panel col-md-2 text-center" ng-click="goToCreateAppPage()"
-                    ng-if="hasCreateApplicationPermission">
-                    <div href="#" class="thumbnail create-btn hover cursor-pointer">
-                        <img src="img/plus-white.png" />
-                        <h5>{{'Index.CreateProject' | translate }}</h5>
+                <div style="width: 180px;margin-left: 30px" ng-click="goToCreateAppPage()"
+                     ng-if="hasCreateApplicationPermission">
+                    <div href="#" class="thumbnail create-btn hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img src="img/plus-white.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.CreateProject' | translate }}</h5></div>
                     </div>
                 </div>
-                <div class="app-panel col-md-2 text-center" ng-repeat="app in createdApps"
-                    ng-click="goToAppHomePage(app.appId)">
+                <div class="display-table">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.orgName' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in createdApps" ng-click="goToAppHomePage(app.appId)" href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.appId }}</td>
+                            <td style="width: 30%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
+                            <td style="width: 30%">{{ app.orgName }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
+                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreCreatedApps"
+                     ng-click="getUserCreatedApps()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
+                </div>
+                &lt;!&ndash;<div class="app-panel col-md-2 text-center" >
                     <div href="#" class="thumbnail hover cursor-pointer">
                         <h4 ng-bind="app.appId"></h4>
                         <h5 ng-bind="app.name"></h5>
                     </div>
-                </div>
-                <div class="app-panel col-md-2 text-center" ng-show="hasMoreCreatedApps"
+                </div>&ndash;&gt;
+                &lt;!&ndash;<div class="app-panel col-md-2 text-center" ng-show="hasMoreCreatedApps"
                     ng-click="getUserCreatedApps()">
                     <div href="#" class="thumbnail hover cursor-pointer">
                         <img class="more-img" src="img/more.png" />
                         <h5>{{'Index.LoadMore' | translate }}</h5>
                     </div>
-                </div>
+                </div>&ndash;&gt;
             </aside>
-        </section>
+        </section>-->
 
-        <section class="media favorites-app-list">
+        <!--<section class="media favorites-app-list">
             <aside class="media-left text-center">
                 <h5>{{'Index.FavoriteItems' | translate }}</h5>
             </aside>
@@ -101,9 +285,9 @@
                 </div>
 
             </aside>
-        </section>
+        </section>-->
 
-        <section class="media public-namespace-list">
+        <!--<section class="media public-namespace-list">
             <aside class="media-left text-center">
                 <h5>{{'Index.PublicNamespace' | translate }}</h5>
             </aside>
@@ -126,9 +310,9 @@
                     <h4>{{'Index.PublicNamespaceTip' | translate }}</h4>
                 </div>
             </aside>
-        </section>
+        </section>-->
 
-        <section class="media visit-app-list" ng-show="visitedApps && visitedApps.length">
+        <!--<section class="media visit-app-list" ng-show="visitedApps && visitedApps.length">
             <aside class="media-left text-center">
                 <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
             </aside>
@@ -141,7 +325,7 @@
                     </div>
                 </div>
             </aside>
-        </section>
+        </section>-->
     </div>
 
 

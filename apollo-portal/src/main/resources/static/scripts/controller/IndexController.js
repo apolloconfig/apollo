@@ -21,6 +21,7 @@ index_module.controller('IndexController', ['$scope', '$window', '$translate', '
 function IndexController($scope, $window, $translate, toastr, AppUtil, AppService, UserService, FavoriteService, NamespaceService) {
 
     $scope.userId = '';
+    $scope.whichContent = '1';
 
     $scope.getUserCreatedApps = getUserCreatedApps;
     $scope.getUserFavorites = getUserFavorites;
@@ -31,6 +32,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     $scope.toTop = toTop;
     $scope.deleteFavorite = deleteFavorite;
     $scope.morePublicNamespace = morePublicNamespace;
+    $scope.changeContent = changeContent;
 
     function initCreateApplicationPermission() {
         AppService.has_create_application_role($scope.userId).then(
@@ -74,6 +76,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         var size = 10;
         AppService.find_app_by_owner($scope.userId, $scope.createdAppPage, size)
             .then(function (result) {
+                //console.log("apps",result);
                 $scope.createdAppPage += 1;
                 $scope.hasMoreCreatedApps = result.length == size;
 
@@ -122,7 +125,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
                             app.favoriteId = favorite.id;
                             $scope.favorites.push(app);
                         });
-
+                        //console.log("favorites",$scope.favorites);
                     });
             })
     }
@@ -149,6 +152,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
             AppService.find_apps(userVisitedApps.join(","))
                 .then(function (apps) {
                     //sort
+                    //console.log("visited",apps);
                     var appIdMapApp = {};
                     apps.forEach(function (app) {
                         appIdMapApp[app.appId] = app;
@@ -214,6 +218,10 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
             }
         }
         $scope.publicNamespacePage += 1;
+    }
+
+    function changeContent(contentIndex) {
+        $scope.whichContent = contentIndex;
     }
 
 }
