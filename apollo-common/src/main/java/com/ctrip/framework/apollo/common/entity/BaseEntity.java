@@ -74,8 +74,8 @@ public abstract class BaseEntity {
 
   public void setDeleted(boolean deleted) {
     isDeleted = deleted;
-    // also set deletedAt value as epoch second
-    this.deletedAt = Instant.now().getEpochSecond();
+    // also set deletedAt value as epoch millisecond
+    this.deletedAt = System.currentTimeMillis();
   }
 
   public long getDeletedAt() {

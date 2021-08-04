@@ -32,7 +32,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ConsumerToken")
-@SQLDelete(sql = "Update ConsumerToken set IsDeleted = 1, DeletedAt = UNIX_TIMESTAMP() where Id = ?")
+@SQLDelete(sql = "Update ConsumerToken set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class ConsumerToken extends BaseEntity {
   @Column(name = "ConsumerId", nullable = false)
