@@ -68,6 +68,7 @@ Apollo 1.9.0
 * [fix show-text-modal number display](https://github.com/ctripcorp/apollo/pull/3851)
 * [Lazy load ConfigUtil](https://github.com/ctripcorp/apollo/pull/3864)
 * [make jdbc session enable default](https://github.com/ctripcorp/apollo/pull/3869)
+* [support json/yaml/xml format for public namespace](https://github.com/ctripcorp/apollo/pull/3836)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
