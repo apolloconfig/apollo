@@ -23,6 +23,10 @@ spring:
       enabled: false
   session:
     store-type: none
+  jpa:
+    properties:
+      hibernate:
+        metadata_builder_contributor: com.ctrip.framework.apollo.common.jpa.SqlFunctionsMetadataBuilderContributor
 
 logging:
   file:
