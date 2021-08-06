@@ -86,7 +86,7 @@ namespace_module.controller("LinkNamespaceController",
             };
 
             function shouldAppendNamespacePrefix() {
-                 return $scope.appNamespace.isPublic ? $scope.appendNamespacePrefix : false;
+                return  $scope.appendNamespacePrefix;
             }
 
             var selectedClusters = [];
@@ -147,11 +147,6 @@ namespace_module.controller("LinkNamespaceController",
                         });
                         toastr.error(errorTip);
                         return;
-                    }
-
-                    // public namespaces only allow properties format
-                    if ($scope.appNamespace.isPublic) {
-                        $scope.appNamespace.format = 'properties';
                     }
 
                     $scope.submitBtnDisabled = true;

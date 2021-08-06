@@ -94,8 +94,6 @@ public class ApolloApplicationContextInitializer implements
   private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
       .getInstance(ConfigPropertySourceFactory.class);
 
-  private final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class);
-
   private int order = DEFAULT_ORDER;
 
   @Override
@@ -130,6 +128,7 @@ public class ApolloApplicationContextInitializer implements
     List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespaces);
 
     CompositePropertySource composite;
+    final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     if (configUtil.isPropertyNamesCacheEnabled()) {
       composite = new CachedCompositePropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
     } else {
