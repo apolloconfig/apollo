@@ -44,4 +44,11 @@ public class CommitService {
     return dtoList;
   }
 
+  public List<CommitDTO> findByKey(String appId, Env env, String clusterName, String namespaceName, String key, int page, int size) {
+    List<CommitDTO> dtoList = commitAPI.findByKey(appId, env, clusterName, namespaceName, key, page, size);
+    this.additionalUserInfoEnrichService.enrichAdditionalUserInfo(dtoList,
+            BaseDtoUserInfoEnrichedAdapter::new);
+    return dtoList;
+  }
+
 }
