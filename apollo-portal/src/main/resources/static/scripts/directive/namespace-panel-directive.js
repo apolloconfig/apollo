@@ -64,7 +64,9 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.refreshNamespace = refreshNamespace;
             scope.switchView = switchView;
             scope.toggleItemSearchInput = toggleItemSearchInput;
+            scope.toggleHistorySearchInput = toggleHistorySearchInput;
             scope.searchItems = searchItems;
+            scope.searchHistory = searchHistory;
             scope.loadCommitHistory = loadCommitHistory;
             scope.toggleTextEditStatus = toggleTextEditStatus;
             scope.goToSyncPage = goToSyncPage;
@@ -129,6 +131,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 namespace.displayControl = {
                     currentOperateBranch: 'master',
                     showSearchInput: false,
+                    showHistorySearchInput: false,
                     show: scope.showBody
                 };
                 scope.showNamespaceBody = namespace.showNamespaceBody ? true : scope.showBody;
@@ -466,6 +469,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     scope.env,
                     namespace.baseInfo.clusterName,
                     namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
                     namespace.commitPage,
                     size)
                     .then(function (result) {
@@ -851,6 +855,36 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     }
                 });
                 namespace.viewItems = items;
+            }
+
+            function toggleHistorySearchInput(namespace) {
+                namespace.displayControl.showHistorySearchInput = !namespace.displayControl.showHistorySearchInput;
+            }
+
+            function searchHistory(namespace) {
+                namespace.commits = [];
+                namespace.commitPage = 0;
+                var size = 10;
+                CommitService.find_commits(scope.appId,
+                    scope.env,
+                    namespace.baseInfo.clusterName,
+                    namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
+                    namespace.commitPage,
+                    size)
+                    .then(function (result) {
+                        if (result.length < size) {
+                            namespace.hasLoadAllCommit = true;
+                        }
+
+                        for (var i = 0; i < result.length; i++) {
+                            //to json
+                            result[i].changeSets = JSON.parse(result[i].changeSets);
+                            namespace.commits.push(result[i]);
+                        }
+                    }, function (result) {
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingHistoryError'));
+                    });
             }
 
             //normal release and gray release
