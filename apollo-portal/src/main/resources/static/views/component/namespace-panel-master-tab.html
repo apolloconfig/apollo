@@ -713,16 +713,53 @@
             </div>
 
             <!--text view-->
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Link.Title' | translate }}
+                    </div>
+                </div>
+            </div>
+
             <!--只读模式下的文本内容,不替换换行符-->
             <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
                 ng-show="namespace.viewType == 'text' && !namespace.isTextEditing" ng-model="namespace.text">
             </div>
+
+
+
             <!--编辑状态下的文本内容,会过滤掉换行符-->
             <div ui-ace="aceConfig" class="form-control no-radius"
                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
                 ng-show="namespace.viewType == 'text' && namespace.isTextEditing" ng-disabled="!namespace.isTextEditing"
                 ng-model="namespace.editText">
+            </div>
+
+
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Public.Title' | translate }}
+                        <a href="{{ '/config.html' | prefixPath }}?#/appid={{namespace.publicNamespace.baseInfo.appId}}&env={{env}}&cluster={{namespace.publicNamespace.baseInfo.clusterName}}"
+                           target="_blank">
+                            <small>
+                                ({{'Common.AppId' | translate }}:{{namespace.publicNamespace.baseInfo.appId}},
+                                {{'Common.Cluster' | translate }}:{{namespace.publicNamespace.baseInfo.clusterName}})
+                            </small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--关联的 Parent Namespace 内容,只读模式,不替换换行符-->
+            <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
+                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
+                 ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace"
+                 ng-model="namespace.publicNamespaceText">
             </div>
 
             <!--history view-->

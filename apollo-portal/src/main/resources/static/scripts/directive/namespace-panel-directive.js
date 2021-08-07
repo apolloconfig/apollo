@@ -312,7 +312,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 }
 
                 function initLinkedNamespace(namespace) {
-                    if (!namespace.isPublic || !namespace.isLinkedNamespace || namespace.format != 'properties') {
+                    if (!namespace.isPublic || !namespace.isLinkedNamespace) {
                         return;
                     }
                     //load public namespace
@@ -344,9 +344,15 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                     publicNamespace.hasPublishedItem = true;
                                 }
                             });
-
+                            loadParentNamespaceText(namespace);
                         });
+                }
 
+                function loadParentNamespaceText(namespace){
+                    namespace.publicNamespaceText = "";
+                    if(namespace.isLinkedNamespace) {
+                        namespace.publicNamespaceText = parseModel2Text(namespace.publicNamespace)
+                    }
                 }
 
                 function initNamespaceViewName(namespace) {
