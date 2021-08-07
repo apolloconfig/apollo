@@ -16,7 +16,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: publish sdks
+name: publish apollo-client-config-data
 
 on:
   workflow_dispatch:
@@ -34,14 +34,14 @@ jobs:
     - name: Set up Maven Central Repository
       uses: actions/setup-java@v1
       with:
-        java-version: 7
+        java-version: 8
         server-id: ${{ github.event.inputs.repository }}
         server-username: MAVEN_USERNAME
         server-password: MAVEN_CENTRAL_TOKEN
         gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
     - name: Publish to Apache Maven Central
-      run: mvn clean deploy -pl apollo-client,apollo-mockserver,apollo-openapi -am -DskipTests=true "-Dreleases.repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" "-Dsnapshots.repo=https://oss.sonatype.org/content/repositories/snapshots"
+      run: mvn clean deploy -pl apollo-client-config-data -DskipTests=true "-Dreleases.repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" "-Dsnapshots.repo=https://oss.sonatype.org/content/repositories/snapshots"
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
