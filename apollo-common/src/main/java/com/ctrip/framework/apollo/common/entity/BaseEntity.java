@@ -45,7 +45,7 @@ public abstract class BaseEntity {
   @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
   protected boolean isDeleted = false;
 
-  @Column(name = "DeletedAt")
+  @Column(name = "DeletedAt", columnDefinition = "Bigint default '0'")
   protected long deletedAt;
 
   @Column(name = "DataChange_CreatedBy", nullable = false)
@@ -82,8 +82,8 @@ public abstract class BaseEntity {
     return deletedAt;
   }
 
-  public void setDeletedAt(Long deletedAt) {
-    this.deletedAt = deletedAt == null ? 0 : deletedAt;
+  public void setDeletedAt(long deletedAt) {
+    this.deletedAt = deletedAt;
   }
 
   public String getDataChangeCreatedBy() {
