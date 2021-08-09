@@ -82,8 +82,8 @@ public abstract class BaseEntity {
     return deletedAt;
   }
 
-  public void setDeletedAt(long deletedAt) {
-    this.deletedAt = deletedAt;
+  public void setDeletedAt(Long deletedAt) {
+    this.deletedAt = deletedAt == null ? 0 : deletedAt;
   }
 
   public String getDataChangeCreatedBy() {
