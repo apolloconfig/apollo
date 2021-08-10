@@ -74,6 +74,7 @@ Apollo 1.9.0
 * [Fix Multiple PropertySourcesPlaceholderConfigurer beans registered issue](https://github.com/ctripcorp/apollo/pull/3865)
 * [use jdk 8 to publish apollo-client-config-data](https://github.com/ctripcorp/apollo/pull/3880)
 * [fix apollo config data loader with profiles](https://github.com/ctripcorp/apollo/pull/3870)
+* [switch to info level](https://github.com/ctripcorp/apollo/pull/3884)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
