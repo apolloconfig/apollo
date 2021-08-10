@@ -104,6 +104,11 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     m_configNeedForceRefresh = new AtomicBoolean(true);
     m_loadConfigFailSchedulePolicy = new ExponentialSchedulePolicy(m_configUtil.getOnErrorRetryInterval(),
         m_configUtil.getOnErrorRetryInterval() * 8);
+    final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+    ServiceLoader<RepositoryChangeListener> spiList = ServiceLoader.load(RepositoryChangeListener.class,classLoader);
+    for (RepositoryChangeListener spi : spiList) {
+      addChangeListener(spi);
+    }
     this.trySync();
     this.schedulePeriodicRefresh();
     this.scheduleLongPollingRefresh();
