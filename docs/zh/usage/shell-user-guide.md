@@ -1,6 +1,6 @@
 ### 使用Shell Script读取Apollo的配置
 ```bash
-#修改为需要读取的appi
+#修改为需要读取的appid
 appid="app1"
 #修改为需要读取的config server
 host="http://apollo-service-dev.svc.cluster.local:8080"
