@@ -66,7 +66,7 @@ public class EmbeddedApollo extends ExternalResource {
       CONFIG_SERVICE_LOCATOR_CLEAR = ConfigServiceLocator.class.getDeclaredMethod("initConfigServices");
       CONFIG_SERVICE_LOCATOR_CLEAR.setAccessible(true);
     } catch (NoSuchMethodException e) {
-      e.printStackTrace();
+      logger.error(e.getMessage(), e);
     }
   }
 
