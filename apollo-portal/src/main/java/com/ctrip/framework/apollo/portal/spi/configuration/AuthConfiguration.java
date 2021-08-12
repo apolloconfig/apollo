@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
@@ -22,8 +38,10 @@ import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
 import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcAuthenticationSuccessEventListener;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncoderFactory;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
 import com.google.common.collect.Maps;
@@ -47,7 +65,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -225,9 +243,15 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public static PasswordEncoder passwordEncoder() {
+      return ApolloPasswordEncoderFactory.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder() {
-      return new SpringSecurityUserInfoHolder();
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
+      return new SpringSecurityUserInfoHolder(userService);
     }
 
     @Bean
@@ -237,10 +261,10 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public JdbcUserDetailsManager jdbcUserDetailsManager(AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
+    public static JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
-          .passwordEncoder(new BCryptPasswordEncoder()).dataSource(datasource)
+          .passwordEncoder(passwordEncoder).dataSource(datasource)
           .usersByUsernameQuery("select Username,Password,Enabled from `Users` where Username = ?")
           .authoritiesByUsernameQuery(
               "select Username,Authority from `Authorities` where Username = ?")
@@ -264,8 +288,10 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
-    public UserService springSecurityUserService() {
-      return new SpringSecurityUserService();
+    public UserService springSecurityUserService(PasswordEncoder passwordEncoder,
+        JdbcUserDetailsManager userDetailsManager,
+        UserRepository userRepository) {
+      return new SpringSecurityUserService(passwordEncoder, userDetailsManager, userRepository);
     }
 
   }
@@ -319,8 +345,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder() {
-      return new SpringSecurityUserInfoHolder();
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
+      return new SpringSecurityUserInfoHolder(userService);
     }
 
     @Bean
@@ -444,8 +470,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder oidcUserInfoHolder() {
-      return new OidcUserInfoHolder();
+    public UserInfoHolder oidcUserInfoHolder(UserService userService) {
+      return new OidcUserInfoHolder(userService);
     }
 
     @Bean
@@ -455,17 +481,24 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public PasswordEncoder passwordEncoder() {
+      return SpringSecurityAuthAutoConfiguration.passwordEncoder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(JdbcUserDetailsManager.class)
-    public JdbcUserDetailsManager jdbcUserDetailsManager(AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
-      return new SpringSecurityAuthAutoConfiguration().jdbcUserDetailsManager(auth, datasource);
+    public JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
+      return SpringSecurityAuthAutoConfiguration
+          .jdbcUserDetailsManager(passwordEncoder, auth, datasource);
     }
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
     public OidcLocalUserService oidcLocalUserService(JdbcUserDetailsManager userDetailsManager,
         UserRepository userRepository) {
-      return new OidcLocalUserService(userDetailsManager, userRepository);
+      return new OidcLocalUserServiceImpl(userDetailsManager, userRepository);
     }
 
     @Bean

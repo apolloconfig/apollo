@@ -441,7 +441,15 @@ mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,
 2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置nacos服务器地址
 ```properties
 nacos.discovery.server-addr=127.0.0.1:8848
+# 更多 nacos 配置
+nacos.discovery.access-key=
+nacos.discovery.username=
+nacos.discovery.password=
+nacos.discovery.secret-key=
+nacos.discovery.namespace=
+nacos.discovery.context-path=
 ```
+
 ##### 2.2.1.2.8 启用外部Consul服务注册中心替换内置eureka
 
 1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
@@ -1220,6 +1228,14 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 ### 3.2.5 item.value.length.limit - 配置项 value 最大长度限制
 
 默认配置是20000。
+
+#### 3.2.5.1 namespace.value.length.limit.override - namespace 的配置项 value 最大长度限制
+
+此配置用来覆盖 `item.value.length.limit` 的配置，做到细粒度控制 namespace 的 value 最大长度限制，配置的值是一个 json 格式，json 的 key 为 namespace 在数据库中的 id 值，格式如下：
+```
+namespace.value.length.limit.override = {1:200,3:20}
+```
+以上配置指定了 ApolloConfigDB.Namespace 表中 id=1 的 namespace 的 value 最大长度限制为 200，id=3 的 namespace 的 value 最大长度限制为 20
 
 ### 3.2.6 admin-service.access.control.enabled - 配置apollo-adminservice是否开启访问控制
 

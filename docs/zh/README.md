@@ -131,13 +131,10 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   </tbody>
 </table>
 
-# Contribution
-
-Please make sure to read the [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md) before making a pull request.
-
-Thanks for all the people who contributed to Apollo!
-
-<a href="https://github.com/ctripcorp/apollo/graphs/contributors"><img src="https://opencollective.com/apollo/contributors.svg?width=880&button=false" /></a>
+# 社区
+  * [团队](zh/community/team)
+  * [社区治理](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
+  * [贡献指南](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
 
 # License
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).

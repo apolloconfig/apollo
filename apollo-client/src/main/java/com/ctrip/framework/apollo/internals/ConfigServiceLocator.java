@@ -1,6 +1,25 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.internals;
 
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.ServiceNameConsts;
+import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
+import com.ctrip.framework.apollo.core.utils.DeprecatedPropertyNotifyUtil;
 import com.ctrip.framework.foundation.Foundation;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -32,7 +51,7 @@ import com.google.common.net.UrlEscapers;
 import com.google.gson.reflect.TypeToken;
 
 public class ConfigServiceLocator {
-  private static final Logger logger = LoggerFactory.getLogger(ConfigServiceLocator.class);
+  private static final Logger logger = DeferredLoggerFactory.getLogger(ConfigServiceLocator.class);
   private HttpClient m_httpClient;
   private ConfigUtil m_configUtil;
   private AtomicReference<List<ServiceDTO>> m_configServices;
@@ -72,21 +91,25 @@ public class ConfigServiceLocator {
 
   private List<ServiceDTO> getCustomizedConfigService() {
     // 1. Get from System Property
-    String configServices = System.getProperty("apollo.configService");
+    String configServices = System.getProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE);
     if (Strings.isNullOrEmpty(configServices)) {
       // 2. Get from OS environment variable
-      configServices = System.getenv("APOLLO_CONFIGSERVICE");
+      configServices = System.getenv(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES);
     }
     if (Strings.isNullOrEmpty(configServices)) {
       // 3. Get from server.properties
-      configServices = Foundation.server().getProperty("apollo.configService", null);
+      configServices = Foundation.server().getProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE, null);
+    }
+    if (Strings.isNullOrEmpty(configServices)) {
+      // 4. Get from deprecated config
+      configServices = getDeprecatedCustomizedConfigService();
     }
 
     if (Strings.isNullOrEmpty(configServices)) {
       return null;
     }
 
-    logger.warn("Located config services from apollo.configService configuration: {}, will not refresh config services from remote meta service!", configServices);
+    logger.warn("Located config services from apollo.config-service configuration: {}, will not refresh config services from remote meta service!", configServices);
 
     // mock service dto list
     String[] configServiceUrls = configServices.split(",");
@@ -102,6 +125,33 @@ public class ConfigServiceLocator {
     }
 
     return serviceDTOS;
+  }
+
+  @SuppressWarnings("deprecation")
+  private String getDeprecatedCustomizedConfigService() {
+    // 1. Get from System Property
+    String configServices = System.getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE);
+    if (!Strings.isNullOrEmpty(configServices)) {
+      DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE,
+          ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE);
+    }
+    if (Strings.isNullOrEmpty(configServices)) {
+      // 2. Get from OS environment variable
+      configServices = System.getenv(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES);
+      if (!Strings.isNullOrEmpty(configServices)) {
+        DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES,
+            ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES);
+      }
+    }
+    if (Strings.isNullOrEmpty(configServices)) {
+      // 3. Get from server.properties
+      configServices = Foundation.server().getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE, null);
+      if (!Strings.isNullOrEmpty(configServices)) {
+        DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE,
+            ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE);
+      }
+    }
+    return configServices;
   }
 
   /**

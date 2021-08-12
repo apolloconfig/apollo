@@ -1,4 +1,20 @@
 /*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -18,6 +34,7 @@
 
 package com.ctrip.framework.foundation.internals.provider;
 
+import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,10 +48,10 @@ import com.ctrip.framework.foundation.internals.io.BOMInputStream;
 import com.ctrip.framework.foundation.spi.provider.Provider;
 import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DefaultServerProvider implements ServerProvider {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultServerProvider.class);
+
+  private static final Logger logger = DeferredLoggerFactory.getLogger(DefaultServerProvider.class);
 
   static final String DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX = "/opt/settings/server.properties";
   static final String DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS = "C:/opt/settings/server.properties";
@@ -50,7 +67,8 @@ public class DefaultServerProvider implements ServerProvider {
       return serverPropertiesPath;
     }
 
-    return Utils.isOSWindows() ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX;
+    return Utils.isOSWindows() ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
+        : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX;
   }
 
   private String getCustomizedServerPropertiesPath() {
@@ -94,7 +112,8 @@ public class DefaultServerProvider implements ServerProvider {
     try {
       if (in != null) {
         try {
-          m_serverProperties.load(new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
+          m_serverProperties
+              .load(new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
         } finally {
           in.close();
         }
@@ -173,7 +192,8 @@ public class DefaultServerProvider implements ServerProvider {
 
     // 4. Set environment to null.
     m_env = null;
-    logger.info("Environment is set to null. Because it is not available in either (1) JVM system property 'env', (2) OS env variable 'ENV' nor (3) property 'env' from the properties InputStream.");
+    logger.info(
+        "Environment is set to null. Because it is not available in either (1) JVM system property 'env', (2) OS env variable 'ENV' nor (3) property 'env' from the properties InputStream.");
   }
 
   private void initDataCenter() {
@@ -203,12 +223,14 @@ public class DefaultServerProvider implements ServerProvider {
 
     // 4. Set Data Center to null.
     m_dc = null;
-    logger.debug("Data Center is set to null. Because it is not available in either (1) JVM system property 'idc', (2) OS env variable 'IDC' nor (3) property 'idc' from the properties InputStream.");
+    logger.debug(
+        "Data Center is set to null. Because it is not available in either (1) JVM system property 'idc', (2) OS env variable 'IDC' nor (3) property 'idc' from the properties InputStream.");
   }
 
   @Override
   public String toString() {
-    return "environment [" + getEnvType() + "] data center [" + getDataCenter() + "] properties: " + m_serverProperties
+    return "environment [" + getEnvType() + "] data center [" + getDataCenter() + "] properties: "
+        + m_serverProperties
         + " (DefaultServerProvider)";
   }
 }

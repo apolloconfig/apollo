@@ -1,4 +1,20 @@
 <nav class="navbar navbar-default">
+    <!--
+      ~ Copyright 2021 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="container-fluid">
         <div class="navbar-header">
             <img class="navbar-brand side-bar-switch cursor-pointer" src="{{ '/img/show_sidebar.png' | prefixPath }}"
@@ -63,7 +79,7 @@
 
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-user"></span>&nbsp;{{userName}}
+                        <span class="glyphicon glyphicon-user"></span>&nbsp;{{userDisplayName}}({{userName}})
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ '/user/logout' | prefixPath }}">{{'Common.Nav.Logout' | translate }}</a></li>

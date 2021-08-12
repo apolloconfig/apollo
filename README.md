@@ -112,13 +112,10 @@ Demo Environment:
   * [Design and Implementation Details of Apollo](https://www.infoq.cn/article/open-source-configuration-center-apollo)
   * [Configuration Center Makes Microservices Smart](https://mp.weixin.qq.com/s/iDmYJre_ULEIxuliu1EbIQ)
 
-# Contribution
-
-Please make sure to read the [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md) before making a pull request.
-
-Thanks for all the people who contributed to Apollo!
-
-<a href="https://github.com/ctripcorp/apollo/graphs/contributors"><img src="https://opencollective.com/apollo/contributors.svg?width=880&button=false" /></a>
+# Community
+  * [Apollo Team](https://www.apolloconfig.com/#/en/community/team)
+  * [Community Governance](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
+  * [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
 
 # License
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
@@ -532,6 +529,7 @@ The project is licensed under the [Apache 2 license](https://github.com/ctripcor
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/mvmyun.png" alt="今典"></td>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/visabao.jpg" alt="签宝科技"></td>
 <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/known-users/inrice.png" alt="广州趣米网络科技有限公司"></td>
+<td><a target="_blank" href="https://github.com/ctripcorp/apollo/issues/451">More...</a></td>
 </tr>
 </table>
 

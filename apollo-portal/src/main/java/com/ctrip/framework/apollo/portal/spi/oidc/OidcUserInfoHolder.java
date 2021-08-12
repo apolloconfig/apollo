@@ -1,7 +1,24 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.oidc;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.security.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +27,7 @@ import org.springframework.security.oauth2.core.oidc.StandardClaimNames;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.util.StringUtils;
 
 /**
  * @author vdisk <vdisk@foxmail.com>
@@ -18,8 +36,26 @@ public class OidcUserInfoHolder implements UserInfoHolder {
 
   private static final Logger log = LoggerFactory.getLogger(OidcUserInfoHolder.class);
 
+  private final UserService userService;
+
+  public OidcUserInfoHolder(UserService userService) {
+    this.userService = userService;
+  }
+
   @Override
   public UserInfo getUser() {
+    UserInfo userInfo = this.getUserInternal();
+    if (StringUtils.hasText(userInfo.getName())) {
+      return userInfo;
+    }
+    UserInfo userInfoFound = this.userService.findByUserId(userInfo.getUserId());
+    if (userInfoFound != null) {
+      return userInfoFound;
+    }
+    return userInfo;
+  }
+
+  private UserInfo getUserInternal() {
     Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     if (principal instanceof OidcUser) {
       UserInfo userInfo = new UserInfo();

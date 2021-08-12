@@ -1,12 +1,32 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.spring.boot;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigService;
+import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.utils.DeferredLogger;
+import com.ctrip.framework.apollo.spring.config.CachedCompositePropertySource;
 import com.ctrip.framework.apollo.spring.config.ConfigPropertySourceFactory;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesConstants;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
-import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import java.util.List;
@@ -60,9 +80,16 @@ public class ApolloApplicationContextInitializer implements
   public static final int DEFAULT_ORDER = 0;
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplicationContextInitializer.class);
-  private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
-  private static final String[] APOLLO_SYSTEM_PROPERTIES = {"app.id", ConfigConsts.APOLLO_CLUSTER_KEY,
-      "apollo.cacheDir", "apollo.accesskey.secret", ConfigConsts.APOLLO_META_KEY, PropertiesFactory.APOLLO_PROPERTY_ORDER_ENABLE};
+  private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings()
+      .trimResults();
+  public static final String[] APOLLO_SYSTEM_PROPERTIES = {ApolloClientSystemConsts.APP_ID,
+      ApolloClientSystemConsts.APOLLO_CLUSTER,
+      ApolloClientSystemConsts.APOLLO_CACHE_DIR,
+      ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET,
+      ApolloClientSystemConsts.APOLLO_META,
+      ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE,
+      ApolloClientSystemConsts.APOLLO_PROPERTY_ORDER_ENABLE,
+      ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE};
 
   private final ConfigPropertySourceFactory configPropertySourceFactory = SpringInjector
       .getInstance(ConfigPropertySourceFactory.class);
@@ -91,7 +118,8 @@ public class ApolloApplicationContextInitializer implements
   protected void initialize(ConfigurableEnvironment environment) {
 
     if (environment.getPropertySources().contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
-      //already initialized
+      //already initialized, replay the logs that were printed before the logging system was initialized
+      DeferredLogger.replayTo();
       return;
     }
 
@@ -99,7 +127,13 @@ public class ApolloApplicationContextInitializer implements
     logger.debug("Apollo bootstrap namespaces: {}", namespaces);
     List<String> namespaceList = NAMESPACE_SPLITTER.splitToList(namespaces);
 
-    CompositePropertySource composite = new CompositePropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+    CompositePropertySource composite;
+    final ConfigUtil configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+    if (configUtil.isPropertyNamesCacheEnabled()) {
+      composite = new CachedCompositePropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+    } else {
+      composite = new CompositePropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME);
+    }
     for (String namespace : namespaceList) {
       Config config = ConfigService.getConfig(namespace);
 
@@ -160,6 +194,7 @@ public class ApolloApplicationContextInitializer implements
     Boolean bootstrapEnabled = configurableEnvironment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED, Boolean.class, false);
 
     if (bootstrapEnabled) {
+      DeferredLogger.enable();
       initialize(configurableEnvironment);
     }
 

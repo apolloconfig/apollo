@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.internals;
 
 import com.ctrip.framework.apollo.Config;
@@ -21,15 +37,12 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -438,33 +451,67 @@ public abstract class AbstractConfig implements Config {
     }
   }
 
-  protected void fireConfigChange(final ConfigChangeEvent changeEvent) {
-    for (final ConfigChangeListener listener : m_listeners) {
-      // check whether the listener is interested in this change event
-      if (!isConfigChangeListenerInterested(listener, changeEvent)) {
-        continue;
-      }
-      m_executorService.submit(new Runnable() {
-        @Override
-        public void run() {
-          String listenerName = listener.getClass().getName();
-          Transaction transaction = Tracer.newTransaction("Apollo.ConfigChangeListener", listenerName);
-          try {
-            listener.onChange(changeEvent);
-            transaction.setStatus(Transaction.SUCCESS);
-          } catch (Throwable ex) {
-            transaction.setStatus(ex);
-            Tracer.logError(ex);
-            logger.error("Failed to invoke config change listener {}", listenerName, ex);
-          } finally {
-            transaction.complete();
-          }
-        }
-      });
+  /**
+   * @param changes map's key is config property's key
+   */
+  protected void fireConfigChange(String namespace, Map<String, ConfigChange> changes) {
+    final Set<String> changedKeys = changes.keySet();
+    final List<ConfigChangeListener> listeners = this.findMatchedConfigChangeListeners(changedKeys);
+
+    // notify those listeners
+    for (ConfigChangeListener listener : listeners) {
+      Set<String> interestedChangedKeys = resolveInterestedChangedKeys(listener, changedKeys);
+      InterestedConfigChangeEvent interestedConfigChangeEvent = new InterestedConfigChangeEvent(
+          namespace, changes, interestedChangedKeys);
+      this.notifyAsync(listener, interestedConfigChangeEvent);
     }
   }
 
-  private boolean isConfigChangeListenerInterested(ConfigChangeListener configChangeListener, ConfigChangeEvent configChangeEvent) {
+  /**
+   * Fire the listeners by event.
+   */
+  protected void fireConfigChange(final ConfigChangeEvent changeEvent) {
+    final List<ConfigChangeListener> listeners = this
+        .findMatchedConfigChangeListeners(changeEvent.changedKeys());
+
+    // notify those listeners
+    for (ConfigChangeListener listener : listeners) {
+      this.notifyAsync(listener, changeEvent);
+    }
+  }
+
+  private List<ConfigChangeListener> findMatchedConfigChangeListeners(Set<String> changedKeys) {
+    final List<ConfigChangeListener> configChangeListeners = new ArrayList<>();
+    for (ConfigChangeListener configChangeListener : this.m_listeners) {
+      // check whether the listener is interested in this change event
+      if (this.isConfigChangeListenerInterested(configChangeListener, changedKeys)) {
+        configChangeListeners.add(configChangeListener);
+      }
+    }
+    return configChangeListeners;
+  }
+
+  private void notifyAsync(final ConfigChangeListener listener, final ConfigChangeEvent changeEvent) {
+    m_executorService.submit(new Runnable() {
+      @Override
+      public void run() {
+        String listenerName = listener.getClass().getName();
+        Transaction transaction = Tracer.newTransaction("Apollo.ConfigChangeListener", listenerName);
+        try {
+          listener.onChange(changeEvent);
+          transaction.setStatus(Transaction.SUCCESS);
+        } catch (Throwable ex) {
+          transaction.setStatus(ex);
+          Tracer.logError(ex);
+          logger.error("Failed to invoke config change listener {}", listenerName, ex);
+        } finally {
+          transaction.complete();
+        }
+      }
+    });
+  }
+
+  private boolean isConfigChangeListenerInterested(ConfigChangeListener configChangeListener, Set<String> changedKeys) {
     Set<String> interestedKeys = m_interestedKeys.get(configChangeListener);
     Set<String> interestedKeyPrefixes = m_interestedKeyPrefixes.get(configChangeListener);
 
@@ -475,7 +522,7 @@ public abstract class AbstractConfig implements Config {
 
     if (interestedKeys != null) {
       for (String interestedKey : interestedKeys) {
-        if (configChangeEvent.isChanged(interestedKey)) {
+        if (changedKeys.contains(interestedKey)) {
           return true;
         }
       }
@@ -483,7 +530,7 @@ public abstract class AbstractConfig implements Config {
 
     if (interestedKeyPrefixes != null) {
       for (String prefix : interestedKeyPrefixes) {
-        for (final String changedKey : configChangeEvent.changedKeys()) {
+        for (final String changedKey : changedKeys) {
           if (changedKey.startsWith(prefix)) {
             return true;
           }
@@ -492,6 +539,32 @@ public abstract class AbstractConfig implements Config {
     }
 
     return false;
+  }
+
+  private Set<String> resolveInterestedChangedKeys(ConfigChangeListener configChangeListener, Set<String> changedKeys) {
+    Set<String> interestedChangedKeys = new HashSet<>();
+
+    if (this.m_interestedKeys.containsKey(configChangeListener)) {
+      Set<String> interestedKeys = this.m_interestedKeys.get(configChangeListener);
+      for (String interestedKey : interestedKeys) {
+        if (changedKeys.contains(interestedKey)) {
+          interestedChangedKeys.add(interestedKey);
+        }
+      }
+    }
+
+    if (this.m_interestedKeyPrefixes.containsKey(configChangeListener)) {
+      Set<String> interestedKeyPrefixes = this.m_interestedKeyPrefixes.get(configChangeListener);
+      for (String interestedKeyPrefix : interestedKeyPrefixes) {
+        for (String changedKey : changedKeys) {
+          if (changedKey.startsWith(interestedKeyPrefix)) {
+            interestedChangedKeys.add(changedKey);
+          }
+        }
+      }
+    }
+
+    return Collections.unmodifiableSet(interestedChangedKeys);
   }
 
   List<ConfigChange> calcPropertyChanges(String namespace, Properties previous,

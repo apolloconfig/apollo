@@ -106,13 +106,10 @@ Demo Environment:
 * [Design and Implementation Details of Apollo](https://www.infoq.cn/article/open-source-configuration-center-apollo)
 * [Configuration Center Makes Microservices Smart](https://mp.weixin.qq.com/s/iDmYJre_ULEIxuliu1EbIQ)
 
-# Contribution
-
-Please make sure to read the [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md) before making a pull request.
-
-Thanks for all the people who contributed to Apollo!
-
-<a href="https://github.com/ctripcorp/apollo/graphs/contributors"><img src="https://opencollective.com/apollo/contributors.svg?width=880&button=false" /></a>
+# Community
+  * [Apollo Team](en/community/team)
+  * [Community Governance](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
+  * [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
 
 # License
 The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).

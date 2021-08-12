@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2021 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!--master panel body when not initialized-->
 <section class="master-panel-body" ng-if="!namespace.initialized">
     <!--main header-->
@@ -316,7 +332,7 @@
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                 </td>
                                 <td width="16%"
                                     ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
@@ -434,7 +450,7 @@
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                 </td>
                                 <td width="16%"
                                     ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
@@ -568,7 +584,7 @@
                                             <span ng-bind="config.item.comment | limitTo: 250"></span>
                                             <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                         </td>
-                                        <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                        <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                         </td>
                                         <td width="15%"
                                             ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
@@ -697,16 +713,53 @@
             </div>
 
             <!--text view-->
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Link.Title' | translate }}
+                    </div>
+                </div>
+            </div>
+
             <!--只读模式下的文本内容,不替换换行符-->
             <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
                 ng-show="namespace.viewType == 'text' && !namespace.isTextEditing" ng-model="namespace.text">
             </div>
+
+
+
             <!--编辑状态下的文本内容,会过滤掉换行符-->
             <div ui-ace="aceConfig" class="form-control no-radius"
                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
                 ng-show="namespace.viewType == 'text' && namespace.isTextEditing" ng-disabled="!namespace.isTextEditing"
                 ng-model="namespace.editText">
+            </div>
+
+
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Public.Title' | translate }}
+                        <a href="{{ '/config.html' | prefixPath }}?#/appid={{namespace.publicNamespace.baseInfo.appId}}&env={{env}}&cluster={{namespace.publicNamespace.baseInfo.clusterName}}"
+                           target="_blank">
+                            <small>
+                                ({{'Common.AppId' | translate }}:{{namespace.publicNamespace.baseInfo.appId}},
+                                {{'Common.Cluster' | translate }}:{{namespace.publicNamespace.baseInfo.clusterName}})
+                            </small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--关联的 Parent Namespace 内容,只读模式,不替换换行符-->
+            <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
+                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
+                 ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace"
+                 ng-model="namespace.publicNamespaceText">
             </div>
 
             <!--history view-->
@@ -716,7 +769,8 @@
                     <div class="media-body">
                         <div class="row">
                             <div class="col-md-6 col-sm-6">
-                                <h3 class="media-heading" ng-bind="commits.dataChangeCreatedBy"></h3>
+                                <h3 class="media-heading"
+                                    ng-bind="commits.dataChangeCreatedByDisplayName + '(' + commits.dataChangeCreatedBy + ')'"></h3>
                             </div>
                             <div class="col-md-6 col-sm-6 text-right">
                                 <h5 class="media-heading"
@@ -818,20 +872,80 @@
                         </table>
 
                         <!--not properties format-->
-                        <div ng-if="!namespace.isPropertiesFormat">
-                            <div ng-repeat="item in commits.changeSets.createItems">
-                                <textarea class="form-control no-radius" rows="20" ng-disabled="true"
-                                    ng-bind="item.value">
-                                </textarea>
-                            </div>
+                        <table class="table table-bordered table-striped text-center table-hover"
+                            style="margin-top: 5px;" ng-if="!namespace.isPropertiesFormat">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemType' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemOldValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemNewValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemComment' | translate }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                            <div ng-repeat="item in commits.changeSets.updateItems">
-                                <textarea class="form-control no-radius" rows="20" ng-disabled="true"
-                                    ng-bind="item.newItem.value">
-                                </textarea>
-                            </div>
-                        </div>
-
+                                <!--兼容老数据,不显示item类型为空行和注释的item-->
+                                <tr ng-repeat="item in commits.changeSets.createItems" ng-show="item.key">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.NewAdded' | translate }}
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.value}}"
+                                        ng-click="showText(item.value)">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.updateItems">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Updated' | translate }}
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.oldItem.value}}"
+                                        ng-click="showText(item.oldItem.value)">
+                                        <span ng-bind="item.oldItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.oldItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.newItem.value}}"
+                                        ng-click="showText(item.newItem.value)">
+                                        <span ng-bind="item.newItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.newItem.comment}}">
+                                        <span ng-bind="item.newItem.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.deleteItems"
+                                    ng-show="item.key || item.comment">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Deleted' | translate }}
+                                    </td>
+                                    <td width="28%" title="{{item.value}}">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                     </div>
                     <hr>
