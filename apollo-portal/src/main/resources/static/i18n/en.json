@@ -242,6 +242,8 @@
   "Component.Namespace.Master.Items.Body.HistoryView.Deleted": "Delete",
   "Component.Namespace.Master.Items.Body.HistoryView.LoadMore": "Load more",
   "Component.Namespace.Master.Items.Body.HistoryView.NoHistory": "No Change History",
+  "Component.Namespace.Master.Items.Body.HistoryView.FilterHistory": "Filter History",
+  "Component.Namespace.Master.Items.Body.HistoryView.FilterHistory.SortByKey": "Filter the history by key",
   "Component.Namespace.Master.Items.Body.Instance.Tips": "Tips: Only show instances who have fetched configurations in the last 24 hrs ",
   "Component.Namespace.Master.Items.Body.Instance.UsedNewItem": "Instances using the latest configuration",
   "Component.Namespace.Master.Items.Body.Instance.NoUsedNewItem": "Instances using outdated configuration",
