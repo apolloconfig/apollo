@@ -1,0 +1,37 @@
+{
+  "id": "2742392",
+  "name": "no name",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "735273",
+      "name": "收藏",
+      "font_class": "icon",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "8145819",
+      "name": "浏览",
+      "font_class": "liulan",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "16137934",
+      "name": "公共资料",
+      "font_class": "gonggongziliao",
+      "unicode": "e7d1",
+      "unicode_decimal": 59345
+    },
+    {
+      "icon_id": "495783",
+      "name": "项目",
+      "font_class": "02",
+      "unicode": "e64a",
+      "unicode_decimal": 58954
+    }
+  ]
+}

@@ -28,6 +28,8 @@
     <link rel="stylesheet" type="text/css" media='all' href="vendor/font-awesome.min.css">
 
     <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+    <!--<link rel="stylesheet" type="text/css" href="http://at.alicdn.com/t/font_2742516_pik2lmzsw08.css">-->
+    <link rel="stylesheet" type="text/css" href="styles/iconfont.css">
     <title>{{'Common.Title' | translate }}</title>
 </head>
 
@@ -38,30 +40,38 @@
     <div id="app-list" class="hidden" ng-controller="IndexController">
         <div class="left-bar">
             <div class="app-list-show" ng-click="changeContent('1')" ng-show="whichContent==='1'">
+                <i class="iconfont icon-02"></i>
                 <h5>{{'Index.MyProject' | translate }}</h5>
             </div>
             <div class="app-list-choose" ng-click="changeContent('1')" ng-show="whichContent!=='1'">
+                <i class="iconfont icon-02" style="color: #666"></i>
                 <h5>{{'Index.MyProject' | translate }}</h5>
             </div>
 
             <div class="favorite-list-show" ng-click="changeContent('2')" ng-show="whichContent==='2'">
+                <i class="iconfont icon-icon"></i>
                 <h5>{{'Index.FavoriteItems' | translate }}</h5>
             </div>
             <div class="favorite-list-choose" ng-click="changeContent('2')" ng-show="whichContent!=='2'">
+                <i class="iconfont icon-icon" style="color: #666"></i>
                 <h5>{{'Index.FavoriteItems' | translate }}</h5>
             </div>
 
             <div class="public-namespace-list-show" ng-click="changeContent('3')" ng-show="whichContent==='3'">
+                <i class="iconfont icon-gonggongziliao"></i>
                 <h5>{{'Index.PublicNamespace' | translate }}</h5>
             </div>
             <div class="public-namespace-list-choose" ng-click="changeContent('3')" ng-show="whichContent!=='3'">
+                <i class="iconfont icon-gonggongziliao" style="color: #666"></i>
                 <h5>{{'Index.PublicNamespace' | translate }}</h5>
             </div>
 
             <div class="visited-list-show" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent==='4'">
+                <i class="iconfont icon-liulan"></i>
                 <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
             </div>
             <div class="visited-list-choose" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent!=='4'">
+                <i class="iconfont icon-liulan" style="color: #666"></i>
                 <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
             </div>
         </div>
@@ -78,16 +88,18 @@
                 <div class="display-table" ng-show="createdApps.length > 0">
                     <table>
                         <tr>
-                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
-                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.orgName' | translate }}</th>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 20%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
                         </tr>
                         <tr ng-repeat="app in createdApps" ng-click="goToAppHomePage(app.appId)" href="#" class="hover cursor-pointer">
-                            <td style="width: 20%">{{ app.appId }}</td>
-                            <td style="width: 30%">{{ app.name }}</td>
-                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
-                            <td style="width: 30%">{{ app.orgName }}</td>
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 20%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
                         </tr>
                     </table>
                 </div>
@@ -105,19 +117,21 @@
                 <div class="display-table" ng-show="favorites && favorites.length > 0">
                     <table>
                         <tr>
-                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
-                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
-                            <th style="width: 20%">{{'Index.appTable.orgName' | translate }}</th>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 15%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 15%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
                             <th style="width: 10%">{{'Index.appTable.operation' | translate }}</th>
                         </tr>
                         <tr ng-repeat="app in favorites" ng-click="goToAppHomePage(app.appId)"
                             ng-mouseover="toggleOperationBtn(app)" ng-mouseout="toggleOperationBtn(app)"
                             href="#" class="hover cursor-pointer">
-                            <td style="width: 20%">{{ app.appId }}</td>
-                            <td style="width: 30%">{{ app.name }}</td>
-                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
-                            <td style="width: 20%">{{ app.orgName }}</td>
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 15%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 15%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
                             <td style="width: 10%">
                                 <button class="btn btn-default btn-xs" title="{{'Index.Topping' | translate }}"
                                         ng-click="toTop(app.favoriteId);$event.stopPropagation();">
@@ -148,22 +162,22 @@
                 <div class="display-table" ng-show="publicNamespaces.length > 0">
                     <table>
                         <tr>
-                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.nameSpace' | translate }}</th>
-                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.LastModifiedTime' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Namespace' | translate }}</th>
+                            <th style="width: 30%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.Format' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.Comment' | translate }}</th>
                         </tr>
                         <tr ng-repeat="app in publicNamespaces" ng-click="goToAppHomePage(app.appId)"
                             href="#" class="hover cursor-pointer">
-                            <td style="width: 20%">{{ app.appId }}</td>
-                            <td style="width: 30%">{{ app.name }}</td>
-                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
-                            <td style="width: 30%">{{ app.dataChangeLastModifiedTime.slice(0,10) }}</td>
+                            <td style="width: 20%">{{ app.name }}</td>
+                            <td style="width: 30%">{{ app.appId }}</td>
+                            <td style="width: 20%">{{ app.format }}</td>
+                            <td style="width: 30%">{{ app.comment }}</td>
                         </tr>
                     </table>
                 </div>
                 <div class="no-public text-center" ng-show="!publicNamespaces || publicNamespaces.length == 0">
-                    <h4>{{'Index.FavoriteTip' | translate }}</h4>
+                    <h4>{{'Index.PublicNamespaceTip' | translate }}</h4>
                 </div>
                 <div ng-show="!hasMorePublicNamespaces" style="height: 15px"></div>
                 <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMorePublicNamespaces"
@@ -179,17 +193,19 @@
                 <div class="display-table" ng-show="visitedApps.length > 0">
                     <table>
                         <tr>
-                            <th style="width: 20%">{{'Index.appTable.appId' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.appName' | translate }}</th>
-                            <th style="width: 20%">{{'Index.appTable.CreatedTime' | translate }}</th>
-                            <th style="width: 30%">{{'Index.appTable.orgName' | translate }}</th>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 20%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
                         </tr>
                         <tr ng-repeat="app in visitedApps" ng-click="goToAppHomePage(app.appId)"
                             href="#" class="hover cursor-pointer">
-                            <td style="width: 20%">{{ app.appId }}</td>
-                            <td style="width: 30%">{{ app.name }}</td>
-                            <td style="width: 20%">{{ app.dataChangeCreatedTime.slice(0,10) }}</td>
-                            <td style="width: 30%">{{ app.orgName }}</td>
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 20%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
                         </tr>
                     </table>
                 </div>

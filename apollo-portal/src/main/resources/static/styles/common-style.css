@@ -735,14 +735,14 @@ table th {
 }
 
 #app-list .left-bar {
-    width: 10%;
+    width: 15%;
     min-width: 200px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+    /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);*/
 }
 
 #app-list .main-table {
     padding-top: 15px;
-    width: 90%;
+    width: 85%;
     min-width: 500px;
 }
 
@@ -798,122 +798,125 @@ table th {
 }
 
 #app-list th {
-    border-bottom: 1px solid grey;
+    border-bottom: 1px solid #E4E7ED;
     padding: 15px 8px 15px 8px;
-    font-size: 18px;
+    font-size: 16px;
     text-align: left;
     word-break: break-all;
     /*border-left-style: none;
     border-right-style: none;*/
 }
 
+#app-list td {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 14px;
+    word-break: break-all;
+}
+
 .left-bar h5 {
-    font-size: 16px;
+    font-size: 15px;
+    margin-left: 12px;
 }
 
 .left-bar .app-list-show {
     height: 60px;
-    color: #ffffff;
-    background-color: #a9d96c;
+    /*color: #ffffff;
+    background-color: #a9d96c;*/
+    color: #409EFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid grey;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .app-list-choose {
     height: 60px;
-    color: black;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-top: 1px solid grey;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .app-list-choose:hover {
-    color: #ffffff;
-    background-color: #a9d96c;
+    /*color: #ffffff;
+    background-color: #a9d96c;*/
+    background-color: #E4E7ED;
 }
 
 .left-bar .favorite-list-show {
     height: 60px;
-    color: #ffffff;
-    background-color: #57c8f2;
+    /*color: #ffffff;
+    background-color: #57c8f2;*/
+    color: #409EFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .favorite-list-choose {
     height: 60px;
-    color: black;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .favorite-list-choose:hover {
-    color: #ffffff;
-    background-color: #57c8f2;
+    /*color: #ffffff;
+    background-color: #57c8f2;*/
+    background-color: #E4E7ED;
 }
 
 .left-bar .public-namespace-list-show {
     height: 60px;
-    color: #ffffff;
-    background-color: #65c294;
+    /*color: #ffffff;
+    background-color: #65c294;*/
+    color: #409EFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .public-namespace-list-choose {
     height: 60px;
-    color: black;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .public-namespace-list-choose:hover {
-    color: #ffffff;
-    background-color: #65c294;
+    /*color: #ffffff;
+    background-color: #65c294;*/
+    background-color: #F2F6FC
 }
 
 .left-bar .visited-list-show {
     height: 60px;
-    color: #ffffff;
-    background-color: #41cac0;
+    /*color: #ffffff;
+    background-color: #41cac0;*/
+    color: #409EFF;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .visited-list-choose {
     height: 60px;
-    color: black;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-bottom: 1px solid grey;
+    border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
 .left-bar .visited-list-choose:hover {
-    color: #ffffff;
-    background-color: #41cac0;
-}
-
-#app-list td {
-    border-bottom: 1px solid grey;
-    padding: 15px 8px 15px 8px;
-    font-size: 16px;
-    word-break: break-all;
+    /*color: #ffffff;
+    background-color: #41cac0;*/
+    background-color: #F2F6FC
 }
 
 .create-app-list .media-left {
