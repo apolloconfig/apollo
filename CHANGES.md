@@ -76,6 +76,7 @@ Apollo 1.9.0
 * [fix apollo config data loader with profiles](https://github.com/ctripcorp/apollo/pull/3870)
 * [polish log](https://github.com/ctripcorp/apollo/pull/3882)
 * [add history query](https://github.com/ctripcorp/apollo/pull/3878)
+* [fix history query](https://github.com/ctripcorp/apollo/pull/3894)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
