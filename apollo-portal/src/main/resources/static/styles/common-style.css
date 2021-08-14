@@ -841,7 +841,7 @@ table th {
 .left-bar .app-list-choose:hover {
     /*color: #ffffff;
     background-color: #a9d96c;*/
-    background-color: #E4E7ED;
+    background-color: #F2F6FC;
 }
 
 .left-bar .favorite-list-show {
@@ -866,7 +866,7 @@ table th {
 .left-bar .favorite-list-choose:hover {
     /*color: #ffffff;
     background-color: #57c8f2;*/
-    background-color: #E4E7ED;
+    background-color: #F2F6FC;
 }
 
 .left-bar .public-namespace-list-show {
