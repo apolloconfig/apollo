@@ -51,6 +51,11 @@ public class CommitService {
             appId, clusterName, namespaceName, lastModifiedTime, page);
   }
 
+  public List<Commit> findByKey(String appId, String clusterName, String namespaceName, String key,Pageable page){
+    String queryKey = "\"key\":\""+ key +"\"";
+    return commitRepository.findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(appId, clusterName, namespaceName, "%"+ queryKey + "%", page);
+  }
+
   @Transactional
   public int batchDelete(String appId, String clusterName, String namespaceName, String operator){
     return commitRepository.batchDelete(appId, clusterName, namespaceName, operator);

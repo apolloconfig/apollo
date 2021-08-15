@@ -74,8 +74,7 @@ public class ApolloConfigDataLoader implements ConfigDataLoader<ApolloConfigData
     List<PropertySource<?>> propertySourceList = new ArrayList<>();
     propertySourceList.add(configPropertySource);
     propertySourceList.addAll(initialPropertySourceList);
-    log.debug(Slf4jLogMessageFormatter
-        .format("apollo client loaded namespace [{}]", resource.getNamespace()));
+    log.debug(Slf4jLogMessageFormatter.format("apollo client loaded namespace [{}]", namespace));
     return new ConfigData(propertySourceList);
   }
 

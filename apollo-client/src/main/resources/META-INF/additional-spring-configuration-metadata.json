@@ -63,6 +63,13 @@
       "description": "apollo meta server address."
     },
     {
+      "name": "apollo.property.names.cache.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
+      "description": "enable property names cache.",
+      "defaultValue": false
+    },
+    {
       "name": "apollo.property.order.enable",
       "type": "java.lang.Boolean",
       "sourceType": "com.ctrip.framework.apollo.util.factory.PropertiesFactory",

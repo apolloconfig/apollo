@@ -1,1 +1,1 @@
-com.ctrip.framework.apollo.config.data.extension.webclient.injector.ApolloClientCustomHttpClientInjectorCustomizer
+com.ctrip.framework.apollo.config.data.injector.ApolloConfigDataInjectorCustomizer

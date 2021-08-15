@@ -56,7 +56,7 @@
 	</issueManagement>
 
 	<properties>
-		<revision>1.9.0-SNAPSHOT</revision>
+		<revision>1.9.0</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.4.2</spring-boot.version>

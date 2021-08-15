@@ -67,6 +67,16 @@ Apollo 1.9.0
 * [feature: add history detail for not key-value type of namespace](https://github.com/ctripcorp/apollo/pull/3856)
 * [docs: Add an example to load configs by curl with access key](https://github.com/ctripcorp/apollo/pull/3853)
 * [fix show-text-modal number display](https://github.com/ctripcorp/apollo/pull/3851)
+* [Lazy load ConfigUtil](https://github.com/ctripcorp/apollo/pull/3864)
+* [make jdbc session enable default](https://github.com/ctripcorp/apollo/pull/3869)
+* [support json/yaml/xml format for public namespace](https://github.com/ctripcorp/apollo/pull/3836)
+* [Translate application into 应用 not 项目](https://github.com/ctripcorp/apollo/pull/3877)
+* [add spring configuration metadata for property names cache](https://github.com/ctripcorp/apollo/pull/3879)
+* [Fix Multiple PropertySourcesPlaceholderConfigurer beans registered issue](https://github.com/ctripcorp/apollo/pull/3865)
+* [use jdk 8 to publish apollo-client-config-data](https://github.com/ctripcorp/apollo/pull/3880)
+* [fix apollo config data loader with profiles](https://github.com/ctripcorp/apollo/pull/3870)
+* [polish log](https://github.com/ctripcorp/apollo/pull/3882)
+* [add history query](https://github.com/ctripcorp/apollo/pull/3878)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
