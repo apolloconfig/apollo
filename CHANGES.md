@@ -77,6 +77,7 @@ Apollo 1.9.0
 * [polish log](https://github.com/ctripcorp/apollo/pull/3882)
 * [add history query](https://github.com/ctripcorp/apollo/pull/3878)
 * [fix history query](https://github.com/ctripcorp/apollo/pull/3894)
+* [Fix issue that the $ symbol is not used when reading shell variables](https://github.com/ctripcorp/apollo/pull/3890)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
