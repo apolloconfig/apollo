@@ -16,7 +16,120 @@
  */
 index_module.controller('IndexController', ['$scope', '$window', '$translate', 'toastr', 'AppUtil', 'AppService',
     'UserService', 'FavoriteService', 'NamespaceService',
-    IndexController]);
+    IndexController]
+)
+.directive('inputSelect', function() {
+    return {
+        link: function(scope, element, attr) {
+            element.on('click', function(evt) {
+                evt.target.parentElement.previousElementSibling.value = evt.target.textContent;
+                scope.inValue = evt.target.textContent;
+                if(evt.target.parentElement.getElementsByClassName('item-bg').length){
+                    angular.element(evt.target.parentElement.getElementsByClassName('item-bg')[0]).removeClass('item-bg');
+                }
+                angular.element(evt.target).addClass('item-bg');
+                angular.element(evt.target.parentElement).addClass('hidden-cls');
+                return true;
+            });
+        }
+    };
+})
+.directive('inputSearch', function() {
+    return {
+        link: function(scope, element, attr) {
+            var isFocus = true;
+            var isOver = false;
+            element.on('focus', function(){
+                angular.element(this.nextElementSibling).removeClass('hidden-cls');
+            })
+            element.on('keydown', function(evt){
+                if(!this.nextElementSibling.children.length){
+                    return false;
+                }
+                if(isFocus){
+                    var currentLi = this.parentElement.getElementsByClassName('item-bg')[0];
+                    if(38 === evt.keyCode && currentLi && currentLi.previousElementSibling){//向上
+                        var currentLi = this.parentElement.getElementsByClassName('item-bg')[0],
+                            liHeight = currentLi ? currentLi.clientHeight : '',
+                            offTop = liHeight;
+                        angular.element(currentLi).removeClass('item-bg');
+                        angular.element(currentLi.previousElementSibling).addClass('item-bg');
+
+                        for(var i = 0, len = this.nextElementSibling.children.length; i < len; i++){
+                            if(this.nextElementSibling.children[i] === currentLi){
+                                break;
+                            }
+                            offTop = offTop + liHeight;
+                        }
+                        offTop = Math.max(0, offTop - 2 * liHeight);
+                        if(this.nextElementSibling.scrollTop > offTop){
+                            this.nextElementSibling.scrollTop = offTop;
+                        }
+                    }else if(40 === evt.keyCode){//向下
+                        var currentLi = this.parentElement.getElementsByClassName('item-bg')[0],
+                            liHeight = currentLi ? currentLi.clientHeight : '',
+                            offTop = liHeight;
+                        if(!currentLi){
+                            angular.element(this.nextElementSibling.firstElementChild).addClass('item-bg');
+                            return true;
+                        }
+                        if(currentLi.nextElementSibling){
+                            angular.element(currentLi).removeClass('item-bg');
+                            angular.element(currentLi.nextElementSibling).addClass('item-bg');
+                        }
+
+                        for(var i = 0, len = this.nextElementSibling.children.length; i < len; i++){
+                            if(this.nextElementSibling.children[i] === currentLi){
+                                break;
+                            }
+                            offTop = offTop + liHeight;
+                        }
+                        if(this.nextElementSibling.scrollTop > offTop){
+                            return false;
+                        }
+                        if(this.nextElementSibling.clientHeight < offTop && this.nextElementSibling.scrollTop + this.nextElementSibling.clientHeight - liHeight < offTop){
+                            this.nextElementSibling.scrollTop = offTop - this.nextElementSibling.clientHeight + liHeight;
+                        }
+
+                    }else if(13 === evt.keyCode && currentLi){
+                        var isHidden = angular.element(evt.target.nextElementSibling).hasClass('hidden-cls');
+                        if(isHidden){
+                            angular.element(evt.target.nextElementSibling).removeClass('hidden-cls');
+                        }else{
+                            evt.target.value = currentLi.innerText;
+                            angular.element(currentLi.parentElement).addClass('hidden-cls');
+                            scope.inValue = evt.target.value;
+                        }
+                    }
+                }
+            })
+            element.on('input',function(evt){
+                if(angular.element(this.nextElementSibling).hasClass('hidden-cls')){
+                    angular.element(this.nextElementSibling).removeClass('hidden-cls')
+                }
+                if(this.nextElementSibling.children.length){
+                    angular.element(this.nextElementSibling.getElementsByClassName('item-bg')[0]).removeClass('item-bg');
+                    angular.element(this.nextElementSibling.children[0]).addClass('item-bg');
+                }
+                scope.$emit('selectInput', {
+                    inputId: evt.target.id,
+                    inputText: evt.target.value
+                });
+            });
+            angular.element(element[0].nextElementSibling).on('mousemove', function(){
+                isOver = true;
+            })
+            angular.element(element[0].nextElementSibling).on('mouseleave', function(){
+                isOver = false;
+            })
+            element.on('blur',function(evt){
+                if(!isOver){
+                    angular.element(this.nextElementSibling).addClass('hidden-cls');
+                }
+            });
+        }
+    };
+});
 
 function IndexController($scope, $window, $translate, toastr, AppUtil, AppService, UserService, FavoriteService, NamespaceService) {
 
@@ -33,6 +146,11 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     $scope.deleteFavorite = deleteFavorite;
     $scope.morePublicNamespace = morePublicNamespace;
     $scope.changeContent = changeContent;
+
+    $scope.inValue = '';
+    $scope.inValue_display = '';
+    $scope.initList = [];
+    $scope.dataList = [];
 
     function initCreateApplicationPermission() {
         AppService.has_create_application_role($scope.userId).then(
@@ -57,9 +175,8 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         $scope.publicNamespacePage = 0;
         $scope.publicNamespaces = [];
         $scope.hasMorePublicNamespaces = true;
-        $scope.allPublicNamespaces= [];
+        $scope.allPublicNamespaces = [];
         $scope.visitedApps = [];
-
 
         initCreateApplicationPermission();
 
@@ -70,6 +187,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         getPublicNamespaces();
 
         initUserVisitedApps();
+
     });
 
     function getUserCreatedApps() {
@@ -133,9 +251,12 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     function getPublicNamespaces() {//TODO
         var size = 10;
         NamespaceService.find_public_namespaces()
-            .then(function (result){
+            .then(function (result) {
                 //console.log("public",result);
-                $scope.allPublicNamespaces=result;
+                $scope.allPublicNamespaces = result;
+                $scope.dataList = $scope.allPublicNamespaces;
+                $scope.initList = $scope.allPublicNamespaces;
+                console.log("dataList",$scope.dataList);
                 morePublicNamespace();
             })
     }
@@ -205,16 +326,15 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     }
 
     function morePublicNamespace() {
-        var rest = $scope.allPublicNamespaces.length - $scope.publicNamespacePage*10;
+        var rest = $scope.allPublicNamespaces.length - $scope.publicNamespacePage * 10;
         if (rest <= 10) {
-            for (var i=0; i<rest; i++) {
-                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage*10+i])
+            for (var i = 0; i < rest; i++) {
+                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage * 10 + i])
             }
             $scope.hasMorePublicNamespaces = false;
-        }
-        else {
-            for(var j=0; j<10; j++){
-                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage*10+j])
+        } else {
+            for (var j = 0; j < 10; j++) {
+                $scope.publicNamespaces.push($scope.allPublicNamespaces[$scope.publicNamespacePage * 10 + j])
             }
         }
         $scope.publicNamespacePage += 1;
@@ -223,5 +343,23 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     function changeContent(contentIndex) {
         $scope.whichContent = contentIndex;
     }
+
+    $scope.$on('selectInput', function (evt, inputObj) {
+        if (inputObj.inputId === 'select-input-mark') {
+            $scope.inValue = '';
+            $scope.inValue_display = inputObj.inputText;
+            $scope.fuzzyQuery();
+        }
+    });
+    $scope.fuzzyQuery = function () {
+        $scope.dataList = [];
+        angular.forEach($scope.initList, function (item) {
+            if (item.name.indexOf($scope.inValue_display) !== -1) {
+                $scope.dataList.push(item);
+            }
+        });
+        $scope.$apply();
+        console.log($scope.dataList);
+    };
 
 }

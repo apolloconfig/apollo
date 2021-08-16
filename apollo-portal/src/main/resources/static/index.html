@@ -159,6 +159,15 @@
                 </div>
             </div>
             <div class="public-namespace-list" ng-show="whichContent==='3'">
+                <div class="wapper">
+                    <div class="select-wapper">
+                        <input type="text" autocomplete="off" ng-model="inValue_display" id="select-input-mark"  placeholder="{{'Index.SearchNamespace' | translate }}" input-search/>
+                        <ul class="select-content-panel hidden-cls" input-select>
+                            <li ng-repeat="app in dataList" ng-click="goToAppHomePage(app.appId)"
+                                href="#">{{app.appId}} / {{app.name}}</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="display-table" ng-show="publicNamespaces.length > 0">
                     <table>
                         <tr>

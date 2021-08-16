@@ -318,6 +318,7 @@
   "Index.Topped": "Top Successfully",
   "Index.CancelledFavorite": "Remove favorite successfully",
   "Index.PublicNamespace": "Public namespaces",
+  "Index.SearchNamespace": "Search Public Namespace(AppId or Namespace)",
   "Index.PublicNamespaceTip": "You haven't created any public namespaces yet. You can create them in your projects.",
   "Index.appTable.operation": "Operation",
   "Index.appTable.Format": "Format",

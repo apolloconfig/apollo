@@ -318,6 +318,7 @@
   "Index.Topped": "置顶成功",
   "Index.CancelledFavorite": "取消收藏成功",
   "Index.PublicNamespace": "公共Namespace",
+  "Index.SearchNamespace": "搜索公共Namespace(AppId、Namespace)",
   "Index.PublicNamespaceTip": "您还没有任何公共Namespace，在你的项目中可以创建哟~",
   "Index.appTable.operation": "操作",
   "Index.appTable.Format": "格式",
