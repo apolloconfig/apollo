@@ -194,7 +194,6 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
         var size = 10;
         AppService.find_app_by_owner($scope.userId, $scope.createdAppPage, size)
             .then(function (result) {
-                //console.log("apps",result);
                 $scope.createdAppPage += 1;
                 $scope.hasMoreCreatedApps = result.length == size;
 
@@ -243,16 +242,14 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
                             app.favoriteId = favorite.id;
                             $scope.favorites.push(app);
                         });
-                        //console.log("favorites",$scope.favorites);
                     });
             })
     }
 
-    function getPublicNamespaces() {//TODO
+    function getPublicNamespaces() {
         var size = 10;
         NamespaceService.find_public_namespaces()
             .then(function (result) {
-                //console.log("public",result);
                 $scope.allPublicNamespaces = result;
                 $scope.dataList = $scope.allPublicNamespaces;
                 $scope.initList = $scope.allPublicNamespaces;
@@ -273,7 +270,6 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
             AppService.find_apps(userVisitedApps.join(","))
                 .then(function (apps) {
                     //sort
-                    //console.log("visited",apps);
                     var appIdMapApp = {};
                     apps.forEach(function (app) {
                         appIdMapApp[app.appId] = app;

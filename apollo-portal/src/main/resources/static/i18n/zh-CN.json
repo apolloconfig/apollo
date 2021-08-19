@@ -322,7 +322,7 @@
   "Index.PublicNamespaceTip": "您还没有任何公共Namespace，在你的项目中可以创建哟~",
   "Index.appTable.operation": "操作",
   "Index.appTable.Format": "格式",
-  "Index.appTable.Comment": "评论",
+  "Index.appTable.Comment": "备注",
   "Cluster.CreateCluster": "新建集群",
   "Cluster.Tips.1": "通过添加集群，可以使同一份程序在不同的集群（如不同的数据中心）使用不同的配置",
   "Cluster.Tips.2": "如果不同集群使用一样的配置，则没有必要创建集群",

@@ -737,7 +737,6 @@ table th {
 #app-list .left-bar {
     width: 15%;
     min-width: 200px;
-    /*box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);*/
 }
 
 #app-list .main-table {
@@ -787,14 +786,10 @@ table th {
 }
 
 #app-list table {
-    /*border: 1px solid grey;*/
-    /*border-collapse: collapse;
-    padding: 8px;*/
     width: 100%;
 }
 
 #app-list tr {
-    /*border-bottom: 1px solid grey;*/
 }
 
 #app-list th {
@@ -803,8 +798,6 @@ table th {
     font-size: 16px;
     text-align: left;
     word-break: break-all;
-    /*border-left-style: none;
-    border-right-style: none;*/
 }
 
 #app-list td {
@@ -821,8 +814,6 @@ table th {
 
 .left-bar .app-list-show {
     height: 60px;
-    /*color: #ffffff;
-    background-color: #a9d96c;*/
     color: #409EFF;
     display: flex;
     align-items: center;
@@ -839,15 +830,11 @@ table th {
     cursor: pointer;
 }
 .left-bar .app-list-choose:hover {
-    /*color: #ffffff;
-    background-color: #a9d96c;*/
     background-color: #F2F6FC;
 }
 
 .left-bar .favorite-list-show {
     height: 60px;
-    /*color: #ffffff;
-    background-color: #57c8f2;*/
     color: #409EFF;
     display: flex;
     align-items: center;
@@ -864,15 +851,11 @@ table th {
     cursor: pointer;
 }
 .left-bar .favorite-list-choose:hover {
-    /*color: #ffffff;
-    background-color: #57c8f2;*/
     background-color: #F2F6FC;
 }
 
 .left-bar .public-namespace-list-show {
     height: 60px;
-    /*color: #ffffff;
-    background-color: #65c294;*/
     color: #409EFF;
     display: flex;
     align-items: center;
@@ -889,15 +872,11 @@ table th {
     cursor: pointer;
 }
 .left-bar .public-namespace-list-choose:hover {
-    /*color: #ffffff;
-    background-color: #65c294;*/
     background-color: #F2F6FC
 }
 
 .left-bar .visited-list-show {
     height: 60px;
-    /*color: #ffffff;
-    background-color: #41cac0;*/
     color: #409EFF;
     display: flex;
     align-items: center;
@@ -914,8 +893,6 @@ table th {
     cursor: pointer;
 }
 .left-bar .visited-list-choose:hover {
-    /*color: #ffffff;
-    background-color: #41cac0;*/
     background-color: #F2F6FC
 }
 
