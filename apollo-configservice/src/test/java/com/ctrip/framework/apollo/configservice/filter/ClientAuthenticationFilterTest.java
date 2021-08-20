@@ -116,6 +116,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(errorAuthorization);
+    when(bizConfig.accessKeyAuthTimeDiffTolerance()).thenReturn(60);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
@@ -136,6 +137,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(correctAuthorization);
+    when(bizConfig.accessKeyAuthTimeDiffTolerance()).thenReturn(60);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
