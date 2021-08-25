@@ -55,6 +55,15 @@
 		<url>https://github.com/ctripcorp/apollo/issues</url>
 	</issueManagement>
 
+	<developers>
+		<developer>
+			<id>apollo</id>
+			<name>The Apollo Project Contributors</name>
+			<email>apollo-config@googlegroups.com</email>
+			<url>https://www.apolloconfig.com/</url>
+		</developer>
+	</developers>
+
 	<properties>
 		<revision>1.9.0</revision>
 		<java.version>1.8</java.version>
