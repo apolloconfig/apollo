@@ -41,7 +41,7 @@ jobs:
         gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
         gpg-passphrase: MAVEN_GPG_PASSPHRASE
     - name: Publish to Apache Maven Central
-      run: mvn clean deploy -pl apollo-client-config-data -DskipTests=true "-Dreleases.repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" "-Dsnapshots.repo=https://oss.sonatype.org/content/repositories/snapshots"
+      run: mvn clean deploy -pl apollo-client-config-data -DskipTests=true -Prelease "-Dreleases.repo=https://oss.sonatype.org/service/local/staging/deploy/maven2" "-Dsnapshots.repo=https://oss.sonatype.org/content/repositories/snapshots"
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
         MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}

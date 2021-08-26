@@ -55,8 +55,17 @@
 		<url>https://github.com/ctripcorp/apollo/issues</url>
 	</issueManagement>
 
+	<developers>
+		<developer>
+			<id>apollo</id>
+			<name>The Apollo Project Contributors</name>
+			<email>apollo-config@googlegroups.com</email>
+			<url>https://www.apolloconfig.com/</url>
+		</developer>
+	</developers>
+
 	<properties>
-		<revision>1.9.0</revision>
+		<revision>1.10.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.4.2</spring-boot.version>

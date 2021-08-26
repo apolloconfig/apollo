@@ -90,7 +90,7 @@ spec:
                 path: application-github.properties
       
       containers:
-        - image: apolloconfig/apollo-adminservice:1.9.0
+        - image: apolloconfig/apollo-adminservice:1.10.0-SNAPSHOT
           imagePullPolicy: IfNotPresent
           name: container-apollo-admin-server-uat
           ports:
