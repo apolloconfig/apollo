@@ -5,8 +5,8 @@
 ## 1.1 环境要求
     
 * Java: 1.7+
-* Guava: 15.0+
-    * Apollo客户端默认会引用Guava 19，如果你的项目引用了其它版本，请确保版本号大于等于15.0
+* Guava: 20.0+
+    * Apollo客户端默认会引用Guava 29，如果你的项目引用了其它版本，请确保版本号大于等于20.0
 
 >注：对于Apollo客户端，如果有需要的话，可以做少量代码修改来降级到Java 1.6，详细信息可以参考[Issue 483](https://github.com/ctripcorp/apollo/issues/483)
 

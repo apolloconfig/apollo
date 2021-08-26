@@ -192,6 +192,13 @@
                         ng-click="modifyByText(namespace)">
 
                     <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                            title="{{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory.SortByKey' | translate }}" ng-show="namespace.viewType == 'history' && namespace.displayControl.currentOperateBranch == 'master'
+                        && !namespace.isLinkedNamespace" ng-click="toggleHistorySearchInput(namespace)">
+                        <span class="glyphicon glyphicon-filter"></span>
+                        {{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory' | translate }}
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
                         title="{{'Component.Namespace.Master.Items.SortByKey' | translate }}" ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
                         && !namespace.isLinkedNamespace" ng-click="toggleItemSearchInput(namespace)">
                         <span class="glyphicon glyphicon-filter"></span>
@@ -764,6 +771,12 @@
 
             <!--history view-->
             <div class="J_historyview history-view" ng-show="namespace.viewType == 'history'">
+                <!-- 过滤更改历史 -->
+                <div class="search-input" ng-show="namespace.displayControl.showHistorySearchInput">
+                    <input type="text" class="form-control"
+                           placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
+                           ng-model="namespace.HistorySearchKey" ng-change="searchHistory(namespace)">
+                </div>
                 <div class="media" ng-show="namespace.commits && namespace.commits.length"
                     ng-repeat="commits in namespace.commits">
                     <div class="media-body">

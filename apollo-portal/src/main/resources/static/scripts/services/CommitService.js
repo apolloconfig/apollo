@@ -23,13 +23,14 @@ appService.service('CommitService', ['$resource', '$q','AppUtil', function ($res
         }
     });
     return {
-        find_commits: function (appId, env, clusterName, namespaceName, page, size) {
+        find_commits: function (appId, env, clusterName, namespaceName, key, page, size) {
             var d = $q.defer();
             commit_resource.find_commits({
                                              appId: appId,
                                              env: env,
                                              clusterName: clusterName,
                                              namespaceName: namespaceName,
+                                             key: key,
                                              page: page,
                                              size: size
                                          },

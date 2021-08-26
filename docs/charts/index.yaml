@@ -1,4 +1,3 @@
-#
 # Copyright 2021 Apollo Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +15,22 @@
 apiVersion: v1
 entries:
   apollo-portal:
+  - apiVersion: v2
+    appVersion: 1.9.0
+    created: "2021-08-23T20:17:19.061588+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 5013793bf02482003afc17df98e5a6c62fbfb1e17f08ba49f3d27bd02fbd768d
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.3.0.tgz
+    version: 0.3.0
   - apiVersion: v2
     appVersion: 1.8.2
     created: "2021-06-02T23:05:43.379448+08:00"
@@ -113,6 +128,22 @@ entries:
     - apollo-portal-0.1.0.tgz
     version: 0.1.0
   apollo-service:
+  - apiVersion: v2
+    appVersion: 1.9.0
+    created: "2021-08-23T20:17:19.069986+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 8eab8f69d2fddc8b3c930c76f9e930d2e144cc31805b4df8856cf1e945e9333a
+    home: https://github.com/ctripcorp/apollo
+    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.3.0.tgz
+    version: 0.3.0
   - apiVersion: v2
     appVersion: 1.8.2
     created: "2021-06-02T23:05:43.388235+08:00"
