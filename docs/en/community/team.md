@@ -26,6 +26,7 @@ Members include Project Management Committee members and committers. The list is
 | nisiyong    | Stephen Ni    | Qihoo 360    |
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
+| Accelerater | Zhuohao Li    | Daocloud     |
 
 ## Contributors
 
