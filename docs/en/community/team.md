@@ -21,12 +21,12 @@ Members include Project Management Committee members and committers. The list is
 | Github ID   | Name          | Organization |
 | ----------- | ------------- | ------------ |
 | Anilople    | Xiaoquan Wang | Some Bank    |
+| Accelerater | Zhuohao Li    | Daocloud     |
 | klboke      | Kailing Chen  | TapTap       |
 | lepdou      | Le Zhang      | Ant Group    |
 | nisiyong    | Stephen Ni    | Qihoo 360    |
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
-| Accelerater | Zhuohao Li    | Daocloud     |
 
 ## Contributors
 
