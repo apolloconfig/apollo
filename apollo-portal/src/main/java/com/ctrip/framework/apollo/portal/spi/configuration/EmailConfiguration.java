@@ -26,14 +26,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class EmailConfiguration {
 
-    @Configuration
-    public static class DefaultEmailConfiguration {
-        @Bean
-        @ConditionalOnMissingBean(EmailService.class)
-        public EmailService defaultEmailService() {
-            return new DefaultEmailService();
-        }
+  @Configuration
+  public static class DefaultEmailConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(EmailService.class)
+    public EmailService defaultEmailService() {
+      return new DefaultEmailService();
     }
+  }
 
 }
 

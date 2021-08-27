@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
-
 package com.ctrip.framework.apollo.portal.component.config;
+
 
 import com.ctrip.framework.apollo.common.config.RefreshableConfig;
 import com.ctrip.framework.apollo.common.config.RefreshablePropertySource;
@@ -41,239 +41,238 @@ import org.springframework.stereotype.Component;
 @Component
 public class PortalConfig extends RefreshableConfig {
 
-    private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
+  private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
-    private static final Gson GSON = new Gson();
-    private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
-    }.getType();
+  private static final Gson GSON = new Gson();
+  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
+  }.getType();
 
-    /**
-     * meta servers config in "PortalDB.ServerConfig"
-     */
-    private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {
-    }.getType();
+  /**
+   * meta servers config in "PortalDB.ServerConfig"
+   */
+  private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {
+  }.getType();
 
-    private final PortalDBPropertySource portalDBPropertySource;
+  private final PortalDBPropertySource portalDBPropertySource;
 
-    public PortalConfig(final PortalDBPropertySource portalDBPropertySource) {
-        this.portalDBPropertySource = portalDBPropertySource;
+  public PortalConfig(final PortalDBPropertySource portalDBPropertySource) {
+    this.portalDBPropertySource = portalDBPropertySource;
+  }
+
+  @Override
+  public List<RefreshablePropertySource> getRefreshablePropertySources() {
+    return Collections.singletonList(portalDBPropertySource);
+  }
+
+  /***
+   * Level: important
+   **/
+  public List<Env> portalSupportedEnvs() {
+    String[] configurations = getArrayProperty("apollo.portal.envs",
+        new String[]{"FAT", "UAT", "PRO"});
+    List<Env> envs = Lists.newLinkedList();
+
+    for (String env : configurations) {
+      envs.add(Env.addEnvironment(env));
     }
 
-    @Override
-    public List<RefreshablePropertySource> getRefreshablePropertySources() {
-        return Collections.singletonList(portalDBPropertySource);
+    return envs;
+  }
+
+  /**
+   * @return the relationship between environment and its meta server. empty if meet exception
+   */
+  public Map<String, String> getMetaServers() {
+    final String key = "apollo.portal.meta.servers";
+    String jsonContent = getValue(key);
+    if (null == jsonContent) {
+      return Collections.emptyMap();
     }
 
-    /***
-     * Level: important
-     **/
-    public List<Env> portalSupportedEnvs() {
-        String[] configurations = getArrayProperty(
-            "apollo.portal.envs", new String[] {
-                "FAT",
-                "UAT",
-                "PRO"
-            });
-        List<Env> envs = Lists.newLinkedList();
+    // watch out that the format of content may be wrong
+    // that will cause exception
+    Map<String, String> map = Collections.emptyMap();
+    try {
+      // try to parse
+      map = GSON.fromJson(jsonContent, META_SERVERS);
+    } catch (Exception e) {
+      logger.error("Wrong format for: {}", key, e);
+    }
+    return map;
+  }
 
-        for (String env : configurations) {
-            envs.add(Env.addEnvironment(env));
-        }
+  public List<String> superAdmins() {
+    String superAdminConfig = getValue("superAdmin", "");
+    if (Strings.isNullOrEmpty(superAdminConfig)) {
+      return Collections.emptyList();
+    }
+    return splitter.splitToList(superAdminConfig);
+  }
 
-        return envs;
+  public Set<Env> emailSupportedEnvs() {
+    String[] configurations = getArrayProperty("email.supported.envs", null);
+
+    Set<Env> result = Sets.newHashSet();
+    if (configurations == null || configurations.length == 0) {
+      return result;
     }
 
-    /**
-     * @return the relationship between environment and its meta server. empty if meet exception
-     */
-    public Map<String, String> getMetaServers() {
-        final String key = "apollo.portal.meta.servers";
-        String jsonContent = getValue(key);
-        if (null == jsonContent) {
-            return Collections.emptyMap();
-        }
-
-        // watch out that the format of content may be wrong
-        // that will cause exception
-        Map<String, String> map = Collections.emptyMap();
-        try {
-            // try to parse
-            map = GSON.fromJson(jsonContent, META_SERVERS);
-        } catch (Exception e) {
-            logger.error("Wrong format for: {}", key, e);
-        }
-        return map;
+    for (String env : configurations) {
+      result.add(Env.valueOf(env));
     }
 
-    public List<String> superAdmins() {
-        String superAdminConfig = getValue("superAdmin", "");
-        if (Strings.isNullOrEmpty(superAdminConfig)) {
-            return Collections.emptyList();
-        }
-        return splitter.splitToList(superAdminConfig);
+    return result;
+  }
+
+  public Set<Env> webHookSupportedEnvs() {
+    String[] configurations = getArrayProperty("webhook.supported.envs", null);
+
+    Set<Env> result = Sets.newHashSet();
+    if (configurations == null || configurations.length == 0) {
+      return result;
     }
 
-    public Set<Env> emailSupportedEnvs() {
-        String[] configurations = getArrayProperty("email.supported.envs", null);
-
-        Set<Env> result = Sets.newHashSet();
-        if (configurations == null || configurations.length == 0) {
-            return result;
-        }
-
-        for (String env : configurations) {
-            result.add(Env.valueOf(env));
-        }
-
-        return result;
+    for (String env : configurations) {
+      result.add(Env.valueOf(env));
     }
 
-    public Set<Env> webHookSupportedEnvs() {
-        String[] configurations = getArrayProperty("webhook.supported.envs", null);
+    return result;
+  }
 
-        Set<Env> result = Sets.newHashSet();
-        if (configurations == null || configurations.length == 0) {
-            return result;
-        }
+  public boolean isConfigViewMemberOnly(String env) {
+    String[] configViewMemberOnlyEnvs = getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
-        for (String env : configurations) {
-            result.add(Env.valueOf(env));
-        }
-
-        return result;
+    for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
+      if (memberOnlyEnv.equalsIgnoreCase(env)) {
+        return true;
+      }
     }
 
-    public boolean isConfigViewMemberOnly(String env) {
-        String[] configViewMemberOnlyEnvs = getArrayProperty("configView.memberOnly.envs", new String[0]);
+    return false;
+  }
 
-        for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
-            if (memberOnlyEnv.equalsIgnoreCase(env)) {
-                return true;
-            }
-        }
+  /***
+   * Level: normal
+   **/
+  public int connectTimeout() {
+    return getIntProperty("api.connectTimeout", 3000);
+  }
 
-        return false;
+  public int readTimeout() {
+    return getIntProperty("api.readTimeout", 10000);
+  }
+
+  public List<Organization> organizations() {
+
+    String organizations = getValue("organizations");
+    return organizations == null ? Collections.emptyList()
+        : GSON.fromJson(organizations, ORGANIZATION);
+  }
+
+  public String portalAddress() {
+    return getValue("apollo.portal.address");
+  }
+
+  public boolean isEmergencyPublishAllowed(Env env) {
+    String targetEnv = env.name();
+
+    String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs",
+        new String[0]);
+
+    for (String supportedEnv : emergencyPublishSupportedEnvs) {
+      if (Objects.equals(targetEnv, supportedEnv.toUpperCase().trim())) {
+        return true;
+      }
     }
 
-    /***
-     * Level: normal
-     **/
-    public int connectTimeout() {
-        return getIntProperty("api.connectTimeout", 3000);
+    return false;
+  }
+
+  /***
+   * Level: low
+   **/
+  public Set<Env> publishTipsSupportedEnvs() {
+    String[] configurations = getArrayProperty("namespace.publish.tips.supported.envs", null);
+
+    Set<Env> result = Sets.newHashSet();
+    if (configurations == null || configurations.length == 0) {
+      return result;
     }
 
-    public int readTimeout() {
-        return getIntProperty("api.readTimeout", 10000);
+    for (String env : configurations) {
+      result.add(Env.valueOf(env));
     }
 
-    public List<Organization> organizations() {
+    return result;
+  }
 
-        String organizations = getValue("organizations");
-        return organizations == null ? Collections.emptyList() : GSON.fromJson(organizations, ORGANIZATION);
+  public String consumerTokenSalt() {
+    return getValue("consumer.token.salt", "apollo-portal");
+  }
+
+  public boolean isEmailEnabled() {
+    return getBooleanProperty("email.enabled", false);
+  }
+
+  public String emailConfigHost() {
+    return getValue("email.config.host", "");
+  }
+
+  public String emailConfigUser() {
+    return getValue("email.config.user", "");
+  }
+
+  public String emailConfigPassword() {
+    return getValue("email.config.password", "");
+  }
+
+  public String emailSender() {
+    String value = getValue("email.sender", "");
+    if (Strings.isNullOrEmpty(value)) {
+      value = emailConfigUser();
     }
+    return value;
+  }
 
-    public String portalAddress() {
-        return getValue("apollo.portal.address");
-    }
+  public String emailTemplateFramework() {
+    return getValue("email.template.framework", "");
+  }
 
-    public boolean isEmergencyPublishAllowed(Env env) {
-        String targetEnv = env.name();
+  public String emailReleaseDiffModuleTemplate() {
+    return getValue("email.template.release.module.diff", "");
+  }
 
-        String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
+  public String emailRollbackDiffModuleTemplate() {
+    return getValue("email.template.rollback.module.diff", "");
+  }
 
-        for (String supportedEnv : emergencyPublishSupportedEnvs) {
-            if (Objects.equals(targetEnv, supportedEnv.toUpperCase().trim())) {
-                return true;
-            }
-        }
+  public String emailGrayRulesModuleTemplate() {
+    return getValue("email.template.release.module.rules", "");
+  }
 
-        return false;
-    }
+  public String wikiAddress() {
+    return getValue("wiki.address", "https://www.apolloconfig.com");
+  }
 
-    /***
-     * Level: low
-     **/
-    public Set<Env> publishTipsSupportedEnvs() {
-        String[] configurations = getArrayProperty("namespace.publish.tips.supported.envs", null);
+  public boolean canAppAdminCreatePrivateNamespace() {
+    return getBooleanProperty("admin.createPrivateNamespace.switch", true);
+  }
 
-        Set<Env> result = Sets.newHashSet();
-        if (configurations == null || configurations.length == 0) {
-            return result;
-        }
+  public boolean isCreateApplicationPermissionEnabled() {
+    return getBooleanProperty(SystemRoleManagerService.CREATE_APPLICATION_LIMIT_SWITCH_KEY, false);
+  }
 
-        for (String env : configurations) {
-            result.add(Env.valueOf(env));
-        }
+  public boolean isManageAppMasterPermissionEnabled() {
+    return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
+  }
 
-        return result;
-    }
+  public String getAdminServiceAccessTokens() {
+    return getValue("admin-service.access.tokens");
+  }
 
-    public String consumerTokenSalt() {
-        return getValue("consumer.token.salt", "apollo-portal");
-    }
-
-    public boolean isEmailEnabled() {
-        return getBooleanProperty("email.enabled", false);
-    }
-
-    public String emailConfigHost() {
-        return getValue("email.config.host", "");
-    }
-
-    public String emailConfigUser() {
-        return getValue("email.config.user", "");
-    }
-
-    public String emailConfigPassword() {
-        return getValue("email.config.password", "");
-    }
-
-    public String emailSender() {
-        String value = getValue("email.sender", "");
-        if (Strings.isNullOrEmpty(value)) {
-            value = emailConfigUser();
-        }
-        return value;
-    }
-
-    public String emailTemplateFramework() {
-        return getValue("email.template.framework", "");
-    }
-
-    public String emailReleaseDiffModuleTemplate() {
-        return getValue("email.template.release.module.diff", "");
-    }
-
-    public String emailRollbackDiffModuleTemplate() {
-        return getValue("email.template.rollback.module.diff", "");
-    }
-
-    public String emailGrayRulesModuleTemplate() {
-        return getValue("email.template.release.module.rules", "");
-    }
-
-    public String wikiAddress() {
-        return getValue("wiki.address", "https://www.apolloconfig.com");
-    }
-
-    public boolean canAppAdminCreatePrivateNamespace() {
-        return getBooleanProperty("admin.createPrivateNamespace.switch", true);
-    }
-
-    public boolean isCreateApplicationPermissionEnabled() {
-        return getBooleanProperty(SystemRoleManagerService.CREATE_APPLICATION_LIMIT_SWITCH_KEY, false);
-    }
-
-    public boolean isManageAppMasterPermissionEnabled() {
-        return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
-    }
-
-    public String getAdminServiceAccessTokens() {
-        return getValue("admin-service.access.tokens");
-    }
-
-    public String[] webHookUrls() {
-        return getArrayProperty("config.release.webhook.service.url", null);
-    }
+  public String[] webHookUrls() {
+    return getArrayProperty("config.release.webhook.service.url", null);
+  }
 
 }
