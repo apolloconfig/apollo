@@ -122,18 +122,14 @@ public class AuthConfiguration {
       jdbcUserDetailsManager
           .setCreateUserSql("insert into `Users` (Username, Password, Enabled) values (?,?,?)");
       jdbcUserDetailsManager
-          .setUpdateUserSql(
-              "update `Users` set Password = ?, Enabled = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
-      jdbcUserDetailsManager.setDeleteUserSql(
-          "delete from `Users` where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+          .setUpdateUserSql("update `Users` set Password = ?, Enabled = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+      jdbcUserDetailsManager.setDeleteUserSql("delete from `Users` where id = (select u.id from (select id from `Users` where Username = ?) as u)");
       jdbcUserDetailsManager
           .setCreateAuthoritySql("insert into `Authorities` (Username, Authority) values (?,?)");
       jdbcUserDetailsManager
-          .setDeleteUserAuthoritiesSql(
-              "delete from `Authorities` where id in (select a.id from (select id from `Authorities` where Username = ?) as a)");
+          .setDeleteUserAuthoritiesSql("delete from `Authorities` where id in (select a.id from (select id from `Authorities` where Username = ?) as a)");
       jdbcUserDetailsManager
-          .setChangePasswordSql(
-              "update `Users` set Password = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+          .setChangePasswordSql("update `Users` set Password = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
 
       return jdbcUserDetailsManager;
     }
@@ -268,12 +264,10 @@ public class AuthConfiguration {
       }
 
       FilterLdapByGroupUserSearch filterLdapByGroupUserSearch = new FilterLdapByGroupUserSearch(
-          ldapProperties.getBase(), ldapProperties.getSearchFilter(),
-          ldapExtendProperties.getGroup().getGroupBase(),
+          ldapProperties.getBase(), ldapProperties.getSearchFilter(), ldapExtendProperties.getGroup().getGroupBase(),
           ldapContextSource, ldapExtendProperties.getGroup().getGroupSearch(),
           ldapExtendProperties.getMapping().getRdnKey(),
-          ldapExtendProperties.getGroup().getGroupMembership(),
-          ldapExtendProperties.getMapping().getLoginId()
+          ldapExtendProperties.getGroup().getGroupMembership(), ldapExtendProperties.getMapping().getLoginId()
       );
       filterLdapByGroupUserSearch.setSearchSubtree(true);
       return filterLdapByGroupUserSearch;
@@ -304,8 +298,7 @@ public class AuthConfiguration {
           .httpBasic();
       http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling()
-          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
     }
 
     @Override
@@ -315,10 +308,7 @@ public class AuthConfiguration {
   }
 
   @Profile("oidc")
-  @EnableConfigurationProperties({
-      OAuth2ClientProperties.class,
-      OAuth2ResourceServerProperties.class
-  })
+  @EnableConfigurationProperties({OAuth2ClientProperties.class, OAuth2ResourceServerProperties.class})
   @Configuration
   static class OidcAuthAutoConfiguration {
 
@@ -349,8 +339,7 @@ public class AuthConfiguration {
     @Bean
     @ConditionalOnMissingBean(JdbcUserDetailsManager.class)
     public JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
       return SpringSecurityAuthAutoConfiguration
           .jdbcUserDetailsManager(passwordEncoder, auth, datasource);
     }
@@ -363,8 +352,7 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(
-        OidcLocalUserService oidcLocalUserService) {
+    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(OidcLocalUserService oidcLocalUserService) {
       return new OidcAuthenticationSuccessEventListener(oidcLocalUserService);
     }
   }
@@ -414,11 +402,7 @@ public class AuthConfiguration {
    * default profile
    */
   @Configuration
-  @ConditionalOnMissingProfile({
-      "auth",
-      "ldap",
-      "oidc"
-  })
+  @ConditionalOnMissingProfile({"ctrip", "auth", "ldap", "oidc"})
   static class DefaultAuthAutoConfiguration {
 
     @Bean
@@ -446,11 +430,7 @@ public class AuthConfiguration {
     }
   }
 
-  @ConditionalOnMissingProfile({
-      "auth",
-      "ldap",
-      "oidc"
-  })
+  @ConditionalOnMissingProfile({"auth", "ldap", "oidc"})
   @Configuration
   @EnableWebSecurity
   @EnableGlobalMethodSecurity(prePostEnabled = true)
