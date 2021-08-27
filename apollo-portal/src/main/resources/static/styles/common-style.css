@@ -534,18 +534,19 @@ table th {
 
 /*搜索框*/
 ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0);
+  /*滚动条整体样式*/
+  width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 8px;
 }
 
-::-webkit-scrollbar-thumb:vertical {
-    background: rgba(255, 255, 255, 0);
-    border-radius: 10px;
+::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 10px;
+  background-color: rgba(178, 178, 178, 0.8);
 }
 
-::-webkit-scrollbar-thumb:vertical:hover {
-    background: rgba(255, 255, 255, 0);
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(178, 178, 178, 1);
 }
 
 .app-list {
