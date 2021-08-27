@@ -73,19 +73,9 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 @Configuration
 public class AuthConfiguration {
 
-  private static final String[] BY_PASS_URLS = {
-      "/prometheus/**",
-      "/metrics/**",
-      "/openapi/**",
-      "/vendor/**",
-      "/styles/**",
-      "/scripts/**",
-      "/views/**",
-      "/img/**",
-      "/i18n/**",
-      "/prefix-path",
-      "/health"
-  };
+  private static final String[] BY_PASS_URLS = {"/prometheus/**", "/metrics/**", "/openapi/**",
+      "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path",
+      "/health"};
 
   /**
    * spring.profiles.active = auth
@@ -120,12 +110,10 @@ public class AuthConfiguration {
 
     @Bean
     public static JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
           .passwordEncoder(passwordEncoder).dataSource(datasource)
-          .usersByUsernameQuery(
-              "select Username,Password,Enabled from `Users` where Username = ?")
+          .usersByUsernameQuery("select Username,Password,Enabled from `Users` where Username = ?")
           .authoritiesByUsernameQuery(
               "select Username,Authority from `Authorities` where Username = ?")
           .getUserDetailsService();
@@ -176,17 +164,11 @@ public class AuthConfiguration {
       http.authorizeRequests()
           .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").hasAnyRole(USER_ROLE);
-      http.formLogin()
-          .loginPage("/signin")
-          .defaultSuccessUrl("/", true)
-          .permitAll()
-          .failureUrl("/signin?#/error")
-          .and()
+      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
           .httpBasic();
       http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling()
-          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
     }
 
   }
@@ -196,17 +178,13 @@ public class AuthConfiguration {
    */
   @Configuration
   @Profile("ldap")
-  @EnableConfigurationProperties({
-      LdapProperties.class,
-      LdapExtendProperties.class
-  })
+  @EnableConfigurationProperties({LdapProperties.class,LdapExtendProperties.class})
   static class SpringSecurityLDAPAuthAutoConfiguration {
 
     private final LdapProperties properties;
     private final Environment environment;
 
-    public SpringSecurityLDAPAuthAutoConfiguration(final LdapProperties properties,
-        final Environment environment) {
+    public SpringSecurityLDAPAuthAutoConfiguration(final LdapProperties properties, final Environment environment) {
       this.properties = properties;
       this.environment = environment;
     }
@@ -283,8 +261,7 @@ public class AuthConfiguration {
       if (ldapExtendProperties.getGroup() == null || StringUtils
           .isBlank(ldapExtendProperties.getGroup().getGroupSearch())) {
         FilterBasedLdapUserSearch filterBasedLdapUserSearch = new FilterBasedLdapUserSearch("",
-            ldapProperties.getSearchFilter(),
-            ldapContextSource
+            ldapProperties.getSearchFilter(), ldapContextSource
         );
         filterBasedLdapUserSearch.setSearchSubtree(true);
         return filterBasedLdapUserSearch;
@@ -323,12 +300,7 @@ public class AuthConfiguration {
       http.authorizeRequests()
           .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").authenticated();
-      http.formLogin()
-          .loginPage("/signin")
-          .defaultSuccessUrl("/", true)
-          .permitAll()
-          .failureUrl("/signin?#/error")
-          .and()
+      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
           .httpBasic();
       http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
