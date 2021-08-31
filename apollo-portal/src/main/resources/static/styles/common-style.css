@@ -532,7 +532,7 @@ table th {
     padding: 5px 0 5px 50px;
 }
 
-/*搜索框*/
+/*搜索框
 ::-webkit-scrollbar {
     width: 0;
     height: 0;
@@ -546,6 +546,12 @@ table th {
 
 ::-webkit-scrollbar-thumb:vertical:hover {
     background: rgba(255, 255, 255, 0);
+}*/
+
+.namespace-view-table-scrollbar {
+    max-height: 600px;
+    width: 100%;
+    overflow-y: scroll;
 }
 
 .app-list {
