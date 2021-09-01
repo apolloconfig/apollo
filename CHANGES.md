@@ -11,6 +11,7 @@ Apollo 1.10.0
 * [switch apollo.config-service log from warning to info level](https://github.com/ctripcorp/apollo/pull/3884)
 * [Make Access Key Timestamp check configurable](https://github.com/ctripcorp/apollo/pull/3908)
 * [remove ctrip profile](https://github.com/ctripcorp/apollo/pull/3920)
+* [namespace & release & rollback scrollbar](https://github.com/apolloconfig/apollo/pull/3936)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
