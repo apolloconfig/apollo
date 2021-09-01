@@ -67,7 +67,7 @@ public class ConfigServiceAutoConfiguration {
   public FilterRegistrationBean clientAuthenticationFilter(AccessKeyUtil accessKeyUtil) {
     FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean();
 
-    filterRegistrationBean.setFilter(new ClientAuthenticationFilter(accessKeyUtil));
+    filterRegistrationBean.setFilter(new ClientAuthenticationFilter(bizConfig, accessKeyUtil));
     filterRegistrationBean.addUrlPatterns("/configs/*");
     filterRegistrationBean.addUrlPatterns("/configfiles/*");
     filterRegistrationBean.addUrlPatterns("/notifications/v2/*");

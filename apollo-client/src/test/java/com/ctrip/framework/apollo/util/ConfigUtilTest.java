@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.util;
 
 import com.ctrip.framework.apollo.core.ConfigConsts;
 
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import java.io.File;
 import org.junit.After;
@@ -43,8 +44,9 @@ public class ConfigUtilTest {
     System.clearProperty("apollo.configCacheSize");
     System.clearProperty("apollo.longPollingInitialDelayInMills");
     System.clearProperty("apollo.autoUpdateInjectedSpringProperties");
-    System.clearProperty("apollo.cacheDir");
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR);
     System.clearProperty(PropertiesFactory.APOLLO_PROPERTY_ORDER_ENABLE);
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE);
   }
 
   @Test
@@ -215,7 +217,7 @@ public class ConfigUtilTest {
     String someCacheDir = "someCacheDir";
     String someAppId = "someAppId";
 
-    System.setProperty("apollo.cacheDir", someCacheDir);
+    System.setProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR, someCacheDir);
 
     ConfigUtil configUtil = spy(new ConfigUtil());
 
@@ -251,5 +253,15 @@ public class ConfigUtilTest {
 
     assertEquals(propertiesOrdered,
         configUtil.isPropertiesOrderEnabled());
+  }
+
+  @Test
+  public void test() {
+    ConfigUtil configUtil = new ConfigUtil();
+    assertFalse(configUtil.isPropertyNamesCacheEnabled());
+
+    System.setProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE, "true");
+    configUtil = new ConfigUtil();
+    assertTrue(configUtil.isPropertyNamesCacheEnabled());
   }
 }

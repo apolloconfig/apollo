@@ -295,7 +295,7 @@ directive_module.directive('apollouserselector', function ($compile, $window,App
                         data.forEach(function (user) {
                             users.push({
                                 id: user.userId,
-                                text: user.userId + " | " + user.name
+                                text: user.userId + " | " + user.name + " | " + user.email
                             })
                         });
                         return {
@@ -346,7 +346,7 @@ directive_module.directive('apollomultipleuserselector', function ($compile, $wi
                         data.forEach(function (user) {
                             users.push({
                                 id: user.userId,
-                                text: user.userId + " | " + user.name
+                                text: user.userId + " | " + user.name + " | " + user.email
                             })
                         });
                         return {

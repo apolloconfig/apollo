@@ -26,7 +26,7 @@
             <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="!jsonObject" ng-bind="text">
             </pre>
             <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="jsonObject"
-                ng-bind="jsonObject | json:4">
+                ng-bind="jsonObject | json:4 | jsonBigIntFilter">
             </pre>
         </div>
     </div>

@@ -79,7 +79,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
     someDC = "someDC";
     grayClientIp = "1.1.1.1";
     nonGrayClientIp = "2.2.2.2";
-    executorService = Executors.newSingleThreadExecutor();
+    executorService = Executors.newFixedThreadPool(1);
   }
 
   @Test

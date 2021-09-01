@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import java.io.File;
 import java.io.FileInputStream;
 import org.junit.Before;
@@ -57,11 +58,11 @@ public class DefaultApplicationProviderTest {
   public void testLoadAppPropertiesWithSystemProperty() throws Exception {
     String someAppId = "someAppId";
     String someSecret = "someSecret";
-    System.setProperty("app.id", someAppId);
-    System.setProperty("apollo.accesskey.secret", someSecret);
+    System.setProperty(ApolloClientSystemConsts.APP_ID, someAppId);
+    System.setProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET, someSecret);
     defaultApplicationProvider.initialize();
-    System.clearProperty("app.id");
-    System.clearProperty("apollo.accesskey.secret");
+    System.clearProperty(ApolloClientSystemConsts.APP_ID);
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
 
     assertEquals(someAppId, defaultApplicationProvider.getAppId());
     assertTrue(defaultApplicationProvider.isAppIdSet());

@@ -383,6 +383,16 @@ public class AdminServiceAPI {
 
       return Arrays.asList(commitDTOs);
     }
+
+    public List<CommitDTO> findByKey(String appId, Env env, String clusterName, String namespaceName, String key, int page, int size) {
+
+      CommitDTO[] commitDTOs = restTemplate.get(env,
+              "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/commit?key={key}&page={page}&size={size}",
+              CommitDTO[].class,
+              appId, clusterName, namespaceName, key, page, size);
+
+      return Arrays.asList(commitDTOs);
+    }
   }
 
   @Service
