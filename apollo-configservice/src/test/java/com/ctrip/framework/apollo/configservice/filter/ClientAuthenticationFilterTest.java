@@ -22,6 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.configservice.util.AccessKeyUtil;
 import com.ctrip.framework.apollo.core.signature.Signature;
 import com.google.common.collect.Lists;
@@ -45,6 +46,8 @@ public class ClientAuthenticationFilterTest {
   private ClientAuthenticationFilter clientAuthenticationFilter;
 
   @Mock
+  private BizConfig bizConfig;
+  @Mock
   private AccessKeyUtil accessKeyUtil;
   @Mock
   private HttpServletRequest request;
@@ -55,7 +58,7 @@ public class ClientAuthenticationFilterTest {
 
   @Before
   public void setUp() {
-    clientAuthenticationFilter = new ClientAuthenticationFilter(accessKeyUtil);
+    clientAuthenticationFilter = new ClientAuthenticationFilter(bizConfig, accessKeyUtil);
   }
 
   @Test
@@ -113,6 +116,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(errorAuthorization);
+    when(bizConfig.accessKeyAuthTimeDiffTolerance()).thenReturn(60);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
@@ -133,6 +137,7 @@ public class ClientAuthenticationFilterTest {
     when(accessKeyUtil.buildSignature(any(), any(), any(), any())).thenReturn(availableSignature);
     when(request.getHeader(Signature.HTTP_HEADER_TIMESTAMP)).thenReturn(oneMinAgoTimestamp);
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(correctAuthorization);
+    when(bizConfig.accessKeyAuthTimeDiffTolerance()).thenReturn(60);
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 

@@ -63,4 +63,13 @@ public class AppOpenApiService extends AbstractOpenApiService {
       throw new RuntimeException(String.format("Load app information for appIds: %s failed", appIds), ex);
     }
   }
+
+  public List<OpenAppDTO> getAuthorizedApps() {
+    String path = "apps/authorized";
+    try(CloseableHttpResponse response = this.get(path)) {
+      return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_APP_DTO_LIST_TYPE);
+    } catch (Throwable ex) {
+      throw new RuntimeException("Load authorized apps failed", ex);
+    }
+  }
 }

@@ -1,6 +1,12 @@
 # Thank you 
 
 <hr />
+<img src="en/images/community/ctrip.jpeg" alt="ctrip" style="height: 50px">
+
+The Apollo project was born in Ctrip framework R&D department, and received encouragement and support from various parties during the initial development process.
+Thanks Ctrip for the contribution to the Apollo community.
+
+<hr />
 <img src="en/images/community/jetbrains.svg" alt="jetbrains" style="height: 80px; margin-right: 20px">
 <img src="en/images/community/intellij-idea.svg" alt="intellij-idea" style="width: 75px" >
 

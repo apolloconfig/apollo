@@ -1,6 +1,11 @@
 # 致谢
 
 <hr />
+<img src="zh/images/community/ctrip.png" alt="ctrip" style="height: 50px">
+
+Apollo 项目诞生于携程框架研发部，在初始开发过程中得到了各方的鼓励和支持，感谢携程为 Apollo 社区做出的贡献。
+
+<hr />
 <img src="en/images/community/jetbrains.svg" alt="jetbrains" style="height: 80px; margin-right: 20px">
 <img src="en/images/community/intellij-idea.svg" alt="intellij-idea" style="width: 75px" >
 
