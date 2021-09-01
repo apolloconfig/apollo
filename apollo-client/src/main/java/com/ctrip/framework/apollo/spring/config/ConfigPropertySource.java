@@ -36,6 +36,11 @@ public class ConfigPropertySource extends EnumerablePropertySource<Config> {
   }
 
   @Override
+  public boolean containsProperty(String name) {
+    return this.source.getProperty(name, null) != null;
+  }
+
+  @Override
   public String[] getPropertyNames() {
     Set<String> propertyNames = this.source.getPropertyNames();
     if (propertyNames.isEmpty()) {

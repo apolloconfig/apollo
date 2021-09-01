@@ -36,7 +36,7 @@ public abstract class AbstractConfigService implements ConfigService {
   @Override
   public Release loadConfig(String clientAppId, String clientIp, String configAppId, String configClusterName,
       String configNamespace, String dataCenter, ApolloNotificationMessages clientMessages) {
-    // load from specified cluster fist
+    // load from specified cluster first
     if (!Objects.equals(ConfigConsts.CLUSTER_NAME_DEFAULT, configClusterName)) {
       Release clusterRelease = findRelease(clientAppId, clientIp, configAppId, configClusterName, configNamespace,
           clientMessages);

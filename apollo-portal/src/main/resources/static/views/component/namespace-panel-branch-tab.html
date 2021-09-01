@@ -538,20 +538,80 @@
                         </table>
 
                         <!--not properties format-->
-                        <div ng-if="!namespace.isPropertiesFormat">
-                            <div ng-repeat="item in commits.changeSets.createItems">
-                                <textarea class="form-control no-radius" rows="20" ng-disabled="true"
-                                    ng-bind="item.value">
-                                </textarea>
-                            </div>
+                        <table class="table table-bordered table-striped text-center table-hover"
+                               style="margin-top: 5px;" ng-if="!namespace.isPropertiesFormat">
+                            <thead>
+                            <tr>
+                                <th>
+                                    {{'Component.Namespace.Branch.History.ItemType' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Branch.History.ItemOldValue' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Branch.History.ItemNewValue' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Branch.History.ItemComment' | translate }}
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-                            <div ng-repeat="item in commits.changeSets.updateItems">
-                                <textarea class="form-control no-radius" rows="20" ng-disabled="true"
-                                    ng-bind="item.newItem.value">
-                                </textarea>
-                            </div>
-                        </div>
-
+                            <!--兼容老数据,不显示item类型为空行和注释的item-->
+                            <tr ng-repeat="item in commits.changeSets.createItems" ng-show="item.key">
+                                <td width="6%">
+                                    {{'Component.Namespace.Branch.History.NewAdded' | translate }}
+                                </td>
+                                <td width="28%">
+                                </td>
+                                <td width="28%" class="cursor-pointer" title="{{item.value}}"
+                                    ng-click="showText(item.value)">
+                                    <span ng-bind="item.value | limitTo: 250"></span>
+                                    <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="18%" title="{{item.comment}}">
+                                    <span ng-bind="item.comment | limitTo: 250"></span>
+                                    <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in commits.changeSets.updateItems">
+                                <td width="6%">
+                                    {{'Component.Namespace.Branch.History.Modified' | translate }}
+                                </td>
+                                <td width="28%" class="cursor-pointer" title="{{item.oldItem.value}}"
+                                    ng-click="showText(item.oldItem.value)">
+                                    <span ng-bind="item.oldItem.value | limitTo: 250"></span>
+                                    <span ng-bind="item.oldItem.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="28%" class="cursor-pointer" title="{{item.newItem.value}}"
+                                    ng-click="showText(item.newItem.value)">
+                                    <span ng-bind="item.newItem.value | limitTo: 250"></span>
+                                    <span ng-bind="item.newItem.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="18%" title="{{item.newItem.comment}}">
+                                    <span ng-bind="item.newItem.comment | limitTo: 250"></span>
+                                    <span ng-bind="item.newItem.comment.length > 250 ?'...' : ''"></span>
+                                </td>
+                            </tr>
+                            <tr ng-repeat="item in commits.changeSets.deleteItems"
+                                ng-show="item.key || item.comment">
+                                <td width="6%">
+                                    {{'Component.Namespace.Branch.History.Deleted' | translate }}
+                                </td>
+                                <td width="28%" title="{{item.value}}">
+                                    <span ng-bind="item.value | limitTo: 250"></span>
+                                    <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="28%">
+                                </td>
+                                <td width="18%" title="{{item.comment}}">
+                                    <span ng-bind="item.comment | limitTo: 250"></span>
+                                    <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
 
                     </div>
                     <hr>

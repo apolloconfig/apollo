@@ -21,15 +21,15 @@ kubectl apply -f apollo-env-dev/service-mysql-for-apollo-dev-env.yaml --record &
 kubectl apply -f apollo-env-dev/service-apollo-config-server-dev.yaml --record && \
 kubectl apply -f apollo-env-dev/service-apollo-admin-server-dev.yaml --record
 
-# fat-env(test-alpha-env)
-kubectl apply -f apollo-env-test-alpha/service-mysql-for-apollo-test-alpha-env.yaml --record && \
-kubectl apply -f apollo-env-test-alpha/service-apollo-config-server-test-alpha.yaml --record && \
-kubectl apply -f apollo-env-test-alpha/service-apollo-admin-server-test-alpha.yaml --record
+# fat-env
+kubectl apply -f apollo-env-fat/service-mysql-for-apollo-fat-env.yaml --record && \
+kubectl apply -f apollo-env-fat/service-apollo-config-server-fat.yaml --record && \
+kubectl apply -f apollo-env-fat/service-apollo-admin-server-fat.yaml --record
 
-# uat-env(test-beta-env)
-kubectl apply -f apollo-env-test-beta/service-mysql-for-apollo-test-beta-env.yaml --record && \
-kubectl apply -f apollo-env-test-beta/service-apollo-config-server-test-beta.yaml --record && \
-kubectl apply -f apollo-env-test-beta/service-apollo-admin-server-test-beta.yaml --record
+# uat-env
+kubectl apply -f apollo-env-uat/service-mysql-for-apollo-uat-env.yaml --record && \
+kubectl apply -f apollo-env-uat/service-apollo-config-server-uat.yaml --record && \
+kubectl apply -f apollo-env-uat/service-apollo-admin-server-uat.yaml --record
 
 # prod-env
 kubectl apply -f apollo-env-prod/service-mysql-for-apollo-prod-env.yaml --record && \

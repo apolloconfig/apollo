@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.model;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,7 +27,6 @@ import java.util.Set;
 public class ConfigChangeEvent {
   private final String m_namespace;
   private final Map<String, ConfigChange> m_changes;
-
   /**
    * Constructor.
    * @param namespace the namespace of this change
@@ -34,8 +34,8 @@ public class ConfigChangeEvent {
    */
   public ConfigChangeEvent(String namespace,
                            Map<String, ConfigChange> changes) {
-    m_namespace = namespace;
-    m_changes = changes;
+    this.m_namespace = namespace;
+    this.m_changes = changes;
   }
 
   /**
@@ -44,6 +44,15 @@ public class ConfigChangeEvent {
    */
   public Set<String> changedKeys() {
     return m_changes.keySet();
+  }
+
+  /**
+   * Maybe subclass override this method.
+   * 
+   * @return interested and changed keys
+   */
+  public Set<String> interestedChangedKeys() {
+    return Collections.emptySet();
   }
 
   /**

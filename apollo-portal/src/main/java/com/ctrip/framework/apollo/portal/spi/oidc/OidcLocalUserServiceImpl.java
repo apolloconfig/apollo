@@ -31,6 +31,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -42,6 +44,10 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
 
   private final Collection<? extends GrantedAuthority> authorities = Collections
       .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+
+  private final PasswordEncoder placeholderDelegatingPasswordEncoder = new DelegatingPasswordEncoder(
+      PlaceholderPasswordEncoder.ENCODING_ID, Collections
+      .singletonMap(PlaceholderPasswordEncoder.ENCODING_ID, new PlaceholderPasswordEncoder()));
 
   private final JdbcUserDetailsManager userDetailsManager;
 
@@ -58,18 +64,9 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
   @Override
   public void createLocalUser(UserInfo newUserInfo) {
     UserDetails user = new User(newUserInfo.getUserId(),
-        "{nonsensical}" + this.nonsensicalPassword(), authorities);
+        this.placeholderDelegatingPasswordEncoder.encode(""), authorities);
     userDetailsManager.createUser(user);
     this.updateUserInfoInternal(newUserInfo);
-  }
-
-  /**
-   * generate a random password with no meaning
-   */
-  private String nonsensicalPassword() {
-    byte[] bytes = new byte[32];
-    ThreadLocalRandom.current().nextBytes(bytes);
-    return Base64.getEncoder().encodeToString(bytes);
   }
 
   private void updateUserInfoInternal(UserInfo newUserInfo) {

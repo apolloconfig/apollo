@@ -17,8 +17,8 @@ apiVersion: v2
 name: apollo-portal
 description: A Helm chart for Apollo Portal
 type: application
-version: 0.3.0
-appVersion: 1.9.0-SNAPSHOT
+version: 0.4.0
+appVersion: 1.10.0-SNAPSHOT
 home: https://github.com/ctripcorp/apollo
 icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
 maintainers:

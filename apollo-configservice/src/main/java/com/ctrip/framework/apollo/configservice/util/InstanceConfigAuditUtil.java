@@ -169,11 +169,7 @@ public class InstanceConfigAuditUtil implements InitializingBean {
     auditExecutorService.submit(() -> {
       while (!auditStopped.get() && !Thread.currentThread().isInterrupted()) {
         try {
-          InstanceConfigAuditModel model = audits.poll();
-          if (model == null) {
-            TimeUnit.SECONDS.sleep(1);
-            continue;
-          }
+          InstanceConfigAuditModel model = audits.take();
           doAudit(model);
         } catch (Throwable ex) {
           Tracer.logError(ex);

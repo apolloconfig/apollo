@@ -23,7 +23,10 @@ spring:
       hibernate:
         query:
           plan_cache_max_size: 192 # limit query plan cache max size
-
+  session:
+    store-type: jdbc
+    jdbc:
+      initialize-schema: never
 server:
   port: 8070
   compression:

@@ -5,8 +5,8 @@
 ## 1.1 环境要求
     
 * Java: 1.7+
-* Guava: 15.0+
-    * Apollo客户端默认会引用Guava 19，如果你的项目引用了其它版本，请确保版本号大于等于15.0
+* Guava: 20.0+
+    * Apollo客户端默认会引用Guava 29，如果你的项目引用了其它版本，请确保版本号大于等于20.0
 
 >注：对于Apollo客户端，如果有需要的话，可以做少量代码修改来降级到Java 1.6，详细信息可以参考[Issue 483](https://github.com/ctripcorp/apollo/issues/483)
 
@@ -127,17 +127,17 @@ MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github
 
 针对以上场景，可以通过直接指定Config Service地址的方式来跳过Meta Server服务发现，按照优先级从高到低分别为：
 
-1. 通过Java System Property `apollo.configService`
-    * 可以通过Java的System Property `apollo.configService`来指定
-    * 在Java程序启动脚本中，可以指定`-Dapollo.configService=http://config-service-url:port`
+1. 通过Java System Property `apollo.config-service`(1.9.0+) 或者 `apollo.configService`(1.9.0之前)
+    * 可以通过Java的System Property `apollo.config-service`(1.9.0+) 或者 `apollo.configService`(1.9.0之前)来指定
+    * 在Java程序启动脚本中，可以指定`-Dapollo.config-service=http://config-service-url:port`
         * 如果是运行jar文件，需要注意格式是`java -Dapollo.configService=http://config-service-url:port -jar xxx.jar`
-    * 也可以通过程序指定，如`System.setProperty("apollo.configService", "http://config-service-url:port");`
-2. 通过操作系统的System Environment`APOLLO_CONFIGSERVICE`
-    * 可以通过操作系统的System Environment `APOLLO_CONFIGSERVICE`来指定
+    * 也可以通过程序指定，如`System.setProperty("apollo.config-service", "http://config-service-url:port");`
+2. 通过操作系统的System Environment `APOLLO_CONFIG_SERVICE`(1.9.0+) 或者 `APOLLO_CONFIGSERVICE`(1.9.0之前)
+    * 可以通过操作系统的System Environment `APOLLO_CONFIG_SERVICE`(1.9.0+) 或者 `APOLLO_CONFIGSERVICE`(1.9.0之前)来指定
     * 注意key为全大写，且中间是`_`分隔
 4. 通过`server.properties`配置文件
-    * 可以在`server.properties`配置文件中指定`apollo.configService=http://config-service-url:port`
-    * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
+    * 可以在`server.properties`配置文件中指定`apollo.config-service=http://config-service-url:port`(1.9.0+) 或者 `apollo.configService=http://config-service-url:port`(1.9.0之前)
+     * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
     * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
 ### 1.2.3 本地缓存路径
@@ -166,18 +166,18 @@ batch=2000
 
 1.0.0版本开始支持以下方式自定义缓存路径，按照优先级从高到低分别为：
 
-1. 通过Java System Property `apollo.cacheDir`
-    * 可以通过Java的System Property `apollo.cacheDir`来指定
-    * 在Java程序启动脚本中，可以指定`-Dapollo.cacheDir=/opt/data/some-cache-dir`
-        * 如果是运行jar文件，需要注意格式是`java -Dapollo.cacheDir=/opt/data/some-cache-dir -jar xxx.jar`
-    * 也可以通过程序指定，如`System.setProperty("apollo.cacheDir", "/opt/data/some-cache-dir");`
+1. 通过Java System Property `apollo.cache-dir`(1.9.0+) 或者 `apollo.cacheDir`(1.9.0之前)
+    * 可以通过Java的System Property `apollo.cache-dir`(1.9.0+) 或者 `apollo.cacheDir`(1.9.0之前)来指定
+    * 在Java程序启动脚本中，可以指定`-Dapollo.cache-dir=/opt/data/some-cache-dir`(1.9.0+) 或者 `apollo.cacheDir=/opt/data/some-cache-dir`(1.9.0之前)
+        * 如果是运行jar文件，需要注意格式是`java -Dapollo.cache-dir=/opt/data/some-cache-dir -jar xxx.jar`(1.9.0+) 或者 `java -Dapollo.cacheDir=/opt/data/some-cache-dir -jar xxx.jar`(1.9.0之前)
+    * 也可以通过程序指定，如`System.setProperty("apollo.cache-dir", "/opt/data/some-cache-dir");`(1.9.0+) 或者 `System.setProperty("apollo.cacheDir", "/opt/data/some-cache-dir");`(1.9.0之前)
 2. 通过Spring Boot的配置文件
-    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.cacheDir=/opt/data/some-cache-dir`
-3. 通过操作系统的System Environment`APOLLO_CACHEDIR`
-    * 可以通过操作系统的System Environment `APOLLO_CACHEDIR`来指定
+    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.cache-dir=/opt/data/some-cache-dir`(1.9.0+) 或者 `apollo.cacheDir=/opt/data/some-cache-dir`(1.9.0之前)
+3. 通过操作系统的System Environment`APOLLO_CACHE_DIR`(1.9.0+) 或者 `APOLLO_CACHEDIR`(1.9.0之前)
+    * 可以通过操作系统的System Environment `APOLLO_CACHE_DIR`(1.9.0+) 或者 `APOLLO_CACHEDIR`(1.9.0之前)来指定
     * 注意key为全大写，且中间是`_`分隔
 4. 通过`server.properties`配置文件
-    * 可以在`server.properties`配置文件中指定`apollo.cacheDir=/opt/data/some-cache-dir`
+    * 可以在`server.properties`配置文件中指定`apollo.cache-dir=/opt/data/some-cache-dir`(1.9.0+) 或者 `apollo.cacheDir=/opt/data/some-cache-dir`(1.9.0之前)
     * 对于Mac/Linux，默认文件位置为`/opt/settings/server.properties`
     * 对于Windows，默认文件位置为`C:\opt\settings\server.properties`
 
@@ -289,18 +289,18 @@ Apollo支持配置按照集群划分，也就是说对于一个appId和一个环
 Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验证的客户端才能访问敏感配置。如果应用开启了访问密钥，客户端需要配置密钥，否则无法获取配置。
 
 配置方式按照优先级从高到低分别为：
-1. 通过Java System Property `apollo.accesskey.secret`
-    * 可以通过Java的System Property `apollo.accesskey.secret`来指定
-    * 在Java程序启动脚本中，可以指定`-Dapollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`
-        * 如果是运行jar文件，需要注意格式是`java -Dapollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719 -jar xxx.jar`
-    * 也可以通过程序指定，如`System.setProperty("apollo.accesskey.secret", "1cf998c4e2ad4704b45a98a509d15719");`
+1. 通过Java System Property `apollo.access-key.secret`(1.9.0+) 或者 `apollo.accesskey.secret`(1.9.0之前)
+    * 可以通过Java的System Property `apollo.access-key.secret`(1.9.0+) 或者 `apollo.accesskey.secret`(1.9.0之前)来指定
+    * 在Java程序启动脚本中，可以指定`-Dapollo.access-key.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0+) 或者 `-Dapollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0之前)
+        * 如果是运行jar文件，需要注意格式是`java -Dapollo.access-key.secret=1cf998c4e2ad4704b45a98a509d15719 -jar xxx.jar`(1.9.0+) 或者 `java -Dapollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719 -jar xxx.jar`(1.9.0之前)
+    * 也可以通过程序指定，如`System.setProperty("apollo.access-key.secret", "1cf998c4e2ad4704b45a98a509d15719");`(1.9.0+) 或者 `System.setProperty("apollo.accesskey.secret", "1cf998c4e2ad4704b45a98a509d15719");`(1.9.0之前)
 2. 通过Spring Boot的配置文件
-    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`
+    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.access-key.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0+) 或者 `apollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0之前)
 3. 通过操作系统的System Environment
-    * 还可以通过操作系统的System Environment `APOLLO_ACCESSKEY_SECRET`来指定
+    * 还可以通过操作系统的System Environment `APOLLO_ACCESS_KEY_SECRET`(1.9.0+) 或者 `APOLLO_ACCESSKEY_SECRET`(1.9.0之前)来指定
     * 注意key为全大写
 4. 通过`app.properties`配置文件
-    * 可以在`classpath:/META-INF/app.properties`指定`apollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`
+    * 可以在`classpath:/META-INF/app.properties`指定`apollo.access-key.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0+) 或者 `apollo.accesskey.secret=1cf998c4e2ad4704b45a98a509d15719`(1.9.0之前)
 
 #### 1.2.4.5 自定义server.properties路径
 
@@ -316,6 +316,26 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 2. 通过操作系统的System Environment`APOLLO_PATH_SERVER_PROPERTIES`
    * 可以通过操作系统的System Environment `APOLLO_PATH_SERVER_PROPERTIES`来指定
    * 注意key为全大写，且中间是`_`分隔
+
+#### 1.2.4.6 开启`propertyNames`缓存，在大量配置场景下可以显著改善启动速度
+
+> 适用于1.9.0及以上版本
+
+在使用`@ConfigurationProperties`和存在大量配置项场景下，Spring容器的启动速度会变慢。通过开启该配置可以显著提升启动速度，当配置发生变化时缓存会自动清理，默认为`false`。详见：[issue 3800](https://github.com/ctripcorp/apollo/issues/3800)
+
+配置方式按照优先级从高到低依次为：
+1. 通过Java System Property `apollo.property.names.cache.enable`
+   * 可以通过Java的System Property `apollo.property.names.cache.enable`来指定
+   * 在Java程序启动脚本中，可以指定`-Dapollo.property.names.cache.enable=true`
+      * 如果是运行jar文件，需要注意格式是`java -Dapollo.property.names.cache.enable=true -jar xxx.jar`
+   * 也可以通过程序指定，如`System.setProperty("apollo.property.names.cache.enable", "true");`
+2. 通过系统环境变量
+   * 在启动程序前配置环境变量`APOLLO_PROPERTY_NAMES_CACHE_ENABLE=true`来指定
+   * 注意key为全大写，且中间是`_`分隔
+3. 通过Spring Boot的配置文件
+   * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.property.names.cache.enable=true`
+4. 通过`app.properties`配置文件
+   * 可以在`classpath:/META-INF/app.properties`指定`apollo.property.names.cache.enable=true`
 
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
@@ -575,6 +595,158 @@ Spring Boot除了支持上述两种集成方式以外，还支持通过applicati
      # put apollo initialization before logging system initialization
      apollo.bootstrap.eagerLoad.enabled=true
 ```
+
+#### 3.2.1.4 Spring Boot Config Data Loader (Spring Boot 2.4+, Apollo Client 1.9.0+ 推荐)
+
+对于 Spring Boot 2.4 以上版本还支持通过 Config Data Loader 模式来加载配置
+
+##### 3.2.1.4.1 添加 maven 依赖
+apollo-client-config-data 已经依赖了 apollo-client, 所以只需要添加这一个依赖即可, 无需再添加 apollo-client 的依赖
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.ctrip.framework.apollo</groupId>
+        <artifactId>apollo-client-config-data</artifactId>
+        <version>1.9.0</version>
+    </dependency>
+</dependencies>
+```
+##### 3.2.1.4.2 参照前述的方式配置 `app.id`, `env`, `apollo.meta`(或者 `apollo.config-service`), `apollo.cluster`
+
+##### 3.2.1.4.3 配置 `application.properties` 或 `application.yml`
+使用默认的 namespace `application`
+```properties
+# old way
+# apollo.bootstrap.enabled=true
+# 不配置 apollo.bootstrap.namespaces
+# new way
+spring.config.import=apollo://
+
+```
+
+或者
+```properties
+# old way
+# apollo.bootstrap.enabled=true
+# apollo.bootstrap.namespaces=application
+# new way
+spring.config.import=apollo://application
+
+```
+
+使用自定义 namespace
+```properties
+# old way
+# apollo.bootstrap.enabled=true
+# apollo.bootstrap.namespaces=your-namespace
+# new way
+spring.config.import=apollo://your-namespace
+
+```
+
+使用多个 namespaces  
+注: `spring.config.import` 是从后往前加载配置的, 而 `apollo.bootstrap.namespaces` 是从前往后加载的, 刚好相反。为了保证和原有逻辑一致, 请颠倒 namespaces 的顺序
+```properties
+# old way
+# apollo.bootstrap.enabled=true
+# apollo.bootstrap.namespaces=namespace1,namespace2,namespace3
+# new way
+spring.config.import=apollo://namespace3, apollo://namespace2, apollo://namespace1
+
+```
+
+#### 3.2.1.5 Spring Boot Config Data Loader (Spring Boot 2.4+, Apollo Client 1.9.0+ 推荐) + webClient 扩展
+
+对于 Spring Boot 2.4 以上版本还支持通过 Config Data Loader 模式来加载配置  
+Apollo 的 Config Data Loader 还提供了基于 webClient 的 http 客户端来替换原有的 http 客户端, 从而方便的对 http 客户端进行扩展
+
+##### 3.2.1.5.1 添加 maven 依赖
+webClient 可以基于多种实现 (reactor netty httpclient, jetty reactive httpclient, apache httpclient5), 所需添加的依赖如下
+
+###### reactor netty httpclient
+```xml
+<dependencies>
+   <dependency>
+      <groupId>com.ctrip.framework.apollo</groupId>
+      <artifactId>apollo-client-config-data</artifactId>
+      <version>1.9.0</version>
+   </dependency>
+   <!-- webclient -->
+   <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
+   </dependency>
+   <!-- reactor netty httpclient -->
+   <dependency>
+      <groupId>io.projectreactor.netty</groupId>
+      <artifactId>reactor-netty-http</artifactId>
+   </dependency>
+</dependencies>
+```
+
+###### jetty reactive httpclient
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.ctrip.framework.apollo</groupId>
+        <artifactId>apollo-client-config-data</artifactId>
+        <version>1.9.0</version>
+    </dependency>
+    <!-- webclient -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webflux</artifactId>
+    </dependency>
+    <!-- jetty reactive httpclient -->
+    <dependency>
+       <groupId>org.eclipse.jetty</groupId>
+       <artifactId>jetty-reactive-httpclient</artifactId>
+    </dependency>
+</dependencies>
+```
+
+###### apache httpclient5
+spring boot 没有指定 apache httpclient5 的版本, 所以这里需要手动指定一下版本
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.ctrip.framework.apollo</groupId>
+        <artifactId>apollo-client-config-data</artifactId>
+        <version>1.9.0</version>
+    </dependency>
+    <!-- webclient -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webflux</artifactId>
+    </dependency>
+    <!-- apache httpclient5 -->
+    <dependency>
+       <groupId>org.apache.httpcomponents.client5</groupId>
+       <artifactId>httpclient5</artifactId>
+       <version>5.1</version>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.httpcomponents.core5</groupId>
+       <artifactId>httpcore5-reactive</artifactId>
+       <version>5.1</version>
+    </dependency>
+</dependencies>
+```
+
+##### 3.2.1.5.2 参照前述的方式配置 `app.id`, `env`, `apollo.meta`(或者 `apollo.config-service`), `apollo.cluster`
+
+##### 3.2.1.5.3 配置 `application.properties` 或 `application.yml`
+这里以默认 namespace 为例, namespace 的配置详见 3.2.1.4.3
+
+```properties
+spring.config.import=apollo://application
+apollo.client.extension.enabled=true
+
+```
+
+##### 3.2.1.5.4 提供 spi 的实现
+提供接口 `com.ctrip.framework.apollo.config.data.extension.webclient.customizer.spi.ApolloClientWebClientCustomizerFactory` 的 spi 实现  
+在配置了 `apollo.client.extension.enabled=true` 之后, Apollo 的 Config Data Loader 会尝试去加载该 spi 的实现类来定制 webClient
 
 ### 3.2.2 Spring Placeholder的使用
 Spring应用通常会使用Placeholder来注入配置，使用的格式形如${someKey:someDefaultValue}，如${timeout:100}。冒号前面的是key，冒号后面的是默认值。

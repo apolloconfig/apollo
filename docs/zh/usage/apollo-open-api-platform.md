@@ -379,7 +379,7 @@ Apollo在生产环境（PRO）有限制规则：每次发布只能有一个人�
 ---- | --- | --- | ---
 key | true | String | 配置的key，长度不能超过128个字符。非properties格式，key固定为`content`
 value |	true | String | 配置的value，长度不能超过20000个字符，非properties格式，value为文件全部内容
-comment	| false | String | 配置的备注,长度不能超过1024个字符
+comment	| false | String | 配置的备注,长度不能超过256个字符
 dataChangeCreatedBy | true | String | item的创建人，格式为域账号，也就是sso系统的User ID
 
 * **Request body sample** :
@@ -424,7 +424,7 @@ createIfNotExists | false | Boolean | 当配置不存在时是否自动创建
 ---- | --- | --- | ---
 key | true | String | 配置的key，需和url中的key值一致。非properties格式，key固定为`content`
 value |	true | String | 配置的value，长度不能超过20000个字符，非properties格式，value为文件全部内容
-comment	| false | String | 配置的备注,长度不能超过1024个字符
+comment	| false | String | 配置的备注,长度不能超过256个字符
 dataChangeLastModifiedBy | true | String | item的修改人，格式为域账号，也就是sso系统的User ID
 dataChangeCreatedBy | false | String | 当createIfNotExists为true时必选。item的创建人，格式为域账号，也就是sso系统的User ID
 

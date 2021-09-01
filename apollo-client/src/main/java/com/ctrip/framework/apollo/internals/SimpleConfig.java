@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ctrip.framework.apollo.model.ConfigChange;
-import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.google.common.base.Function;
@@ -112,7 +111,7 @@ public class SimpleConfig extends AbstractConfig implements RepositoryChangeList
     updateConfig(newConfigProperties, m_configRepository.getSourceType());
     clearConfigCache();
 
-    this.fireConfigChange(new ConfigChangeEvent(m_namespace, changeMap));
+    this.fireConfigChange(m_namespace, changeMap);
 
     Tracer.logEvent("Apollo.Client.ConfigChanges", m_namespace);
   }

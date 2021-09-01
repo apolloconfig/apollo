@@ -1,6 +1,6 @@
 ## 1. Go
 ### Apollo Go 客户端 1
-项目地址：[zouyx/agollo](https://github.com/zouyx/agollo)
+项目地址：[apolloconfig/agollo](https://github.com/apolloconfig/agollo)
 
 > 非常感谢[@zouyx](https://github.com/zouyx)提供Go Apollo客户端的支持
 

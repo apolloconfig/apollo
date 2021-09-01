@@ -14,20 +14,16 @@
  * limitations under the License.
  *
  */
+
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.SsoHeartbeatHandler;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import com.ctrip.framework.apollo.portal.spi.ctrip.CtripLogoutHandler;
-import com.ctrip.framework.apollo.portal.spi.ctrip.CtripSsoHeartbeatHandler;
-import com.ctrip.framework.apollo.portal.spi.ctrip.CtripUserInfoHolder;
-import com.ctrip.framework.apollo.portal.spi.ctrip.CtripUserService;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultSsoHeartbeatHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
@@ -41,15 +37,15 @@ import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncoderFactory;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import javax.sql.DataSource;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
-import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -64,7 +60,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
@@ -74,159 +70,12 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
-import javax.servlet.Filter;
-import javax.sql.DataSource;
-import java.util.Collections;
-import java.util.EventListener;
-import java.util.Map;
-
 @Configuration
 public class AuthConfiguration {
 
   private static final String[] BY_PASS_URLS = {"/prometheus/**", "/metrics/**", "/openapi/**",
       "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path",
       "/health"};
-
-  /**
-   * spring.profiles.active = ctrip
-   */
-  @Configuration
-  @Profile("ctrip")
-  static class CtripAuthAutoConfiguration {
-
-    private final PortalConfig portalConfig;
-
-    public CtripAuthAutoConfiguration(final PortalConfig portalConfig) {
-      this.portalConfig = portalConfig;
-    }
-
-    @Bean
-    public ServletListenerRegistrationBean redisAppSettingListner() {
-      ServletListenerRegistrationBean redisAppSettingListener = new ServletListenerRegistrationBean();
-      redisAppSettingListener
-          .setListener(listener("org.jasig.cas.client.credis.CRedisAppSettingListner"));
-      return redisAppSettingListener;
-    }
-
-    @Bean
-    public ServletListenerRegistrationBean singleSignOutHttpSessionListener() {
-      ServletListenerRegistrationBean singleSignOutHttpSessionListener = new ServletListenerRegistrationBean();
-      singleSignOutHttpSessionListener
-          .setListener(listener("org.jasig.cas.client.session.SingleSignOutHttpSessionListener"));
-      return singleSignOutHttpSessionListener;
-    }
-
-    @Bean
-    public FilterRegistrationBean casFilter() {
-      FilterRegistrationBean singleSignOutFilter = new FilterRegistrationBean();
-      singleSignOutFilter.setFilter(filter("org.jasig.cas.client.session.SingleSignOutFilter"));
-      singleSignOutFilter.addUrlPatterns("/*");
-      singleSignOutFilter.setOrder(1);
-      return singleSignOutFilter;
-    }
-
-    @Bean
-    public FilterRegistrationBean authenticationFilter() {
-      FilterRegistrationBean casFilter = new FilterRegistrationBean();
-
-      Map<String, String> filterInitParam = Maps.newHashMap();
-      filterInitParam.put("redisClusterName", "casClientPrincipal");
-      filterInitParam.put("serverName", portalConfig.portalServerName());
-      filterInitParam.put("casServerLoginUrl", portalConfig.casServerLoginUrl());
-      //we don't want to use session to store login information, since we will be deployed to a cluster, not a single instance
-      filterInitParam.put("useSession", "false");
-      filterInitParam.put("/openapi.*", "exclude");
-
-      casFilter.setInitParameters(filterInitParam);
-      casFilter
-          .setFilter(filter("com.ctrip.framework.apollo.sso.filter.ApolloAuthenticationFilter"));
-      casFilter.addUrlPatterns("/*");
-      casFilter.setOrder(2);
-
-      return casFilter;
-    }
-
-    @Bean
-    public FilterRegistrationBean casValidationFilter() {
-      FilterRegistrationBean casValidationFilter = new FilterRegistrationBean();
-      Map<String, String> filterInitParam = Maps.newHashMap();
-      filterInitParam.put("casServerUrlPrefix", portalConfig.casServerUrlPrefix());
-      filterInitParam.put("serverName", portalConfig.portalServerName());
-      filterInitParam.put("encoding", "UTF-8");
-      //we don't want to use session to store login information, since we will be deployed to a cluster, not a single instance
-      filterInitParam.put("useSession", "false");
-      filterInitParam.put("useRedis", "true");
-      filterInitParam.put("redisClusterName", "casClientPrincipal");
-
-      casValidationFilter
-          .setFilter(
-              filter("org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter"));
-      casValidationFilter.setInitParameters(filterInitParam);
-      casValidationFilter.addUrlPatterns("/*");
-      casValidationFilter.setOrder(3);
-
-      return casValidationFilter;
-    }
-
-    @Bean
-    public FilterRegistrationBean assertionHolder() {
-      FilterRegistrationBean assertionHolderFilter = new FilterRegistrationBean();
-
-      Map<String, String> filterInitParam = Maps.newHashMap();
-      filterInitParam.put("/openapi.*", "exclude");
-
-      assertionHolderFilter.setInitParameters(filterInitParam);
-
-      assertionHolderFilter.setFilter(
-          filter("com.ctrip.framework.apollo.sso.filter.ApolloAssertionThreadLocalFilter"));
-      assertionHolderFilter.addUrlPatterns("/*");
-      assertionHolderFilter.setOrder(4);
-
-      return assertionHolderFilter;
-    }
-
-    @Bean
-    public CtripUserInfoHolder ctripUserInfoHolder() {
-      return new CtripUserInfoHolder();
-    }
-
-    @Bean
-    public CtripLogoutHandler logoutHandler() {
-      return new CtripLogoutHandler();
-    }
-
-    private Filter filter(String className) {
-      Class clazz = null;
-      try {
-        clazz = Class.forName(className);
-        Object obj = clazz.newInstance();
-        return (Filter) obj;
-      } catch (Exception e) {
-        throw new RuntimeException("instance filter fail", e);
-      }
-    }
-
-    private EventListener listener(String className) {
-      Class clazz = null;
-      try {
-        clazz = Class.forName(className);
-        Object obj = clazz.newInstance();
-        return (EventListener) obj;
-      } catch (Exception e) {
-        throw new RuntimeException("instance listener fail", e);
-      }
-    }
-
-    @Bean
-    public UserService ctripUserService(PortalConfig portalConfig) {
-      return new CtripUserService(portalConfig);
-    }
-
-    @Bean
-    public SsoHeartbeatHandler ctripSsoHeartbeatHandler() {
-      return new CtripSsoHeartbeatHandler();
-    }
-  }
 
   /**
    * spring.profiles.active = auth
@@ -242,6 +91,12 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public static PasswordEncoder passwordEncoder() {
+      return ApolloPasswordEncoderFactory.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
     public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
       return new SpringSecurityUserInfoHolder(userService);
@@ -254,10 +109,10 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public JdbcUserDetailsManager jdbcUserDetailsManager(AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
+    public static JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
-          .passwordEncoder(new BCryptPasswordEncoder()).dataSource(datasource)
+          .passwordEncoder(passwordEncoder).dataSource(datasource)
           .usersByUsernameQuery("select Username,Password,Enabled from `Users` where Username = ?")
           .authoritiesByUsernameQuery(
               "select Username,Authority from `Authorities` where Username = ?")
@@ -281,8 +136,10 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
-    public UserService springSecurityUserService() {
-      return new SpringSecurityUserService();
+    public UserService springSecurityUserService(PasswordEncoder passwordEncoder,
+        JdbcUserDetailsManager userDetailsManager,
+        UserRepository userRepository) {
+      return new SpringSecurityUserService(passwordEncoder, userDetailsManager, userRepository);
     }
 
   }
@@ -389,7 +246,7 @@ public class AuthConfiguration {
 
     public SpringSecurityLDAPConfigurer(final LdapProperties ldapProperties,
         final LdapContextSource ldapContextSource,
-       final LdapExtendProperties ldapExtendProperties) {
+        final LdapExtendProperties ldapExtendProperties) {
       this.ldapProperties = ldapProperties;
       this.ldapContextSource = ldapContextSource;
       this.ldapExtendProperties = ldapExtendProperties;
@@ -400,7 +257,8 @@ public class AuthConfiguration {
       if (ldapExtendProperties.getGroup() == null || StringUtils
           .isBlank(ldapExtendProperties.getGroup().getGroupSearch())) {
         FilterBasedLdapUserSearch filterBasedLdapUserSearch = new FilterBasedLdapUserSearch("",
-            ldapProperties.getSearchFilter(), ldapContextSource);
+            ldapProperties.getSearchFilter(), ldapContextSource
+        );
         filterBasedLdapUserSearch.setSearchSubtree(true);
         return filterBasedLdapUserSearch;
       }
@@ -409,7 +267,8 @@ public class AuthConfiguration {
           ldapProperties.getBase(), ldapProperties.getSearchFilter(), ldapExtendProperties.getGroup().getGroupBase(),
           ldapContextSource, ldapExtendProperties.getGroup().getGroupSearch(),
           ldapExtendProperties.getMapping().getRdnKey(),
-          ldapExtendProperties.getGroup().getGroupMembership(),ldapExtendProperties.getMapping().getLoginId());
+          ldapExtendProperties.getGroup().getGroupMembership(), ldapExtendProperties.getMapping().getLoginId()
+      );
       filterLdapByGroupUserSearch.setSearchSubtree(true);
       return filterLdapByGroupUserSearch;
     }
@@ -436,9 +295,9 @@ public class AuthConfiguration {
           .antMatchers(BY_PASS_URLS).permitAll()
           .antMatchers("/**").authenticated();
       http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
-              .httpBasic();
+          .httpBasic();
       http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
-              .logoutSuccessUrl("/signin?#/logout");
+          .logoutSuccessUrl("/signin?#/logout");
       http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
     }
 
@@ -472,10 +331,17 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(PasswordEncoder.class)
+    public PasswordEncoder passwordEncoder() {
+      return SpringSecurityAuthAutoConfiguration.passwordEncoder();
+    }
+
+    @Bean
     @ConditionalOnMissingBean(JdbcUserDetailsManager.class)
-    public JdbcUserDetailsManager jdbcUserDetailsManager(AuthenticationManagerBuilder auth,
-        DataSource datasource) throws Exception {
-      return new SpringSecurityAuthAutoConfiguration().jdbcUserDetailsManager(auth, datasource);
+    public JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
+        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
+      return SpringSecurityAuthAutoConfiguration
+          .jdbcUserDetailsManager(passwordEncoder, auth, datasource);
     }
 
     @Bean

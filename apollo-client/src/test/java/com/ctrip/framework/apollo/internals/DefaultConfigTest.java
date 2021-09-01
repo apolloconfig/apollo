@@ -751,7 +751,18 @@ public class DefaultConfigTest {
     ConfigChangeEvent changeEvent = interestedInAllKeysFuture.get(500, TimeUnit.MILLISECONDS);
 
     assertEquals(someChangeEvent, changeEvent);
-    assertEquals(someChangeEvent, interestedInSomeKeyFuture.get(500, TimeUnit.MILLISECONDS));
+
+    {
+      // hidden variables in scope
+      ConfigChangeEvent actualConfigChangeEvent = interestedInSomeKeyFuture.get(500, TimeUnit.MILLISECONDS);
+      assertEquals(someChangeEvent.changedKeys(), actualConfigChangeEvent.changedKeys());
+      for (String changedKey : someChangeEvent.changedKeys()) {
+        ConfigChange expectConfigChange = someChangeEvent.getChange(changedKey);
+        ConfigChange actualConfigChange = actualConfigChangeEvent.getChange(changedKey);
+        assertEquals(expectConfigChange, actualConfigChange);
+      }
+    }
+
     assertFalse(interestedInSomeKeyNotChangedFuture.isDone());
   }
 

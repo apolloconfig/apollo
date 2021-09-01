@@ -1,7 +1,7 @@
 {
   "properties": [
     {
-      "name": "apollo.accesskey.secret",
+      "name": "apollo.access-key.secret",
       "type": "java.lang.String",
       "sourceType": "com.ctrip.framework.foundation.internals.provider.DefaultApplicationProvider",
       "description": "apollo client access key.",
@@ -36,7 +36,7 @@
       "defaultValue": false
     },
     {
-      "name": "apollo.cacheDir",
+      "name": "apollo.cache-dir",
       "type": "java.lang.String",
       "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
       "description": "local cache directory. the default value on windows is 'c:\\opt\\data', while on mac/linux is '/opt/data'.",
@@ -50,10 +50,24 @@
       "defaultValue": "default"
     },
     {
+      "name": "apollo.config-service",
+      "type": "java.lang.String",
+      "sourceType": "com.ctrip.framework.apollo.core.ApolloClientSystemConsts",
+      "description": "apollo config service address. if it's configured apollo client will not refresh config services from remote meta service.",
+      "defaultValue": ""
+    },
+    {
       "name": "apollo.meta",
       "type": "java.net.URI",
       "sourceType": "com.ctrip.framework.apollo.core.ConfigConsts",
       "description": "apollo meta server address."
+    },
+    {
+      "name": "apollo.property.names.cache.enable",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
+      "description": "enable property names cache.",
+      "defaultValue": false
     },
     {
       "name": "apollo.property.order.enable",

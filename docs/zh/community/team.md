@@ -15,14 +15,17 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 | JaredTan95 | Jared Tan  | DaoCloud     |
 | kezhenxu94 | Zhenxu Ke  | Tetrate      |
 | nobodyiam  | Jason Song | Ant Group    |
+| zouyx      | Joe Zou    | Shein        |
 
 ### Committer
 | Github ID   | Name          | Organization |
 | ----------- | ------------- | ------------ |
 | Anilople    | Xiaoquan Wang | Some Bank    |
+| Accelerater | Zhuohao Li    | Daocloud     |
 | klboke      | Kailing Chen  | TapTap       |
 | lepdou      | Le Zhang      | Ant Group    |
 | nisiyong    | Stephen Ni    | Qihoo 360    |
+| pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
 
 ## Contributor

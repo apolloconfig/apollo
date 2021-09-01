@@ -19,7 +19,9 @@ package com.ctrip.framework.apollo.spring;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigFileChangeListener;
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.internals.SimpleConfig;
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
@@ -33,6 +35,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
@@ -55,10 +59,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anySetOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -88,6 +94,7 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
     System.clearProperty(SystemPropertyKeyConstants.FROM_SYSTEM_YAML_NAMESPACE);
     System.clearProperty(SystemPropertyKeyConstants.FROM_NAMESPACE_APPLICATION_KEY);
     System.clearProperty(SystemPropertyKeyConstants.FROM_NAMESPACE_APPLICATION_KEY_YAML);
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE);
     super.tearDown();
   }
 
@@ -353,6 +360,69 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
   }
 
   @Test
+  public void testApolloConfigChangeListenerWithInterestedKeyPrefixes() {
+    Config applicationConfig = mock(Config.class);
+
+    mockConfig(ConfigConsts.NAMESPACE_APPLICATION, applicationConfig);
+
+    TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean bean = getBean(
+        TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean.class, AppConfig10.class);
+
+    final ArgumentCaptor<Set> interestedKeyPrefixesArgumentCaptor = ArgumentCaptor
+        .forClass(Set.class);
+
+    verify(applicationConfig, times(1))
+        .addChangeListener(any(ConfigChangeListener.class), anySetOf(String.class),
+            interestedKeyPrefixesArgumentCaptor.capture());
+
+    assertEquals(1, interestedKeyPrefixesArgumentCaptor.getAllValues().size());
+
+    Set<String> result = Sets.newHashSet();
+    for (Set<String> interestedKeyPrefixes : interestedKeyPrefixesArgumentCaptor.getAllValues()) {
+      result.addAll(interestedKeyPrefixes);
+    }
+    assertEquals(Sets.newHashSet("logging.level", "number"), result);
+  }
+
+  @Test
+  public void testApolloConfigChangeListenerWithInterestedKeyPrefixes_fire()
+      throws InterruptedException {
+    // default mock, useless here
+    // just for speed up test without waiting
+    mockConfig(ConfigConsts.NAMESPACE_APPLICATION, mock(Config.class));
+
+    SimpleConfig simpleConfig = spy(
+        this.prepareConfig(
+            TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1.SPECIAL_NAMESPACE,
+            new Properties()));
+
+    mockConfig(TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1.SPECIAL_NAMESPACE,
+        simpleConfig);
+
+    TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1 bean = getBean(
+        TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1.class, AppConfig11.class);
+
+    verify(simpleConfig, atLeastOnce())
+        .addChangeListener(any(ConfigChangeListener.class), anySetOf(String.class),
+            anySetOf(String.class));
+
+    Properties properties = new Properties();
+    properties.put("logging.level.com", "debug");
+    properties.put("logging.level.root", "warn");
+    properties.put("number.value", "333");
+
+    // publish config change
+    simpleConfig.onRepositoryChange(
+        TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1.SPECIAL_NAMESPACE, properties);
+
+    // get event from bean
+    ConfigChangeEvent configChangeEvent = bean.getConfigChangeEvent();
+    Set<String> interestedChangedKeys = configChangeEvent.interestedChangedKeys();
+    assertEquals(Sets.newHashSet("logging.level.com", "logging.level.root", "number.value"),
+        interestedChangedKeys);
+  }
+
+  @Test
   public void testApolloConfigChangeListenerWithYamlFile() throws Exception {
     String someKey = "someKey";
     String someValue = "someValue";
@@ -388,13 +458,17 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
     Config applicationConfig = mock(Config.class);
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, applicationConfig);
 
+    System.setProperty(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE, "true");
+
     getSimpleBean(TestApolloConfigChangeListenerResolveExpressionSimpleConfiguration.class);
 
     // no using
     verify(ignoreConfig, never()).addChangeListener(any(ConfigChangeListener.class));
 
-    // one invocation for spring value auto update and another for the @ApolloConfigChangeListener annotation
-    verify(applicationConfig, times(2)).addChangeListener(any(ConfigChangeListener.class));
+    // one invocation for spring value auto update
+    // one invocation for the @ApolloConfigChangeListener annotation
+    // one invocation for CachedCompositePropertySource clear cache listener
+    verify(applicationConfig, times(3)).addChangeListener(any(ConfigChangeListener.class));
   }
 
   /**
@@ -735,6 +809,24 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
     }
   }
 
+  @Configuration
+  @EnableApolloConfig
+  static class AppConfig10 {
+    @Bean
+    public TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean bean() {
+      return new TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean();
+    }
+  }
+
+  @Configuration
+  @EnableApolloConfig
+  static class AppConfig11 {
+    @Bean
+    public TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1 bean() {
+      return spy(new TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1());
+    }
+  }
+
   static class TestApolloConfigBean1 {
     @ApolloConfig
     private Config config;
@@ -847,6 +939,30 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
         interestedKeys = {"anotherKey"})
     private void anotherOnChange(ConfigChangeEvent changeEvent) {
 
+    }
+  }
+
+  private static class TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean {
+
+    @ApolloConfigChangeListener(interestedKeyPrefixes = {"number", "logging.level"})
+    private void onChange(ConfigChangeEvent changeEvent) {
+    }
+  }
+
+  private static class TestApolloConfigChangeListenerWithInterestedKeyPrefixesBean1 {
+
+    static final String SPECIAL_NAMESPACE = "special-namespace-2021";
+
+    private final BlockingQueue<ConfigChangeEvent> configChangeEventQueue = new ArrayBlockingQueue<>(100);
+
+    @ApolloConfigChangeListener(value = SPECIAL_NAMESPACE, interestedKeyPrefixes = {"number",
+        "logging.level"})
+    private void onChange(ConfigChangeEvent changeEvent) {
+      this.configChangeEventQueue.add(changeEvent);
+    }
+
+    public ConfigChangeEvent getConfigChangeEvent() throws InterruptedException {
+      return this.configChangeEventQueue.poll(5, TimeUnit.SECONDS);
     }
   }
 
