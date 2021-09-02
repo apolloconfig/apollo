@@ -2,7 +2,7 @@ Changes by Version
 ==================
 Release Notes.
 
-Apollo 1.10.0
+Apollo 1.9.0
 
 ------------------
 * [extend DataChange_CreatedBy, DataChange_LastModifiedBy from 32 to 64.](https://github.com/ctripcorp/apollo/pull/3552)
@@ -65,7 +65,6 @@ Apollo 1.10.0
 * [fix size of create project button](https://github.com/ctripcorp/apollo/pull/3849)
 * [translation of "portal-how-to-enable-webhook-notification.md"](https://github.com/ctripcorp/apollo/pull/3847)
 * [feature: add history detail for not key-value type of namespace](https://github.com/ctripcorp/apollo/pull/3856)
-* [docs: Add an example to load configs by curl with access key](https://github.com/ctripcorp/apollo/pull/3853)
 * [fix show-text-modal number display](https://github.com/ctripcorp/apollo/pull/3851)
 * [Lazy load ConfigUtil](https://github.com/ctripcorp/apollo/pull/3864)
 * [make jdbc session enable default](https://github.com/ctripcorp/apollo/pull/3869)
@@ -77,13 +76,8 @@ Apollo 1.10.0
 * [fix apollo config data loader with profiles](https://github.com/ctripcorp/apollo/pull/3870)
 * [polish log](https://github.com/ctripcorp/apollo/pull/3882)
 * [add history query](https://github.com/ctripcorp/apollo/pull/3878)
-* [Bump version to 1.10.0](https://github.com/ctripcorp/apollo/pull/3917)
-* [Fix issue that the $ symbol is not used when reading shell variables](https://github.com/ctripcorp/apollo/pull/3890)
-* [Bump xstream from 1.4.17 to 1.4.18](https://github.com/apolloconfig/apollo/pull/3916)
-* [switch apollo.config-service log from warning to info level](https://github.com/ctripcorp/apollo/pull/3884)
-* [Make Access Key Timestamp check configurable](https://github.com/ctripcorp/apollo/pull/3908)
-* [remove ctrip profile](https://github.com/ctripcorp/apollo/pull/3920)
-* [Remove spring dependencies from internal code](https://github.com/apolloconfig/apollo/pull/3937)
+* [fix history query](https://github.com/ctripcorp/apollo/pull/3894)
 
 ------------------
-All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
+All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/6?closed=1)
+

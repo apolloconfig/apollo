@@ -120,7 +120,7 @@ do
     fi
 done
 
-if [[ ! -f PATH_TO_JAR && -d current ]]; then
+if [[ ! -f $PATH_TO_JAR && -d current ]]; then
     cd current
     for i in `ls $SERVICE_NAME-*.jar 2>/dev/null`
     do

@@ -39,8 +39,6 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.RateLimiter;
-import org.springframework.util.CollectionUtils;
-
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -186,10 +184,10 @@ public class DefaultConfig extends AbstractConfig implements RepositoryChangeLis
     // propertyNames include system property and system env might cause some compatibility issues, though that looks like the correct implementation.
     Set<String> fromRepository = this.getPropertyNamesFromRepository();
     Set<String> fromAdditional = this.getPropertyNamesFromAdditional();
-    if (CollectionUtils.isEmpty(fromRepository)) {
+    if (fromRepository == null || fromRepository.isEmpty()) {
       return fromAdditional;
     }
-    if (CollectionUtils.isEmpty(fromAdditional)) {
+    if (fromAdditional == null || fromAdditional.isEmpty()) {
       return fromRepository;
     }
     Set<String> propertyNames = Sets

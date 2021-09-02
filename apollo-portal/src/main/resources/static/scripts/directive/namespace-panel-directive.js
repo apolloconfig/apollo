@@ -870,6 +870,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             function searchHistory(namespace) {
                 namespace.commits = [];
                 namespace.commitPage = 0;
+                namespace.hasLoadAllCommit = false;
                 var size = 10;
                 CommitService.find_commits(scope.appId,
                     scope.env,
@@ -888,6 +889,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                             result[i].changeSets = JSON.parse(result[i].changeSets);
                             namespace.commits.push(result[i]);
                         }
+                        namespace.commitPage++
                     }, function (result) {
                         toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingHistoryError'));
                     });
