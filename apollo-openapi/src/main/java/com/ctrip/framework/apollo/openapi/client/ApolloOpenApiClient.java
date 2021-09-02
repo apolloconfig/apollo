@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.client;
 
+import com.ctrip.framework.apollo.openapi.api.ApolloOpenApi;
 import com.ctrip.framework.apollo.openapi.client.constant.ApolloOpenApiConstants;
 import com.ctrip.framework.apollo.openapi.client.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.client.service.ClusterOpenApiService;
@@ -49,7 +50,7 @@ import java.util.List;
  * For more information, please refer <a href="https://www.apolloconfig.com/#/zh/usage/apollo-open-api-platform">Apollo Wiki</a>.
  *
  */
-public class ApolloOpenApiClient {
+public class ApolloOpenApiClient implements ApolloOpenApi {
   private final String portalUrl;
   private final String token;
   private final AppOpenApiService appService;
@@ -76,6 +77,7 @@ public class ApolloOpenApiClient {
   /**
    * Get the environment and cluster information
    */
+  @Override
   public List<OpenEnvClusterDTO> getEnvClusterInfo(String appId) {
     return appService.getEnvClusterInfo(appId);
   }
@@ -83,6 +85,7 @@ public class ApolloOpenApiClient {
   /**
    * Get all App information
    */
+  @Override
   public List<OpenAppDTO> getAllApps() {
     return appService.getAppsInfo(null);
   }
@@ -92,6 +95,7 @@ public class ApolloOpenApiClient {
    *
    * @return app's information
    */
+  @Override
   public List<OpenAppDTO> getAuthorizedApps() {
     return this.appService.getAuthorizedApps();
   }
@@ -99,6 +103,7 @@ public class ApolloOpenApiClient {
   /**
    * Get App information by app ids
    */
+  @Override
   public List<OpenAppDTO> getAppsByIds(List<String> appIds) {
     return appService.getAppsInfo(appIds);
   }
@@ -106,6 +111,7 @@ public class ApolloOpenApiClient {
   /**
    * Get the namespaces
    */
+  @Override
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName) {
     return namespaceService.getNamespaces(appId, env, clusterName);
   }
@@ -115,36 +121,54 @@ public class ApolloOpenApiClient {
    *
    * @since 1.5.0
    */
+  @Override
   public OpenClusterDTO getCluster(String appId, String env, String clusterName) {
     return clusterService.getCluster(appId, env, clusterName);
   }
 
   /**
-   * Create the cluster
-   *
+   * Create the cluster. Suggest use {@link #createCluster(String, String, OpenClusterDTO)} instead.
    * @since 1.5.0
    */
   public OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO) {
+    return this.createCluster(openClusterDTO.getAppId(), env, openClusterDTO);
+  }
+
+  @Override
+  public OpenClusterDTO createCluster(String appId, String env, OpenClusterDTO openClusterDTO) {
+    if (null == appId) {
+      throw new IllegalArgumentException("appId cannot be null");
+    }
+    if (!appId.equals(openClusterDTO.getAppId())) {
+      throw new IllegalArgumentException("appId should same as in OpenClusterDTO");
+    }
     return clusterService.createCluster(env, openClusterDTO);
   }
 
   /**
    * Get the namespace
    */
+  @Override
   public OpenNamespaceDTO getNamespace(String appId, String env, String clusterName, String namespaceName) {
     return namespaceService.getNamespace(appId, env, clusterName, namespaceName);
   }
 
   /**
-   * Create the app namespace
+   * Create the app namespace. Suggest use {@link #createNamespace(String, OpenAppNamespaceDTO)} instead.
    */
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
+    return namespaceService.createAppNamespace(appNamespaceDTO);
+  }
+
+  @Override
+  public OpenAppNamespaceDTO createNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO) {
     return namespaceService.createAppNamespace(appNamespaceDTO);
   }
 
   /**
    * Get the namespace lock
    */
+  @Override
   public OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName, String namespaceName) {
     return namespaceService.getNamespaceLock(appId, env, clusterName, namespaceName);
   }
@@ -156,6 +180,7 @@ public class ApolloOpenApiClient {
    *
    * @since 1.2.0
    */
+  @Override
   public OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName, String key) {
     return itemService.getItem(appId, env, clusterName, namespaceName, key);
   }
@@ -164,23 +189,34 @@ public class ApolloOpenApiClient {
    * Add config
    * @return the created config
    */
+  @Override
   public OpenItemDTO createItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO) {
     return itemService.createItem(appId, env, clusterName, namespaceName, itemDTO);
+  }
+
+  @Override
+  public void updateItem(String appId, String env, String clusterName, String namespaceName, String key,
+      OpenItemDTO itemDTO, boolean createIfNotExists) {
+    if (createIfNotExists) {
+      itemService.createOrUpdateItem(appId, env, clusterName, namespaceName, itemDTO);
+    } else {
+      itemService.updateItem(appId, env, clusterName, namespaceName, itemDTO);
+    }
   }
 
   /**
    * Update config
    */
   public void updateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
-    itemService.updateItem(appId, env, clusterName, namespaceName, itemDTO);
+    this.updateItem(appId, env, clusterName, namespaceName, itemDTO.getKey(), itemDTO, false);
   }
 
   /**
    * Create config if not exists or update config if already exists
    */
   public void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
-    itemService.createOrUpdateItem(appId, env, clusterName, namespaceName, itemDTO);
+    this.updateItem(appId, env, clusterName, namespaceName, itemDTO.getKey(), itemDTO, true);
   }
 
   /**
@@ -188,6 +224,7 @@ public class ApolloOpenApiClient {
    *
    * @param operator the user who removes the item
    */
+  @Override
   public void removeItem(String appId, String env, String clusterName, String namespaceName, String key,
       String operator) {
     itemService.removeItem(appId, env, clusterName, namespaceName, key, operator);
@@ -197,6 +234,8 @@ public class ApolloOpenApiClient {
    * publish namespace
    * @return the released configurations
    */
+  // TODO,
+  // @Override
   public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName, String namespaceName,
       NamespaceReleaseDTO releaseDTO) {
     return releaseService.publishNamespace(appId, env, clusterName, namespaceName, releaseDTO);
@@ -205,6 +244,8 @@ public class ApolloOpenApiClient {
   /**
    * @return the latest active release information or <code>null</code> if not found
    */
+  // TODO,
+  // @Override
   public OpenReleaseDTO getLatestActiveRelease(String appId, String env, String clusterName, String namespaceName) {
     return releaseService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
   }
@@ -215,6 +256,8 @@ public class ApolloOpenApiClient {
    * @param operator the user who rollbacks the release
    * @since 1.5.0
    */
+  // TODO,
+  // @Override
   public void rollbackRelease(String env, long releaseId, String operator) {
     releaseService.rollbackRelease(env, releaseId, operator);
   }

@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.openapi.api.ApolloItemOpenApi;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
@@ -43,7 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController("openapiItemController")
 @RequestMapping("/openapi/v1/envs/{env}")
-public class ItemController {
+public class ItemController implements ApolloItemOpenApi {
 
   private final ItemService itemService;
   private final UserService userService;
@@ -54,6 +55,7 @@ public class ItemController {
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  @Override
   public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName, @PathVariable String key) {
 
@@ -64,9 +66,10 @@ public class ItemController {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
+  @Override
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
-                                @RequestBody OpenItemDTO item, HttpServletRequest request) {
+                                @RequestBody OpenItemDTO item) {
 
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
@@ -96,10 +99,11 @@ public class ItemController {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  @Override
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
-                         @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
+                         @RequestParam(defaultValue = "false") boolean createIfNotExists) {
 
     RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
 
@@ -130,7 +134,7 @@ public class ItemController {
       if (ex instanceof HttpStatusCodeException) {
         // check createIfNotExists
         if (((HttpStatusCodeException) ex).getStatusCode().equals(HttpStatus.NOT_FOUND) && createIfNotExists) {
-          createItem(appId, env, clusterName, namespaceName, item, request);
+          createItem(appId, env, clusterName, namespaceName, item);
           return;
         }
       }
@@ -141,10 +145,10 @@ public class ItemController {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public void deleteItem(@PathVariable String appId, @PathVariable String env,
+  @Override
+  public void removeItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator,
-                         HttpServletRequest request) {
+                         @PathVariable String key, @RequestParam String operator) {
 
     if (userService.findByUserId(operator) == null) {
       throw new BadRequestException("user(operator) not exists");

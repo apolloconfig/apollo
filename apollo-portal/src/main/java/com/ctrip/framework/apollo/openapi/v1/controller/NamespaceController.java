@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.openapi.api.ApolloNamespaceOpenApi;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
@@ -43,12 +44,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
 
 @RestController("openapiNamespaceController")
-public class NamespaceController {
+public class NamespaceController implements ApolloNamespaceOpenApi {
 
   private final NamespaceLockService namespaceLockService;
   private final NamespaceService namespaceService;
@@ -72,9 +72,9 @@ public class NamespaceController {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#request, #appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
+  @Override
   public OpenAppNamespaceDTO createNamespace(@PathVariable String appId,
-                                             @RequestBody OpenAppNamespaceDTO appNamespaceDTO,
-                                             HttpServletRequest request) {
+      @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
       throw new BadRequestException(String.format("AppId not equal. AppId in path = %s, AppId in payload = %s", appId,
@@ -107,7 +107,8 @@ public class NamespaceController {
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces")
-  public List<OpenNamespaceDTO> findNamespaces(@PathVariable String appId, @PathVariable String env,
+  @Override
+  public List<OpenNamespaceDTO> getNamespaces(@PathVariable String appId, @PathVariable String env,
                                                @PathVariable String clusterName) {
 
     return OpenApiBeanUtils
@@ -116,7 +117,8 @@ public class NamespaceController {
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
-  public OpenNamespaceDTO loadNamespace(@PathVariable String appId, @PathVariable String env,
+  @Override
+  public OpenNamespaceDTO getNamespace(@PathVariable String appId, @PathVariable String env,
                                         @PathVariable String clusterName, @PathVariable String
                                             namespaceName) {
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
@@ -128,6 +130,7 @@ public class NamespaceController {
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
+  @Override
   public OpenNamespaceLockDTO getNamespaceLock(@PathVariable String appId, @PathVariable String env,
                                                @PathVariable String clusterName, @PathVariable
                                                    String namespaceName) {

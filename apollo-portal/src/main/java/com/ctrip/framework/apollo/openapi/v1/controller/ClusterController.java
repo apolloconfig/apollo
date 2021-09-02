@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.openapi.api.ApolloClusterOpenApi;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -39,7 +40,7 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 
 @RestController("openapiClusterController")
 @RequestMapping("/openapi/v1/envs/{env}")
-public class ClusterController {
+public class ClusterController implements ApolloClusterOpenApi {
 
   private final ClusterService clusterService;
   private final UserService userService;
@@ -50,7 +51,7 @@ public class ClusterController {
   }
 
   @GetMapping(value = "apps/{appId}/clusters/{clusterName:.+}")
-  public OpenClusterDTO loadCluster(@PathVariable("appId") String appId, @PathVariable String env,
+  public OpenClusterDTO getCluster(@PathVariable("appId") String appId, @PathVariable String env,
       @PathVariable("clusterName") String clusterName) {
 
     ClusterDTO clusterDTO = clusterService.loadCluster(appId, Env.valueOf(env), clusterName);
@@ -60,7 +61,7 @@ public class ClusterController {
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#request, #appId)")
   @PostMapping(value = "apps/{appId}/clusters")
   public OpenClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
-      @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
+      @Valid @RequestBody OpenClusterDTO cluster) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
       throw new BadRequestException(String.format(

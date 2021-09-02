@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.openapi.api.ApolloAppOpenApi;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
@@ -32,16 +33,19 @@ import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @RestController("openapiAppController")
 @RequestMapping("/openapi/v1")
-public class AppController {
+public class AppController implements ApolloAppOpenApi {
 
   private final PortalSettings portalSettings;
   private final ClusterService clusterService;
@@ -62,7 +66,7 @@ public class AppController {
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")
-  public List<OpenEnvClusterDTO> loadEnvClusterInfo(@PathVariable String appId){
+  public List<OpenEnvClusterDTO> getEnvClusterInfo(@PathVariable String appId) {
 
     List<OpenEnvClusterDTO> envClusters = new LinkedList<>();
 
@@ -82,13 +86,16 @@ public class AppController {
   }
 
   @GetMapping("/apps")
-  public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
-    final List<App> apps = new ArrayList<>();
-    if (StringUtils.isEmpty(appIds)) {
-      apps.addAll(appService.findAll());
-    } else {
-      apps.addAll(appService.findByAppIds(Sets.newHashSet(appIds.split(","))));
-    }
+  @Override
+  public List<OpenAppDTO> getAllApps() {
+    final List<App> apps = appService.findAll();
+    return OpenApiBeanUtils.transformFromApps(apps);
+  }
+
+  @GetMapping("/apps")
+  @Override
+  public List<OpenAppDTO> getAppsByIds(@RequestParam(value = "appIds") List<String> appIds) {
+    final List<App> apps = appService.findByAppIds(Sets.newHashSet(appIds));
     return OpenApiBeanUtils.transformFromApps(apps);
   }
 
@@ -96,8 +103,9 @@ public class AppController {
    * @return which apps can be operated by open api
    */
   @GetMapping("/apps/authorized")
-  public List<OpenAppDTO> findAppsAuthorized(HttpServletRequest request) {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
+  public List<OpenAppDTO> getAuthorizedApps() {
+    HttpServletRequest httpServletRequest = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+    long consumerId = this.consumerAuthUtil.retrieveConsumerId(httpServletRequest);
 
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
 
