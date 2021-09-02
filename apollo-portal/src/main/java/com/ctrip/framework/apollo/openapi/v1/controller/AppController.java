@@ -92,7 +92,7 @@ public class AppController implements ApolloAppOpenApi {
     return OpenApiBeanUtils.transformFromApps(apps);
   }
 
-  @GetMapping("/apps")
+  @GetMapping(value = "/apps", params = "appIds")
   @Override
   public List<OpenAppDTO> getAppsByIds(@RequestParam(value = "appIds") List<String> appIds) {
     final List<App> apps = appService.findByAppIds(Sets.newHashSet(appIds));
