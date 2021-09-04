@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.openapi.api.ApolloItemOpenApi;
+import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
@@ -55,7 +56,6 @@ public class ItemController implements ApolloItemOpenApi {
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  @Override
   public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName, @PathVariable String key) {
 
@@ -66,10 +66,9 @@ public class ItemController implements ApolloItemOpenApi {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  @Override
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
-                                @RequestBody OpenItemDTO item) {
+                                @RequestBody OpenItemDTO item, HttpServletRequest request) {
 
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
@@ -99,11 +98,10 @@ public class ItemController implements ApolloItemOpenApi {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  @Override
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
-                         @RequestParam(defaultValue = "false") boolean createIfNotExists) {
+                         @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
 
     RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
 
@@ -134,7 +132,7 @@ public class ItemController implements ApolloItemOpenApi {
       if (ex instanceof HttpStatusCodeException) {
         // check createIfNotExists
         if (((HttpStatusCodeException) ex).getStatusCode().equals(HttpStatus.NOT_FOUND) && createIfNotExists) {
-          createItem(appId, env, clusterName, namespaceName, item);
+          createItem(appId, env, clusterName, namespaceName, item, request);
           return;
         }
       }
@@ -145,10 +143,10 @@ public class ItemController implements ApolloItemOpenApi {
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  @Override
   public void removeItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator) {
+                         @PathVariable String key, @RequestParam String operator,
+                         HttpServletRequest request) {
 
     if (userService.findByUserId(operator) == null) {
       throw new BadRequestException("user(operator) not exists");
@@ -162,4 +160,30 @@ public class ItemController implements ApolloItemOpenApi {
     itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
   }
 
+  /**
+   * The method invoked really is {@link #createItem(String, String, String, String, OpenItemDTO, HttpServletRequest)} for permission check.
+   */
+  @Override
+  public OpenItemDTO createItem(String appId, String env, String clusterName, String namespaceName,
+      OpenItemDTO itemDTO) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * The method invoked really is {@link #updateItem(String, String, String, String, String, OpenItemDTO, boolean, HttpServletRequest)} for permission check.
+   */
+  @Override
+  public void updateItem(String appId, String env, String clusterName, String namespaceName,
+      String key, OpenItemDTO itemDTO, boolean createIfNotExists) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * The method invoked really is {@link #removeItem(String, String, String, String, String, String, HttpServletRequest)} for permission check.
+   */
+  @Override
+  public void removeItem(String appId, String env, String clusterName, String namespaceName,
+      String key, String operator) {
+    throw new UnsupportedOperationException();
+  }
 }

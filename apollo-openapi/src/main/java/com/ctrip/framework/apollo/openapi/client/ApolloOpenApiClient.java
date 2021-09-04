@@ -153,9 +153,6 @@ public class ApolloOpenApiClient implements ApolloOpenApi {
     return namespaceService.getNamespace(appId, env, clusterName, namespaceName);
   }
 
-  /**
-   * Create the app namespace. Suggest use {@link #createNamespace(String, OpenAppNamespaceDTO)} instead.
-   */
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
     return namespaceService.createAppNamespace(appNamespaceDTO);
   }

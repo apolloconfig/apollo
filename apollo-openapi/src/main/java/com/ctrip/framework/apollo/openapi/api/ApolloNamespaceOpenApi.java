@@ -33,5 +33,5 @@ public interface ApolloNamespaceOpenApi {
   OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName,
       String namespaceName);
 
-  OpenAppNamespaceDTO createNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO);
+  OpenAppNamespaceDTO createAppNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO);
 }

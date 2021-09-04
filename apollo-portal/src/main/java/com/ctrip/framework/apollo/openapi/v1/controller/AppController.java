@@ -33,7 +33,6 @@ import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.google.common.collect.Sets;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,7 +65,7 @@ public class AppController implements ApolloAppOpenApi {
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")
-  public List<OpenEnvClusterDTO> getEnvClusterInfo(@PathVariable String appId) {
+  public List<OpenEnvClusterDTO> getEnvClusterInfo(@PathVariable String appId){
 
     List<OpenEnvClusterDTO> envClusters = new LinkedList<>();
 
@@ -83,6 +82,17 @@ public class AppController implements ApolloAppOpenApi {
 
     return envClusters;
 
+  }
+
+  @GetMapping("/apps")
+  public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
+    final List<App> apps = new ArrayList<>();
+    if (StringUtils.isEmpty(appIds)) {
+      apps.addAll(appService.findAll());
+    } else {
+      apps.addAll(appService.findByAppIds(Sets.newHashSet(appIds.split(","))));
+    }
+    return OpenApiBeanUtils.transformFromApps(apps);
   }
 
   @GetMapping("/apps")
