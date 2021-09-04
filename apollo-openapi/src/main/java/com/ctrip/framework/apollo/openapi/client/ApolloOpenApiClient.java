@@ -161,7 +161,7 @@ public class ApolloOpenApiClient implements ApolloOpenApi {
   }
 
   @Override
-  public OpenAppNamespaceDTO createNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO) {
+  public OpenAppNamespaceDTO createAppNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO) {
     return namespaceService.createAppNamespace(appNamespaceDTO);
   }
 
