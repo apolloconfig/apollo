@@ -85,17 +85,6 @@ public class AppController implements ApolloAppOpenApi {
   }
 
   @GetMapping("/apps")
-  public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
-    final List<App> apps = new ArrayList<>();
-    if (StringUtils.isEmpty(appIds)) {
-      apps.addAll(appService.findAll());
-    } else {
-      apps.addAll(appService.findByAppIds(Sets.newHashSet(appIds.split(","))));
-    }
-    return OpenApiBeanUtils.transformFromApps(apps);
-  }
-
-  @GetMapping("/apps")
   @Override
   public List<OpenAppDTO> getAllApps() {
     final List<App> apps = appService.findAll();
