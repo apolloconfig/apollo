@@ -17,6 +17,7 @@
 
 Use ApolloConfigDB;
 
+UPDATE `AccessKey` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `App` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `AppNamespace` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `Audit` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
@@ -29,6 +30,50 @@ UPDATE `NamespaceLock` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedA
 UPDATE `Release` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `ReleaseHistory` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `ServerConfig` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `AccessKey` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 
--- TODO: add UNIQUE CONSTRAINT INDEX for each table
+-- add UNIQUE CONSTRAINT INDEX for each table
+ALTER TABLE `AccessKey`
+    ADD UNIQUE INDEX `UK_AppId_Secret_DeletedAt` (`AppId`,`Secret`,`DeletedAt`),
+    DROP INDEX `AppId`;
+
+ALTER TABLE `App`
+    ADD UNIQUE INDEX `UK_AppId_DeletedAt` (`AppId`,`DeletedAt`),
+    DROP INDEX `AppId`;
+
+ALTER TABLE `AppNamespace`
+    ADD UNIQUE INDEX `UK_AppId_Name_DeletedAt` (`AppId`,`Name`,`DeletedAt`),
+    DROP INDEX `IX_AppId`;
+
+-- Ignore TABLE `Audit`
+
+ALTER TABLE `Cluster`
+    ADD UNIQUE INDEX `UK_AppId_Name_DeletedAt` (`AppId`,`Name`,`DeletedAt`),
+    DROP INDEX `IX_AppId_Name`;
+
+-- Ignore TABLE `Commit`
+
+ALTER TABLE `GrayReleaseRule`
+    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_BranchName_DeletedAt` (`AppId`,`ClusterName`,`NamespaceName`,`BranchName`,`DeletedAt`),
+    DROP INDEX `IX_Namespace`;
+
+ALTER TABLE `Item`
+    ADD UNIQUE INDEX `UK_NamespaceId_Key_DeletedAt` (`NamespaceId`,`Key`,`DeletedAt`),
+    DROP INDEX `IX_GroupId`;
+
+ALTER TABLE `Namespace`
+    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`(191),`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
+    DROP INDEX `AppId_ClusterName_NamespaceName`;
+
+ALTER TABLE `NamespaceLock`
+    ADD UNIQUE INDEX `UK_NamespaceId_DeletedAt` (`NamespaceId`,`DeletedAt`),
+    DROP INDEX `IX_NamespaceId`;
+
+ALTER TABLE `Release`
+    ADD UNIQUE INDEX `UK_ReleaseKey_DeletedAt` (`ReleaseKey`,`DeletedAt`),
+    DROP INDEX `IX_ReleaseKey`;
+
+-- Ignore TABLE `ReleaseHistory`
+
+ALTER TABLE `ServerConfig`
+    ADD UNIQUE INDEX `UK_Key_DeletedAt` (`Key`,`DeletedAt`),
+    DROP INDEX `IX_Key`;

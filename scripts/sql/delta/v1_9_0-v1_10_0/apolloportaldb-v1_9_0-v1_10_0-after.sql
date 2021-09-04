@@ -29,4 +29,50 @@ UPDATE `RolePermission` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `Deleted
 UPDATE `ServerConfig` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `UserRole` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 
--- TODO: add UNIQUE CONSTRAINT INDEX for each table
+-- add UNIQUE CONSTRAINT INDEX for each table
+ALTER TABLE `App`
+    ADD UNIQUE INDEX `UK_AppId_DeletedAt` (`AppId`,`DeletedAt`),
+    DROP INDEX `AppId`;
+
+ALTER TABLE `AppNamespace`
+    ADD UNIQUE INDEX `UK_AppId_Name_DeletedAt` (`AppId`,`Name`,`DeletedAt`),
+    DROP INDEX `IX_AppId`;
+
+ALTER TABLE `Consumer`
+    ADD UNIQUE INDEX `UK_AppId_DeletedAt` (`AppId`,`DeletedAt`),
+    DROP INDEX `AppId`;
+
+ALTER TABLE `ConsumerRole`
+    ADD UNIQUE INDEX `UK_ConsumerId_RoleId_DeletedAt` (`ConsumerId`,`RoleId`,`DeletedAt`),
+    DROP INDEX `IX_ConsumerId_RoleId`;
+
+ALTER TABLE `ConsumerToken`
+    ADD UNIQUE INDEX `UK_Token_DeletedAt` (`Token`,`DeletedAt`),
+    DROP INDEX `IX_Token`;
+
+ALTER TABLE `Favorite`
+    ADD UNIQUE INDEX `UK_UserId_AppId_DeletedAt` (`UserId`,`AppId`,`DeletedAt`),
+    DROP INDEX `IX_UserId`;
+
+ALTER TABLE `Permission`
+    ADD UNIQUE INDEX `UK_TargetId_PermissionType_DeletedAt` (`TargetId`,`PermissionType`,`DeletedAt`),
+    DROP INDEX `IX_TargetId_PermissionType`;
+
+ALTER TABLE `Role`
+    ADD UNIQUE INDEX `UK_RoleName_DeletedAt` (`RoleName`,`DeletedAt`),
+    DROP INDEX `IX_RoleName`;
+
+ALTER TABLE `RolePermission`
+    ADD UNIQUE INDEX `UK_RoleId_PermissionId_DeletedAt` (`RoleId`,`PermissionId`,`DeletedAt`),
+    DROP INDEX `IX_RoleId`;
+
+ALTER TABLE `ServerConfig`
+    ADD UNIQUE INDEX `UK_Key_DeletedAt` (`Key`,`DeletedAt`),
+    DROP INDEX `IX_Key`;
+
+ALTER TABLE `UserRole`
+    ADD UNIQUE INDEX `UK_UserId_RoleId_DeletedAt` (`UserId`,`RoleId`,`DeletedAt`),
+    DROP INDEX `IX_UserId_RoleId`;
+
+ALTER TABLE `Users`
+    ADD UNIQUE INDEX `UK_Username` (`Username`);
