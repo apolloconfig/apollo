@@ -25,7 +25,6 @@ import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.api.ApolloNamespaceOpenApi;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,11 +70,11 @@ public class NamespaceController implements ApolloNamespaceOpenApi {
   }
 
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#request, #appId)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
+  @Override
   public OpenAppNamespaceDTO createAppNamespace(@PathVariable String appId,
-                                             @RequestBody OpenAppNamespaceDTO appNamespaceDTO,
-                                             HttpServletRequest request) {
+                                             @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
       throw new BadRequestException(String.format("AppId not equal. AppId in path = %s, AppId in payload = %s", appId,
@@ -106,14 +104,6 @@ public class NamespaceController implements ApolloNamespaceOpenApi {
     publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
 
     return OpenApiBeanUtils.transformToOpenAppNamespaceDTO(createdAppNamespace);
-  }
-
-  /**
-   * The method invoked really is {@link #createAppNamespace(String, OpenAppNamespaceDTO, HttpServletRequest)} for permission check.
-   */
-  @Override
-  public OpenAppNamespaceDTO createAppNamespace(String appId, OpenAppNamespaceDTO appNamespaceDTO) {
-    throw new UnsupportedOperationException();
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces")

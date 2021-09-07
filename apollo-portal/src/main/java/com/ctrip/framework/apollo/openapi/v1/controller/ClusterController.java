@@ -58,10 +58,11 @@ public class ClusterController implements ApolloClusterOpenApi {
     return clusterDTO == null ? null : OpenApiBeanUtils.transformFromClusterDTO(clusterDTO);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#request, #appId)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId)")
   @PostMapping(value = "apps/{appId}/clusters")
+  @Override
   public OpenClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
-      @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
+      @Valid @RequestBody OpenClusterDTO cluster) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
       throw new BadRequestException(String.format(
@@ -87,13 +88,5 @@ public class ClusterController implements ApolloClusterOpenApi {
     ClusterDTO createdClusterDTO = clusterService.createCluster(Env.valueOf(env), toCreate);
 
     return OpenApiBeanUtils.transformFromClusterDTO(createdClusterDTO);
-  }
-
-  /**
-   * The method invoked really is {@link #createCluster(String, String, OpenClusterDTO, HttpServletRequest)} for permission check.
-   */
-  @Override
-  public OpenClusterDTO createCluster(String appId, String env, OpenClusterDTO openClusterDTO) {
-    throw new UnsupportedOperationException();
   }
 }
