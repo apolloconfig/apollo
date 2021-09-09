@@ -35,8 +35,8 @@ import org.springframework.http.HttpHeaders;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConsumerAuthenticationFilter implements Filter {
-  private ConsumerAuthUtil consumerAuthUtil;
-  private ConsumerAuditUtil consumerAuditUtil;
+  private final ConsumerAuthUtil consumerAuthUtil;
+  private final ConsumerAuditUtil consumerAuditUtil;
 
   public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
     this.consumerAuthUtil = consumerAuthUtil;
