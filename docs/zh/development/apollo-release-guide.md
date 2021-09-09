@@ -19,9 +19,9 @@
 1. 拉取 master 最新代码
    1. git pull origin master  
 2. 打 tag
-   1. git tag v1.9.0
+   1. git tag ${new-version}
 3. push tag
-   1. git push origin tag v1.9.0
+   1. git push origin tag ${new-version}
 ## 4.2 打包
 ### 4.2.1 前置检查
 在打包之前检查本地环境, mvn -v 确保 java 版本是 1.8, 例如以下输出：
@@ -44,31 +44,36 @@
 
 ### 4.2.3 计算构建包的 checksum
 在 scripts 目录下执行以下三个命令
-​
 
 计算 configservice checksum
-> shasum ../apollo-configservice/target/apollo-configservice-1.9.0-github.zip > ../apollo-configservice/target/apollo-configservice-1.9.0-github.zip.sha1
+>在 ${apolloWorkspaceRootPath}/apollo-configservice/target/ 目录下执行：
+> 
+>shasum apollo-configservice-${new-version}-github.zip > apollo-configservice-${new-version}-github.zip.sha1
 
 计算 adminservice checksum
-> shasum ../apollo-adminservice/target/apollo-adminservice-1.9.0-github.zip > ../apollo-adminservice/target/apollo-adminservice-1.9.0-github.zip.sha1
+>在 ${apolloWorkspaceRootPath}/apollo-adminservice/target/ 目录下执行：
+>
+>shasum apollo-adminservice-${new-version}-github.zip > apollo-adminservice-${new-version}-github.zip.sha1
 
 计算 portal checksum
-> shasum ../apollo-portal/target/apollo-portal-1.9.0-github.zip > ../apollo-portal/target/apollo-portal-1.9.0-github.zip.sha1
+>在 ${apolloWorkspaceRootPath}/apollo-portal/target/ 目录下执行：  
+>
+> shasum apollo-portal-${new-version}-github.zip > apollo-portal-${new-version}-github.zip.sha1
 
 ## 4.3 创建 pre-release
 github 创建 pre-release
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/94396/1629015924779-f517e179-2711-4ccb-ab46-1fb69ca2f191.png#clientId=u9690858a-d2d3-4&from=paste&height=641&id=u4161f0d9&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1282&originWidth=3564&originalType=binary&ratio=1&size=258348&status=done&style=none&taskId=ue15b5715-83f8-4ff2-9c6a-285d1c11989&width=1782)
+![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/create-release.png)
 
 
 
 
 填写 Release Note & 上传包
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/94396/1629015996198-eb38be3c-23e2-466e-8a46-51a568cc8f30.png#clientId=u9690858a-d2d3-4&from=paste&height=930&id=ub74daa78&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1860&originWidth=1518&originalType=binary&ratio=1&size=313753&status=done&style=none&taskId=u764c1d49-c82a-417f-8b5d-ca1344d8224&width=759)
+![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/fill-release-form.png)
 ## 4.4 预发布 Apollo-Client Jar 包
 通过 github workflow 来发布。
 [https://github.com/ctripcorp/apollo/actions/workflows/release.yml](https://github.com/ctripcorp/apollo/actions/workflows/release.yml)
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/94396/1629106996256-ec68519a-1b22-484e-a1bb-90376528c3a4.png#clientId=u1dee6cad-a507-4&from=paste&height=588&id=ue1658a72&margin=%5Bobject%20Object%5D&name=image.png&originHeight=1176&originWidth=2472&originalType=binary&ratio=1&size=239867&status=done&style=none&taskId=u88feb7a7-66a4-471f-ae8f-91f65eecad4&width=1236)
-注意：选择 snapshots 可能会失败，原因是账户授权问题。选择 releases 可以正常发布。
+![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/publish-sdk.png)
+> 注意：如果发布的是 SNAPSHOT 版本，使用默认值 snapshots 即可，如果发布的是正式版本（不带 SNAPSHOT），则需要修改为 releases 才可以正常发布。
 ## 4.5 版本发布 PMC 投票
 投票是为了让各个 PMC 成员协作验证版本的内容，防止发布有问题的版本。
 投票具体的形式为在 Discussions 发起一个帖子，可参考：[https://github.com/ctripcorp/apollo/discussions/3899](https://github.com/ctripcorp/apollo/discussions/3899)
@@ -78,13 +83,13 @@ github 创建 pre-release
 ## 4.7 发布 Docker 镜像
 ### 4.7.1 构建镜像
 在 4.2 步骤打完包的前提下，在 apollo 根目录下执行
-> mvn docker:build -pl apollo-configservice,apollo-adminservice,apollo-portal -D1.9.0
+> mvn docker:build -pl apollo-configservice,apollo-adminservice,apollo-portal
 
 注意：如果出现报错，可能需要重启一下本地 docker
 ### 4.7.2 Push 镜像到仓库
 仓库地址：[https://hub.docker.com/u/apolloconfig](https://hub.docker.com/u/apolloconfig)
 依次 Push configservice/adminservice/portal，切记 latest 版本也要 push。
-![image.png](https://cdn.nlark.com/yuque/0/2021/png/94396/1629720378811-2a2f8ec7-e8f9-465b-97d3-1ad5ce461a17.png#clientId=uccccf577-5763-4&from=paste&height=720&id=ud81f423f&margin=%5Bobject%20Object%5D&name=image.png&originHeight=720&originWidth=1270&originalType=binary&ratio=1&size=114623&status=done&style=none&taskId=u4255742c-e782-444b-9ad8-9307b448f91&width=1270)
+![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/push-images-to-hub.png)
 ​
 
 ## 4.8 更新 helm chart
