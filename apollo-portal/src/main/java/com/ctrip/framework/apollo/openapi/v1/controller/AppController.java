@@ -70,7 +70,7 @@ public class AppController {
     for (Env env : envs) {
       OpenEnvClusterDTO envCluster = new OpenEnvClusterDTO();
 
-      envCluster.setEnv(env.name());
+      envCluster.setEnv(env.getName());
       List<ClusterDTO> clusterDTOs = clusterService.findClusters(env, appId);
       envCluster.setClusters(BeanUtils.toPropertySet("name", clusterDTOs));
 
@@ -84,7 +84,7 @@ public class AppController {
   @GetMapping("/apps")
   public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
     final List<App> apps = new ArrayList<>();
-    if (StringUtils.isEmpty(appIds)) {
+    if (!StringUtils.hasLength(appIds)) {
       apps.addAll(appService.findAll());
     } else {
       apps.addAll(appService.findByAppIds(Sets.newHashSet(appIds.split(","))));
@@ -102,8 +102,7 @@ public class AppController {
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
 
     List<App> apps = this.appService.findByAppIds(appIds);
-    List<OpenAppDTO> openAppDTOS = OpenApiBeanUtils.transformFromApps(apps);
-    return openAppDTOS;
+    return OpenApiBeanUtils.transformFromApps(apps);
   }
 
 }
