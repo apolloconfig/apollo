@@ -43,7 +43,6 @@
 > dos2unix build.sh
 
 ### 4.2.3 计算构建包的 checksum
-在 scripts 目录下执行以下三个命令
 
 计算 configservice checksum
 >在 ${apolloWorkspaceRootPath}/apollo-configservice/target/ 目录下执行：
