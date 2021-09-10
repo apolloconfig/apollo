@@ -45,17 +45,17 @@
 ### 4.2.3 计算构建包的 checksum
 
 计算 configservice checksum
->在 ${apolloWorkspaceRootPath}/apollo-configservice/target/ 目录下执行：
+>在 ${apollo_home}/apollo-configservice/target/ 目录下执行：
 > 
 >shasum apollo-configservice-${new-version}-github.zip > apollo-configservice-${new-version}-github.zip.sha1
 
 计算 adminservice checksum
->在 ${apolloWorkspaceRootPath}/apollo-adminservice/target/ 目录下执行：
+>在 ${apollo_home}/apollo-adminservice/target/ 目录下执行：
 >
 >shasum apollo-adminservice-${new-version}-github.zip > apollo-adminservice-${new-version}-github.zip.sha1
 
 计算 portal checksum
->在 ${apolloWorkspaceRootPath}/apollo-portal/target/ 目录下执行：  
+>在 ${apollo_home}/apollo-portal/target/ 目录下执行：  
 >
 > shasum apollo-portal-${new-version}-github.zip > apollo-portal-${new-version}-github.zip.sha1
 
@@ -63,17 +63,18 @@
 github 创建 pre-release
 ![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/create-release.png)
 
-
-
-
 填写 Release Note & 上传包
 ![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/fill-release-form.png)
+
 ## 4.4 预发布 Apollo-Client Jar 包
 通过 github workflow 来发布。
 [https://github.com/ctripcorp/apollo/actions/workflows/release.yml](https://github.com/ctripcorp/apollo/actions/workflows/release.yml)
+
 ![image.png](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/publish-sdk.png)
+
 > 注意：如果发布的是 SNAPSHOT 版本，使用默认值 snapshots 即可，如果发布的是正式版本（不带 SNAPSHOT），则需要修改为 releases 才可以正常发布。
 ## 4.5 版本发布 PMC 投票
+
 投票是为了让各个 PMC 成员协作验证版本的内容，防止发布有问题的版本。
 投票具体的形式为在 Discussions 发起一个帖子，可参考：[https://github.com/ctripcorp/apollo/discussions/3899](https://github.com/ctripcorp/apollo/discussions/3899)
 ## 4.6 正式发布 Apollo-Client Jar 到仓库
