@@ -77,10 +77,8 @@ public class AppService {
 
   public List<App> findAll() {
     Iterable<App> apps = appRepository.findAll();
-    if (apps == null) {
-      return Collections.emptyList();
-    }
-    return Lists.newArrayList((apps));
+
+    return Lists.newArrayList(apps);
   }
 
   public PageDTO<App> findAll(Pageable pageable) {

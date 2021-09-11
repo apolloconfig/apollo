@@ -54,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NamespaceService {
 
-  private Logger logger = LoggerFactory.getLogger(NamespaceService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceService.class);
   private static final Gson GSON = new Gson();
 
   private final PortalConfig portalConfig;
@@ -168,7 +168,7 @@ public class NamespaceService {
         namespaceBO = transformNamespace2BO(env, namespace);
         namespaceBOs.add(namespaceBO);
       } catch (Exception e) {
-        logger.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
+        LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
             appId, env, clusterName, namespace.getNamespaceName(), e);
         throw e;
       }
@@ -298,7 +298,7 @@ public class NamespaceService {
     final boolean isPublic;
     if (appNamespace == null) {
       //dirty data
-      logger.warn("Dirty data, cannot find appNamespace by namespaceName [{}], appId = {}, cluster = {}, set it format to {}, make public", namespaceName, appId, clusterName, ConfigFileFormat.Properties.getValue());
+      LOGGER.warn("Dirty data, cannot find appNamespace by namespaceName [{}], appId = {}, cluster = {}, set it format to {}, make public", namespaceName, appId, clusterName, ConfigFileFormat.Properties.getValue());
       format = ConfigFileFormat.Properties.getValue();
       isPublic = true; // set to true, because public namespace allowed to delete by user
     } else {
