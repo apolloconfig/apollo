@@ -10,6 +10,7 @@
   - [Quick Start](en/deployment/quick-start.md)
   - [Deployment Quick Start By Docker](en/deployment/quick-start-docker.md)
   - [Distributed Deployment Guide](en/deployment/distributed-deployment-guide.md)
+  - [Release New Version Guide](en/development/apollo-release-guide.md)
 
 - Development Document
   - [Apollo Development Guide](en/development/apollo-development-guide.md)

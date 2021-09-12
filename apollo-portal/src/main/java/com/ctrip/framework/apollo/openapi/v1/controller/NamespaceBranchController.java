@@ -16,10 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-/**
- * Created by qianjie on 8/10/17.
- */
-
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;

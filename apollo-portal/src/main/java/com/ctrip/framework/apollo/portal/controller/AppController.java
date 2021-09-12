@@ -40,6 +40,7 @@ import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +48,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -97,7 +97,7 @@ public class AppController {
 
   @GetMapping
   public List<App> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
-    if (StringUtils.isEmpty(appIds)) {
+    if (Strings.isNullOrEmpty(appIds)) {
       return appService.findAll();
     }
     return appService.findByAppIds(Sets.newHashSet(appIds.split(",")));
@@ -106,7 +106,7 @@ public class AppController {
   @GetMapping("/search/by-appid-or-name")
   public PageDTO<App> searchByAppIdOrAppName(@RequestParam(value = "query", required = false) String query,
       Pageable pageable) {
-    if (StringUtils.isEmpty(query)) {
+    if (Strings.isNullOrEmpty(query)) {
       return appService.findAll(pageable);
     }
     return appService.searchByAppIdOrAppName(query, pageable);
@@ -173,7 +173,7 @@ public class AppController {
         response.addResponseEntity(RichResponseEntity.ok(appService.createEnvNavNode(env, appId)));
       } catch (Exception e) {
         response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
-            "load env:" + env.name() + " cluster error." + e
+            "load env:" + env.getName() + " cluster error." + e
                 .getMessage()));
       }
     }
@@ -184,7 +184,8 @@ public class AppController {
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {
     appService.createAppInRemote(Env.valueOf(env), app);
 
-    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION, env, userInfoHolder.getUser().getUserId());
+    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION, 
+            env, userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();
   }
@@ -228,7 +229,6 @@ public class AppController {
     }
 
     return response;
-
   }
 
   private App transformToApp(AppModel appModel) {

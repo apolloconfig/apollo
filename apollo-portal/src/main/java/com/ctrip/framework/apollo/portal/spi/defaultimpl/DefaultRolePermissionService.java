@@ -150,13 +150,11 @@ public class DefaultRolePermissionService implements RolePermissionService {
 
         List<UserRole> userRoles = userRoleRepository.findByRoleId(role.getId());
 
-        Set<UserInfo> users = userRoles.stream().map(userRole -> {
+        return userRoles.stream().map(userRole -> {
             UserInfo userInfo = new UserInfo();
             userInfo.setUserId(userRole.getUserId());
             return userInfo;
         }).collect(Collectors.toSet());
-
-        return users;
     }
 
     /**

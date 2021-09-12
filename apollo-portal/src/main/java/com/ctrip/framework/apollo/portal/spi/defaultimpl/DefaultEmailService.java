@@ -85,7 +85,7 @@ public class DefaultEmailService implements EmailService {
 
   static class HTMLDataSource implements DataSource {
 
-    private String html;
+    private final String html;
 
     HTMLDataSource(String htmlString) {
       html = htmlString;

@@ -88,6 +88,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
   - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
   - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
+  - [Apollo 版本发布操作手册](zh/development/apollo-release-guide.md)
 
 # Deployment
   - [Quick Start](zh/deployment/quick-start.md)

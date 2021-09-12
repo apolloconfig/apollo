@@ -73,7 +73,7 @@ public class AppController implements ApolloAppOpenApi {
     for (Env env : envs) {
       OpenEnvClusterDTO envCluster = new OpenEnvClusterDTO();
 
-      envCluster.setEnv(env.name());
+      envCluster.setEnv(env.getName());
       List<ClusterDTO> clusterDTOs = clusterService.findClusters(env, appId);
       envCluster.setClusters(BeanUtils.toPropertySet("name", clusterDTOs));
 
@@ -85,16 +85,13 @@ public class AppController implements ApolloAppOpenApi {
   }
 
   @GetMapping("/apps")
-  @Override
-  public List<OpenAppDTO> getAllApps() {
-    final List<App> apps = appService.findAll();
-    return OpenApiBeanUtils.transformFromApps(apps);
-  }
-
-  @GetMapping(value = "/apps", params = "appIds")
-  @Override
-  public List<OpenAppDTO> getAppsByIds(@RequestParam(value = "appIds") List<String> appIds) {
-    final List<App> apps = appService.findByAppIds(Sets.newHashSet(appIds));
+  public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
+    final List<App> apps = new ArrayList<>();
+    if (!StringUtils.hasLength(appIds)) {
+      apps.addAll(appService.findAll());
+    } else {
+      apps.addAll(appService.findByAppIds(Sets.newHashSet(appIds.split(","))));
+    }
     return OpenApiBeanUtils.transformFromApps(apps);
   }
 
@@ -109,8 +106,7 @@ public class AppController implements ApolloAppOpenApi {
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
 
     List<App> apps = this.appService.findByAppIds(appIds);
-    List<OpenAppDTO> openAppDTOS = OpenApiBeanUtils.transformFromApps(apps);
-    return openAppDTOS;
+    return OpenApiBeanUtils.transformFromApps(apps);
   }
 
 }

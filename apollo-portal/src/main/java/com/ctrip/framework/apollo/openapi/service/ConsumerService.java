@@ -269,13 +269,11 @@ public class ConsumerService {
     List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId)
         .collect(Collectors.toList());
 
-    Set<String> appIds = this.findAppIdsByRoleIds(roleIds);
-    return appIds;
+    return this.findAppIdsByRoleIds(roleIds);
   }
 
   private List<ConsumerRole> findConsumerRolesByConsumerId(long consumerId) {
-    List<ConsumerRole> consumerRoles = this.consumerRoleRepository.findByConsumerId(consumerId);
-    return consumerRoles;
+    return this.consumerRoleRepository.findByConsumerId(consumerId);
   }
 
   private Set<String> findAppIdsByRoleIds(List<Long> roleIds) {

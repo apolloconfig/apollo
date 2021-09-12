@@ -58,7 +58,8 @@ public class ConfigsImportController {
     // check file
     ConfigFileUtils.check(file);
     final String format = ConfigFileUtils.getFormat(file.getOriginalFilename());
-    final String standardFilename = ConfigFileUtils.toFilename(appId, clusterName, namespaceName, ConfigFileFormat.fromString(format));
+    final String standardFilename = ConfigFileUtils.toFilename(appId, clusterName, namespaceName, 
+            ConfigFileFormat.fromString(format));
     configsImportService.importOneConfigFromFile(env, standardFilename, file.getInputStream());
   }
 }
