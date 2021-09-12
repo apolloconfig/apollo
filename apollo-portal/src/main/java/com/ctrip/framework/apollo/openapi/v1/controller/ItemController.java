@@ -19,8 +19,6 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.openapi.api.ApolloItemOpenApi;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
@@ -45,7 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController("openapiItemController")
 @RequestMapping("/openapi/v1/envs/{env}")
-public class ItemController implements ApolloItemOpenApi {
+public class ItemController {
 
   private final ItemService itemService;
   private final UserService userService;
@@ -64,12 +62,11 @@ public class ItemController implements ApolloItemOpenApi {
     return itemDTO == null ? null : OpenApiBeanUtils.transformFromItemDTO(itemDTO);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  @Override
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
-                                @RequestBody OpenItemDTO item) {
+                                @RequestBody OpenItemDTO item, HttpServletRequest request) {
 
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
@@ -97,13 +94,12 @@ public class ItemController implements ApolloItemOpenApi {
     return OpenApiBeanUtils.transformFromItemDTO(createdItem);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  @Override
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
-                         @RequestParam(defaultValue = "false") boolean createIfNotExists) {
+                         @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
 
     RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
 
@@ -134,7 +130,7 @@ public class ItemController implements ApolloItemOpenApi {
       if (ex instanceof HttpStatusCodeException) {
         // check createIfNotExists
         if (((HttpStatusCodeException) ex).getStatusCode().equals(HttpStatus.NOT_FOUND) && createIfNotExists) {
-          createItem(appId, env, clusterName, namespaceName, item);
+          createItem(appId, env, clusterName, namespaceName, item, request);
           return;
         }
       }
@@ -143,12 +139,12 @@ public class ItemController implements ApolloItemOpenApi {
   }
 
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  @Override
-  public void removeItem(@PathVariable String appId, @PathVariable String env,
+  public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator) {
+                         @PathVariable String key, @RequestParam String operator,
+                         HttpServletRequest request) {
 
     if (userService.findByUserId(operator) == null) {
       throw new BadRequestException("user(operator) not exists");
@@ -161,4 +157,5 @@ public class ItemController implements ApolloItemOpenApi {
 
     itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
   }
+
 }

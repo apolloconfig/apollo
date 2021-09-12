@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.api.ApolloClusterOpenApi;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -40,7 +39,7 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 
 @RestController("openapiClusterController")
 @RequestMapping("/openapi/v1/envs/{env}")
-public class ClusterController implements ApolloClusterOpenApi {
+public class ClusterController {
 
   private final ClusterService clusterService;
   private final UserService userService;
@@ -51,18 +50,17 @@ public class ClusterController implements ApolloClusterOpenApi {
   }
 
   @GetMapping(value = "apps/{appId}/clusters/{clusterName:.+}")
-  public OpenClusterDTO getCluster(@PathVariable("appId") String appId, @PathVariable String env,
+  public OpenClusterDTO loadCluster(@PathVariable("appId") String appId, @PathVariable String env,
       @PathVariable("clusterName") String clusterName) {
 
     ClusterDTO clusterDTO = clusterService.loadCluster(appId, Env.valueOf(env), clusterName);
     return clusterDTO == null ? null : OpenApiBeanUtils.transformFromClusterDTO(clusterDTO);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(T(org.springframework.web.context.request.RequestContextHolder).currentRequestAttributes().getRequest(), #appId)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#request, #appId)")
   @PostMapping(value = "apps/{appId}/clusters")
-  @Override
   public OpenClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
-      @Valid @RequestBody OpenClusterDTO cluster) {
+      @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
       throw new BadRequestException(String.format(
@@ -89,4 +87,5 @@ public class ClusterController implements ApolloClusterOpenApi {
 
     return OpenApiBeanUtils.transformFromClusterDTO(createdClusterDTO);
   }
+
 }
