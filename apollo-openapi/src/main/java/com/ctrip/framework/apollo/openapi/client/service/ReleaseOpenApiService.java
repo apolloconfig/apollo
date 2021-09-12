@@ -25,12 +25,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ReleaseOpenApiService extends AbstractOpenApiService {
+public class ReleaseOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService {
 
   public ReleaseOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName, String namespaceName,
       NamespaceReleaseDTO releaseDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
@@ -57,6 +59,7 @@ public class ReleaseOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenReleaseDTO getLatestActiveRelease(String appId, String env, String clusterName, String namespaceName) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -80,6 +83,7 @@ public class ReleaseOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void rollbackRelease(String env, long releaseId, String operator) {
     checkNotEmpty(env, "Env");
     checkNotEmpty(operator, "Operator");

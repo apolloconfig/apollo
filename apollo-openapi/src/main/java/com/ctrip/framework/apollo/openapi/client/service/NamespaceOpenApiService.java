@@ -30,7 +30,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class NamespaceOpenApiService extends AbstractOpenApiService {
+public class NamespaceOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService {
   private static final Type OPEN_NAMESPACE_DTO_LIST_TYPE = new TypeToken<List<OpenNamespaceDTO>>() {
   }.getType();
 
@@ -38,6 +39,7 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public OpenNamespaceDTO getNamespace(String appId, String env, String clusterName, String namespaceName) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -61,6 +63,7 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -80,6 +83,7 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
     checkNotEmpty(appNamespaceDTO.getAppId(), "App id");
     checkNotEmpty(appNamespaceDTO.getName(), "Name");
@@ -100,6 +104,7 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName, String namespaceName) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;

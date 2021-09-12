@@ -25,12 +25,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ItemOpenApiService extends AbstractOpenApiService {
+public class ItemOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.ItemOpenApiService {
 
   public ItemOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName, String key) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -59,6 +61,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenItemDTO createItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -84,6 +87,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void updateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -109,6 +113,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -138,6 +143,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void removeItem(String appId, String env, String clusterName, String namespaceName, String key, String operator) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;

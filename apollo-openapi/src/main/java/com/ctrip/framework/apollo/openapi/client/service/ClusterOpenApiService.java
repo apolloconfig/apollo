@@ -24,12 +24,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ClusterOpenApiService extends AbstractOpenApiService {
+public class ClusterOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService {
 
   public ClusterOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public OpenClusterDTO getCluster(String appId, String env, String clusterName) {
     checkNotEmpty(appId, "App id");
     checkNotEmpty(env, "Env");
@@ -49,6 +51,7 @@ public class ClusterOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO) {
     checkNotEmpty(openClusterDTO.getAppId(), "App id");
     checkNotEmpty(env, "Env");

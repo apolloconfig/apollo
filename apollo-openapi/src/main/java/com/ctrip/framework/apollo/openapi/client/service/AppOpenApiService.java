@@ -27,7 +27,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class AppOpenApiService extends AbstractOpenApiService {
+public class AppOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.AppOpenApiService {
   private static final Type OPEN_ENV_CLUSTER_DTO_LIST_TYPE = new TypeToken<List<OpenEnvClusterDTO>>() {
   }.getType();
   private static final Type OPEN_APP_DTO_LIST_TYPE = new TypeToken<List<OpenAppDTO>>() {
@@ -37,6 +38,7 @@ public class AppOpenApiService extends AbstractOpenApiService {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public List<OpenEnvClusterDTO> getEnvClusterInfo(String appId) {
     checkNotEmpty(appId, "App id");
 
@@ -49,6 +51,12 @@ public class AppOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
+  public List<OpenAppDTO> getAllApps() {
+    return this.getAppsInfo(null);
+  }
+
+  @Override
   public List<OpenAppDTO> getAppsInfo(List<String> appIds) {
     String path = "apps";
 
@@ -64,6 +72,7 @@ public class AppOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public List<OpenAppDTO> getAuthorizedApps() {
     String path = "apps/authorized";
     try(CloseableHttpResponse response = this.get(path)) {
