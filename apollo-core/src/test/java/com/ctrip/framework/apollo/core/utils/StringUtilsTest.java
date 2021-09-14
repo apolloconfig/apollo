@@ -69,19 +69,6 @@ public class StringUtilsTest {
   }
 
   @Test
-  public void testJoin() {
-    Assert.assertEquals("", StringUtils.join(new ArrayList(), "1a 2b 3c"));
-
-    ArrayList collection = new ArrayList();
-    collection.add(null);
-    Assert.assertEquals("", StringUtils.join(collection, "1a 2b 3c"));
-
-    collection = new ArrayList();
-    collection.add(-2_147_483_648);
-    Assert.assertEquals("-2147483648", StringUtils.join(collection, "1a 2b 3c"));
-  }
-
-  @Test
   public void testStartsWithIgnoreCase() {
     Assert.assertFalse(StringUtils.startsWithIgnoreCase("A1B2C3", "BAZ"));
     Assert.assertFalse(StringUtils.startsWithIgnoreCase(",", "BAZ"));
