@@ -4919,6 +4919,10 @@ textarea.input-group-sm > .form-control, textarea.input-group-sm > .input-group-
     border-color: #e7e7e7
 }
 
+.wapper .navbar-form {
+    border-color: #e7e7e7
+}
+
 .navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
     background-color: #e7e7e7;
     color: #555

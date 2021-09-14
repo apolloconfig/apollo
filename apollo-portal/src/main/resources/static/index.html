@@ -147,7 +147,7 @@
                 <div class="no-favorites text-center" ng-show="!favorites || favorites.length == 0">
                     <h4>{{'Index.FavoriteTip' | translate }}</h4>
                 </div>
-                <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
+                <div ng-show="!hasMoreFavorites" style="height: 15px"></div>
                 <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreFavorites"
                      ng-click="getUserFavorites()">
                     <div href="#" class="thumbnail hover cursor-pointer"
@@ -159,13 +159,9 @@
             </div>
             <div class="public-namespace-list" ng-show="whichContent==='3'">
                 <div class="wapper">
-                    <div class="select-wapper">
-                        <input type="text" autocomplete="off" ng-model="inValue_display" id="select-input-mark"  placeholder="{{'Index.SearchNamespace' | translate }}" input-search/>
-                        <ul class="select-content-panel hidden-cls" input-select>
-                            <li ng-repeat="app in dataList" ng-click="goToAppHomePage(app.appId)"
-                                href="#">{{app.appId}} / {{app.name}}</li>
-                        </ul>
-                    </div>
+                    <select id="publicNameSpaces-search-list" data-placeholder="{{'Index.SearchNamespace' | translate }}" style="width: 350px">
+                        <option value=""></option>
+                    </select>
                 </div>
                 <div class="display-table" ng-show="publicNamespaces.length > 0">
                     <table>
