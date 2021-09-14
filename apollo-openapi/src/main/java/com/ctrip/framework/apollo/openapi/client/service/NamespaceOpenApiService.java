@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.openapi.client.service;
 
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.openapi.client.url.OpenApiPathBuilder;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
@@ -49,10 +50,13 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(appId, "App id");
     checkNotEmpty(env, "Env");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s", escapePath(env), escapePath(appId),
-        escapePath(clusterName), escapePath(namespaceName));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName);
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenNamespaceDTO.class);
     } catch (Throwable ex) {
       throw new RuntimeException(String
@@ -69,10 +73,13 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(appId, "App id");
     checkNotEmpty(env, "Env");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces", escapePath(env), escapePath(appId),
-        escapePath(clusterName));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .customResource("namespaces");
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_NAMESPACE_DTO_LIST_TYPE);
     } catch (Throwable ex) {
       throw new RuntimeException(String
@@ -89,9 +96,11 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
       appNamespaceDTO.setFormat(ConfigFileFormat.Properties.getValue());
     }
 
-    String path = String.format("apps/%s/appnamespaces", escapePath(appNamespaceDTO.getAppId()));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .appsPathVal(appNamespaceDTO.getAppId())
+        .customResource("appnamespaces");
 
-    try (CloseableHttpResponse response = post(path, appNamespaceDTO)) {
+    try (CloseableHttpResponse response = post(pathBuilder, appNamespaceDTO)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenAppNamespaceDTO.class);
     } catch (Throwable ex) {
       throw new RuntimeException(String
@@ -111,10 +120,14 @@ public class NamespaceOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(appId, "App id");
     checkNotEmpty(env, "Env");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/lock", escapePath(env), escapePath(appId),
-        escapePath(clusterName), escapePath(namespaceName));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .customResource("lock");
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenNamespaceLockDTO.class);
     } catch (Throwable ex) {
       throw new RuntimeException(String
