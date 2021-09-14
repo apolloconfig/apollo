@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.client.service;
 
+import com.ctrip.framework.apollo.openapi.client.url.OpenApiPathBuilder;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
 import com.google.common.base.Joiner;
@@ -42,9 +43,11 @@ public class AppOpenApiService extends AbstractOpenApiService implements
   public List<OpenEnvClusterDTO> getEnvClusterInfo(String appId) {
     checkNotEmpty(appId, "App id");
 
-    String path = String.format("apps/%s/envclusters", escapePath(appId));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .appsPathVal(appId)
+        .customResource("envclusters");
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_ENV_CLUSTER_DTO_LIST_TYPE);
     } catch (Throwable ex) {
       throw new RuntimeException(String.format("Load env cluster information for appId: %s failed", appId), ex);
@@ -58,14 +61,15 @@ public class AppOpenApiService extends AbstractOpenApiService implements
 
   @Override
   public List<OpenAppDTO> getAppsInfo(List<String> appIds) {
-    String path = "apps";
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .customResource("apps");
 
     if (appIds != null && !appIds.isEmpty()) {
       String param = Joiner.on(",").join(appIds);
-      path = String.format("apps?appIds=%s", escapeParam(param));
+      pathBuilder.addParam("appIds", param);
     }
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_APP_DTO_LIST_TYPE);
     } catch (Throwable ex) {
       throw new RuntimeException(String.format("Load app information for appIds: %s failed", appIds), ex);
@@ -74,8 +78,10 @@ public class AppOpenApiService extends AbstractOpenApiService implements
 
   @Override
   public List<OpenAppDTO> getAuthorizedApps() {
-    String path = "apps/authorized";
-    try(CloseableHttpResponse response = this.get(path)) {
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .customResource("apps/authorized");
+    
+    try(CloseableHttpResponse response = this.get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_APP_DTO_LIST_TYPE);
     } catch (Throwable ex) {
       throw new RuntimeException("Load authorized apps failed", ex);
