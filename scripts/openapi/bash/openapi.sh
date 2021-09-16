@@ -71,39 +71,39 @@ function openapi_post() {
 #######################################
 # Create cluster in app's environment.
 # Arguments:
-#   app_id
+#   appId
 #   env
-#   cluster_name
+#   clusterName
 # Outputs:
 #   Writes location to stdout
 #######################################
 function cluster_get() {
-    local app_id=$1
+    local appId=$1
     local env=$2
-    local cluster_name=$3
-    openapi_get "openapi/v1/envs/${env}/apps/${app_id}/clusters/${cluster_name}"
+    local clusterName=$3
+    openapi_get "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}"
 }
 
 #######################################
 # Create cluster in app's environment.
 # Arguments:
-#   app_id
+#   appId
 #   env
-#   cluster_name
-#   data_change_created_by
+#   clusterName
+#   dataChangeCreatedBy
 # Outputs:
 #   Writes location to stdout
 #######################################
 function cluster_create() {
-  local app_id=$1
+  local appId=$1
   local env=$2
-  local cluster_name=$3
-  local data_change_created_by=$4
-  openapi_post "openapi/v1/envs/${env}/apps/${app_id}/clusters" "$(cat <<BODY
+  local clusterName=$3
+  local dataChangeCreatedBy=$4
+  openapi_post "openapi/v1/envs/${env}/apps/${appId}/clusters" "$(cat <<BODY
 {
-    "name":"${cluster_name}",
-    "appId":"${app_id}",
-    "dataChangeCreatedBy":"${data_change_created_by}"
+    "name":"${clusterName}",
+    "appId":"${appId}",
+    "dataChangeCreatedBy":"${dataChangeCreatedBy}"
 }
 BODY
 )"

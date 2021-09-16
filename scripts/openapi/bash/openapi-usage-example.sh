@@ -25,6 +25,7 @@
 # export global varialbes
 export APOLLO_PORTAL_ADDRESS=http://106.54.227.205
 export APOLLO_OPENAPI_TOKEN=284fe833cbaeecf2764801aa73965080b184fc88
+export CURL_OPTIONS="-v"
 # load functions
 source openapi.sh
 
