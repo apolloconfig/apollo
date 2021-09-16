@@ -143,13 +143,13 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
                         text: app.appId + ' / ' + app.name
                     })
                 });
-                $('#publicNameSpaces-search-list').select2({
+                $('#public-name-spaces-search-list').select2({
                     data: selectResult,
                     matcher: matchStart,
                     allowClear:true,
                 });
-                $('#publicNameSpaces-search-list').on('select2:select', function () {
-                    var selected = $('#publicNameSpaces-search-list').select2('data');
+                $('#public-name-spaces-search-list').on('select2:select', function () {
+                    var selected = $('#public-name-spaces-search-list').select2('data');
                     if (selected && selected.length) {
                         goToAppHomePage(selected[0].id)
                     }
