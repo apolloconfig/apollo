@@ -22,13 +22,18 @@
 # Chinese reference website https://www.apolloconfig.com/#/zh/usage/apollo-open-api-platform
 # English reference website https://www.apolloconfig.com/#/en/usage/apollo-open-api-platform
 
-# Global variables
-# portal's address, just support 1 without suffix '/'
-# Don't use http://ip:port/ with suffix '/'
-# or multiple address http://ip1:port1,http://ip2:port2
-APOLLO_PORTAL_ADDRESS=${APOLLO_PORTAL_ADDRESS:-http://106.54.227.205}
-APOLLO_OPENAPI_TOKEN=${APOLLO_OPENAPI_TOKEN:-284fe833cbaeecf2764801aa73965080b184fc88}
+####################################### Global variables #######################################
+# portal's address, just support 1 address without suffix '/'
+# Don't use http://ip:port/ with suffix '/' or multiple address http://ip1:port1,http://ip2:port2
+APOLLO_PORTAL_ADDRESS=${APOLLO_PORTAL_ADDRESS:-http://ip:port}
+APOLLO_OPENAPI_TOKEN=${APOLLO_OPENAPI_TOKEN:-please_change_me_by_environment_variable}
+CURL_OPTIONS=${CURL_OPTIONS:-}
 
+echo "apollo portal address: ${APOLLO_PORTAL_ADDRESS}"
+echo "curl options: ${CURL_OPTIONS}"
+####################################### end of Global variables #######################################
+
+####################################### basic http call #######################################
 #######################################
 # Http get by curl.
 # Globals:
@@ -41,10 +46,8 @@ function openapi_get() {
   local url_suffix=$1
 
   local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
-  curl --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" "${url}"
+  curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" "${url}"
 }
-
-
 #######################################
 # Http post by curl.
 # Globals:
@@ -59,9 +62,12 @@ function openapi_post() {
   local body=$2
 
   local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
-  curl --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" --data "${body}" "${url}"
+  curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" --data "${body}" "${url}"
 }
+####################################### end of basic http call #######################################
 
+
+####################################### cluster #######################################
 #######################################
 # Create cluster in app's environment.
 # Arguments:
@@ -102,3 +108,40 @@ function cluster_create() {
 BODY
 )"
 }
+####################################### end of cluster #######################################
+
+####################################### namespace #######################################
+#######################################
+# Create a namespace of a app.
+# Arguments:
+#   name
+#   appId
+#   format
+#   isPublic
+#   comment
+#   dataChangeCreatedBy
+# Outputs:
+#   Writes location to stdout
+#######################################
+function namespace_create() {
+  local name=$1
+  local appId=$2
+  local format=$3
+  local isPublic=$4
+  local comment=$5
+  local dataChangeCreatedBy=$6
+
+  openapi_post "openapi/v1/apps/${appId}/appnamespaces" "$(cat <<BODY
+{
+  "name": "${name}",
+  "appId": "${appId}",
+  "format": "${format}",
+  "isPublic": ${isPublic},
+  "comment": "${comment}",
+  "dataChangeCreatedBy": "${dataChangeCreatedBy}"
+}
+BODY
+)"
+}
+
+####################################### end of namespace #######################################

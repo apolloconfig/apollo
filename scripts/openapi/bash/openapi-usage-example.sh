@@ -28,8 +28,30 @@ export APOLLO_OPENAPI_TOKEN=284fe833cbaeecf2764801aa73965080b184fc88
 # load functions
 source openapi.sh
 
-###################
+# set up global environment variable
+APOLLO_APP_ID=openapi
+APOLLO_ENV=DEV
+APOLLO_CLUSTER=default
+APOLLO_USER=apollo
+
+####################################### cluster #######################################
 # get cluster
-cluster_get openapi DEV default
+printf "get cluster: app id = '%s', env = '%s', cluster = '%s'\n" ${APOLLO_APP_ID} ${APOLLO_ENV} ${APOLLO_CLUSTER}
+cluster_get ${APOLLO_APP_ID} ${APOLLO_ENV} ${APOLLO_CLUSTER}
+printf "\n\n"
+
 # create cluster. To forbid cluster xxx already exists, add timestamp to suffix
-cluster_create openapi DEV "cluster-$(date +%s)" apollo
+temp_apollo_cluster="cluster-$(date +%s)"
+printf "create cluster: app id = '%s', env = '%s', cluster = '%s'\n" ${APOLLO_APP_ID} ${APOLLO_ENV} ${temp_apollo_cluster}
+cluster_create ${APOLLO_APP_ID} ${APOLLO_ENV} ${temp_apollo_cluster} ${APOLLO_USER}
+printf "\n\n"
+####################################### end of cluster #######################################
+
+####################################### namespace #######################################
+# create namespace
+temp_namespace_name="application-123"
+temp_format=yaml
+printf "create namespace: namespace name = '%s', app id = '%s', format = '%s'\n" ${temp_namespace_name} ${APOLLO_APP_ID} ${temp_format}
+namespace_create ${temp_namespace_name} ${APOLLO_APP_ID} ${temp_format} false 'create by openapi, bash scripts' ${APOLLO_USER}
+printf "\n\n"
+####################################### end of namespace #######################################
