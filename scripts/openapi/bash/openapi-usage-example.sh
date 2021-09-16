@@ -37,14 +37,14 @@ APOLLO_USER=apollo
 
 ####################################### cluster #######################################
 # get cluster
-printf "get cluster: app id = '%s', env = '%s', cluster = '%s'\n" ${APOLLO_APP_ID} ${APOLLO_ENV} ${APOLLO_CLUSTER}
-cluster_get ${APOLLO_APP_ID} ${APOLLO_ENV} ${APOLLO_CLUSTER}
+printf "get cluster: env = '%s', app id = '%s', cluster = '%s'\n" ${APOLLO_ENV} ${APOLLO_APP_ID} ${APOLLO_CLUSTER}
+cluster_get ${APOLLO_ENV} ${APOLLO_APP_ID} ${APOLLO_CLUSTER}
 printf "\n\n"
 
 # create cluster. To forbid cluster xxx already exists, add timestamp to suffix
 temp_apollo_cluster="cluster-$(date +%s)"
-printf "create cluster: app id = '%s', env = '%s', cluster = '%s'\n" ${APOLLO_APP_ID} ${APOLLO_ENV} ${temp_apollo_cluster}
-cluster_create ${APOLLO_APP_ID} ${APOLLO_ENV} ${temp_apollo_cluster} ${APOLLO_USER}
+printf "create cluster: env = '%s', app id = '%s', cluster = '%s'\n" ${APOLLO_ENV} ${APOLLO_APP_ID} ${temp_apollo_cluster}
+cluster_create ${APOLLO_ENV} ${APOLLO_APP_ID} ${temp_apollo_cluster} ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of cluster #######################################
 
@@ -52,7 +52,7 @@ printf "\n\n"
 # create namespace
 temp_namespace_name="application-123"
 temp_format=yaml
-printf "create namespace: namespace name = '%s', app id = '%s', format = '%s'\n" ${temp_namespace_name} ${APOLLO_APP_ID} ${temp_format}
-namespace_create ${temp_namespace_name} ${APOLLO_APP_ID} ${temp_format} false 'create by openapi, bash scripts' ${APOLLO_USER}
+printf "create namespace: namespace name = '%s', app id = '%s', format = '%s'\n" ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_format}
+namespace_create ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_format} false 'create by openapi, bash scripts' ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of namespace #######################################

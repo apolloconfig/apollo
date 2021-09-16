@@ -72,15 +72,15 @@ function openapi_post() {
 # Get cluster.
 # 获取集群
 # Arguments:
-#   appId
 #   env
+#   appId
 #   clusterName
 # Outputs:
 #   Writes location to stdout
 #######################################
 function cluster_get() {
-    local appId=$1
-    local env=$2
+    local env=$1
+    local appId=$2
     local clusterName=$3
     openapi_get "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}"
 }
@@ -89,16 +89,16 @@ function cluster_get() {
 # Create cluster in app's environment.
 # 创建集群
 # Arguments:
-#   appId
 #   env
+#   appId
 #   clusterName
 #   dataChangeCreatedBy
 # Outputs:
 #   Writes location to stdout
 #######################################
 function cluster_create() {
-  local appId=$1
-  local env=$2
+  local env=$1
+  local appId=$2
   local clusterName=$3
   local dataChangeCreatedBy=$4
   openapi_post "openapi/v1/envs/${env}/apps/${appId}/clusters" "$(cat <<BODY
@@ -117,8 +117,8 @@ BODY
 # Create a namespace of a app.
 # 创建namespace
 # Arguments:
-#   name
 #   appId
+#   name
 #   format
 #   isPublic
 #   comment
@@ -127,8 +127,8 @@ BODY
 #   Writes location to stdout
 #######################################
 function namespace_create() {
-  local name=$1
-  local appId=$2
+  local appId=$1
+  local name=$2
   local format=$3
   local isPublic=$4
   local comment=$5
