@@ -69,7 +69,8 @@ function openapi_post() {
 
 ####################################### cluster #######################################
 #######################################
-# Create cluster in app's environment.
+# Get cluster.
+# 获取集群
 # Arguments:
 #   appId
 #   env
@@ -86,6 +87,7 @@ function cluster_get() {
 
 #######################################
 # Create cluster in app's environment.
+# 创建集群
 # Arguments:
 #   appId
 #   env
@@ -113,6 +115,7 @@ BODY
 ####################################### namespace #######################################
 #######################################
 # Create a namespace of a app.
+# 创建namespace
 # Arguments:
 #   name
 #   appId
