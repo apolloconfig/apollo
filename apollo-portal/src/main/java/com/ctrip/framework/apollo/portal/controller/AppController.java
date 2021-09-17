@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.portal.controller;
 
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
-import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.http.MultiResponseEntity;
@@ -103,15 +102,6 @@ public class AppController {
     return appService.findByAppIds(Sets.newHashSet(appIds.split(",")));
   }
 
-  @GetMapping("/search/by-appid-or-name")
-  public PageDTO<App> searchByAppIdOrAppName(@RequestParam(value = "query", required = false) String query,
-      Pageable pageable) {
-    if (Strings.isNullOrEmpty(query)) {
-      return appService.findAll(pageable);
-    }
-    return appService.searchByAppIdOrAppName(query, pageable);
-  }
-
   @GetMapping("/by-owner")
   public List<App> findAppsByOwner(@RequestParam("owner") String owner, Pageable page) {
     Set<String> appIds = Sets.newHashSet();
@@ -184,7 +174,7 @@ public class AppController {
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {
     appService.createAppInRemote(Env.valueOf(env), app);
 
-    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION, 
+    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION,
             env, userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();

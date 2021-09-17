@@ -45,7 +45,9 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
         $rootScope.pageContext = {
             appId: appId,
             env: urlParams.env ? urlParams.env : (scene ? scene.env : ''),
-            clusterName: urlParams.cluster ? urlParams.cluster : (scene ? scene.cluster : 'default')
+            clusterName: urlParams.cluster ? urlParams.cluster : (scene ? scene.cluster : 'default'),
+            namespaceName: urlParams.namespace,
+            item: urlParams.item,
         };
 
         //storage page context to session storage
@@ -201,7 +203,7 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
                 $rootScope.pageContext.env = nodes[0].env;
             }
 
-            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE);
+            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE, {firstLoad: true});
 
             nodes.forEach(function (env) {
                 if (!env.clusters || env.clusters.length == 0) {

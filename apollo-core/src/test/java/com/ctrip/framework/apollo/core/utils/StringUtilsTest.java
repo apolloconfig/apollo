@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.core.utils;
 
-import com.ctrip.framework.apollo.core.utils.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
