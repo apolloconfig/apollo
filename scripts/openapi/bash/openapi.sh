@@ -48,6 +48,7 @@ function openapi_get() {
   local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
   curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" "${url}"
 }
+
 #######################################
 # Http post by curl.
 # Globals:
@@ -63,6 +64,23 @@ function openapi_post() {
 
   local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
   curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" --data "${body}" "${url}"
+}
+
+#######################################
+# Http put by curl.
+# Globals:
+#   APOLLO_PORTAL_ADDRESS portal's address
+#   APOLLO_OPENAPI_TOKEN openapi's token
+# Arguments:
+#   url_suffix
+#   body
+#######################################
+function openapi_put() {
+  local url_suffix=$1
+  local body=$2
+
+  local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
+  curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" -X PUT --data "${body}" "${url}"
 }
 ####################################### end of basic http call #######################################
 
@@ -179,4 +197,73 @@ BODY
 )"
 }
 
+#######################################
+# Update an item of a namespace.
+# 修改配置
+# Arguments:
+#   env
+#   appId
+#   clusterName
+#   namespaceName
+#   key
+#   value
+#   comment
+#   dataChangeLastModifiedBy
+#######################################
+function item_update() {
+  local env=$1
+  local appId=$2
+  local clusterName=$3
+  local namespaceName=$4
+  local key=$5
+  local value=$6
+  local comment=$7
+  local dataChangeLastModifiedBy=$8
+
+  openapi_put "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items/${key}" "$(cat <<BODY
+{
+  "key":"${key}",
+  "value":"${value}",
+  "comment":"${comment}",
+  "dataChangeLastModifiedBy":"${dataChangeLastModifiedBy}"
+}
+BODY
+)"
+}
+
+#######################################
+# Update an item of a namespace, if item doesn's exist, create it.
+# 修改配置，当配置不存在时自动创建
+# Arguments:
+#   env
+#   appId
+#   clusterName
+#   namespaceName
+#   key
+#   value
+#   comment
+#   dataChangeLastModifiedBy
+#######################################
+function item_update_create_if_not_exists() {
+  local env=$1
+  local appId=$2
+  local clusterName=$3
+  local namespaceName=$4
+  local key=$5
+  local value=$6
+  local comment=$7
+  local dataChangeLastModifiedBy=$8
+  local dataChangeCreatedBy=$9
+
+  openapi_put "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items/${key}?createIfNotExists=true" "$(cat <<BODY
+{
+  "key":"${key}",
+  "value":"${value}",
+  "comment":"${comment}",
+  "dataChangeLastModifiedBy":"${dataChangeLastModifiedBy}",
+  "dataChangeCreatedBy":"${dataChangeCreatedBy}"
+}
+BODY
+)"
+}
 ####################################### end of item #######################################

@@ -58,9 +58,36 @@ printf "\n\n"
 ####################################### end of namespace #######################################
 
 ####################################### item #######################################
-temp_item_key="openapi-usage-key-$(date +%s)"
-temp_item_value="openapi-usage-value-$(date +%s)"
+# create an item, i.e a key value pair
+temp_item_key="openapi-usage-create-item-key-$(date +%s)"
+temp_item_value="openapi-usage-create-item-value-$(date +%s)"
 echo -e "create item: app id = ${APOLLO_APP_ID} env = ${APOLLO_ENV} key = ${temp_item_key} value = ${temp_item_value}"
-item_create ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi" ${APOLLO_USER}
+item_create ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-create-item" ${APOLLO_USER}
+printf "\n\n"
+
+# update an item
+echo "show update failed when item key not exists"
+sleep 1
+temp_item_key="openapi-usage-update-item-key-$(date +%s)"
+temp_item_value="openapi-usage-update-item-value-$(date +%s)"
+item_update ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER}
+printf "\n\n"
+
+echo "show after created, update success"
+item_create ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-create-item" ${APOLLO_USER}
+temp_item_value="item-update-success"
+printf "\n"
+item_update ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER}
+printf "\n\n"
+
+echo "show Update an item of a namespace, if item doesn's exist, create it"
+sleep 1
+temp_item_key="openapi-usage-item_update_create_if_not_exists-key-$(date +%s)"
+temp_item_value="openapi-usage-item_update_create_if_not_exists-value-$(date +%s)"
+echo "create it, key = '${temp_item_key}' value = '${temp_item_value}'"
+item_update_create_if_not_exists ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER} ${APOLLO_USER}
+temp_item_value="openapi-value-of-item_update_create_if_not_exists"
+echo "update it, key = '${temp_item_key}' value = '${temp_item_value}'"
+item_update_create_if_not_exists ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER} ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of item #######################################
