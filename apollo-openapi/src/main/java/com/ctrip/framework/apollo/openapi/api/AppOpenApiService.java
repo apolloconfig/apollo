@@ -14,18 +14,22 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.client.exception;
+package com.ctrip.framework.apollo.openapi.api;
 
-public class ApolloOpenApiException extends RuntimeException {
-  private final int status;
+import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
+import java.util.List;
 
-  public ApolloOpenApiException(int status, String reason, String message) {
-    super(String.format("Request to apollo open api failed, status code: %d, reason: %s, message: %s", status, reason,
-        message));
-    this.status = status;
-  }
+/**
+ * @author wxq
+ */
+public interface AppOpenApiService {
 
-  public int getStatus() {
-    return status;
-  }
+  List<OpenEnvClusterDTO> getEnvClusterInfo(String appId);
+
+  List<OpenAppDTO> getAllApps();
+
+  List<OpenAppDTO> getAppsInfo(List<String> appIds);
+
+  List<OpenAppDTO> getAuthorizedApps();
 }
