@@ -25,7 +25,7 @@
 # export global varialbes
 export APOLLO_PORTAL_ADDRESS=http://106.54.227.205
 export APOLLO_OPENAPI_TOKEN=284fe833cbaeecf2764801aa73965080b184fc88
-export CURL_OPTIONS="-v"
+export CURL_OPTIONS=""
 # load functions
 source openapi.sh
 
@@ -56,3 +56,11 @@ printf "create namespace: namespace name = '%s', app id = '%s', format = '%s'\n"
 namespace_create ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_format} false 'create by openapi, bash scripts' ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of namespace #######################################
+
+####################################### item #######################################
+temp_item_key="openapi-usage-key-$(date +%s)"
+temp_item_value="openapi-usage-value-$(date +%s)"
+echo -e "create item: app id = ${APOLLO_APP_ID} env = ${APOLLO_ENV} key = ${temp_item_key} value = ${temp_item_value}"
+item_create ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi" ${APOLLO_USER}
+printf "\n\n"
+####################################### end of item #######################################

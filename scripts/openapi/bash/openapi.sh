@@ -75,8 +75,6 @@ function openapi_post() {
 #   env
 #   appId
 #   clusterName
-# Outputs:
-#   Writes location to stdout
 #######################################
 function cluster_get() {
     local env=$1
@@ -93,8 +91,6 @@ function cluster_get() {
 #   appId
 #   clusterName
 #   dataChangeCreatedBy
-# Outputs:
-#   Writes location to stdout
 #######################################
 function cluster_create() {
   local env=$1
@@ -123,8 +119,6 @@ BODY
 #   isPublic
 #   comment
 #   dataChangeCreatedBy
-# Outputs:
-#   Writes location to stdout
 #######################################
 function namespace_create() {
   local appId=$1
@@ -148,3 +142,41 @@ BODY
 }
 
 ####################################### end of namespace #######################################
+
+
+####################################### item #######################################
+#######################################
+# Create an item of a namespace.
+# 新增配置
+# Arguments:
+#   env
+#   appId
+#   clusterName
+#   namespaceName
+#   key
+#   value
+#   comment
+#   dataChangeCreatedBy
+#######################################
+function item_create() {
+  local env=$1
+  local appId=$2
+  local clusterName=$3
+  local namespaceName=$4
+  local key=$5
+  local value=$6
+  local comment=$7
+  local dataChangeCreatedBy=$8
+
+  openapi_post "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items" "$(cat <<BODY
+{
+    "key":"${key}",
+    "value":"${value}",
+    "comment":"${comment}",
+    "dataChangeCreatedBy":"${dataChangeCreatedBy}"
+}
+BODY
+)"
+}
+
+####################################### end of item #######################################
