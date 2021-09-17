@@ -90,4 +90,10 @@ temp_item_value="openapi-value-of-item_update_create_if_not_exists"
 echo "update it, key = '${temp_item_key}' value = '${temp_item_value}'"
 item_update_create_if_not_exists ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER} ${APOLLO_USER}
 printf "\n\n"
+
+echo "show delete item failed"
+item_delete ${APOLLO_ENV} ${APOLLO_APP_ID} default application "key-be-deleted" ${APOLLO_USER}
+printf "\nshow delete item success\n"
+item_delete ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${APOLLO_USER}
+printf "\n\n"
 ####################################### end of item #######################################

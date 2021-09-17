@@ -37,8 +37,9 @@ echo "curl options: ${CURL_OPTIONS}"
 #######################################
 # Http get by curl.
 # Globals:
-#   APOLLO_PORTAL_ADDRESS portal's address
-#   APOLLO_OPENAPI_TOKEN openapi's token
+#   APOLLO_PORTAL_ADDRESS:  portal's address
+#   APOLLO_OPENAPI_TOKEN:   openapi's token
+#   CURL_OPTIONS:           options in curl
 # Arguments:
 #   url_suffix
 #######################################
@@ -52,8 +53,9 @@ function openapi_get() {
 #######################################
 # Http post by curl.
 # Globals:
-#   APOLLO_PORTAL_ADDRESS portal's address
-#   APOLLO_OPENAPI_TOKEN openapi's token
+#   APOLLO_PORTAL_ADDRESS:  portal's address
+#   APOLLO_OPENAPI_TOKEN:   openapi's token
+#   CURL_OPTIONS:           options in curl
 # Arguments:
 #   url_suffix
 #   body
@@ -69,8 +71,9 @@ function openapi_post() {
 #######################################
 # Http put by curl.
 # Globals:
-#   APOLLO_PORTAL_ADDRESS portal's address
-#   APOLLO_OPENAPI_TOKEN openapi's token
+#   APOLLO_PORTAL_ADDRESS:  portal's address
+#   APOLLO_OPENAPI_TOKEN:   openapi's token
+#   CURL_OPTIONS:           options in curl
 # Arguments:
 #   url_suffix
 #   body
@@ -81,6 +84,24 @@ function openapi_put() {
 
   local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
   curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" -X PUT --data "${body}" "${url}"
+}
+
+#######################################
+# Http delete by curl.
+# Globals:
+#   APOLLO_PORTAL_ADDRESS:  portal's address
+#   APOLLO_OPENAPI_TOKEN:   openapi's token
+#   CURL_OPTIONS:           options in curl
+# Arguments:
+#   url_suffix
+#   body
+#######################################
+function openapi_delete() {
+  local url_suffix=$1
+  local body=$2
+
+  local url="${APOLLO_PORTAL_ADDRESS}/${url_suffix}"
+  curl ${CURL_OPTIONS} --header "Authorization: ${APOLLO_OPENAPI_TOKEN}" --header "Content-Type: application/json;charset=UTF-8" -X DELETE --data "${body}" "${url}"
 }
 ####################################### end of basic http call #######################################
 
@@ -265,5 +286,27 @@ function item_update_create_if_not_exists() {
 }
 BODY
 )"
+}
+
+#######################################
+# Delete an item of a namespace.
+# 删除配置
+# Arguments:
+#   env
+#   appId
+#   clusterName
+#   namespaceName
+#   key
+#   operator
+#######################################
+function item_delete() {
+  local env=$1
+  local appId=$2
+  local clusterName=$3
+  local namespaceName=$4
+  local key=$5
+  local operator=$6
+
+  openapi_delete "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items/${key}?operator=${operator}"
 }
 ####################################### end of item #######################################
