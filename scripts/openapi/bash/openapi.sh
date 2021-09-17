@@ -180,6 +180,37 @@ BODY
 )"
 }
 
+#######################################
+# Release a namespace.
+# 发布配置
+# Arguments:
+#   env
+#   appId
+#   clusterName
+#   namespaceName
+#   releaseTitle
+#   releaseComment
+#   releasedBy
+#######################################
+function namespace_release() {
+  local env=$1
+  local appId=$2
+  local clusterName=$3
+  local namespaceName=$4
+  
+  local releaseTitle=$5
+  local releaseComment=$6
+  local releasedBy=$7
+
+  openapi_post "openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/releases" "$(cat <<BODY
+{
+    "releaseTitle":"${releaseTitle}",
+    "releaseComment":"${releaseComment}",
+    "releasedBy":"${releasedBy}"
+}
+BODY
+)"
+}
 ####################################### end of namespace #######################################
 
 

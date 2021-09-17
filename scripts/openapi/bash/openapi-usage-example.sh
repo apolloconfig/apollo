@@ -51,8 +51,8 @@ printf "\n\n"
 ####################################### namespace #######################################
 # create namespace
 temp_namespace_name="application-123"
-temp_format=yaml
-printf "create namespace: namespace name = '%s', app id = '%s', format = '%s'\n" ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_format}
+temp_namespace_format=yaml
+echo "create namespace: namespace name = '${temp_namespace_name}', app id = '${APOLLO_APP_ID}', format = '${temp_namespace_format}'"
 namespace_create ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_format} false 'create by openapi, bash scripts' ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of namespace #######################################
@@ -97,3 +97,15 @@ printf "\nshow delete item success\n"
 item_delete ${APOLLO_ENV} ${APOLLO_APP_ID} default application ${temp_item_key} ${APOLLO_USER}
 printf "\n\n"
 ####################################### end of item #######################################
+
+####################################### namespace release #######################################
+temp_namespace_name="application-$(date +%s)"
+temp_namespace_format=properties
+echo -e "create namespace: namespace name = '${temp_namespace_name}', app id = '${APOLLO_APP_ID}', format = '${temp_namespace_format}'"
+namespace_create ${APOLLO_APP_ID} ${temp_namespace_name} ${temp_namespace_format} false 'create by openapi, bash scripts for release' ${APOLLO_USER}
+echo -e "\ncreate or update an item '${temp_item_key}'='${temp_item_value}'"
+item_update_create_if_not_exists ${APOLLO_ENV} ${APOLLO_APP_ID} default ${temp_namespace_name} ${temp_item_key} ${temp_item_value} "openapi-update-item" ${APOLLO_USER} ${APOLLO_USER}
+echo -e "\nrelease namespace: '${temp_namespace_name}'"
+namespace_release ${APOLLO_ENV} ${APOLLO_APP_ID} ${APOLLO_CLUSTER} ${temp_namespace_name} 'releaseTitle-openapi-2021-01-01' 'releaseComment-openapi' ${APOLLO_USER}
+printf "\n\n"
+####################################### end of namespace release #######################################
