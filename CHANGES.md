@@ -14,6 +14,7 @@ Apollo 1.10.0
 * [Remove spring dependencies from internal code](https://github.com/apolloconfig/apollo/pull/3937)
 * [Fix issue: ingress syntax](https://github.com/apolloconfig/apollo/pull/3933)
 * [refactor: let open api more easier to use and development](https://github.com/apolloconfig/apollo/pull/3943)
+* [feat(scripts): use bash to call openapi](https://github.com/apolloconfig/apollo/pull/3980)
 * [Support search by item](https://github.com/apolloconfig/apollo/pull/3977)
 
 ------------------
