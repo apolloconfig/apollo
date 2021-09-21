@@ -75,5 +75,5 @@ ALTER TABLE `Release`
 -- Ignore TABLE `ReleaseHistory`
 
 ALTER TABLE `ServerConfig`
-    ADD UNIQUE INDEX `UK_Key_DeletedAt` (`Key`,`DeletedAt`),
+    ADD UNIQUE INDEX `UK_Key_Cluster_DeletedAt` (`Key`,`Cluster`,`DeletedAt`),
     DROP INDEX `IX_Key`;
