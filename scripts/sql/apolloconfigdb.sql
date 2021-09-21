@@ -242,7 +242,7 @@ CREATE TABLE `Item` (
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UK_NamespaceId_Key_DeletedAt` (`NamespaceId`,`Key`,`DeletedAt`),
+  UNIQUE KEY `UK_NamespaceId_LineNum_Key_DeletedAt` (`NamespaceId`,`Key`,`LineNum`,`DeletedAt`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='配置项目';
 

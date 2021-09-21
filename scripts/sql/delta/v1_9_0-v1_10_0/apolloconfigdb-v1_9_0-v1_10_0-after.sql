@@ -57,7 +57,7 @@ ALTER TABLE `GrayReleaseRule`
     DROP INDEX `IX_Namespace`;
 
 ALTER TABLE `Item`
-    ADD UNIQUE INDEX `UK_NamespaceId_Key_DeletedAt` (`NamespaceId`,`Key`,`DeletedAt`),
+    ADD UNIQUE INDEX `UK_NamespaceId_LineNum_Key_DeletedAt` (`NamespaceId`,`Key`,`LineNum`,`DeletedAt`),
     DROP INDEX `IX_GroupId`;
 
 ALTER TABLE `Namespace`
