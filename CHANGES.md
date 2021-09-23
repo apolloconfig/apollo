@@ -16,6 +16,7 @@ Apollo 1.10.0
 * [refactor: let open api more easier to use and development](https://github.com/apolloconfig/apollo/pull/3943)
 * [feat(scripts): use bash to call openapi](https://github.com/apolloconfig/apollo/pull/3980)
 * [Support search by item](https://github.com/apolloconfig/apollo/pull/3977)
+* [refactor: Unify PropertyChangeType](https://github.com/apolloconfig/apollo/pull/3998)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
