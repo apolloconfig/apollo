@@ -18,23 +18,23 @@ package com.ctrip.framework.apollo.portal.entity.vo;
 
 import com.ctrip.framework.apollo.common.entity.EntityPair;
 import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
-import com.ctrip.framework.apollo.portal.enums.ChangeType;
+import com.ctrip.framework.apollo.core.enums.PropertyChangeType;
 
 public class Change {
 
-  private ChangeType type;
+  private PropertyChangeType type;
   private EntityPair<KVEntity> entity;
 
-  public Change(ChangeType type, EntityPair<KVEntity> entity) {
+  public Change(PropertyChangeType type, EntityPair<KVEntity> entity) {
     this.type = type;
     this.entity = entity;
   }
 
-  public ChangeType getType() {
+  public PropertyChangeType getType() {
     return type;
   }
 
-  public void setType(ChangeType type) {
+  public void setType(PropertyChangeType type) {
     this.type = type;
   }
 

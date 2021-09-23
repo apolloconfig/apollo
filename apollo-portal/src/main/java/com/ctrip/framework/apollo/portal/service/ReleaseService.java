@@ -28,7 +28,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
-import com.ctrip.framework.apollo.portal.enums.ChangeType;
+import com.ctrip.framework.apollo.core.enums.PropertyChangeType;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.base.Objects;
@@ -194,10 +194,10 @@ public class ReleaseService {
       String secondValue = toCompareReleaseConfiguration.get(key);
       //added
       if (secondValue == null) {
-        compareResult.addEntityPair(ChangeType.DELETED, new KVEntity(key, firstValue),
+        compareResult.addEntityPair(PropertyChangeType.DELETED, new KVEntity(key, firstValue),
                                     new KVEntity(key, null));
       } else if (!Objects.equal(firstValue, secondValue)) {
-        compareResult.addEntityPair(ChangeType.MODIFIED, new KVEntity(key, firstValue),
+        compareResult.addEntityPair(PropertyChangeType.MODIFIED, new KVEntity(key, firstValue),
                                     new KVEntity(key, secondValue));
       }
 
@@ -209,7 +209,7 @@ public class ReleaseService {
       String value = entry.getValue();
       if (baseReleaseConfiguration.get(key) == null) {
         compareResult
-            .addEntityPair(ChangeType.ADDED, new KVEntity(key, ""), new KVEntity(key, value));
+            .addEntityPair(PropertyChangeType.ADDED, new KVEntity(key, ""), new KVEntity(key, value));
       }
 
     }

@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.portal.enums;
+package com.ctrip.framework.apollo.core.enums;
 
-public enum ChangeType {
+public enum PropertyChangeType {
   ADDED, MODIFIED, DELETED
 }

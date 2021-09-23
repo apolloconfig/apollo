@@ -19,7 +19,9 @@ package com.ctrip.framework.apollo.enums;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
+ * @deprecated Use {@link com.ctrip.framework.apollo.core.enums.PropertyChangeType} instead.
  */
+@Deprecated
 public enum PropertyChangeType {
   ADDED, MODIFIED, DELETED
 }
