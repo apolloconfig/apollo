@@ -197,15 +197,14 @@ public class ItemController {
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public ItemDTO get(@PathVariable("appId") String appId,
-                     @PathVariable("clusterName") String clusterName,
-                     @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
     Item item = itemService.findOne(appId, clusterName, namespaceName, key);
     if (item == null) {
-      throw new NotFoundException(
-          String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
+      throw new NotFoundException("item not found for %s %s %s %s", appId, clusterName,
+          namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }
-
 
 }

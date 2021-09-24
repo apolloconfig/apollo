@@ -16,15 +16,23 @@
  */
 package com.ctrip.framework.apollo.common.exception;
 
-import org.springframework.http.HttpStatus;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class NotFoundException extends AbstractApolloHttpException {
+public class NotFoundExceptionTest {
 
-  /**
-   * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...)
-   */
-  public NotFoundException(String msgtpl, Object... args) {
-    super(msgtpl, args);
-    setHttpStatus(HttpStatus.NOT_FOUND);
+  @Test
+  public void testConstructor() {
+    String appId = "app-1001";
+    String clusterName = "test";
+    String namespaceName = "application";
+    String key = "test.key";
+    NotFoundException e1, e2;
+    e1 = new NotFoundException("item not found for %s %s %s %s", appId,
+        clusterName, namespaceName, key);
+    e2 = new NotFoundException(
+        String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
+    Assert.assertEquals(e1.getMessage(), e2.getMessage());
   }
+
 }

@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.common.exception;
 
+import com.google.common.base.Strings;
 import org.springframework.http.HttpStatus;
 
 public abstract class AbstractApolloHttpException extends RuntimeException{
@@ -24,8 +25,15 @@ public abstract class AbstractApolloHttpException extends RuntimeException{
   
   protected HttpStatus httpStatus;
 
-  public AbstractApolloHttpException(String msg){
-    super(msg);
+  /**
+   * When args not empty, use {@link com.google.common.base.Strings#lenientFormat(String, Object...)}
+   * to replace %s in msgtpl with args to set the error message. Otherwise, use msgtpl 
+   * to set the error message. e.g.: 
+   * <pre>{@code new NotFoundException("... %s ... %s ... %s", "str", 0, 0.1)}</pre>
+   * If the number of '%s' in `msgtpl` does not match args length, the '%s' string will be printed.
+   */
+  public AbstractApolloHttpException(String msgtpl, Object... args){
+    super(args == null || args.length == 0 ? msgtpl : Strings.lenientFormat(msgtpl, args));
   }
   
   public AbstractApolloHttpException(String msg, Exception e){
