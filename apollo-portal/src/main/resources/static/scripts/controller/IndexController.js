@@ -131,7 +131,6 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
     }
 
     function getPublicNamespaces() {
-        var size = 10;
         NamespaceService.find_public_namespaces()
             .then(function (result) {
                 $scope.allPublicNamespaces = result;
@@ -145,8 +144,6 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
                 });
                 $('#public-name-spaces-search-list').select2({
                     data: selectResult,
-                    matcher: matchStart,
-                    allowClear:true,
                 });
                 $('#public-name-spaces-search-list').on('select2:select', function () {
                     var selected = $('#public-name-spaces-search-list').select2('data');
@@ -237,16 +234,6 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
 
     function changeContent(contentIndex) {
         $scope.whichContent = contentIndex;
-    }
-
-    function matchStart(params, data) {
-        if ($.trim(params.term) === '') {
-            return data;
-        }
-        if(data.text.indexOf(params.term) !==-1 ){
-            return data;
-        }
-        return null;
     }
 
 }
