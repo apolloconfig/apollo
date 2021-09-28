@@ -28,12 +28,15 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.lang.reflect.Type;
-import java.util.*;
 
 @Component
 public class PortalConfig extends RefreshableConfig {
@@ -80,7 +83,7 @@ public class PortalConfig extends RefreshableConfig {
   public Map<String, String> getMetaServers() {
     final String key = "apollo.portal.meta.servers";
     String jsonContent = getValue(key);
-    if(null == jsonContent) {
+    if (null == jsonContent) {
       return Collections.emptyMap();
     }
 
@@ -263,74 +266,11 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("admin-service.access.tokens");
   }
 
-  /***
-   * The following configurations are used in ctrip profile
-   **/
-
-  public int appId() {
-    return getIntProperty("ctrip.appid", 0);
-  }
-
-  //send code & template id. apply from ewatch
-  public String sendCode() {
-    return getValue("ctrip.email.send.code");
-  }
-
-  public int templateId() {
-    return getIntProperty("ctrip.email.template.id", 0);
-  }
-
-  //email retention time in email server queue.TimeUnit: hour
-  public int survivalDuration() {
-    return getIntProperty("ctrip.email.survival.duration", 5);
-  }
-
-  public boolean isSendEmailAsync() {
-    return getBooleanProperty("email.send.async", true);
-  }
-
-  public String portalServerName() {
-    return getValue("serverName");
-  }
-
-  public String casServerLoginUrl() {
-    return getValue("casServerLoginUrl");
-  }
-
-  public String casServerUrlPrefix() {
-    return getValue("casServerUrlPrefix");
-  }
-
-  public String credisServiceUrl() {
-    return getValue("credisServiceUrl");
-  }
-
-  public String userServiceUrl() {
-    return getValue("userService.url");
-  }
-
-  public String userServiceAccessToken() {
-    return getValue("userService.accessToken");
-  }
-
-  public String soaServerAddress() {
-    return getValue("soa.server.address");
-  }
-
-  public String cloggingUrl() {
-    return getValue("clogging.server.url");
-  }
-
-  public String cloggingPort() {
-    return getValue("clogging.server.port");
-  }
-
-  public String hermesServerAddress() {
-    return getValue("hermes.server.address");
-  }
-
   public String[] webHookUrls() {
     return getArrayProperty("config.release.webhook.service.url", null);
   }
 
+  public boolean supportSearchByItem() {
+    return getBooleanProperty("searchByItem.switch", true);
+  }
 }

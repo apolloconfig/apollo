@@ -38,4 +38,5 @@ public interface CommitRepository extends PagingAndSortingRepository<Commit, Lon
   @Query("update Commit set isdeleted=1,DataChange_LastModifiedBy = ?4 where appId=?1 and clusterName=?2 and namespaceName = ?3")
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
 
+  List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(String appId, String clusterName, String namespaceName,String changeSets, Pageable page);
 }

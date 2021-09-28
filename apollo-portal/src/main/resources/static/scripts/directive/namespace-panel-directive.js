@@ -64,7 +64,10 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.refreshNamespace = refreshNamespace;
             scope.switchView = switchView;
             scope.toggleItemSearchInput = toggleItemSearchInput;
+            scope.toggleHistorySearchInput = toggleHistorySearchInput;
             scope.searchItems = searchItems;
+            scope.resetSearchItems = resetSearchItems;
+            scope.searchHistory = searchHistory;
             scope.loadCommitHistory = loadCommitHistory;
             scope.toggleTextEditStatus = toggleTextEditStatus;
             scope.goToSyncPage = goToSyncPage;
@@ -128,7 +131,9 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 namespace.isBranch = false;
                 namespace.displayControl = {
                     currentOperateBranch: 'master',
-                    showSearchInput: false,
+                    showSearchInput: namespace.showSearchItemInput,
+                    searchItemKey: namespace.searchItemKey,
+                    showHistorySearchInput: false,
                     show: scope.showBody
                 };
                 scope.showNamespaceBody = namespace.showNamespaceBody ? true : scope.showBody;
@@ -150,6 +155,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 initPermission(namespace);
                 initLinkedNamespace(namespace);
                 loadInstanceInfo(namespace);
+                initSearchItemInput(namespace);
 
                 function initNamespaceBranch(namespace) {
                     NamespaceBranchService.findNamespaceBranch(scope.appId, scope.env,
@@ -395,6 +401,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
                 }
 
+                function initSearchItemInput(namespace) {
+                    if (namespace.displayControl.searchItemKey) {
+                        namespace.searchKey = namespace.displayControl.searchItemKey;
+                        searchItems(namespace);
+                    }
+                }
             }
 
             function initNamespaceInstancesCount(namespace) {
@@ -472,6 +484,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     scope.env,
                     namespace.baseInfo.clusterName,
                     namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
                     namespace.commitPage,
                     size)
                     .then(function (result) {
@@ -857,6 +870,43 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     }
                 });
                 namespace.viewItems = items;
+            }
+
+            function resetSearchItems(namespace) {
+                namespace.searchKey = '';
+                searchItems(namespace);
+            }
+
+            function toggleHistorySearchInput(namespace) {
+                namespace.displayControl.showHistorySearchInput = !namespace.displayControl.showHistorySearchInput;
+            }
+
+            function searchHistory(namespace) {
+                namespace.commits = [];
+                namespace.commitPage = 0;
+                namespace.hasLoadAllCommit = false;
+                var size = 10;
+                CommitService.find_commits(scope.appId,
+                    scope.env,
+                    namespace.baseInfo.clusterName,
+                    namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
+                    namespace.commitPage,
+                    size)
+                    .then(function (result) {
+                        if (result.length < size) {
+                            namespace.hasLoadAllCommit = true;
+                        }
+
+                        for (var i = 0; i < result.length; i++) {
+                            //to json
+                            result[i].changeSets = JSON.parse(result[i].changeSets);
+                            namespace.commits.push(result[i]);
+                        }
+                        namespace.commitPage++
+                    }, function (result) {
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingHistoryError'));
+                    });
             }
 
             //normal release and gray release

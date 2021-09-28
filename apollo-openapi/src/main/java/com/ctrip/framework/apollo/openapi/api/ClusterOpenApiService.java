@@ -14,26 +14,16 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.portal.spi.ctrip;
+package com.ctrip.framework.apollo.openapi.api;
 
-import com.ctrip.framework.apollo.portal.spi.SsoHeartbeatHandler;
-
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 
 /**
- * @author Jason Song(song_s@ctrip.com)
+ * @author wxq
  */
-public class CtripSsoHeartbeatHandler implements SsoHeartbeatHandler {
+public interface ClusterOpenApiService {
 
-  @Override
-  public void doHeartbeat(HttpServletRequest request, HttpServletResponse response) {
-    try {
-      response.sendRedirect("ctrip_sso_heartbeat.html");
-    } catch (IOException e) {
-    }
-  }
+  OpenClusterDTO getCluster(String appId, String env, String clusterName);
 
+  OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO);
 }

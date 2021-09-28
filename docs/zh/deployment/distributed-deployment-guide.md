@@ -1152,6 +1152,12 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 ### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
 
+### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
+
+默认为 true，可以方便的按配置项快速搜索配置
+
+如果设置为 false，则关闭此功能 
+
 > 适用于1.7.1及以上版本
 
 如果对应环境的apollo-adminservice开启了[访问控制](#_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
@@ -1251,3 +1257,9 @@ namespace.value.length.limit.override = {1:200,3:20}
 admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6
 admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b9033196ba818f7a872b
 ```
+
+### 3.2.8 apollo.access-key.auth-time-diff-tolerance - 配置服务端AccessKey校验容忍的时间偏差
+
+> 适用于1.10.0及以上版本
+
+默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。

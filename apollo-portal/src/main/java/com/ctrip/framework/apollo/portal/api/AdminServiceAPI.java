@@ -68,6 +68,10 @@ public class AdminServiceAPI {
   @Service
   public static class NamespaceAPI extends API {
 
+    private ParameterizedTypeReference<PageDTO<NamespaceDTO>>
+        namespacePageDTO = new ParameterizedTypeReference<PageDTO<NamespaceDTO>>() {
+    };
+
     private ParameterizedTypeReference<Map<String, Boolean>>
         typeReference = new ParameterizedTypeReference<Map<String, Boolean>>() {
     };
@@ -77,6 +81,14 @@ public class AdminServiceAPI {
           NamespaceDTO[].class, appId,
           clusterName);
       return Arrays.asList(namespaceDTOs);
+    }
+
+    public PageDTO<NamespaceDTO> findByItem(Env env, String itemKey, int page, int size) {
+      ResponseEntity<PageDTO<NamespaceDTO>>
+          entity =
+          restTemplate.get(env, "/namespaces/find-by-item?itemKey={itemKey}&page={page}&size={size}",
+                           namespacePageDTO, itemKey, page, size);
+      return entity.getBody();
     }
 
     public NamespaceDTO loadNamespace(String appId, Env env, String clusterName,
@@ -380,6 +392,16 @@ public class AdminServiceAPI {
           "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/commit?page={page}&size={size}",
           CommitDTO[].class,
           appId, clusterName, namespaceName, page, size);
+
+      return Arrays.asList(commitDTOs);
+    }
+
+    public List<CommitDTO> findByKey(String appId, Env env, String clusterName, String namespaceName, String key, int page, int size) {
+
+      CommitDTO[] commitDTOs = restTemplate.get(env,
+              "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/commit?key={key}&page={page}&size={size}",
+              CommitDTO[].class,
+              appId, clusterName, namespaceName, key, page, size);
 
       return Arrays.asList(commitDTOs);
     }

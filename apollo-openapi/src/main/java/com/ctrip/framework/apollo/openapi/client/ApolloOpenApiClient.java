@@ -84,7 +84,7 @@ public class ApolloOpenApiClient {
    * Get all App information
    */
   public List<OpenAppDTO> getAllApps() {
-    return appService.getAppsInfo(null);
+    return appService.getAllApps();
   }
 
   /**

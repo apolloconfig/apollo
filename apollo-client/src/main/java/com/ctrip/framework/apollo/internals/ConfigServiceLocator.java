@@ -109,7 +109,7 @@ public class ConfigServiceLocator {
       return null;
     }
 
-    logger.warn("Located config services from apollo.config-service configuration: {}, will not refresh config services from remote meta service!", configServices);
+    logger.info("Located config services from apollo.config-service configuration: {}, will not refresh config services from remote meta service!", configServices);
 
     // mock service dto list
     String[] configServiceUrls = configServices.split(",");
