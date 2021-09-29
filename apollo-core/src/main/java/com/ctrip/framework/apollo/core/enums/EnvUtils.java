@@ -18,31 +18,40 @@ package com.ctrip.framework.apollo.core.enums;
 
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 
+/**
+ * A utility class for the {@link Env} enum.
+ * <p>
+ * The class provides simple functionalities that extend the capabilities of {@link Env}
+ *
+ * @author Diego Krupitza(info@diegokrupitza.com)
+ */
 public final class EnvUtils {
-  
+
+  /**
+   * Transforms a given String to its matching {@link Env}
+   *
+   * @param envName the String to convert
+   * @return the matching {@link Env} for the given String
+   */
   public static Env transformEnv(String envName) {
     if (StringUtils.isBlank(envName)) {
       return Env.UNKNOWN;
     }
-    switch (envName.trim().toUpperCase()) {
-      case "LPT":
-        return Env.LPT;
-      case "FAT":
-      case "FWS":
-        return Env.FAT;
-      case "UAT":
-        return Env.UAT;
-      case "PRO":
-      case "PROD": //just in case
-        return Env.PRO;
-      case "DEV":
-        return Env.DEV;
-      case "LOCAL":
-        return Env.LOCAL;
-      case "TOOLS":
-        return Env.TOOLS;
-      default:
-        return Env.UNKNOWN;
+
+    String cleanedEnvName = envName.trim().toUpperCase();
+
+    // fix up in case there is a typo
+    // like prod/pro
+    if (cleanedEnvName.equals("PROD")) {
+      cleanedEnvName = Env.PRO.name().toUpperCase();
+    }
+
+    try {
+      return Env.valueOf(cleanedEnvName);
+    } catch (IllegalArgumentException e) {
+      // the name could not be found
+      // or there is a typo we dont handle
+      return Env.UNKNOWN;
     }
   }
 }
