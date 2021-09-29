@@ -43,7 +43,7 @@ public final class EnvUtils {
     // fix up in case there is a typo
     // like prod/pro
     if (cleanedEnvName.equals("PROD")) {
-      cleanedEnvName = Env.PRO.name().toUpperCase();
+      return Env.PRO;
     }
 
     try {
