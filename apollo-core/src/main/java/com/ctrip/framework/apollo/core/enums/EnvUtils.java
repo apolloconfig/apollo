@@ -46,6 +46,12 @@ public final class EnvUtils {
       return Env.PRO;
     }
 
+    if (cleanedEnvName.equals("FWS")) {
+      // special case that FAT & FWS
+      // should return the same
+      return Env.FAT;
+    }
+
     try {
       return Env.valueOf(cleanedEnvName);
     } catch (IllegalArgumentException e) {
