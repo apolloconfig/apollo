@@ -7,5 +7,6 @@
 - Versioned and grayscale releases management
 - Great authentication, authorization and audit control
 
-[GitHub](https://github.com/ctripcorp/apollo/)
+[GitHub](https://github.com/apolloconfig)
+[Gitee](https://gitee.com/apolloconfig)
 [Get Started](zh/README)

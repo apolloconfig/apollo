@@ -215,17 +215,14 @@ public class PortalMetaDomainService {
         ScheduledExecutorService scheduledExecutorService =
                 Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("MetaServiceLocator", true));
 
-        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    for (String metaServerAddresses : selectedMetaServerAddressCache.keySet()) {
-                        updateMetaServerAddresses(metaServerAddresses);
-                    }
-                } catch (Throwable ex) {
-                    logger.warn(String.format("Refreshing meta server address failed, will retry in %d seconds",
-                            REFRESH_INTERVAL_IN_SECOND), ex);
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+            try {
+                for (String metaServerAddresses : selectedMetaServerAddressCache.keySet()) {
+                    updateMetaServerAddresses(metaServerAddresses);
                 }
+            } catch (Throwable ex) {
+                logger.warn(String.format("Refreshing meta server address failed, will retry in %d seconds",
+                        REFRESH_INTERVAL_IN_SECOND), ex);
             }
         }, REFRESH_INTERVAL_IN_SECOND, REFRESH_INTERVAL_IN_SECOND, TimeUnit.SECONDS);
     }

@@ -239,3 +239,7 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 ## 3.2 Portal 接入邮件服务
 
 请参考[Portal 接入邮件服务](zh/development/portal-how-to-enable-email-service)
+
+## 3.3 Portal 集群部署时共享 session
+
+请参考[Portal 共享 session](zh/development/portal-how-to-enable-session-store)

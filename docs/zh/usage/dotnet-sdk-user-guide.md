@@ -21,7 +21,7 @@ AppId是应用的身份信息，是从服务端获取配置的一个重要信息
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
     </appSettings>
 </configuration>
 ```
@@ -56,7 +56,7 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
         <!-- Should change the apollo config service url for each environment -->
         <add key="Apollo.DEV.Meta" value="http://dev-configservice:8080"/>
         <add key="Apollo.FAT.Meta" value="http://fat-configservice:8080"/>

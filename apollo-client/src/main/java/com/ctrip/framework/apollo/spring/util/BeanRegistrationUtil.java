@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.spring.util;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -40,10 +41,19 @@ public class BeanRegistrationUtil {
 
     String[] candidates = registry.getBeanDefinitionNames();
 
-    for (String candidate : candidates) {
-      BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
-      if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
-        return false;
+    if (registry instanceof BeanFactory) {
+      final BeanFactory beanFactory = (BeanFactory) registry;
+      for (String candidate : candidates) {
+        if (beanFactory.isTypeMatch(candidate, beanClass)) {
+          return false;
+        }
+      }
+    } else {
+      for (String candidate : candidates) {
+        BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
+        if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
+          return false;
+        }
       }
     }
 

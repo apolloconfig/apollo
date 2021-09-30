@@ -87,7 +87,7 @@ public class ConfigPublishListener {
 
   private class ConfigPublishNotifyTask implements Runnable {
 
-    private ConfigPublishEvent.ConfigPublishInfo publishInfo;
+    private final ConfigPublishEvent.ConfigPublishInfo publishInfo;
 
     ConfigPublishNotifyTask(ConfigPublishEvent.ConfigPublishInfo publishInfo) {
       this.publishInfo = publishInfo;
@@ -131,7 +131,7 @@ public class ConfigPublishListener {
     /**
     * webhook send
     *
-    * @param releaseHistory
+    * @param releaseHistory {@link ReleaseHistoryBO}
     */
     private void sendPublishWebHook(ReleaseHistoryBO releaseHistory) {
       Env env = publishInfo.getEnv();

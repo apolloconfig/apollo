@@ -35,6 +35,8 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,6 +104,21 @@ public class NamespaceService {
   public Namespace findOne(String appId, String clusterName, String namespaceName) {
     return namespaceRepository.findByAppIdAndClusterNameAndNamespaceName(appId, clusterName,
                                                                          namespaceName);
+  }
+
+  /**
+   * the returned content's size is not fixed. so please carefully used.
+   */
+  public Page<Namespace> findByItem(String itemKey, Pageable pageable) {
+    Page<Item> items = itemService.findItemsByKey(itemKey, pageable);
+
+    if (!items.hasContent()) {
+      return Page.empty();
+    }
+
+    Set<Long> namespaceIds = BeanUtils.toPropertySet("namespaceId", items.getContent());
+
+    return new PageImpl<>(namespaceRepository.findByIdIn(namespaceIds));
   }
 
   public Namespace findPublicNamespaceForAssociatedNamespace(String clusterName, String namespaceName) {

@@ -43,7 +43,7 @@ public class ReleaseHistoryController {
 
   private static final Gson GSON = new Gson();
 
-  private Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
+  private final Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
   }.getType();
 
   private final ReleaseHistoryService releaseHistoryService;

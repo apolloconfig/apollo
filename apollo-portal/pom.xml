@@ -51,6 +51,20 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-data-redis</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.session</groupId>
+			<artifactId>spring-session-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<!-- yml processing -->
 		<dependency>
 			<groupId>org.yaml</groupId>
@@ -180,19 +194,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>ctrip</id>
-			<dependencies>
-				<dependency>
-					<groupId>com.ctrip.framework.apollo-sso</groupId>
-					<artifactId>apollo-sso-ctrip</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.apollo-ctrip-service</groupId>
-					<artifactId>apollo-email-service</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
 </project>

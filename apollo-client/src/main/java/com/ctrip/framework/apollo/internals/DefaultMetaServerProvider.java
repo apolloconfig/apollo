@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.internals;
 
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.core.spi.MetaServerProvider;
@@ -41,7 +42,7 @@ public class DefaultMetaServerProvider implements MetaServerProvider {
     String metaAddress = System.getProperty(ConfigConsts.APOLLO_META_KEY);
     if (Strings.isNullOrEmpty(metaAddress)) {
       // 2. Get from OS environment variable, which could not contain dot and is normally in UPPER case
-      metaAddress = System.getenv("APOLLO_META");
+      metaAddress = System.getenv(ApolloClientSystemConsts.APOLLO_META_ENVIRONMENT_VARIABLES);
     }
     if (Strings.isNullOrEmpty(metaAddress)) {
       // 3. Get from server.properties

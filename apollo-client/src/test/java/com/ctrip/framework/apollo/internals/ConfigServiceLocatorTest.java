@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.internals;
 
 import static org.junit.Assert.assertEquals;
 
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import java.util.List;
 import org.junit.After;
@@ -27,7 +28,8 @@ public class ConfigServiceLocatorTest {
 
   @After
   public void tearDown() throws Exception {
-    System.clearProperty("apollo.configService");
+    System.clearProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE);
+    System.clearProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE);
   }
 
   @Test
@@ -35,7 +37,25 @@ public class ConfigServiceLocatorTest {
     String someConfigServiceUrl = " someConfigServiceUrl ";
     String anotherConfigServiceUrl = " anotherConfigServiceUrl ";
 
-    System.setProperty("apollo.configService", someConfigServiceUrl + "," + anotherConfigServiceUrl);
+    System.setProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE, someConfigServiceUrl + "," + anotherConfigServiceUrl);
+
+    ConfigServiceLocator configServiceLocator = new ConfigServiceLocator();
+
+    List<ServiceDTO> result = configServiceLocator.getConfigServices();
+
+    assertEquals(2, result.size());
+
+    assertEquals(someConfigServiceUrl.trim(), result.get(0).getHomepageUrl());
+    assertEquals(anotherConfigServiceUrl.trim(), result.get(1).getHomepageUrl());
+  }
+
+  @Test
+  public void testGetConfigServicesWithSystemPropertyCompatible() throws Exception {
+    String someConfigServiceUrl = " someConfigServiceUrl ";
+    String anotherConfigServiceUrl = " anotherConfigServiceUrl ";
+
+    System.setProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE,
+        someConfigServiceUrl + "," + anotherConfigServiceUrl);
 
     ConfigServiceLocator configServiceLocator = new ConfigServiceLocator();
 

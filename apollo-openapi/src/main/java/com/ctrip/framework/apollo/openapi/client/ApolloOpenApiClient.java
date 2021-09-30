@@ -84,7 +84,16 @@ public class ApolloOpenApiClient {
    * Get all App information
    */
   public List<OpenAppDTO> getAllApps() {
-    return appService.getAppsInfo(null);
+    return appService.getAllApps();
+  }
+
+  /**
+   * Get applications which can be operated by current open api client.
+   *
+   * @return app's information
+   */
+  public List<OpenAppDTO> getAuthorizedApps() {
+    return this.appService.getAuthorizedApps();
   }
 
   /**

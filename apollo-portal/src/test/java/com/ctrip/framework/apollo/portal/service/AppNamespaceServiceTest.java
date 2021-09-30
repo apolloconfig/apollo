@@ -161,7 +161,7 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
 
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
-    Assert.assertEquals(ConfigFileFormat.Properties.getValue(), createdAppNamespace.getFormat());
+    Assert.assertEquals(ConfigFileFormat.YAML.getValue(), createdAppNamespace.getFormat());
   }
 
 

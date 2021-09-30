@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
@@ -52,16 +53,19 @@ public class ReleaseController {
   private final UserService userService;
   private final NamespaceBranchService namespaceBranchService;
   private final ConsumerPermissionValidator consumerPermissionValidator;
+  private final ReleaseOpenApiService releaseOpenApiService;
 
   public ReleaseController(
       final ReleaseService releaseService,
       final UserService userService,
       final NamespaceBranchService namespaceBranchService,
-      final ConsumerPermissionValidator consumerPermissionValidator) {
+      final ConsumerPermissionValidator consumerPermissionValidator,
+      ReleaseOpenApiService releaseOpenApiService) {
     this.releaseService = releaseService;
     this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
     this.consumerPermissionValidator = consumerPermissionValidator;
+    this.releaseOpenApiService = releaseOpenApiService;
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -79,27 +83,14 @@ public class ReleaseController {
       throw new BadRequestException("user(releaseBy) not exists");
     }
 
-    NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
-
-    releaseModel.setAppId(appId);
-    releaseModel.setEnv(Env.valueOf(env).toString());
-    releaseModel.setClusterName(clusterName);
-    releaseModel.setNamespaceName(namespaceName);
-
-    return OpenApiBeanUtils.transformFromReleaseDTO(releaseService.publish(releaseModel));
+    return this.releaseOpenApiService.publishNamespace(appId, env, clusterName, namespaceName, model);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest")
   public OpenReleaseDTO loadLatestActiveRelease(@PathVariable String appId, @PathVariable String env,
                                                 @PathVariable String clusterName, @PathVariable
                                                     String namespaceName) {
-    ReleaseDTO releaseDTO = releaseService.loadLatestRelease(appId, Env.valueOf
-        (env), clusterName, namespaceName);
-    if (releaseDTO == null) {
-      return null;
-    }
-
-    return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
+    return this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
   }
 
     @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -194,8 +185,7 @@ public class ReleaseController {
       throw new AccessDeniedException("Forbidden operation. you don't have release permission");
     }
 
-    releaseService.rollback(Env.valueOf(env), releaseId, operator);
-
+    this.releaseOpenApiService.rollbackRelease(env, releaseId, operator);
   }
 
 }

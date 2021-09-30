@@ -24,13 +24,8 @@
 	<version>${revision}</version>
 	<name>Apollo</name>
 	<packaging>pom</packaging>
-	<description>Ctrip Configuration Center</description>
-	<url>https://github.com/ctripcorp/apollo</url>
-
-	<organization>
-		<name>Ctrip, Inc.</name>
-		<url>http://www.ctrip.com</url>
-	</organization>
+	<description>Configuration Center</description>
+	<url>https://github.com/apolloconfig/apollo</url>
 
 	<licenses>
 		<license>
@@ -40,23 +35,32 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/ctripcorp/apollo</url>
-		<connection>scm:git:git://github.com/ctripcorp/apollo.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/ctripcorp/apollo.git</developerConnection>
+		<url>https://github.com/apolloconfig/apollo</url>
+		<connection>scm:git:git@github.com:apolloconfig/apollo.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:apolloconfig/apollo.git</developerConnection>
 	</scm>
 
 	<ciManagement>
 		<system>GitHub Actions</system>
-		<url>https://github.com/ctripcorp/apollo/actions</url>
+		<url>https://github.com/apolloconfig/apollo/actions</url>
 	</ciManagement>
 
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/ctripcorp/apollo/issues</url>
+		<url>https://github.com/apolloconfig/apollo/issues</url>
 	</issueManagement>
 
+	<developers>
+		<developer>
+			<id>apollo</id>
+			<name>The Apollo Project Contributors</name>
+			<email>apollo-config@googlegroups.com</email>
+			<url>https://www.apolloconfig.com/</url>
+		</developer>
+	</developers>
+
 	<properties>
-		<revision>1.9.0-SNAPSHOT</revision>
+		<revision>1.10.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.4.2</spring-boot.version>
@@ -85,6 +89,7 @@
 		<module>apollo-buildtools</module>
 		<module>apollo-core</module>
 		<module>apollo-client</module>
+		<module>apollo-client-config-data</module>
 		<module>apollo-common</module>
 		<module>apollo-biz</module>
 		<module>apollo-configservice</module>
@@ -143,107 +148,6 @@
 				<artifactId>apollo-openapi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- ctrip internal dependencies, only used when ctrip profiles are enabled -->
-			<dependency>
-				<groupId>com.dianping.cat</groupId>
-				<artifactId>cat-client</artifactId>
-				<version>2.2.3</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.platform</groupId>
-				<artifactId>ctrip-dal-client</artifactId>
-				<version>1.0.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with xpp3:xpp3_min -->
-					<exclusion>
-						<groupId>xmlpull</groupId>
-						<artifactId>xmlpull</artifactId>
-					</exclusion>
-					<!-- duplicated with bcpkix-jdk15on -->
-					<exclusion>
-						<groupId>org.bouncycastle</groupId>
-						<artifactId>bcprov-jdk16</artifactId>
-					</exclusion>
-					<!-- duplicated with hibernate-jpa-2.1-api -->
-					<exclusion>
-						<groupId>javax.persistence</groupId>
-						<artifactId>persistence-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.clogging</groupId>
-				<artifactId>clogging-agent</artifactId>
-				<version>3.5.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.credis</groupId>
-				<artifactId>credis</artifactId>
-				<version>2.4.11</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework</groupId>
-				<artifactId>vi</artifactId>
-				<version>0.9.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-sso</groupId>
-				<artifactId>apollo-sso-ctrip</artifactId>
-				<version>1.1.0</version>
-				<exclusions>
-					<!-- partially duplicated with org.ow2.asm:asm -->
-					<exclusion>
-						<groupId>asm</groupId>
-						<artifactId>asm</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-ctrip-service</groupId>
-				<artifactId>apollo-email-service</artifactId>
-				<version>1.0.0</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>javax.servlet-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with commons-collections and commons-beanutils -->
-					<exclusion>
-						<groupId>commons-beanutils</groupId>
-						<artifactId>commons-beanutils-core</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
 			<!--third party -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -269,7 +173,7 @@
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
-				<version>5.0.1</version>
+				<version>4.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-lang</groupId>
@@ -280,7 +184,7 @@
 			<dependency>
 				<groupId>com.thoughtworks.xstream</groupId>
 				<artifactId>xstream</artifactId>
-				<version>1.4.17</version>
+				<version>1.4.18</version>
 			</dependency>
 			<!--for test -->
 			<dependency>
@@ -299,6 +203,12 @@
 				<groupId>org.junit.vintage</groupId>
 				<artifactId>junit-vintage-engine</artifactId>
 				<version>5.7.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.stefanbirkner</groupId>
+				<artifactId>system-lambda</artifactId>
+				<version>1.2.0</version>
 				<scope>test</scope>
 			</dependency>
 			<!-- declare Spring BOMs in order -->
@@ -321,19 +231,6 @@
 				<groupId>com.sun.jersey.contribs</groupId>
 				<artifactId>jersey-apache-client4</artifactId>
 				<version>1.19.4</version>
-			</dependency>
-			<!-- ctrip modified -->
-			<!-- removed duplicated javax/persistence classes -->
-			<dependency>
-				<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-core</artifactId>
-				<version>8.0.37</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<!-- JDK 1.8+ -->
 			<dependency>
@@ -485,6 +382,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>${maven-gpg-plugin.version}</version>
+					<configuration>
+						<!-- Prevent gpg from using pinentry programs -->
+						<gpgArguments>
+							<arg>--pinentry-mode</arg>
+							<arg>loopback</arg>
+						</gpgArguments>
+					</configuration>
 					<executions>
 						<execution>
 							<phase>verify</phase>
@@ -746,98 +650,6 @@
 			</activation>
 		</profile>
 		<profile>
-      <!-- for ctrip development -->
-			<id>ctrip-dev</id>
-			<properties>
-				<package.environment>ctrip</package.environment>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-starter-web</artifactId>
-						<version>${spring-boot.version}</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-logging-juli</artifactId>
-							</exclusion>
-							<!-- use ctrip modified version instead -->
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-core</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- eureka -->
-					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-						<version>${spring-cloud.version}</version>
-						<exclusions>
-							<!-- already in java -->
-							<exclusion>
-								<groupId>stax</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>javax.xml.stream</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-security-core -->
-							<exclusion>
-								<groupId>org.springframework.security</groupId>
-								<artifactId>spring-security-crypto</artifactId>
-							</exclusion>
-							<!-- duplicated with xpp3:xpp3_min -->
-							<exclusion>
-								<groupId>xmlpull</groupId>
-								<artifactId>xmlpull</artifactId>
-							</exclusion>
-							<!-- duplicated with netty-all -->
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-codec-http</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-buffer</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-common</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport-native-epoll</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport</artifactId>
-							</exclusion>
-							<!-- duplicated with commons-collections and commons-beanutils -->
-							<exclusion>
-								<groupId>commons-beanutils</groupId>
-								<artifactId>commons-beanutils-core</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-aop -->
-							<exclusion>
-								<groupId>aopalliance</groupId>
-								<artifactId>aopalliance</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- end of eureka -->
-				</dependencies>
-			</dependencyManagement>
-			<dependencies>
-				<dependency>
-					<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-					<artifactId>tomcat-embed-core</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
 			<id>nacos-discovery</id>
 			<properties>
 				<nacos.discovery.version>0.2.7</nacos.discovery.version>
@@ -857,124 +669,6 @@
 					</dependency>
 				</dependencies>
 			</dependencyManagement>
-		</profile>
-		<profile>
-			<!-- for ctrip development with logging capability -->
-			<id>ctrip-logging</id>
-            <dependencies>
-				<dependency>
-					<groupId>com.dianping.cat</groupId>
-					<artifactId>cat-client</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.clogging</groupId>
-					<artifactId>clogging-agent</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<!-- for ctrip production -->
-			<id>ctrip</id>
-			<properties>
-				<package.environment>ctrip</package.environment>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-starter-web</artifactId>
-						<version>${spring-boot.version}</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-logging-juli</artifactId>
-							</exclusion>
-							<!-- use ctrip modified version instead -->
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-core</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- eureka -->
-					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-						<version>${spring-cloud.version}</version>
-						<exclusions>
-							<!-- already in java -->
-							<exclusion>
-								<groupId>stax</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>javax.xml.stream</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-security-core -->
-							<exclusion>
-								<groupId>org.springframework.security</groupId>
-								<artifactId>spring-security-crypto</artifactId>
-							</exclusion>
-							<!-- duplicated with xpp3:xpp3_min -->
-							<exclusion>
-								<groupId>xmlpull</groupId>
-								<artifactId>xmlpull</artifactId>
-							</exclusion>
-							<!-- duplicated with netty-all -->
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-codec-http</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-buffer</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-common</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport-native-epoll</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport</artifactId>
-							</exclusion>
-                            <!-- duplicated with commons-collections and commons-beanutils -->
-							<exclusion>
-								<groupId>commons-beanutils</groupId>
-								<artifactId>commons-beanutils-core</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-aop -->
-							<exclusion>
-								<groupId>aopalliance</groupId>
-								<artifactId>aopalliance</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- end of eureka -->
-				</dependencies>
-			</dependencyManagement>
-			<dependencies>
-				<dependency>
-					<groupId>com.dianping.cat</groupId>
-					<artifactId>cat-client</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-					<artifactId>tomcat-embed-core</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.clogging</groupId>
-					<artifactId>clogging-agent</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.platform</groupId>
-					<artifactId>ctrip-dal-client</artifactId>
-				</dependency>
-			</dependencies>
 		</profile>
 		<profile>
 			<id>release</id>

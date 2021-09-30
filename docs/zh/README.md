@@ -2,7 +2,7 @@
 
 # Introduction
 
-Apollo（阿波罗）是携程框架部门研发的分布式配置中心，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性，适用于微服务配置管理场景。
+Apollo（阿波罗）是一款可靠的分布式配置管理中心，诞生于携程框架研发部，能够集中化管理应用不同环境、不同集群的配置，配置修改后能够实时推送到应用端，并且具备规范的权限、流程治理等特性，适用于微服务配置管理场景。
 
 服务端基于Spring Boot和Spring Cloud开发，打包后可以直接运行，不需要额外安装Tomcat等应用容器。
 
@@ -88,6 +88,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
   - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
   - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
+  - [Apollo 版本发布操作手册](zh/development/apollo-release-guide.md)
 
 # Deployment
   - [Quick Start](zh/deployment/quick-start.md)
@@ -102,7 +103,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   * [部署&开发遇到的常见问题](zh/faq/common-issues-in-deployment-and-development-phase.md)
 
 # Presentation
-  * [携程开源配置中心Apollo的设计与实现](http://www.itdks.com/dakalive/detail/3420)
+  * [开源配置中心Apollo的设计与实现](http://www.itdks.com/dakalive/detail/3420)
     * [Slides](https://myslide.cn/slides/10168)
   * [配置中心，让微服务更『智能』](https://2018.qconshanghai.com/presentation/799)
     * [Slides](https://myslide.cn/slides/10035)

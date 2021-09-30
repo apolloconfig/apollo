@@ -26,7 +26,7 @@ Apollo管理员在 http://{portal_address}/open/manage.html 创建第三方应�
 任何语言的第三方应用都可以调用Apollo的Open API，在调用接口时，需要设置注意以下两点：
  * Http Header中增加一个Authorization字段，字段值为申请的token
  * Http Header的Content-Type字段需要设置成application/json;charset=UTF-8
- 
+
 ##### 2.3.2 Java应用通过apollo-openapi调用Apollo Open API
 从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/ctripcorp/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
 
@@ -55,17 +55,26 @@ ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
 
 .Net core也提供了open api的客户端，详见https://github.com/ctripcorp/apollo.net/pull/77
 
+##### 2.3.4 Shell Scripts调用Apollo Open API
+
+封装了bash的function，底层使用curl来发送HTTP请求
+
+* bash函数：[openapi.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi.sh)
+
+* 使用示例：[openapi-usage-example.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi-usage-example.sh)
+* 全部和openapi有关的shell脚本在文件夹 https://github.com/apolloconfig/apollo/tree/master/scripts/sql 下
+
 ### 三、 接口文档
 
 #### 3.1 URL路径参数说明
-  
+
 参数名 | 参数说明
 --- | ---
 env | 所管理的配置环境
 appId | 所管理的配置AppId
 clusterName | 所管理的配置集群名， 一般情况下传入 default 即可。如果是特殊集群，传入相应集群的名称即可
 namespaceName | 所管理的Namespace的名称，如果是非properties格式，需要加上后缀名，如`sample.yml`
-  
+
 #### 3.2 API接口列表
 
 ##### 3.2.1 获取App的环境，集群信息
@@ -379,7 +388,7 @@ Apollo在生产环境（PRO）有限制规则：每次发布只能有一个人�
 ---- | --- | --- | ---
 key | true | String | 配置的key，长度不能超过128个字符。非properties格式，key固定为`content`
 value |	true | String | 配置的value，长度不能超过20000个字符，非properties格式，value为文件全部内容
-comment	| false | String | 配置的备注,长度不能超过1024个字符
+comment	| false | String | 配置的备注,长度不能超过256个字符
 dataChangeCreatedBy | true | String | item的创建人，格式为域账号，也就是sso系统的User ID
 
 * **Request body sample** :
@@ -424,7 +433,7 @@ createIfNotExists | false | Boolean | 当配置不存在时是否自动创建
 ---- | --- | --- | ---
 key | true | String | 配置的key，需和url中的key值一致。非properties格式，key固定为`content`
 value |	true | String | 配置的value，长度不能超过20000个字符，非properties格式，value为文件全部内容
-comment	| false | String | 配置的备注,长度不能超过1024个字符
+comment	| false | String | 配置的备注,长度不能超过256个字符
 dataChangeLastModifiedBy | true | String | item的修改人，格式为域账号，也就是sso系统的User ID
 dataChangeCreatedBy | false | String | 当createIfNotExists为true时必选。item的创建人，格式为域账号，也就是sso系统的User ID
 
@@ -548,5 +557,4 @@ operator | true | String | 删除配置的操作者，域账号
 接口访问的Method不正确，比如应该使用POST的接口使用了GET访问等，客户端需要检查接口访问方式是否正确。
 ####  4.6 500 - Internal Server Error
 其它类型的错误默认都会返回500，对这类错误如果应用无法根据提示信息找到原因的话，可以找Apollo研发团队一起排查问题。
-
 

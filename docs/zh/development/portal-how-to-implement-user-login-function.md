@@ -232,7 +232,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 从 1.8.0 版本开始支持 OpenID Connect 登录, 这种实现方式的前提是已经部署了 OpenID Connect 登录服务  
 配置前需要准备:
 * OpenID Connect 的提供者配置端点(符合 RFC 8414 标准的 issuer-uri), 需要是 **https** 的, 例如 https://host:port/auth/realms/apollo/.well-known/openid-configuration
-* 在 OpenID Connect 服务里创建一个 client, 获取 client-id 以及对应的 client-secret
+* 在 OpenID Connect 服务里创建一个 client, idToken 的签名算法必须设置为 **RS256**, 获取 client-id 以及对应的 client-secret
 
 ### 1. 配置 `application-oidc.yml`
 

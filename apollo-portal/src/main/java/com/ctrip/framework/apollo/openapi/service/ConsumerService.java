@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
@@ -37,6 +38,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +66,7 @@ public class ConsumerService {
   private final PortalConfig portalConfig;
   private final RolePermissionService rolePermissionService;
   private final UserService userService;
+  private final RoleRepository roleRepository;
 
   public ConsumerService(
       final UserInfoHolder userInfoHolder,
@@ -71,7 +76,8 @@ public class ConsumerService {
       final ConsumerRoleRepository consumerRoleRepository,
       final PortalConfig portalConfig,
       final RolePermissionService rolePermissionService,
-      final UserService userService) {
+      final UserService userService,
+      final RoleRepository roleRepository) {
     this.userInfoHolder = userInfoHolder;
     this.consumerTokenRepository = consumerTokenRepository;
     this.consumerRepository = consumerRepository;
@@ -80,6 +86,7 @@ public class ConsumerService {
     this.portalConfig = portalConfig;
     this.rolePermissionService = rolePermissionService;
     this.userService = userService;
+    this.roleRepository = roleRepository;
   }
 
 
@@ -257,4 +264,31 @@ public class ConsumerService {
     return consumerRole;
   }
 
+  public Set<String> findAppIdsAuthorizedByConsumerId(long consumerId) {
+    List<ConsumerRole> consumerRoles = this.findConsumerRolesByConsumerId(consumerId);
+    List<Long> roleIds = consumerRoles.stream().map(ConsumerRole::getRoleId)
+        .collect(Collectors.toList());
+
+    return this.findAppIdsByRoleIds(roleIds);
+  }
+
+  private List<ConsumerRole> findConsumerRolesByConsumerId(long consumerId) {
+    return this.consumerRoleRepository.findByConsumerId(consumerId);
+  }
+
+  private Set<String> findAppIdsByRoleIds(List<Long> roleIds) {
+    Iterable<Role> roleIterable = this.roleRepository.findAllById(roleIds);
+
+    Set<String> appIds = new HashSet<>();
+
+    roleIterable.forEach(role -> {
+      if (!role.isDeleted()) {
+        String roleName = role.getRoleName();
+        String appId = RoleUtils.extractAppIdFromRoleName(roleName);
+        appIds.add(appId);
+      }
+    });
+
+    return appIds;
+  }
 }

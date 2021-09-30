@@ -128,6 +128,7 @@ public class AccessKeyServiceWithCacheTest {
 
     await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
         .containsExactly("secret-3"));
+    reachabilityFence(accessKeyServiceWithCache);
   }
 
   public AccessKey assembleAccessKey(Long id, String appId, String secret, boolean enabled,
@@ -140,5 +141,19 @@ public class AccessKeyServiceWithCacheTest {
     accessKey.setDeleted(deleted);
     accessKey.setDataChangeLastModifiedTime(new Date(dataChangeLastModifiedTime));
     return accessKey;
+  }
+
+  /**
+   * the referenced object is not reclaimable by garbage collection at least until after the
+   * invocation of this method. see the java 9 method {@link java.lang.ref.Reference#reachabilityFence}
+   * see the netty consistency method for JDK 6-8 {@link io.netty.util.ResourceLeakDetector.DefaultResourceLeak#reachabilityFence0}
+   *
+   * @param ref the reference
+   */
+  private static void reachabilityFence(Object ref) {
+    if (ref != null) {
+      synchronized (ref) {
+      }
+    }
   }
 }

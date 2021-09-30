@@ -223,9 +223,9 @@ public class ItemService {
 
     updateItems(appId, env, clusterName, namespaceName, changeSets);
 
-    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE_BY_TEXT,
-        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
-    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+    String formatStr = String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName);
+    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE_BY_TEXT, formatStr);
+    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, formatStr);
   }
 
   public List<ItemDiffs> compare(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
@@ -252,7 +252,7 @@ public class ItemService {
     String clusterName = namespaceIdentifier.getClusterName();
     String namespaceName = namespaceIdentifier.getNamespaceName();
     Env env = namespaceIdentifier.getEnv();
-    NamespaceDTO namespaceDTO = null;
+    NamespaceDTO namespaceDTO;
     try {
       namespaceDTO = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     } catch (HttpClientErrorException e) {

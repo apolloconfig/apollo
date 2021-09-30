@@ -19,6 +19,8 @@ spring:
   cloud:
     consul:
       enabled: false
+  session:
+    store-type: none
 
 logging:
   file:

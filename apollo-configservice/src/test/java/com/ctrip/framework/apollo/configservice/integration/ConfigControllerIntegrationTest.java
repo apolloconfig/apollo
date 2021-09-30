@@ -67,7 +67,7 @@ public class ConfigControllerIntegrationTest extends AbstractBaseIntegrationTest
     someDC = "someDC";
     someDefaultCluster = ConfigConsts.CLUSTER_NAME_DEFAULT;
     someClientIp = "1.1.1.1";
-    executorService = Executors.newSingleThreadExecutor();
+    executorService = Executors.newFixedThreadPool(1);
   }
 
   @Test
