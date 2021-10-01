@@ -24,6 +24,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import java.util.List;
+import java.util.Set;
 
 public interface NamespaceRepository extends PagingAndSortingRepository<Namespace, Long> {
 
@@ -38,6 +39,8 @@ public interface NamespaceRepository extends PagingAndSortingRepository<Namespac
   List<Namespace> findByAppIdAndNamespaceNameOrderByIdAsc(String appId, String namespaceName);
 
   List<Namespace> findByNamespaceName(String namespaceName, Pageable page);
+
+  List<Namespace> findByIdIn(Set<Long> namespaceIds);
 
   int countByNamespaceNameAndAppIdNot(String namespaceName, String appId);
 

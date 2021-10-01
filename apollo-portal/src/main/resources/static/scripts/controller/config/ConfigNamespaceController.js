@@ -107,12 +107,12 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             if (context.namespace) {
                 refreshSingleNamespace(context.namespace);
             } else {
-                refreshAllNamespaces();
+                refreshAllNamespaces(context);
             }
 
         });
 
-    function refreshAllNamespaces() {
+    function refreshAllNamespaces(context) {
         if ($rootScope.pageContext.env == '') {
             return;
         }
@@ -126,6 +126,19 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
                     $('.config-item-container').removeClass('hide');
 
                     initPublishInfo();
+                    //If there is a namespace parameter in the URL, expand the corresponding namespace directly
+                    if (context && context.firstLoad && $rootScope.pageContext.namespaceName) {
+                        refreshSingleNamespace({
+                            baseInfo: {
+                                namespaceName: $rootScope.pageContext.namespaceName
+                            },
+                            searchInfo: {
+                                showSearchInput: true,
+                                searchItemKey: $rootScope.pageContext.item,
+                            }
+
+                        });
+                    }
                 }, function (result) {
                     toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.LoadingAllNamespaceError'));
                 });
@@ -136,6 +149,9 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             return;
         }
 
+        const showSearchItemInput = namespace.searchInfo ? namespace.searchInfo.showSearchInput : false;
+        const searchItemKey = namespace.searchInfo ? namespace.searchInfo.searchItemKey : '';
+
         ConfigService.load_namespace($rootScope.pageContext.appId,
             $rootScope.pageContext.env,
             $rootScope.pageContext.clusterName,
@@ -143,11 +159,13 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
                 function (result) {
 
                     $scope.namespaces.forEach(function (namespace, index) {
-                        if (namespace.baseInfo.namespaceName == result.baseInfo.namespaceName) {
+                        if (namespace.baseInfo.namespaceName === result.baseInfo.namespaceName) {
                             result.showNamespaceBody = true;
                             result.initialized = true;
                             result.show = namespace.show;
                             $scope.namespaces[index] = result;
+                            result.showSearchItemInput = showSearchItemInput;
+                            result.searchItemKey = searchItemKey;
                         }
                     });
 

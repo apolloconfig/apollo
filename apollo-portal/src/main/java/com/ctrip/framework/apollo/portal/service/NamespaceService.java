@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.service;
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -48,13 +49,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class NamespaceService {
 
-  private Logger logger = LoggerFactory.getLogger(NamespaceService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceService.class);
   private static final Gson GSON = new Gson();
 
   private final PortalConfig portalConfig;
@@ -168,7 +170,7 @@ public class NamespaceService {
         namespaceBO = transformNamespace2BO(env, namespace);
         namespaceBOs.add(namespaceBO);
       } catch (Exception e) {
-        logger.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
+        LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
             appId, env, clusterName, namespace.getNamespaceName(), e);
         throw e;
       }
@@ -179,6 +181,13 @@ public class NamespaceService {
 
   public List<NamespaceDTO> findNamespaces(String appId, Env env, String clusterName) {
     return namespaceAPI.findNamespaceByCluster(appId, env, clusterName);
+  }
+
+  /**
+   * the returned content's size is not fixed. so please carefully used.
+   */
+  public PageDTO<NamespaceDTO> findNamespacesByItem(Env env, String itemKey, Pageable pageable) {
+    return namespaceAPI.findByItem(env, itemKey, pageable.getPageNumber(), pageable.getPageSize());
   }
 
   public List<NamespaceDTO> getPublicAppNamespaceAllNamespaces(Env env, String publicNamespaceName,
@@ -298,7 +307,7 @@ public class NamespaceService {
     final boolean isPublic;
     if (appNamespace == null) {
       //dirty data
-      logger.warn("Dirty data, cannot find appNamespace by namespaceName [{}], appId = {}, cluster = {}, set it format to {}, make public", namespaceName, appId, clusterName, ConfigFileFormat.Properties.getValue());
+      LOGGER.warn("Dirty data, cannot find appNamespace by namespaceName [{}], appId = {}, cluster = {}, set it format to {}, make public", namespaceName, appId, clusterName, ConfigFileFormat.Properties.getValue());
       format = ConfigFileFormat.Properties.getValue();
       isPublic = true; // set to true, because public namespace allowed to delete by user
     } else {

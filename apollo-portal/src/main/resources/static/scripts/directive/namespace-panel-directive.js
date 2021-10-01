@@ -66,6 +66,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.toggleItemSearchInput = toggleItemSearchInput;
             scope.toggleHistorySearchInput = toggleHistorySearchInput;
             scope.searchItems = searchItems;
+            scope.resetSearchItems = resetSearchItems;
             scope.searchHistory = searchHistory;
             scope.loadCommitHistory = loadCommitHistory;
             scope.toggleTextEditStatus = toggleTextEditStatus;
@@ -130,7 +131,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 namespace.isBranch = false;
                 namespace.displayControl = {
                     currentOperateBranch: 'master',
-                    showSearchInput: false,
+                    showSearchInput: namespace.showSearchItemInput,
+                    searchItemKey: namespace.searchItemKey,
                     showHistorySearchInput: false,
                     show: scope.showBody
                 };
@@ -153,6 +155,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 initPermission(namespace);
                 initLinkedNamespace(namespace);
                 loadInstanceInfo(namespace);
+                initSearchItemInput(namespace);
 
                 function initNamespaceBranch(namespace) {
                     NamespaceBranchService.findNamespaceBranch(scope.appId, scope.env,
@@ -398,6 +401,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
                 }
 
+                function initSearchItemInput(namespace) {
+                    if (namespace.displayControl.searchItemKey) {
+                        namespace.searchKey = namespace.displayControl.searchItemKey;
+                        searchItems(namespace);
+                    }
+                }
             }
 
             function initNamespaceInstancesCount(namespace) {
@@ -861,6 +870,11 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     }
                 });
                 namespace.viewItems = items;
+            }
+
+            function resetSearchItems(namespace) {
+                namespace.searchKey = '';
+                searchItems(namespace);
             }
 
             function toggleHistorySearchInput(namespace) {
