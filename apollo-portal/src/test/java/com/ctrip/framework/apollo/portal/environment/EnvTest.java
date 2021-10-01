@@ -54,7 +54,7 @@ public class EnvTest {
         assertEquals(Env.DEV, Env.valueOf("dEv"));
         String name = "someEEEE";
         Env.addEnvironment(name);
-        assertFalse(Env.valueOf(name).equals(Env.DEV));
+        assertNotEquals(Env.valueOf(name), Env.DEV);
     }
 
     @Test(expected = RuntimeException.class)
@@ -75,10 +75,10 @@ public class EnvTest {
 
     @Test
     public void testEqualWithoutException() {
-        assertTrue(Env.DEV.equals(Env.DEV));
-        assertTrue(Env.DEV.equals(Env.valueOf("dEV")));
-        assertFalse(Env.PRO.equals(Env.DEV));
-        assertFalse(Env.DEV.equals(Env.valueOf("uaT")));
+        assertEquals(Env.DEV, Env.DEV);
+        assertEquals(Env.DEV, Env.valueOf("dEV"));
+        assertNotEquals(Env.PRO, Env.DEV);
+        assertNotEquals(Env.DEV, Env.valueOf("uaT"));
     }
 
     @Test
@@ -96,5 +96,72 @@ public class EnvTest {
         String name = "getName";
         Env.addEnvironment(name);
         assertEquals(name.trim().toUpperCase(), Env.valueOf(name).toString());
+    }
+
+    @Test
+    public void transformEnvBlankTest() {
+        assertEquals(Env.UNKNOWN,Env.transformEnv(""));
+        assertEquals(Env.UNKNOWN,Env.transformEnv(null));
+        assertEquals(Env.UNKNOWN,Env.transformEnv("   "));
+    }
+
+    @Test
+    public void transformEnvSpecialCaseTest() {
+        // Prod/Pro
+        assertEquals(Env.PRO,Env.transformEnv("prod"));
+        assertEquals(Env.PRO,Env.transformEnv("PROD"));
+
+        //FAT/FWS
+        assertEquals(Env.FAT,Env.transformEnv("FWS"));
+        assertEquals(Env.FAT,Env.transformEnv("fws"));
+    }
+
+    @Test
+    public void transformEnvNotExistTest() {
+        assertEquals(Env.UNKNOWN,Env.transformEnv("notexisting"));
+        assertEquals(Env.LOCAL,Env.transformEnv("LOCAL"));
+    }
+
+    @Test
+    public void transformEnvValidTest() {
+        assertEquals(Env.UNKNOWN,Env.transformEnv("UNKNOWN"));
+        assertEquals(Env.LOCAL,Env.transformEnv("LOCAL"));
+        assertEquals(Env.FAT,Env.transformEnv("FAT"));
+        assertEquals(Env.FAT,Env.transformEnv("FWS"));
+        assertEquals(Env.PRO,Env.transformEnv("PRO"));
+        assertEquals(Env.PRO,Env.transformEnv("PROD"));
+        assertEquals(Env.DEV,Env.transformEnv("DEV"));
+        assertEquals(Env.LPT,Env.transformEnv("LPT"));
+        assertEquals(Env.TOOLS,Env.transformEnv("TOOLS"));
+        assertEquals(Env.UAT,Env.transformEnv("UAT"));
+
+        String testEnvName = "testEnv";
+
+        Env.addEnvironment(testEnvName);
+        Env expected = Env.valueOf(testEnvName);
+
+        assertEquals(expected,Env.transformEnv(testEnvName));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void addEnvironmentBlankStringTest() {
+        Env.addEnvironment("");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void addEnvironmentNullStringTest() {
+        Env.addEnvironment(null);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void addEnvironmentSpacesStringTest() {
+        Env.addEnvironment("    ");
+    }
+
+    @Test
+    public void existsForBlankNameTest() {
+        assertFalse(Env.exists(""));
+        assertFalse(Env.exists("   "));
+        assertFalse(Env.exists(null));
     }
 }
