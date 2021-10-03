@@ -1,10 +1,14 @@
 >注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/development/apollo-development-guide)。
 
 # &nbsp;
+# 〇、重要提示！
+
+> 以下文档是旧文档，已不支持，最新.Net接入文档请参考[Apollo.net框架集成](https://github.com/apolloconfig/apollo.net#一框架集成)
+
 # 一、准备工作
 
 ## 1.1 环境要求
-    
+
 * .Net: 4.0+
 
 ## 1.2 必选设置
