@@ -24,6 +24,12 @@ import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
+import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
+import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,27 +38,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.List;
-
 @RestController
 public class UserInfoController {
 
   private final UserInfoHolder userInfoHolder;
   private final LogoutHandler logoutHandler;
   private final UserService userService;
+  private final AuthUserPasswordChecker passwordChecker;
 
   public UserInfoController(
       final UserInfoHolder userInfoHolder,
       final LogoutHandler logoutHandler,
-      final UserService userService) {
+      final UserService userService,
+      final AuthUserPasswordChecker passwordChecker) {
     this.userInfoHolder = userInfoHolder;
     this.logoutHandler = logoutHandler;
     this.userService = userService;
+    this.passwordChecker = passwordChecker;
   }
-
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/users")
@@ -61,12 +64,16 @@ public class UserInfoController {
       throw new BadRequestException("Username and password can not be empty.");
     }
 
+    CheckResult pwdCheckRes = passwordChecker.checkWeakPassword(user.getPassword());
+    if (!pwdCheckRes.isSuccess()) {
+      throw new BadRequestException(pwdCheckRes.getMessage());
+    }
+
     if (userService instanceof SpringSecurityUserService) {
       ((SpringSecurityUserService) userService).createOrUpdate(user);
     } else {
       throw new UnsupportedOperationException("Create or update user operation is unsupported");
     }
-
   }
 
   @GetMapping("/user")
@@ -81,8 +88,8 @@ public class UserInfoController {
 
   @GetMapping("/users")
   public List<UserInfo> searchUsersByKeyword(@RequestParam(value = "keyword") String keyword,
-                                             @RequestParam(value = "offset", defaultValue = "0") int offset,
-                                             @RequestParam(value = "limit", defaultValue = "10") int limit) {
+      @RequestParam(value = "offset", defaultValue = "0") int offset,
+      @RequestParam(value = "limit", defaultValue = "10") int limit) {
     return userService.searchUsers(keyword, offset, limit);
   }
 
@@ -90,6 +97,5 @@ public class UserInfoController {
   public UserInfo getUserByUserId(@PathVariable String userId) {
     return userService.findByUserId(userId);
   }
-
 
 }
