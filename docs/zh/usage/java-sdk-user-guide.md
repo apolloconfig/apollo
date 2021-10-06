@@ -4,7 +4,8 @@
 # 一、准备工作
 ## 1.1 环境要求
     
-* Java: 1.7+
+* Java: 1.8+
+    * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 * Guava: 20.0+
     * Apollo客户端默认会引用Guava 29，如果你的项目引用了其它版本，请确保版本号大于等于20.0
 
@@ -345,7 +346,7 @@ ApolloLabel是应用的标签信息，是从服务端获取配置的一个重要
 
 1. System Property
 
-Apollo 1.9.2+支持通过System Property传入apollo.label信息，如
+Apollo 2.0.0+支持通过System Property传入apollo.label信息，如
 
 ```bash
 -Dapollo.label=YOUR-APOLLO-LABEL
@@ -353,7 +354,7 @@ Apollo 1.9.2+支持通过System Property传入apollo.label信息，如
 
 2. 操作系统的System Environment
 
-Apollo 1.9.2+支持通过操作系统的System Environment `APP_LABEL`来传入apollo.label信息，如
+Apollo 2.0.0+支持通过操作系统的System Environment `APP_LABEL`来传入apollo.label信息，如
 
 ```bash
 APOLLO_LABEL=YOUR-APOLLO-LABEL
@@ -361,7 +362,7 @@ APOLLO_LABEL=YOUR-APOLLO-LABEL
 
 3. Spring Boot application.properties
 
-Apollo 1.9.2+支持通过Spring Boot的application.properties文件配置，如
+Apollo 2.0.0+支持通过Spring Boot的application.properties文件配置，如
 
 ```properties
 apollo.label=YOUR-APOLLO-LABEL

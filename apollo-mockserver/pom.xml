@@ -29,7 +29,6 @@
   <name>Apollo Mock Server</name>
 
   <properties>
-    <java.version>1.7</java.version>
     <github.path>${project.artifactId}</github.path>
   </properties>
 

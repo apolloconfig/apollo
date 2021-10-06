@@ -28,7 +28,6 @@
 	<name>Apollo Core</name>
 	<packaging>jar</packaging>
 	<properties>
-		<java.version>1.7</java.version>
 		<github.path>${project.artifactId}</github.path>
 	</properties>
 	<dependencies>
