@@ -21,13 +21,12 @@ import com.google.common.base.Preconditions;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides functionalities to manage and hold all environments of the portal.
- * By default all the Env from {@link com.ctrip.framework.apollo.core.enums.Env} are included.
+ * This class provides functionalities to manage and hold all environments of the portal. By default
+ * all the Env from {@link com.ctrip.framework.apollo.core.enums.Env} are included.
  *
  * @author wxq
  * @author Diego Krupitza(info@diegokrupitza.com)
@@ -75,41 +74,35 @@ public class Env {
    * @return
    */
   private static String getWellFormName(String envName) {
-    if (Strings.isBlank(envName)) {
+    if (StringUtils.isBlank(envName)) {
       return "";
     }
     return envName.trim().toUpperCase();
   }
 
   /**
-   * logic same as
+   * logic same as {@link com.ctrip.framework.apollo.core.enums.EnvUtils#transformEnv}
    *
    * @param envName the name we want to transform
    * @return the env object matching the <code>envName</code>
-   * @see com.ctrip.framework.apollo.core.enums.EnvUtils transformEnv
    */
   public static Env transformEnv(String envName) {
-    if (StringUtils.isBlank(envName)) {
-
-      // cannot be found or blank name
-      return Env.UNKNOWN;
-    }
-
+    final String envWellFormName = getWellFormName(envName);
     // special case for production in case of typo
-    if (envName.equalsIgnoreCase("PROD")) {
+    if ("PROD".equalsIgnoreCase(envWellFormName)) {
       return Env.PRO;
     }
 
     // special case that FAT & FWS should map to FAT
-    if (envName.equalsIgnoreCase("FWS")) {
+    if ("FWS".equalsIgnoreCase(envWellFormName)) {
       return Env.FAT;
     }
 
-    if (!Env.exists(envName)) {
-      return Env.UNKNOWN;
+    if (Env.exists(envWellFormName)) {
+      return Env.valueOf(envWellFormName);
     }
-
-    return Env.valueOf(envName);
+    // cannot be found or blank name
+    return Env.UNKNOWN;
   }
 
   /**
