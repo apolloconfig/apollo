@@ -95,6 +95,7 @@ graph
 		3[Meta Server]
 	end
 ```
+实际部署的架构可以参考[部署架构](zh/deployment/deployment-architecture.md)
 
 ### 1.2.1 Why Eureka
 

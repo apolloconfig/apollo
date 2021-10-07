@@ -9,6 +9,7 @@
 - 部署文档
   - [Quick Start](zh/deployment/quick-start.md)
   - [Docker方式部署Quick Start](zh/deployment/quick-start-docker.md)
+  - [部署架构](zh/deployment/deployment-architecture.md)
   - [分布式部署指南](zh/deployment/distributed-deployment-guide.md)
 
 - 开发文档
