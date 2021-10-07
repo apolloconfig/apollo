@@ -1,10 +1,14 @@
 >注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/development/apollo-development-guide)。
 
 # &nbsp;
+# 〇、重要提示！
+
+> 以下文档是旧文档，已不支持，最新.Net接入文档请参考[Apollo.net框架集成](https://github.com/apolloconfig/apollo.net#一框架集成)
+
 # 一、准备工作
 
 ## 1.1 环境要求
-    
+
 * .Net: 4.0+
 
 ## 1.2 必选设置
@@ -21,7 +25,7 @@ AppId是应用的身份信息，是从服务端获取配置的一个重要信息
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
     </appSettings>
 </configuration>
 ```
@@ -56,7 +60,7 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
         <!-- Should change the apollo config service url for each environment -->
         <add key="Apollo.DEV.Meta" value="http://dev-configservice:8080"/>
         <add key="Apollo.FAT.Meta" value="http://fat-configservice:8080"/>

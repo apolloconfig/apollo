@@ -147,9 +147,9 @@ public class NamespaceBranchController {
     //2. check child namespace
     Namespace childNamespace = namespaceService.findOne(appId, branchName, namespaceName);
     if (childNamespace == null) {
-      throw new BadRequestException(String.format("Namespace's branch not exist. AppId = %s, ClusterName = %s, "
-                                                  + "NamespaceName = %s, BranchName = %s",
-                                                  appId, clusterName, namespaceName, branchName));
+      throw new BadRequestException(
+          "Namespace's branch not exist. AppId = %s, ClusterName = %s, NamespaceName = %s, BranchName = %s",
+          appId, clusterName, namespaceName, branchName);
     }
 
   }
@@ -157,8 +157,9 @@ public class NamespaceBranchController {
   private void checkNamespace(String appId, String clusterName, String namespaceName) {
     Namespace parentNamespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (parentNamespace == null) {
-      throw new BadRequestException(String.format("Namespace not exist. AppId = %s, ClusterName = %s, NamespaceName = %s", appId,
-                                                  clusterName, namespaceName));
+      throw new BadRequestException(
+          "Namespace not exist. AppId = %s, ClusterName = %s, NamespaceName = %s", appId,
+          clusterName, namespaceName);
     }
   }
 

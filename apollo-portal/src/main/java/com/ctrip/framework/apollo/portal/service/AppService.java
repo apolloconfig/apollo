@@ -36,7 +36,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -77,10 +76,8 @@ public class AppService {
 
   public List<App> findAll() {
     Iterable<App> apps = appRepository.findAll();
-    if (apps == null) {
-      return Collections.emptyList();
-    }
-    return Lists.newArrayList((apps));
+
+    return Lists.newArrayList(apps);
   }
 
   public PageDTO<App> findAll(Pageable pageable) {

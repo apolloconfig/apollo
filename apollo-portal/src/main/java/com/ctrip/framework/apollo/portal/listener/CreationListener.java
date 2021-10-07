@@ -33,7 +33,7 @@ import java.util.List;
 @Component
 public class CreationListener {
 
-  private static Logger logger = LoggerFactory.getLogger(CreationListener.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CreationListener.class);
 
   private final PortalSettings portalSettings;
   private final AdminServiceAPI.AppAPI appAPI;
@@ -56,7 +56,7 @@ public class CreationListener {
       try {
         appAPI.createApp(env, appDTO);
       } catch (Throwable e) {
-        logger.error("Create app failed. appId = {}, env = {})", appDTO.getAppId(), env, e);
+        LOGGER.error("Create app failed. appId = {}, env = {})", appDTO.getAppId(), env, e);
         Tracer.logError(String.format("Create app failed. appId = %s, env = %s", appDTO.getAppId(), env), e);
       }
     }
@@ -70,7 +70,7 @@ public class CreationListener {
       try {
         namespaceAPI.createAppNamespace(env, appNamespace);
       } catch (Throwable e) {
-        logger.error("Create appNamespace failed. appId = {}, env = {}", appNamespace.getAppId(), env, e);
+        LOGGER.error("Create appNamespace failed. appId = {}, env = {}", appNamespace.getAppId(), env, e);
         Tracer.logError(String.format("Create appNamespace failed. appId = %s, env = %s", appNamespace.getAppId(), env), e);
       }
     }

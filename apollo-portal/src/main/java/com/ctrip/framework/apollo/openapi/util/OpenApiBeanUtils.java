@@ -51,7 +51,7 @@ import com.google.gson.Gson;
 public class OpenApiBeanUtils {
 
   private static final Gson GSON = new Gson();
-  private static Type type = new TypeToken<Map<String, String>>() {}.getType();
+  private static final Type TYPE = new TypeToken<Map<String, String>>() {}.getType();
 
   public static OpenItemDTO transformFromItemDTO(ItemDTO item) {
     Preconditions.checkArgument(item != null);
@@ -78,7 +78,7 @@ public class OpenApiBeanUtils {
 
     OpenReleaseDTO openReleaseDTO = BeanUtils.transform(OpenReleaseDTO.class, release);
 
-    Map<String, String> configs = GSON.fromJson(release.getConfigurations(), type);
+    Map<String, String> configs = GSON.fromJson(release.getConfigurations(), TYPE);
 
     openReleaseDTO.setConfigurations(configs);
     return openReleaseDTO;
@@ -100,7 +100,7 @@ public class OpenApiBeanUtils {
     List<ItemBO> itemBOs = namespaceBO.getItems();
     if (!CollectionUtils.isEmpty(itemBOs)) {
       items.addAll(itemBOs.stream().map(itemBO -> transformFromItemDTO(itemBO.getItem()))
-          .collect(Collectors.toList()));
+              .collect(Collectors.toList()));
     }
     openNamespaceDTO.setItems(items);
     return openNamespaceDTO;
@@ -113,11 +113,9 @@ public class OpenApiBeanUtils {
       return Collections.emptyList();
     }
 
-    List<OpenNamespaceDTO> openNamespaceDTOs =
-        namespaceBOs.stream().map(OpenApiBeanUtils::transformFromNamespaceBO)
+    return namespaceBOs.stream()
+            .map(OpenApiBeanUtils::transformFromNamespaceBO)
             .collect(Collectors.toCollection(LinkedList::new));
-
-    return openNamespaceDTOs;
   }
 
   public static OpenNamespaceLockDTO transformFromNamespaceLockDTO(String namespaceName,

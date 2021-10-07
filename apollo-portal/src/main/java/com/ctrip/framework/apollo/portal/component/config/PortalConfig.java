@@ -270,4 +270,7 @@ public class PortalConfig extends RefreshableConfig {
     return getArrayProperty("config.release.webhook.service.url", null);
   }
 
+  public boolean supportSearchByItem() {
+    return getBooleanProperty("searchByItem.switch", true);
+  }
 }

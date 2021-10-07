@@ -729,7 +729,7 @@
   "Valdr.Release.ReleaseName.Required": "Release Name不能为空",
   "Valdr.Release.Comment.Size": "备注长度不能多于256个字符",
   "ApolloConfirmDialog.DefaultConfirmBtnName": "确认",
-  "ApolloConfirmDialog.SearchPlaceHolder": "搜索应用(AppId、应用名)",
+  "ApolloConfirmDialog.SearchPlaceHolder": "搜索应用Id、应用名、配置项Key",
   "RulesModal.ChooseInstances": "从实例列表中选择",
   "RulesModal.InvalidIp": "不合法的IP地址: '{{ip}}'",
   "RulesModal.GrayscaleAppIdCanNotBeNull": "灰度的AppId不能为空",

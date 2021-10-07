@@ -253,9 +253,14 @@
                 <!--not link namespace-->
                 <div ng-if="!namespace.isLinkedNamespace">
                     <div class="search-input" ng-show="namespace.displayControl.showSearchInput">
-                        <input type="text" class="form-control"
-                            placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
-                            ng-model="namespace.searchKey" ng-change="searchItems(namespace)">
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchItemKeyInput"
+                                       placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
+                                       ng-model="namespace.searchKey" ng-change="searchItems(namespace)">
+                            </div>
+                            <button type="button" class="btn btn-default" ng-click="resetSearchItems(namespace)">{{'Config.Sync.Rest' | translate }}</button>
+                        </form>
                     </div>
 
                     <table class="table table-bordered table-striped table-hover">
