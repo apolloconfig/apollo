@@ -17,6 +17,7 @@ Apollo 1.10.0
 * [feat(scripts): use bash to call openapi](https://github.com/apolloconfig/apollo/pull/3980)
 * [Support search by item](https://github.com/apolloconfig/apollo/pull/3977)
 * [Implement password policies to avoid weak passwords](https://github.com/apolloconfig/apollo/pull/4008)
+* [public namespace basic function](https://github.com/apolloconfig/apollo/pull/3850)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
