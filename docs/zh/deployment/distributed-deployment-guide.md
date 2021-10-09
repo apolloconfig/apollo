@@ -56,6 +56,7 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 > 注3：如果希望使用Postgres的话，可以参考[oaksharks](https://github.com/oaksharks)在Apollo 0.9.1基础上开发的[Pg适配代码](https://github.com/oaksharks/apollo/compare/ac10768ee2e11c488523ca0e845984f6f71499ac...oaksharks:pg)，Postgres的版本为9.3.20，也可以参考[xiao0yy](https://github.com/xiao0yy)在Apollo 0.10.2基础上开发的[Pg适配代码](https://github.com/ctripcorp/apollo/issues/1293)，Postgres的版本为9.5。
 
 ## 1.3 环境
+
 分布式部署需要事先确定部署的环境以及部署方式。
 
 Apollo目前支持以下环境：
@@ -70,16 +71,8 @@ Apollo目前支持以下环境：
 
 > 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
 
-以ctrip为例，我们的部署策略如下：
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-deployment.png)
+可以参考 [部署架构](zh/deployment/deployment-architecture.md)
 
-* Portal部署在生产环境的机房，通过它来直接管理FAT、UAT、PRO等环境的配置
-* Meta Server、Config Service和Admin Service在每个环境都单独部署，使用独立的数据库
-* Meta Server、Config Service和Admin Service在生产环境部署在两个机房，实现双活
-* Meta Server和Config Service部署在同一个JVM进程内，Admin Service部署在同一台服务器的另一个JVM进程内
-
-另外也可以参考下[@lyliyongblue](https://github.com/lyliyongblue) 贡献的样例部署图（建议右键新窗口打开看大图）：
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/lyliyongblue-apollo-deployment.png)
 
 ## 1.4 网络策略
 分布式部署的时候，`apollo-configservice`和`apollo-adminservice`需要把自己的IP和端口注册到Meta Server（apollo-configservice本身）。

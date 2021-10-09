@@ -4,7 +4,7 @@
 
 # 一、介绍
 
-根据不同的场景，apolloconfig部署的架构会有很多种，这里不讨论细节，仅从部署架构的宏观角度，来介绍各种部署的方案
+根据不同的场景，apolloconfig部署的方式（方案、架构）会有很多种，这里不讨论细节，仅从部署架构的宏观角度，来介绍各种部署的方案
 
 ## 1.1 flowchart
 
@@ -360,6 +360,8 @@ flowchart LR
 
 很容易想到的部署架构如下，把单机，单环境的部署架构重复2次即可
 
+> 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
+
 需要：
 
 * 2台Linux服务器
@@ -587,3 +589,21 @@ flowchart LR
 1个环境只有1个Config Service进程，无法满足高可用，为了避免单点宕机后影响系统的可用性，需要多实例部署，也就是部署多个Java进程在不同的Linux服务器上
 
 TODO
+
+# 四、部署图
+
+## 4.1 ctrip
+
+以ctrip为例，我们的部署策略如下：
+![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-deployment.png)
+
+* Portal部署在生产环境的机房，通过它来直接管理FAT、UAT、PRO等环境的配置
+* Meta Server、Config Service和Admin Service在每个环境都单独部署，使用独立的数据库
+* Meta Server、Config Service和Admin Service在生产环境部署在两个机房，实现双活
+* Meta Server和Config Service部署在同一个JVM进程内，Admin Service部署在同一台服务器的另一个JVM进程内
+
+## 4.2 样例部署图
+
+[@lyliyongblue](https://github.com/lyliyongblue) 贡献的样例部署图（建议右键新窗口打开看大图）：
+
+![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/lyliyongblue-apollo-deployment.png)
