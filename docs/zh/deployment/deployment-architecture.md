@@ -437,7 +437,7 @@ flowchart LR
 ```mermaid
 flowchart LR
 	p[Portal]
-	portaldb[PortalDB]
+	portaldb[(PortalDB)]
 	p --> portaldb
 	
 	subgraph Portal Linux Server
@@ -501,7 +501,7 @@ flowchart LR
 ```mermaid
 flowchart LR
 	p[Portal]
-	portaldb[PortalDB]
+	portaldb[(PortalDB)]
 	p --> portaldb
 	
 	subgraph Portal Linux Server
