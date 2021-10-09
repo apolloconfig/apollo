@@ -145,6 +145,67 @@ EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 
 如果Apollo部署在公有云上，本地开发环境无法连接，但又需要做开发测试的话，客户端可以升级到0.11.0版本及以上，然后配置[跳过Apollo Meta Server服务发现](zh/usage/java-sdk-user-guide#_1222-跳过apollo-meta-server服务发现)
 
+### 1.4.5 打通网络
+
+在一些公司（例如金融行业的公司），存在很多防火墙和网络隔离，需要打通网络（让ip1可以访问ip2的某个端口）
+
+#### 1.4.5.1 打通客户端到配置中心的网络
+
+对于使用配置中心的客户端，
+
+client需要访问所有（或者相同机房内的）Meta Server和Config Service（默认都是8080端口），请不要打通Client到Admin Service的网络
+
+```mermaid
+flowchart LR
+	subgraph servers[IP1:8080, IP2:8080, ..., IPn:8080]
+		m[Meta Sever]
+		c[Config Service]
+	end
+	client --> servers
+```
+
+如果某个应用需要使用openapi，还需要访问Portal（默认是8070端口）
+
+```mermaid
+flowchart LR
+	subgraph servers[IP:8070]
+		Portal
+	end
+	openapi-client --> servers
+```
+
+#### 1.4.5.2 打通配置中心内部的网络
+
+对于配置中心自己内部，由于各个服务之间需要互相访问，所以也要保证网络上的连通
+
+```mermaid
+flowchart LR
+	subgraph config-service-servers[All Config Service's IP:8080]
+		m[Meta Server]
+		c[Config Service]
+	end
+	subgraph admin-service-servers[All Admin Service's IP:8090]
+		a[Admin Service]
+	end
+	
+	subgraph portal-servers[IP:8070]
+		p[Portal]
+	end
+	
+	
+	configdb[(ConfigDB)]
+	portaldb[(PortalDB)]
+	
+	a --> config-service-servers
+	
+	a --> configdb
+	c --> configdb
+	
+	p --> config-service-servers
+	p --> admin-service-servers
+	p --> portaldb
+```
+
 # 二、部署步骤
 
 部署步骤总体还是比较简单的，Apollo的唯一依赖是数据库，所以需要首先把数据库准备好，然后根据实际情况，选择不同的部署方式：
