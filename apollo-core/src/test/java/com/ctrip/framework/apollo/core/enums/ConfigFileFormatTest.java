@@ -122,6 +122,5 @@ public class ConfigFileFormatTest {
   public void testIfPropertiesCompatible() {
     assertTrue(ConfigFileFormat.isPropertiesCompatible(ConfigFileFormat.YAML));
     assertTrue(ConfigFileFormat.isPropertiesCompatible(ConfigFileFormat.YML));
-    assertTrue(ConfigFileFormat.isPropertiesCompatible(ConfigFileFormat.Properties));
   }
 }

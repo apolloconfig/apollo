@@ -113,7 +113,7 @@ public enum ConfigFileFormat {
    * @return is it compatible with {@link ConfigFileFormat#Properties}
    */
   public static boolean isPropertiesCompatible(ConfigFileFormat format) {
-    return format == YAML || format == YML || format == Properties;
+    return format == YAML || format == YML;
   }
 
   public String getValue() {
