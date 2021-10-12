@@ -17,42 +17,83 @@
 package com.ctrip.framework.apollo.core.enums;
 
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import java.util.stream.Stream;
 
 /**
+ * This enum represents all the possible Configuration file formats apollo currently supports.
+ * <p>
+ * Currently the following formats are supported:
+ * <ul>
+ *   <li>{@link ConfigFileFormat#Properties}</li>
+ *   <li>{@link ConfigFileFormat#XML}</li>
+ *   <li>{@link ConfigFileFormat#JSON}</li>
+ *   <li>{@link ConfigFileFormat#YML}</li>
+ *   <li>{@link ConfigFileFormat#YAML}</li>
+ *   <li>{@link ConfigFileFormat#TXT}</li>
+ * </ul>
+ *
  * @author Jason Song(song_s@ctrip.com)
+ * @author Diego Krupitza(info@diegokrupitza.com)
  */
 public enum ConfigFileFormat {
   Properties("properties"), XML("xml"), JSON("json"), YML("yml"), YAML("yaml"), TXT("txt");
 
-  private String value;
+  private final String value;
 
   ConfigFileFormat(String value) {
     this.value = value;
   }
 
-  public String getValue() {
-    return value;
+  /**
+   * Cleans a given configFilename so it does not contain leading or trailing spaces and is always
+   * lowercase.
+   * <p>
+   * For example:
+   *
+   * <table border="1" cellspacing="1">
+   *   <tr>
+   *   <th>Before</th>
+   *   <th>After</th>
+   *   </tr>
+   *   <tr>
+   *     <td>"Properties "</td>
+   *     <td>"properties"</td>
+   *   </tr>
+   *   <tr>
+   *    <td>"    "</td>
+   *    <td>""</td>
+   *    </tr>
+   * </table>
+   *
+   * @param configFileName the name we want to clean
+   * @return the cleansed configFileName
+   */
+  private static String getWellFormedName(String configFileName) {
+    if (StringUtils.isBlank(configFileName)) {
+      return "";
+    }
+    return configFileName.trim().toLowerCase();
   }
 
+  /**
+   * Transforms a given string to its matching {@link ConfigFileFormat}.
+   *
+   * @param value the string that matches
+   * @return the matching {@link ConfigFileFormat}
+   * @throws IllegalArgumentException in case the <code>value</code> is empty or there is no
+   *                                  matching {@link ConfigFileFormat}
+   */
   public static ConfigFileFormat fromString(String value) {
     if (StringUtils.isEmpty(value)) {
       throw new IllegalArgumentException("value can not be empty");
     }
-    switch (value.toLowerCase()) {
-      case "properties":
-        return Properties;
-      case "xml":
-        return XML;
-      case "json":
-        return JSON;
-      case "yml":
-        return YML;
-      case "yaml":
-        return YAML;
-      case "txt":
-        return TXT;
-    }
-    throw new IllegalArgumentException(value + " can not map enum");
+
+    final String cleansedName = getWellFormedName(value);
+
+    return Stream.of(ConfigFileFormat.values())
+        .filter(item -> cleansedName.equalsIgnoreCase(item.getValue()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(value + " can not map enum"));
   }
 
   public static boolean isValidFormat(String value) {
@@ -64,7 +105,18 @@ public enum ConfigFileFormat {
     }
   }
 
+  /**
+   * Checks whether a given {@link ConfigFileFormat} is compatible with {@link
+   * ConfigFileFormat#Properties}
+   *
+   * @param format the format to check its compatibility
+   * @return is it compatible with {@link ConfigFileFormat#Properties}
+   */
   public static boolean isPropertiesCompatible(ConfigFileFormat format) {
-    return format == YAML || format == YML;
+    return format == YAML || format == YML || format == Properties;
+  }
+
+  public String getValue() {
+    return value;
   }
 }
