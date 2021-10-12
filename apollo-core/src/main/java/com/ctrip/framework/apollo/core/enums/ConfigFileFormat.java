@@ -96,6 +96,12 @@ public enum ConfigFileFormat {
         .orElseThrow(() -> new IllegalArgumentException(value + " can not map enum"));
   }
 
+  /**
+   * Checks if a given string is a valid {@link ConfigFileFormat}.
+   *
+   * @param value the string to check on
+   * @return is it a valid format
+   */
   public static boolean isValidFormat(String value) {
     try {
       fromString(value);
@@ -116,6 +122,9 @@ public enum ConfigFileFormat {
     return format == YAML || format == YML;
   }
 
+  /**
+   * @return The string representation of the given {@link ConfigFileFormat}
+   */
   public String getValue() {
     return value;
   }

@@ -25,6 +25,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+/**
+ * Tests the {@link ConfigFileFormat} enum.
+ *
+ * @author Diego Krupitza(info@diegokrupitza.com)
+ */
 public class ConfigFileFormatTest {
 
   @Rule
