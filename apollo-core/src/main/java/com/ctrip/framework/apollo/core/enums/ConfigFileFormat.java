@@ -114,6 +114,9 @@ public enum ConfigFileFormat {
   /**
    * Checks whether a given {@link ConfigFileFormat} is compatible with {@link
    * ConfigFileFormat#Properties}
+   * <p>
+   * <b>Note: </b> if you call this method with {@link ConfigFileFormat#Properties} it will return
+   * <code>false</code>.
    *
    * @param format the format to check its compatibility
    * @return is it compatible with {@link ConfigFileFormat#Properties}
