@@ -16,32 +16,45 @@
  */
 package com.ctrip.framework.apollo.spi;
 
-import com.ctrip.framework.apollo.ConfigService;
-import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
-import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
-import com.ctrip.framework.apollo.internals.TxtConfigFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
+import com.ctrip.framework.apollo.ConfigService;
+import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.DefaultConfig;
 import com.ctrip.framework.apollo.internals.JsonConfigFile;
 import com.ctrip.framework.apollo.internals.LocalFileConfigRepository;
+import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
 import com.ctrip.framework.apollo.internals.PropertiesConfigFile;
 import com.ctrip.framework.apollo.internals.RemoteConfigRepository;
+import com.ctrip.framework.apollo.internals.TxtConfigFile;
 import com.ctrip.framework.apollo.internals.XmlConfigFile;
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
 import com.ctrip.framework.apollo.internals.YmlConfigFile;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
+ * The default implementation of {@link ConfigFactory}.
+ * <p>
+ * Supports namespaces of format:
+ * <ul>
+ *   <li>{@link ConfigFileFormat#Properties}</li>
+ *   <li>{@link ConfigFileFormat#XML}</li>
+ *   <li>{@link ConfigFileFormat#JSON}</li>
+ *   <li>{@link ConfigFileFormat#YML}</li>
+ *   <li>{@link ConfigFileFormat#YAML}</li>
+ *   <li>{@link ConfigFileFormat#TXT}</li>
+ * </ul>
+ *
  * @author Jason Song(song_s@ctrip.com)
+ * @author Diego Krupitza(info@diegokrupitza.com)
  */
 public class DefaultConfigFactory implements ConfigFactory {
+
   private static final Logger logger = LoggerFactory.getLogger(DefaultConfigFactory.class);
   private final ConfigUtil m_configUtil;
 
@@ -52,10 +65,19 @@ public class DefaultConfigFactory implements ConfigFactory {
   @Override
   public Config create(String namespace) {
     ConfigFileFormat format = determineFileFormat(namespace);
-    if (ConfigFileFormat.isPropertiesCompatible(format)) {
-      return this.createRepositoryConfig(namespace, createPropertiesCompatibleFileConfigRepository(namespace, format));
+
+    ConfigRepository configRepository = null;
+    if (ConfigFileFormat.isPropertiesCompatible(format) &&
+        format != ConfigFileFormat.Properties) {
+      configRepository = createPropertiesCompatibleFileConfigRepository(namespace, format);
+    } else {
+      configRepository = createLocalConfigRepository(namespace);
     }
-    return this.createRepositoryConfig(namespace, createLocalConfigRepository(namespace));
+
+    logger.debug("Created a configuration repository of type [{}] for namespace [{}]",
+        configRepository.getClass().getName(), namespace);
+
+    return this.createRepositoryConfig(namespace, configRepository);
   }
 
   protected Config createRepositoryConfig(String namespace, ConfigRepository configRepository) {
@@ -83,6 +105,12 @@ public class DefaultConfigFactory implements ConfigFactory {
     return null;
   }
 
+  /**
+   * Creates a local repository for a given namespace
+   *
+   * @param namespace the namespace of the repository
+   * @return the newly created repository for the given namespace
+   */
   LocalFileConfigRepository createLocalConfigRepository(String namespace) {
     if (m_configUtil.isInLocalMode()) {
       logger.warn(
@@ -97,7 +125,8 @@ public class DefaultConfigFactory implements ConfigFactory {
     return new RemoteConfigRepository(namespace);
   }
 
-  PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(String namespace,
+  PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(
+      String namespace,
       ConfigFileFormat format) {
     String actualNamespaceName = trimNamespaceFormat(namespace, format);
     PropertiesCompatibleConfigFile configFile = (PropertiesCompatibleConfigFile) ConfigService

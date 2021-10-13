@@ -16,23 +16,28 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-
+import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.core.utils.PropertiesUtil;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Represents a config file that is of the file format `.properties`
+ *
  * @author Jason Song(song_s@ctrip.com)
+ * @author Diego Krupitza(info@diegokrupitza.com)
  */
-public class PropertiesConfigFile extends AbstractConfigFile {
+public class PropertiesConfigFile extends AbstractConfigFile implements
+    PropertiesCompatibleConfigFile {
+
   protected AtomicReference<String> m_contentCache;
 
   public PropertiesConfigFile(String namespace,
-                              ConfigRepository configRepository) {
+      ConfigRepository configRepository) {
     super(namespace, configRepository);
     m_contentCache = new AtomicReference<>();
   }
@@ -78,4 +83,11 @@ public class PropertiesConfigFile extends AbstractConfigFile {
     return ConfigFileFormat.Properties;
   }
 
+  @Override
+  public Properties asProperties() {
+    if (!this.hasContent()) {
+      return new Properties();
+    }
+    return m_configProperties.get();
+  }
 }
