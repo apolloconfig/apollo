@@ -162,10 +162,28 @@ pre, .pre {
 }
 
 .footer {
+    display: inline-block;
     width: 100%;
-    height: 75px;
-    margin-top: 50px;
-    padding-top: 25px;
+    height: 20px;
+    line-height: 20px;
+    position: relative;
+}
+
+.footer .footer-repo {
+    position: relative;
+    text-decoration: none;
+    height: 100%;
+}
+
+.footer .footer-repo .footer-repo-img {
+    position: absolute;
+    top: 2px;
+    height: 16px;
+}
+
+.footer .footer-repo .footer-repo-name {
+    color: #3c3c3c;
+    margin-left: 18px;
 }
 
 /*panel*/
