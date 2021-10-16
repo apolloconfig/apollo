@@ -27,7 +27,6 @@
 	<artifactId>apollo-client</artifactId>
 	<name>Apollo Client</name>
 	<properties>
-		<java.version>1.7</java.version>
 		<github.path>${project.artifactId}</github.path>
 	</properties>
 	<dependencyManagement>

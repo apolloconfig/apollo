@@ -1,5 +1,7 @@
 <img src="https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/logo/logo-simple.png" alt="apollo-logo" width="40%">
 
+English | [中文](zh/README)
+
 # Introduction
 
 Apollo is a reliable configuration management system. It can centrally manage the configurations of different applications and different clusters. It is suitable for microservice configuration management scenarios.
@@ -98,9 +100,9 @@ Demo Environment:
 
 # Presentation
 * [Design and Implementation Details of Apollo](http://www.itdks.com/dakalive/detail/3420)
-    * [Slides](https://myslide.cn/slides/10168)
+  * [Slides](https://github.com/apolloconfig/apollo-community/blob/master/slides/design-and-implementation-of-apollo.pdf)
 * [Configuration Center Makes Microservices Smart](https://2018.qconshanghai.com/presentation/799)
-    * [Slides](https://myslide.cn/slides/10035)
+  * [Slides](https://github.com/apolloconfig/apollo-community/blob/master/slides/configuration-center-makes-microservices-smart.pdf)
 
 # Publication
 * [Design and Implementation Details of Apollo](https://www.infoq.cn/article/open-source-configuration-center-apollo)

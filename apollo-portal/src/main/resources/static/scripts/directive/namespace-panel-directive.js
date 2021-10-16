@@ -655,6 +655,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     clientAppId: !branch.parentNamespace.isPublic ? branch.baseInfo.appId : '',
                     clientIpList: [],
                     draftIpList: [],
+                    clientLabelList: [],
+                    draftLabelList: [],
                     isNew: true
                 };
 
@@ -667,7 +669,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             function editRuleItem(branch, ruleItem) {
                 ruleItem.isNew = false;
-                ruleItem.draftIpList = _.clone(ruleItem.clientIpList);
+                ruleItem.draftIpList = _.clone(ruleItem.clientIpList) || [];
+                ruleItem.draftLabelList = _.clone(ruleItem.clientLabelList) || [];
                 branch.editingRuleItem = ruleItem;
 
                 EventManager.emit(EventManager.EventType.EDIT_GRAY_RELEASE_RULES, {

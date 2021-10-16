@@ -83,6 +83,7 @@ public class ApolloApplicationContextInitializer implements
   private static final Splitter NAMESPACE_SPLITTER = Splitter.on(",").omitEmptyStrings()
       .trimResults();
   public static final String[] APOLLO_SYSTEM_PROPERTIES = {ApolloClientSystemConsts.APP_ID,
+      ApolloClientSystemConsts.APOLLO_LABEL,
       ApolloClientSystemConsts.APOLLO_CLUSTER,
       ApolloClientSystemConsts.APOLLO_CACHE_DIR,
       ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET,

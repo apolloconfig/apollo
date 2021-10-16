@@ -158,7 +158,8 @@ public class OpenApiBeanUtils {
     openGrayReleaseRuleItemDTOSet.forEach(openGrayReleaseRuleItemDTO -> {
       String clientAppId = openGrayReleaseRuleItemDTO.getClientAppId();
       Set<String> clientIpList = openGrayReleaseRuleItemDTO.getClientIpList();
-      GrayReleaseRuleItemDTO ruleItem = new GrayReleaseRuleItemDTO(clientAppId, clientIpList);
+      Set<String> clientLabelList = openGrayReleaseRuleItemDTO.getClientLabelList();
+      GrayReleaseRuleItemDTO ruleItem = new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
       grayReleaseRuleDTO.addRuleItem(ruleItem);
     });
 

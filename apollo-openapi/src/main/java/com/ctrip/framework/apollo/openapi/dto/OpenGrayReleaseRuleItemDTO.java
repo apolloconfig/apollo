@@ -21,6 +21,7 @@ import java.util.Set;
 public class OpenGrayReleaseRuleItemDTO {
     private String clientAppId;
     private Set<String> clientIpList;
+    private Set<String> clientLabelList;
 
     public String getClientAppId() {
         return clientAppId;
@@ -36,5 +37,13 @@ public class OpenGrayReleaseRuleItemDTO {
 
     public void setClientIpList(Set<String> clientIpList) {
         this.clientIpList = clientIpList;
+    }
+
+    public Set<String> getClientLabelList() {
+        return clientLabelList;
+    }
+
+    public void setClientLabelList(Set<String> clientLabelList) {
+        this.clientLabelList = clientLabelList;
     }
 }

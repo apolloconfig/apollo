@@ -13,15 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-apiVersion: v2
-name: apollo-portal
-description: A Helm chart for Apollo Portal
-type: application
-version: 0.4.0
-appVersion: 2.0.0-SNAPSHOT
-home: https://github.com/ctripcorp/apollo
-icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
-maintainers:
-- name: nobodyiam
-  email: nobodyiam@gmail.com
-  url: https://github.com/nobodyiam
+
+github: [apolloconfig] # Replace with up to 4 GitHub Sponsors-enabled usernames e.g., [user1, user2]
+open_collective: apollo # Replace with a single Open Collective username

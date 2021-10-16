@@ -28,6 +28,11 @@ public interface ApplicationProvider extends Provider {
   String getAppId();
 
   /**
+   * @return the application's app label
+   */
+  String getApolloLabel();
+
+  /**
    * @return the application's access key secret
    */
   String getAccessKeySecret();
