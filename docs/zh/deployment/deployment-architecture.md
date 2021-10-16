@@ -4,11 +4,11 @@
 
 # 一、介绍
 
-根据不同的场景，apolloconfig部署的方式（方案、架构）会有很多种，这里不讨论细节，仅从部署架构的宏观角度，来介绍各种部署的方案
+根据不同的场景，apolloconfig部署的架构会有很多种，这里不讨论细节，仅从部署架构的宏观角度，来介绍各种部署的方案
 
 ## 1.1 flowchart
 
-用flowchart来表达部署架构，这里先介绍一些基本的概念
+用flowchart来表达部署方式，这里先介绍一些基本的概念
 
 ### 1.1.1 依赖关系
 
@@ -77,7 +77,7 @@ flowchart LR
 
 ## 2.1 单机，单环境 All In One
 
-这是最简单的架构，也是部署起来最方便的架构
+这是最简单，部署起来最方便的单机部署方式
 
 需要：
 
@@ -360,8 +360,6 @@ flowchart LR
 
 很容易想到的部署架构如下，把单机，单环境的部署架构重复2次即可
 
-> 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
-
 需要：
 
 * 2台Linux服务器
@@ -437,7 +435,7 @@ flowchart LR
 ```mermaid
 flowchart LR
 	p[Portal]
-	portaldb[(PortalDB)]
+	portaldb[PortalDB]
 	p --> portaldb
 	
 	subgraph Portal Linux Server
@@ -501,7 +499,7 @@ flowchart LR
 ```mermaid
 flowchart LR
 	p[Portal]
-	portaldb[(PortalDB)]
+	portaldb[PortalDB]
 	p --> portaldb
 	
 	subgraph Portal Linux Server
@@ -588,7 +586,324 @@ flowchart LR
 
 1个环境只有1个Config Service进程，无法满足高可用，为了避免单点宕机后影响系统的可用性，需要多实例部署，也就是部署多个Java进程在不同的Linux服务器上
 
-TODO
+## 3.1 最简高可用，单环境
+
+回到常见的非高可用部署方式，
+
+```mermaid
+flowchart LR
+	c[Config Service]
+	a[Admin Service]
+	p[Portal]
+	
+	configdb[(ConfigDB)]
+	portaldb[(PortalDB)]
+
+	subgraph Linux Server 1
+		subgraph JVM8080
+			c
+		end
+		subgraph JVM8090
+			a
+		end
+	end
+	
+	subgraph Linux Server 2
+		subgraph JVM8070
+			p
+		end
+	end
+	
+	JVM8080 --> configdb
+	JVM8090 --> configdb
+	JVM8070 --> portaldb
+    
+	JVM8090 --> JVM8080
+	JVM8070 --> JVM8090
+```
+
+当Linux Server 1宕机时，client就只能读取本地磁盘上的config-cache了，如果需要防止单台Linux宕机导致Config Service不可用，可以尝试再新增1台Linux机器
+
+需要
+
+* 3台Linux服务器：1台部署Portal，另外2台分别部署Config Service和Admin Service
+* 2个database
+
+```mermaid
+flowchart LR
+	c-1[Config Service]
+	c-2[Config Service]
+	a-1[Admin Service]
+	a-2[Admin Service]
+	p[Portal]
+	
+	configdb[(ConfigDB)]
+	portaldb[(PortalDB)]
+	
+	JVM8080-1[JVM8080]
+	JVM8080-2[JVM8080]
+	
+	JVM8090-1[JVM8090]
+	JVM8090-2[JVM8090]
+
+	subgraph Linux Server 1.1
+		subgraph JVM8080-1[JVM8080]
+			c-1
+		end
+		subgraph JVM8090-1[JVM8090]
+			a-1
+		end
+	end
+	subgraph Linux Server 1.2
+		subgraph JVM8080-2[JVM8080]
+			c-2
+		end
+		subgraph JVM8090-2[JVM8090]
+			a-2
+		end
+	end
+	
+	subgraph Linux Server 2
+		subgraph JVM8070
+			p
+		end
+	end
+	
+	JVM8080-1 --> configdb
+	JVM8090-1 --> configdb
+	JVM8080-2 --> configdb
+	JVM8090-2 --> configdb
+	
+	JVM8070 --> portaldb
+    
+	JVM8090-1 --> JVM8080-1
+	JVM8090-2 --> JVM8080-2
+	
+	JVM8070 --> JVM8090-1
+	JVM8070 --> JVM8090-2
+```
+
+这种部署方式下，Linux Server 1.1 或者 Linux Server 1.2宕机，系统仍旧可用，
+
+## 3.2 高可用，单环境
+
+在上述的基础上，如果client的数量有很多（例如上万个Java进程），可以横向扩展Config Service，引入Linux Server 1.3, Linux Server 1.4, ...
+
+Admin Service由于只有Portal访问，在数量上可以比Config Service少很多
+
+具体如何评定Config Service的数量，请参考 [Apollo性能测试报告](zh/misc/apollo-benchmark.md)
+
+## 3.3 高可用，双环境
+
+如[2.3 单机，双环境](#_23-单机，双环境)种，如果想让SIT和UAT都变成高可用，只需要分别在环境中再添加机器即可，如下图，每个环境中各有2台Linux Server，如果有性能上需求，可以再在每个环境中，使用更多的机器来部署Config Service即可
+
+```mermaid
+flowchart LR
+	p[Portal]
+	portaldb[(PortalDB)]
+	p --> portaldb
+	
+	subgraph Portal Linux Server
+		subgraph JVM8070
+			p
+		end
+	end
+
+	subgraph SIT
+        sit-c1[SIT Config Service]
+        sit-a1[SIT Admin Service]
+        sit-c2[SIT Config Service]
+        sit-a2[SIT Admin Service]
+        
+        sit-configdb[(SIT ConfigDB)]
+
+        subgraph SIT Linux Server 2.1
+            subgraph sit-c1-jvm-8080[SIT JVM8080]
+                sit-c1
+            end
+            subgraph sit-c1-jvm-8090[SIT JVM8090]
+                sit-a1
+            end
+        end
+        
+        subgraph SIT Linux Server 2.2
+            subgraph sit-c2-jvm-8080[SIT JVM8080]
+                sit-c2
+            end
+            subgraph sit-c2-jvm-8090[SIT JVM8090]
+                sit-a2
+            end
+        end
+        
+        sit-c1-jvm-8080 --> sit-configdb
+        sit-c1-jvm-8090 --> sit-configdb
+        sit-c2-jvm-8080 --> sit-configdb
+        sit-c2-jvm-8090 --> sit-configdb
+        
+        sit-c1-jvm-8090 --> sit-c1-jvm-8080
+        sit-c2-jvm-8090 --> sit-c2-jvm-8080
+	end
+
+	subgraph UAT
+        uat-c1[UAT Config Service]
+        uat-a1[UAT Admin Service]
+        uat-c2[UAT Config Service]
+        uat-a2[UAT Admin Service]
+        
+        uat-configdb[(UAT ConfigDB)]
+
+        subgraph UAT Linux Server 2.1
+            subgraph uat-c1-jvm-8080[UAT JVM8080]
+                uat-c1
+            end
+            subgraph uat-c1-jvm-8090[UAT JVM8090]
+                uat-a1
+            end
+        end
+        
+        subgraph UAT Linux Server 2.2
+            subgraph uat-c2-jvm-8080[UAT JVM8080]
+                uat-c2
+            end
+            subgraph uat-c2-jvm-8090[UAT JVM8090]
+                uat-a2
+            end
+        end
+        
+        uat-c1-jvm-8080 --> uat-configdb
+        uat-c1-jvm-8090 --> uat-configdb
+        uat-c2-jvm-8080 --> uat-configdb
+        uat-c2-jvm-8090 --> uat-configdb
+        
+        uat-c1-jvm-8090 --> uat-c1-jvm-8080
+        uat-c2-jvm-8090 --> uat-c2-jvm-8080
+	end
+
+	JVM8070 --> sit-c1-jvm-8090
+	JVM8070 --> sit-c2-jvm-8090
+	
+	JVM8070 --> uat-c1-jvm-8090
+	JVM8070 --> uat-c2-jvm-8090
+```
+
+## 3.4 高可用，多个环境
+
+在上述的基础上，如果要添加一个环境，例如BETA环境，需要新增2台及以上的Linux服务器+1个ConfigDB
+
+Portal添加新环境的信息，指向BETA环境的apollo.meta
+
+## 3.5 高可用，单环境，单机房
+
+实际生产环境中，很多公司和测试环境进行了隔离，所以生产环境属于单环境，只有一个PRO环境
+
+在只有1个机房时，参考 [3.2 高可用，单环境](#_32-高可用，单环境)
+
+## 3.6 高可用，单环境，双机房
+
+如果有2个机房，通常机房之间存在网络隔离，如果是同城机房，idc1和idc2，可以采用如下的部署方式
+
+```mermaid
+flowchart LR
+	idc1-p[idc1 Portal]
+	idc2-p[idc2 Portal]
+	portaldb[(PortalDB)]
+	idc1-p --> portaldb
+	idc2-p --> portaldb
+
+	configdb[(ConfigDB)]
+
+	idc1-c1-jvm-8080 --> configdb
+	idc1-c1-jvm-8090 --> configdb
+	idc1-c2-jvm-8080 --> configdb
+	idc1-c2-jvm-8090 --> configdb
+
+	idc2-c1-jvm-8080 --> configdb
+	idc2-c1-jvm-8090 --> configdb
+	idc2-c2-jvm-8080 --> configdb
+	idc2-c2-jvm-8090 --> configdb
+
+	subgraph idc1
+		subgraph idc1 Portal Linux Server
+			subgraph idc1-JVM8070
+				idc1-p
+			end
+		end
+	
+		idc1-c1[idc1 Config Service]
+		idc1-a1[idc1 Admin Service]
+		idc1-c2[idc1 Config Service]
+		idc1-a2[idc1 Admin Service]
+		
+		
+
+		subgraph idc1 Linux Server 2.1
+			subgraph idc1-c1-jvm-8080[idc1 JVM8080]
+				idc1-c1
+			end
+			subgraph idc1-c1-jvm-8090[idc1 JVM8090]
+				idc1-a1
+			end
+		end
+		
+		subgraph idc1 Linux Server 2.2
+			subgraph idc1-c2-jvm-8080[idc1 JVM8080]
+				idc1-c2
+			end
+			subgraph idc1-c2-jvm-8090[idc1 JVM8090]
+				idc1-a2
+			end
+		end
+		
+		idc1-c1-jvm-8090 --> idc1-c1-jvm-8080
+		idc1-c2-jvm-8090 --> idc1-c2-jvm-8080
+	end
+
+	subgraph idc2
+		subgraph idc2 Portal Linux Server
+			subgraph idc2-JVM8070
+				idc2-p
+			end
+		end
+		idc2-c1[idc2 Config Service]
+		idc2-a1[idc2 Admin Service]
+		idc2-c2[idc2 Config Service]
+		idc2-a2[idc2 Admin Service]
+
+		subgraph idc2 Linux Server 2.1
+			subgraph idc2-c1-jvm-8080[idc2 JVM8080]
+				idc2-c1
+			end
+			subgraph idc2-c1-jvm-8090[idc2 JVM8090]
+				idc2-a1
+			end
+		end
+		
+		subgraph idc2 Linux Server 2.2
+			subgraph idc2-c2-jvm-8080[idc2 JVM8080]
+				idc2-c2
+			end
+			subgraph idc2-c2-jvm-8090[idc2 JVM8090]
+				idc2-a2
+			end
+		end
+		
+		idc2-c1-jvm-8090 --> idc2-c1-jvm-8080
+		idc2-c2-jvm-8090 --> idc2-c2-jvm-8080
+	end
+
+
+	idc1-JVM8070 --> idc1-c1-jvm-8090
+	idc1-JVM8070 --> idc1-c2-jvm-8090
+	
+	idc2-JVM8070 --> idc2-c1-jvm-8090
+	idc2-JVM8070 --> idc2-c2-jvm-8090
+```
+
+每个机房有自己的一套Portal, Config Service, Admin Service
+
+对于ConfigDB，在同城双机房下，连接的ConfigDB是同一个，不存在2个不同的ConfigDB，对于PortalDB也是如此，需要连接同一个
+
+ConfigDB和PortalDB在图中没有放入idc1或者idc2，需要自行选用合适的MySQL架构以及部署方式
 
 # 四、部署图
 
