@@ -85,9 +85,7 @@ public class PropertiesConfigFile extends AbstractConfigFile implements
 
   @Override
   public Properties asProperties() {
-    if (!this.hasContent()) {
-      return new Properties();
-    }
-    return m_configProperties.get();
+    return !this.hasContent() ? propertiesFactory.getPropertiesInstance()
+        : m_configProperties.get();
   }
 }

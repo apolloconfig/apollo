@@ -67,6 +67,11 @@ public class DefaultConfigFactory implements ConfigFactory {
     ConfigFileFormat format = determineFileFormat(namespace);
 
     ConfigRepository configRepository = null;
+
+    // although ConfigFileFormat.Properties are compatible with themselves we
+    // should not create a PropertiesCompatibleFileConfigRepository for them
+    // calling the method `createLocalConfigRepository(...)` is more suitable
+    // for ConfigFileFormat.Properties
     if (ConfigFileFormat.isPropertiesCompatible(format) &&
         format != ConfigFileFormat.Properties) {
       configRepository = createPropertiesCompatibleFileConfigRepository(namespace, format);
@@ -126,8 +131,7 @@ public class DefaultConfigFactory implements ConfigFactory {
   }
 
   PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(
-      String namespace,
-      ConfigFileFormat format) {
+      String namespace, ConfigFileFormat format) {
     String actualNamespaceName = trimNamespaceFormat(namespace, format);
     PropertiesCompatibleConfigFile configFile = (PropertiesCompatibleConfigFile) ConfigService
         .getConfigFile(actualNamespaceName, format);
