@@ -15,7 +15,8 @@
  *
  */
 html, body {
-    height: 100%
+    height: 100%;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -1085,4 +1086,31 @@ table th {
 .app-search-list .select2-container .select2-selection .select2-selection__rendered {
     line-height: 34px;
     font-size: 14px;
+}
+
+/*backTop component style*/
+.back-top {
+    position: fixed;
+    height: 40px;
+    width: 40px;
+    border-radius: 4px;
+    color: #ffffff;
+    z-index: 5;
+    cursor: pointer;
+    right: 40px;
+    bottom: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 16px;
+    background: #0c4c7f;
+    opacity: .2;
+    user-select: none;
+}
+
+.back-top:hover {
+    opacity: .4;
+}
+
+.back-top:active {
+    opacity: .6;
 }
