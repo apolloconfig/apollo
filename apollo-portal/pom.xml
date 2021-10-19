@@ -194,19 +194,4 @@
 			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>ctrip</id>
-			<dependencies>
-				<dependency>
-					<groupId>com.ctrip.framework.apollo-sso</groupId>
-					<artifactId>apollo-sso-ctrip</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.apollo-ctrip-service</groupId>
-					<artifactId>apollo-email-service</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
 </project>

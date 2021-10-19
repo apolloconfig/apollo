@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jdk: [7, 8, 11]
+        jdk: [8, 11]
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK
@@ -42,9 +42,6 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
-    - name: Build SDK with JDK 7
-      if: matrix.jdk == '7'
-      run: mvn clean compile -pl apollo-client,apollo-mockserver,apollo-openapi -am -Dmaven.gitcommitid.skip=true
     - name: JDK 8
       if: matrix.jdk == '8'
       run: mvn -B clean package -P travis jacoco:report -Dmaven.gitcommitid.skip=true

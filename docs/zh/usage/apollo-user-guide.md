@@ -339,11 +339,17 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 ![new-gray-release-rule](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/new-gray-release-rule.png)
 
-在弹出框中`灰度的IP`下拉框会默认展示当前使用配置的机器列表，选择我们要灰度的IP，点击完成。
+在弹出框中`灰度的IP`下拉框会默认展示当前使用配置的机器列表，选择我们要灰度的IP。
 
 ![select-gray-release-ip](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/select-gray-release-ip.png)
 
 ![gray-release-ip-selected](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-ip-selected.png)
+
+手动输入想要设置的label标签，输入完成后点击点击添加按钮。
+
+![manual-input-gray-release-label](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-label.png)
+
+![manual-input-gray-release-label-2](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-label-2.png)
 
 ![gray-release-rule-saved](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-rule-saved.png)
 
@@ -353,7 +359,7 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 ![manual-input-gray-release-ip-2](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-ip-2.png)
 
->注：对于公共Namespace的灰度规则，需要先指定要灰度的appId，然后再选择IP。
+>注：对于公共Namespace的灰度规则，需要先指定要灰度的appId，然后再选择IP和Label。
 
 ## 5.5 灰度发布
 配置规则已经生效，不过灰度配置还没有发布。切换到`配置`Tab。

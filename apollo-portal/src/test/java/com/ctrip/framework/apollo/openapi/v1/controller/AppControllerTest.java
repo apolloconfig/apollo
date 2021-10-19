@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
+import com.ctrip.framework.apollo.openapi.server.service.ServerAppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -60,7 +61,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AppController.class)
-@Import(ConsumerService.class)
+@Import({ConsumerService.class, ServerAppOpenApiService.class})
 public class AppControllerTest {
 
   @Autowired

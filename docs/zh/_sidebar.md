@@ -10,6 +10,7 @@
   - [Quick Start](zh/deployment/quick-start.md)
   - [Docker方式部署Quick Start](zh/deployment/quick-start-docker.md)
   - [分布式部署指南](zh/deployment/distributed-deployment-guide.md)
+  - [部署架构](zh/deployment/deployment-architecture.md)
 
 - 开发文档
   - [Apollo开发指南](zh/development/apollo-development-guide.md)
@@ -20,6 +21,7 @@
   - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
   - [Portal 共享 session](zh/development/portal-how-to-enable-session-store.md)
   - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
+  - [Apollo 版本发布操作手册](zh/development/apollo-release-guide.md)
 
 - 使用文档
   - [Apollo使用指南](zh/usage/apollo-user-guide.md)

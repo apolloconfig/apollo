@@ -19,12 +19,83 @@
 上图简要描述了Apollo的总体设计，我们可以从下往上看：
 
 * Config Service提供配置的读取、推送等功能，服务对象是Apollo客户端
+
+```mermaid
+sequenceDiagram
+	Client ->> Config Service: request
+    Config Service ->> ConfigDB: request
+    ConfigDB -->> Config Service: ack
+	Config Service -->> Client: ack
+```
+
+
+
 * Admin Service提供配置的修改、发布等功能，服务对象是Apollo Portal（管理界面）
+
+```mermaid
+sequenceDiagram
+	Portal ->> Admin Service: r/w, publish appId/cluster/namespace
+	Admin Service ->> ConfigDB: r/w, publish appId/cluster/namespace
+	ConfigDB -->> Admin Service: ack
+	Admin Service -->> Portal: ack
+```
+
+
+
 * Config Service和Admin Service都是多实例、无状态部署，所以需要将自己注册到Eureka中并保持心跳
 * 在Eureka之上我们架了一层Meta Server用于封装Eureka的服务发现接口
+
+```mermaid
+sequenceDiagram
+    Client or Portal ->> Meta Server: discovery service's instances
+	Meta Server ->> Eureka: discovery service's instances
+	Eureka -->> Meta Server: service's instances
+	Meta Server -->> Client or Portal: service's instances
+```
+
+
+
 * Client通过域名访问Meta Server获取Config Service服务列表（IP+Port），而后直接通过IP+Port访问服务，同时在Client侧会做load balance、错误重试
+
+```mermaid
+sequenceDiagram
+	Client ->> Meta Server: discovery Config Service's instances
+	Meta Server -->> Client: Config Service's instances(Multiple IP+Port)
+	loop until success
+		Client ->> Client: load balance choose a Config Service instance
+		Client ->> Config Service: request
+		Config Service -->> Client: ack
+	end
+```
+
+
+
 * Portal通过域名访问Meta Server获取Admin Service服务列表（IP+Port），而后直接通过IP+Port访问服务，同时在Portal侧会做load balance、错误重试
+
+```mermaid
+sequenceDiagram
+	Portal ->> Meta Server: discovery Admin Service's instances
+	Meta Server -->> Portal: Admin Service's instances(Multiple IP+Port)
+	loop until success
+		Portal ->> Portal: load balance choose a Admin Service instance
+		Portal ->> Config Service: request
+		Config Service -->> Portal: ack
+	end
+```
+
+
+
 * 为了简化部署，我们实际上会把Config Service、Eureka和Meta Server三个逻辑角色部署在同一个JVM进程中
+
+```mermaid
+graph
+	subgraph JVM Process
+		1[Config Service]
+		2[Eureka]
+		3[Meta Server]
+	end
+```
+实际部署的架构可以参考[部署架构](zh/deployment/deployment-architecture.md)
 
 ### 1.2.1 Why Eureka
 
@@ -44,6 +115,19 @@
 ### 1.3.1 Config Service
 
 * 提供配置获取接口
+
+```mermaid
+sequenceDiagram
+	Client ->> Config Service: get content of appId/cluster/namespace
+	opt if namespace is not cached
+		Config Service ->> ConfigDB: get content of appId/cluster/namespace
+		ConfigDB -->> Config Service: content of appId/cluster/namespace
+	end
+	Config Service -->> Client: content of appId/cluster/namespace
+```
+
+
+
 * 提供配置更新推送接口（基于Http long polling）
     * 服务端使用[Spring DeferredResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html)实现异步化，从而大大增加长连接数量
     * 目前使用的tomcat embed默认配置是最多10000个连接（可以调整），使用了4C8G的虚拟机实测可以支撑10000个连接，所以满足需求（一个应用实例只会发起一个长连接）。

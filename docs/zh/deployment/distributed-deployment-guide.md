@@ -14,13 +14,8 @@
 ### 1.1.2 Java
 
 * Apollo服务端：1.8+
-* Apollo客户端：1.7+
-
-由于需要同时运行服务端和客户端，所以建议安装Java 1.8+。
-
->对于Apollo客户端，运行时环境只需要1.7+即可。
-
->注：对于Apollo客户端，如果有需要的话，可以做少量代码修改来降级到Java 1.6，详细信息可以参考[Issue 483](https://github.com/ctripcorp/apollo/issues/483)
+* Apollo客户端：1.8+
+    * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 
 在配置好后，可以通过如下命令检查：
 ```sh
@@ -56,6 +51,7 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 > 注3：如果希望使用Postgres的话，可以参考[oaksharks](https://github.com/oaksharks)在Apollo 0.9.1基础上开发的[Pg适配代码](https://github.com/oaksharks/apollo/compare/ac10768ee2e11c488523ca0e845984f6f71499ac...oaksharks:pg)，Postgres的版本为9.3.20，也可以参考[xiao0yy](https://github.com/xiao0yy)在Apollo 0.10.2基础上开发的[Pg适配代码](https://github.com/ctripcorp/apollo/issues/1293)，Postgres的版本为9.5。
 
 ## 1.3 环境
+
 分布式部署需要事先确定部署的环境以及部署方式。
 
 Apollo目前支持以下环境：
@@ -70,16 +66,8 @@ Apollo目前支持以下环境：
 
 > 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
 
-以ctrip为例，我们的部署策略如下：
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-deployment.png)
+可以参考 [部署架构](zh/deployment/deployment-architecture.md)
 
-* Portal部署在生产环境的机房，通过它来直接管理FAT、UAT、PRO等环境的配置
-* Meta Server、Config Service和Admin Service在每个环境都单独部署，使用独立的数据库
-* Meta Server、Config Service和Admin Service在生产环境部署在两个机房，实现双活
-* Meta Server和Config Service部署在同一个JVM进程内，Admin Service部署在同一台服务器的另一个JVM进程内
-
-另外也可以参考下[@lyliyongblue](https://github.com/lyliyongblue) 贡献的样例部署图（建议右键新窗口打开看大图）：
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/lyliyongblue-apollo-deployment.png)
 
 ## 1.4 网络策略
 分布式部署的时候，`apollo-configservice`和`apollo-adminservice`需要把自己的IP和端口注册到Meta Server（apollo-configservice本身）。
@@ -144,6 +132,67 @@ EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ### 1.4.4 直接指定apollo-configservice地址
 
 如果Apollo部署在公有云上，本地开发环境无法连接，但又需要做开发测试的话，客户端可以升级到0.11.0版本及以上，然后配置[跳过Apollo Meta Server服务发现](zh/usage/java-sdk-user-guide#_1222-跳过apollo-meta-server服务发现)
+
+### 1.4.5 打通网络
+
+在一些公司（例如金融行业的公司），存在很多防火墙和网络隔离，需要打通网络（让ip1可以访问ip2的某个端口）
+
+#### 1.4.5.1 打通客户端到配置中心的网络
+
+对于使用配置中心的客户端，
+
+client需要访问所有（或者相同机房内的）Meta Server和Config Service（默认都是8080端口），请不要打通Client到Admin Service的网络
+
+```mermaid
+flowchart LR
+	subgraph servers[IP1:8080, IP2:8080, ..., IPn:8080]
+		m[Meta Sever]
+		c[Config Service]
+	end
+	client --> servers
+```
+
+如果某个应用需要使用openapi，还需要访问Portal（默认是8070端口）
+
+```mermaid
+flowchart LR
+	subgraph servers[IP:8070]
+		Portal
+	end
+	openapi-client --> servers
+```
+
+#### 1.4.5.2 打通配置中心内部的网络
+
+对于配置中心自己内部，由于各个服务之间需要互相访问，所以也要保证网络上的连通
+
+```mermaid
+flowchart LR
+	subgraph config-service-servers[All Config Service's IP:8080]
+		m[Meta Server]
+		c[Config Service]
+	end
+	subgraph admin-service-servers[All Admin Service's IP:8090]
+		a[Admin Service]
+	end
+	
+	subgraph portal-servers[IP:8070]
+		p[Portal]
+	end
+	
+	
+	configdb[(ConfigDB)]
+	portaldb[(PortalDB)]
+	
+	a --> config-service-servers
+	
+	a --> configdb
+	c --> configdb
+	
+	p --> config-service-servers
+	p --> admin-service-servers
+	p --> portaldb
+```
 
 # 二、部署步骤
 
@@ -1152,6 +1201,12 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 ### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
 
+### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
+
+默认为 true，可以方便的按配置项快速搜索配置
+
+如果设置为 false，则关闭此功能 
+
 > 适用于1.7.1及以上版本
 
 如果对应环境的apollo-adminservice开启了[访问控制](#_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
@@ -1254,6 +1309,6 @@ admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b903319
 
 ### 3.2.8 apollo.access-key.auth-time-diff-tolerance - 配置服务端AccessKey校验容忍的时间偏差
 
-> 适用于1.10.0及以上版本
+> 适用于2.0.0及以上版本
 
 默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。

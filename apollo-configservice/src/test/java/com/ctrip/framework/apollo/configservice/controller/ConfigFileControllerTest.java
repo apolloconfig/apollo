@@ -70,6 +70,7 @@ public class ConfigFileControllerTest {
   private String someNamespace;
   private String someDataCenter;
   private String someClientIp;
+  private String someClientLabel;
   @Mock
   private HttpServletResponse someResponse;
   @Mock
@@ -90,6 +91,7 @@ public class ConfigFileControllerTest {
     someNamespace = "someNamespace";
     someDataCenter = "someDataCenter";
     someClientIp = "10.1.1.1";
+    someClientLabel = "myLabel";
 
     when(namespaceUtil.filterNamespaceName(someNamespace)).thenReturn(someNamespace);
     when(namespaceUtil.normalizeNamespace(someAppId, someNamespace)).thenReturn(someNamespace);
@@ -124,7 +126,7 @@ public class ConfigFileControllerTest {
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
     when(someApolloConfig.getConfigurations()).thenReturn(configurations);
     when(configController
-        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, null,
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel, null,
             someRequest, someResponse)).thenReturn(someApolloConfig);
     when(watchKeysUtil
         .assembleAllWatchKeys(someAppId, someClusterName, someNamespace, someDataCenter))
@@ -133,7 +135,7 @@ public class ConfigFileControllerTest {
     ResponseEntity<String> response =
         configFileController
             .queryConfigAsProperties(someAppId, someClusterName, someNamespace, someDataCenter,
-                someClientIp, someRequest, someResponse);
+                someClientIp, someClientLabel, someRequest, someResponse);
 
     assertEquals(2, watchedKeys2CacheKey.size());
     assertEquals(2, cacheKey2WatchedKeys.size());
@@ -149,12 +151,12 @@ public class ConfigFileControllerTest {
     ResponseEntity<String> anotherResponse =
         configFileController
             .queryConfigAsProperties(someAppId, someClusterName, someNamespace, someDataCenter,
-                someClientIp, someRequest, someResponse);
+                someClientIp, someClientLabel, someRequest, someResponse);
 
     assertEquals(response, anotherResponse);
 
     verify(configController, times(1))
-        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, null,
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel,null,
             someRequest, someResponse);
   }
 
@@ -172,7 +174,7 @@ public class ConfigFileControllerTest {
         ImmutableMap.of(someKey, someValue);
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
     when(configController
-        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, null,
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel,null,
             someRequest, someResponse)).thenReturn(someApolloConfig);
     when(someApolloConfig.getConfigurations()).thenReturn(configurations);
     when(watchKeysUtil
@@ -182,7 +184,7 @@ public class ConfigFileControllerTest {
     ResponseEntity<String> response =
         configFileController
             .queryConfigAsJson(someAppId, someClusterName, someNamespace, someDataCenter,
-                someClientIp, someRequest, someResponse);
+                someClientIp, someClientLabel, someRequest, someResponse);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(configurations, GSON.fromJson(response.getBody(), responseType));
@@ -203,21 +205,21 @@ public class ConfigFileControllerTest {
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
     when(someApolloConfig.getConfigurations()).thenReturn(configurations);
     when(configController
-        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, null,
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel, null,
             someRequest, someResponse)).thenReturn(someApolloConfig);
 
     ResponseEntity<String> response =
         configFileController
             .queryConfigAsJson(someAppId, someClusterName, someNamespace, someDataCenter,
-                someClientIp, someRequest, someResponse);
+                someClientIp, someClientLabel, someRequest, someResponse);
 
     ResponseEntity<String> anotherResponse =
         configFileController
             .queryConfigAsJson(someAppId, someClusterName, someNamespace, someDataCenter,
-                someClientIp, someRequest, someResponse);
+                someClientIp, someClientLabel, someRequest, someResponse);
 
     verify(configController, times(2))
-        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, null,
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel, null,
             someRequest, someResponse);
 
     assertEquals(HttpStatus.OK, response.getStatusCode());

@@ -37,6 +37,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   private Properties m_appProperties = new Properties();
 
   private String m_appId;
+  private String m_appLabel;
   private String accessKeySecret;
 
   @Override
@@ -67,6 +68,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
       }
 
       initAppId();
+      initAppLabel();
       initAccessKey();
     } catch (Throwable ex) {
       logger.error("Initialize DefaultApplicationProvider failed.", ex);
@@ -76,6 +78,11 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   @Override
   public String getAppId() {
     return m_appId;
+  }
+
+  @Override
+  public String getApolloLabel() {
+    return m_appLabel;
   }
 
   @Override
@@ -137,6 +144,37 @@ public class DefaultApplicationProvider implements ApplicationProvider {
 
     m_appId = null;
     logger.warn("app.id is not available from System Property and {}. It is set to null",
+        APP_PROPERTIES_CLASSPATH);
+  }
+
+  private void initAppLabel() {
+    // 1. Get app.label from System Property
+    m_appLabel = System.getProperty(ApolloClientSystemConsts.APOLLO_LABEL);
+    if (!Utils.isBlank(m_appLabel)) {
+      m_appLabel = m_appLabel.trim();
+      logger.info("App Label is set to {} by app.label property from System Property", m_appLabel);
+      return;
+    }
+
+    //2. Try to get app label from OS environment variable
+    m_appLabel = System.getenv(ApolloClientSystemConsts.APOLLO_LABEL_ENVIRONMENT_VARIABLES);
+    if (!Utils.isBlank(m_appLabel)) {
+      m_appLabel = m_appLabel.trim();
+      logger.info("App Label is set to {} by APP_LABEL property from OS environment variable", m_appLabel);
+      return;
+    }
+
+    // 3. Try to get app label from app.properties.
+    m_appLabel = m_appProperties.getProperty(ApolloClientSystemConsts.APOLLO_LABEL);
+    if (!Utils.isBlank(m_appLabel)) {
+      m_appLabel = m_appLabel.trim();
+      logger.info("App Label is set to {} by app.label property from {}", m_appLabel,
+          APP_PROPERTIES_CLASSPATH);
+      return;
+    }
+
+    m_appLabel=null;
+    logger.warn("app.label is not available from System Property and {}. It is set to null",
         APP_PROPERTIES_CLASSPATH);
   }
 

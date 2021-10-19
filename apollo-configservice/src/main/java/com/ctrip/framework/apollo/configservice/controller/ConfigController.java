@@ -83,6 +83,7 @@ public class ConfigController {
                                   @RequestParam(value = "dataCenter", required = false) String dataCenter,
                                   @RequestParam(value = "releaseKey", defaultValue = "-1") String clientSideReleaseKey,
                                   @RequestParam(value = "ip", required = false) String clientIp,
+                                  @RequestParam(value = "label", required = false) String clientLabel,
                                   @RequestParam(value = "messages", required = false) String messagesAsString,
                                   HttpServletRequest request, HttpServletResponse response) throws IOException {
     String originalNamespace = namespace;
@@ -101,7 +102,7 @@ public class ConfigController {
 
     String appClusterNameLoaded = clusterName;
     if (!ConfigConsts.NO_APPID_PLACEHOLDER.equalsIgnoreCase(appId)) {
-      Release currentAppRelease = configService.loadConfig(appId, clientIp, appId, clusterName, namespace,
+      Release currentAppRelease = configService.loadConfig(appId, clientIp, clientLabel, appId, clusterName, namespace,
           dataCenter, clientMessages);
 
       if (currentAppRelease != null) {
@@ -113,7 +114,7 @@ public class ConfigController {
 
     //if namespace does not belong to this appId, should check if there is a public configuration
     if (!namespaceBelongsToAppId(appId, namespace)) {
-      Release publicRelease = this.findPublicConfig(appId, clientIp, clusterName, namespace,
+      Release publicRelease = this.findPublicConfig(appId, clientIp, clientLabel, clusterName, namespace,
           dataCenter, clientMessages);
       if (Objects.nonNull(publicRelease)) {
         releases.add(publicRelease);
@@ -173,7 +174,7 @@ public class ConfigController {
    * @param namespace   the namespace
    * @param dataCenter  the datacenter
    */
-  private Release findPublicConfig(String clientAppId, String clientIp, String clusterName,
+  private Release findPublicConfig(String clientAppId, String clientIp, String clientLabel, String clusterName,
                                    String namespace, String dataCenter, ApolloNotificationMessages clientMessages) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespace);
 
@@ -184,7 +185,7 @@ public class ConfigController {
 
     String publicConfigAppId = appNamespace.getAppId();
 
-    return configService.loadConfig(clientAppId, clientIp, publicConfigAppId, clusterName, namespace, dataCenter,
+    return configService.loadConfig(clientAppId, clientIp, clientLabel, publicConfigAppId, clusterName, namespace, dataCenter,
         clientMessages);
   }
 

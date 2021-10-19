@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.openapi.client.service;
 
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.client.exception.ApolloOpenApiException;
+import com.ctrip.framework.apollo.openapi.client.url.OpenApiPathBuilder;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
@@ -25,12 +26,14 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ItemOpenApiService extends AbstractOpenApiService {
+public class ItemOpenApiService extends AbstractOpenApiService implements
+    com.ctrip.framework.apollo.openapi.api.ItemOpenApiService {
 
   public ItemOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
 
+  @Override
   public OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName, String key) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -43,10 +46,14 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(env, "Env");
     checkNotEmpty(key, "Item key");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s",
-        escapePath(env), escapePath(appId), escapePath(clusterName), escapePath(namespaceName), escapePath(key));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .itemsPathVal(key);
 
-    try (CloseableHttpResponse response = get(path)) {
+    try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenItemDTO.class);
     } catch (Throwable ex) {
       // return null if item doesn't exist
@@ -59,6 +66,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public OpenItemDTO createItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -72,10 +80,14 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(itemDTO.getKey(), "Item key");
     checkNotEmpty(itemDTO.getDataChangeCreatedBy(), "Item created by");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items",
-        escapePath(env), escapePath(appId), escapePath(clusterName), escapePath(namespaceName));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .customResource("items");
 
-    try (CloseableHttpResponse response = post(path, itemDTO)) {
+    try (CloseableHttpResponse response = post(pathBuilder, itemDTO)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenItemDTO.class);
     } catch (Throwable ex) {
       throw new RuntimeException(String
@@ -84,6 +96,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void updateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -97,11 +110,14 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(itemDTO.getKey(), "Item key");
     checkNotEmpty(itemDTO.getDataChangeLastModifiedBy(), "Item modified by");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s",
-        escapePath(env), escapePath(appId), escapePath(clusterName), escapePath(namespaceName),
-        escapePath(itemDTO.getKey()));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .itemsPathVal(itemDTO.getKey());
 
-    try (CloseableHttpResponse ignored = put(path, itemDTO)) {
+    try (CloseableHttpResponse ignored = put(pathBuilder, itemDTO)) {
     } catch (Throwable ex) {
       throw new RuntimeException(String
           .format("Update item: %s for appId: %s, cluster: %s, namespace: %s in env: %s failed", itemDTO.getKey(),
@@ -109,6 +125,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -126,11 +143,15 @@ public class ItemOpenApiService extends AbstractOpenApiService {
       itemDTO.setDataChangeLastModifiedBy(itemDTO.getDataChangeCreatedBy());
     }
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?createIfNotExists=true",
-        escapePath(env), escapePath(appId), escapePath(clusterName), escapePath(namespaceName),
-        escapePath(itemDTO.getKey()));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .itemsPathVal(itemDTO.getKey())
+        .addParam("createIfNotExists", "true");
 
-    try (CloseableHttpResponse ignored = put(path, itemDTO)) {
+    try (CloseableHttpResponse ignored = put(pathBuilder, itemDTO)) {
     } catch (Throwable ex) {
       throw new RuntimeException(String
           .format("CreateOrUpdate item: %s for appId: %s, cluster: %s, namespace: %s in env: %s failed", itemDTO.getKey(),
@@ -138,6 +159,7 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     }
   }
 
+  @Override
   public void removeItem(String appId, String env, String clusterName, String namespaceName, String key, String operator) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -151,11 +173,15 @@ public class ItemOpenApiService extends AbstractOpenApiService {
     checkNotEmpty(key, "Item key");
     checkNotEmpty(operator, "Operator");
 
-    String path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?operator=%s",
-        escapePath(env), escapePath(appId), escapePath(clusterName), escapePath(namespaceName), escapePath(key),
-        escapeParam(operator));
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+        .envsPathVal(env)
+        .appsPathVal(appId)
+        .clustersPathVal(clusterName)
+        .namespacesPathVal(namespaceName)
+        .itemsPathVal(key)
+        .addParam("operator", operator);
 
-    try (CloseableHttpResponse ignored = delete(path)) {
+    try (CloseableHttpResponse ignored = delete(pathBuilder)) {
     } catch (Throwable ex) {
       throw new RuntimeException(String
           .format("Remove item: %s for appId: %s, cluster: %s, namespace: %s in env: %s failed", key, appId,

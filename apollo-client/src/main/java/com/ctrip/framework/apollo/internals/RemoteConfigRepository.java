@@ -310,6 +310,11 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
       queryParams.put("ip", queryParamEscaper.escape(localIp));
     }
 
+    String label = m_configUtil.getApolloLabel();
+    if (!Strings.isNullOrEmpty(label)) {
+      queryParams.put("label", queryParamEscaper.escape(label));
+    }
+
     if (remoteMessages != null) {
       queryParams.put("messages", queryParamEscaper.escape(GSON.toJson(remoteMessages)));
     }
