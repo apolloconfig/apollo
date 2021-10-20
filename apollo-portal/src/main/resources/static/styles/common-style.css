@@ -780,8 +780,8 @@ table th {
 }
 
 #app-list .more-img {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
 }
 
 #app-list .app-panel {
@@ -834,15 +834,18 @@ table th {
     color: #409EFF;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
+
 .left-bar .app-list-choose {
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -855,7 +858,8 @@ table th {
     color: #409EFF;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -863,7 +867,8 @@ table th {
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -876,7 +881,8 @@ table th {
     color: #409EFF;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -884,7 +890,8 @@ table th {
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -897,7 +904,8 @@ table th {
     color: #409EFF;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -905,7 +913,8 @@ table th {
     height: 60px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
+    padding-left: 50px;
     border-right: 1px solid #DCDFE6;
     cursor: pointer;
 }
@@ -1014,9 +1023,8 @@ table th {
 }
 
 .create-app-list .create-btn img {
-    width: 26px;
-    height: 26px;
-    margin-top: 4px;
+    width: 20px;
+    height: 20px;
 }
 
 .favorites-app-list .media-left {
@@ -1024,7 +1032,8 @@ table th {
 }
 
 .favorites-app-list .no-favorites {
-    padding-bottom: 15px;
+    padding-top: 75px;
+
 }
 
 .public-namespace-list .media-left {
@@ -1037,6 +1046,12 @@ table th {
 
 .visit-app-list .media-left {
     background: #41cac0;
+}
+
+.homepage-loading-more-panel {
+    margin-top: 20px;
+    padding-right: 30px;
+    padding-left: 30px;
 }
 
 #rulesModal .rules-ip-selector {

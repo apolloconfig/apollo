@@ -56,6 +56,15 @@
                 <h5>{{'Index.FavoriteItems' | translate }}</h5>
             </div>
 
+            <div class="visited-list-show" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent==='4'">
+                <i class="iconfont icon-liulan"></i>
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+            <div class="visited-list-choose" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent!=='4'">
+                <i class="iconfont icon-liulan" style="color: #666"></i>
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+            
             <div class="public-namespace-list-show" ng-click="changeContent('3')" ng-show="whichContent==='3'">
                 <i class="iconfont icon-gonggongziliao"></i>
                 <h5>{{'Index.PublicNamespace' | translate }}</h5>
@@ -65,24 +74,15 @@
                 <h5>{{'Index.PublicNamespace' | translate }}</h5>
             </div>
 
-            <div class="visited-list-show" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent==='4'">
-                <i class="iconfont icon-liulan"></i>
-                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
-            </div>
-            <div class="visited-list-choose" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent!=='4'">
-                <i class="iconfont icon-liulan" style="color: #666"></i>
-                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
-            </div>
         </div>
         <div class="main-table">
             <div class="create-app-list" ng-show="whichContent==='1'">
-                <div style="width: 180px;margin-left: 30px" ng-click="goToCreateAppPage()"
-                     ng-if="hasCreateApplicationPermission">
-                    <div href="#" class="thumbnail create-btn hover cursor-pointer"
-                         style="display: flex;justify-content: center;align-items: center">
-                        <div><img src="img/plus-white.png" /></div>
-                        <div style="margin-left: 5px"><h5>{{'Index.CreateProject' | translate }}</h5></div>
-                    </div>
+                <div class="text-right"; style="padding-right: 35px;padding-bottom: 15px;">
+                    <button class="btn btn-primary btn-md" ng-if="hasCreateApplicationPermission"
+                            ng-click="goToCreateAppPage()">
+                        <img src="img/plus.png" style="width: 15px; height: 15px"/>
+                        {{'Index.CreateProject' | translate }}
+                    </button>
                 </div>
                 <div class="display-table" ng-show="createdApps.length > 0">
                     <table>
@@ -103,7 +103,7 @@
                     </table>
                 </div>
                 <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
-                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreCreatedApps"
+                <div class="homepage-loading-more-panel" ng-show="hasMoreCreatedApps"
                      ng-click="getUserCreatedApps()">
                     <div href="#" class="thumbnail hover cursor-pointer"
                          style="display: flex;justify-content: center;align-items: center">
@@ -148,7 +148,7 @@
                     <h4>{{'Index.FavoriteTip' | translate }}</h4>
                 </div>
                 <div ng-show="!hasMoreFavorites" style="height: 15px"></div>
-                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMoreFavorites"
+                <div class="homepage-loading-more-panel" ng-show="hasMoreFavorites"
                      ng-click="getUserFavorites()">
                     <div href="#" class="thumbnail hover cursor-pointer"
                          style="display: flex;justify-content: center;align-items: center">
@@ -184,7 +184,7 @@
                     <h4>{{'Index.PublicNamespaceTip' | translate }}</h4>
                 </div>
                 <div ng-show="!hasMorePublicNamespaces" style="height: 15px"></div>
-                <div style="width: 180px;margin-left: 30px;margin-top: 20px" ng-show="hasMorePublicNamespaces"
+                <div class="homepage-loading-more-panel" ng-show="hasMorePublicNamespaces"
                      ng-click="morePublicNamespace()">
                     <div href="#" class="thumbnail hover cursor-pointer"
                          style="display: flex;justify-content: center;align-items: center">
