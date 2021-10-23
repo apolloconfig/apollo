@@ -19,6 +19,7 @@ Apollo 2.0.0
 * [Extend the gray release capability to support dimensions other than IP](https://github.com/apolloconfig/apollo/pull/4013)
 * [public namespace basic function](https://github.com/apolloconfig/apollo/pull/3850)
 * [Bump version to 2.0.0 and drop java 1.7 support](https://github.com/apolloconfig/apollo/pull/4015)
+* [Optimize home page style](https://github.com/apolloconfig/apollo/pull/4052)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
