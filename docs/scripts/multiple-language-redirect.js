@@ -128,26 +128,6 @@ function changeLinkInTranslationsListItem(currrentPath, translationsListItem) {
     });
 }
 
-
-const multipleLanguagesPathRedirectNavbarPlugin = function (hook, vm) {
-    const bindEventForChangeHrefInNavbar = () => {
-        // when user's mouse down, chanage href in navbar
-        document.addEventListener("mousedown", _mouseEvent => {
-            const currrentPath = vm.route.path;
-            // find navbar list item by hard code name
-            const translationsListItemName = "Translations";
-            const translationsListItem = findTranslationsListItem(translationsListItemName);
-            if (null == translationsListItem) {
-                console.warn("there is no navbar or ", translationsListItemName, "in current path", currrentPath);
-            } else {
-                changeLinkInTranslationsListItem(currrentPath, translationsListItem);
-            }
-        });
-    };
-
-    hook.init(bindEventForChangeHrefInNavbar);
-};
-
 /**
  * When user click another language in navbar's Translations, 
  * website's path will change to path which corresponding to current language.
