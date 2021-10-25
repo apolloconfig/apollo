@@ -176,10 +176,10 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 
 2. 输入用户名apollo，密码admin后登录
 
-![首页](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/apollo-sample-home.png)
+![首页](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/apollo-sample-home.png)
 
 3. 点击SampleApp进入配置界面，可以看到当前有一个配置timeout=100
-![配置界面](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/sample-app-config.png)
+![配置界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-config.png)
 
 > 如果提示`系统出错，请重试或联系系统负责人`，请稍后几秒钟重试一下，因为通过Eureka注册的服务有一个刷新的延时。
 
@@ -213,15 +213,15 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 ### 4.1.3 修改配置并发布
 
 1. 在配置界面点击timeout这一项的编辑按钮
-![编辑配置](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/sample-app-modify-config.png)
+![编辑配置](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-modify-config.png)
 
 2. 在弹出框中把值改成200并提交
-![配置修改](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/sample-app-submit-config.png)
+![配置修改](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-submit-config.png)
 
 3. 点击发布按钮，并填写发布信息
-![发布](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/sample-app-release-config.png)
+![发布](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-release-config.png)
 
-![发布信息](https://raw.githubusercontent.com/nobodyiam/apollo-build-scripts/master/images/sample-app-release-detail.png)
+![发布信息](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-release-detail.png)
 
 ### 4.1.4 客户端查看修改后的值
 如果客户端一直在运行的话，在配置发布后就会监听到配置变化，并输出修改的配置信息：

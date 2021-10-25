@@ -15,10 +15,11 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
 本地快速部署请参见[Quick Start](zh/deployment/quick-start)
 
 演示环境（Demo）:
+
 - [http://106.54.227.205](http://106.54.227.205/)
 - 账号/密码:apollo/admin
 
-> 如访问github速度缓慢，可以访问[gitee镜像](https://gitee.com/nobodyiam/apollo)，不定期同步
+> 如访问GitHub速度缓慢，可以访问[Gitee镜像](https://gitee.com/apolloconfig/apollo)，不定期同步
 
 # Screenshots
 ![配置界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-home-screenshot.jpg)
@@ -123,11 +124,11 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   </thead>
   <tbody>
     <tr>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-2.png" alt="tech-support-qq-2"></td>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-5.png" alt="tech-support-qq-5"></td>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-4.png" alt="tech-support-qq-4"></td>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-3.png" alt="tech-support-qq-3"></td>
-      <td><img src="https://raw.githubusercontent.com/ctripcorp/apollo-community/master/images/tech-support/tech-support-qq-1.png" alt="tech-support-qq-1"></td>
+      <td><img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-community@master/images/tech-support/tech-support-qq-2.png" alt="tech-support-qq-2"></td>
+      <td><img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-community@master/images/tech-support/tech-support-qq-5.png" alt="tech-support-qq-5"></td>
+      <td><img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-community@master/images/tech-support/tech-support-qq-4.png" alt="tech-support-qq-4"></td>
+      <td><img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-community@master/images/tech-support/tech-support-qq-3.png" alt="tech-support-qq-3"></td>
+      <td><img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-community@master/images/tech-support/tech-support-qq-1.png" alt="tech-support-qq-1"></td>
     </tr>
   </tbody>
 </table>
