@@ -910,7 +910,7 @@ ConfigDB和PortalDB在图中没有放入idc1或者idc2，需要自行选用合�
 ## 4.1 ctrip
 
 以ctrip为例，我们的部署策略如下：
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-deployment.png)
+![Deployment](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-deployment.png)
 
 * Portal部署在生产环境的机房，通过它来直接管理FAT、UAT、PRO等环境的配置
 * Meta Server、Config Service和Admin Service在每个环境都单独部署，使用独立的数据库
@@ -921,4 +921,4 @@ ConfigDB和PortalDB在图中没有放入idc1或者idc2，需要自行选用合�
 
 [@lyliyongblue](https://github.com/lyliyongblue) 贡献的样例部署图（建议右键新窗口打开看大图）：
 
-![Deployment](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/lyliyongblue-apollo-deployment.png)
+![Deployment](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/lyliyongblue-apollo-deployment.png)

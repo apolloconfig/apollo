@@ -15,7 +15,7 @@ Apollo提供了一套的Http REST接口，使第三方应用能够自己管理�
 
 Apollo管理员在 http://{portal_address}/open/manage.html 创建第三方应用，创建之前最好先查询此AppId是否已经创建。创建成功之后会生成一个token，如下图所示：
 
-![开放平台管理](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-open-manage.png)
+![开放平台管理](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage.png)
 
 #### 2.2 给已注册的第三方应用授权
 第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 http://{portal_address}/open/manage.html 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
@@ -28,7 +28,7 @@ Apollo管理员在 http://{portal_address}/open/manage.html 创建第三方应�
  * Http Header的Content-Type字段需要设置成application/json;charset=UTF-8
 
 ##### 2.3.2 Java应用通过apollo-openapi调用Apollo Open API
-从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/ctripcorp/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
+从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/apolloconfig/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
 
 首先引入`apollo-openapi`依赖：
 ```xml

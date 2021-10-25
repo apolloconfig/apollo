@@ -8,7 +8,7 @@ Apollo是配置管理系统，会提供权限管理（Authorization），理论�
 使用步骤如下：
 ### 1. 安装0.9.0以上版本
 
->如果之前是0.8.0版本，需要导入[apolloportaldb-v080-v090.sql](https://github.com/ctripcorp/apollo/blob/master/scripts/sql/delta/v080-v090/apolloportaldb-v080-v090.sql)
+>如果之前是0.8.0版本，需要导入[apolloportaldb-v080-v090.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/delta/v080-v090/apolloportaldb-v080-v090.sql)
 
 查看ApolloPortalDB，应该已经存在`Users`表，并有一条初始记录。初始用户名是apollo，密码是admin。
 
@@ -36,7 +36,7 @@ Apollo是配置管理系统，会提供权限管理（Authorization），理论�
 
 #### 1.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/config/application-ldap-openldap-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-openldap-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -126,7 +126,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 2.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/config/application-ldap-activedirectory-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-activedirectory-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -166,7 +166,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 3.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/config/application-ldap-apacheds-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-apacheds-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -236,7 +236,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 ### 1. 配置 `application-oidc.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-oidc.yml`，内容参考如下（[样例](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/config/application-oidc-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-oidc.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-oidc-sample.yml)），相关的内容需要按照具体情况调整：
 
 #### 1.1 最小配置
 ```yml
@@ -345,14 +345,14 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,oidc"
 * LogoutHandler（Optional）：用来实现登出功能
 * SsoHeartbeatHandler（Optional）：Portal页面如果长时间不刷新，登录信息会过期。通过此接口来刷新登录信息
 
-可以参考apollo-portal下的[com.ctrip.framework.apollo.portal.spi](https://github.com/ctripcorp/apollo/tree/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi)这个包下面的四个实现：
+可以参考apollo-portal下的[com.ctrip.framework.apollo.portal.spi](https://github.com/apolloconfig/apollo/tree/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi)这个包下面的四个实现：
 
 1. defaultimpl：默认实现，全局只有apollo一个账号
 2. ctrip：ctrip实现，接入了SSO并实现用户搜索、查询接口
 3. springsecurity: spring security实现，可以新增用户，修改用户密码等
 4. ldap: [@pandalin](https://github.com/pandalin)和[codepiano](https://github.com/codepiano)贡献的ldap实现
 
-实现了相关接口后，可以通过[com.ctrip.framework.apollo.portal.configuration.AuthConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java)在运行时替换默认的实现。
+实现了相关接口后，可以通过[com.ctrip.framework.apollo.portal.configuration.AuthConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java)在运行时替换默认的实现。
 
 接入SSO的思路如下：
 
@@ -365,6 +365,6 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,oidc"
 
 注意，以上1-5这几步都是SSO的代码，不是Apollo的代码，Apollo的代码只需要你实现第6步。
 
->注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的sso实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[AuthConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java)中修改默认实现的条件
+>注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的sso实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[AuthConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/AuthConfiguration.java)中修改默认实现的条件
 ，从`@ConditionalOnMissingProfile({"ctrip", "auth", "ldap"})`改为`@ConditionalOnMissingProfile({"ctrip", "auth", "ldap", "custom"})`。
 

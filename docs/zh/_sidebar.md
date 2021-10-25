@@ -15,8 +15,8 @@
 - 开发文档
   - [Apollo开发指南](zh/development/apollo-development-guide.md)
   - Code Styles
-    - [Eclipse Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
-    - [Intellij Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
+    - [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
+    - [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
   - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
   - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
   - [Portal 共享 session](zh/development/portal-how-to-enable-session-store.md)
@@ -39,12 +39,12 @@
   - [部署&开发遇到的常见问题](zh/faq/common-issues-in-deployment-and-development-phase.md)
 
 - 其它
-   - [版本历史](https://github.com/ctripcorp/apollo/releases)
+   - [版本历史](https://github.com/apolloconfig/apollo/releases)
    - [Apollo性能测试报告](zh/misc/apollo-benchmark.md)
 
 - 社区
   - [团队](zh/community/team.md)
-  - [社区治理](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
-  - [贡献指南](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
+  - [社区治理](zh/governance.md)
+  - [贡献指南](zh/contributing.md)
   - [致谢](zh/community/thank-you.md)
 

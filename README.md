@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/apolloconfig/apollo/master/doc/images/logo/logo-simple.png" alt="apollo-logo" width="40%">
+<img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo/doc/images/logo/logo-simple.png" alt="apollo-logo" width="40%">
 
 English | [中文](https://www.apolloconfig.com/#/zh/README)
 
@@ -27,7 +27,7 @@ Demo Environment:
 - User/Password: apollo/admin
 
 # Screenshots
-![Screenshot](https://raw.githubusercontent.com/apolloconfig/apollo/master/docs/en/images/apollo-home-screenshot.jpg)
+![Screenshot](https://cdn.jsdelivr.net/gh/apolloconfig/apollo/docs/en/images/apollo-home-screenshot.jpg)
 
 # Features
 * **Unified management of the configurations of different environments and different clusters**

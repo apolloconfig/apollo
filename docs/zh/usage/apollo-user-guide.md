@@ -16,7 +16,7 @@
 1. 打开apollo-portal主页
 2. 点击“创建项目”
 
-![create-app-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-app-entry.png)
+![create-app-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-app-entry.png)
 
 3. 输入项目信息
     * 部门：选择应用所在的部门
@@ -24,13 +24,13 @@
     * 应用名称：应用名，仅用于界面展示
     * 应用负责人：选择的人默认会成为该项目的管理员，具备项目权限管理、集群创建、Namespace创建等权限
 
-![create-app](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-app.png)
+![create-app](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-app.png)
 
 4. 点击提交
 
     创建成功后，会自动跳转到项目首页
 
-![app-created](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/app-created.png)
+![app-created](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-created.png)
 
 ## 1.2 项目权限分配
 ### 1.2.1 项目管理员权限
@@ -44,11 +44,11 @@
 创建项目时填写的应用负责人默认会成为项目的管理员之一，如果还需要其他人也成为项目管理员，可以按照下面步骤操作：
 
 1. 点击页面左侧的“管理项目”
-    * ![app-permission-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/app-permission-entry.png)
+    * ![app-permission-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-permission-entry.png)
 
 2. 搜索需要添加的成员并点击添加
-    * ![app-permission-search-user](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/app-permission-search-user.png)
-    * ![app-permission-user-added](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/app-permission-user-added.png)
+    * ![app-permission-search-user](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-permission-search-user.png)
+    * ![app-permission-user-added](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-permission-user-added.png)
 
 ### 1.2.2 配置编辑、发布权限
 配置权限分为编辑和发布：
@@ -62,13 +62,13 @@
 项目创建完，默认没有分配配置的编辑和发布权限，需要项目管理员进行授权。
 
 1. 点击application这个namespace的授权按钮
-    * ![namespace-permission-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-permission-entry.png)
+    * ![namespace-permission-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-entry.png)
 
 2. 分配修改权限
-    * ![namespace-permission-edit](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-permission-edit.png)
+    * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
 
 3. 分配发布权限
-    * ![namespace-publish-permission](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-publish-permission.png)
+    * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
 ## 1.3 添加配置项
 编辑配置需要拥有这个Namespace的编辑权限，如果发现没有新增配置按钮，可以找项目管理员授权。
@@ -76,26 +76,26 @@
 ### 1.3.1 通过表格模式添加配置
 
 1. 点击新增配置
-    * ![create-item-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-item-entry.png)
+    * ![create-item-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-item-entry.png)
 
 2. 输入配置项
-    * ![create-item-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-item-detail.png)
+    * ![create-item-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-item-detail.png)
 
 3. 点击提交
-    * ![item-created](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/item-created.png)
+    * ![item-created](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-created.png)
 
 ### 1.3.2 通过文本模式编辑
 Apollo除了支持表格模式，逐个添加、修改配置外，还提供文本模式批量添加、修改。
 这个对于从已有的properties文件迁移尤其有用。
 
 1. 切换到文本编辑模式
-![text-mode-config-overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/text-mode-config-overview.png)
+![text-mode-config-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-config-overview.png)
 
 2. 点击右侧的修改配置按钮
-![text-mode-config-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/text-mode-config-entry.png)
+![text-mode-config-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-config-entry.png)
 
 3. 输入配置项，并点击提交修改
-![text-mode-config-submit](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/text-mode-config-submit.png)
+![text-mode-config-submit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-config-submit.png)
 
 ## 1.4 发布配置
 配置只有在发布后才会真的被应用使用到，所以在编辑完配置后，需要发布配置。
@@ -103,10 +103,10 @@ Apollo除了支持表格模式，逐个添加、修改配置外，还提供文�
 发布配置需要拥有这个Namespace的发布权限，如果发现没有发布按钮，可以找项目管理员授权。
 
 1. 点击“发布按钮”
-![publish-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/hermes-portal-publish-entry.png)
+![publish-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/hermes-portal-publish-entry.png)
 
 2. 填写发布相关信息，点击发布
-![publish-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/hermes-portal-publish-detail.png)
+![publish-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/hermes-portal-publish-detail.png)
 
 ## 1.5 应用读取配置
 配置发布成功后，应用就可以通过Apollo客户端读取到配置了。
@@ -146,26 +146,26 @@ Apollo中的回滚也是类似的机制，点击回滚后是将发布到客户�
 创建Namespace需要项目管理员权限，如果发现没有添加Namespace按钮，可以找项目管理员授权。
 
 1. 点击页面左侧的添加Namespace
-    * ![create-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-namespace.png)
+    * ![create-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-namespace.png)
 
 2. 点击“创建新的Namespace”
-    * ![create-namespace-select-type](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-namespace-select-type.png)
+    * ![create-namespace-select-type](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-namespace-select-type.png)
 
 3. 输入公共组件的Namespace名称，需要注意的是Namespace名称全局唯一
     * Apollo会默认把部门代号添加在最前面
-    * ![create-namespace-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-namespace-detail.png)
+    * ![create-namespace-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-namespace-detail.png)
 
 4. 点击提交后，页面会自动跳转到关联Namespace页面
     * 首先，选中所有需要有这个Namespace的环境和集群，一般建议全选
     * 其次，选中刚刚创建的namespace
     * 最后，点击提交
-    * ![link-namespace-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/link-namespace-detail.png)
+    * ![link-namespace-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/link-namespace-detail.png)
 
 5. 关联成功后，页面会自动跳转到Namespace权限管理页面
     1. 分配修改权限
-        * ![namespace-permission-edit](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-permission-edit.png)
+        * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
     2. 分配发布权限
-        * ![namespace-publish-permission](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-publish-permission.png)
+        * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
 6. 点击“返回”回到项目页面
 
@@ -176,13 +176,13 @@ Apollo中的回滚也是类似的机制，点击回滚后是将发布到客户�
 #### 2.2.2.1 通过表格模式添加配置
 
 1. 点击新增配置
-![public-namespace-edit-item-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-edit-item-entry.png)
+![public-namespace-edit-item-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-edit-item-entry.png)
 
 2. 输入配置项
-![public-namespace-edit-item](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-edit-item.png)
+![public-namespace-edit-item](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-edit-item.png)
 
 3. 点击提交
-![public-namespace-item-created](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-item-created.png)
+![public-namespace-item-created](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-item-created.png)
 
 #### 2.2.2.2 通过文本模式编辑
 这部分和普通应用一致，具体步骤请参见[1.3.2 通过文本模式编辑](#_132-%E9%80%9A%E8%BF%87%E6%96%87%E6%9C%AC%E6%A8%A1%E5%BC%8F%E7%BC%96%E8%BE%91)。
@@ -194,10 +194,10 @@ Apollo中的回滚也是类似的机制，点击回滚后是将发布到客户�
 发布配置需要拥有这个Namespace的发布权限，如果发现没有发布按钮，可以找项目管理员授权。
 
 1. 点击“发布按钮”
-![public-namespace-publish-items-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-publish-items-entry.png)
+![public-namespace-publish-items-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-publish-items-entry.png)
 
 2. 填写发布相关信息，点击发布
-![public-namespace-publish-items](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-publish-items.png)
+![public-namespace-publish-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-publish-items.png)
 
 ### 2.2.4 应用读取配置
 
@@ -219,29 +219,29 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 1. 进入使用公共组件的应用项目首页，点击左侧的添加Namespace按钮
     * 所以，在这个例子中，我们需要进入apollo-portal的首页。
     * （添加Namespace需要项目管理员权限，如果发现没有添加Namespace按钮，可以找项目管理员授权）
-    * ![link-public-namespace-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/link-public-namespace-entry.png)
+    * ![link-public-namespace-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/link-public-namespace-entry.png)
 
 2. 找到hermes producer的namespace，并选择需要关联到哪些环境和集群
-![link-public-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/link-public-namespace.png)
+![link-public-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/link-public-namespace.png)
 
 3. 关联成功后，页面会自动跳转到Namespace权限管理页面
     1. 分配修改权限
-![namespace-permission-edit](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-permission-edit.png)
+![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
     2. 分配发布权限
-![namespace-publish-permission](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-publish-permission.png)
+![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
 4. 点击“返回”回到项目页面
 
 ### 2.3.2 覆盖公用组件配置
 
 1. 点击新增配置
-![override-public-namespace-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/override-public-namespace-entry.png)
+![override-public-namespace-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/override-public-namespace-entry.png)
 
 2. 输入要覆盖的配置项
-![override-public-namespace-item](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/override-public-namespace-item.png)
+![override-public-namespace-item](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/override-public-namespace-item.png)
 
 3. 点击提交
-![override-public-namespace-item-done](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/override-public-namespace-item-done.png)
+![override-public-namespace-item-done](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/override-public-namespace-item-done.png)
 
 ### 2.3.3 发布配置
 
@@ -250,10 +250,10 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 发布配置需要拥有这个Namespace的发布权限，如果发现没有发布按钮，可以找项目管理员授权。
 
 1. 点击“发布按钮”
-![override-public-namespace-item-publish-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/override-public-namespace-item-publish-entry.png)
+![override-public-namespace-item-publish-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/override-public-namespace-item-publish-entry.png)
 
 2. 填写发布相关信息，点击发布
-![override-public-namespace-item-publish](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/override-public-namespace-item-publish.png)
+![override-public-namespace-item-publish](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/override-public-namespace-item-publish.png)
 
 3. 配置发布成功后，hermes producer客户端在apollo-portal应用里面运行时读取到的sender.batchSize的值就是1000。
 
@@ -268,13 +268,13 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 创建集群需要项目管理员权限，如果发现没有添加集群按钮，可以找项目管理员授权。
 
 1. 点击页面左侧的“添加集群”按钮
-    * ![create-cluster](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-cluster.png)
+    * ![create-cluster](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-cluster.png)
 
 2. 输入集群名称，选择环境并提交
-    * ![create-cluster-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-cluster-detail.png)
+    * ![create-cluster-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-cluster-detail.png)
 
 3. 切换到对应的集群，修改配置并发布即可
-    * ![config-in-cluster-created](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/cluster-created.png)
+    * ![config-in-cluster-created](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/cluster-created.png)
 
 4. 通过上述配置，部署在SHAJQ机房的应用就会读到SHAJQ集群下的配置
 
@@ -306,58 +306,58 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 1. 10.32.21.19
 2. 10.32.21.22
 
-![initial-instance-list](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/initial-instance-list.png)
+![initial-instance-list](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/initial-instance-list.png)
 
 **灰度目标：**
 
 * 当前有一个配置timeout=2000，我们希望对10.32.21.22灰度发布timeout=3000，对10.32.21.19仍然是timeout=2000。
 
-![initial-config](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/initial-config.png)
+![initial-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/initial-config.png)
 
 ## 5.2 创建灰度
 首先点击application namespace右上角的`创建灰度`按钮。
 
-![create-gray-release](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/create-gray-release.png)
+![create-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/create-gray-release.png)
 
 点击确定后，灰度版本就创建成功了，页面会自动切换到`灰度版本`Tab。
 
-![initial-gray-release-tab](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/initial-gray-release-tab.png)
+![initial-gray-release-tab](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/initial-gray-release-tab.png)
 
 ## 5.3 灰度配置
 点击`主版本的配置`中，timeout配置最右侧的`对此配置灰度`按钮
 
-![initial-gray-release-tab](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/edit-gray-release-config.png)
+![initial-gray-release-tab](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/edit-gray-release-config.png)
 
 在弹出框中填入要灰度的值：3000，点击提交。
 
-![submit-gray-release-config](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/submit-gray-release-config.png)
+![submit-gray-release-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/submit-gray-release-config.png)
 
-![gray-release-config-submitted](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-config-submitted.png)
+![gray-release-config-submitted](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-config-submitted.png)
 
 ## 5.4 配置灰度规则
 切换到`灰度规则`Tab，点击`新增规则`按钮
 
-![new-gray-release-rule](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/new-gray-release-rule.png)
+![new-gray-release-rule](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/new-gray-release-rule.png)
 
 在弹出框中`灰度的IP`下拉框会默认展示当前使用配置的机器列表，选择我们要灰度的IP。
 
-![select-gray-release-ip](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/select-gray-release-ip.png)
+![select-gray-release-ip](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/select-gray-release-ip.png)
 
-![gray-release-ip-selected](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-ip-selected.png)
+![gray-release-ip-selected](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-ip-selected.png)
 
 手动输入想要设置的label标签，输入完成后点击点击添加按钮。
 
-![manual-input-gray-release-label](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-label.png)
+![manual-input-gray-release-label](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label.png)
 
-![manual-input-gray-release-label-2](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-label-2.png)
+![manual-input-gray-release-label-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label-2.png)
 
-![gray-release-rule-saved](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-rule-saved.png)
+![gray-release-rule-saved](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-rule-saved.png)
 
 如果下拉框中没找到需要的IP，说明机器还没从Apollo取过配置，可以点击手动输入IP来输入，输入完后点击添加按钮
 
-![manual-input-gray-release-ip](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-ip.png)
+![manual-input-gray-release-ip](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-ip.png)
 
-![manual-input-gray-release-ip-2](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/manual-input-gray-release-ip-2.png)
+![manual-input-gray-release-ip-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-ip-2.png)
 
 >注：对于公共Namespace的灰度规则，需要先指定要灰度的appId，然后再选择IP和Label。
 
@@ -366,19 +366,19 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 再次检查灰度的配置部分，如果没有问题，点击`灰度发布`。
 
-![prepare-to-do-gray-release](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/prepare-to-do-gray-release.png)
+![prepare-to-do-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/prepare-to-do-gray-release.png)
 
 在弹出框中可以看到主版本的值是2000，灰度版本即将发布的值是3000。填入其它信息后，点击发布。
 
-![gray-release-confirm-dialog](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-confirm-dialog.png)
+![gray-release-confirm-dialog](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-confirm-dialog.png)
 
 发布后，切换到`灰度实例列表`Tab，就能看到10.32.21.22已经使用了灰度发布的值。
 
-![gray-release-instance-list](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/gray-release-instance-list.png)
+![gray-release-instance-list](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-instance-list.png)
 
 切换到`主版本`的`实例列表`，会看到主版本配置只有10.32.21.19在使用了。
 
-![master-branch-instance-list](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/master-branch-instance-list.png)
+![master-branch-instance-list](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/master-branch-instance-list.png)
 
 后面可以继续配置的修改或规则的更改。配置的修改需要点击灰度发布后才会生效，规则的修改在规则点击完成后就会实时生效。
 
@@ -391,27 +391,27 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 2. 主版本的配置会自动进行一次发布
 3. 在全量发布页面，可以选择是否保留当前灰度版本，默认为不保留。
 
-![prepare-to-full-release](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/prepare-to-full-release.png)
+![prepare-to-full-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/prepare-to-full-release.png)
 
-![full-release-confirm-dialog](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/full-release-confirm-dialog.png)
+![full-release-confirm-dialog](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/full-release-confirm-dialog.png)
 
-![full-release-confirm-dialog-2](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/full-release-confirm-dialog-2.png)
+![full-release-confirm-dialog-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/full-release-confirm-dialog-2.png)
 
 我选择了不保留灰度版本，所以发布完的效果就是主版本的配置更新、灰度版本删除。点击主版本的实例列表，可以看到10.32.21.22和10.32.21.19都使用了主版本最新的配置。
 
-![master-branch-instance-list-after-full-release](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/master-branch-instance-list-after-full-release.png)
+![master-branch-instance-list-after-full-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/master-branch-instance-list-after-full-release.png)
 
 ## 5.7 放弃灰度
 如果灰度版本不理想或者不需要了，可以点击`放弃灰度`。
 
-![abandon-gray-release](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/abandon-gray-release.png)
+![abandon-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/abandon-gray-release.png)
 
 ## 5.8 发布历史
 点击主版本的`发布历史`按钮，可以看到当前namespace的主版本以及灰度版本的发布历史。
 
-![view-release-history](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/view-release-history.png)
+![view-release-history](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/view-release-history.png)
 
-![view-release-history-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/gray-release/view-release-history-detail.png)
+![view-release-history-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/view-release-history-detail.png)
 
 # 六、其它功能配置
 

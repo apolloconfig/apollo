@@ -48,7 +48,7 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 
 安装包共50M，如果访问github网速不给力的话，可以从百度网盘下载。
 
-1. 从Github下载
+1. 从GitHub下载
     * checkout或下载[apollo-build-scripts项目](https://github.com/nobodyiam/apollo-build-scripts)
     * **由于Quick Start项目比较大，所以放在了另外的repository，请注意项目地址**
         * https://github.com/nobodyiam/apollo-build-scripts
@@ -184,7 +184,7 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 > 如果提示`系统出错，请重试或联系系统负责人`，请稍后几秒钟重试一下，因为通过Eureka注册的服务有一个刷新的延时。
 
 ### 4.1.2 运行客户端程序
-我们准备了一个简单的[Demo客户端](https://github.com/ctripcorp/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/api/SimpleApolloConfigDemo.java)来演示从Apollo配置中心获取配置。
+我们准备了一个简单的[Demo客户端](https://github.com/apolloconfig/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/api/SimpleApolloConfigDemo.java)来演示从Apollo配置中心获取配置。
 
 程序很简单，就是用户输入一个key的名字，程序会输出这个key对应的值。
 
