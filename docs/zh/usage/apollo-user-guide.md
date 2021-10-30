@@ -349,7 +349,7 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 ![manual-input-gray-release-label](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label.png)
 
-![manual-input-gray-release-label-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label-2.png)
+![manual-input-gray-release-label-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label2.png)
 
 ![gray-release-rule-saved](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-rule-saved.png)
 
