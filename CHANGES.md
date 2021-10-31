@@ -21,6 +21,7 @@ Apollo 2.0.0
 * [Bump version to 2.0.0 and drop java 1.7 support](https://github.com/apolloconfig/apollo/pull/4015)
 * [Optimize home page style](https://github.com/apolloconfig/apollo/pull/4052)
 * [Support Java 17](https://github.com/apolloconfig/apollo/pull/4060)
+* [Optimize top navbar style](https://github.com/apolloconfig/apollo/pull/4073)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

@@ -1099,6 +1099,10 @@ table th {
     font-size: 14px;
 }
 
+#app-search-list {
+    width: 375px;
+}
+
 /*backTop component style*/
 .back-top {
     position: fixed;
@@ -1124,4 +1128,16 @@ table th {
 
 .back-top:active {
     opacity: .6;
+}
+
+.navbar-nav .nav-switch-lang {
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    margin-right: -5px;
+}
+
+.navbar-header .logo {
+    height: 35px;
+    margin-top: -4px
 }
