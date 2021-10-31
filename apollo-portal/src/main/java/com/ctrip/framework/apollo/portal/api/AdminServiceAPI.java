@@ -204,6 +204,11 @@ public class AdminServiceAPI {
           item, ItemDTO.class, appId, clusterName, namespace);
     }
 
+    public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespace, ItemDTO item) {
+      return restTemplate.post(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items",
+                               item, ItemDTO.class, appId, clusterName, namespace);
+    }
+
     public void deleteItem(Env env, long itemId, String operator) {
 
       restTemplate.delete(env, "items/{itemId}?operator={operator}", itemId, operator);

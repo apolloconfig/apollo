@@ -16,8 +16,13 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.google.gson.Gson;
+
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -25,34 +30,39 @@ import com.ctrip.framework.apollo.portal.entity.bo.ConfigBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ConfigsExportService {
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigsExportService.class);
 
+  private final Gson gson = new Gson();
+
   private final AppService appService;
 
   private final ClusterService clusterService;
 
   private final NamespaceService namespaceService;
+
+  private final AppNamespaceService appNamespaceService;
 
   private final PortalSettings portalSettings;
 
@@ -62,104 +72,73 @@ public class ConfigsExportService {
       AppService appService,
       ClusterService clusterService,
       final @Lazy NamespaceService namespaceService,
+      final AppNamespaceService appNamespaceService,
       PortalSettings portalSettings,
       PermissionValidator permissionValidator) {
     this.appService = appService;
     this.clusterService = clusterService;
     this.namespaceService = namespaceService;
+    this.appNamespaceService = appNamespaceService;
     this.portalSettings = portalSettings;
     this.permissionValidator = permissionValidator;
   }
 
   /**
-   * write multiple namespace to a zip. use {@link Stream#reduce(Object, BiFunction,
-   * BinaryOperator)} to forbid concurrent write.
+   * Export all application which current user own them.
+   * <p>
+   * File Struts:
+   * <p>
    *
-   * @param configBOStream namespace's stream
-   * @param outputStream receive zip file output stream
-   * @throws IOException if happen write problem
+   * List<AppNamespaceMetadata>
+   * List<ownerName> -> List<App> -> List<Env> -> List<Namespace>
+   * -----------------> app.metadata
+   * -------------------------------------------> List<cluster.metadata>
+   *
+   * @param outputStream network file download stream to user
    */
-  private static void writeAsZipOutputStream(
-      Stream<ConfigBO> configBOStream, OutputStream outputStream) throws IOException {
+  public void exportData(OutputStream outputStream, List<Env> exportEnvs) {
+    if (CollectionUtils.isEmpty(exportEnvs)) {
+      exportEnvs = portalSettings.getActiveEnvs();
+    }
+
+    exportApps(exportEnvs, outputStream);
+  }
+
+  private void exportApps(final Collection<Env> exportEnvs, OutputStream outputStream) {
+    List<App> hasPermissionApps = findHasPermissionApps();
+
+    if (CollectionUtils.isEmpty(hasPermissionApps)) {
+      return;
+    }
+
     try (final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
-      final Consumer<ConfigBO> configBOConsumer =
-          configBO -> {
-            try {
-              // TODO, Stream.reduce will cause some problems. Is There other way to speed up the
-              // downloading?
-              synchronized (zipOutputStream) {
-                write2ZipOutputStream(zipOutputStream, configBO);
-              }
-            } catch (IOException e) {
-              logger.error("Write error. {}", configBO);
-              throw new IllegalStateException(e);
-            }
-          };
-      configBOStream.forEach(configBOConsumer);
-    }
-  }
+      //write app info to zip
+      writeAppInfoToZip(hasPermissionApps, zipOutputStream);
 
-  /**
-   * write {@link ConfigBO} as file to {@link ZipOutputStream}. Watch out the concurrent problem!
-   * zip output stream is same like cannot write concurrently! the name of file is determined by
-   * {@link ConfigFileUtils#toFilename(String, String, String, ConfigFileFormat)}. the path of file
-   * is determined by {@link ConfigFileUtils#toFilePath(String, String, Env, String)}.
-   *
-   * @param zipOutputStream zip file output stream
-   * @param configBO a namespace represent
-   * @return zip file output stream same as parameter zipOutputStream
-   */
-  private static ZipOutputStream write2ZipOutputStream(
-      final ZipOutputStream zipOutputStream, final ConfigBO configBO) throws IOException {
-    final Env env = configBO.getEnv();
-    final String ownerName = configBO.getOwnerName();
-    final String appId = configBO.getAppId();
-    final String clusterName = configBO.getClusterName();
-    final String namespace = configBO.getNamespace();
-    final String configFileContent = configBO.getConfigFileContent();
-    final ConfigFileFormat configFileFormat = configBO.getFormat();
-    final String configFilename =
-        ConfigFileUtils.toFilename(appId, clusterName, namespace, configFileFormat);
-    final String filePath = ConfigFileUtils.toFilePath(ownerName, appId, env, configFilename);
-    final ZipEntry zipEntry = new ZipEntry(filePath);
-    try {
-      zipOutputStream.putNextEntry(zipEntry);
-      zipOutputStream.write(configFileContent.getBytes());
-      zipOutputStream.closeEntry();
+      //export app namespace
+      exportAppNamespaces(zipOutputStream);
+
+      //export app's clusters
+      exportEnvs.parallelStream().forEach(env -> {
+        try {
+          this.exportClusters(env, hasPermissionApps, zipOutputStream);
+        } catch (Exception e) {
+          logger.error("export cluster error. env = {}", env, e);
+        }
+      });
     } catch (IOException e) {
-      logger.error("config export failed. {}", configBO);
-      throw new IOException("config export failed", e);
+      logger.error("export config error", e);
+      throw new ServiceException("export config error", e);
     }
-    return zipOutputStream;
   }
 
-  /** @return the namespaces current user exists */
-  private Stream<ConfigBO> makeStreamBy(
-      final Env env, final String ownerName, final String appId, final String clusterName) {
-    final List<NamespaceBO> namespaceBOS =
-        namespaceService.findNamespaceBOs(appId, env, clusterName);
-    final Function<NamespaceBO, ConfigBO> function =
-        namespaceBO -> new ConfigBO(env, ownerName, appId, clusterName, namespaceBO);
-    return namespaceBOS.parallelStream().map(function);
-  }
-
-  private Stream<ConfigBO> makeStreamBy(final Env env, final String ownerName, final String appId) {
-    final List<ClusterDTO> clusterDTOS = clusterService.findClusters(env, appId);
-    final Function<ClusterDTO, Stream<ConfigBO>> function =
-        clusterDTO -> this.makeStreamBy(env, ownerName, appId, clusterDTO.getName());
-    return clusterDTOS.parallelStream().flatMap(function);
-  }
-
-  private Stream<ConfigBO> makeStreamBy(final Env env, final List<App> apps) {
-    final Function<App, Stream<ConfigBO>> function =
-        app -> this.makeStreamBy(env, app.getOwnerName(), app.getAppId());
-
-    return apps.parallelStream().flatMap(function);
-  }
-
-  private Stream<ConfigBO> makeStreamBy(final Collection<Env> envs) {
+  private List<App> findHasPermissionApps() {
     // get all apps
     final List<App> apps = appService.findAll();
+
+    if (CollectionUtils.isEmpty(apps)) {
+      return Collections.emptyList();
+    }
 
     // permission check
     final Predicate<App> isAppAdmin =
@@ -167,28 +146,168 @@ public class ConfigsExportService {
           try {
             return permissionValidator.isAppAdmin(app.getAppId());
           } catch (Exception e) {
-            logger.error("app = {}", app);
-            logger.error(app.getAppId());
+            logger.error("permission check failed. app = {}", app);
+            return false;
           }
-          return false;
         };
 
     // app admin permission filter
-    final List<App> appsExistPermission =
-        apps.stream().filter(isAppAdmin).collect(Collectors.toList());
-    return envs.parallelStream().flatMap(env -> this.makeStreamBy(env, appsExistPermission));
+    return apps.stream().filter(isAppAdmin).collect(Collectors.toList());
   }
 
-  /**
-   * Export all projects which current user own them. Permission check by {@link
-   * PermissionValidator#isAppAdmin(java.lang.String)}
-   *
-   * @param outputStream network file download stream to user
-   * @throws IOException if happen write problem
-   */
-  public void exportAllTo(OutputStream outputStream) throws IOException {
-    final List<Env> activeEnvs = portalSettings.getActiveEnvs();
-    final Stream<ConfigBO> configBOStream = this.makeStreamBy(activeEnvs);
-    writeAsZipOutputStream(configBOStream, outputStream);
+  private void writeAppInfoToZip(List<App> apps, ZipOutputStream zipOutputStream) {
+    logger.info("to import app size = {}", apps.size());
+
+    final Consumer<App> appConsumer =
+        app -> {
+          try {
+            synchronized (zipOutputStream) {
+              String fileName = ConfigFileUtils.genAppInfoPath(app);
+              String content = gson.toJson(app);
+
+              writeToZip(fileName, content, zipOutputStream);
+            }
+          } catch (IOException e) {
+            logger.error("Write error. {}", app);
+            throw new ServiceException("Write app error. {}", e);
+          }
+        };
+
+    apps.forEach(appConsumer);
   }
+
+  private void exportAppNamespaces(ZipOutputStream zipOutputStream) {
+    List<AppNamespace> appNamespaces = appNamespaceService.findAll();
+
+    logger.info("to import appnamespace size = " + appNamespaces.size());
+
+    Consumer<AppNamespace> appNamespaceConsumer = appNamespace -> {
+      try {
+        synchronized (zipOutputStream) {
+          String fileName = ConfigFileUtils.genAppNamespaceInfoPath(appNamespace);
+          String content = gson.toJson(appNamespace);
+
+          writeToZip(fileName, content, zipOutputStream);
+        }
+      } catch (Exception e) {
+        logger.error("Write appnamespace error. {}", appNamespace);
+        throw new IllegalStateException(e);
+      }
+    };
+
+    appNamespaces.forEach(appNamespaceConsumer);
+
+  }
+
+  private void exportClusters(final Env env, final List<App> exportApps, ZipOutputStream zipOutputStream) {
+    exportApps.parallelStream().forEach(exportApp -> {
+      try {
+        this.exportCluster(env, exportApp, zipOutputStream);
+      } catch (Exception e) {
+        logger.error("export cluster error. appId = {}", exportApp.getAppId(), e);
+      }
+    });
+  }
+
+  private void exportCluster(final Env env, final App exportApp, ZipOutputStream zipOutputStream) {
+    final List<ClusterDTO> exportClusters = clusterService.findClusters(env, exportApp.getAppId());
+
+    if (CollectionUtils.isEmpty(exportClusters)) {
+      return;
+    }
+
+    //write cluster info to zip
+    writeClusterInfoToZip(env, exportApp, exportClusters, zipOutputStream);
+
+    //export namespaces
+    exportClusters.parallelStream().forEach(cluster -> {
+      try {
+        this.exportNamespaces(env, exportApp, cluster, zipOutputStream);
+      } catch (BadRequestException badRequestException) {
+        //ignore
+      } catch (Exception e) {
+        logger.error("export namespace error. appId = {}, cluster = {}", exportApp.getAppId(), cluster, e);
+      }
+    });
+  }
+
+  private void exportNamespaces(final Env env, final App exportApp, final ClusterDTO exportCluster,
+                                ZipOutputStream zipOutputStream) {
+    String clusterName = exportCluster.getName();
+
+    List<NamespaceBO> namespaceBOS = namespaceService.findNamespaceBOs(exportApp.getAppId(), env, clusterName);
+
+    if (CollectionUtils.isEmpty(namespaceBOS)) {
+      return;
+    }
+
+    Stream<ConfigBO> configBOStream = namespaceBOS.stream()
+        .map(
+            namespaceBO -> new ConfigBO(env, exportApp.getOwnerName(), exportApp.getAppId(), clusterName, namespaceBO));
+
+    writeNamespacesToZip(configBOStream, zipOutputStream);
+  }
+
+  private void writeNamespacesToZip(Stream<ConfigBO> configBOStream, ZipOutputStream zipOutputStream) {
+    final Consumer<ConfigBO> configBOConsumer =
+        configBO -> {
+          try {
+            synchronized (zipOutputStream) {
+              String appId = configBO.getAppId();
+              String clusterName = configBO.getClusterName();
+              String namespace = configBO.getNamespace();
+              String configFileContent = configBO.getConfigFileContent();
+              ConfigFileFormat configFileFormat = configBO.getFormat();
+
+              String
+                  configFileName =
+                  ConfigFileUtils.toFilename(appId, clusterName, namespace, configFileFormat);
+              String filePath =
+                  ConfigFileUtils.genNamespacePath(configBO.getOwnerName(), appId, configBO.getEnv(), configFileName);
+
+              writeToZip(filePath, configFileContent, zipOutputStream);
+            }
+          } catch (IOException e) {
+            logger.error("Write error. {}", configBO);
+            throw new ServiceException("Write namespace error. {}", e);
+          }
+        };
+
+    configBOStream.forEach(configBOConsumer);
+  }
+
+  private void writeClusterInfoToZip(Env env, App app, List<ClusterDTO> exportClusters,
+                                     ZipOutputStream zipOutputStream) {
+    final Consumer<ClusterDTO> clusterConsumer =
+        cluster -> {
+          try {
+            synchronized (zipOutputStream) {
+              String fileName = ConfigFileUtils.genClusterInfoPath(app, env, cluster);
+              String content = gson.toJson(cluster);
+
+              writeToZip(fileName, content, zipOutputStream);
+            }
+          } catch (IOException e) {
+            logger.error("Write error. {}", cluster);
+            throw new ServiceException("Write error. {}", e);
+          }
+        };
+
+    exportClusters.forEach(clusterConsumer);
+  }
+
+  private void writeToZip(String filePath, String content, ZipOutputStream zipOutputStream)
+      throws IOException {
+    final ZipEntry zipEntry = new ZipEntry(filePath);
+    try {
+      zipOutputStream.putNextEntry(zipEntry);
+      zipOutputStream.write(content.getBytes());
+      zipOutputStream.closeEntry();
+    } catch (IOException e) {
+      String errorMsg = "write content to zip error. file = " + filePath + ", content = " + content;
+      logger.error(errorMsg);
+      throw new IOException(errorMsg, e);
+    }
+  }
+
 }

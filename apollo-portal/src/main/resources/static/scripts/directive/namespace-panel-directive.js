@@ -88,6 +88,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.editRuleItem = editRuleItem;
 
             scope.deleteNamespace = deleteNamespace;
+            scope.exportNamespace = exportNamespace;
+            scope.importNamespace = importNamespace;
 
             var subscriberId = EventManager.subscribe(EventManager.EventType.UPDATE_GRAY_RELEASE_RULES,
                 function (context) {
@@ -959,6 +961,16 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             function deleteNamespace(namespace) {
                 EventManager.emit(EventManager.EventType.PRE_DELETE_NAMESPACE, { namespace: namespace });
+            }
+
+            function exportNamespace(namespace) {
+                $window.location.href =
+                    AppUtil.prefixPath() + '/apps/' + scope.appId + "/envs/" + scope.env + "/clusters/" + scope.cluster
+                    + "/namespaces/" + namespace.baseInfo.namespaceName + "/items/export"
+            }
+
+            function importNamespace(namespace) {
+                EventManager.emit(EventManager.EventType.PRE_IMPORT_NAMESPACE, { namespace: namespace });
             }
 
             //theme: https://github.com/ajaxorg/ace-builds/tree/ba3b91e04a5aa559d56ac70964f9054baa0f4caf/src-min

@@ -101,7 +101,10 @@ public class NamespaceService {
     if (StringUtils.isEmpty(namespace.getDataChangeCreatedBy())) {
       namespace.setDataChangeCreatedBy(userInfoHolder.getUser().getUserId());
     }
-    namespace.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+
+    if (StringUtils.isEmpty(namespace.getDataChangeLastModifiedBy())) {
+      namespace.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+    }
     NamespaceDTO createdNamespace = namespaceAPI.createNamespace(env, namespace);
 
     Tracer.logEvent(TracerEventType.CREATE_NAMESPACE,
@@ -207,7 +210,7 @@ public class NamespaceService {
 
   public boolean namespaceHasInstances(String appId, Env env, String clusterName,
       String namespaceName) {
-    return instanceService.getInstanceCountByNamepsace(appId, env, clusterName, namespaceName) > 0;
+    return instanceService.getInstanceCountByNamespace(appId, env, clusterName, namespaceName) > 0;
   }
 
   public boolean publicAppNamespaceHasAssociatedNamespace(String publicNamespaceName, Env env) {

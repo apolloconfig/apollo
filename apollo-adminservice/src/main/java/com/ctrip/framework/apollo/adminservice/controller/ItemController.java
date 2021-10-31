@@ -30,6 +30,8 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +90,33 @@ public class ItemController {
     return dto;
   }
 
+  @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items")
+  public ItemDTO createComment(@PathVariable("appId") String appId,
+                        @PathVariable("clusterName") String clusterName,
+                        @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+    if (!StringUtils.isBlank(dto.getKey()) || !StringUtils.isBlank(dto.getValue())) {
+      throw new BadRequestException("Comment item's key or value should be blank.");
+    }
+    if (StringUtils.isBlank(dto.getComment())) {
+      throw new BadRequestException("Comment item's comment should not be blank.");
+    }
+
+    // check if comment existed
+    List<Item> allItems = itemService.findItemsWithOrdered(appId, clusterName, namespaceName);
+    for (Item item : allItems) {
+      if (StringUtils.isBlank(item.getKey()) && StringUtils.isBlank(item.getValue()) &&
+          Objects.equals(item.getComment(), dto.getComment())) {
+        return BeanUtils.transform(ItemDTO.class, item);
+      }
+    }
+
+    Item entity = BeanUtils.transform(Item.class, dto);
+    entity = itemService.saveComment(entity);
+
+    return BeanUtils.transform(ItemDTO.class, entity);
+  }
+
+
   @PreAcquireNamespaceLock
   @PutMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public ItemDTO update(@PathVariable("appId") String appId,
@@ -109,7 +138,7 @@ public class ItemController {
     Item entity = BeanUtils.transform(Item.class, itemDTO);
 
     ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
-   
+
     Item beforeUpdateItem = BeanUtils.transform(Item.class, managedEntity);
 
     //protect. only value,comment,lastModifiedBy can be modified

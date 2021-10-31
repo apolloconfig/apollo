@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
@@ -113,9 +114,11 @@ public class AppService {
   }
 
   public void createAppInRemote(Env env, App app) {
-    String username = userInfoHolder.getUser().getUserId();
-    app.setDataChangeCreatedBy(username);
-    app.setDataChangeLastModifiedBy(username);
+    if (StringUtils.isBlank(app.getDataChangeCreatedBy())) {
+      String username = userInfoHolder.getUser().getUserId();
+      app.setDataChangeCreatedBy(username);
+      app.setDataChangeLastModifiedBy(username);
+    }
 
     AppDTO appDTO = BeanUtils.transform(AppDTO.class, app);
     appAPI.createApp(env, appDTO);
@@ -143,6 +146,31 @@ public class AppService {
     App createdApp = appRepository.save(app);
 
     appNamespaceService.createDefaultAppNamespace(appId);
+    roleInitializationService.initAppRoles(createdApp);
+
+    Tracer.logEvent(TracerEventType.CREATE_APP, appId);
+
+    return createdApp;
+  }
+
+  @Transactional
+  public App importAppInLocal(App app) {
+    String appId = app.getAppId();
+    App managedApp = appRepository.findByAppId(appId);
+
+    if (managedApp != null) {
+      return app;
+    }
+
+    UserInfo owner = userService.findByUserId(app.getOwnerName());
+    if (owner == null) {
+      throw new BadRequestException("Application's owner not exist.");
+    }
+
+    app.setOwnerEmail(owner.getEmail());
+
+    App createdApp = appRepository.save(app);
+
     roleInitializationService.initAppRoles(createdApp);
 
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);

@@ -16,24 +16,36 @@
  */
 package com.ctrip.framework.apollo.portal.util;
 
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+
+import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.core.utils.PropertiesUtil;
 import com.ctrip.framework.apollo.portal.controller.ConfigsExportController;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+
+import org.springframework.util.CollectionUtils;
+
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * @author wxq
  */
 public class NamespaceBOUtils {
 
+  private static final Gson GSON = new Gson();
+
   /**
-   * namespace must not be {@link ConfigFileFormat#Properties}.
-   * the content of namespace in item's value which item's key is {@link ConfigConsts#CONFIG_FILE_CONTENT_KEY}.
+   * namespace must not be {@link ConfigFileFormat#Properties}. the content of namespace in item's value which item's
+   * key is {@link ConfigConsts#CONFIG_FILE_CONTENT_KEY}.
+   *
    * @param namespaceBO namespace
    * @return content of non-properties's namespace
    */
@@ -43,17 +55,18 @@ public class NamespaceBOUtils {
       String key = itemBO.getItem().getKey();
       // special namespace format(not properties)
       if (ConfigConsts.CONFIG_FILE_CONTENT_KEY.equals(key)) {
-        return itemBO.getItem().getValue();
+        ItemDTO dto = itemBO.getItem();
+        dto.setId(0);
+        dto.setNamespaceId(0);
+        return GSON.toJson(Lists.newArrayList(dto));
       }
     }
-    // If there is no items?
-    // return empty string ""
     return "";
   }
 
   /**
-   * copy from old {@link ConfigsExportController}.
-   * convert {@link NamespaceBO} to a file content.
+   * copy from old {@link ConfigsExportController}. convert {@link NamespaceBO} to a file content.
+   *
    * @return content of config file
    * @throws IllegalStateException if convert properties to string fail
    */
@@ -66,23 +79,18 @@ public class NamespaceBOUtils {
 
     // it must be a properties format namespace
     List<ItemBO> itemBOS = namespaceBO.getItems();
-    // save the kev value pair
-    Properties properties = new Properties();
-    for (ItemBO itemBO : itemBOS) {
-      String key = itemBO.getItem().getKey();
-      String value = itemBO.getItem().getValue();
-      // ignore comment, so the comment will lack
-      properties.put(key, value);
+    if (CollectionUtils.isEmpty(itemBOS)) {
+      return GSON.toJson(Collections.emptyList());
     }
 
-    // use a special method convert properties to string
-    final String configFileContent;
-    try {
-      configFileContent = PropertiesUtil.toString(properties);
-    } catch (IOException e) {
-      throw new IllegalStateException("convert properties to string fail.", e);
-    }
-    return configFileContent;
+    List<ItemDTO> itemDTOS = itemBOS.stream().map(itemBO -> {
+      ItemDTO dto = itemBO.getItem();
+      dto.setId(0);
+      dto.setNamespaceId(0);
+      return dto;
+    }).collect(Collectors.toList());
+
+    return GSON.toJson(itemDTOS);
   }
 
 }

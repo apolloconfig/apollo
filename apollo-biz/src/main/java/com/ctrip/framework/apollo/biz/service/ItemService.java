@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -149,6 +150,26 @@ public class ItemService {
     checkItemKeyLength(entity.getKey());
     checkItemValueLength(entity.getNamespaceId(), entity.getValue());
 
+    entity.setId(0);//protection
+
+    if (entity.getLineNum() == 0) {
+      Item lastItem = findLastOne(entity.getNamespaceId());
+      int lineNum = lastItem == null ? 1 : lastItem.getLineNum() + 1;
+      entity.setLineNum(lineNum);
+    }
+
+    Item item = itemRepository.save(entity);
+
+    auditService.audit(Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT,
+                       item.getDataChangeCreatedBy());
+
+    return item;
+  }
+
+  @Transactional
+  public Item saveComment(Item entity) {
+    entity.setKey("");
+    entity.setValue("");
     entity.setId(0);//protection
 
     if (entity.getLineNum() == 0) {

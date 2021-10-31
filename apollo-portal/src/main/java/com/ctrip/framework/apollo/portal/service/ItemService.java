@@ -107,7 +107,12 @@ public class ItemService {
       return;
     }
 
-    changeSets.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+    String operator = model.getOperator();
+    if (StringUtils.isBlank(operator)) {
+      operator = userInfoHolder.getUser().getUserId();
+    }
+    changeSets.setDataChangeLastModifiedBy(operator);
+
     updateItems(appId, env, clusterName, namespaceName, changeSets);
 
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE_BY_TEXT,
@@ -131,6 +136,17 @@ public class ItemService {
     ItemDTO itemDTO = itemAPI.createItem(appId, env, clusterName, namespaceName, item);
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
     return itemDTO;
+  }
+
+  public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
+    NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
+    if (namespace == null) {
+      throw new BadRequestException(
+          "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
+    }
+    item.setNamespaceId(namespace.getId());
+
+    return itemAPI.createCommentItem(appId, env, clusterName, namespaceName, item);
   }
 
   public void updateItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {

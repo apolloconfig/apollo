@@ -112,6 +112,16 @@
                         <img src="img/operate.png"> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="right: 0; left: -160px;">
+                        <li ng-click="exportNamespace(namespace)">
+                            <a>
+                                <img src="img/export.png">
+                                {{'Component.Namespace.Master.Items.ExportNamespace' | translate }}</a>
+                        </li>
+                        <li ng-click="importNamespace(namespace)">
+                            <a>
+                                <img src="img/import.png">
+                                {{'Component.Namespace.Master.Items.ImportNamespace' | translate }}</a>
+                        </li>
                         <li ng-click="deleteNamespace(namespace)">
                             <a style="color: red">
                                 <img src="img/delete.png">
