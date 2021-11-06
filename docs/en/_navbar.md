@@ -1,7 +1,7 @@
 - Community
   - [Team](en/community/team.md)
-  - [Community Governance](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
-  - [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
+  - [Community Governance](en/governance.md)
+  - [Contributing Guide](en/contributing.md)
   - [Acknowledgements](en/community/thank-you.md)
 
 - Translations

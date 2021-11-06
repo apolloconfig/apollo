@@ -16,8 +16,8 @@
 - Development Document
   - [Apollo Development Guide](en/development/apollo-development-guide.md)
   - Code Styles
-    - [Eclipse Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
-    - [Intellij Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
+    - [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
+    - [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
   - [Portal Implement User Login Function](en/development/portal-how-to-implement-user-login-function.md)
   - [Portal Enable Email Service](en/development/portal-how-to-enable-email-service.md)
   - [Portal Enable Session Store](en/development/portal-how-to-enable-session-store.md)
@@ -39,11 +39,11 @@
   - [Common Issues In Deployment & Development Phase](en/faq/common-issues-in-deployment-and-development-phase.md)
 
 - Other
-   - [Release History](https://github.com/ctripcorp/apollo/releases)
+   - [Release History](https://github.com/apolloconfig/apollo/releases)
    - [Apollo Benchmark](en/misc/apollo-benchmark.md)
 
 - Community
   - [Team](en/community/team.md)
-  - [Community Governance](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
-  - [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
+  - [Community Governance](en/governance.md)
+  - [Contributing Guide](en/contributing.md)
   - [Acknowledgements](en/community/thank-you.md)

@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/logo/logo-simple.png" alt="apollo-logo" width="40%">
+<img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/logo/logo-simple.png" alt="apollo-logo" width="40%">
 
 # Introduction
 
@@ -82,15 +82,15 @@ Demo Environment:
 # Development
 * [Apollo Development Guide](zh/development/apollo-development-guide)
 * Code Styles
-    * [Eclipse Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
-    * [Intellij Code Style](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
+    * [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
+    * [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
 
 # Deployment
 * [Quick Start](zh/deployment/quick-start)
 * [Distributed Deployment Guide](zh/deployment/distributed-deployment-guide)
 
 # Release Notes
-* [Releases](https://github.com/ctripcorp/apollo/releases)
+* [Releases](https://github.com/apolloconfig/apollo/releases)
 
 # FAQ
 * [FAQ](zh/faq/faq)
@@ -108,8 +108,8 @@ Demo Environment:
 
 # Community
   * [Apollo Team](en/community/team)
-  * [Community Governance](https://github.com/ctripcorp/apollo/blob/master/GOVERNANCE.md)
-  * [Contributing Guide](https://github.com/ctripcorp/apollo/blob/master/CONTRIBUTING.md)
+  * [Community Governance](https://github.com/apolloconfig/apollo/blob/master/GOVERNANCE.md)
+  * [Contributing Guide](https://github.com/apolloconfig/apollo/blob/master/CONTRIBUTING.md)
 
 # License
-The project is licensed under the [Apache 2 license](https://github.com/ctripcorp/apollo/blob/master/LICENSE).
+The project is licensed under the [Apache 2 license](https://github.com/apolloconfig/apollo/blob/master/LICENSE).

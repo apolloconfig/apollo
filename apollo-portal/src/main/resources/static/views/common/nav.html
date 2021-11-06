@@ -30,10 +30,10 @@
                  ng-show="viewMode == 2 && showSideBar"
                  ng-click="showSideBar = !showSideBar">
             <a class="navbar-brand logo" href="{{ '/' | prefixPath }}">
-                <img src="{{ '/img/logo-simple.png' | prefixPath }}" style="height:45px; margin-top: -13px">
+                <img class="logo" src="{{ '/img/logo-simple.png' | prefixPath }}">
             </a>
         </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse">
 
             <ul class="nav navbar-nav navbar-right">
                 <li>
@@ -43,6 +43,7 @@
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <img class="nav-switch-lang" style="" src="{{ '/img/language.png' | prefixPath }}">
                         <span class="glyphicon .glyphicon-glyphicon-font"></span>&nbsp;Language<span class="caret"></span></a>
 
                     <ul class="dropdown-menu">
@@ -90,7 +91,7 @@
 
             <div class="navbar-form navbar-right form-inline" role="search">
                 <div class="form-group app-search-list">
-                    <select id="app-search-list" style="width: 350px"></select>
+                    <select id="app-search-list"></select>
                 </div>
             </div>
         </div>

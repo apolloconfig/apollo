@@ -42,14 +42,14 @@
 如果需要添加的环境不是Apollo预先定义的环境，请参照如下步骤操作：
 
 1. 假设需要添加的环境名称叫beta
-2. 修改[com.ctrip.framework.apollo.core.enums.Env](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/Env.java)类，在其中加入`BETA`枚举：
+2. 修改[com.ctrip.framework.apollo.core.enums.Env](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/Env.java)类，在其中加入`BETA`枚举：
 ```java
 public enum Env{
   LOCAL, DEV, BETA, FWS, FAT, UAT, LPT, PRO, TOOLS, UNKNOWN;
   ...
 }
 ```
-3. 修改[com.ctrip.framework.apollo.core.enums.EnvUtils](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/EnvUtils.java)类，在其中加入`BETA`枚举的转换逻辑：
+3. 修改[com.ctrip.framework.apollo.core.enums.EnvUtils](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/EnvUtils.java)类，在其中加入`BETA`枚举的转换逻辑：
 ```java
 public final class EnvUtils {
   
@@ -68,7 +68,7 @@ public final class EnvUtils {
   }
 }
 ```
-4. 修改[apollo-env.properties](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/resources/apollo-env.properties)，增加`beta.meta`占位符：
+4. 修改[apollo-env.properties](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/apollo-env.properties)，增加`beta.meta`占位符：
 ```properties
 local.meta=http://localhost:8080
 dev.meta=${dev_meta}
@@ -78,7 +78,7 @@ uat.meta=${uat_meta}
 lpt.meta=${lpt_meta}
 pro.meta=${pro_meta}
 ```
-5. 修改[com.ctrip.framework.apollo.core.internals.LegacyMetaServerProvider](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)类，增加读取`BETA`环境的meta server地址逻辑：
+5. 修改[com.ctrip.framework.apollo.core.internals.LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)类，增加读取`BETA`环境的meta server地址逻辑：
 ```java
 public class LegacyMetaServerProvider {
     ...
@@ -99,11 +99,11 @@ public class LegacyMetaServerProvider {
 
 页面入口：
 
-![delete-app-cluster-namespace-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/delete-app-cluster-namespace-entry.png)
+![delete-app-cluster-namespace-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/delete-app-cluster-namespace-entry.png)
 
 页面详情：
 
-![delete-app-cluster-namespace-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/delete-app-cluster-namespace-detail.png)
+![delete-app-cluster-namespace-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/delete-app-cluster-namespace-detail.png)
 
 ### 6. 客户端多块网卡造成获取IP不准，如何解决？
 
@@ -145,7 +145,7 @@ Apollo默认自带了Eureka作为内部的注册中心实现，一般情况下�
 
 ##### 1.2 1.5.0之前的版本
 
-修改[com.ctrip.framework.apollo.configservice.ConfigServiceApplication](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/ConfigServiceApplication.java)，把`@EnableEurekaServer`改为`@EnableEurekaClient`
+修改[com.ctrip.framework.apollo.configservice.ConfigServiceApplication](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/ConfigServiceApplication.java)，把`@EnableEurekaServer`改为`@EnableEurekaClient`
 
 ```java
 @EnableEurekaClient
@@ -181,7 +181,7 @@ http://1.1.1.1:8761/eureka/,http://2.2.2.2:8761/eureka/
 
 ### 10. 多机房如何实现A机房的客户端就近读取A机房的config service，B机房的客户端就近读取B机房的config service？
 
-请参考[Issue 1294](https://github.com/ctripcorp/apollo/issues/1294)，该案例中由于中美机房相距甚远，所以需要config db两地部署，如果是同城多机房的话，两个机房的config service可以连同一个config db。
+请参考[Issue 1294](https://github.com/apolloconfig/apollo/issues/1294)，该案例中由于中美机房相距甚远，所以需要config db两地部署，如果是同城多机房的话，两个机房的config service可以连同一个config db。
 
 ### 11. apollo是否有支持HEAD请求的页面？阿里云slb配置健康检查只支持HEAD请求
 
@@ -211,7 +211,7 @@ apollo的每个服务都有`/health`页面的，该页面是apollo用来做健�
 运行tomcat的startup.sh
 5. 运行tomcat的startup.sh
 
-另外，apollo还有一些调优参数建议在tomcat的server.xml中配置一下，可以参考[application.properties](https://github.com/ctripcorp/apollo/blob/master/apollo-common/src/main/resources/application.properties#L12)
+另外，apollo还有一些调优参数建议在tomcat的server.xml中配置一下，可以参考[application.properties](https://github.com/apolloconfig/apollo/blob/master/apollo-common/src/main/resources/application.properties#L12)
 
 ### 14. 注册中心Eureka如何替换为zookeeper？
 
@@ -219,7 +219,7 @@ apollo的每个服务都有`/health`页面的，该页面是apollo用来做健�
 
 ### 15. 本地多人同时开发，如何实现配置不一样且互不影响？
 
-参考[#1560](https://github.com/ctripcorp/apollo/issues/1560)
+参考[#1560](https://github.com/apolloconfig/apollo/issues/1560)
 
 ### 16. Portal挂载到nginx/slb后如何设置相对路径？
 

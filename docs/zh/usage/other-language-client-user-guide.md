@@ -97,7 +97,7 @@ Apollo提供了基于Http long polling的配置更新推送通知，第三方客
 
 ### 1.4.1 配置更新推送实现思路
 
-这里建议大家可以参考Apollo的Java实现：[RemoteConfigLongPollService.java](https://github.com/ctripcorp/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)，代码量200多行，总体上还是比较简单的。
+这里建议大家可以参考Apollo的Java实现：[RemoteConfigLongPollService.java](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)，代码量200多行，总体上还是比较简单的。
 
 #### 1.4.1.1 初始化
 首先需要确定哪些namespace需要配置更新推送，Apollo的实现方式是程序第一次获取某个namespace的配置时就会来注册一下，我们就知道有哪些namespace需要配置更新推送了。
@@ -160,7 +160,7 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 | Header        | Value                                          | 备注                                                                                                                                                          |
 |---------------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Authorization | Apollo ${appId}:${signature}                   | appId: 应用的appId，signature：使用访问密钥对当前时间以及所访问的URL加签后的值，具体实现可以参考[Signature.signature](https://github.com/ctripcorp/apollo/blob/aa184a2e11d6e7e3f519d860d69f3cf30ccfcf9c/apollo-core/src/main/java/com/ctrip/framework/apollo/core/signature/Signature.java#L22)  |
+| Authorization | Apollo ${appId}:${signature}                   | appId: 应用的appId，signature：使用访问密钥对当前时间以及所访问的URL加签后的值，具体实现可以参考[Signature.signature](https://github.com/apolloconfig/apollo/blob/aa184a2e11d6e7e3f519d860d69f3cf30ccfcf9c/apollo-core/src/main/java/com/ctrip/framework/apollo/core/signature/Signature.java#L22)  |
 | Timestamp     | 从`1970-1-1 00:00:00 UTC+0`到现在所经过的毫秒数 | 可以参考[System.currentTimeMillis](https://docs.oracle.com/javase/7/docs/api/java/lang/System.html#currentTimeMillis()) |
 
 ## 1.6 错误码说明

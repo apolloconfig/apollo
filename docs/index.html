@@ -67,6 +67,15 @@
         '/en/.*/_navbar.md': '/en/_navbar.md',
         '/zh/(.*)': 'zh/$1',
         '/en/(.*)': 'en/$1',
+        '.*?/governance':
+                'https://raw.githubusercontent.com/apolloconfig/apollo/master/GOVERNANCE.md',
+        '.*?/contributing':
+                'https://raw.githubusercontent.com/apolloconfig/apollo/master/CONTRIBUTING.md',
+      },
+      nameLink: {
+        '/zh/': '#/zh/',
+        '/en/': '#/en/',
+        '/': '#/',
       },
       auto2top: true,
       // Only coverpage is loaded when visiting the home page.
@@ -78,7 +87,7 @@
       maxLevel: 6,
       subMaxLevel: 5,
       name: 'Apollo',
-      repo: 'https://github.com/ctripcorp/apollo/',
+      repo: 'https://github.com/apolloconfig/apollo/',
       search: {
         noData: {
           '/zh/': '没有结果!',
@@ -91,6 +100,7 @@
           '/en/': 'Search',
           '/': '搜索',
         },
+        pathNamespaces: ['/zh', '/en']
       },
       // click to copy.
       copyCode: {
@@ -136,7 +146,7 @@
                 .replace('raw.githubusercontent.com', 'github.com')
                 .replace(/\/master/, '/blob/master')
             } else {
-              url = 'https://github.com/ctripcorp/apollo/blob/master/docs/' + vm.route.file
+              url = 'https://github.com/apolloconfig/apollo/blob/master/docs/' + vm.route.file
             }
             var editHtml = '[:memo: Edit Document](' + url + ')\n\n'
 
@@ -162,7 +172,7 @@
   <!-- Medium's image zoom -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
   <!-- Add a simple Click to copy button to all preformatted code blocks to effortlessly allow users to copy example code from your docs -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
   <!-- docsify-pagination -->
   <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
 
