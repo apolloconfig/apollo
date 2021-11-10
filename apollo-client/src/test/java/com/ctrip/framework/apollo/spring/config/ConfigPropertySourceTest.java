@@ -66,7 +66,7 @@ public class ConfigPropertySourceTest {
 
     verify(someConfig, times(1)).getPropertyNames();
 
-    assertArrayEquals(somePropertyNames.toArray(), result);
+    assertEquals(somePropertyNames, Sets.newHashSet(result));
   }
 
   @Test
