@@ -510,7 +510,10 @@ public class RemoteConfigLongPollServiceTest {
     assertTrue(longPollRefreshUrl.contains("cluster=someCluster%2B+%26.-_someSign"));
     assertTrue(longPollRefreshUrl.contains(
         "notifications=%5B%7B%22namespaceName%22%3A%22" + someNamespace
-            + "%22%2C%22notificationId%22%3A" + 1 + "%7D%5D"));
+            + "%22%2C%22notificationId%22%3A" + 1 + "%7D%5D")
+            || longPollRefreshUrl.contains(
+        "notifications=%5B%7B%22notificationId%22%3A" + 1
+            + "%2C%22namespaceName%22%3A%22" + someNamespace + "%22%7D%5D"));
   }
 
   @Test
