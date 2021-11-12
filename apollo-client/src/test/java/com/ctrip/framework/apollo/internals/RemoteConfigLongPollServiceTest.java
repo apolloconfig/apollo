@@ -532,11 +532,19 @@ public class RemoteConfigLongPollServiceTest {
     assertTrue(longPollRefreshUrl.contains(someServerUrl + "/notifications/v2?"));
     assertTrue(longPollRefreshUrl.contains("appId=" + someAppId));
     assertTrue(longPollRefreshUrl.contains("cluster=someCluster%2B+%26.-_someSign"));
+    String someNamespaceEntry = "%22namespaceName%22%3A%22" + someNamespace + "%22";
+    String someNotificationIdEntry = "%22notificationId%22%3A" + someNotificationId;
+    String anotherNamespaceEntry = "%22namespaceName%22%3A%22" + anotherNamespace + "%22";
+    String anotherNotificationIdEntry = "%22notificationId%22%3A" + anotherNotificationId;
     assertTrue(
-        longPollRefreshUrl.contains("notifications=%5B%7B%22namespaceName%22%3A%22" + someNamespace
-            + "%22%2C%22notificationId%22%3A" + someNotificationId
-            + "%7D%2C%7B%22namespaceName%22%3A%22" + anotherNamespace
-            + "%22%2C%22notificationId%22%3A" + anotherNotificationId + "%7D%5D"));
+        longPollRefreshUrl.contains("notifications=%5B%7B" + someNamespaceEntry + "%2C" + someNotificationIdEntry
+             + "%7D%2C%7B" + anotherNamespaceEntry + "%2C" + anotherNotificationIdEntry + "%7D%5D")
+     || longPollRefreshUrl.contains("notifications=%5B%7B" + someNotificationIdEntry + "%2C" + someNamespaceEntry
+             + "%7D%2C%7B" + anotherNotificationIdEntry + "%2C" + anotherNamespaceEntry + "%7D%5D")
+     || longPollRefreshUrl.contains("notifications=%5B%7B" + someNotificationIdEntry + "%2C" + someNamespaceEntry
+             + "%7D%2C%7B" + anotherNamespaceEntry + "%2C" + anotherNotificationIdEntry + "%7D%5D")
+     || longPollRefreshUrl.contains("notifications=%5B%7B" + someNamespaceEntry + "%2C" + someNotificationIdEntry
+             + "%7D%2C%7B" + anotherNotificationIdEntry + "%2C" + anotherNamespaceEntry + "%7D%5D"));
   }
 
   public static class MockConfigUtil extends ConfigUtil {
