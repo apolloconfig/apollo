@@ -15,3 +15,9 @@ Apollo 团队使用 [IntelliJ IDEA](https://www.jetbrains.com/idea/) 开发开�
 <img src="en/images/community/docsify.svg" alt="docsify" style="height: 80px">
 
 Apollo 团队使用 [docsify](https://docsify.js.org/) 生成文档站点。
+
+<hr />
+<img src="en/images/community/jprofiler.png" alt="jprofiler" style="height: 80px">
+
+Apollo 团队使用 [JProfiler](https://www.ej-technologies.com/products/jprofiler/overview.html) 定位开源项目中性能问题，非常感谢 [EJ-Technologies](https://www.ej-technologies.com/) 赞助许可证。
+<hr />
