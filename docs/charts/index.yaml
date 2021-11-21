@@ -20,8 +20,8 @@ entries:
     created: "2021-09-09T09:24:18.945869+08:00"
     description: A Helm chart for Apollo Portal
     digest: 6e50025665de4179f3485aa58ef33f24556267764afc645eaaab98810716f7ab
-    home: https://github.com/ctripcorp/apollo
-    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
     maintainers:
     - email: nobodyiam@gmail.com
       name: nobodyiam
@@ -36,8 +36,8 @@ entries:
     created: "2021-08-23T20:17:19.061588+08:00"
     description: A Helm chart for Apollo Portal
     digest: 5013793bf02482003afc17df98e5a6c62fbfb1e17f08ba49f3d27bd02fbd768d
-    home: https://github.com/ctripcorp/apollo
-    icon: https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
     maintainers:
     - email: nobodyiam@gmail.com
       name: nobodyiam
