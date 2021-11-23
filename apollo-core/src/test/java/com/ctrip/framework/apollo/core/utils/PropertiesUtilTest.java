@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Properties;
 
+/**
+ * @author Wu Mingkan(Dalian University of Technology)
+ * @since 2021/11/23
+ */
 public class PropertiesUtilTest {
 
 
