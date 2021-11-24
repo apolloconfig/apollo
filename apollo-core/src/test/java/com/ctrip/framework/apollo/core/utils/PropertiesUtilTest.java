@@ -17,8 +17,9 @@
 package com.ctrip.framework.apollo.core.utils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -33,22 +34,33 @@ public class PropertiesUtilTest {
 
 
     @Test
-    public void TestProperties() throws IOException {
-        assertTrue("".equals(PropertiesUtil.toString(new Properties())));
-        assertFalse(" ".equals(PropertiesUtil.toString(new Properties())));
+    public void testToString() throws IOException {
+
+        assertEquals("",PropertiesUtil.toString(new Properties()));
+        assertNotEquals(" ",PropertiesUtil.toString(new Properties()));
 
         Properties properties = new Properties();
         properties.put("a","aaa");
-        assertTrue("a=aaa\r\n".equals(PropertiesUtil.toString(properties))
-                || "a=aaa\n".equals(PropertiesUtil.toString(properties)));
+        assertEquals("a=aaa"+System.lineSeparator(),PropertiesUtil.toString(properties));
 
     }
 
     @Test
-    public void TestFilterComment(){
-        StringBuffer sb=new StringBuffer("#aaaaa\nbbb");
-        PropertiesUtil.filterPropertiesComment(sb);
-        assertTrue("bbb".equals(sb.toString()));
-        assertFalse("#aaaaa\nbbb".equals(sb.toString()));
+    public void testFilterPropertiesComment(){
+
+        StringBuffer sb1=new StringBuffer(System.lineSeparator());
+        PropertiesUtil.filterPropertiesComment(sb1);
+        boolean equals = "".equals(sb1.toString());
+        assertEquals(false,equals);
+
+        StringBuffer sb2=new StringBuffer("#aaa"+System.lineSeparator());
+        PropertiesUtil.filterPropertiesComment(sb2);
+        System.out.println(sb2);
+        assertEquals("",sb2.toString());
+
+        StringBuffer sb3=new StringBuffer("#aaaaa"+System.lineSeparator()+"bbb");
+        PropertiesUtil.filterPropertiesComment(sb3);
+        assertEquals("bbb",sb3.toString());
+        assertNotEquals("#aaaaa"+System.lineSeparator()+"bbb",sb3.toString());
     }
 }
