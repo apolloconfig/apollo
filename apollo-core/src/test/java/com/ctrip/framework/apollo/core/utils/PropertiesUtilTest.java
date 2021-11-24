@@ -35,9 +35,14 @@ public class PropertiesUtilTest {
 
     @Test
     public void testToString() throws IOException {
+<<<<<<< HEAD
 
         assertEquals("",PropertiesUtil.toString(new Properties()));
         assertNotEquals(" ",PropertiesUtil.toString(new Properties()));
+=======
+        assertTrue("".equals(PropertiesUtil.toString(new Properties())));
+        assertFalse(" ".equals(PropertiesUtil.toString(new Properties())));
+>>>>>>> 964767cccc16c6d81e7c5bd76489d60796e395bd
 
         Properties properties = new Properties();
         properties.put("a","aaa");
