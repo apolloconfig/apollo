@@ -33,7 +33,7 @@ public class PropertiesUtilTest {
 
 
     @Test
-    public void TestProperties() throws IOException {
+    public void testToString() throws IOException {
         assertTrue("".equals(PropertiesUtil.toString(new Properties())));
         assertFalse(" ".equals(PropertiesUtil.toString(new Properties())));
 
