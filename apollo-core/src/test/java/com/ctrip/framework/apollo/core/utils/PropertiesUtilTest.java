@@ -39,7 +39,8 @@ public class PropertiesUtilTest {
 
         Properties properties = new Properties();
         properties.put("a","aaa");
-        assertTrue("a=aaa\r\n".equals(PropertiesUtil.toString(properties)));
+        assertTrue("a=aaa\r\n".equals(PropertiesUtil.toString(properties))
+                || "a=aaa\n".equals(PropertiesUtil.toString(properties)));
 
     }
 
