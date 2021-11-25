@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.spring.property.SpringValue;
 import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.ctrip.framework.apollo.util.parser.Parsers;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import java.lang.reflect.Field;
@@ -135,12 +136,10 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
 
     for (String namespace : namespaces) {
       final String resolvedNamespace = this.environment.resolveRequiredPlaceholders(namespace);
-      Config config = ConfigService.getConfig(resolvedNamespace);
 
-      if (interestedKeys == null && interestedKeyPrefixes == null) {
-        config.addChangeListener(configChangeListener);
-      } else {
-        config.addChangeListener(configChangeListener, interestedKeys, interestedKeyPrefixes);
+      String[] namespaceArr = Parsers.forStringCutting().parse(resolvedNamespace);
+      if (namespaceArr != null){
+        this.addChangeListener(configChangeListener, interestedKeys, interestedKeyPrefixes, namespaceArr);
       }
     }
   }
@@ -218,6 +217,19 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     } catch (Throwable ex) {
       logger.error("Parsing json '{}' to type {} failed!", json, targetType, ex);
       throw ex;
+    }
+  }
+
+  private void addChangeListener(ConfigChangeListener configChangeListener, Set<String> interestedKeys,
+                                 Set<String> interestedKeyPrefixes,
+                                 String[] namespaceArr) {
+    for (String namespaceVal : namespaceArr) {
+      Config config = ConfigService.getConfig(namespaceVal);
+      if (interestedKeys == null && interestedKeyPrefixes == null) {
+        config.addChangeListener(configChangeListener);
+      } else {
+        config.addChangeListener(configChangeListener, interestedKeys, interestedKeyPrefixes);
+      }
     }
   }
 
