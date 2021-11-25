@@ -32,6 +32,10 @@ public class Parsers {
     return DurationParser.INSTANCE;
   }
 
+  public static StringCuttingParser forStringCutting() {
+    return StringCuttingParser.INSTANCE;
+  }
+
   public enum DateParser {
     INSTANCE;
 
@@ -141,6 +145,31 @@ public class Parsers {
         return 0;
       }
       return Integer.parseInt(parsed) * multiplier;
+    }
+  }
+
+  public enum StringCuttingParser {
+    INSTANCE;
+
+    private static final String COMMA = ",";
+
+    /**
+     * Parse the text
+     *
+     * @param text   the text to parse
+     * @return the parsed String[]
+     */
+    public String[] parse(String text) {
+      if (text == null){
+        return null;
+      }
+
+      String[] outPut = text.split(COMMA);
+      for (int i = 0; i < outPut.length; i++) {
+        outPut[i] = outPut[i].trim();
+      }
+
+      return outPut;
     }
   }
 }

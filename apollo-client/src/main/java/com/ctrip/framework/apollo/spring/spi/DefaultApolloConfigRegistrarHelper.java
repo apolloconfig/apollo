@@ -23,14 +23,15 @@ import com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor;
 import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
+import com.ctrip.framework.apollo.util.parser.Parsers;
 import com.google.common.collect.Lists;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
+
+import java.util.*;
 
 public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrarHelper {
 
@@ -62,12 +63,15 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
   }
 
   private String[] resolveNamespaces(String[] namespaces) {
-    String[] resolvedNamespaces = new String[namespaces.length];
-    for (int i = 0; i < namespaces.length; i++) {
+    List<String> resolvedNamespaces = new ArrayList<>();
+    for (String namespace : namespaces) {
       // throw IllegalArgumentException if given text is null or if any placeholders are unresolvable
-      resolvedNamespaces[i] = this.environment.resolveRequiredPlaceholders(namespaces[i]);
+      String[] namespaceArr = Parsers.forStringCutting().parse(this.environment.resolveRequiredPlaceholders(namespace));
+      if (namespaceArr != null) {
+        resolvedNamespaces.addAll(Arrays.asList(namespaceArr));
+      }
     }
-    return resolvedNamespaces;
+    return resolvedNamespaces.toArray(new String[0]);
   }
 
   @Override

@@ -26,14 +26,10 @@ import com.ctrip.framework.apollo.spring.property.SpringValue;
 import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.ctrip.framework.apollo.util.parser.Parsers;
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.util.Set;
-
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -44,6 +40,11 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Set;
 
 /**
  * Apollo Annotation Processor for Spring Application
@@ -135,12 +136,17 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
 
     for (String namespace : namespaces) {
       final String resolvedNamespace = this.environment.resolveRequiredPlaceholders(namespace);
-      Config config = ConfigService.getConfig(resolvedNamespace);
 
-      if (interestedKeys == null && interestedKeyPrefixes == null) {
-        config.addChangeListener(configChangeListener);
-      } else {
-        config.addChangeListener(configChangeListener, interestedKeys, interestedKeyPrefixes);
+      String[] namespaceArr = Parsers.forStringCutting().parse(resolvedNamespace);
+      if (namespaceArr != null){
+        for (String namespaceVal : namespaceArr) {
+          Config config = ConfigService.getConfig(namespaceVal);
+          if (interestedKeys == null && interestedKeyPrefixes == null) {
+            config.addChangeListener(configChangeListener);
+          } else {
+            config.addChangeListener(configChangeListener, interestedKeys, interestedKeyPrefixes);
+          }
+        }
       }
     }
   }
