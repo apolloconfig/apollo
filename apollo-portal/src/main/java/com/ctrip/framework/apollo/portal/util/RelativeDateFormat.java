@@ -39,7 +39,7 @@ public class RelativeDateFormat {
       return "now";
     }
 
-    long delta = new Date().getTime() - date.getTime();
+    long delta = System.currentTimeMillis() - date.getTime();
     if (delta < ONE_MINUTE) {
       long seconds = toSeconds(delta);
       return (seconds <= 0 ? 1 : seconds) + ONE_SECOND_AGO;
