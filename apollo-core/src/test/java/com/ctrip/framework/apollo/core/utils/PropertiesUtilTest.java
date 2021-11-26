@@ -25,10 +25,7 @@ import static org.junit.Assert.assertNotEquals;
 import java.io.IOException;
 import java.util.Properties;
 
-/**
- * @author Wu Mingkan(Dalian University of Technology)
- * @since 2021/11/23
- */
+
 public class PropertiesUtilTest {
 
 
