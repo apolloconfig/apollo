@@ -671,6 +671,63 @@
 			</dependencyManagement>
 		</profile>
 		<profile>
+			<id>zookeeper-discovery</id>
+			<properties>
+				<apache.curator.version>4.2.0</apache.curator.version>
+				<apache.zookeeper.version>3.4.14</apache.zookeeper.version>
+				<zookeeper.discovery.version>3.0.4</zookeeper.discovery.version>
+			</properties>
+			<dependencyManagement>
+				<dependencies>
+					<!-- zookeeper discovery -->
+					<dependency>
+						<groupId>org.springframework.cloud</groupId>
+						<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
+						<version>${zookeeper.discovery.version}</version>
+					</dependency>
+					<!-- apache curator -->
+					<dependency>
+						<groupId>org.apache.curator</groupId>
+						<artifactId>curator-x-discovery</artifactId>
+						<version>${apache.curator.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.curator</groupId>
+						<artifactId>curator-recipes</artifactId>
+						<version>${apache.curator.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.curator</groupId>
+						<artifactId>curator-framework</artifactId>
+						<version>${apache.curator.version}</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.curator</groupId>
+						<artifactId>curator-client</artifactId>
+						<version>${apache.curator.version}</version>
+					</dependency>
+					<!-- apache curator end -->
+					<!-- apache apache -->
+					<dependency>
+						<groupId>org.apache.zookeeper</groupId>
+						<artifactId>zookeeper</artifactId>
+						<version>${apache.zookeeper.version}</version>
+						<exclusions>
+							<exclusion>
+								<groupId>log4j</groupId>
+								<artifactId>log4j</artifactId>
+							</exclusion>
+							<exclusion>
+								<groupId>org.slf4j</groupId>
+								<artifactId>slf4j-log4j12</artifactId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+					<!-- apache apache end -->
+				</dependencies>
+			</dependencyManagement>
+		</profile>
+		<profile>
 			<id>release</id>
 			<build>
 				<plugins>

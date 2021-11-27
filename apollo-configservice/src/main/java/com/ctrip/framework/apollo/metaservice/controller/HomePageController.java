@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * For non-eureka discovery services such as kubernetes and nacos, there is no eureka home page, so we need to add a default one
  */
-@Profile({"kubernetes", "nacos-discovery", "consul-discovery"})
+@Profile({"kubernetes", "nacos-discovery", "consul-discovery", "zookeeper-discovery"})
 @RestController
 public class HomePageController {
   private final DiscoveryService discoveryService;
