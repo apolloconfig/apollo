@@ -675,16 +675,9 @@
 			<properties>
 				<apache.curator.version>4.2.0</apache.curator.version>
 				<apache.zookeeper.version>3.4.14</apache.zookeeper.version>
-				<zookeeper.discovery.version>3.0.4</zookeeper.discovery.version>
 			</properties>
 			<dependencyManagement>
 				<dependencies>
-					<!-- zookeeper discovery -->
-					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-						<version>${zookeeper.discovery.version}</version>
-					</dependency>
 					<!-- apache curator -->
 					<dependency>
 						<groupId>org.apache.curator</groupId>
@@ -701,13 +694,8 @@
 						<artifactId>curator-framework</artifactId>
 						<version>${apache.curator.version}</version>
 					</dependency>
-					<dependency>
-						<groupId>org.apache.curator</groupId>
-						<artifactId>curator-client</artifactId>
-						<version>${apache.curator.version}</version>
-					</dependency>
 					<!-- apache curator end -->
-					<!-- apache apache -->
+					<!-- zookeeper -->
 					<dependency>
 						<groupId>org.apache.zookeeper</groupId>
 						<artifactId>zookeeper</artifactId>
@@ -723,7 +711,7 @@
 							</exclusion>
 						</exclusions>
 					</dependency>
-					<!-- apache apache end -->
+					<!-- zookeeper end -->
 				</dependencies>
 			</dependencyManagement>
 		</profile>

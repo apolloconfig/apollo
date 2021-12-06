@@ -519,8 +519,7 @@ mvn clean package -Pgithub,zookeeper-discovery -DskipTests -pl apollo-configserv
 ```
 2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置zookeeper服务器地址
 ```properties
-spring.cloud.zookeeper.discovery.instance-host=127.0.0.1
-spring.cloud.zookeeper.discovery.instance-port=2181
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
 ```
 3.本地调试
 - 修改maven`profiles`项,需要在profiles中将`zookeeper-discovery`项勾选
