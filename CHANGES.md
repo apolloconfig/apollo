@@ -24,6 +24,8 @@ Apollo 2.0.0
 * [Optimize top navbar style](https://github.com/apolloconfig/apollo/pull/4073)
 * [Support export/import configs by apollo env](https://github.com/apolloconfig/apollo/pull/3947)
 * [Catch LinkageError for ClassLoaderUtil.isClassPresent in case class is present but is failed to load](https://github.com/apolloconfig/apollo/pull/4097)
+* [Split helm chart into another repo](https://github.com/apolloconfig/apollo/pull/4125)
+* [fix gray publish refresh item status](https://github.com/apolloconfig/apollo/pull/4128)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

@@ -111,13 +111,16 @@ function releaseModalDirective($translate, toastr, AppUtil, EventManager, Releas
                             scope.releaseBtnDisabled = false;
 
                             //refresh item status
-                            scope.toReleaseNamespace.branchItems.forEach(function (item, index) {
+                            for (let index = 0; index < scope.toReleaseNamespace.branchItems.length; index++) {
+                                const item = scope.toReleaseNamespace.branchItems[index];
                                 if (item.isDeleted) {
                                     scope.toReleaseNamespace.branchItems.splice(index, 1);
+                                    index--;
                                 } else {
                                     item.isModified = false;
                                 }
-                            });
+                            }
+
                             //reset namespace status
                             scope.toReleaseNamespace.itemModifiedCnt = 0;
                             scope.toReleaseNamespace.lockOwner = undefined;

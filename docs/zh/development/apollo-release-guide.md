@@ -119,15 +119,15 @@ github 创建 pre-release
 
 ### 4.8.1 更新 chart 内容
 
-1. cd ${apollo_home}/scripts/helm
+1. cd [apollo-helm-chart](https://github.com/apolloconfig/apollo-helm-chart)
 2. helm package apollo-portal && helm package apollo-service
-3. mv *.tgz ${apollo_home}/apollo/docs/charts/
-4. cd ${apollo_home}/apollo/docs/charts/
+3. mv *.tgz docs
+4. cd docs
 5. helm repo index .
 
-### 4.8.2 分支合并到 master
+### 4.8.2 分支合并到 main
 
-创建一个 pull request，把上述产物合并到 master 分支。
+创建一个 pull request，把上述产物合并到 [main](https://github.com/apolloconfig/apollo-helm-chart) 分支。
 
 # 5. 发布公告
 
