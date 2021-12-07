@@ -28,6 +28,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Set;
@@ -46,7 +47,7 @@ import org.springframework.context.annotation.Bean;
 /**
  * Spring value processor of field or method which has @Value and xml config placeholders.
  *
- * @author github.com/zhegexiaohuozi  seimimaster@gmail.com
+ * @author github.com/zhegexiaohuozi  seimimaster@gmail.com  mghio.dev@gmail.com
  * @since 2017/12/20.
  */
 public class SpringValueProcessor extends ApolloProcessor implements BeanFactoryPostProcessor, BeanFactoryAware {
@@ -94,17 +95,8 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
     if (value == null) {
       return;
     }
-    Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
 
-    if (keys.isEmpty()) {
-      return;
-    }
-
-    for (String key : keys) {
-      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, field, false);
-      springValueRegistry.register(beanFactory, key, springValue);
-      logger.debug("Monitoring {}", springValue);
-    }
+    doRegister(bean, beanName, field, value);
   }
 
   @Override
@@ -124,19 +116,32 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
       return;
     }
 
-    Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
+    doRegister(bean, beanName, method, value);
+  }
 
+  private void doRegister(Object bean, String beanName, Member member, Value value) {
+    Set<String> keys = placeholderHelper.extractPlaceholderKeys(value.value());
     if (keys.isEmpty()) {
       return;
     }
 
     for (String key : keys) {
-      SpringValue springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
+      SpringValue springValue;
+      if (member instanceof Field) {
+        Field field = (Field) member;
+        springValue = new SpringValue(key, value.value(), bean, beanName, field, false);
+      } else if (member instanceof Method) {
+        Method method = (Method) member;
+        springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
+      } else {
+        logger.error("@Value annotation current is only support to be used on methods or property, "
+            + "but used on {}", member.getClass());
+        return;
+      }
       springValueRegistry.register(beanFactory, key, springValue);
-      logger.info("Monitoring {}", springValue);
+      logger.debug("Monitoring {}", springValue);
     }
   }
-
 
   private void processBeanPropertyValues(Object bean, String beanName) {
     Collection<SpringValueDefinition> propertySpringValues = beanName2SpringValueDefinitions
