@@ -21,6 +21,8 @@ spring:
   cloud:
     consul:
       enabled: false
+    zookeeper:
+      enabled: false
 ctrip:
   appid: 100003171
 

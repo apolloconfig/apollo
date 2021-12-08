@@ -185,16 +185,6 @@
 				</dependency>
 			</dependencies>
 		</profile>
-		<profile>
-			<id>zookeeper-discovery</id>
-			<dependencies>
-				<!-- zookeeper discovery -->
-				<dependency>
-					<groupId>org.springframework.cloud</groupId>
-					<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
 	</profiles>
 
 </project>
