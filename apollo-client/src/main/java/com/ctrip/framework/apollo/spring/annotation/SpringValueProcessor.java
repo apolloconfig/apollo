@@ -134,12 +134,12 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
         Method method = (Method) member;
         springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
       } else {
-        logger.error("@Value annotation current is only support to be used on methods or property, "
-            + "but used on {}", member.getClass());
+        logger.error("Apollo @Value annotation currently only support to be used on methods and fields, "
+            + "but is used on {}", member.getClass());
         return;
       }
       springValueRegistry.register(beanFactory, key, springValue);
-      logger.debug("Monitoring {}", springValue);
+      logger.info("Monitoring {}", springValue);
     }
   }
 
