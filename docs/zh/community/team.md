@@ -10,23 +10,30 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 
 ### Project Management Committee(PMC)
 
-| GitHub ID  | Name       | Organization |
-| ---------- | ---------- | ------------ |
-| JaredTan95 | Jared Tan  | DaoCloud     |
-| kezhenxu94 | Zhenxu Ke  | Tetrate      |
-| nobodyiam  | Jason Song | Ant Group    |
-| zouyx      | Joe Zou    | Shein        |
+| GitHub ID  | Name          | Organization |
+| ---------- | ------------- | ------------ |
+| Anilople   | Xiaoquan Wang | Some Bank    |
+| JaredTan95 | Jared Tan     | DaoCloud     |
+| kezhenxu94 | Zhenxu Ke     | Tetrate      |
+| lepdou     | Le Zhang      | Tencent      |
+| nobodyiam  | Jason Song    | Ant Group    |
+| zouyx      | Joe Zou       | Shein        |
 
 ### Committer
+
 | GitHub ID   | Name          | Organization |
 | ----------- | ------------- | ------------ |
-| Anilople    | Xiaoquan Wang | Some Bank    |
 | Accelerater | Zhuohao Li    | Daocloud     |
+| Anilople    | Xiaoquan Wang | Some Bank    |
+| JaredTan95  | Jared Tan     | DaoCloud     |
+| kezhenxu94  | Zhenxu Ke     | Tetrate      |
 | klboke      | Kailing Chen  | TapTap       |
-| lepdou      | Le Zhang      | Ant Group    |
+| lepdou      | Le Zhang      | Tencent      |
 | nisiyong    | Stephen Ni    | Qihoo 360    |
+| nobodyiam   | Jason Song    | Ant Group    |
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
+| zouyx       | Joe Zou       | Shein        |
 
 ## Contributor
 
