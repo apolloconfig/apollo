@@ -8,25 +8,32 @@ For more information about the community governance model, please refer [GOVERNA
 
 Members include Project Management Committee members and committers. The list is in alphabet order.
 
-### Project Management Committee
+### Project Management Committee(PMC)
 
-| GitHub ID  | Name       | Organization |
-| ---------- | ---------- | ------------ |
-| JaredTan95 | Jared Tan  | DaoCloud     |
-| kezhenxu94 | Zhenxu Ke  | Tetrate      |
-| nobodyiam  | Jason Song | Ant Group    |
-| zouyx      | Joe Zou    | Shein        |
+| GitHub ID  | Name          | Organization |
+| ---------- | ------------- | ------------ |
+| Anilople   | Xiaoquan Wang | Some Bank    |
+| JaredTan95 | Jared Tan     | DaoCloud     |
+| kezhenxu94 | Zhenxu Ke     | Tetrate      |
+| lepdou     | Le Zhang      | Tencent      |
+| nobodyiam  | Jason Song    | Ant Group    |
+| zouyx      | Joe Zou       | Shein        |
 
 ### Committer
+
 | GitHub ID   | Name          | Organization |
 | ----------- | ------------- | ------------ |
-| Anilople    | Xiaoquan Wang | Some Bank    |
 | Accelerater | Zhuohao Li    | Daocloud     |
+| Anilople    | Xiaoquan Wang | Some Bank    |
+| JaredTan95  | Jared Tan     | DaoCloud     |
+| kezhenxu94  | Zhenxu Ke     | Tetrate      |
 | klboke      | Kailing Chen  | TapTap       |
-| lepdou      | Le Zhang      | Ant Group    |
+| lepdou      | Le Zhang      | Tencent      |
 | nisiyong    | Stephen Ni    | Qihoo 360    |
+| nobodyiam   | Jason Song    | Ant Group    |
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
+| zouyx       | Joe Zou       | Shein        |
 
 ## Contributors
 
