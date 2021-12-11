@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.zookeeper.discovery.ZookeeperDiscoveryClient;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -38,15 +38,15 @@ import static org.mockito.Mockito.when;
 public class ZookeeperDiscoveryServiceTest {
 
     @Mock
-    private DiscoveryClient zookeeperDiscoveryClient;
+    private ZookeeperDiscoveryClient zookeeperDiscoveryClient;
 
-    private ZookeeperDiscoveryService zookeeperDiscoveryService;
+    private SpringCloudInnerDiscoveryService zookeeperDiscoveryService;
 
     private String someServiceId;
 
     @Before
     public void setUp() throws Exception {
-        zookeeperDiscoveryService = new ZookeeperDiscoveryService(zookeeperDiscoveryClient);
+        zookeeperDiscoveryService = new SpringCloudInnerDiscoveryService(zookeeperDiscoveryClient);
         someServiceId = "someServiceId";
     }
 

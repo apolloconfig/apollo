@@ -503,7 +503,7 @@ nacos.discovery.context-path=
 
 1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
 ```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
 ```
 
 2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置consul服务器地址
@@ -511,18 +511,21 @@ mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminserv
 spring.cloud.consul.host=127.0.0.1
 spring.cloud.consul.port=8500
 ```
+3.分别修改`apollo-configservice`和`apollo-adminservice`服务对应的JVM启动参数
+```properties
+-Dapollo_profile=github,consul-discovery
+```
 
 ##### 2.2.1.2.9 启用外部Zookeeper服务注册中心替换内置eureka
 1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
 ```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,zookeeper-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
 ```
 2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置zookeeper服务器地址
 ```properties
 spring.cloud.zookeeper.connect-string=127.0.0.1:2181
 ```
-3.本地调试
-- 分别修改`apollo-configservice`和`apollo-adminservice`服务对应的`VM options`,激活`zookeeper-discovery`的`profile`
+3.分别修改`apollo-configservice`和`apollo-adminservice`服务对应的JVM启动参数
 ```properties
 -Dapollo_profile=github,zookeeper-discovery
 ```

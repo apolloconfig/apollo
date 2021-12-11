@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.metaservice.service;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.google.common.collect.Lists;
 import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.consul.discovery.ConsulDiscoveryClient;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -31,12 +31,12 @@ import java.util.List;
  * Service discovery consul implementation
  **/
 @Service
-@Profile({"consul-discovery"})
-public class ConsulDiscoveryService implements DiscoveryService {
+@Profile({"consul-discovery", "zookeeper-discovery"})
+public class SpringCloudInnerDiscoveryService implements DiscoveryService {
 
-    private final ConsulDiscoveryClient discoveryClient;
+    private final DiscoveryClient discoveryClient;
 
-    public ConsulDiscoveryService(ConsulDiscoveryClient discoveryClient) {
+    public SpringCloudInnerDiscoveryService(DiscoveryClient discoveryClient) {
         this.discoveryClient = discoveryClient;
     }
 

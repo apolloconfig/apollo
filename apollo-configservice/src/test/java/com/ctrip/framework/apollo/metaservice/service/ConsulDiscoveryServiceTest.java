@@ -43,13 +43,13 @@ public class ConsulDiscoveryServiceTest {
     @Mock
     private ConsulDiscoveryClient consulDiscoveryClient;
 
-    private ConsulDiscoveryService consulDiscoveryService;
+    private SpringCloudInnerDiscoveryService consulDiscoveryService;
 
     private String someServiceId;
 
     @Before
     public void setUp() throws Exception {
-        consulDiscoveryService = new ConsulDiscoveryService(consulDiscoveryClient);
+        consulDiscoveryService = new SpringCloudInnerDiscoveryService(consulDiscoveryClient);
         someServiceId = "someServiceId";
     }
 
