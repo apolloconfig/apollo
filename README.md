@@ -24,7 +24,7 @@ For local demo purpose, please refer [Quick Start](https://www.apolloconfig.com/
 
 Demo Environment:
 - [http://106.54.227.205](http://106.54.227.205/)
-- User/Password: apollo/admin 
+- User/Password: apollo/admin
 
 # Screenshots
 ![Screenshot](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/docs/en/images/apollo-home-screenshot.jpg)
@@ -542,5 +542,3 @@ The project is licensed under the [Apache 2 license](https://github.com/apolloco
 # Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/apolloconfig/apollo.svg)](https://starchart.cc/apolloconfig/apollo)
-
-Thanks for giving me to commit pr
