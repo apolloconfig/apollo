@@ -19,10 +19,11 @@ package com.ctrip.framework.apollo.spring.util;
 import java.util.Map;
 import java.util.Objects;
 
-import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.core.type.MethodMetadata;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -41,17 +42,15 @@ public class BeanRegistrationUtil {
 
     String[] candidates = registry.getBeanDefinitionNames();
 
-    if (registry instanceof BeanFactory) {
-      final BeanFactory beanFactory = (BeanFactory) registry;
-      for (String candidate : candidates) {
-        if (beanFactory.isTypeMatch(candidate, beanClass)) {
-          return false;
-        }
+    for (String candidate : candidates) {
+      BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
+      if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
+        return false;
       }
-    } else {
-      for (String candidate : candidates) {
-        BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
-        if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
+
+      if (beanDefinition instanceof AnnotatedBeanDefinition) {
+        MethodMetadata metadata = ((AnnotatedBeanDefinition) beanDefinition).getFactoryMethodMetadata();
+        if (metadata != null && Objects.equals(metadata.getReturnTypeName(), beanClass.getName())) {
           return false;
         }
       }
