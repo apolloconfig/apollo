@@ -694,6 +694,7 @@
   "Config.Diff.Tips": "By comparing configuration, you can see configuration differences between multiple environments and clusters",
   "Config.Diff.DiffCluster": "Clusters to be compared",
   "Config.Diff.HasDiffComment": "Whether to compare comments or not",
+  "Config.Diff.OnlyShowDiffKeys": "Display only configuration items with different values",
   "Config.Diff.PleaseChooseTwoCluster": "Please select at least two clusters",
   "ConfigExport.Title": "Config Export/Import",
   "ConfigExport.TitleTips" : "（The data (application, cluster and namespace) of one cluster can be migrated to another cluster by exporting and importing the configuration）",

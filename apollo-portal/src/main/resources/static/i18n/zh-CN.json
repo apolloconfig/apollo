@@ -694,6 +694,7 @@
   "Config.Diff.Tips": "通过比较配置功能，可以查看多个环境、集群间的配置差异",
   "Config.Diff.DiffCluster": "要比较的集群",
   "Config.Diff.HasDiffComment": "是否比较注释",
+  "Config.Diff.OnlyShowDiffKeys": "是否只显示值不一样的配置项",
   "Config.Diff.PleaseChooseTwoCluster": "请至少选择两个集群",
   "ConfigExport.Title": "配置导出导入",
   "ConfigExport.TitleTips" : "（通过导出导入配置，把一个集群的数据（应用、集群、Namespace）迁移到另外一个集群）",
