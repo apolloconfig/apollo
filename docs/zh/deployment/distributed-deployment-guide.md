@@ -521,14 +521,10 @@ mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminserv
 ```properties
 spring.cloud.zookeeper.connect-string=127.0.0.1:2181
 ```
-3.本地调试需要分别修改`apollo-configservice`和`apollo-adminservice`服务对应的JVM启动参数
-```properties
--Dapollo_profile=github,zookeeper-discovery
-```
-4.Zookeeper版本说明
+3.Zookeeper版本说明
 * 支持Zookeeper3.5.x以上的版本;
 * 如果apollo-configservice应用启动报端口占用,请检查Zookeeper的如下配置;
-> 注：Zookeeper3.5.0新增了内置的[AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html)
+> 注：Zookeeper3.5.0新增了内置的[AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
 ```properties
 admin.enableServer
 admin.serverPort
