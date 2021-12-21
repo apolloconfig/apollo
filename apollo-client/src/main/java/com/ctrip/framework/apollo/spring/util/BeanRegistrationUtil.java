@@ -18,8 +18,8 @@ package com.ctrip.framework.apollo.spring.util;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -29,6 +29,16 @@ import org.springframework.core.type.MethodMetadata;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class BeanRegistrationUtil {
+  // reserved bean definitions, we should consider drop this if we will upgrade Spring version
+  private static final Map<String, String> RESERVED_BEAN_DEFINITIONS = new ConcurrentHashMap<>();
+
+  static {
+    RESERVED_BEAN_DEFINITIONS.put(
+        "org.springframework.context.support.PropertySourcesPlaceholderConfigurer",
+        "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer"
+    );
+  }
+
   public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
       Class<?> beanClass) {
     return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
@@ -42,15 +52,16 @@ public class BeanRegistrationUtil {
 
     String[] candidates = registry.getBeanDefinitionNames();
 
+    String reservedBeanDefinition = RESERVED_BEAN_DEFINITIONS.get(beanClass.getName());
     for (String candidate : candidates) {
       BeanDefinition beanDefinition = registry.getBeanDefinition(candidate);
       if (Objects.equals(beanDefinition.getBeanClassName(), beanClass.getName())) {
         return false;
       }
 
-      if (beanDefinition instanceof AnnotatedBeanDefinition) {
-        MethodMetadata metadata = ((AnnotatedBeanDefinition) beanDefinition).getFactoryMethodMetadata();
-        if (metadata != null && Objects.equals(metadata.getReturnTypeName(), beanClass.getName())) {
+      if (reservedBeanDefinition != null && beanDefinition.getSource() != null && beanDefinition.getSource() instanceof MethodMetadata) {
+        MethodMetadata metadata = (MethodMetadata) beanDefinition.getSource();
+        if (Objects.equals(reservedBeanDefinition, String.format("%s#%s", metadata.getDeclaringClassName(), metadata.getMethodName()))) {
           return false;
         }
       }
