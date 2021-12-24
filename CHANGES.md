@@ -27,6 +27,7 @@ Apollo 2.0.0
 * [Split helm chart into another repo](https://github.com/apolloconfig/apollo/pull/4125)
 * [fix gray publish refresh item status](https://github.com/apolloconfig/apollo/pull/4128)
 * [Support only show difference keys when compare namespace](https://github.com/apolloconfig/apollo/pull/4165)
+* [Fix the issue that property placeholder doesn't work for dubbo reference beans](https://github.com/apolloconfig/apollo/pull/4175)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
