@@ -22,21 +22,42 @@ directive_module.directive('showtextmodal', showTextModalDirective)
                 return;
             }
 
-            const numberRegex = /\d{16,}/g;
-            const splitRegex = /"\d\d+"/;
+            const numberRegex = /"\|+\d+\|+"/g;
+            const splitRegex = /"\|+\d+\|+"/;
             const splitArray = text.split(splitRegex);
             const matchResult = text.match(numberRegex);
-
-            if (!matchResult) {
+            const borderRegex = /"\|\d+\|"/;
+            if (!matchResult || 0 === splitArray.length) {
                 return text;
+            } else {
+                Object.keys(matchResult).forEach(function (key) {
+                    if (matchResult[key].includes('"\|')) {
+                        if (borderRegex.test(matchResult[key])) {
+                            matchResult[key] = matchResult[key].replaceAll('"\|', '');
+                            matchResult[key] = matchResult[key].replaceAll('|\"', '');
+                        } else {
+                            matchResult[key] = matchResult[key].replaceAll('"\|', '"');
+                            matchResult[key] = matchResult[key].replaceAll('|\"', '"');
+                        }
+                    }
+                });
             }
 
             let resultStr = '';
             let index = 0;
 
+            const isJsonText = resultStr => {
+                try {
+                    return typeof JSON.parse(resultStr) === "object";
+                } catch (e) {
+                    return false;
+                }
+            };
+
             Object.keys(splitArray).forEach(function (key) {
                 resultStr = resultStr.concat(splitArray[key]);
-                if (typeof(matchResult[index]) !== "undefined") {
+                if (typeof(matchResult[index]) !== "undefined"
+                    && !isJsonText(resultStr)) {
                     resultStr = resultStr.concat(matchResult[index++])
                 }
             })
@@ -74,18 +95,21 @@ function showTextModalDirective(AppUtil) {
             }
 
             function parseBigInt(str) {
-                if (/\d{16,}/.test(str)) {
+                if (/\d+/.test(str)) {
                     let replaceMap = [];
                     let n = 0;
-                    str = str.replace(/"(\\?[\s\S])*?"/g, function (match) {
-                        if (/\d{16,}/.test(match)) {
+                    str = str.replace(/"\|+\d+\|+"/g, function (match) {
+                        return match.replace('"\|', '"\||').replace('|"', '||"');
+                    })
+                    .replace(/"(\\?[\s\S])*?"/g, function (match) {
+                        if (/\d+/.test(match)) {
                             replaceMap.push(match);
                             return '"""';
                         }
                         return match;
-                    }).replace(/[+\-\d.eE]{16,}/g, function (match) {
-                        if (/^\d{16,}$/.test(match)) {
-                            return '"' + match + '"';
+                    }).replace(/[+\-\d.eE]+/g, function (match) {
+                        if (/^\d+$/.test(match)) {
+                            return '"|' + match + '|"';
                         }
                         return match;
                     }).replace(/"""/g, function () {
