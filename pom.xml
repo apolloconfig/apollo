@@ -730,6 +730,15 @@
 				</plugins>
 			</build>
 		</profile>
+		<profile>
+			<id>jdk17</id>
+			<activation>
+				<jdk>[17,)</jdk>
+			</activation>
+			<properties>
+				<test.additional.args> --add-opens java.base/java.lang=ALL-UNNAMED </test.additional.args>
+			</properties>
+		</profile>
 	</profiles>
 
 	<reporting>
