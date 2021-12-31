@@ -29,19 +29,7 @@
 	<properties>
 		<github.path>${project.artifactId}</github.path>
 	</properties>
-	<dependencyManagement>
-		<dependencies>
-			<!-- Spring Boot 2 requires Java 8, so we need to manually stick to 1.5.x version in order to compile apollo-client against Java 7 -->
-			<!-- This is only for apollo-client compilation use, because optional Spring dependencies are not transitive -->
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>1.5.16.RELEASE</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
+
 	<dependencies>
 		<!-- apollo -->
 		<dependency>

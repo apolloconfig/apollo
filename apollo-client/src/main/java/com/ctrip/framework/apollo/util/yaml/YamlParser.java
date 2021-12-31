@@ -18,13 +18,11 @@ package com.ctrip.framework.apollo.util.yaml;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,25 +178,6 @@ public class YamlParser {
       } catch (IllegalStateException ex) {
         throw new ParserException("while parsing MappingNode", node.getStartMark(), ex.getMessage(), node.getEndMark());
       }
-    }
-
-    @Override
-    protected Map<Object, Object> createDefaultMap() {
-      final Map<Object, Object> delegate = super.createDefaultMap();
-      return new AbstractMap<Object, Object>() {
-        @Override
-        public Object put(Object key, Object value) {
-          if (delegate.containsKey(key)) {
-            throw new IllegalStateException("Duplicate key: " + key);
-          }
-          return delegate.put(key, value);
-        }
-
-        @Override
-        public Set<Entry<Object, Object>> entrySet() {
-          return delegate.entrySet();
-        }
-      };
     }
   }
 

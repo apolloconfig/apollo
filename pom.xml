@@ -63,8 +63,8 @@
 		<revision>2.0.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring-boot.version>2.4.12</spring-boot.version>
-		<spring-cloud.version>2020.0.4</spring-cloud.version>
+		<spring-boot.version>2.4.13</spring-boot.version>
+		<spring-cloud.version>2020.0.5</spring-cloud.version>
 		<jaxb.version>2.3.1</jaxb.version>
 		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
@@ -729,6 +729,15 @@
 					</plugin>
 				</plugins>
 			</build>
+		</profile>
+		<profile>
+			<id>jdk17</id>
+			<activation>
+				<jdk>[17,)</jdk>
+			</activation>
+			<properties>
+				<test.additional.args> --add-opens java.base/java.lang=ALL-UNNAMED </test.additional.args>
+			</properties>
 		</profile>
 	</profiles>
 

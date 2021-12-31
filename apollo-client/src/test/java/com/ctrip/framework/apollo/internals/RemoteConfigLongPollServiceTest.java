@@ -119,7 +119,7 @@ public class RemoteConfigLongPollServiceTest {
           TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
         }
-        HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
         assertTrue(request.getUrl().contains(someServerUrl + "/notifications/v2?"));
         assertTrue(request.getUrl().contains("appId=" + someAppId));
@@ -225,7 +225,7 @@ public class RemoteConfigLongPollServiceTest {
         } catch (InterruptedException e) {
         }
 
-        HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
         Map<String, String> headers = request.getHeaders();
         assertNotNull(headers);
@@ -281,7 +281,7 @@ public class RemoteConfigLongPollServiceTest {
 
         //the first time
         if (counter.incrementAndGet() == 1) {
-          HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+          HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
           assertTrue(request.getUrl().contains("notifications="));
           assertTrue(request.getUrl().contains(someNamespace));
@@ -291,7 +291,7 @@ public class RemoteConfigLongPollServiceTest {
           when(pollResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_OK);
           when(pollResponse.getBody()).thenReturn(Lists.newArrayList(someNotification));
         } else if (submitAnotherNamespaceFinish.get()) {
-          HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+          HttpRequest request = invocation.getArgument(0, HttpRequest.class);
           assertTrue(request.getUrl().contains("notifications="));
           assertTrue(request.getUrl().contains(someNamespace));
           assertTrue(request.getUrl().contains(anotherNamespace));
