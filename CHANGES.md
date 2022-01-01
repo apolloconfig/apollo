@@ -30,7 +30,7 @@ Apollo 2.0.0
 * [Fix the issue that property placeholder doesn't work for dubbo reference beans](https://github.com/apolloconfig/apollo/pull/4175)
 * [Fix the NPE occurred when using EnableApolloConfig with Spring 3.1.1](https://github.com/apolloconfig/apollo/pull/4180)
 * [Bump guava from 29.0 to 31.0.1](https://github.com/apolloconfig/apollo/pull/4182)
-* [fix show-text-modal-directive.js](https://github.com/apolloconfig/apollo/pull/4183)
+* [fix the json number display issue when it's longer than 16](https://github.com/apolloconfig/apollo/pull/4183)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
