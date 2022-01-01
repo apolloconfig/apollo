@@ -132,7 +132,7 @@ spec:
               - key: apollo-env.properties
                 path: apollo-env.properties
       containers:
-        - image: apolloconfig/apollo-portal:1.9.2-SNAPSHOT
+        - image: apolloconfig/apollo-portal:1.9.2
           securityContext:
             privileged: true
           imagePullPolicy: IfNotPresent
