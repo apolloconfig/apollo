@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.BeanCreationException;
@@ -89,7 +90,7 @@ public class XMLConfigAnnotationTest extends AbstractSpringIntegrationTest {
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        applicationListeners.add(invocation.getArgumentAt(0, ConfigChangeListener.class));
+        applicationListeners.add(invocation.getArgument(0, ConfigChangeListener.class));
 
         return Void.class;
       }
@@ -98,7 +99,7 @@ public class XMLConfigAnnotationTest extends AbstractSpringIntegrationTest {
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        fxApolloListeners.add(invocation.getArgumentAt(0, ConfigChangeListener.class));
+        fxApolloListeners.add(invocation.getArgument(0, ConfigChangeListener.class));
 
         return Void.class;
       }
@@ -164,10 +165,10 @@ public class XMLConfigAnnotationTest extends AbstractSpringIntegrationTest {
     final ArgumentCaptor<Set> fxApolloConfigInterestedKeys = ArgumentCaptor.forClass(Set.class);
 
     verify(applicationConfig, times(2))
-        .addChangeListener(any(ConfigChangeListener.class), applicationConfigInterestedKeys.capture(), anySetOf(String.class));
+        .addChangeListener(any(ConfigChangeListener.class), applicationConfigInterestedKeys.capture(), Mockito.nullable(Set.class));
 
     verify(fxApolloConfig, times(1))
-        .addChangeListener(any(ConfigChangeListener.class), fxApolloConfigInterestedKeys.capture(), anySetOf(String.class));
+        .addChangeListener(any(ConfigChangeListener.class), fxApolloConfigInterestedKeys.capture(), Mockito.nullable(Set.class));
 
     assertEquals(2, applicationConfigInterestedKeys.getAllValues().size());
 

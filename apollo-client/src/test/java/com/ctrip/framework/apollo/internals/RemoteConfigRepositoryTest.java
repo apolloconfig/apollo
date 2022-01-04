@@ -199,7 +199,7 @@ public class RemoteConfigRepositoryTest {
     doAnswer(new Answer<HttpResponse<ApolloConfig>>() {
       @Override
       public HttpResponse<ApolloConfig> answer(InvocationOnMock invocation) throws Throwable {
-        HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
         Map<String, String> headers = request.getHeaders();
         assertNotNull(headers);
         assertTrue(headers.containsKey(Signature.HTTP_HEADER_TIMESTAMP));

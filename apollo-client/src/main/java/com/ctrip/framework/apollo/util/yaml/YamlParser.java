@@ -18,22 +18,23 @@ package com.ctrip.framework.apollo.util.yaml;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.parser.ParserException;
 
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import org.yaml.snakeyaml.representer.Representer;
 
 /**
  * Transplanted from org.springframework.beans.factory.config.YamlProcessor since apollo can't depend on Spring directly
@@ -64,7 +65,9 @@ public class YamlParser {
    * Create the {@link Yaml} instance to use.
    */
   private Yaml createYaml() {
-    return new Yaml(new StrictMapAppenderConstructor());
+    LoaderOptions loadingConfig = new LoaderOptions();
+    loadingConfig.setAllowDuplicateKeys(false);
+    return new Yaml(new SafeConstructor(), new Representer(), new DumperOptions(), loadingConfig);
   }
 
   private boolean process(MatchCallback callback, Yaml yaml, String content) {
@@ -161,45 +164,6 @@ public class YamlParser {
 
   private interface MatchCallback {
     void process(Properties properties, Map<String, Object> map);
-  }
-
-  /**
-   * A specialized {@link SafeConstructor} that checks for duplicate keys.
-   */
-  private static class StrictMapAppenderConstructor extends SafeConstructor {
-
-    // Declared as public for use in subclasses
-    StrictMapAppenderConstructor() {
-      super();
-    }
-
-    @Override
-    protected Map<Object, Object> constructMapping(MappingNode node) {
-      try {
-        return super.constructMapping(node);
-      } catch (IllegalStateException ex) {
-        throw new ParserException("while parsing MappingNode", node.getStartMark(), ex.getMessage(), node.getEndMark());
-      }
-    }
-
-    @Override
-    protected Map<Object, Object> createDefaultMap() {
-      final Map<Object, Object> delegate = super.createDefaultMap();
-      return new AbstractMap<Object, Object>() {
-        @Override
-        public Object put(Object key, Object value) {
-          if (delegate.containsKey(key)) {
-            throw new IllegalStateException("Duplicate key: " + key);
-          }
-          return delegate.put(key, value);
-        }
-
-        @Override
-        public Set<Entry<Object, Object>> entrySet() {
-          return delegate.entrySet();
-        }
-      };
-    }
   }
 
 }

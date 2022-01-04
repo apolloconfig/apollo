@@ -31,6 +31,7 @@ Apollo 2.0.0
 * [Fix the NPE occurred when using EnableApolloConfig with Spring 3.1.1](https://github.com/apolloconfig/apollo/pull/4180)
 * [Bump guava from 29.0 to 31.0.1](https://github.com/apolloconfig/apollo/pull/4182)
 * [fix the json number display issue when it's longer than 16](https://github.com/apolloconfig/apollo/pull/4183)
+* [Bump client springboot version](https://github.com/apolloconfig/apollo/pull/4189)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

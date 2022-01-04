@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import org.junit.After;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -57,9 +58,9 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     int someBatch = 2000;
 
     Config config = mock(Config.class);
-    when(config.getProperty(eq(TIMEOUT_PROPERTY), anyString()))
+    when(config.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
-    when(config.getProperty(eq(BATCH_PROPERTY), anyString())).thenReturn(String.valueOf(someBatch));
+    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class))).thenReturn(String.valueOf(someBatch));
 
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
 
@@ -79,9 +80,9 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     int someBatch = 2000;
 
     Config config = mock(Config.class);
-    when(config.getProperty(eq(TIMEOUT_PROPERTY), anyString()))
+    when(config.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
-    when(config.getProperty(eq(BATCH_PROPERTY), anyString())).thenReturn(String.valueOf(someBatch));
+    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class))).thenReturn(String.valueOf(someBatch));
 
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
 
@@ -94,12 +95,12 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     int someBatch = 2000;
 
     Config application = mock(Config.class);
-    when(application.getProperty(eq(TIMEOUT_PROPERTY), anyString()))
+    when(application.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, application);
 
     Config fxApollo = mock(Config.class);
-    when(application.getProperty(eq(BATCH_PROPERTY), anyString()))
+    when(application.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someBatch));
     mockConfig(FX_APOLLO_NAMESPACE, fxApollo);
 
@@ -108,14 +109,14 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
 
   private void prepare(int someTimeout, int anotherTimeout, int someBatch) {
     Config application = mock(Config.class);
-    when(application.getProperty(eq(TIMEOUT_PROPERTY), anyString()))
+    when(application.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
-    when(application.getProperty(eq(BATCH_PROPERTY), anyString()))
+    when(application.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someBatch));
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, application);
 
     Config fxApollo = mock(Config.class);
-    when(fxApollo.getProperty(eq(TIMEOUT_PROPERTY), anyString()))
+    when(fxApollo.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(anotherTimeout));
     mockConfig(FX_APOLLO_NAMESPACE, fxApollo);
   }
