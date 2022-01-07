@@ -265,6 +265,36 @@
                 <!--text mode-->
                 <div class="release-info col-md-9"
                     ng-show="isTextNamespace && history.changes && history.changes.length > 0">
+                    <div class="panel-heading">
+
+                        <span ng-bind="history.releaseTitle"></span>
+                        <span class="label label-warning no-radius" ng-if="history.isReleaseAbandoned">{{'Config.History.Abandoned' | translate }}</span>
+                        <span class="pull-right" ng-bind="history.releaseTime | date: 'yyyy-MM-dd HH:mm:ss'"></span>
+
+                        <div class="row" style="padding-top: 10px;">
+                            <div class="col-md-5">
+                                <small ng-show="history.releaseComment" ng-bind="history.releaseComment"></small>
+                            </div>
+                            <div class="col-md-7 text-right">
+                                <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Config.History.RollbackToTips' | translate }}"
+                                        ng-show="namespace.hasReleasePermission && !history.isReleaseAbandoned
+                                            && (history.operation == 0 || history.operation == 1 || history.operation == 4)"
+                                        ng-click="preRollback()">
+                                    <img src="../img/rollback.png">
+                                    {{'Config.History.RollbackTo' | translate }}
+                                </button>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-sm"
+                                            ng-class="{'active':history.viewType == 'diff'}" data-tooltip="tooltip"
+                                            data-placement="bottom" title="{{'Config.History.ChangedItemTips' | translate }}"
+                                            ng-click="switchConfigViewType(history, 'diff')">{{'Config.History.ChangedItem' | translate }}
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                     <apollodiff ng-repeat="change in history.changes" old-str="change.entity.firstEntity.value"
                         new-str="change.entity.secondEntity.value" apollo-id="'releaseStrDiff'">
                     </apollodiff>
