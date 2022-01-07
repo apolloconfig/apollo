@@ -33,5 +33,7 @@ Apollo 2.0.0
 * [fix the json number display issue when it's longer than 16](https://github.com/apolloconfig/apollo/pull/4183)
 * [Bump client springboot version](https://github.com/apolloconfig/apollo/pull/4189)
 * [The release history of namespaces that are not properties will also show comments and release times](https://github.com/apolloconfig/apollo/pull/4198)
+* [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
+
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
