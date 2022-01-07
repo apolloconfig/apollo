@@ -27,17 +27,20 @@ import static com.google.common.base.MoreObjects.toStringHelper;
  */
 public class GrayReleaseRuleItemDTO {
   public static final String ALL_IP = "*";
+  public static final String ALL_Label = "*";
 
   private String clientAppId;
   private Set<String> clientIpList;
+  private Set<String> clientLabelList;
 
   public GrayReleaseRuleItemDTO(String clientAppId) {
-    this(clientAppId, Sets.newHashSet());
+    this(clientAppId, Sets.newHashSet(), Sets.newHashSet());
   }
 
-  public GrayReleaseRuleItemDTO(String clientAppId, Set<String> clientIpList) {
+  public GrayReleaseRuleItemDTO(String clientAppId, Set<String> clientIpList, Set<String> clientLabelList) {
     this.clientAppId = clientAppId;
     this.clientIpList = clientIpList;
+    this.clientLabelList = clientLabelList;
   }
 
   public String getClientAppId() {
@@ -48,8 +51,12 @@ public class GrayReleaseRuleItemDTO {
     return clientIpList;
   }
 
-  public boolean matches(String clientAppId, String clientIp) {
-    return appIdMatches(clientAppId) && ipMatches(clientIp);
+  public Set<String> getClientLabelList() {
+    return clientLabelList;
+  }
+
+  public boolean matches(String clientAppId, String clientIp,String clientLabel) {
+    return (appIdMatches(clientAppId) && ipMatches(clientIp))||(appIdMatches(clientAppId) && labelMatches(clientLabel));
   }
 
   private boolean appIdMatches(String clientAppId) {
@@ -60,9 +67,14 @@ public class GrayReleaseRuleItemDTO {
     return this.clientIpList.contains(ALL_IP) || clientIpList.contains(clientIp);
   }
 
+  private boolean labelMatches(String clientLabel) {
+    return this.clientLabelList.contains(ALL_Label) || clientLabelList.contains(clientLabel);
+  }
+
   @Override
   public String toString() {
     return toStringHelper(this).add("clientAppId", clientAppId)
-        .add("clientIpList", clientIpList).toString();
+        .add("clientIpList", clientIpList)
+        .add("clientLabelList", clientLabelList).toString();
   }
 }

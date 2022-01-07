@@ -26,6 +26,8 @@ import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
 import com.google.common.collect.Lists;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationAttributes;
@@ -33,6 +35,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrarHelper {
+  private static final Logger logger = LoggerFactory.getLogger(
+      DefaultApolloConfigRegistrarHelper.class);
 
   private Environment environment;
 
@@ -62,12 +66,28 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
   }
 
   private String[] resolveNamespaces(String[] namespaces) {
+    // no support for Spring version prior to 3.2.x, see https://github.com/apolloconfig/apollo/issues/4178
+    if (this.environment == null) {
+      logNamespacePlaceholderNotSupportedMessage(namespaces);
+      return namespaces;
+    }
     String[] resolvedNamespaces = new String[namespaces.length];
     for (int i = 0; i < namespaces.length; i++) {
       // throw IllegalArgumentException if given text is null or if any placeholders are unresolvable
       resolvedNamespaces[i] = this.environment.resolveRequiredPlaceholders(namespaces[i]);
     }
     return resolvedNamespaces;
+  }
+
+  private void logNamespacePlaceholderNotSupportedMessage(String[] namespaces) {
+    for (String namespace : namespaces) {
+      if (namespace.contains("${")) {
+        logger.warn("Namespace placeholder {} is not supported for Spring version prior to 3.2.x,"
+                + " see https://github.com/apolloconfig/apollo/issues/4178 for more details.",
+            namespace);
+        break;
+      }
+    }
   }
 
   @Override

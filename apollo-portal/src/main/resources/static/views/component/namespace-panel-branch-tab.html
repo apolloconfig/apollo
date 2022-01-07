@@ -335,7 +335,7 @@
                     <thead>
                         <tr>
                             <th>{{'Component.Namespace.Branch.GrayScaleRule.AppId' | translate }}</th>
-                            <th>{{'Component.Namespace.Branch.GrayScaleRule.IpList' | translate }}</th>
+                            <th>{{'Component.Namespace.Branch.GrayScaleRule.RuleList' | translate }}</th>
                             <th>{{'Component.Namespace.Branch.GrayScaleRule.Operator' | translate }}</th>
                         </tr>
                     </thead>
@@ -343,7 +343,7 @@
                         <tr ng-repeat="ruleItem in namespace.branch.rules.ruleItems">
                             <td width="20%" ng-bind="ruleItem.clientAppId"></td>
                             <td width="70%" ng-show="!ruleItem.ApplyToAllInstances"
-                                ng-bind="ruleItem.clientIpList.join(', ')"></td>
+                                ng-bind="'ipList: '+ ruleItem.clientIpList.join(', ') + '   labelList: ' + ruleItem.clientLabelList.join(', ')"></td>
                             <td width="70%" ng-show="ruleItem.ApplyToAllInstances">
                                 {{'Component.Namespace.Branch.GrayScaleRule.ApplyToAllInstances' | translate }}</td>
                             <td class="text-center" width="10%">

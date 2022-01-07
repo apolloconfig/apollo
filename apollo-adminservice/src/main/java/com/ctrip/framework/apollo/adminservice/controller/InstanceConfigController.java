@@ -123,7 +123,7 @@ public class InstanceConfigController {
     List<Release> releases = releaseService.findByReleaseIds(releaseIdSet);
 
     if (CollectionUtils.isEmpty(releases)) {
-      throw new NotFoundException(String.format("releases not found for %s", releaseIds));
+      throw new NotFoundException("releases not found for %s", releaseIds);
     }
 
     Set<String> releaseKeys = releases.stream().map(Release::getReleaseKey).collect(Collectors

@@ -24,10 +24,10 @@ Apollo本地开发需要以下组件：
 
 下面以Intellij Community 2016.2版本为例来说明如何在本地启动`apollo-configservice`和`apollo-adminservice`。
 
-![ConfigAdminApplication-Overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/ConfigAdminApplication-Overview.png)
+![ConfigAdminApplication-Overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/ConfigAdminApplication-Overview.png)
 
 ### 2.1.1 新建运行配置
-![NewConfiguration-Application](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/NewConfiguration-Application.png)
+![NewConfiguration-Application](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/NewConfiguration-Application.png)
 
 ### 2.1.2 Main class配置
 `com.ctrip.framework.apollo.assembly.ApolloApplication`
@@ -37,7 +37,7 @@ Apollo本地开发需要以下组件：
 > `com.ctrip.framework.apollo.adminservice.AdminServiceApplication`
 
 ### 2.1.3 VM options配置
-![ConfigAdminApplication-VM-Options](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/ConfigAdminApplication-VM-Options.png)
+![ConfigAdminApplication-VM-Options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/ConfigAdminApplication-VM-Options.png)
 
 	-Dapollo_profile=github
 	-Dspring.datasource.url=jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8
@@ -56,11 +56,11 @@ Apollo本地开发需要以下组件：
 ### 2.1.5 运行
 对新建的运行配置点击Run或Debug皆可。
 
-![ConfigAdminApplication-Run](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/ConfigAdminApplication-Run.png)
+![ConfigAdminApplication-Run](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/ConfigAdminApplication-Run.png)
 
 启动完后，打开[http://localhost:8080](http://localhost:8080)可以看到`apollo-configservice`和`apollo-adminservice`都已经启动完成并注册到Eureka。
 
-![ConfigAdminApplication-Eureka](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/ConfigAdminApplication-Eureka.png)
+![ConfigAdminApplication-Eureka](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/ConfigAdminApplication-Eureka.png)
 
 > 注：除了在Eureka确认服务状态外，还可以通过健康检查接口确认服务健康状况：
 >
@@ -81,16 +81,16 @@ Apollo本地开发需要以下组件：
 
 下面以Intellij Community 2016.2版本为例来说明如何在本地启动`apollo-portal`。
 
-![PortalApplication-Overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/PortalApplication-Overview.png)
+![PortalApplication-Overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/PortalApplication-Overview.png)
 
 ### 2.2.1 新建运行配置
-![NewConfiguration-Application](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/NewConfiguration-Application.png)
+![NewConfiguration-Application](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/NewConfiguration-Application.png)
 
 ### 2.2.2 Main class配置
 `com.ctrip.framework.apollo.portal.PortalApplication`
 
 ### 2.2.3 VM options配置
-![PortalApplication-VM-Options](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/PortalApplication-VM-Options.png)
+![PortalApplication-VM-Options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/PortalApplication-VM-Options.png)
 
 	-Dapollo_profile=github,auth
 	-Ddev_meta=http://localhost:8080/
@@ -114,11 +114,11 @@ Apollo本地开发需要以下组件：
 ### 2.2.4 运行
 对新建的运行配置点击Run或Debug皆可。
 
-![PortalApplication-Run](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/PortalApplication-Run.png)
+![PortalApplication-Run](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/PortalApplication-Run.png)
 
 启动完后，打开[http://localhost:8070](http://localhost:8070)就可以看到Apollo配置中心界面了。
 
-![PortalApplication-Home](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/PortalApplication-Home.png)
+![PortalApplication-Home](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/PortalApplication-Home.png)
 
 >注：如果启用了`auth` profile的话，默认的用户名是apollo，密码是admin
 
@@ -135,7 +135,7 @@ Apollo本地开发需要以下组件：
 ### 2.3.1 配置项目AppId
 在`2.2.5 Demo应用接入`中创建Demo项目时，系统会要求填入一个全局唯一的AppId，我们需要把这个AppId配置到`apollo-demo`项目的app.properties文件中：`apollo-demo/src/main/resources/META-INF/app.properties`。
 
-![apollo-demo-app-properties](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/apollo-demo-app-properties.png)
+![apollo-demo-app-properties](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-app-properties.png)
 
 如我们自己的demo项目使用的AppId是100004458，那么文件内容就是：
 
@@ -148,13 +148,13 @@ Apollo本地开发需要以下组件：
 > 更多配置AppId的方式可以参考[1.2.1 AppId](zh/usage/java-sdk-user-guide#_121-appid)
 
 ### 2.3.2 新建运行配置
-![NewConfiguration-Application](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/NewConfiguration-Application.png)
+![NewConfiguration-Application](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/NewConfiguration-Application.png)
 
 ### 2.3.3 Main class配置
 `com.ctrip.framework.apollo.demo.api.SimpleApolloConfigDemo`
 
 ### 2.3.4 VM options配置
-![apollo-demo-vm-options](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/apollo-demo-vm-options.png)
+![apollo-demo-vm-options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-vm-options.png)
 
     -Dapollo.meta=http://localhost:8080
 
@@ -164,12 +164,12 @@ Apollo本地开发需要以下组件：
 
 ### 2.3.5 概览
 
-![apollo-demo-overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/apollo-demo-overview.png)
+![apollo-demo-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-overview.png)
 
 ### 2.3.6 运行
 对新建的运行配置点击Run或Debug皆可。
 
-![apollo-demo-run](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/local-development/apollo-demo-run.png)
+![apollo-demo-run](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-run.png)
 
 启动完后，忽略前面的调试信息，可以看到如下提示：
 
@@ -195,7 +195,7 @@ Apollo本地开发需要以下组件：
 ### 2.4.1 配置项目AppId
 在`2.2.5 Demo应用接入`中创建Demo项目时，系统会要求填入一个全局唯一的AppId，我们需要把这个AppId配置到`ApolloDemo`项目的APP.config文件中：`apollo.net\ApolloDemo\App.config`。
 
-![apollo-demo-app-config](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-net-app-config.png)
+![apollo-demo-app-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-net-app-config.png)
 
 如我们自己的demo项目使用的AppId是100004458，那么文件内容就是：
 ```xml
@@ -209,7 +209,7 @@ Apollo本地开发需要以下组件：
 ### 2.4.2 配置服务地址
 Apollo客户端针对不同的环境会从不同的服务器获取配置，所以我们需要在app.config或web.config配置服务器地址(Apollo.{ENV}.Meta)。假设DEV环境的配置服务(apollo-configservice)地址是11.22.33.44，那么我们就做如下配置：
 
-![apollo-net-server-url-config](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-net-server-url-config.png)
+![apollo-net-server-url-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-net-server-url-config.png)
 
 ### 2.4.3 运行
 运行`ApolloConfigDemo.cs`即可。
@@ -230,7 +230,7 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 
 # 三、开发
 ## 模块依赖图
-![模块依赖图](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/module-dependency.png)
+![模块依赖图](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/module-dependency.png)
 
 ## 3.1 Portal 实现用户登录功能
 

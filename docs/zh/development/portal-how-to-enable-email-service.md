@@ -22,12 +22,12 @@
 
 ## 二、实现方式二：接入公司的统一邮件服务
 
-和SSO类似，每个公司也有自己的邮件服务实现，所以我们相应的定义了[EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)接口，现有两个实现类：
+和SSO类似，每个公司也有自己的邮件服务实现，所以我们相应的定义了[EmailService](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)接口，现有两个实现类：
 1. CtripEmailService：携程实现的EmailService
 2. DefaultEmailService：smtp实现
 
 ### 2.1 接入步骤
-1. 提供自己公司的[EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)实现，并在[EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中注册。
+1. 提供自己公司的[EmailService](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java)实现，并在[EmailConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中注册。
 2. 在ApolloPortalDB.ServerConfig表配置以下参数，也可以通过管理员工具 - 系统参数页面进行配置，修改完一分钟实时生效。如下：
 * **email.supported.envs** 支持发送邮件的环境列表，英文逗号隔开。我们不希望发布邮件变成用户的垃圾邮件，只有某些环境下的发布动作才会发送邮件。
 * **email.sender** 邮件的发送人。
@@ -39,13 +39,13 @@
   
 我们提供了[邮件模板样例](#三、邮件模板样例)，方便大家使用。
 
->注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的Email实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中修改默认实现的条件`@Profile({"!custom"})`。
+>注：运行时使用不同的实现是通过[Profiles](http://docs.spring.io/autorepo/docs/spring-boot/current/reference/html/boot-features-profiles.html)实现的，比如你自己的Email实现是在`custom` profile中的话，在打包脚本中可以指定-Dapollo_profile=github,custom。其中`github`是Apollo必须的一个profile，用于数据库的配置，`custom`是你自己实现的profile。同时需要注意在[EmailConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java)中修改默认实现的条件`@Profile({"!custom"})`。
 
 ### 2.2 相关代码
-1. [ConfigPublishListener](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/listener/ConfigPublishListener.java)监听发布事件，调用emailbuilder构建邮件内容，然后调用EmailService发送邮件
-2. [emailbuilder](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/components/emailbuilder)包是构建邮件内容的实现
-3. [EmailService](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java) 邮件发送服务
-4. [EmailConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java) 邮件服务注册类
+1. [ConfigPublishListener](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/listener/ConfigPublishListener.java)监听发布事件，调用emailbuilder构建邮件内容，然后调用EmailService发送邮件
+2. [emailbuilder](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/components/emailbuilder)包是构建邮件内容的实现
+3. [EmailService](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/EmailService.java) 邮件发送服务
+4. [EmailConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/java/com/ctrip/framework/apollo/portal/spi/configuration/EmailConfiguration.java) 邮件服务注册类
 
 ## 三、邮件模板样例
 以下为发布邮件和回滚邮件的模板内容样式，邮件模板为html格式，发送html格式的邮件时，可能需要做一些额外的处理，取决于每个公司的邮件服务实现。为了减少字符数，模板经过了压缩处理，可自行格式化提高可读性。
@@ -102,7 +102,7 @@
 ```
 
 ### 3.5 发布邮件样例
-![发布邮件模板](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/email-template-release.png)
+![发布邮件模板](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/email-template-release.png)
 
 ### 3.6 回滚邮件样例
-![回滚邮件模板](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/email-template-rollback.png)
+![回滚邮件模板](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/email-template-rollback.png)

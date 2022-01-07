@@ -17,30 +17,21 @@
 package com.ctrip.framework.apollo.openapi.client.service;
 
 import com.ctrip.framework.apollo.openapi.client.exception.ApolloOpenApiException;
+import com.ctrip.framework.apollo.openapi.client.url.OpenApiPathBuilder;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.google.common.escape.Escaper;
-import com.google.common.net.UrlEscapers;
 import com.google.gson.Gson;
-import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-abstract class AbstractOpenApiService {
-  private static final Escaper pathEscaper = UrlEscapers.urlPathSegmentEscaper();
-  private static final Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
+import java.io.IOException;
 
+abstract class AbstractOpenApiService {
   private final String baseUrl;
 
   protected final CloseableHttpClient client;
@@ -52,36 +43,28 @@ abstract class AbstractOpenApiService {
     this.gson = gson;
   }
 
-  protected CloseableHttpResponse get(String path) throws IOException {
-    HttpGet get = new HttpGet(String.format("%s/%s", baseUrl, path));
+  protected CloseableHttpResponse get(OpenApiPathBuilder path) throws IOException {
+    HttpGet get = new HttpGet(path.buildPath(baseUrl));
 
     return execute(get);
   }
 
-  protected CloseableHttpResponse post(String path, Object entity) throws IOException {
-    HttpPost post = new HttpPost(String.format("%s/%s", baseUrl, path));
+  protected CloseableHttpResponse post(OpenApiPathBuilder path, Object entity) throws IOException {
+    HttpPost post = new HttpPost(path.buildPath(baseUrl));
 
     return execute(post, entity);
   }
 
-  protected CloseableHttpResponse put(String path, Object entity) throws IOException {
-    HttpPut put = new HttpPut(String.format("%s/%s", baseUrl, path));
+  protected CloseableHttpResponse put(OpenApiPathBuilder path, Object entity) throws IOException {
+    HttpPut put = new HttpPut(path.buildPath(baseUrl));
 
     return execute(put, entity);
   }
 
-  protected CloseableHttpResponse delete(String path) throws IOException {
-    HttpDelete delete = new HttpDelete(String.format("%s/%s", baseUrl, path));
+  protected CloseableHttpResponse delete(OpenApiPathBuilder path) throws IOException {
+    HttpDelete delete = new HttpDelete(path.buildPath(baseUrl));
 
     return execute(delete);
-  }
-
-  protected String escapePath(String path) {
-    return pathEscaper.escape(path);
-  }
-
-  protected String escapeParam(String param) {
-    return queryParamEscaper.escape(param);
   }
 
   private CloseableHttpResponse execute(HttpEntityEnclosingRequestBase requestBase, Object entity) throws IOException {
@@ -97,7 +80,6 @@ abstract class AbstractOpenApiService {
 
     return response;
   }
-
 
   private void checkHttpResponseStatus(HttpResponse response) {
     if (response.getStatusLine().getStatusCode() == 200) {

@@ -9,22 +9,93 @@
 2. 配置中心通知Apollo客户端有配置更新
 3. Apollo客户端从配置中心拉取最新的配置、更新本地配置并通知到应用
 
-![basic-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/basic-architecture.png)
+![basic-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/basic-architecture.png)
 
 ## 1.2 架构模块
 
 下图是Apollo架构模块的概览，详细说明可以参考[Apollo配置中心架构剖析](https://mp.weixin.qq.com/s/-hUaQPzfsl9Lm3IqQW3VDQ)。
-![overall-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/overall-architecture.png)
+![overall-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/overall-architecture.png)
 
 上图简要描述了Apollo的总体设计，我们可以从下往上看：
 
 * Config Service提供配置的读取、推送等功能，服务对象是Apollo客户端
+
+```mermaid
+sequenceDiagram
+	Client ->> Config Service: request
+    Config Service ->> ConfigDB: request
+    ConfigDB -->> Config Service: ack
+	Config Service -->> Client: ack
+```
+
+
+
 * Admin Service提供配置的修改、发布等功能，服务对象是Apollo Portal（管理界面）
+
+```mermaid
+sequenceDiagram
+	Portal ->> Admin Service: r/w, publish appId/cluster/namespace
+	Admin Service ->> ConfigDB: r/w, publish appId/cluster/namespace
+	ConfigDB -->> Admin Service: ack
+	Admin Service -->> Portal: ack
+```
+
+
+
 * Config Service和Admin Service都是多实例、无状态部署，所以需要将自己注册到Eureka中并保持心跳
 * 在Eureka之上我们架了一层Meta Server用于封装Eureka的服务发现接口
+
+```mermaid
+sequenceDiagram
+    Client or Portal ->> Meta Server: discovery service's instances
+	Meta Server ->> Eureka: discovery service's instances
+	Eureka -->> Meta Server: service's instances
+	Meta Server -->> Client or Portal: service's instances
+```
+
+
+
 * Client通过域名访问Meta Server获取Config Service服务列表（IP+Port），而后直接通过IP+Port访问服务，同时在Client侧会做load balance、错误重试
+
+```mermaid
+sequenceDiagram
+	Client ->> Meta Server: discovery Config Service's instances
+	Meta Server -->> Client: Config Service's instances(Multiple IP+Port)
+	loop until success
+		Client ->> Client: load balance choose a Config Service instance
+		Client ->> Config Service: request
+		Config Service -->> Client: ack
+	end
+```
+
+
+
 * Portal通过域名访问Meta Server获取Admin Service服务列表（IP+Port），而后直接通过IP+Port访问服务，同时在Portal侧会做load balance、错误重试
+
+```mermaid
+sequenceDiagram
+	Portal ->> Meta Server: discovery Admin Service's instances
+	Meta Server -->> Portal: Admin Service's instances(Multiple IP+Port)
+	loop until success
+		Portal ->> Portal: load balance choose a Admin Service instance
+		Portal ->> Config Service: request
+		Config Service -->> Portal: ack
+	end
+```
+
+
+
 * 为了简化部署，我们实际上会把Config Service、Eureka和Meta Server三个逻辑角色部署在同一个JVM进程中
+
+```mermaid
+graph
+	subgraph JVM Process
+		1[Config Service]
+		2[Eureka]
+		3[Meta Server]
+	end
+```
+实际部署的架构可以参考[部署架构](zh/deployment/deployment-architecture.md)
 
 ### 1.2.1 Why Eureka
 
@@ -44,6 +115,19 @@
 ### 1.3.1 Config Service
 
 * 提供配置获取接口
+
+```mermaid
+sequenceDiagram
+	Client ->> Config Service: get content of appId/cluster/namespace
+	opt if namespace is not cached
+		Config Service ->> ConfigDB: get content of appId/cluster/namespace
+		ConfigDB -->> Config Service: content of appId/cluster/namespace
+	end
+	Config Service -->> Client: content of appId/cluster/namespace
+```
+
+
+
 * 提供配置更新推送接口（基于Http long polling）
     * 服务端使用[Spring DeferredResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html)实现异步化，从而大大增加长连接数量
     * 目前使用的tomcat embed默认配置是最多10000个连接（可以调整），使用了4C8G的虚拟机实测可以支撑10000个连接，所以满足需求（一个应用实例只会发起一个长连接）。
@@ -84,7 +168,7 @@
 ## 1.4 E-R Diagram
 
 ### 1.4.1 主体E-R Diagram
-![apollo-erd](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-erd.png)
+![apollo-erd](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-erd.png)
 
 * **App**
     * App信息
@@ -104,7 +188,7 @@
     * 审计信息，记录用户在何时使用何种方式操作了哪个实体。
 
 ### 1.4.2 权限相关E-R Diagram
-![apollo-erd-role-permission](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-erd-role-permission.png)
+![apollo-erd-role-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-erd-role-permission.png)
 
 * **User**
     * Apollo portal用户
@@ -132,7 +216,7 @@
 
 在配置中心中，一个重要的功能就是配置发布后实时推送到客户端。下面我们简要看一下这块是怎么设计实现的。
 
-![release-message-notification-design](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/release-message-notification-design.png)
+![release-message-notification-design](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/release-message-notification-design.png)
 
 上图简要描述了配置发布的大致过程：
 
@@ -151,14 +235,14 @@ Admin Service在配置发布后，需要通知所有的Config Service有配置�
 
 实现方式如下：
 
-1. Admin Service在配置发布后会往ReleaseMessage表插入一条消息记录，消息内容就是配置发布的AppId+Cluster+Namespace，参见[DatabaseMessageSender](https://github.com/ctripcorp/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/DatabaseMessageSender.java)
-2. Config Service有一个线程会每秒扫描一次ReleaseMessage表，看看是否有新的消息记录，参见[ReleaseMessageScanner](https://github.com/ctripcorp/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/ReleaseMessageScanner.java)
-3. Config Service如果发现有新的消息记录，那么就会通知到所有的消息监听器（[ReleaseMessageListener](https://github.com/ctripcorp/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/ReleaseMessageListener.java)），如[NotificationControllerV2](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java)，消息监听器的注册过程参见[ConfigServiceAutoConfiguration](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/ConfigServiceAutoConfiguration.java)
+1. Admin Service在配置发布后会往ReleaseMessage表插入一条消息记录，消息内容就是配置发布的AppId+Cluster+Namespace，参见[DatabaseMessageSender](https://github.com/apolloconfig/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/DatabaseMessageSender.java)
+2. Config Service有一个线程会每秒扫描一次ReleaseMessage表，看看是否有新的消息记录，参见[ReleaseMessageScanner](https://github.com/apolloconfig/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/ReleaseMessageScanner.java)
+3. Config Service如果发现有新的消息记录，那么就会通知到所有的消息监听器（[ReleaseMessageListener](https://github.com/apolloconfig/apollo/blob/master/apollo-biz/src/main/java/com/ctrip/framework/apollo/biz/message/ReleaseMessageListener.java)），如[NotificationControllerV2](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java)，消息监听器的注册过程参见[ConfigServiceAutoConfiguration](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/ConfigServiceAutoConfiguration.java)
 4. NotificationControllerV2得到配置发布的AppId+Cluster+Namespace后，会通知对应的客户端
 
 示意图如下：
 
-<img src="https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/release-message-design.png" alt="release-message-design" width="400px">
+<img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/release-message-design.png" alt="release-message-design" width="400px">
 
 ### 2.1.2 Config Service通知客户端的实现方式
 
@@ -166,13 +250,13 @@ Admin Service在配置发布后，需要通知所有的Config Service有配置�
 
 实现方式如下：
 
-1. 客户端会发起一个Http请求到Config Service的`notifications/v2`接口，也就是[NotificationControllerV2](https://github.com/ctripcorp/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java)，参见[RemoteConfigLongPollService](https://github.com/ctripcorp/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)
+1. 客户端会发起一个Http请求到Config Service的`notifications/v2`接口，也就是[NotificationControllerV2](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java)，参见[RemoteConfigLongPollService](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)
 2. NotificationControllerV2不会立即返回结果，而是通过[Spring DeferredResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html)把请求挂起
 3. 如果在60秒内没有该客户端关心的配置发布，那么会返回Http状态码304给客户端
 4. 如果有该客户端关心的配置发布，NotificationControllerV2会调用DeferredResult的[setResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html#setResult-T-)方法，传入有配置变化的namespace信息，同时该请求会立即返回。客户端从返回的结果中获取到配置变化的namespace后，会立即请求Config Service获取该namespace的最新配置。
 
 # 三、客户端设计
-![client-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/client-architecture.png)
+![client-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-architecture.png)
 
 上图简要描述了Apollo客户端的实现原理：
 
@@ -200,7 +284,7 @@ Spring从3.1版本开始增加了`ConfigurableEnvironment`和`PropertySource`：
     * 可以理解为很多个Key - Value的属性配置
 
 在运行时的结构形如：
-![Overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/environment.png)
+![Overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/environment.png)
 
 需要注意的是，PropertySource之间是有优先级顺序的，如果有一个Key在多个property source中都存在，那么在前面的property source优先。
 
@@ -212,9 +296,9 @@ Spring从3.1版本开始增加了`ConfigurableEnvironment`和`PropertySource`：
 
 在理解了上述原理后，Apollo和Spring/Spring Boot集成的手段就呼之欲出了：在应用启动阶段，Apollo从远端获取配置，然后组装成PropertySource并插入到第一个即可，如下图所示：
 
-![Overview](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/environment-remote-source.png)
+![Overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/environment-remote-source.png)
 
-相关代码可以参考[PropertySourcesProcessor](https://github.com/ctripcorp/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/spring/config/PropertySourcesProcessor.java)
+相关代码可以参考[PropertySourcesProcessor](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/spring/config/PropertySourcesProcessor.java)
 
 # 四、可用性考虑
 
@@ -291,7 +375,7 @@ Apollo客户端和服务端目前支持[CAT](https://github.com/dianping/cat)自
 
 Apollo也提供了Tracer相关的SPI，可以方便地对接自己公司的监控系统。
 
-更多信息，可以参考[v0.4.0 Release Note](https://github.com/ctripcorp/apollo/releases/tag/v0.4.0)
+更多信息，可以参考[v0.4.0 Release Note](https://github.com/apolloconfig/apollo/releases/tag/v0.4.0)
 
 ### 5.1.2 SkyWalking
 

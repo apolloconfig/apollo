@@ -19,9 +19,13 @@ package com.ctrip.framework.apollo.adminservice.controller;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,8 +68,8 @@ public class NamespaceController {
                      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator) {
     Namespace entity = namespaceService.findOne(appId, clusterName, namespaceName);
     if (entity == null) {
-        throw new NotFoundException(
-                String.format("namespace not found for %s %s %s", appId, clusterName, namespaceName));
+      throw new NotFoundException("namespace not found for %s %s %s", appId, clusterName,
+          namespaceName);
     }
 
     namespaceService.deleteNamespace(entity, operator);
@@ -82,9 +86,21 @@ public class NamespaceController {
   public NamespaceDTO get(@PathVariable("namespaceId") Long namespaceId) {
     Namespace namespace = namespaceService.findOne(namespaceId);
     if (namespace == null) {
-        throw new NotFoundException(String.format("namespace not found for %s", namespaceId));
+        throw new NotFoundException("namespace not found for %s", namespaceId);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
+  }
+
+  /**
+   * the returned content's size is not fixed. so please carefully used.
+   */
+  @GetMapping("/namespaces/find-by-item")
+  public PageDTO<NamespaceDTO> findByItem(@RequestParam String itemKey, Pageable pageable) {
+    Page<Namespace> namespacePage = namespaceService.findByItem(itemKey, pageable);
+
+    List<NamespaceDTO> namespaceDTOS = BeanUtils.batchTransform(NamespaceDTO.class, namespacePage.getContent());
+
+    return new PageDTO<>(namespaceDTOS, pageable, namespacePage.getTotalElements());
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
@@ -93,8 +109,8 @@ public class NamespaceController {
                           @PathVariable("namespaceName") String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-        throw new NotFoundException(
-                String.format("namespace not found for %s %s %s", appId, clusterName, namespaceName));
+      throw new NotFoundException("namespace not found for %s %s %s", appId, clusterName,
+          namespaceName);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
   }
@@ -106,7 +122,7 @@ public class NamespaceController {
     Namespace namespace = namespaceService.findPublicNamespaceForAssociatedNamespace(clusterName, namespaceName);
 
     if (namespace == null) {
-      throw new NotFoundException(String.format("public namespace not found. namespace:%s", namespaceName));
+      throw new NotFoundException("public namespace not found. namespace:%s", namespaceName);
     }
 
     return BeanUtils.transform(NamespaceDTO.class, namespace);

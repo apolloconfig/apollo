@@ -148,7 +148,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     AppNamespace publicNamespace = createAppNamespace(testAppId, testNamespaceName, true);
 
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, testClusterName, testNamespaceName))
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
         .thenReturn(10);
 
     namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
@@ -162,10 +162,10 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
 
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, testClusterName, testNamespaceName))
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
         .thenReturn(0);
     when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(10);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(10);
 
     namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
 
@@ -179,10 +179,10 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
 
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, testClusterName, testNamespaceName))
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
         .thenReturn(0);
     when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
     when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicNamespace);
 
    when(namespaceAPI.countPublicAppNamespaceAssociatedNamespaces(testEnv, testNamespaceName)).thenReturn(10);
@@ -199,10 +199,10 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
 
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, testClusterName, testNamespaceName))
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
         .thenReturn(0);
     when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamepsace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
     when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicNamespace);
 
     NamespaceDTO namespace = createNamespace(testAppId, testClusterName, testNamespaceName);

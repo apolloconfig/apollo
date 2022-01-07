@@ -100,11 +100,11 @@ Apollo支持4个维度管理Key-Value格式的配置：
 2. 配置中心通知Apollo客户端有配置更新
 3. Apollo客户端从配置中心拉取最新的配置、更新本地配置并通知到应用
 
-![basic-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/basic-architecture.png)
+![basic-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/basic-architecture.png)
 
 ## 3.2 界面概览
 
-![apollo-home-screenshot](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-home-screenshot.jpg)
+![apollo-home-screenshot](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-home-screenshot.jpg)
 
 上图是Apollo配置中心中一个项目的配置首页
 
@@ -116,21 +116,21 @@ Apollo支持4个维度管理Key-Value格式的配置：
 
 用户可以通过配置中心界面方便的添加/修改配置项，更多使用说明请参见[应用接入指南](zh/usage/apollo-user-guide)
 
-![edit-item-entry](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/edit-item-entry.png)
+![edit-item-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/edit-item-entry.png)
 
 输入配置信息：
 
-![edit-item](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/edit-item.png)
+![edit-item](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/edit-item.png)
 
 ## 3.4 发布配置
 
 通过配置中心发布配置：
 
-![publish-items](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/publish-items-entry.png)
+![publish-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/publish-items-entry.png)
 
 填写发布信息：
 
-![publish-items](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/publish-items.png)
+![publish-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/publish-items.png)
 
 ## 3.5 客户端获取配置（Java API样例）
 
@@ -221,19 +221,19 @@ public class SomeBean {
 
 新建Cluster只有项目的管理员才有权限，管理员可以在页面左侧看到“添加集群”按钮。
 
-![create-cluster](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-cluster.png)
+![create-cluster](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-cluster.png)
 
 点击后就进入到集群添加页面，一般情况下可以按照数据中心来划分集群，如SHAJQ、SHAOY等。
 
 不过也支持自定义集群，比如可以为A机房的某一台机器和B机房的某一台机创建一个集群，使用一套配置。
 
-![create-cluster-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-cluster-detail.png)
+![create-cluster-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-cluster-detail.png)
 
 ### 4.2.2 在Cluster中添加配置并发布
 
 集群添加成功后，就可以为该集群添加配置了，首先需要按照下图所示切换到SHAJQ集群，之后配置添加流程和[3.3 添加/修改配置项](#_33-添加修改配置项)一样，这里就不再赘述了。
 
-![cluster-created](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/cluster-created.png)
+![cluster-created](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/cluster-created.png)
 
 ### 4.2.3 指定应用实例所属的Cluster
 
@@ -253,31 +253,31 @@ Apollo会默认使用应用实例所在的数据中心作为cluster，所以如�
 
 以hermes-producer为例，需要先新建一个namespace，新建namespace只有项目的管理员才有权限，管理员可以在页面左侧看到“添加Namespace”按钮。
 
-![create-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-namespace.png)
+![create-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-namespace.png)
 
 点击后就进入namespace添加页面，Apollo会把应用所属的部门作为namespace的前缀，如FX。
 
-![create-namespace-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/create-namespace-detail.png)
+![create-namespace-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/create-namespace-detail.png)
 
 ### 4.3.2 关联到环境和集群
 
 Namespace创建完，需要选择在哪些环境和集群下使用
 
-![link-namespace-detail](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/link-namespace-detail.png)
+![link-namespace-detail](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/link-namespace-detail.png)
 
 ### 4.3.3 在Namespace中添加配置项
 
 接下来在这个新建的namespace下添加配置项
 
-![add-item-in-new-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/add-item-in-new-namespace.png)
+![add-item-in-new-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/add-item-in-new-namespace.png)
 
 添加完成后就能在FX.Hermes.Producer的namespace中看到配置。
 
-![item-created-in-new-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/item-created-in-new-namespace.png)
+![item-created-in-new-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-created-in-new-namespace.png)
 
 ### 4.3.4 发布namespace的配置
 
-![publish-items-in-new-namespace](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/publish-items-in-new-namespace.png)
+![publish-items-in-new-namespace](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/publish-items-in-new-namespace.png)
 
 ### 4.3.5 客户端获取Namespace配置
 
@@ -352,7 +352,7 @@ Config config = ConfigService.getAppConfig();
 
 图示如下：
 
-![application-config-precedence](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/application-config-precedence.png)
+![application-config-precedence](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/application-config-precedence.png)
 
 所以如果应用部署在A数据中心，但是用户没有在Apollo创建cluster，那么获取的配置就是默认cluster（default）的。
 
@@ -374,13 +374,13 @@ Config config = ConfigService.getConfig("FX.Hermes.Producer");
 
 图示如下：
 
-![public-namespace-config-precedence](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/public-namespace-config-precedence.png)
+![public-namespace-config-precedence](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/public-namespace-config-precedence.png)
 
 通过这种方式，就实现了对框架类组件的配置管理，框架组件提供方提供配置的默认值，应用如果有特殊需求，可以自行覆盖。
 
 ## 4.5 总体设计
 
-![overall-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/overall-architecture.png)
+![overall-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/overall-architecture.png)
 
 上图简要描述了Apollo的总体设计，我们可以从下往上看：
 
@@ -407,7 +407,7 @@ Config config = ConfigService.getConfig("FX.Hermes.Producer");
 
 ## 4.6 客户端设计
 
-![client-architecture](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/client-architecture.png)
+![client-architecture](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-architecture.png)
 
 上图简要描述了Apollo客户端的实现原理：
 
@@ -455,6 +455,6 @@ Apollo从开发之初就是以开源模式开发的，所以也非常欢迎有�
 
 服务端开发使用的是Java，基于Spring Cloud和Spring Boot框架。客户端目前提供了Java和.Net两种实现。
 
-Github地址：<a href="https://github.com/ctripcorp/apollo" target="_blank">https://github.com/ctripcorp/apollo</a>
+GitHub地址：<a href="https://github.com/ctripcorp/apollo" target="_blank">https://github.com/ctripcorp/apollo</a>
 
 欢迎大家发起Pull Request！

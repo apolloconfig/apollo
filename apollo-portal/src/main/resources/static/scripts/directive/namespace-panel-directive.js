@@ -66,6 +66,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.toggleItemSearchInput = toggleItemSearchInput;
             scope.toggleHistorySearchInput = toggleHistorySearchInput;
             scope.searchItems = searchItems;
+            scope.resetSearchItems = resetSearchItems;
             scope.searchHistory = searchHistory;
             scope.loadCommitHistory = loadCommitHistory;
             scope.toggleTextEditStatus = toggleTextEditStatus;
@@ -87,6 +88,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             scope.editRuleItem = editRuleItem;
 
             scope.deleteNamespace = deleteNamespace;
+            scope.exportNamespace = exportNamespace;
+            scope.importNamespace = importNamespace;
 
             var subscriberId = EventManager.subscribe(EventManager.EventType.UPDATE_GRAY_RELEASE_RULES,
                 function (context) {
@@ -130,7 +133,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 namespace.isBranch = false;
                 namespace.displayControl = {
                     currentOperateBranch: 'master',
-                    showSearchInput: false,
+                    showSearchInput: namespace.showSearchItemInput,
+                    searchItemKey: namespace.searchItemKey,
                     showHistorySearchInput: false,
                     show: scope.showBody
                 };
@@ -153,6 +157,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 initPermission(namespace);
                 initLinkedNamespace(namespace);
                 loadInstanceInfo(namespace);
+                initSearchItemInput(namespace);
 
                 function initNamespaceBranch(namespace) {
                     NamespaceBranchService.findNamespaceBranch(scope.appId, scope.env,
@@ -398,6 +403,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
                 }
 
+                function initSearchItemInput(namespace) {
+                    if (namespace.displayControl.searchItemKey) {
+                        namespace.searchKey = namespace.displayControl.searchItemKey;
+                        searchItems(namespace);
+                    }
+                }
             }
 
             function initNamespaceInstancesCount(namespace) {
@@ -646,6 +657,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     clientAppId: !branch.parentNamespace.isPublic ? branch.baseInfo.appId : '',
                     clientIpList: [],
                     draftIpList: [],
+                    clientLabelList: [],
+                    draftLabelList: [],
                     isNew: true
                 };
 
@@ -658,7 +671,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             function editRuleItem(branch, ruleItem) {
                 ruleItem.isNew = false;
-                ruleItem.draftIpList = _.clone(ruleItem.clientIpList);
+                ruleItem.draftIpList = _.clone(ruleItem.clientIpList) || [];
+                ruleItem.draftLabelList = _.clone(ruleItem.clientLabelList) || [];
                 branch.editingRuleItem = ruleItem;
 
                 EventManager.emit(EventManager.EventType.EDIT_GRAY_RELEASE_RULES, {
@@ -863,6 +877,11 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 namespace.viewItems = items;
             }
 
+            function resetSearchItems(namespace) {
+                namespace.searchKey = '';
+                searchItems(namespace);
+            }
+
             function toggleHistorySearchInput(namespace) {
                 namespace.displayControl.showHistorySearchInput = !namespace.displayControl.showHistorySearchInput;
             }
@@ -942,6 +961,16 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             function deleteNamespace(namespace) {
                 EventManager.emit(EventManager.EventType.PRE_DELETE_NAMESPACE, { namespace: namespace });
+            }
+
+            function exportNamespace(namespace) {
+                $window.location.href =
+                    AppUtil.prefixPath() + '/apps/' + scope.appId + "/envs/" + scope.env + "/clusters/" + scope.cluster
+                    + "/namespaces/" + namespace.baseInfo.namespaceName + "/items/export"
+            }
+
+            function importNamespace(namespace) {
+                EventManager.emit(EventManager.EventType.PRE_IMPORT_NAMESPACE, { namespace: namespace });
             }
 
             //theme: https://github.com/ajaxorg/ace-builds/tree/ba3b91e04a5aa559d56ac70964f9054baa0f4caf/src-min

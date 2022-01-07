@@ -4,11 +4,12 @@
 # 一、准备工作
 ## 1.1 环境要求
     
-* Java: 1.7+
+* Java: 1.8+
+    * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 * Guava: 20.0+
     * Apollo客户端默认会引用Guava 29，如果你的项目引用了其它版本，请确保版本号大于等于20.0
 
->注：对于Apollo客户端，如果有需要的话，可以做少量代码修改来降级到Java 1.6，详细信息可以参考[Issue 483](https://github.com/ctripcorp/apollo/issues/483)
+>注：对于Apollo客户端，如果有需要的话，可以做少量代码修改来降级到Java 1.6，详细信息可以参考[Issue 483](https://github.com/apolloconfig/apollo/issues/483)
 
 ## 1.2 必选设置
 Apollo客户端依赖于`AppId`，`Apollo Meta Server`等环境信息来工作，所以请确保阅读下面的说明并且做正确的配置：
@@ -52,7 +53,7 @@ app.id=YOUR-APP-ID
 
 文件位置参考如下：
 
-![app-id-location](https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-client/doc/pic/app-id-location.png)
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
 
 > 注：app.id是用来标识应用身份的唯一id，格式为string。
 
@@ -104,7 +105,7 @@ pro.meta=http://apollo.xxx.com
 
 #### 1.2.2.1 自定义Apollo Meta Server地址定位逻辑
 
-在1.0.0版本中，Apollo提供了[MetaServerProvider SPI](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/spi/MetaServerProvider.java)，用户可以注入自己的MetaServerProvider来自定义Meta Server地址定位逻辑。
+在1.0.0版本中，Apollo提供了[MetaServerProvider SPI](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/spi/MetaServerProvider.java)，用户可以注入自己的MetaServerProvider来自定义Meta Server地址定位逻辑。
 
 由于我们使用典型的[Java Service Loader模式](https://docs.oracle.com/javase/7/docs/api/java/util/ServiceLoader.html)，所以实现起来还是比较简单的。
 
@@ -112,7 +113,7 @@ pro.meta=http://apollo.xxx.com
 
 **如果你的公司有很多应用需要接入Apollo，建议封装一个jar包，然后提供自定义的Apollo Meta Server定位逻辑，从而可以让接入Apollo的应用零配置使用。比如自己写一个`xx-company-apollo-client`，该jar包依赖`apollo-client`，在该jar包中通过spi方式定义自定义的MetaServerProvider实现，然后应用直接依赖`xx-company-apollo-client`即可。**
 
-MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/ctripcorp/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
+MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
 
 #### 1.2.2.2 跳过Apollo Meta Server服务发现
 
@@ -154,7 +155,7 @@ Apollo客户端会把从服务端获取到的配置在本地文件系统缓存�
 * appId就是应用自己的appId，如100004458
 * cluster就是应用使用的集群，一般在本地模式下没有做过配置的话，就是default
 * namespace就是应用使用的配置namespace，一般是application
-![client-local-cache](https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-client/doc/pic/client-local-cache.png)
+![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
 
 文件内容以properties格式存储，比如如果有两个key，一个是request.timeout，另一个是batch，那么文件内容就是如下格式：
 ```properties
@@ -219,7 +220,7 @@ env=DEV
 * PRO
   * Production environment
 
-更多环境定义，可以参考[Env.java](https://github.com/ctripcorp/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/Env.java)
+更多环境定义，可以参考[Env.java](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/enums/Env.java)
 
 #### 1.2.4.2 Cluster（集群）
 
@@ -321,7 +322,7 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 > 适用于1.9.0及以上版本
 
-在使用`@ConfigurationProperties`和存在大量配置项场景下，Spring容器的启动速度会变慢。通过开启该配置可以显著提升启动速度，当配置发生变化时缓存会自动清理，默认为`false`。详见：[issue 3800](https://github.com/ctripcorp/apollo/issues/3800)
+在使用`@ConfigurationProperties`和存在大量配置项场景下，Spring容器的启动速度会变慢。通过开启该配置可以显著提升启动速度，当配置发生变化时缓存会自动清理，默认为`false`。详见：[issue 3800](https://github.com/apolloconfig/apollo/issues/3800)
 
 配置方式按照优先级从高到低依次为：
 1. 通过Java System Property `apollo.property.names.cache.enable`
@@ -336,6 +337,49 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.property.names.cache.enable=true`
 4. 通过`app.properties`配置文件
    * 可以在`classpath:/META-INF/app.properties`指定`apollo.property.names.cache.enable=true`
+   
+#### 1.2.4.7 ApolloLabel
+
+ApolloLabel是应用的标签信息，是从服务端获取配置的一个重要信息，用于灰度规则的配置。
+
+有以下几种方式设置，按照优先级从高到低分别为：
+
+1. System Property
+
+Apollo 2.0.0+支持通过System Property传入apollo.label信息，如
+
+```bash
+-Dapollo.label=YOUR-APOLLO-LABEL
+```
+
+2. 操作系统的System Environment
+
+Apollo 2.0.0+支持通过操作系统的System Environment `APP_LABEL`来传入apollo.label信息，如
+
+```bash
+APOLLO_LABEL=YOUR-APOLLO-LABEL
+```
+
+3. Spring Boot application.properties
+
+Apollo 2.0.0+支持通过Spring Boot的application.properties文件配置，如
+
+```properties
+apollo.label=YOUR-APOLLO-LABEL
+```
+
+> 该配置方式不适用于多个war包部署在同一个tomcat的使用场景
+
+4. app.properties
+
+确保classpath:/META-INF/app.properties文件存在，并且其中内容形如：
+>apollo.label=YOUR-APOLLO-LABEL
+
+文件位置参考如下：
+
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
+
+> 注：apollo.label是用来标识应用身份的标签，格式为string。
 
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
@@ -358,7 +402,7 @@ Apollo支持API方式和Spring整合方式，该怎么选择用哪一种方式�
         * 配置文件中使用替换placeholder，如：`spring.datasource.url: ${someKeyFromApollo:someDefaultValue}`
         * 直接托管spring的配置，如在apollo中直接配置`spring.datasource.url=jdbc:mysql://localhost:3306/somedb?characterEncoding=utf8`
     * Spring boot的[@ConfigurationProperties](http://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html)方式
-    * 从v0.10.0开始的版本支持placeholder在运行时自动更新，具体参见[PR #972](https://github.com/ctripcorp/apollo/pull/972)。（v0.10.0之前的版本在配置变化后不会重新注入，需要重启才会更新，如果需要配置值实时更新，可以参考后续[3.2.2 Spring Placeholder的使用](#_322-spring-placeholder的使用)的说明）
+    * 从v0.10.0开始的版本支持placeholder在运行时自动更新，具体参见[PR #972](https://github.com/apolloconfig/apollo/pull/972)。（v0.10.0之前的版本在配置变化后不会重新注入，需要重启才会更新，如果需要配置值实时更新，可以参考后续[3.2.2 Spring Placeholder的使用](#_322-spring-placeholder的使用)的说明）
 * Spring方式也可以结合API方式使用，如注入Apollo的Config对象，就可以照常通过API方式获取配置了：
     ```java
     @ApolloConfig
@@ -587,7 +631,7 @@ Spring Boot除了支持上述两种集成方式以外，还支持通过applicati
 
 3. 将Apollo配置加载提到初始化日志系统之前(1.2.0+)
 
-从1.2.0版本开始，如果希望把日志相关的配置（如`logging.level.root=info`或`logback-spring.xml`中的参数）也放在Apollo管理，那么可以额外配置`apollo.bootstrap.eagerLoad.enabled=true`来使Apollo的加载顺序放到日志系统加载之前，更多信息可以参考[PR 1614](https://github.com/ctripcorp/apollo/pull/1614)。参考配置示例如下：
+从1.2.0版本开始，如果希望把日志相关的配置（如`logging.level.root=info`或`logback-spring.xml`中的参数）也放在Apollo管理，那么可以额外配置`apollo.bootstrap.eagerLoad.enabled=true`来使Apollo的加载顺序放到日志系统加载之前，更多信息可以参考[PR 1614](https://github.com/apolloconfig/apollo/pull/1614)。参考配置示例如下：
 
 ```properties
      # will inject 'application' namespace in bootstrap phase
@@ -753,7 +797,7 @@ Spring应用通常会使用Placeholder来注入配置，使用的格式形如${s
 
 建议在实际使用时尽量给出默认值，以免由于key没有定义导致运行时错误。
 
-从v0.10.0开始的版本支持placeholder在运行时自动更新，具体参见[PR #972](https://github.com/ctripcorp/apollo/pull/972)。
+从v0.10.0开始的版本支持placeholder在运行时自动更新，具体参见[PR #972](https://github.com/apolloconfig/apollo/pull/972)。
 
 如果需要关闭placeholder在运行时自动更新功能，可以通过以下两种方式关闭：
 
@@ -879,7 +923,7 @@ public class AppConfig {
 }
 ```
 
-需要注意的是，`@ConfigurationProperties`如果需要在Apollo配置变化时自动更新注入的值，需要配合使用[EnvironmentChangeEvent](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_environment_changes)或[RefreshScope](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_refresh_scope)。相关代码实现，可以参考apollo-use-cases项目中的[ZuulPropertiesRefresher.java](https://github.com/ctripcorp/apollo-use-cases/blob/master/spring-cloud-zuul/src/main/java/com/ctrip/framework/apollo/use/cases/spring/cloud/zuul/ZuulPropertiesRefresher.java#L48)和apollo-demo项目中的[SampleRedisConfig.java](https://github.com/ctripcorp/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/spring/springBootDemo/config/SampleRedisConfig.java)以及[SpringBootApolloRefreshConfig.java](https://github.com/ctripcorp/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/spring/springBootDemo/refresh/SpringBootApolloRefreshConfig.java)
+需要注意的是，`@ConfigurationProperties`如果需要在Apollo配置变化时自动更新注入的值，需要配合使用[EnvironmentChangeEvent](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_environment_changes)或[RefreshScope](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_refresh_scope)。相关代码实现，可以参考apollo-use-cases项目中的[ZuulPropertiesRefresher.java](https://github.com/ctripcorp/apollo-use-cases/blob/master/spring-cloud-zuul/src/main/java/com/ctrip/framework/apollo/use/cases/spring/cloud/zuul/ZuulPropertiesRefresher.java#L48)和apollo-demo项目中的[SampleRedisConfig.java](https://github.com/apolloconfig/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/spring/springBootDemo/config/SampleRedisConfig.java)以及[SpringBootApolloRefreshConfig.java](https://github.com/apolloconfig/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/spring/springBootDemo/refresh/SpringBootApolloRefreshConfig.java)
 
 ### 3.2.3 Spring Annotation支持
 Apollo同时还增加了几个新的Annotation来简化在Spring环境中的使用。
@@ -999,7 +1043,7 @@ eureka.client.eurekaServiceUrlPollIntervalSeconds = 60
 eureka.instance.preferIpAddress = true
 ```
 
-![text-mode-spring-boot-config-sample](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/text-mode-spring-boot-config-sample.png)
+![text-mode-spring-boot-config-sample](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-spring-boot-config-sample.png)
 
 ## 3.3 Demo
 项目中有一个样例客户端的项目：`apollo-demo`，具体信息可以参考[Apollo开发指南](zh/development/apollo-development-guide)中的[2.3 Java样例客户端启动](zh/development/apollo-development-guide?id=_23-java样例客户端启动)部分。
@@ -1007,7 +1051,7 @@ eureka.instance.preferIpAddress = true
 更多使用案例Demo可以参考[Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)。
 
 # 四、客户端设计
-![client-architecture](https://github.com/ctripcorp/apollo/raw/master/doc/images/client-architecture.png)
+![client-architecture](https://github.com/apolloconfig/apollo/raw/master/doc/images/client-architecture.png)
 
 上图简要描述了Apollo客户端的实现原理：
 
@@ -1059,7 +1103,7 @@ appId就是应用的appId，如100004458。
 * appId就是应用自己的appId，如100004458
 * cluster就是应用使用的集群，一般在本地模式下没有做过配置的话，就是default
 * namespace就是应用使用的配置namespace，一般是application
-![client-local-cache](https://raw.githubusercontent.com/ctripcorp/apollo/master/apollo-client/doc/pic/client-local-cache.png)
+![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
 
 文件内容以properties格式存储，比如如果有两个key，一个是request.timeout，另一个是batch，那么文件内容就是如下格式：
 ```properties
@@ -1092,7 +1136,7 @@ batch=2000
 
 ## 6.3 写测试类
 
-更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/ctripcorp/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java](https://github.com/ctripcorp/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
+更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/apolloconfig/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java](https://github.com/apolloconfig/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)

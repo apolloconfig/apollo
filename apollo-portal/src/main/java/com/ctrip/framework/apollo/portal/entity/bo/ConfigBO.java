@@ -40,22 +40,25 @@ public class ConfigBO {
 
   private final ConfigFileFormat format;
 
+  private final boolean isPublic;
+
   public ConfigBO(Env env, String ownerName, String appId, String clusterName,
-      String namespace, String configFileContent, ConfigFileFormat format) {
+      String namespace, boolean isPublic, String configFileContent, ConfigFileFormat format) {
     this.env = env;
     this.ownerName = ownerName;
     this.appId = appId;
     this.clusterName = clusterName;
     this.namespace = namespace;
+    this.isPublic = isPublic;
     this.configFileContent = configFileContent;
     this.format = format;
   }
 
   public ConfigBO(Env env, String ownerName, String appId, String clusterName, NamespaceBO namespaceBO) {
     this(env, ownerName, appId, clusterName,
-        namespaceBO.getBaseInfo().getNamespaceName(),
-        NamespaceBOUtils.convert2configFileContent(namespaceBO),
-        ConfigFileFormat.fromString(namespaceBO.getFormat())
+         namespaceBO.getBaseInfo().getNamespaceName(), namespaceBO.isPublic(),
+         NamespaceBOUtils.convert2configFileContent(namespaceBO),
+         ConfigFileFormat.fromString(namespaceBO.getFormat())
     );
   }
 
@@ -67,6 +70,7 @@ public class ConfigBO {
         ", appId='" + appId + '\'' +
         ", clusterName='" + clusterName + '\'' +
         ", namespace='" + namespace + '\'' +
+        ", isPublic='" + isPublic + '\'' +
         ", configFileContent='" + configFileContent + '\'' +
         ", format=" + format +
         '}';
@@ -98,5 +102,9 @@ public class ConfigBO {
 
   public ConfigFileFormat getFormat() {
     return format;
+  }
+
+  public boolean isPublic() {
+    return isPublic;
   }
 }
