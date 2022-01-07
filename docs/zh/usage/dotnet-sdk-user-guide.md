@@ -1,10 +1,14 @@
 >注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/development/apollo-development-guide)。
 
 # &nbsp;
+# 〇、重要提示！
+
+> 以下文档是旧文档，已不支持，最新.Net接入文档请参考[Apollo.net框架集成](https://github.com/apolloconfig/apollo.net#一框架集成)
+
 # 一、准备工作
 
 ## 1.1 环境要求
-    
+
 * .Net: 4.0+
 
 ## 1.2 必选设置
@@ -21,7 +25,7 @@ AppId是应用的身份信息，是从服务端获取配置的一个重要信息
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
     </appSettings>
 </configuration>
 ```
@@ -56,7 +60,7 @@ Apollo客户端针对不同的环境会从不同的服务器获取配置，所�
 <configuration>
     <appSettings>
         <!-- Change to the actual app id -->
-        <add key="AppID" value="100004458"/>
+        <add key="Apollo.AppId" value="100004458"/>
         <!-- Should change the apollo config service url for each environment -->
         <add key="Apollo.DEV.Meta" value="http://dev-configservice:8080"/>
         <add key="Apollo.FAT.Meta" value="http://fat-configservice:8080"/>
@@ -82,7 +86,7 @@ Apollo支持配置按照集群划分，也就是说对于一个appId和一个环
 1. 通过App Config
     * 我们可以在App.config文件中设置Apollo.Cluster来指定运行时集群（注意大小写）
     * 例如，下面的截图配置指定了运行时的集群为SomeCluster
-    * ![apollo-net-apollo-cluster](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-net-apollo-cluster.png)
+    * ![apollo-net-apollo-cluster](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-net-apollo-cluster.png)
 
 2. 通过配置文件
     * 首先确保`C:\opt\settings\server.properties`在目标机器上存在
@@ -165,7 +169,7 @@ apollo.net项目中有一个样例客户端的项目：`ApolloDemo`，具体信�
 > 详见[https://github.com/ctripcorp/apollo.net/tree/master/Apollo/Logging/Spi](https://github.com/ctripcorp/apollo.net/tree/master/Apollo/Logging/Spi)
 
 # 四、客户端设计
-![client-architecture](https://github.com/ctripcorp/apollo/raw/master/doc/images/client-architecture.png)
+![client-architecture](https://github.com/apolloconfig/apollo/raw/master/doc/images/client-architecture.png)
 
 上图简要描述了Apollo客户端的实现原理：
 
@@ -213,7 +217,7 @@ appId就是应用的appId，如100004458。
 * appId就是应用自己的appId，如100004458
 * cluster就是应用使用的集群，一般在本地模式下没有做过配置的话，就是default
 * namespace就是应用使用配置namespace，一般是application
-![client-local-cache](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-net-config-cache.png)
+![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-net-config-cache.png)
 
 文件内容以json格式存储，比如如果有两个key，一个是request.timeout，另一个是batch，那么文件内容就是如下格式：
 ```json

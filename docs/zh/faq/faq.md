@@ -54,4 +54,4 @@ Spring Cloud Config的精妙之处在于它的配置存储于Git，这就天然�
 ## 10. Apollo和Disconf相比有什么优点？
 
 由于我们自己并非Disconf的资深用户，所以无法主观地给出评价。
-不过之前Apollo技术支持群中的热心网友[@Krast](https://github.com/krast)做了一个[开源配置中心对比矩阵](https://github.com/ctripcorp/apollo/files/983064/default.pdf)，可以参考一下。
+不过之前Apollo技术支持群中的热心网友[@Krast](https://github.com/krast)做了一个[开源配置中心对比矩阵](https://github.com/apolloconfig/apollo/files/983064/default.pdf)，可以参考一下。

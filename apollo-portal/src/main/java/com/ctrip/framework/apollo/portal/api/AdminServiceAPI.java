@@ -68,6 +68,10 @@ public class AdminServiceAPI {
   @Service
   public static class NamespaceAPI extends API {
 
+    private ParameterizedTypeReference<PageDTO<NamespaceDTO>>
+        namespacePageDTO = new ParameterizedTypeReference<PageDTO<NamespaceDTO>>() {
+    };
+
     private ParameterizedTypeReference<Map<String, Boolean>>
         typeReference = new ParameterizedTypeReference<Map<String, Boolean>>() {
     };
@@ -77,6 +81,14 @@ public class AdminServiceAPI {
           NamespaceDTO[].class, appId,
           clusterName);
       return Arrays.asList(namespaceDTOs);
+    }
+
+    public PageDTO<NamespaceDTO> findByItem(Env env, String itemKey, int page, int size) {
+      ResponseEntity<PageDTO<NamespaceDTO>>
+          entity =
+          restTemplate.get(env, "/namespaces/find-by-item?itemKey={itemKey}&page={page}&size={size}",
+                           namespacePageDTO, itemKey, page, size);
+      return entity.getBody();
     }
 
     public NamespaceDTO loadNamespace(String appId, Env env, String clusterName,
@@ -190,6 +202,11 @@ public class AdminServiceAPI {
     public ItemDTO createItem(String appId, Env env, String clusterName, String namespace, ItemDTO item) {
       return restTemplate.post(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
           item, ItemDTO.class, appId, clusterName, namespace);
+    }
+
+    public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespace, ItemDTO item) {
+      return restTemplate.post(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items",
+                               item, ItemDTO.class, appId, clusterName, namespace);
     }
 
     public void deleteItem(Env env, long itemId, String operator) {

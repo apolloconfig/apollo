@@ -69,7 +69,7 @@ public class InstanceController {
                                                               @RequestParam String clusterName,
                                                               @RequestParam String namespaceName) {
 
-        int count = instanceService.getInstanceCountByNamepsace(appId, Env.valueOf(env), clusterName, namespaceName);
+        int count = instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env), clusterName, namespaceName);
         return ResponseEntity.ok(new Number(count));
     }
 

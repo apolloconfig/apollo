@@ -63,7 +63,7 @@ public class CachedCompositePropertySourceTest {
     Mockito.doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        ConfigChangeListener listener = invocation.getArgumentAt(0, ConfigChangeListener.class);
+        ConfigChangeListener listener = invocation.getArgument(0, ConfigChangeListener.class);
         listeners.add(listener);
         return Void.class;
       }
@@ -104,7 +104,7 @@ public class CachedCompositePropertySourceTest {
     Mockito.doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        ConfigChangeListener listener = invocation.getArgumentAt(0, ConfigChangeListener.class);
+        ConfigChangeListener listener = invocation.getArgument(0, ConfigChangeListener.class);
         anotherListenerList.add(listener);
         return Void.class;
       }

@@ -44,7 +44,7 @@ public class InstanceService {
     return instanceAPI.getByNamespace(appId, env, clusterName, namespaceName, instanceAppId, page, size);
   }
 
-  public int getInstanceCountByNamepsace(String appId, Env env, String clusterName, String namespaceName){
+  public int getInstanceCountByNamespace(String appId, Env env, String clusterName, String namespaceName){
     return instanceAPI.getInstanceCountByNamespace(appId, env, clusterName, namespaceName);
   }
 

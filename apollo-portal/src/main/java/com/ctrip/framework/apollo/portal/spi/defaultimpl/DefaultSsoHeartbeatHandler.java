@@ -32,7 +32,7 @@ public class DefaultSsoHeartbeatHandler implements SsoHeartbeatHandler {
   public void doHeartbeat(HttpServletRequest request, HttpServletResponse response) {
     try {
         response.sendRedirect("default_sso_heartbeat.html");
-    } catch (IOException e) {
+    } catch (IOException ignore) {
     }
   }
 

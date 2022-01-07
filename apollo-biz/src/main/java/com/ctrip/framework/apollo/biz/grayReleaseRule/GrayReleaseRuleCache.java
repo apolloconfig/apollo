@@ -75,9 +75,9 @@ public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
     return namespaceName;
   }
 
-  public boolean matches(String clientAppId, String clientIp) {
+  public boolean matches(String clientAppId, String clientIp, String clientLabel) {
     for (GrayReleaseRuleItemDTO ruleItem : ruleItems) {
-      if (ruleItem.matches(clientAppId, clientIp)) {
+      if (ruleItem.matches(clientAppId, clientIp, clientLabel)) {
         return true;
       }
     }

@@ -20,8 +20,11 @@ import org.springframework.http.HttpStatus;
 
 public class ServiceException extends AbstractApolloHttpException {
 
-  public ServiceException(String str) {
-    super(str);
+  /**
+   * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...)
+   */
+  public ServiceException(String msgtpl, Object... args) {
+    super(msgtpl, args);
     setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 

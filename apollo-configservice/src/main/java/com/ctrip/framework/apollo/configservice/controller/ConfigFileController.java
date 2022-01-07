@@ -125,13 +125,14 @@ public class ConfigFileController implements ReleaseMessageListener {
                                                         @PathVariable String namespace,
                                                         @RequestParam(value = "dataCenter", required = false) String dataCenter,
                                                         @RequestParam(value = "ip", required = false) String clientIp,
+                                                        @RequestParam(value = "label", required = false) String clientLabel,
                                                         HttpServletRequest request,
                                                         HttpServletResponse response)
       throws IOException {
 
     String result =
         queryConfig(ConfigFileOutputFormat.PROPERTIES, appId, clusterName, namespace, dataCenter,
-            clientIp, request, response);
+            clientIp, clientLabel, request, response);
 
     if (result == null) {
       return NOT_FOUND_RESPONSE;
@@ -146,12 +147,13 @@ public class ConfigFileController implements ReleaseMessageListener {
                                                   @PathVariable String namespace,
                                                   @RequestParam(value = "dataCenter", required = false) String dataCenter,
                                                   @RequestParam(value = "ip", required = false) String clientIp,
+                                                  @RequestParam(value = "label", required = false) String clientLabel,
                                                   HttpServletRequest request,
                                                   HttpServletResponse response) throws IOException {
 
     String result =
         queryConfig(ConfigFileOutputFormat.JSON, appId, clusterName, namespace, dataCenter,
-            clientIp, request, response);
+            clientIp, clientLabel, request, response);
 
     if (result == null) {
       return NOT_FOUND_RESPONSE;
@@ -161,7 +163,7 @@ public class ConfigFileController implements ReleaseMessageListener {
   }
 
   String queryConfig(ConfigFileOutputFormat outputFormat, String appId, String clusterName,
-                     String namespace, String dataCenter, String clientIp,
+                     String namespace, String dataCenter, String clientIp, String clientLabel,
                      HttpServletRequest request,
                      HttpServletResponse response) throws IOException {
     //strip out .properties suffix
@@ -182,7 +184,7 @@ public class ConfigFileController implements ReleaseMessageListener {
     //2. try to load gray release and return
     if (hasGrayReleaseRule) {
       Tracer.logEvent("ConfigFile.Cache.GrayRelease", cacheKey);
-      return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+      return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
           request, response);
     }
 
@@ -192,7 +194,7 @@ public class ConfigFileController implements ReleaseMessageListener {
     //4. if not exists, load from ConfigController
     if (Strings.isNullOrEmpty(result)) {
       Tracer.logEvent("ConfigFile.Cache.Miss", cacheKey);
-      result = loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+      result = loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
           request, response);
 
       if (result == null) {
@@ -202,7 +204,7 @@ public class ConfigFileController implements ReleaseMessageListener {
       //This step is mainly to avoid cache pollution
       if (grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp, namespace)) {
         Tracer.logEvent("ConfigFile.Cache.GrayReleaseConflict", cacheKey);
-        return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+        return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
             request, response);
       }
 
@@ -226,11 +228,11 @@ public class ConfigFileController implements ReleaseMessageListener {
   }
 
   private String loadConfig(ConfigFileOutputFormat outputFormat, String appId, String clusterName,
-                            String namespace, String dataCenter, String clientIp,
+                            String namespace, String dataCenter, String clientIp, String clientLabel,
                             HttpServletRequest request,
                             HttpServletResponse response) throws IOException {
     ApolloConfig apolloConfig = configController.queryConfig(appId, clusterName, namespace,
-        dataCenter, "-1", clientIp, null, request, response);
+        dataCenter, "-1", clientIp, clientLabel, null, request, response);
 
     if (apolloConfig == null || apolloConfig.getConfigurations() == null) {
       return null;

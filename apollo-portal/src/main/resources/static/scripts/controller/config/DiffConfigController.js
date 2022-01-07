@@ -30,6 +30,7 @@ diff_item_module.controller("DiffItemController",
             $scope.diff = diff;
             $scope.syncBtnDisabled = false;
             $scope.showCommentDiff = false;
+            $scope.onlyShowDiffKeys = true;
 
             $scope.collectSelectedClusters = collectSelectedClusters;
 
@@ -40,6 +41,7 @@ diff_item_module.controller("DiffItemController",
             $scope.showText = showText;
 
             $scope.itemsKeyedByKey = {};
+            $scope.allNamespaceValueEqualed = {};
 
             $scope.syncData = {
                 syncToNamespaces: [],
@@ -52,16 +54,40 @@ diff_item_module.controller("DiffItemController",
                     toastr.warning($translate.instant('Config.Diff.PleaseChooseTwoCluster'));
                     return;
                 }
+                const namespaceCnt = $scope.syncData.syncToNamespaces.length;
+                let loadedNamespaceCnt = 0;
                 $scope.syncData.syncToNamespaces.forEach(function (namespace) {
                     ConfigService.find_items(namespace.appId,
                         namespace.env,
                         namespace.clusterName,
                         namespace.namespaceName).then(function (result) {
+                            loadedNamespaceCnt ++;
                             result.forEach(function (item) {
+                                if (item.key === "") {
+                                    return
+                                }
                                 var itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
                                 itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
                                 $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
                             });
+
+                            //After loading all the compared namespaces, check whether the values are consistent
+                            //itemsKeyedByKey struct : itemKey => namespace => item
+                            if (loadedNamespaceCnt === namespaceCnt) {
+                                Object.keys($scope.itemsKeyedByKey).forEach(function (key) {
+                                    let lastValue = null;
+                                    let allEqualed = true;
+                                    Object.values($scope.itemsKeyedByKey[key]).forEach(function (item) {
+                                        if (lastValue == null) {
+                                            lastValue = item.value;
+                                        }
+                                        if (lastValue !== item.value) {
+                                            allEqualed = false;
+                                        }
+                                    })
+                                    $scope.allNamespaceValueEqualed[key]=allEqualed;
+                                })
+                            }
                         });
                 });
                 $scope.syncItemNextStep(1);

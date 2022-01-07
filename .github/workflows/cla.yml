@@ -34,7 +34,7 @@ jobs:
           PERSONAL_ACCESS_TOKEN : ${{ secrets.PERSONAL_ACCESS_TOKEN_FOR_CLA_ASSISTANT }}
         with:
           path-to-signatures: 'signatures/version1/cla.json'
-          path-to-document: 'https://github.com/ctripcorp/apollo-community/blob/master/CLA.md' # e.g. a CLA or a DCO document
+          path-to-document: 'https://github.com/apolloconfig/apollo-community/blob/master/CLA.md' # e.g. a CLA or a DCO document
           # branch should not be protected
           branch: 'master'
           allowlist: dependabot,bot*

@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.repository.AppNamespaceRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,11 @@ public class AppNamespaceService {
 
   public List<AppNamespace> findByAppId(String appId) {
     return appNamespaceRepository.findByAppId(appId);
+  }
+
+  public List<AppNamespace> findAll() {
+    Iterable<AppNamespace> appNamespaces = appNamespaceRepository.findAll();
+    return Lists.newArrayList(appNamespaces);
   }
 
   @Transactional
@@ -164,6 +170,30 @@ public class AppNamespaceService {
     }
 
     AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
+
+    roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+
+    return createdAppNamespace;
+  }
+
+  @Transactional
+  public AppNamespace importAppNamespaceInLocal(AppNamespace appNamespace) {
+    // globally uniqueness check for public app namespace
+    if (appNamespace.isPublic()) {
+      checkAppNamespaceGlobalUniqueness(appNamespace);
+    } else {
+      // check private app namespace
+      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
+        throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
+      }
+      // should not have the same with public app namespace
+      checkPublicAppNamespaceGlobalUniqueness(appNamespace);
+    }
+
+    AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
+
+    String operator = appNamespace.getDataChangeCreatedBy();
 
     roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
     roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);

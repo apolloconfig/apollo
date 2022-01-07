@@ -18,3 +18,11 @@ Many thanks to [JetBrains](https://www.jetbrains.com/) for sponsoring our Open S
 <img src="en/images/community/docsify.svg" alt="docsify" style="height: 80px">
 
 The Apollo team uses [docsify](https://docsify.js.org/) to produce its documentation website.
+
+<hr />
+<img src="en/images/community/jprofiler.png" alt="jprofiler">
+
+The Apollo team uses [JProfiler](https://www.ej-technologies.com/products/jprofiler/overview.html) to locate performance problems on the open source projects.
+
+Many thanks to [EJ-Technologies](https://www.ej-technologies.com/) for sponsoring our Open Source projects with a license.
+<hr />

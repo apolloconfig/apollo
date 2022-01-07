@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+server:
+  # 解析反向代理请求头
+  forward-headers-strategy: framework
 spring:
   security:
     oauth2:

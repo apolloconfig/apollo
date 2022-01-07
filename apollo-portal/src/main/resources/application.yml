@@ -27,6 +27,10 @@ spring:
     store-type: jdbc
     jdbc:
       initialize-schema: never
+  servlet:
+    multipart:
+      max-file-size: 200MB  # import data configs
+      max-request-size: 200MB
 server:
   port: 8070
   compression:

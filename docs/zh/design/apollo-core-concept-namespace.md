@@ -94,7 +94,7 @@ k2 = v2
  * 应用B有一个私有类型的Namespace：application，以及一个公共类型的Namespace：NS-Public。
  * 应用C只有一个私有类型的Namespace：application
  
-![Namespace例子](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/namespace-model-example.png)
+![Namespace例子](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-model-example.png)
 
 ##### 5.4.1 应用A获取Apollo配置
 ```java

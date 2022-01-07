@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -86,8 +87,8 @@ public class BootstrapConfigTest {
 
       when(mockedConfig.getPropertyNames()).thenReturn(Sets.newHashSet(TEST_BEAN_CONDITIONAL_ON_KEY, someProperty));
 
-      when(mockedConfig.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), anyString())).thenReturn(Boolean.TRUE.toString());
-      when(mockedConfig.getProperty(eq(someProperty), anyString())).thenReturn(someValue);
+      when(mockedConfig.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), Mockito.nullable(String.class))).thenReturn(Boolean.TRUE.toString());
+      when(mockedConfig.getProperty(eq(someProperty), Mockito.nullable(String.class))).thenReturn(someValue);
 
       mockConfig(ConfigConsts.NAMESPACE_APPLICATION, mockedConfig);
     }
@@ -131,7 +132,7 @@ public class BootstrapConfigTest {
       Config anotherConfig = mock(Config.class);
 
       when(config.getPropertyNames()).thenReturn(Sets.newHashSet(TEST_BEAN_CONDITIONAL_ON_KEY));
-      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), anyString())).thenReturn(Boolean.TRUE.toString());
+      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), Mockito.nullable(String.class))).thenReturn(Boolean.TRUE.toString());
 
       mockConfig(ConfigConsts.NAMESPACE_APPLICATION, anotherConfig);
       mockConfig(FX_APOLLO_NAMESPACE, config);
@@ -209,7 +210,7 @@ public class BootstrapConfigTest {
       Config config = mock(Config.class);
 
       when(config.getPropertyNames()).thenReturn(Sets.newHashSet(TEST_BEAN_CONDITIONAL_ON_KEY));
-      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), anyString())).thenReturn(Boolean.FALSE.toString());
+      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), Mockito.nullable(String.class))).thenReturn(Boolean.FALSE.toString());
 
       mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
     }
@@ -344,7 +345,7 @@ public class BootstrapConfigTest {
       Config config = mock(Config.class);
 
       when(config.getPropertyNames()).thenReturn(Sets.newHashSet(TEST_BEAN_CONDITIONAL_ON_KEY));
-      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), anyString())).thenReturn(Boolean.FALSE.toString());
+      when(config.getProperty(eq(TEST_BEAN_CONDITIONAL_ON_KEY), Mockito.nullable(String.class))).thenReturn(Boolean.FALSE.toString());
 
       mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
     }
@@ -420,10 +421,10 @@ public class BootstrapConfigTest {
 
     @Test
     public void test() {
-      List<EnvironmentPostProcessor> processorList =  SpringFactoriesLoader.loadFactories(EnvironmentPostProcessor.class, getClass().getClassLoader());
+      List<String> names = SpringFactoriesLoader.loadFactoryNames(EnvironmentPostProcessor.class, getClass().getClassLoader());
       boolean containsApollo = false;
-      for (EnvironmentPostProcessor postProcessor : processorList) {
-        if (postProcessor instanceof ApolloApplicationContextInitializer) {
+      for (String name : names) {
+        if (name.equals("com.ctrip.framework.apollo.spring.boot.ApolloApplicationContextInitializer")) {
           containsApollo = true;
           break;
         }

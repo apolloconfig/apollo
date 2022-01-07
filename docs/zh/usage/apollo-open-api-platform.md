@@ -15,7 +15,7 @@ Apollo提供了一套的Http REST接口，使第三方应用能够自己管理�
 
 Apollo管理员在 http://{portal_address}/open/manage.html 创建第三方应用，创建之前最好先查询此AppId是否已经创建。创建成功之后会生成一个token，如下图所示：
 
-![开放平台管理](https://raw.githubusercontent.com/ctripcorp/apollo/master/doc/images/apollo-open-manage.png)
+![开放平台管理](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage.png)
 
 #### 2.2 给已注册的第三方应用授权
 第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 http://{portal_address}/open/manage.html 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
@@ -26,9 +26,9 @@ Apollo管理员在 http://{portal_address}/open/manage.html 创建第三方应�
 任何语言的第三方应用都可以调用Apollo的Open API，在调用接口时，需要设置注意以下两点：
  * Http Header中增加一个Authorization字段，字段值为申请的token
  * Http Header的Content-Type字段需要设置成application/json;charset=UTF-8
- 
+
 ##### 2.3.2 Java应用通过apollo-openapi调用Apollo Open API
-从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/ctripcorp/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
+从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/apolloconfig/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
 
 首先引入`apollo-openapi`依赖：
 ```xml
@@ -55,17 +55,26 @@ ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
 
 .Net core也提供了open api的客户端，详见https://github.com/ctripcorp/apollo.net/pull/77
 
+##### 2.3.4 Shell Scripts调用Apollo Open API
+
+封装了bash的function，底层使用curl来发送HTTP请求
+
+* bash函数：[openapi.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi.sh)
+
+* 使用示例：[openapi-usage-example.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi-usage-example.sh)
+* 全部和openapi有关的shell脚本在文件夹 https://github.com/apolloconfig/apollo/tree/master/scripts/sql 下
+
 ### 三、 接口文档
 
 #### 3.1 URL路径参数说明
-  
+
 参数名 | 参数说明
 --- | ---
 env | 所管理的配置环境
 appId | 所管理的配置AppId
 clusterName | 所管理的配置集群名， 一般情况下传入 default 即可。如果是特殊集群，传入相应集群的名称即可
 namespaceName | 所管理的Namespace的名称，如果是非properties格式，需要加上后缀名，如`sample.yml`
-  
+
 #### 3.2 API接口列表
 
 ##### 3.2.1 获取App的环境，集群信息
@@ -548,5 +557,4 @@ operator | true | String | 删除配置的操作者，域账号
 接口访问的Method不正确，比如应该使用POST的接口使用了GET访问等，客户端需要检查接口访问方式是否正确。
 ####  4.6 500 - Internal Server Error
 其它类型的错误默认都会返回500，对这类错误如果应用无法根据提示信息找到原因的话，可以找Apollo研发团队一起排查问题。
-
 

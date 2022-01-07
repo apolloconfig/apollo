@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.common.constants;
 import com.google.gson.reflect.TypeToken;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
+import com.ctrip.framework.apollo.common.dto.ItemDTO;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -30,4 +31,5 @@ public interface GsonType {
 
   Type RULE_ITEMS = new TypeToken<List<GrayReleaseRuleItemDTO>>() {}.getType();
 
+  Type ITEM_DTOS = new TypeToken<List<ItemDTO>>(){}.getType();
 }

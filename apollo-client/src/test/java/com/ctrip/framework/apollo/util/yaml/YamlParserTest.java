@@ -37,6 +37,7 @@ import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ByteArrayResource;
 import org.yaml.snakeyaml.constructor.ConstructorException;
+import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 import org.yaml.snakeyaml.parser.ParserException;
 
 public class YamlParserTest {
@@ -63,7 +64,7 @@ public class YamlParserTest {
     test("case7.yaml");
   }
 
-  @Test(expected = ParserException.class)
+  @Test(expected = DuplicateKeyException.class)
   public void testcase2() throws Exception {
     testInvalid("case2.yaml");
   }
@@ -117,13 +118,13 @@ public class YamlParserTest {
   private String loadYaml(String caseName) throws IOException {
     File file = new File("src/test/resources/yaml/" + caseName);
 
-    return Files.toString(file, Charsets.UTF_8);
+    return Files.asCharSource(file, Charsets.UTF_8).read();
   }
 
   private void testInvalid(String caseName) throws Exception {
     File file = new File("src/test/resources/yaml/" + caseName);
 
-    String yamlContent = Files.toString(file, Charsets.UTF_8);
+    String yamlContent = Files.asCharSource(file, Charsets.UTF_8).read();
 
     parser.yamlToProperties(yamlContent);
   }

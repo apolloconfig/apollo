@@ -90,6 +90,15 @@ public class ConfigUtil {
   }
 
   /**
+   * Get the apollo label for the current application.
+   *
+   * @return apollo Label
+   */
+  public String getApolloLabel() {
+    return Foundation.app().getApolloLabel();
+  }
+
+  /**
    * Get the access key secret for the current application.
    *
    * @return the current access key secret, null if there is no such secret.

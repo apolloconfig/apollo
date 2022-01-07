@@ -66,7 +66,7 @@ public class ConfigPropertySourceTest {
 
     verify(someConfig, times(1)).getPropertyNames();
 
-    assertArrayEquals(somePropertyNames.toArray(), result);
+    assertEquals(somePropertyNames, Sets.newHashSet(result));
   }
 
   @Test
@@ -99,7 +99,7 @@ public class ConfigPropertySourceTest {
     doAnswer(new Answer() {
       @Override
       public Object answer(InvocationOnMock invocation) throws Throwable {
-        listeners.add(invocation.getArgumentAt(0, ConfigChangeListener.class));
+        listeners.add(invocation.getArgument(0, ConfigChangeListener.class));
 
         return Void.class;
       }

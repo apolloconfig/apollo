@@ -53,6 +53,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -119,7 +120,7 @@ public class RemoteConfigLongPollServiceTest {
           TimeUnit.MILLISECONDS.sleep(50);
         } catch (InterruptedException e) {
         }
-        HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
         assertTrue(request.getUrl().contains(someServerUrl + "/notifications/v2?"));
         assertTrue(request.getUrl().contains("appId=" + someAppId));
@@ -225,7 +226,7 @@ public class RemoteConfigLongPollServiceTest {
         } catch (InterruptedException e) {
         }
 
-        HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
         Map<String, String> headers = request.getHeaders();
         assertNotNull(headers);
@@ -281,7 +282,7 @@ public class RemoteConfigLongPollServiceTest {
 
         //the first time
         if (counter.incrementAndGet() == 1) {
-          HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+          HttpRequest request = invocation.getArgument(0, HttpRequest.class);
 
           assertTrue(request.getUrl().contains("notifications="));
           assertTrue(request.getUrl().contains(someNamespace));
@@ -291,7 +292,7 @@ public class RemoteConfigLongPollServiceTest {
           when(pollResponse.getStatusCode()).thenReturn(HttpServletResponse.SC_OK);
           when(pollResponse.getBody()).thenReturn(Lists.newArrayList(someNotification));
         } else if (submitAnotherNamespaceFinish.get()) {
-          HttpRequest request = invocation.getArgumentAt(0, HttpRequest.class);
+          HttpRequest request = invocation.getArgument(0, HttpRequest.class);
           assertTrue(request.getUrl().contains("notifications="));
           assertTrue(request.getUrl().contains(someNamespace));
           assertTrue(request.getUrl().contains(anotherNamespace));
@@ -314,7 +315,7 @@ public class RemoteConfigLongPollServiceTest {
         onAnotherRepositoryNotified.set(true);
         return null;
       }
-    }).when(anotherRepository).onLongPollNotified(any(ServiceDTO.class), any(ApolloNotificationMessages.class));
+    }).when(anotherRepository).onLongPollNotified(Mockito.any(ServiceDTO.class), Mockito.nullable(ApolloNotificationMessages.class));
 
     remoteConfigLongPollService.submit(someNamespace, someRepository);
 
@@ -326,8 +327,8 @@ public class RemoteConfigLongPollServiceTest {
 
     remoteConfigLongPollService.stopLongPollingRefresh();
 
-    verify(someRepository, times(1)).onLongPollNotified(any(ServiceDTO.class), any(ApolloNotificationMessages.class));
-    verify(anotherRepository, times(1)).onLongPollNotified(any(ServiceDTO.class), any(ApolloNotificationMessages.class));
+    verify(someRepository, times(1)).onLongPollNotified(Mockito.any(ServiceDTO.class), Mockito.nullable(ApolloNotificationMessages.class));
+    verify(anotherRepository, times(1)).onLongPollNotified(Mockito.any(ServiceDTO.class), Mockito.nullable(ApolloNotificationMessages.class));
   }
 
   @Test
@@ -508,9 +509,10 @@ public class RemoteConfigLongPollServiceTest {
     assertTrue(longPollRefreshUrl.contains(someServerUrl + "/notifications/v2?"));
     assertTrue(longPollRefreshUrl.contains("appId=" + someAppId));
     assertTrue(longPollRefreshUrl.contains("cluster=someCluster%2B+%26.-_someSign"));
-    assertTrue(longPollRefreshUrl.contains(
-        "notifications=%5B%7B%22namespaceName%22%3A%22" + someNamespace
-            + "%22%2C%22notificationId%22%3A" + 1 + "%7D%5D"));
+    assertTrue(longPollRefreshUrl.contains("notifications=%5B%7B")
+            && longPollRefreshUrl.contains("%22namespaceName%22%3A%22" + someNamespace + "%22")
+            && longPollRefreshUrl.contains("%22notificationId%22%3A" + someNotificationId)
+            && longPollRefreshUrl.contains("%7D%5D"));
   }
 
   @Test
@@ -532,11 +534,12 @@ public class RemoteConfigLongPollServiceTest {
     assertTrue(longPollRefreshUrl.contains(someServerUrl + "/notifications/v2?"));
     assertTrue(longPollRefreshUrl.contains("appId=" + someAppId));
     assertTrue(longPollRefreshUrl.contains("cluster=someCluster%2B+%26.-_someSign"));
-    assertTrue(
-        longPollRefreshUrl.contains("notifications=%5B%7B%22namespaceName%22%3A%22" + someNamespace
-            + "%22%2C%22notificationId%22%3A" + someNotificationId
-            + "%7D%2C%7B%22namespaceName%22%3A%22" + anotherNamespace
-            + "%22%2C%22notificationId%22%3A" + anotherNotificationId + "%7D%5D"));
+    assertTrue(longPollRefreshUrl.contains("notifications=%5B%7B")
+            && longPollRefreshUrl.contains("%22namespaceName%22%3A%22" + someNamespace + "%22")
+            && longPollRefreshUrl.contains("%22notificationId%22%3A" + someNotificationId)
+            && longPollRefreshUrl.contains("%22namespaceName%22%3A%22" + anotherNamespace + "%22")
+            && longPollRefreshUrl.contains("%22notificationId%22%3A" + anotherNotificationId)
+            && longPollRefreshUrl.contains("%7D%5D"));
   }
 
   public static class MockConfigUtil extends ConfigUtil {

@@ -60,12 +60,12 @@
 	</developers>
 
 	<properties>
-		<revision>1.10.0-SNAPSHOT</revision>
+		<revision>2.0.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring-boot.version>2.4.2</spring-boot.version>
-		<spring-cloud.version>2020.0.1</spring-cloud.version>
-		<jaxb.version>2.3.0</jaxb.version>
+		<spring-boot.version>2.4.12</spring-boot.version>
+		<spring-cloud.version>2020.0.4</spring-cloud.version>
+		<jaxb.version>2.3.1</jaxb.version>
 		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
 		<javassist.version>3.23.1-GA</javassist.version>
@@ -148,107 +148,6 @@
 				<artifactId>apollo-openapi</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- ctrip internal dependencies, only used when ctrip profiles are enabled -->
-			<dependency>
-				<groupId>com.dianping.cat</groupId>
-				<artifactId>cat-client</artifactId>
-				<version>2.2.3</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.platform</groupId>
-				<artifactId>ctrip-dal-client</artifactId>
-				<version>1.0.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with xpp3:xpp3_min -->
-					<exclusion>
-						<groupId>xmlpull</groupId>
-						<artifactId>xmlpull</artifactId>
-					</exclusion>
-					<!-- duplicated with bcpkix-jdk15on -->
-					<exclusion>
-						<groupId>org.bouncycastle</groupId>
-						<artifactId>bcprov-jdk16</artifactId>
-					</exclusion>
-					<!-- duplicated with hibernate-jpa-2.1-api -->
-					<exclusion>
-						<groupId>javax.persistence</groupId>
-						<artifactId>persistence-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.clogging</groupId>
-				<artifactId>clogging-agent</artifactId>
-				<version>3.5.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.credis</groupId>
-				<artifactId>credis</artifactId>
-				<version>2.4.11</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework</groupId>
-				<artifactId>vi</artifactId>
-				<version>0.9.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-sso</groupId>
-				<artifactId>apollo-sso-ctrip</artifactId>
-				<version>1.1.0</version>
-				<exclusions>
-					<!-- partially duplicated with org.ow2.asm:asm -->
-					<exclusion>
-						<groupId>asm</groupId>
-						<artifactId>asm</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-ctrip-service</groupId>
-				<artifactId>apollo-email-service</artifactId>
-				<version>1.0.0</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>javax.servlet-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with commons-collections and commons-beanutils -->
-					<exclusion>
-						<groupId>commons-beanutils</groupId>
-						<artifactId>commons-beanutils-core</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
 			<!--third party -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -258,8 +157,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<!-- for jdk 7 compatibility -->
-				<version>29.0-android</version>
+				<version>31.0.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
@@ -274,7 +172,7 @@
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
-				<version>4.1.0</version>
+				<version>5.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-lang</groupId>
@@ -332,19 +230,6 @@
 				<groupId>com.sun.jersey.contribs</groupId>
 				<artifactId>jersey-apache-client4</artifactId>
 				<version>1.19.4</version>
-			</dependency>
-			<!-- ctrip modified -->
-			<!-- removed duplicated javax/persistence classes -->
-			<dependency>
-				<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-core</artifactId>
-				<version>8.0.37</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<!-- JDK 1.8+ -->
 			<dependency>
@@ -496,6 +381,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>${maven-gpg-plugin.version}</version>
+					<configuration>
+						<!-- Prevent gpg from using pinentry programs -->
+						<gpgArguments>
+							<arg>--pinentry-mode</arg>
+							<arg>loopback</arg>
+						</gpgArguments>
+					</configuration>
 					<executions>
 						<execution>
 							<phase>verify</phase>
