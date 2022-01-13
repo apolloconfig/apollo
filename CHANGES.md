@@ -36,6 +36,7 @@ Apollo 2.0.0
 * [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
 * [Change Copy Right year to 2022](https://github.com/apolloconfig/apollo/pull/4202)
 * [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
+* [Make password check not hardcoded](https://github.com/apolloconfig/apollo/pull/4207)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
