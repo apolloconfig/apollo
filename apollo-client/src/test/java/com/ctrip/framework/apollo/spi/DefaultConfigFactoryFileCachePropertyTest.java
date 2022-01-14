@@ -16,6 +16,15 @@
  */
 package com.ctrip.framework.apollo.spi;
 
+import static org.junit.Assert.assertSame;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.LocalFileConfigRepository;
@@ -24,47 +33,47 @@ import com.ctrip.framework.apollo.util.ConfigUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 
 public class DefaultConfigFactoryFileCachePropertyTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
+  private DefaultConfigFactory configFactory;
+  private ConfigUtil someConfigUtil;
+  private String someNamespace;
 
-    @Test
-    public void testCreateFileEnableConfigRepository() throws Exception {
-        MockInjector.setInstance(ConfigUtil.class, new MockFileCacheEnableConfigUtil());
-        DefaultConfigFactory defaultConfigFactory = new DefaultConfigFactory();
-        ConfigRepository configRepository = defaultConfigFactory.createConfigRepository("namespace");
-        Assertions.assertTrue(configRepository instanceof LocalFileConfigRepository);
-    }
+  @Before
+  public void setUp() throws Exception {
+    someNamespace = "someNamespace";
+    someConfigUtil = mock(ConfigUtil.class);
+    MockInjector.setInstance(ConfigUtil.class, someConfigUtil);
+    configFactory = spy(new DefaultConfigFactory());
+  }
 
-    @Test
-    public void testCreateFileDisableConfigRepository() throws Exception {
-        MockInjector.setInstance(ConfigUtil.class, new MockFileCacheDisableConfigUtil());
-        DefaultConfigFactory defaultConfigFactory = new DefaultConfigFactory();
-        ConfigRepository configRepository = defaultConfigFactory.createConfigRepository("namespace");
-        Assertions.assertTrue(configRepository instanceof RemoteConfigRepository);
-    }
+  @Test
+  public void testCreateFileEnableConfigRepository() throws Exception {
+    LocalFileConfigRepository someLocalConfigRepository = mock(LocalFileConfigRepository.class);
+    when(someConfigUtil.isPropertyFileCacheEnabled()).thenReturn(true);
+    doReturn(someLocalConfigRepository).when(configFactory)
+        .createLocalConfigRepository(someNamespace);
+    ConfigRepository configRepository = configFactory.createConfigRepository(someNamespace);
+    assertSame(someLocalConfigRepository, configRepository);
+    verify(configFactory, times(1)).createLocalConfigRepository(someNamespace);
+    verify(configFactory, never()).createRemoteConfigRepository(someNamespace);
+  }
 
-    @After
-    public void tearDown() throws Exception {
-        MockInjector.reset();
-    }
+  @Test
+  public void testCreateFileDisableConfigRepository() throws Exception {
+    RemoteConfigRepository someRemoteConfigRepository = mock(RemoteConfigRepository.class);
+    when(someConfigUtil.isPropertyFileCacheEnabled()).thenReturn(false);
+    doReturn(someRemoteConfigRepository).when(configFactory)
+        .createRemoteConfigRepository(someNamespace);
+    ConfigRepository configRepository = configFactory.createConfigRepository(someNamespace);
+    assertSame(someRemoteConfigRepository, configRepository);
+    verify(configFactory, never()).createLocalConfigRepository(someNamespace);
+    verify(configFactory, times(1)).createRemoteConfigRepository(someNamespace);
+  }
 
-    public static class MockFileCacheEnableConfigUtil extends ConfigUtil {
-        @Override
-        public boolean isPropertyFileCacheEnabled() {
-            return true;
-        }
-    }
-
-    public static class MockFileCacheDisableConfigUtil extends ConfigUtil {
-        @Override
-        public boolean isPropertyFileCacheEnabled() {
-            return false;
-        }
-    }
-
+  @After
+  public void tearDown() throws Exception {
+    MockInjector.reset();
+  }
 }
