@@ -36,6 +36,7 @@ Apollo 2.0.0
 * [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
 * [Change Copy Right year to 2022](https://github.com/apolloconfig/apollo/pull/4202)
 * [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
+* [chore: use Google Java Format to format Java code automaticlly by github action](https://github.com/apolloconfig/apollo/pull/4200)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
