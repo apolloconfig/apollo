@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.LocalFileConfigRepository;
 import com.ctrip.framework.apollo.internals.RemoteConfigRepository;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -45,6 +46,11 @@ public class DefaultConfigFactoryFileCachePropertyTest {
         DefaultConfigFactory defaultConfigFactory = new DefaultConfigFactory();
         ConfigRepository configRepository = defaultConfigFactory.createConfigRepository("namespace");
         Assertions.assertTrue(configRepository instanceof RemoteConfigRepository);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        MockInjector.reset();
     }
 
     public static class MockFileCacheEnableConfigUtil extends ConfigUtil {
