@@ -76,7 +76,7 @@ public class DefaultConfigFactory implements ConfigFactory {
         format != ConfigFileFormat.Properties) {
       configRepository = createPropertiesCompatibleFileConfigRepository(namespace, format);
     } else {
-      configRepository = createLocalConfigRepository(namespace);
+      configRepository = createConfigRepository(namespace);
     }
 
     logger.debug("Created a configuration repository of type [{}] for namespace [{}]",
@@ -91,7 +91,7 @@ public class DefaultConfigFactory implements ConfigFactory {
 
   @Override
   public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-    ConfigRepository configRepository = createLocalConfigRepository(namespace);
+    ConfigRepository configRepository = createConfigRepository(namespace);
     switch (configFileFormat) {
       case Properties:
         return new PropertiesConfigFile(namespace, configRepository);
@@ -108,6 +108,13 @@ public class DefaultConfigFactory implements ConfigFactory {
     }
 
     return null;
+  }
+
+  ConfigRepository createConfigRepository(String namespace) {
+    if (m_configUtil.isPropertyFileCacheEnabled()) {
+      return createLocalConfigRepository(namespace);
+    }
+    return createRemoteConfigRepository(namespace);
   }
 
   /**

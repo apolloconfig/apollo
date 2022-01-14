@@ -146,4 +146,14 @@ public class ApolloClientSystemConsts {
    * enable property names cache environment variables
    */
   public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_NAMES_CACHE_ENABLE";
+
+  /**
+   * enable property names cache
+   */
+  public static final String APOLLO_CACHE_FILE_ENABLE = "apollo.cache.file.enable";
+
+  /**
+   * enable property names cache environment variables
+   */
+  public static final String APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_CACHE_FILE_ENABLE";
 }

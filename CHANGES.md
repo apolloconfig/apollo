@@ -35,6 +35,7 @@ Apollo 2.0.0
 * [The release history of namespaces that are not properties will also show comments and release times](https://github.com/apolloconfig/apollo/pull/4198)
 * [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
 * [Change Copy Right year to 2022](https://github.com/apolloconfig/apollo/pull/4202)
+* [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

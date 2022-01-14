@@ -80,7 +80,7 @@ public class DefaultConfigFactoryTest {
     LocalFileConfigRepository someLocalConfigRepo = mock(LocalFileConfigRepository.class);
     when(someLocalConfigRepo.getConfig()).thenReturn(someProperties);
 
-    doReturn(someLocalConfigRepo).when(defaultConfigFactory).createLocalConfigRepository(someNamespace);
+    doReturn(someLocalConfigRepo).when(defaultConfigFactory).createConfigRepository(someNamespace);
 
     Config result = defaultConfigFactory.create(someNamespace);
 
