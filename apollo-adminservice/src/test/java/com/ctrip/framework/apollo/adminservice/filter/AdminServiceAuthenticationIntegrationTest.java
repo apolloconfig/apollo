@@ -36,8 +36,7 @@ import org.springframework.web.client.HttpClientErrorException;
 @DirtiesContext
 public class AdminServiceAuthenticationIntegrationTest extends AbstractControllerTest {
 
-  @Autowired
-  private List<RefreshablePropertySource> propertySources;
+  @Autowired private List<RefreshablePropertySource> propertySources;
 
   @Before
   public void setUp() throws Exception {
@@ -46,19 +45,23 @@ public class AdminServiceAuthenticationIntegrationTest extends AbstractControlle
 
   @Test
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-disabled.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-disabled.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlDisabledExplicitly() {
     String appId = "someAppId";
-    AppDTO app = restTemplate
-        .getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
+    AppDTO app =
+        restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
 
     Assert.assertEquals("someAppId", app.getAppId());
   }
 
   @Test
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-disabled.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-disabled.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlDisabledExplicitlyWithAccessToken() {
     String appId = "someAppId";
@@ -67,16 +70,20 @@ public class AdminServiceAuthenticationIntegrationTest extends AbstractControlle
     headers.add(HttpHeaders.AUTHORIZATION, someToken);
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-    AppDTO app = restTemplate
-        .exchange("http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity,
-            AppDTO.class).getBody();
+    AppDTO app =
+        restTemplate
+            .exchange(
+                "http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity, AppDTO.class)
+            .getBody();
 
     Assert.assertEquals("someAppId", app.getAppId());
   }
 
   @Test
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-enabled.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-enabled.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlEnabledWithValidAccessToken() {
     String appId = "someAppId";
@@ -85,26 +92,32 @@ public class AdminServiceAuthenticationIntegrationTest extends AbstractControlle
     headers.add(HttpHeaders.AUTHORIZATION, someValidToken);
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-    AppDTO app = restTemplate
-        .exchange("http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity,
-            AppDTO.class).getBody();
+    AppDTO app =
+        restTemplate
+            .exchange(
+                "http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity, AppDTO.class)
+            .getBody();
 
     Assert.assertEquals("someAppId", app.getAppId());
   }
 
   @Test(expected = HttpClientErrorException.class)
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-enabled.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-enabled.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlEnabledWithNoAccessToken() {
     String appId = "someAppId";
-    AppDTO app = restTemplate
-        .getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
+    AppDTO app =
+        restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
   }
 
   @Test(expected = HttpClientErrorException.class)
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-enabled.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-enabled.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlEnabledWithInValidAccessToken() {
     String appId = "someAppId";
@@ -113,14 +126,18 @@ public class AdminServiceAuthenticationIntegrationTest extends AbstractControlle
     headers.add(HttpHeaders.AUTHORIZATION, someValidToken);
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-    AppDTO app = restTemplate
-        .exchange("http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity,
-            AppDTO.class).getBody();
+    AppDTO app =
+        restTemplate
+            .exchange(
+                "http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity, AppDTO.class)
+            .getBody();
   }
 
   @Test
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/filter/test-access-control-enabled-no-token.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/filter/test-access-control-enabled-no-token.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testWithAccessControlEnabledWithNoTokenSpecified() {
     String appId = "someAppId";
@@ -129,16 +146,18 @@ public class AdminServiceAuthenticationIntegrationTest extends AbstractControlle
     headers.add(HttpHeaders.AUTHORIZATION, someToken);
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-    AppDTO app = restTemplate
-        .exchange("http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity,
-            AppDTO.class).getBody();
+    AppDTO app =
+        restTemplate
+            .exchange(
+                "http://localhost:" + port + "/apps/" + appId, HttpMethod.GET, entity, AppDTO.class)
+            .getBody();
 
     Assert.assertEquals("someAppId", app.getAppId());
   }
 
-
   private void doRefresh(List<RefreshablePropertySource> propertySources) {
-    propertySources.forEach(refreshablePropertySource -> ReflectionTestUtils
-        .invokeMethod(refreshablePropertySource, "refresh"));
+    propertySources.forEach(
+        refreshablePropertySource ->
+            ReflectionTestUtils.invokeMethod(refreshablePropertySource, "refresh"));
   }
 }

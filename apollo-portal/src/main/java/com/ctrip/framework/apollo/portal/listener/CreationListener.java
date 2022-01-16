@@ -19,16 +19,15 @@ package com.ctrip.framework.apollo.portal.listener;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CreationListener {
@@ -57,23 +56,28 @@ public class CreationListener {
         appAPI.createApp(env, appDTO);
       } catch (Throwable e) {
         LOGGER.error("Create app failed. appId = {}, env = {})", appDTO.getAppId(), env, e);
-        Tracer.logError(String.format("Create app failed. appId = %s, env = %s", appDTO.getAppId(), env), e);
+        Tracer.logError(
+            String.format("Create app failed. appId = %s, env = %s", appDTO.getAppId(), env), e);
       }
     }
   }
 
   @EventListener
   public void onAppNamespaceCreationEvent(AppNamespaceCreationEvent event) {
-    AppNamespaceDTO appNamespace = BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
+    AppNamespaceDTO appNamespace =
+        BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       try {
         namespaceAPI.createAppNamespace(env, appNamespace);
       } catch (Throwable e) {
-        LOGGER.error("Create appNamespace failed. appId = {}, env = {}", appNamespace.getAppId(), env, e);
-        Tracer.logError(String.format("Create appNamespace failed. appId = %s, env = %s", appNamespace.getAppId(), env), e);
+        LOGGER.error(
+            "Create appNamespace failed. appId = {}, env = {}", appNamespace.getAppId(), env, e);
+        Tracer.logError(
+            String.format(
+                "Create appNamespace failed. appId = %s, env = %s", appNamespace.getAppId(), env),
+            e);
       }
     }
   }
-
 }

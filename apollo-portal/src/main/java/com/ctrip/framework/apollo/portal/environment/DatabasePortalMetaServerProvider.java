@@ -26,7 +26,8 @@ import org.slf4j.LoggerFactory;
  * PortalDB.ServerConfig
  */
 class DatabasePortalMetaServerProvider implements PortalMetaServerProvider {
-  private static final Logger logger = LoggerFactory.getLogger(DatabasePortalMetaServerProvider.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(DatabasePortalMetaServerProvider.class);
 
   /**
    * read config from database
@@ -56,5 +57,4 @@ class DatabasePortalMetaServerProvider implements PortalMetaServerProvider {
     addresses = Env.transformToEnvMap(map);
     logger.info("Loaded meta server addresses from portal config: {}", addresses);
   }
-
 }

@@ -32,6 +32,6 @@ public interface NamespaceOpenApiService {
 
   OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO);
 
-  OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName,
-      String namespaceName);
+  OpenNamespaceLockDTO getNamespaceLock(
+      String appId, String env, String clusterName, String namespaceName);
 }

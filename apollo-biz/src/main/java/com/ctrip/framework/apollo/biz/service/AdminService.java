@@ -19,18 +19,17 @@ package com.ctrip.framework.apollo.biz.service;
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import java.util.List;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-
 @Service
 public class AdminService {
-  private final static Logger logger = LoggerFactory.getLogger(AdminService.class);
+  private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
   private final AppService appService;
   private final AppNamespaceService appNamespaceService;

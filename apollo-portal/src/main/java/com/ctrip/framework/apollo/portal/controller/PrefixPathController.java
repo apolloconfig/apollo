@@ -43,5 +43,4 @@ public class PrefixPathController {
     }
     return prefixPath;
   }
-
 }

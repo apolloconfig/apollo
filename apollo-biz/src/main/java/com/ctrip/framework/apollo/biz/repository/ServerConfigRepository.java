@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
-
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**

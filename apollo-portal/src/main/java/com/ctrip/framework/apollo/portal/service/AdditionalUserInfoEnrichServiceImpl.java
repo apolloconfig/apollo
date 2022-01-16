@@ -42,15 +42,14 @@ public class AdditionalUserInfoEnrichServiceImpl implements AdditionalUserInfoEn
   private final List<AdditionalUserInfoEnricher> enricherList;
 
   public AdditionalUserInfoEnrichServiceImpl(
-      UserService userService,
-      List<AdditionalUserInfoEnricher> enricherList) {
+      UserService userService, List<AdditionalUserInfoEnricher> enricherList) {
     this.userService = userService;
     this.enricherList = enricherList;
   }
 
   @Override
-  public <T> void enrichAdditionalUserInfo(List<? extends T> list,
-      Function<? super T, ? extends UserInfoEnrichedAdapter> mapper) {
+  public <T> void enrichAdditionalUserInfo(
+      List<? extends T> list, Function<? super T, ? extends UserInfoEnrichedAdapter> mapper) {
     if (CollectionUtils.isEmpty(list)) {
       return;
     }
@@ -69,8 +68,8 @@ public class AdditionalUserInfoEnrichServiceImpl implements AdditionalUserInfoEn
     if (CollectionUtils.isEmpty(userInfoList)) {
       return;
     }
-    Map<String, UserInfo> userInfoMap = userInfoList.stream()
-        .collect(Collectors.toMap(UserInfo::getUserId, Function.identity()));
+    Map<String, UserInfo> userInfoMap =
+        userInfoList.stream().collect(Collectors.toMap(UserInfo::getUserId, Function.identity()));
     for (UserInfoEnrichedAdapter adapter : adapterList) {
       for (AdditionalUserInfoEnricher enricher : this.enricherList) {
         enricher.enrichAdditionalUserInfo(adapter, userInfoMap);
@@ -78,8 +77,8 @@ public class AdditionalUserInfoEnrichServiceImpl implements AdditionalUserInfoEn
     }
   }
 
-  private <T> List<UserInfoEnrichedAdapter> adapt(List<? extends T> dtoList,
-      Function<? super T, ? extends UserInfoEnrichedAdapter> mapper) {
+  private <T> List<UserInfoEnrichedAdapter> adapt(
+      List<? extends T> dtoList, Function<? super T, ? extends UserInfoEnrichedAdapter> mapper) {
     List<UserInfoEnrichedAdapter> adapterList = new ArrayList<>(dtoList.size());
     for (T dto : dtoList) {
       if (dto == null) {

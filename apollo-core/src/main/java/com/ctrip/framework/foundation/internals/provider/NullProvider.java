@@ -16,12 +16,11 @@
  */
 package com.ctrip.framework.foundation.internals.provider;
 
-import java.io.InputStream;
-
 import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
 import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
 import com.ctrip.framework.foundation.spi.provider.Provider;
 import com.ctrip.framework.foundation.spi.provider.ServerProvider;
+import java.io.InputStream;
 
 public class NullProvider implements ApplicationProvider, NetworkProvider, ServerProvider {
   @Override
@@ -35,9 +34,7 @@ public class NullProvider implements ApplicationProvider, NetworkProvider, Serve
   }
 
   @Override
-  public void initialize() {
-
-  }
+  public void initialize() {}
 
   @Override
   public String getAppId() {
@@ -80,9 +77,7 @@ public class NullProvider implements ApplicationProvider, NetworkProvider, Serve
   }
 
   @Override
-  public void initialize(InputStream in) {
-
-  }
+  public void initialize(InputStream in) {}
 
   @Override
   public String getHostAddress() {

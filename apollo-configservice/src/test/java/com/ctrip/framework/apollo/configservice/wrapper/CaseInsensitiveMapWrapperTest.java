@@ -16,28 +16,26 @@
  */
 package com.ctrip.framework.apollo.configservice.wrapper;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Map;
-
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
 /**
- @author Jason Song(song_s@ctrip.com)
+ * @author Jason Song(song_s@ctrip.com)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CaseInsensitiveMapWrapperTest {
   private CaseInsensitiveMapWrapper<Object> caseInsensitiveMapWrapper;
-  @Mock
-  private Map<String, Object> someMap;
+  @Mock private Map<String, Object> someMap;
 
   @Before
   public void setUp() throws Exception {

@@ -35,9 +35,7 @@ public class DefaultNetworkProvider implements NetworkProvider {
   }
 
   @Override
-  public void initialize() {
-
-  }
+  public void initialize() {}
 
   @Override
   public String getHostAddress() {
@@ -56,6 +54,10 @@ public class DefaultNetworkProvider implements NetworkProvider {
 
   @Override
   public String toString() {
-    return "hostName [" + getHostName() + "] hostIP [" + getHostAddress() + "] (DefaultNetworkProvider)";
+    return "hostName ["
+        + getHostName()
+        + "] hostIP ["
+        + getHostAddress()
+        + "] (DefaultNetworkProvider)";
   }
 }

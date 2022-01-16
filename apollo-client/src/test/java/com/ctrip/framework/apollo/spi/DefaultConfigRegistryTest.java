@@ -20,12 +20,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -45,8 +44,10 @@ public class DefaultConfigRegistryTest {
 
     defaultConfigRegistry.register(someNamespace, someConfigFactory);
 
-    assertThat("Should return the registered config factory",
-        defaultConfigRegistry.getFactory(someNamespace), equalTo(someConfigFactory));
+    assertThat(
+        "Should return the registered config factory",
+        defaultConfigRegistry.getFactory(someNamespace),
+        equalTo(someConfigFactory));
   }
 
   @Test

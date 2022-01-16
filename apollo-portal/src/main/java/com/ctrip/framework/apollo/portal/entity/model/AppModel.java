@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.entity.model;
 
-
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import java.util.Set;
 import javax.validation.constraints.NotBlank;
@@ -30,8 +29,7 @@ public class AppModel {
   @NotBlank(message = "appId cannot be blank")
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = "Invalid AppId format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
-  )
+      message = "Invalid AppId format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE)
   private String appId;
 
   @NotBlank(message = "orgId cannot be blank")

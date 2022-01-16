@@ -16,12 +16,11 @@
  */
 package com.ctrip.framework.apollo.tracer.internals;
 
-import com.ctrip.framework.apollo.tracer.spi.MessageProducerManager;
+import static org.junit.Assert.*;
 
+import com.ctrip.framework.apollo.tracer.spi.MessageProducerManager;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -38,5 +37,4 @@ public class DefaultMessageProducerManagerTest {
   public void testGetProducer() throws Exception {
     assertTrue(messageProducerManager.getProducer() instanceof NullMessageProducer);
   }
-
 }

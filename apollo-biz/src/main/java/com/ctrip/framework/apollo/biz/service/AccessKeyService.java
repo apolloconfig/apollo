@@ -35,9 +35,7 @@ public class AccessKeyService {
   private final AccessKeyRepository accessKeyRepository;
   private final AuditService auditService;
 
-  public AccessKeyService(
-      AccessKeyRepository accessKeyRepository,
-      AuditService auditService) {
+  public AccessKeyService(AccessKeyRepository accessKeyRepository, AuditService auditService) {
     this.accessKeyRepository = accessKeyRepository;
     this.auditService = auditService;
   }
@@ -58,7 +56,10 @@ public class AccessKeyService {
     entity.setDataChangeLastModifiedBy(entity.getDataChangeCreatedBy());
     AccessKey accessKey = accessKeyRepository.save(entity);
 
-    auditService.audit(AccessKey.class.getSimpleName(), accessKey.getId(), Audit.OP.INSERT,
+    auditService.audit(
+        AccessKey.class.getSimpleName(),
+        accessKey.getId(),
+        Audit.OP.INSERT,
         accessKey.getDataChangeCreatedBy());
 
     return accessKey;

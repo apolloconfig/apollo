@@ -22,5 +22,4 @@ import javax.servlet.http.HttpServletResponse;
 public interface LogoutHandler {
 
   void logout(HttpServletRequest request, HttpServletResponse response);
-
 }

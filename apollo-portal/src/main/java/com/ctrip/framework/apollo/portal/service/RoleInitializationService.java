@@ -26,11 +26,10 @@ public interface RoleInitializationService {
 
   void initNamespaceEnvRoles(String appId, String namespaceName, String operator);
 
-  void initNamespaceSpecificEnvRoles(String appId, String namespaceName, String env,
-      String operator);
+  void initNamespaceSpecificEnvRoles(
+      String appId, String namespaceName, String env, String operator);
 
   void initCreateAppRole();
 
   void initManageAppMasterRole(String appId, String operator);
-
 }

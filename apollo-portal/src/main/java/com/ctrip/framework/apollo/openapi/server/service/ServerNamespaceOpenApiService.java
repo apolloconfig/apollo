@@ -57,10 +57,10 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   }
 
   @Override
-  public OpenNamespaceDTO getNamespace(String appId, String env, String clusterName,
-      String namespaceName) {
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
-        (env), clusterName, namespaceName);
+  public OpenNamespaceDTO getNamespace(
+      String appId, String env, String clusterName, String namespaceName) {
+    NamespaceBO namespaceBO =
+        namespaceService.loadNamespaceBO(appId, Env.valueOf(env), clusterName, namespaceName);
     if (namespaceBO == null) {
       return null;
     }
@@ -69,15 +69,16 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
 
   @Override
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName) {
-    return OpenApiBeanUtils
-        .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
-            .valueOf(env), clusterName));
+    return OpenApiBeanUtils.batchTransformFromNamespaceBOs(
+        namespaceService.findNamespaceBOs(appId, Env.valueOf(env), clusterName));
   }
 
   @Override
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
     AppNamespace appNamespace = OpenApiBeanUtils.transformToAppNamespace(appNamespaceDTO);
-    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, appNamespaceDTO.isAppendNamespacePrefix());
+    AppNamespace createdAppNamespace =
+        appNamespaceService.createAppNamespaceInLocal(
+            appNamespace, appNamespaceDTO.isAppendNamespacePrefix());
 
     publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
 
@@ -85,12 +86,12 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   }
 
   @Override
-  public OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName,
-      String namespaceName) {
-    NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env
-        .valueOf(env), clusterName, namespaceName);
-    NamespaceLockDTO lockDTO = namespaceLockService.getNamespaceLock(appId, Env
-        .valueOf(env), clusterName, namespaceName);
+  public OpenNamespaceLockDTO getNamespaceLock(
+      String appId, String env, String clusterName, String namespaceName) {
+    NamespaceDTO namespace =
+        namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
+    NamespaceLockDTO lockDTO =
+        namespaceLockService.getNamespaceLock(appId, Env.valueOf(env), clusterName, namespaceName);
     return OpenApiBeanUtils.transformFromNamespaceLockDTO(namespace.getNamespaceName(), lockDTO);
   }
 }

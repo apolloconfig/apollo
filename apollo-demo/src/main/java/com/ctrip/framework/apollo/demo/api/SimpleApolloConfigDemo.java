@@ -16,20 +16,17 @@
  */
 package com.ctrip.framework.apollo.demo.api;
 
-import com.google.common.base.Charsets;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.base.Charsets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -40,18 +37,22 @@ public class SimpleApolloConfigDemo {
   private Config config;
 
   public SimpleApolloConfigDemo() {
-    ConfigChangeListener changeListener = new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        logger.info("Changes for namespace {}", changeEvent.getNamespace());
-        for (String key : changeEvent.changedKeys()) {
-          ConfigChange change = changeEvent.getChange(key);
-          logger.info("Change - key: {}, oldValue: {}, newValue: {}, changeType: {}",
-              change.getPropertyName(), change.getOldValue(), change.getNewValue(),
-              change.getChangeType());
-        }
-      }
-    };
+    ConfigChangeListener changeListener =
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            logger.info("Changes for namespace {}", changeEvent.getNamespace());
+            for (String key : changeEvent.changedKeys()) {
+              ConfigChange change = changeEvent.getChange(key);
+              logger.info(
+                  "Change - key: {}, oldValue: {}, newValue: {}, changeType: {}",
+                  change.getPropertyName(),
+                  change.getOldValue(),
+                  change.getNewValue(),
+                  change.getChangeType());
+            }
+          }
+        };
     config = ConfigService.getAppConfig();
     config.addChangeListener(changeListener);
   }
@@ -68,7 +69,8 @@ public class SimpleApolloConfigDemo {
         "Apollo Config Demo. Please input key to get the value. Input quit to exit.");
     while (true) {
       System.out.print("> ");
-      String input = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
+      String input =
+          new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
       if (input == null || input.length() == 0) {
         continue;
       }

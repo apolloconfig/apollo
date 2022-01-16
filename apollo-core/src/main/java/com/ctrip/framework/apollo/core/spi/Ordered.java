@@ -39,7 +39,6 @@ public interface Ordered {
    */
   int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
 
-
   /**
    * Get the order value of this object.
    * <p>Higher values are interpreted as lower priority. As a consequence,

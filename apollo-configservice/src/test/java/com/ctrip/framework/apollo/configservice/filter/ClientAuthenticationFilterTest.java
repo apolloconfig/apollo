@@ -45,16 +45,11 @@ public class ClientAuthenticationFilterTest {
 
   private ClientAuthenticationFilter clientAuthenticationFilter;
 
-  @Mock
-  private BizConfig bizConfig;
-  @Mock
-  private AccessKeyUtil accessKeyUtil;
-  @Mock
-  private HttpServletRequest request;
-  @Mock
-  private HttpServletResponse response;
-  @Mock
-  private FilterChain filterChain;
+  @Mock private BizConfig bizConfig;
+  @Mock private AccessKeyUtil accessKeyUtil;
+  @Mock private HttpServletRequest request;
+  @Mock private HttpServletResponse response;
+  @Mock private FilterChain filterChain;
 
   @Before
   public void setUp() {
@@ -142,7 +137,8 @@ public class ClientAuthenticationFilterTest {
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
     verify(response, never()).sendError(HttpServletResponse.SC_BAD_REQUEST, "InvalidAppId");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
+    verify(response, never())
+        .sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, times(1)).doFilter(request, response);
   }

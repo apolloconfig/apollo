@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.tracer.internals.cat;
 
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
-
 import java.lang.reflect.Method;
 
 /**
@@ -35,11 +34,12 @@ public class CatTransaction implements Transaction {
   static {
     try {
       CAT_TRANSACTION_CLASS = Class.forName(CatNames.CAT_TRANSACTION_CLASS);
-      SET_STATUS_WITH_STRING = CAT_TRANSACTION_CLASS.getMethod(CatNames.SET_STATUS_METHOD, String.class);
-      SET_STATUS_WITH_THROWABLE = CAT_TRANSACTION_CLASS.getMethod(CatNames.SET_STATUS_METHOD,
-          Throwable.class);
-      ADD_DATA_WITH_KEY_AND_VALUE = CAT_TRANSACTION_CLASS.getMethod(CatNames.ADD_DATA_METHOD,
-          String.class, Object.class);
+      SET_STATUS_WITH_STRING =
+          CAT_TRANSACTION_CLASS.getMethod(CatNames.SET_STATUS_METHOD, String.class);
+      SET_STATUS_WITH_THROWABLE =
+          CAT_TRANSACTION_CLASS.getMethod(CatNames.SET_STATUS_METHOD, Throwable.class);
+      ADD_DATA_WITH_KEY_AND_VALUE =
+          CAT_TRANSACTION_CLASS.getMethod(CatNames.ADD_DATA_METHOD, String.class, Object.class);
       COMPLETE = CAT_TRANSACTION_CLASS.getMethod(CatNames.COMPLETE_METHOD);
     } catch (Throwable ex) {
       throw new IllegalStateException("Initialize Cat transaction failed", ex);
@@ -47,7 +47,7 @@ public class CatTransaction implements Transaction {
   }
 
   static void init() {
-    //do nothing, just to initialize the static variables
+    // do nothing, just to initialize the static variables
   }
 
   public CatTransaction(Object catTransaction) {

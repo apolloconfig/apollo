@@ -92,18 +92,36 @@ public class OpenReleaseDTO extends BaseDTO {
 
   @Override
   public String toString() {
-    return "OpenReleaseDTO{" +
-        "id=" + id +
-        ", appId='" + appId + '\'' +
-        ", clusterName='" + clusterName + '\'' +
-        ", namespaceName='" + namespaceName + '\'' +
-        ", name='" + name + '\'' +
-        ", configurations=" + configurations +
-        ", comment='" + comment + '\'' +
-        ", dataChangeCreatedBy='" + dataChangeCreatedBy + '\'' +
-        ", dataChangeLastModifiedBy='" + dataChangeLastModifiedBy + '\'' +
-        ", dataChangeCreatedTime=" + dataChangeCreatedTime +
-        ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
-        '}';
+    return "OpenReleaseDTO{"
+        + "id="
+        + id
+        + ", appId='"
+        + appId
+        + '\''
+        + ", clusterName='"
+        + clusterName
+        + '\''
+        + ", namespaceName='"
+        + namespaceName
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", configurations="
+        + configurations
+        + ", comment='"
+        + comment
+        + '\''
+        + ", dataChangeCreatedBy='"
+        + dataChangeCreatedBy
+        + '\''
+        + ", dataChangeLastModifiedBy='"
+        + dataChangeLastModifiedBy
+        + '\''
+        + ", dataChangeCreatedTime="
+        + dataChangeCreatedTime
+        + ", dataChangeLastModifiedTime="
+        + dataChangeLastModifiedTime
+        + '}';
   }
 }

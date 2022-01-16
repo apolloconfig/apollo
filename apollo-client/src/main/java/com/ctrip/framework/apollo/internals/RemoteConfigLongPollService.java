@@ -32,9 +32,9 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
@@ -68,7 +68,7 @@ public class RemoteConfigLongPollService {
   private static final Joiner.MapJoiner MAP_JOINER = Joiner.on("&").withKeyValueSeparator("=");
   private static final Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
   private static final long INIT_NOTIFICATION_ID = ConfigConsts.NOTIFICATION_ID_PLACEHOLDER;
-  //90 seconds, should be longer than server side's long polling timeout, which is now 60 seconds
+  // 90 seconds, should be longer than server side's long polling timeout, which is now 60 seconds
   private static final int LONG_POLLING_READ_TIMEOUT = 90 * 1000;
   private final ExecutorService m_longPollingService;
   private final AtomicBoolean m_longPollingStopped;
@@ -77,7 +77,8 @@ public class RemoteConfigLongPollService {
   private final AtomicBoolean m_longPollStarted;
   private final Multimap<String, RemoteConfigRepository> m_longPollNamespaces;
   private final ConcurrentMap<String, Long> m_notifications;
-  private final Map<String, ApolloNotificationMessages> m_remoteNotificationMessages;//namespaceName -> watchedKey -> notificationId
+  private final Map<String, ApolloNotificationMessages>
+      m_remoteNotificationMessages; // namespaceName -> watchedKey -> notificationId
   private Type m_responseType;
   private static final Gson GSON = new Gson();
   private ConfigUtil m_configUtil;
@@ -88,17 +89,17 @@ public class RemoteConfigLongPollService {
    * Constructor.
    */
   public RemoteConfigLongPollService() {
-    m_longPollFailSchedulePolicyInSecond = new ExponentialSchedulePolicy(1, 120); //in second
+    m_longPollFailSchedulePolicyInSecond = new ExponentialSchedulePolicy(1, 120); // in second
     m_longPollingStopped = new AtomicBoolean(false);
-    m_longPollingService = Executors.newSingleThreadExecutor(
-        ApolloThreadFactory.create("RemoteConfigLongPollService", true));
+    m_longPollingService =
+        Executors.newSingleThreadExecutor(
+            ApolloThreadFactory.create("RemoteConfigLongPollService", true));
     m_longPollStarted = new AtomicBoolean(false);
     m_longPollNamespaces =
         Multimaps.synchronizedSetMultimap(HashMultimap.<String, RemoteConfigRepository>create());
     m_notifications = Maps.newConcurrentMap();
     m_remoteNotificationMessages = Maps.newConcurrentMap();
-    m_responseType = new TypeToken<List<ApolloConfigNotification>>() {
-    }.getType();
+    m_responseType = new TypeToken<List<ApolloConfigNotification>>() {}.getType();
     m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     m_httpClient = ApolloInjector.getInstance(HttpClient.class);
     m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
@@ -116,7 +117,7 @@ public class RemoteConfigLongPollService {
 
   private void startLongPolling() {
     if (!m_longPollStarted.compareAndSet(false, true)) {
-      //already started
+      // already started
       return;
     }
     try {
@@ -125,20 +126,21 @@ public class RemoteConfigLongPollService {
       final String dataCenter = m_configUtil.getDataCenter();
       final String secret = m_configUtil.getAccessKeySecret();
       final long longPollingInitialDelayInMills = m_configUtil.getLongPollingInitialDelayInMills();
-      m_longPollingService.submit(new Runnable() {
-        @Override
-        public void run() {
-          if (longPollingInitialDelayInMills > 0) {
-            try {
-              logger.debug("Long polling will start in {} ms.", longPollingInitialDelayInMills);
-              TimeUnit.MILLISECONDS.sleep(longPollingInitialDelayInMills);
-            } catch (InterruptedException e) {
-              //ignore
+      m_longPollingService.submit(
+          new Runnable() {
+            @Override
+            public void run() {
+              if (longPollingInitialDelayInMills > 0) {
+                try {
+                  logger.debug("Long polling will start in {} ms.", longPollingInitialDelayInMills);
+                  TimeUnit.MILLISECONDS.sleep(longPollingInitialDelayInMills);
+                } catch (InterruptedException e) {
+                  // ignore
+                }
+              }
+              doLongPollingRefresh(appId, cluster, dataCenter, secret);
             }
-          }
-          doLongPollingRefresh(appId, cluster, dataCenter, secret);
-        }
-      });
+          });
     } catch (Throwable ex) {
       m_longPollStarted.set(false);
       ApolloConfigException exception =
@@ -152,12 +154,13 @@ public class RemoteConfigLongPollService {
     this.m_longPollingStopped.compareAndSet(false, true);
   }
 
-  private void doLongPollingRefresh(String appId, String cluster, String dataCenter, String secret) {
+  private void doLongPollingRefresh(
+      String appId, String cluster, String dataCenter, String secret) {
     final Random random = new Random();
     ServiceDTO lastServiceDto = null;
     while (!m_longPollingStopped.get() && !Thread.currentThread().isInterrupted()) {
       if (!m_longPollRateLimiter.tryAcquire(5, TimeUnit.SECONDS)) {
-        //wait at most 5 seconds
+        // wait at most 5 seconds
         try {
           TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
@@ -172,8 +175,8 @@ public class RemoteConfigLongPollService {
         }
 
         url =
-            assembleLongPollRefreshUrl(lastServiceDto.getHomepageUrl(), appId, cluster, dataCenter,
-                m_notifications);
+            assembleLongPollRefreshUrl(
+                lastServiceDto.getHomepageUrl(), appId, cluster, dataCenter, m_notifications);
 
         logger.debug("Long polling from {}", url);
 
@@ -197,7 +200,7 @@ public class RemoteConfigLongPollService {
           notify(lastServiceDto, response.getBody());
         }
 
-        //try to load balance
+        // try to load balance
         if (response.getStatusCode() == 304 && random.nextBoolean()) {
           lastServiceDto = null;
         }
@@ -212,11 +215,16 @@ public class RemoteConfigLongPollService {
         long sleepTimeInSecond = m_longPollFailSchedulePolicyInSecond.fail();
         logger.warn(
             "Long polling failed, will retry in {} seconds. appId: {}, cluster: {}, namespaces: {}, long polling url: {}, reason: {}",
-            sleepTimeInSecond, appId, cluster, assembleNamespaces(), url, ExceptionUtil.getDetailMessage(ex));
+            sleepTimeInSecond,
+            appId,
+            cluster,
+            assembleNamespaces(),
+            url,
+            ExceptionUtil.getDetailMessage(ex));
         try {
           TimeUnit.SECONDS.sleep(sleepTimeInSecond);
         } catch (InterruptedException ie) {
-          //ignore
+          // ignore
         }
       } finally {
         transaction.complete();
@@ -230,14 +238,17 @@ public class RemoteConfigLongPollService {
     }
     for (ApolloConfigNotification notification : notifications) {
       String namespaceName = notification.getNamespaceName();
-      //create a new list to avoid ConcurrentModificationException
+      // create a new list to avoid ConcurrentModificationException
       List<RemoteConfigRepository> toBeNotified =
           Lists.newArrayList(m_longPollNamespaces.get(namespaceName));
       ApolloNotificationMessages originalMessages = m_remoteNotificationMessages.get(namespaceName);
-      ApolloNotificationMessages remoteMessages = originalMessages == null ? null : originalMessages.clone();
-      //since .properties are filtered out by default, so we need to check if there is any listener for it
-      toBeNotified.addAll(m_longPollNamespaces
-          .get(String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue())));
+      ApolloNotificationMessages remoteMessages =
+          originalMessages == null ? null : originalMessages.clone();
+      // since .properties are filtered out by default, so we need to check if there is any listener
+      // for it
+      toBeNotified.addAll(
+          m_longPollNamespaces.get(
+              String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue())));
       for (RemoteConfigRepository remoteConfigRepository : toBeNotified) {
         try {
           remoteConfigRepository.onLongPollNotified(lastServiceDto, remoteMessages);
@@ -257,7 +268,8 @@ public class RemoteConfigLongPollService {
       if (m_notifications.containsKey(namespaceName)) {
         m_notifications.put(namespaceName, notification.getNotificationId());
       }
-      //since .properties are filtered out by default, so we need to check if there is notification with .properties suffix
+      // since .properties are filtered out by default, so we need to check if there is notification
+      // with .properties suffix
       String namespaceNameWithPropertiesSuffix =
           String.format("%s.%s", namespaceName, ConfigFileFormat.Properties.getValue());
       if (m_notifications.containsKey(namespaceNameWithPropertiesSuffix)) {
@@ -291,13 +303,17 @@ public class RemoteConfigLongPollService {
     return STRING_JOINER.join(m_longPollNamespaces.keySet());
   }
 
-  String assembleLongPollRefreshUrl(String uri, String appId, String cluster, String dataCenter,
-                                    Map<String, Long> notificationsMap) {
+  String assembleLongPollRefreshUrl(
+      String uri,
+      String appId,
+      String cluster,
+      String dataCenter,
+      Map<String, Long> notificationsMap) {
     Map<String, String> queryParams = Maps.newHashMap();
     queryParams.put("appId", queryParamEscaper.escape(appId));
     queryParams.put("cluster", queryParamEscaper.escape(cluster));
-    queryParams
-        .put("notifications", queryParamEscaper.escape(assembleNotifications(notificationsMap)));
+    queryParams.put(
+        "notifications", queryParamEscaper.escape(assembleNotifications(notificationsMap)));
 
     if (!Strings.isNullOrEmpty(dataCenter)) {
       queryParams.put("dataCenter", queryParamEscaper.escape(dataCenter));
@@ -318,7 +334,8 @@ public class RemoteConfigLongPollService {
   String assembleNotifications(Map<String, Long> notificationsMap) {
     List<ApolloConfigNotification> notifications = Lists.newArrayList();
     for (Map.Entry<String, Long> entry : notificationsMap.entrySet()) {
-      ApolloConfigNotification notification = new ApolloConfigNotification(entry.getKey(), entry.getValue());
+      ApolloConfigNotification notification =
+          new ApolloConfigNotification(entry.getKey(), entry.getValue());
       notifications.add(notification);
     }
     return GSON.toJson(notifications);

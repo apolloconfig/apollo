@@ -32,12 +32,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class UserInfoControllerTest {
 
-  @InjectMocks
-  private UserInfoController userInfoController;
-  @Mock
-  private SpringSecurityUserService userService;
-  @Mock
-  private AuthUserPasswordChecker userPasswordChecker;
+  @InjectMocks private UserInfoController userInfoController;
+  @Mock private SpringSecurityUserService userService;
+  @Mock private AuthUserPasswordChecker userPasswordChecker;
 
   @Test
   public void testCreateOrUpdateUser() {
@@ -69,5 +66,4 @@ public class UserInfoControllerTest {
       throw e;
     }
   }
-
 }

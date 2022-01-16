@@ -28,9 +28,10 @@ public class ServiceBootstrap {
   public static <S> S loadFirst(Class<S> clazz) {
     Iterator<S> iterator = loadAll(clazz);
     if (!iterator.hasNext()) {
-      throw new IllegalStateException(String.format(
-          "No implementation defined in /META-INF/services/%s, please check whether the file exists and has the right implementation class!",
-          clazz.getName()));
+      throw new IllegalStateException(
+          String.format(
+              "No implementation defined in /META-INF/services/%s, please check whether the file exists and has the right implementation class!",
+              clazz.getName()));
     }
     return iterator.next();
   }
@@ -44,13 +45,15 @@ public class ServiceBootstrap {
   public static <S extends Ordered> List<S> loadAllOrdered(Class<S> clazz) {
     Iterator<S> iterator = loadAll(clazz);
     List<S> candidates = Lists.newArrayList(iterator);
-    Collections.sort(candidates, new Comparator<S>() {
-      @Override
-      public int compare(S o1, S o2) {
-        // the smaller order has higher priority
-        return Integer.compare(o1.getOrder(), o2.getOrder());
-      }
-    });
+    Collections.sort(
+        candidates,
+        new Comparator<S>() {
+          @Override
+          public int compare(S o1, S o2) {
+            // the smaller order has higher priority
+            return Integer.compare(o1.getOrder(), o2.getOrder());
+          }
+        });
 
     return candidates;
   }
@@ -59,11 +62,11 @@ public class ServiceBootstrap {
     List<S> candidates = loadAllOrdered(clazz);
 
     if (candidates.isEmpty()) {
-      throw new IllegalStateException(String.format(
-          "No implementation defined in /META-INF/services/%s, please check whether the file exists and has the right implementation class!",
-          clazz.getName()));
+      throw new IllegalStateException(
+          String.format(
+              "No implementation defined in /META-INF/services/%s, please check whether the file exists and has the right implementation class!",
+              clazz.getName()));
     }
-
 
     return candidates.get(0);
   }

@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.spring.config;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -45,8 +44,7 @@ public class ConfigPropertySourceTest {
 
   private ConfigPropertySource configPropertySource;
 
-  @Mock
-  private Config someConfig;
+  @Mock private Config someConfig;
 
   @Before
   public void setUp() throws Exception {
@@ -96,14 +94,17 @@ public class ConfigPropertySourceTest {
 
     final List<ConfigChangeListener> listeners = Lists.newArrayList();
 
-    doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        listeners.add(invocation.getArgument(0, ConfigChangeListener.class));
+    doAnswer(
+            new Answer() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                listeners.add(invocation.getArgument(0, ConfigChangeListener.class));
 
-        return Void.class;
-      }
-    }).when(someConfig).addChangeListener(any(ConfigChangeListener.class));
+                return Void.class;
+              }
+            })
+        .when(someConfig)
+        .addChangeListener(any(ConfigChangeListener.class));
 
     configPropertySource.addChangeListener(someListener);
     configPropertySource.addChangeListener(anotherListener);

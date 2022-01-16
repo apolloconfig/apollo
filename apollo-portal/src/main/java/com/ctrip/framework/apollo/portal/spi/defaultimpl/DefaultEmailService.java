@@ -40,8 +40,7 @@ public class DefaultEmailService implements EmailService {
 
   private final Logger logger = LoggerFactory.getLogger(DefaultEmailService.class);
 
-  @Resource
-  private PortalConfig portalConfig;
+  @Resource private PortalConfig portalConfig;
 
   @Override
   public void send(Email email) {
@@ -56,7 +55,8 @@ public class DefaultEmailService implements EmailService {
 
       Message msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(email.getSenderEmailAddress()));
-      msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipientsString(), false));
+      msg.setRecipients(
+          Message.RecipientType.TO, InternetAddress.parse(email.getRecipientsString(), false));
       msg.setSubject(email.getSubject());
       msg.setDataHandler(new DataHandler(new HTMLDataSource(email.getBody())));
 

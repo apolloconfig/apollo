@@ -53,8 +53,10 @@ class ApolloConfigDataLoaderInitializer {
 
   private final ConfigurableBootstrapContext bootstrapContext;
 
-  public ApolloConfigDataLoaderInitializer(Log log,
-      Binder binder, BindHandler bindHandler,
+  public ApolloConfigDataLoaderInitializer(
+      Log log,
+      Binder binder,
+      BindHandler bindHandler,
       ConfigurableBootstrapContext bootstrapContext) {
     this.log = log;
     this.binder = binder;
@@ -86,7 +88,8 @@ class ApolloConfigDataLoaderInitializer {
         return Arrays.asList(
             new ApolloConfigEmptyPropertySource(
                 PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME),
-            new MapPropertySource(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME,
+            new MapPropertySource(
+                PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME,
                 Collections.unmodifiableMap(map)));
       }
       // provide initial sources as placeholders to avoid duplicate loading
@@ -100,35 +103,40 @@ class ApolloConfigDataLoaderInitializer {
   private void initApolloClientInternal() {
     new ApolloClientSystemPropertyInitializer(this.log)
         .initializeSystemProperty(this.binder, this.bindHandler);
-    new ApolloClientExtensionInitializeFactory(this.log,
-        this.bootstrapContext).initializeExtension(this.binder, this.bindHandler);
+    new ApolloClientExtensionInitializeFactory(this.log, this.bootstrapContext)
+        .initializeExtension(this.binder, this.bindHandler);
     DeferredLogger.enable();
-    ApolloConfigDataInjectorCustomizer.register(ConfigFactory.class,
-        PureApolloConfigFactory::new);
+    ApolloConfigDataInjectorCustomizer.register(ConfigFactory.class, PureApolloConfigFactory::new);
   }
 
   private boolean forceDisableApolloBootstrap() {
-    boolean bootstrapEnabled = this.binder
-        .bind(this.camelCasedToKebabCase(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED),
-            Bindable.of(Boolean.class),
-            this.bindHandler)
-        .orElse(false);
+    boolean bootstrapEnabled =
+        this.binder
+            .bind(
+                this.camelCasedToKebabCase(PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED),
+                Bindable.of(Boolean.class),
+                this.bindHandler)
+            .orElse(false);
     if (bootstrapEnabled) {
-      this.log.warn(Slf4jLogMessageFormatter.format(
-          "apollo bootstrap is force disabled. please don't configure the property [{}=true] and [spring.config.import=apollo://...] at the same time",
-          PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED));
+      this.log.warn(
+          Slf4jLogMessageFormatter.format(
+              "apollo bootstrap is force disabled. please don't configure the property [{}=true] and [spring.config.import=apollo://...] at the same time",
+              PropertySourcesConstants.APOLLO_BOOTSTRAP_ENABLED));
       return true;
     }
-    boolean bootstrapEagerLoadEnabled = this.binder
-        .bind(this.camelCasedToKebabCase(
-            PropertySourcesConstants.APOLLO_BOOTSTRAP_EAGER_LOAD_ENABLED),
-            Bindable.of(Boolean.class),
-            this.bindHandler)
-        .orElse(false);
+    boolean bootstrapEagerLoadEnabled =
+        this.binder
+            .bind(
+                this.camelCasedToKebabCase(
+                    PropertySourcesConstants.APOLLO_BOOTSTRAP_EAGER_LOAD_ENABLED),
+                Bindable.of(Boolean.class),
+                this.bindHandler)
+            .orElse(false);
     if (bootstrapEagerLoadEnabled) {
-      this.log.warn(Slf4jLogMessageFormatter.format(
-          "apollo bootstrap eager load is force disabled. please don't configure the property [{}=true] and [spring.config.import=apollo://...] at the same time",
-          PropertySourcesConstants.APOLLO_BOOTSTRAP_EAGER_LOAD_ENABLED));
+      this.log.warn(
+          Slf4jLogMessageFormatter.format(
+              "apollo bootstrap eager load is force disabled. please don't configure the property [{}=true] and [spring.config.import=apollo://...] at the same time",
+              PropertySourcesConstants.APOLLO_BOOTSTRAP_EAGER_LOAD_ENABLED));
       return true;
     }
     return false;

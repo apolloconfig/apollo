@@ -31,6 +31,6 @@ public interface AdditionalUserInfoEnrichService {
    * @param list   object with user id
    * @param mapper map the object in the list to {@link UserInfoEnrichedAdapter}
    */
-  <T> void enrichAdditionalUserInfo(List<? extends T> list,
-      Function<? super T, ? extends UserInfoEnrichedAdapter> mapper);
+  <T> void enrichAdditionalUserInfo(
+      List<? extends T> list, Function<? super T, ? extends UserInfoEnrichedAdapter> mapper);
 }

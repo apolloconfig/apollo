@@ -22,9 +22,8 @@ import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AccessKeyAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AccessKeyService {

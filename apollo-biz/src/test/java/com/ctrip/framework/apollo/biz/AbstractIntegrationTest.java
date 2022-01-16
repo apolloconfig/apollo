@@ -27,6 +27,4 @@ import org.springframework.transaction.annotation.Transactional;
 @Rollback
 @Transactional
 @SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public abstract class AbstractIntegrationTest {
-
-}
+public abstract class AbstractIntegrationTest {}

@@ -38,22 +38,17 @@ import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 @RunWith(MockitoJUnitRunner.class)
 public class ItemControllerTest {
 
-  @Mock
-  private ItemService configService;
-  @Mock
-  private NamespaceService namespaceService;
-  @Mock
-  private UserInfoHolder userInfoHolder;
-  @Mock
-  private PermissionValidator permissionValidator;
+  @Mock private ItemService configService;
+  @Mock private NamespaceService namespaceService;
+  @Mock private UserInfoHolder userInfoHolder;
+  @Mock private PermissionValidator permissionValidator;
 
-  @InjectMocks
-  private ItemController itemController;
+  @InjectMocks private ItemController itemController;
 
   @Before
   public void setUp() throws Exception {
-    itemController = new ItemController(configService, userInfoHolder, permissionValidator,
-        namespaceService);
+    itemController =
+        new ItemController(configService, userInfoHolder, permissionValidator, namespaceService);
   }
 
   @Test

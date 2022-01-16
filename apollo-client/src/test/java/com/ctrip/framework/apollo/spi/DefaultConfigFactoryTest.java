@@ -26,14 +26,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
-import java.util.Properties;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.build.MockInjector;
@@ -42,11 +34,17 @@ import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.internals.DefaultConfig;
 import com.ctrip.framework.apollo.internals.JsonConfigFile;
 import com.ctrip.framework.apollo.internals.LocalFileConfigRepository;
+import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
 import com.ctrip.framework.apollo.internals.PropertiesConfigFile;
 import com.ctrip.framework.apollo.internals.XmlConfigFile;
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
 import com.ctrip.framework.apollo.internals.YmlConfigFile;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -84,7 +82,9 @@ public class DefaultConfigFactoryTest {
 
     Config result = defaultConfigFactory.create(someNamespace);
 
-    assertThat("DefaultConfigFactory should create DefaultConfig", result,
+    assertThat(
+        "DefaultConfigFactory should create DefaultConfig",
+        result,
         is(instanceOf(DefaultConfig.class)));
     assertEquals(someValue, result.getProperty(someKey, null));
   }
@@ -109,15 +109,20 @@ public class DefaultConfigFactoryTest {
     String someValue = "someValue";
     someProperties.setProperty(someKey, someValue);
 
-    PropertiesCompatibleFileConfigRepository someRepository = mock(PropertiesCompatibleFileConfigRepository.class);
+    PropertiesCompatibleFileConfigRepository someRepository =
+        mock(PropertiesCompatibleFileConfigRepository.class);
     when(someRepository.getConfig()).thenReturn(someProperties);
 
-    doReturn(someRepository).when(defaultConfigFactory)
-        .createPropertiesCompatibleFileConfigRepository(someNamespace, somePropertiesCompatibleFormat);
+    doReturn(someRepository)
+        .when(defaultConfigFactory)
+        .createPropertiesCompatibleFileConfigRepository(
+            someNamespace, somePropertiesCompatibleFormat);
 
     Config result = defaultConfigFactory.create(someNamespace);
 
-    assertThat("DefaultConfigFactory should create DefaultConfig", result,
+    assertThat(
+        "DefaultConfigFactory should create DefaultConfig",
+        result,
         is(instanceOf(DefaultConfig.class)));
     assertEquals(someValue, result.getProperty(someKey, null));
   }
@@ -132,9 +137,15 @@ public class DefaultConfigFactoryTest {
     LocalFileConfigRepository someLocalConfigRepo = mock(LocalFileConfigRepository.class);
     when(someLocalConfigRepo.getConfig()).thenReturn(someProperties);
 
-    doReturn(someLocalConfigRepo).when(defaultConfigFactory).createLocalConfigRepository(someNamespace);
-    doReturn(someLocalConfigRepo).when(defaultConfigFactory).createLocalConfigRepository(anotherNamespace);
-    doReturn(someLocalConfigRepo).when(defaultConfigFactory).createLocalConfigRepository(yetAnotherNamespace);
+    doReturn(someLocalConfigRepo)
+        .when(defaultConfigFactory)
+        .createLocalConfigRepository(someNamespace);
+    doReturn(someLocalConfigRepo)
+        .when(defaultConfigFactory)
+        .createLocalConfigRepository(anotherNamespace);
+    doReturn(someLocalConfigRepo)
+        .when(defaultConfigFactory)
+        .createLocalConfigRepository(yetAnotherNamespace);
 
     ConfigFile propertyConfigFile =
         defaultConfigFactory.createConfigFile(someNamespace, ConfigFileFormat.Properties);
@@ -142,31 +153,40 @@ public class DefaultConfigFactoryTest {
         defaultConfigFactory.createConfigFile(anotherNamespace, ConfigFileFormat.XML);
     ConfigFile jsonConfigFile =
         defaultConfigFactory.createConfigFile(yetAnotherNamespace, ConfigFileFormat.JSON);
-    ConfigFile ymlConfigFile = defaultConfigFactory.createConfigFile(someNamespace,
-        ConfigFileFormat.YML);
-    ConfigFile yamlConfigFile = defaultConfigFactory.createConfigFile(someNamespace,
-        ConfigFileFormat.YAML);
+    ConfigFile ymlConfigFile =
+        defaultConfigFactory.createConfigFile(someNamespace, ConfigFileFormat.YML);
+    ConfigFile yamlConfigFile =
+        defaultConfigFactory.createConfigFile(someNamespace, ConfigFileFormat.YAML);
 
-    assertThat("Should create PropertiesConfigFile for properties format", propertyConfigFile, is(instanceOf(
-        PropertiesConfigFile.class)));
+    assertThat(
+        "Should create PropertiesConfigFile for properties format",
+        propertyConfigFile,
+        is(instanceOf(PropertiesConfigFile.class)));
     assertEquals(someNamespace, propertyConfigFile.getNamespace());
 
-    assertThat("Should create XmlConfigFile for xml format", xmlConfigFile, is(instanceOf(
-        XmlConfigFile.class)));
+    assertThat(
+        "Should create XmlConfigFile for xml format",
+        xmlConfigFile,
+        is(instanceOf(XmlConfigFile.class)));
     assertEquals(anotherNamespace, xmlConfigFile.getNamespace());
 
-    assertThat("Should create JsonConfigFile for json format", jsonConfigFile, is(instanceOf(
-        JsonConfigFile.class)));
+    assertThat(
+        "Should create JsonConfigFile for json format",
+        jsonConfigFile,
+        is(instanceOf(JsonConfigFile.class)));
     assertEquals(yetAnotherNamespace, jsonConfigFile.getNamespace());
 
-    assertThat("Should create YmlConfigFile for yml format", ymlConfigFile, is(instanceOf(
-        YmlConfigFile.class)));
+    assertThat(
+        "Should create YmlConfigFile for yml format",
+        ymlConfigFile,
+        is(instanceOf(YmlConfigFile.class)));
     assertEquals(someNamespace, ymlConfigFile.getNamespace());
 
-    assertThat("Should create YamlConfigFile for yaml format", yamlConfigFile, is(instanceOf(
-        YamlConfigFile.class)));
+    assertThat(
+        "Should create YamlConfigFile for yaml format",
+        yamlConfigFile,
+        is(instanceOf(YamlConfigFile.class)));
     assertEquals(someNamespace, yamlConfigFile.getNamespace());
-
   }
 
   @Test
@@ -206,8 +226,10 @@ public class DefaultConfigFactoryTest {
     assertEquals(expectedFormat, defaultConfigFactory.determineFileFormat(namespaceName));
   }
 
-  private void checkNamespaceName(String namespaceName, ConfigFileFormat format, String expectedNamespaceName) {
-    assertEquals(expectedNamespaceName, defaultConfigFactory.trimNamespaceFormat(namespaceName, format));
+  private void checkNamespaceName(
+      String namespaceName, ConfigFileFormat format, String expectedNamespaceName) {
+    assertEquals(
+        expectedNamespaceName, defaultConfigFactory.trimNamespaceFormat(namespaceName, format));
   }
 
   public static class MockConfigUtil extends ConfigUtil {
@@ -221,5 +243,4 @@ public class DefaultConfigFactoryTest {
       return someEnv;
     }
   }
-
 }

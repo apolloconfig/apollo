@@ -55,7 +55,6 @@ public abstract class BaseIntegrationTest {
     return server;
   }
 
-
   @Before
   public void setUp() throws Exception {
     MessageProducer someProducer = mock(MessageProducer.class);
@@ -75,18 +74,23 @@ public abstract class BaseIntegrationTest {
 
   protected ContextHandler mockServerHandler(final int statusCode, final String response) {
     ContextHandler context = new ContextHandler("/");
-    context.setHandler(new AbstractHandler() {
+    context.setHandler(
+        new AbstractHandler() {
 
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
+          @Override
+          public void handle(
+              String target,
+              Request baseRequest,
+              HttpServletRequest request,
+              HttpServletResponse response)
+              throws IOException, ServletException {
 
-        response.setContentType("text/plain;charset=UTF-8");
-        response.setStatus(statusCode);
-        response.getWriter().println(response);
-        baseRequest.setHandled(true);
-      }
-    });
+            response.setContentType("text/plain;charset=UTF-8");
+            response.setStatus(statusCode);
+            response.getWriter().println(response);
+            baseRequest.setHandled(true);
+          }
+        });
     return context;
   }
 
@@ -120,6 +124,7 @@ public abstract class BaseIntegrationTest {
         }
       }
     }
-    throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
+    throw new IllegalStateException(
+        "Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
   }
 }

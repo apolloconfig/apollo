@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,14 +35,19 @@ public class UserPO {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "Id")
   private long id;
+
   @Column(name = "Username", nullable = false)
   private String username;
+
   @Column(name = "UserDisplayName", nullable = false)
   private String userDisplayName;
+
   @Column(name = "Password", nullable = false)
   private String password;
+
   @Column(name = "Email", nullable = false)
   private String email;
+
   @Column(name = "Enabled", nullable = false)
   private int enabled;
 

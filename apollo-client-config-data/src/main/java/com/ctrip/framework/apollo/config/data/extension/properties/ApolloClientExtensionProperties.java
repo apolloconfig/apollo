@@ -45,16 +45,17 @@ public class ApolloClientExtensionProperties {
     return messagingType;
   }
 
-  public void setMessagingType(
-      ApolloClientMessagingType messagingType) {
+  public void setMessagingType(ApolloClientMessagingType messagingType) {
     this.messagingType = messagingType;
   }
 
   @Override
   public String toString() {
-    return "ApolloClientExtensionProperties{" +
-        "enabled=" + enabled +
-        ", messagingType=" + messagingType +
-        '}';
+    return "ApolloClientExtensionProperties{"
+        + "enabled="
+        + enabled
+        + ", messagingType="
+        + messagingType
+        + '}';
   }
 }

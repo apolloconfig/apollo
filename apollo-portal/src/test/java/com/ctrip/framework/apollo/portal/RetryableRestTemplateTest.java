@@ -61,16 +61,11 @@ import org.springframework.web.client.RestTemplate;
 
 public class RetryableRestTemplateTest extends AbstractUnitTest {
 
-  @Mock
-  private AdminServiceAddressLocator serviceAddressLocator;
-  @Mock
-  private RestTemplate restTemplate;
-  @Mock
-  private PortalMetaDomainService portalMetaDomainService;
-  @Mock
-  private PortalConfig portalConfig;
-  @InjectMocks
-  private RetryableRestTemplate retryableRestTemplate;
+  @Mock private AdminServiceAddressLocator serviceAddressLocator;
+  @Mock private RestTemplate restTemplate;
+  @Mock private PortalMetaDomainService portalMetaDomainService;
+  @Mock private PortalConfig portalConfig;
+  @InjectMocks private RetryableRestTemplate retryableRestTemplate;
 
   private static final Gson GSON = new Gson();
 
@@ -89,9 +84,8 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
   public void init() {
     socketTimeoutException.initCause(new SocketTimeoutException());
 
-    httpHostConnectException
-        .initCause(new HttpHostConnectException(new ConnectTimeoutException(),
-            new HttpHost(serviceOne, 80)));
+    httpHostConnectException.initCause(
+        new HttpHostConnectException(new ConnectTimeoutException(), new HttpHost(serviceOne, 80)));
     connectTimeoutException.initCause(new ConnectTimeoutException());
   }
 
@@ -107,28 +101,47 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
   public void testAllServerDown() {
 
     when(serviceAddressLocator.getServiceList(any()))
-        .thenReturn(Arrays
-            .asList(mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(socketTimeoutException);
-    when(restTemplate
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(httpHostConnectException);
-    when(restTemplate
-        .exchange(eq(serviceThree + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(connectTimeoutException);
+        .thenReturn(
+            Arrays.asList(
+                mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(socketTimeoutException);
+    when(restTemplate.exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(httpHostConnectException);
+    when(restTemplate.exchange(
+            eq(serviceThree + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(connectTimeoutException);
 
     retryableRestTemplate.get(Env.DEV, path, Object.class);
 
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
     verify(restTemplate, times(1))
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
     verify(restTemplate, times(1))
-        .exchange(eq(serviceThree + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceThree + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
   }
 
@@ -138,28 +151,47 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     when(someEntity.getBody()).thenReturn(result);
 
     when(serviceAddressLocator.getServiceList(any()))
-        .thenReturn(Arrays
-            .asList(mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(socketTimeoutException);
-    when(restTemplate
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenReturn(someEntity);
-    when(restTemplate
-        .exchange(eq(serviceThree + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(connectTimeoutException);
+        .thenReturn(
+            Arrays.asList(
+                mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(socketTimeoutException);
+    when(restTemplate.exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceThree + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(connectTimeoutException);
 
     Object actualResult = retryableRestTemplate.get(Env.DEV, path, Object.class);
 
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
     verify(restTemplate, times(1))
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
     verify(restTemplate, never())
-        .exchange(eq(serviceThree + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
+        .exchange(
+            eq(serviceThree + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
             eq(Object.class));
     assertEquals(result, actualResult);
   }
@@ -170,14 +202,21 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     when(someEntity.getBody()).thenReturn(result);
 
     when(serviceAddressLocator.getServiceList(any()))
-        .thenReturn(Arrays
-            .asList(mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(Object.class))).thenThrow(socketTimeoutException);
-    when(restTemplate
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(Object.class))).thenReturn(someEntity);
+        .thenReturn(
+            Arrays.asList(
+                mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenThrow(socketTimeoutException);
+    when(restTemplate.exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(Object.class)))
+        .thenReturn(someEntity);
 
     Throwable exception = null;
     Object actualResult = null;
@@ -190,10 +229,16 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     assertNull(actualResult);
     assertSame(socketTimeoutException, exception);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
             eq(Object.class));
     verify(restTemplate, never())
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
+        .exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
             eq(Object.class));
   }
 
@@ -202,16 +247,23 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     ResponseEntity someEntity = mock(ResponseEntity.class);
 
     when(serviceAddressLocator.getServiceList(any()))
-        .thenReturn(Arrays
-            .asList(mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.DELETE), any(HttpEntity.class),
-            (Class<Object>) isNull())).thenReturn(someEntity);
+        .thenReturn(
+            Arrays.asList(
+                mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.DELETE),
+            any(HttpEntity.class),
+            (Class<Object>) isNull()))
+        .thenReturn(someEntity);
 
     retryableRestTemplate.delete(Env.DEV, path);
 
     verify(restTemplate)
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.DELETE), any(HttpEntity.class),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.DELETE),
+            any(HttpEntity.class),
             (Class<Object>) isNull());
   }
 
@@ -220,17 +272,24 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     ResponseEntity someEntity = mock(ResponseEntity.class);
 
     when(serviceAddressLocator.getServiceList(any()))
-        .thenReturn(Arrays
-            .asList(mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.PUT), any(HttpEntity.class),
-            (Class<Object>) isNull())).thenReturn(someEntity);
+        .thenReturn(
+            Arrays.asList(
+                mockService(serviceOne), mockService(serviceTwo), mockService(serviceThree)));
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.PUT),
+            any(HttpEntity.class),
+            (Class<Object>) isNull()))
+        .thenReturn(someEntity);
 
     retryableRestTemplate.put(Env.DEV, path, request);
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate)
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.PUT), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.PUT),
+            argumentCaptor.capture(),
             (Class<Object>) isNull());
 
     assertEquals(request, argumentCaptor.getValue().getBody());
@@ -243,9 +302,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
     when(someEntity.getBody()).thenReturn(result);
 
     Object actualResult = retryableRestTemplate.post(someEnv, path, request, requestType);
@@ -254,7 +316,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpEntity entity = argumentCaptor.getValue();
@@ -274,9 +339,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
         .thenReturn(mockAdminServiceTokens(someEnv, someToken));
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
     when(someEntity.getBody()).thenReturn(result);
 
     Object actualResult = retryableRestTemplate.post(someEnv, path, request, requestType);
@@ -285,7 +353,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpEntity entity = argumentCaptor.getValue();
@@ -311,9 +382,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
     when(serviceAddressLocator.getServiceList(anotherEnv))
         .thenReturn(Collections.singletonList(mockService(serviceTwo)));
-    when(restTemplate
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
     when(someEntity.getBody()).thenReturn(result);
 
     Object actualResult = retryableRestTemplate.post(anotherEnv, path, request, requestType);
@@ -322,7 +396,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.POST), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.POST),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpEntity entity = argumentCaptor.getValue();
@@ -344,9 +421,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
     when(someEntity.getBody()).thenReturn(result);
 
     Object actualResult = retryableRestTemplate.post(someEnv, path, requestEntity, requestType);
@@ -355,7 +435,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpEntity entity = argumentCaptor.getValue();
@@ -380,9 +463,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
         .thenReturn(mockAdminServiceTokens(someEnv, someToken));
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
     when(someEntity.getBody()).thenReturn(result);
 
     Object actualResult = retryableRestTemplate.post(someEnv, path, requestEntity, requestType);
@@ -391,7 +477,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.POST), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.POST),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpEntity entity = argumentCaptor.getValue();
@@ -411,9 +500,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
 
     ResponseEntity actualResult = retryableRestTemplate.get(someEnv, path, requestType);
 
@@ -421,7 +513,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpHeaders headers = argumentCaptor.getValue().getHeaders();
@@ -440,9 +535,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
         .thenReturn(mockAdminServiceTokens(someEnv, someToken));
     when(serviceAddressLocator.getServiceList(someEnv))
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
-    when(restTemplate
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
 
     ResponseEntity actualResult = retryableRestTemplate.get(someEnv, path, requestType);
 
@@ -450,7 +548,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceOne + "/" + path), eq(HttpMethod.GET), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceOne + "/" + path),
+            eq(HttpMethod.GET),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpHeaders headers = argumentCaptor.getValue().getHeaders();
@@ -475,9 +576,12 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
         .thenReturn(Collections.singletonList(mockService(serviceOne)));
     when(serviceAddressLocator.getServiceList(anotherEnv))
         .thenReturn(Collections.singletonList(mockService(serviceTwo)));
-    when(restTemplate
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), any(HttpEntity.class),
-            eq(requestType))).thenReturn(someEntity);
+    when(restTemplate.exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            any(HttpEntity.class),
+            eq(requestType)))
+        .thenReturn(someEntity);
 
     ResponseEntity actualResult = retryableRestTemplate.get(anotherEnv, path, requestType);
 
@@ -485,7 +589,10 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
     ArgumentCaptor<HttpEntity> argumentCaptor = ArgumentCaptor.forClass(HttpEntity.class);
     verify(restTemplate, times(1))
-        .exchange(eq(serviceTwo + "/" + path), eq(HttpMethod.GET), argumentCaptor.capture(),
+        .exchange(
+            eq(serviceTwo + "/" + path),
+            eq(HttpMethod.GET),
+            argumentCaptor.capture(),
             eq(requestType));
 
     HttpHeaders headers = argumentCaptor.getValue().getHeaders();
@@ -505,5 +612,4 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
     serviceDTO.setHomepageUrl(homeUrl);
     return serviceDTO;
   }
-
 }

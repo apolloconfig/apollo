@@ -29,11 +29,10 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.common.utils.UniqueKeyGenerator;
 import com.google.common.collect.Maps;
+import java.util.Map;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Map;
 
 @Service
 public class NamespaceBranchService {
@@ -61,9 +60,10 @@ public class NamespaceBranchService {
   }
 
   @Transactional
-  public Namespace createBranch(String appId, String parentClusterName, String namespaceName, String operator){
+  public Namespace createBranch(
+      String appId, String parentClusterName, String namespaceName, String operator) {
     Namespace childNamespace = findBranch(appId, parentClusterName, namespaceName);
-    if (childNamespace != null){
+    if (childNamespace != null) {
       throw new BadRequestException("namespace already has branch");
     }
 
@@ -72,14 +72,14 @@ public class NamespaceBranchService {
       throw new BadRequestException("cluster not exist or illegal cluster");
     }
 
-    //create child cluster
+    // create child cluster
     Cluster childCluster = createChildCluster(appId, parentCluster, namespaceName, operator);
 
     Cluster createdChildCluster = clusterService.saveWithoutInstanceOfAppNamespaces(childCluster);
 
-    //create child namespace
-    childNamespace = createNamespaceBranch(appId, createdChildCluster.getName(),
-                                                        namespaceName, operator);
+    // create child namespace
+    childNamespace =
+        createNamespaceBranch(appId, createdChildCluster.getName(), namespaceName, operator);
     return namespaceService.save(childNamespace);
   }
 
@@ -87,24 +87,45 @@ public class NamespaceBranchService {
     return namespaceService.findChildNamespace(appId, parentClusterName, namespaceName);
   }
 
-  public GrayReleaseRule findBranchGrayRules(String appId, String clusterName, String namespaceName,
-                                             String branchName) {
+  public GrayReleaseRule findBranchGrayRules(
+      String appId, String clusterName, String namespaceName, String branchName) {
     return grayReleaseRuleRepository
-        .findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(appId, clusterName, namespaceName, branchName);
+        .findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+            appId, clusterName, namespaceName, branchName);
   }
 
   @Transactional
-  public void updateBranchGrayRules(String appId, String clusterName, String namespaceName,
-                                    String branchName, GrayReleaseRule newRules) {
-    doUpdateBranchGrayRules(appId, clusterName, namespaceName, branchName, newRules, true, ReleaseOperation.APPLY_GRAY_RULES);
+  public void updateBranchGrayRules(
+      String appId,
+      String clusterName,
+      String namespaceName,
+      String branchName,
+      GrayReleaseRule newRules) {
+    doUpdateBranchGrayRules(
+        appId,
+        clusterName,
+        namespaceName,
+        branchName,
+        newRules,
+        true,
+        ReleaseOperation.APPLY_GRAY_RULES);
   }
 
-  private void doUpdateBranchGrayRules(String appId, String clusterName, String namespaceName,
-                                              String branchName, GrayReleaseRule newRules, boolean recordReleaseHistory, int releaseOperation) {
-    GrayReleaseRule oldRules = grayReleaseRuleRepository
-        .findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(appId, clusterName, namespaceName, branchName);
+  private void doUpdateBranchGrayRules(
+      String appId,
+      String clusterName,
+      String namespaceName,
+      String branchName,
+      GrayReleaseRule newRules,
+      boolean recordReleaseHistory,
+      int releaseOperation) {
+    GrayReleaseRule oldRules =
+        grayReleaseRuleRepository
+            .findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+                appId, clusterName, namespaceName, branchName);
 
-    Release latestBranchRelease = releaseService.findLatestActiveRelease(appId, branchName, namespaceName);
+    Release latestBranchRelease =
+        releaseService.findLatestActiveRelease(appId, branchName, namespaceName);
 
     long latestBranchReleaseId = latestBranchRelease != null ? latestBranchRelease.getId() : 0;
 
@@ -112,30 +133,46 @@ public class NamespaceBranchService {
 
     grayReleaseRuleRepository.save(newRules);
 
-    //delete old rules
+    // delete old rules
     if (oldRules != null) {
       grayReleaseRuleRepository.delete(oldRules);
     }
 
     if (recordReleaseHistory) {
       Map<String, Object> releaseOperationContext = Maps.newHashMap();
-      releaseOperationContext.put(ReleaseOperationContext.RULES, GrayReleaseRuleItemTransformer
-          .batchTransformFromJSON(newRules.getRules()));
+      releaseOperationContext.put(
+          ReleaseOperationContext.RULES,
+          GrayReleaseRuleItemTransformer.batchTransformFromJSON(newRules.getRules()));
       if (oldRules != null) {
-        releaseOperationContext.put(ReleaseOperationContext.OLD_RULES,
+        releaseOperationContext.put(
+            ReleaseOperationContext.OLD_RULES,
             GrayReleaseRuleItemTransformer.batchTransformFromJSON(oldRules.getRules()));
       }
-      releaseHistoryService.createReleaseHistory(appId, clusterName, namespaceName, branchName, latestBranchReleaseId,
-          latestBranchReleaseId, releaseOperation, releaseOperationContext, newRules.getDataChangeLastModifiedBy());
+      releaseHistoryService.createReleaseHistory(
+          appId,
+          clusterName,
+          namespaceName,
+          branchName,
+          latestBranchReleaseId,
+          latestBranchReleaseId,
+          releaseOperation,
+          releaseOperationContext,
+          newRules.getDataChangeLastModifiedBy());
     }
   }
 
   @Transactional
-  public GrayReleaseRule updateRulesReleaseId(String appId, String clusterName,
-                                   String namespaceName, String branchName,
-                                   long latestReleaseId, String operator) {
-    GrayReleaseRule oldRules = grayReleaseRuleRepository.
-        findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(appId, clusterName, namespaceName, branchName);
+  public GrayReleaseRule updateRulesReleaseId(
+      String appId,
+      String clusterName,
+      String namespaceName,
+      String branchName,
+      long latestReleaseId,
+      String operator) {
+    GrayReleaseRule oldRules =
+        grayReleaseRuleRepository
+            .findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+                appId, clusterName, namespaceName, branchName);
 
     if (oldRules == null) {
       return null;
@@ -160,18 +197,24 @@ public class NamespaceBranchService {
   }
 
   @Transactional
-  public void deleteBranch(String appId, String clusterName, String namespaceName,
-                           String branchName, int branchStatus, String operator) {
+  public void deleteBranch(
+      String appId,
+      String clusterName,
+      String namespaceName,
+      String branchName,
+      int branchStatus,
+      String operator) {
     Cluster toDeleteCluster = clusterService.findOne(appId, branchName);
     if (toDeleteCluster == null) {
       return;
     }
 
-    Release latestBranchRelease = releaseService.findLatestActiveRelease(appId, branchName, namespaceName);
+    Release latestBranchRelease =
+        releaseService.findLatestActiveRelease(appId, branchName, namespaceName);
 
     long latestBranchReleaseId = latestBranchRelease != null ? latestBranchRelease.getId() : 0;
 
-    //update branch rules
+    // update branch rules
     GrayReleaseRule deleteRule = new GrayReleaseRule();
     deleteRule.setRules("[]");
     deleteRule.setAppId(appId);
@@ -184,33 +227,44 @@ public class NamespaceBranchService {
 
     doUpdateBranchGrayRules(appId, clusterName, namespaceName, branchName, deleteRule, false, -1);
 
-    //delete branch cluster
+    // delete branch cluster
     clusterService.delete(toDeleteCluster.getId(), operator);
 
-    int releaseOperation = branchStatus == NamespaceBranchStatus.MERGED ? ReleaseOperation
-        .GRAY_RELEASE_DELETED_AFTER_MERGE : ReleaseOperation.ABANDON_GRAY_RELEASE;
+    int releaseOperation =
+        branchStatus == NamespaceBranchStatus.MERGED
+            ? ReleaseOperation.GRAY_RELEASE_DELETED_AFTER_MERGE
+            : ReleaseOperation.ABANDON_GRAY_RELEASE;
 
-    releaseHistoryService.createReleaseHistory(appId, clusterName, namespaceName, branchName, latestBranchReleaseId,
-        latestBranchReleaseId, releaseOperation, null, operator);
+    releaseHistoryService.createReleaseHistory(
+        appId,
+        clusterName,
+        namespaceName,
+        branchName,
+        latestBranchReleaseId,
+        latestBranchReleaseId,
+        releaseOperation,
+        null,
+        operator);
 
     auditService.audit("Branch", toDeleteCluster.getId(), Audit.OP.DELETE, operator);
   }
 
-  private Cluster createChildCluster(String appId, Cluster parentCluster,
-                                     String namespaceName, String operator) {
+  private Cluster createChildCluster(
+      String appId, Cluster parentCluster, String namespaceName, String operator) {
 
     Cluster childCluster = new Cluster();
     childCluster.setAppId(appId);
     childCluster.setParentClusterId(parentCluster.getId());
-    childCluster.setName(UniqueKeyGenerator.generate(appId, parentCluster.getName(), namespaceName));
+    childCluster.setName(
+        UniqueKeyGenerator.generate(appId, parentCluster.getName(), namespaceName));
     childCluster.setDataChangeCreatedBy(operator);
     childCluster.setDataChangeLastModifiedBy(operator);
 
     return childCluster;
   }
 
-
-  private Namespace createNamespaceBranch(String appId, String clusterName, String namespaceName, String operator) {
+  private Namespace createNamespaceBranch(
+      String appId, String clusterName, String namespaceName, String operator) {
     Namespace childNamespace = new Namespace();
     childNamespace.setAppId(appId);
     childNamespace.setClusterName(clusterName);
@@ -219,5 +273,4 @@ public class NamespaceBranchService {
     childNamespace.setDataChangeCreatedBy(operator);
     return childNamespace;
   }
-
 }

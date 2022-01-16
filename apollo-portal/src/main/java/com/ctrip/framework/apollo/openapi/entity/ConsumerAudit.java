@@ -17,9 +17,7 @@
 package com.ctrip.framework.apollo.openapi.entity;
 
 import com.google.common.base.MoreObjects;
-
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

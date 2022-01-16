@@ -27,14 +27,13 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 @Service
 public class AppNamespaceService {
@@ -69,7 +68,8 @@ public class AppNamespaceService {
   }
 
   public AppNamespace findPublicAppNamespace(String namespaceName) {
-    List<AppNamespace> appNamespaces = appNamespaceRepository.findByNameAndIsPublic(namespaceName, true);
+    List<AppNamespace> appNamespaces =
+        appNamespaceRepository.findByNameAndIsPublic(namespaceName, true);
 
     if (CollectionUtils.isEmpty(appNamespaces)) {
       return null;
@@ -98,7 +98,8 @@ public class AppNamespaceService {
   @Transactional
   public void createDefaultAppNamespace(String appId) {
     if (!isAppNamespaceNameUnique(appId, ConfigConsts.NAMESPACE_APPLICATION)) {
-      throw new BadRequestException(String.format("App already has application namespace. AppId = %s", appId));
+      throw new BadRequestException(
+          String.format("App already has application namespace. AppId = %s", appId));
     }
 
     AppNamespace appNs = new AppNamespace();
@@ -124,21 +125,25 @@ public class AppNamespaceService {
   }
 
   @Transactional
-  public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
+  public AppNamespace createAppNamespaceInLocal(
+      AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
-    //add app org id as prefix
+    // add app org id as prefix
     App app = appService.load(appId);
     if (app == null) {
       throw new BadRequestException("App not exist. AppId = " + appId);
     }
 
     StringBuilder appNamespaceName = new StringBuilder();
-    //add prefix postfix
+    // add prefix postfix
     appNamespaceName
         .append(appNamespace.isPublic() && appendNamespacePrefix ? app.getOrgId() + "." : "")
         .append(appNamespace.getName())
-        .append(appNamespace.formatAsEnum() == ConfigFileFormat.Properties ? "" : "." + appNamespace.getFormat());
+        .append(
+            appNamespace.formatAsEnum() == ConfigFileFormat.Properties
+                ? ""
+                : "." + appNamespace.getFormat());
     appNamespace.setName(appNamespaceName.toString());
 
     if (appNamespace.getComment() == null) {
@@ -146,7 +151,8 @@ public class AppNamespaceService {
     }
 
     if (!ConfigFileFormat.isValidFormat(appNamespace.getFormat())) {
-     throw new BadRequestException("Invalid namespace format. format must be properties、json、yaml、yml、xml");
+      throw new BadRequestException(
+          "Invalid namespace format. format must be properties、json、yaml、yml、xml");
     }
 
     String operator = appNamespace.getDataChangeCreatedBy();
@@ -162,8 +168,10 @@ public class AppNamespaceService {
       checkAppNamespaceGlobalUniqueness(appNamespace);
     } else {
       // check private app namespace
-      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
-        throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
+      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName())
+          != null) {
+        throw new BadRequestException(
+            "Private AppNamespace " + appNamespace.getName() + " already exists!");
       }
       // should not have the same with public app namespace
       checkPublicAppNamespaceGlobalUniqueness(appNamespace);
@@ -171,8 +179,10 @@ public class AppNamespaceService {
 
     AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
 
-    roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
-    roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceRoles(
+        appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceEnvRoles(
+        appNamespace.getAppId(), appNamespace.getName(), operator);
 
     return createdAppNamespace;
   }
@@ -184,8 +194,10 @@ public class AppNamespaceService {
       checkAppNamespaceGlobalUniqueness(appNamespace);
     } else {
       // check private app namespace
-      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
-        throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
+      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName())
+          != null) {
+        throw new BadRequestException(
+            "Private AppNamespace " + appNamespace.getName() + " already exists!");
       }
       // should not have the same with public app namespace
       checkPublicAppNamespaceGlobalUniqueness(appNamespace);
@@ -195,8 +207,10 @@ public class AppNamespaceService {
 
     String operator = appNamespace.getDataChangeCreatedBy();
 
-    roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
-    roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceRoles(
+        appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceEnvRoles(
+        appNamespace.getAppId(), appNamespace.getName(), operator);
 
     return createdAppNamespace;
   }
@@ -216,30 +230,39 @@ public class AppNamespaceService {
       }
 
       throw new BadRequestException(
-          "Public AppNamespace " + appNamespace.getName() + " already exists as private AppNamespace in appId: "
-              + APP_NAMESPACE_JOINER.join(appIds) + ", etc. Please select another name!");
+          "Public AppNamespace "
+              + appNamespace.getName()
+              + " already exists as private AppNamespace in appId: "
+              + APP_NAMESPACE_JOINER.join(appIds)
+              + ", etc. Please select another name!");
     }
   }
 
   private void checkPublicAppNamespaceGlobalUniqueness(AppNamespace appNamespace) {
     AppNamespace publicAppNamespace = findPublicAppNamespace(appNamespace.getName());
     if (publicAppNamespace != null) {
-      throw new BadRequestException("AppNamespace " + appNamespace.getName() + " already exists as public namespace in appId: " + publicAppNamespace.getAppId() + "!");
+      throw new BadRequestException(
+          "AppNamespace "
+              + appNamespace.getName()
+              + " already exists as public namespace in appId: "
+              + publicAppNamespace.getAppId()
+              + "!");
     }
   }
-
 
   @Transactional
   public AppNamespace deleteAppNamespace(String appId, String namespaceName) {
     AppNamespace appNamespace = appNamespaceRepository.findByAppIdAndName(appId, namespaceName);
     if (appNamespace == null) {
       throw new BadRequestException(
-          String.format("AppNamespace not exists. AppId = %s, NamespaceName = %s", appId, namespaceName));
+          String.format(
+              "AppNamespace not exists. AppId = %s, NamespaceName = %s", appId, namespaceName));
     }
 
     String operator = userInfoHolder.getUser().getUserId();
 
-    // this operator is passed to com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppNamespaceDeletionEvent
+    // this operator is passed to
+    // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppNamespaceDeletionEvent
     appNamespace.setDataChangeLastModifiedBy(operator);
 
     // delete app namespace in portal db

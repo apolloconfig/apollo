@@ -42,7 +42,8 @@ public class NamespaceUtil {
   }
 
   public String normalizeNamespace(String appId, String namespaceName) {
-    AppNamespace appNamespace = appNamespaceServiceWithCache.findByAppIdAndNamespace(appId, namespaceName);
+    AppNamespace appNamespace =
+        appNamespaceServiceWithCache.findByAppIdAndNamespace(appId, namespaceName);
     if (appNamespace != null) {
       return appNamespace.getName();
     }

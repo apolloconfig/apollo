@@ -35,6 +35,4 @@ public class EmailConfiguration {
       return new DefaultEmailService();
     }
   }
-
 }
-

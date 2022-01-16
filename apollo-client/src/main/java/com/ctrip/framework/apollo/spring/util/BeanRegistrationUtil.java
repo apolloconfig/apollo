@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.spring.util;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -35,17 +34,19 @@ public class BeanRegistrationUtil {
   static {
     RESERVED_BEAN_DEFINITIONS.put(
         "org.springframework.context.support.PropertySourcesPlaceholderConfigurer",
-        "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer"
-    );
+        "org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration#propertySourcesPlaceholderConfigurer");
   }
 
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
-      Class<?> beanClass) {
+  public static boolean registerBeanDefinitionIfNotExists(
+      BeanDefinitionRegistry registry, String beanName, Class<?> beanClass) {
     return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
   }
 
-  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
-                                                          Class<?> beanClass, Map<String, Object> extraPropertyValues) {
+  public static boolean registerBeanDefinitionIfNotExists(
+      BeanDefinitionRegistry registry,
+      String beanName,
+      Class<?> beanClass,
+      Map<String, Object> extraPropertyValues) {
     if (registry.containsBeanDefinition(beanName)) {
       return false;
     }
@@ -59,15 +60,20 @@ public class BeanRegistrationUtil {
         return false;
       }
 
-      if (reservedBeanDefinition != null && beanDefinition.getSource() != null && beanDefinition.getSource() instanceof MethodMetadata) {
+      if (reservedBeanDefinition != null
+          && beanDefinition.getSource() != null
+          && beanDefinition.getSource() instanceof MethodMetadata) {
         MethodMetadata metadata = (MethodMetadata) beanDefinition.getSource();
-        if (Objects.equals(reservedBeanDefinition, String.format("%s#%s", metadata.getDeclaringClassName(), metadata.getMethodName()))) {
+        if (Objects.equals(
+            reservedBeanDefinition,
+            String.format("%s#%s", metadata.getDeclaringClassName(), metadata.getMethodName()))) {
           return false;
         }
       }
     }
 
-    BeanDefinition beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
+    BeanDefinition beanDefinition =
+        BeanDefinitionBuilder.genericBeanDefinition(beanClass).getBeanDefinition();
 
     if (extraPropertyValues != null) {
       for (Map.Entry<String, Object> entry : extraPropertyValues.entrySet()) {
@@ -79,6 +85,4 @@ public class BeanRegistrationUtil {
 
     return true;
   }
-
-
 }

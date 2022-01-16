@@ -40,12 +40,9 @@ import org.mockito.stubbing.Answer;
 public class YamlConfigFileTest {
 
   private String someNamespace;
-  @Mock
-  private ConfigRepository configRepository;
-  @Mock
-  private YamlParser yamlParser;
-  @Mock
-  private PropertiesFactory propertiesFactory;
+  @Mock private ConfigRepository configRepository;
+  @Mock private YamlParser yamlParser;
+  @Mock private PropertiesFactory propertiesFactory;
 
   private ConfigSourceType someSourceType;
 
@@ -55,12 +52,14 @@ public class YamlConfigFileTest {
 
     MockInjector.setInstance(YamlParser.class, yamlParser);
 
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new Properties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new Properties();
+              }
+            });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
   }
 
@@ -92,12 +91,14 @@ public class YamlConfigFileTest {
 
   @Test
   public void testWhenHasContentWithOrder() throws Exception {
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new OrderedProperties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new OrderedProperties();
+              }
+            });
     Properties someProperties = new Properties();
     String key = ConfigConsts.CONFIG_FILE_CONTENT_KEY;
     String someContent = "someKey: 'someValue'\nsomeKey2: 'someValue2'";
@@ -115,7 +116,7 @@ public class YamlConfigFileTest {
     assertSame(someContent, configFile.getContent());
     assertSame(yamlProperties, configFile.asProperties());
 
-    String[] actualArrays = configFile.asProperties().keySet().toArray(new String[]{});
+    String[] actualArrays = configFile.asProperties().keySet().toArray(new String[] {});
     String[] expectedArrays = {"someKey", "someKey2"};
     assertArrayEquals(expectedArrays, actualArrays);
   }

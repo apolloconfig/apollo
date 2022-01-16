@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.tracer.internals.cat;
 
 import com.ctrip.framework.apollo.tracer.spi.MessageProducer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
-
 import java.lang.reflect.Method;
 
 /**
@@ -36,16 +35,16 @@ public class CatMessageProducer implements MessageProducer {
     try {
       CAT_CLASS = Class.forName(CatNames.CAT_CLASS);
       LOG_ERROR_WITH_CAUSE = CAT_CLASS.getMethod(CatNames.LOG_ERROR_METHOD, Throwable.class);
-      LOG_ERROR_WITH_MESSAGE_AND_CAUSE = CAT_CLASS.getMethod(CatNames.LOG_ERROR_METHOD,
-          String.class, Throwable.class);
-      LOG_EVENT_WITH_TYPE_AND_NAME = CAT_CLASS.getMethod(CatNames.LOG_EVENT_METHOD,
-          String.class, String.class);
+      LOG_ERROR_WITH_MESSAGE_AND_CAUSE =
+          CAT_CLASS.getMethod(CatNames.LOG_ERROR_METHOD, String.class, Throwable.class);
+      LOG_EVENT_WITH_TYPE_AND_NAME =
+          CAT_CLASS.getMethod(CatNames.LOG_EVENT_METHOD, String.class, String.class);
       LOG_EVENT_WITH_TYPE_AND_NAME_AND_STATUS_AND_NAME_VALUE_PAIRS =
-          CAT_CLASS.getMethod(CatNames.LOG_EVENT_METHOD, String.class, String.class,
-              String.class, String.class);
-      NEW_TRANSACTION_WITH_TYPE_AND_NAME = CAT_CLASS.getMethod(
-          CatNames.NEW_TRANSACTION_METHOD, String.class, String.class);
-      //eager init CatTransaction
+          CAT_CLASS.getMethod(
+              CatNames.LOG_EVENT_METHOD, String.class, String.class, String.class, String.class);
+      NEW_TRANSACTION_WITH_TYPE_AND_NAME =
+          CAT_CLASS.getMethod(CatNames.NEW_TRANSACTION_METHOD, String.class, String.class);
+      // eager init CatTransaction
       CatTransaction.init();
     } catch (Throwable ex) {
       throw new IllegalStateException("Initialize Cat message producer failed", ex);
@@ -82,8 +81,8 @@ public class CatMessageProducer implements MessageProducer {
   @Override
   public void logEvent(String type, String name, String status, String nameValuePairs) {
     try {
-      LOG_EVENT_WITH_TYPE_AND_NAME_AND_STATUS_AND_NAME_VALUE_PAIRS.invoke(null, type, name,
-          status, nameValuePairs);
+      LOG_EVENT_WITH_TYPE_AND_NAME_AND_STATUS_AND_NAME_VALUE_PAIRS.invoke(
+          null, type, name, status, nameValuePairs);
     } catch (Throwable ex) {
       throw new IllegalStateException(ex);
     }

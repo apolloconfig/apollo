@@ -56,7 +56,6 @@ public class PlaceholderHelperTest {
     check("${${some.key:other.key/xx}/xx}/xx", "some.key");
     check("${${some.key}/xx:100}/xx", "some.key");
     check("${${some.key}/xx:${another.key}/xx}xx", "some.key", "another.key");
-
   }
 
   @Test
@@ -70,21 +69,58 @@ public class PlaceholderHelperTest {
 
   @Test
   public void testExtractPlaceholderKeysFromExpression() throws Exception {
-    check("#{new java.text.SimpleDateFormat('${some.key}').parse('${another.key}')}", "some.key", "another.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:abc}').parse('${another.key:100}')}", "some.key", "another.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:${some.other.key}}').parse('${another.key}')}", "some.key", "another.key", "some.other.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:${some.other.key:abc}}').parse('${another.key}')}", "some.key", "another.key", "some.other.key");
-    check("#{new java.text.SimpleDateFormat('${${some.key}}').parse('${${another.key:other.key}}')}", "some.key", "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key}').parse('${another.key}')}",
+        "some.key",
+        "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:abc}').parse('${another.key:100}')}",
+        "some.key",
+        "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:${some.other.key}}').parse('${another.key}')}",
+        "some.key",
+        "another.key",
+        "some.other.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:${some.other.key:abc}}').parse('${another.key}')}",
+        "some.key",
+        "another.key",
+        "some.other.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${${some.key}}').parse('${${another.key:other.key}}')}",
+        "some.key",
+        "another.key");
 
-    check("#{new java.text.SimpleDateFormat('${some.key}/xx').parse('${another.key}/xx')}", "some.key", "another.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:abc}/xx').parse('${another.key:100}/xx')}", "some.key", "another.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:${some.other.key}/xx}/xx').parse('${another.key}/xx')}", "some.key", "another.key", "some.other.key");
-    check("#{new java.text.SimpleDateFormat('${some.key:${some.other.key:abc}/xx}/xx').parse('${another.key}/xx')}", "some.key", "another.key", "some.other.key");
-    check("#{new java.text.SimpleDateFormat('${${some.key}/xx}').parse('${${another.key:other.key}/xx}/xx')}", "some.key", "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key}/xx').parse('${another.key}/xx')}",
+        "some.key",
+        "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:abc}/xx').parse('${another.key:100}/xx')}",
+        "some.key",
+        "another.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:${some.other.key}/xx}/xx').parse('${another.key}/xx')}",
+        "some.key",
+        "another.key",
+        "some.other.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${some.key:${some.other.key:abc}/xx}/xx').parse('${another.key}/xx')}",
+        "some.key",
+        "another.key",
+        "some.other.key");
+    check(
+        "#{new java.text.SimpleDateFormat('${${some.key}/xx}').parse('${${another.key:other.key}/xx}/xx')}",
+        "some.key",
+        "another.key");
 
-
-    assertTrue(placeholderHelper.extractPlaceholderKeys("#{systemProperties[some.key] ?: 123}").isEmpty());
-    assertTrue(placeholderHelper.extractPlaceholderKeys("#{ T(java.lang.Math).random() * 100.0 }").isEmpty());
+    assertTrue(
+        placeholderHelper.extractPlaceholderKeys("#{systemProperties[some.key] ?: 123}").isEmpty());
+    assertTrue(
+        placeholderHelper
+            .extractPlaceholderKeys("#{ T(java.lang.Math).random() * 100.0 }")
+            .isEmpty());
   }
 
   @Test
@@ -94,6 +130,8 @@ public class PlaceholderHelperTest {
   }
 
   private void check(String propertyString, String... expectedPlaceholders) {
-    assertEquals(Sets.newHashSet(expectedPlaceholders), placeholderHelper.extractPlaceholderKeys(propertyString));
+    assertEquals(
+        Sets.newHashSet(expectedPlaceholders),
+        placeholderHelper.extractPlaceholderKeys(propertyString));
   }
 }

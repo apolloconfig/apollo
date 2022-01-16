@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.component.config;
 
-
 import com.ctrip.framework.apollo.common.config.RefreshableConfig;
 import com.ctrip.framework.apollo.common.config.RefreshablePropertySource;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
@@ -44,13 +43,12 @@ public class PortalConfig extends RefreshableConfig {
   private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
   private static final Gson GSON = new Gson();
-  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
-  }.getType();
+  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {}.getType();
 
   /**
    * meta servers config in "PortalDB.ServerConfig"
    */
-  private static final Type META_SERVERS = new TypeToken<Map<String, String>>(){}.getType();
+  private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {}.getType();
 
   private final PortalDBPropertySource portalDBPropertySource;
 
@@ -67,7 +65,8 @@ public class PortalConfig extends RefreshableConfig {
    * Level: important
    **/
   public List<Env> portalSupportedEnvs() {
-    String[] configurations = getArrayProperty("apollo.portal.envs", new String[]{"FAT", "UAT", "PRO"});
+    String[] configurations =
+        getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
     List<Env> envs = Lists.newLinkedList();
 
     for (String env : configurations) {
@@ -138,7 +137,8 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isConfigViewMemberOnly(String env) {
-    String[] configViewMemberOnlyEnvs = getArrayProperty("configView.memberOnly.envs", new String[0]);
+    String[] configViewMemberOnlyEnvs =
+        getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
       if (memberOnlyEnv.equalsIgnoreCase(env)) {
@@ -163,7 +163,9 @@ public class PortalConfig extends RefreshableConfig {
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");
-    return organizations == null ? Collections.emptyList() : GSON.fromJson(organizations, ORGANIZATION);
+    return organizations == null
+        ? Collections.emptyList()
+        : GSON.fromJson(organizations, ORGANIZATION);
   }
 
   public String portalAddress() {
@@ -173,7 +175,8 @@ public class PortalConfig extends RefreshableConfig {
   public boolean isEmergencyPublishAllowed(Env env) {
     String targetEnv = env.name();
 
-    String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
+    String[] emergencyPublishSupportedEnvs =
+        getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
     for (String supportedEnv : emergencyPublishSupportedEnvs) {
       if (Objects.equals(targetEnv, supportedEnv.toUpperCase().trim())) {

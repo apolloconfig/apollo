@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactory;
@@ -45,7 +44,9 @@ public class SpringValueRegistry {
     if (!registry.containsKey(beanFactory)) {
       synchronized (LOCK) {
         if (!registry.containsKey(beanFactory)) {
-          registry.put(beanFactory, Multimaps.synchronizedListMultimap(LinkedListMultimap.<String, SpringValue>create()));
+          registry.put(
+              beanFactory,
+              Multimaps.synchronizedListMultimap(LinkedListMultimap.<String, SpringValue>create()));
         }
       }
     }
@@ -67,17 +68,22 @@ public class SpringValueRegistry {
   }
 
   private void initialize() {
-    Executors.newSingleThreadScheduledExecutor(ApolloThreadFactory.create("SpringValueRegistry", true)).scheduleAtFixedRate(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              scanAndClean();
-            } catch (Throwable ex) {
-              logger.error(ex.getMessage(), ex);
-            }
-          }
-        }, CLEAN_INTERVAL_IN_SECONDS, CLEAN_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+    Executors.newSingleThreadScheduledExecutor(
+            ApolloThreadFactory.create("SpringValueRegistry", true))
+        .scheduleAtFixedRate(
+            new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  scanAndClean();
+                } catch (Throwable ex) {
+                  logger.error(ex.getMessage(), ex);
+                }
+              }
+            },
+            CLEAN_INTERVAL_IN_SECONDS,
+            CLEAN_INTERVAL_IN_SECONDS,
+            TimeUnit.SECONDS);
   }
 
   private void scanAndClean() {

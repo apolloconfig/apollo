@@ -30,10 +30,12 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 public class ConfigPropertySourcesProcessor extends PropertySourcesProcessor
     implements BeanDefinitionRegistryPostProcessor {
 
-  private ConfigPropertySourcesProcessorHelper helper = ServiceBootstrap.loadPrimary(ConfigPropertySourcesProcessorHelper.class);
+  private ConfigPropertySourcesProcessorHelper helper =
+      ServiceBootstrap.loadPrimary(ConfigPropertySourcesProcessorHelper.class);
 
   @Override
-  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+      throws BeansException {
     helper.postProcessBeanDefinitionRegistry(registry);
   }
 }

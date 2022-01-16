@@ -19,19 +19,15 @@ package com.ctrip.framework.apollo.biz.service;
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
-
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-
 public class ClusterServiceTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private AdminService adminService;
+  @Autowired private AdminService adminService;
 
-  @Autowired
-  private ClusterService clusterService;
+  @Autowired private ClusterService clusterService;
 
   @Test(expected = ServiceException.class)
   public void testCreateDuplicateCluster() {

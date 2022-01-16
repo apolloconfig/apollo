@@ -53,7 +53,7 @@ public class ClientAuthenticationFilter implements Filter {
 
   @Override
   public void init(FilterConfig filterConfig) {
-    //nothing
+    // nothing
   }
 
   @Override
@@ -95,7 +95,7 @@ public class ClientAuthenticationFilter implements Filter {
 
   @Override
   public void destroy() {
-    //nothing
+    // nothing
   }
 
   private boolean checkTimestamp(String timestamp) {
@@ -111,8 +111,12 @@ public class ClientAuthenticationFilter implements Filter {
     return Math.abs(x) < authTimeDiffToleranceInMillis;
   }
 
-  private boolean checkAuthorization(String authorization, List<String> availableSecrets,
-      String timestamp, String path, String query) {
+  private boolean checkAuthorization(
+      String authorization,
+      List<String> availableSecrets,
+      String timestamp,
+      String path,
+      String query) {
 
     String signature = null;
     if (authorization != null) {

@@ -38,7 +38,10 @@ import org.springframework.test.context.jdbc.Sql;
 public class AppControllerIntegrationTest extends AbstractIntegrationTest {
 
   @Test
-  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts =
+          "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindAppsAuthorized() {
     final String token = "3c16bf5b1f44b465179253442460e8c0ad845289";
@@ -46,8 +49,11 @@ public class AppControllerIntegrationTest extends AbstractIntegrationTest {
     httpHeaders.set(HttpHeaders.AUTHORIZATION, token);
 
     ResponseEntity<OpenAppDTO[]> responseEntity =
-        restTemplate.exchange(this.url("/openapi/v1/apps/authorized"), HttpMethod.GET,
-            new HttpEntity<>(httpHeaders), OpenAppDTO[].class);
+        restTemplate.exchange(
+            this.url("/openapi/v1/apps/authorized"),
+            HttpMethod.GET,
+            new HttpEntity<>(httpHeaders),
+            OpenAppDTO[].class);
 
     OpenAppDTO[] openAppDTOS = responseEntity.getBody();
     assertEquals(2, openAppDTOS.length);

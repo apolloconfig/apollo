@@ -32,8 +32,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 public class TxtConfigFileTest {
 
   private String someNamespace;
-  @Mock
-  private ConfigRepository configRepository;
+  @Mock private ConfigRepository configRepository;
 
   @Before
   public void setUp() throws Exception {

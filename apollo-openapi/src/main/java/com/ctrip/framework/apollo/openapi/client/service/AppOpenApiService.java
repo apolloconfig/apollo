@@ -28,12 +28,11 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class AppOpenApiService extends AbstractOpenApiService implements
-    com.ctrip.framework.apollo.openapi.api.AppOpenApiService {
-  private static final Type OPEN_ENV_CLUSTER_DTO_LIST_TYPE = new TypeToken<List<OpenEnvClusterDTO>>() {
-  }.getType();
-  private static final Type OPEN_APP_DTO_LIST_TYPE = new TypeToken<List<OpenAppDTO>>() {
-  }.getType();
+public class AppOpenApiService extends AbstractOpenApiService
+    implements com.ctrip.framework.apollo.openapi.api.AppOpenApiService {
+  private static final Type OPEN_ENV_CLUSTER_DTO_LIST_TYPE =
+      new TypeToken<List<OpenEnvClusterDTO>>() {}.getType();
+  private static final Type OPEN_APP_DTO_LIST_TYPE = new TypeToken<List<OpenAppDTO>>() {}.getType();
 
   public AppOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
@@ -43,14 +42,15 @@ public class AppOpenApiService extends AbstractOpenApiService implements
   public List<OpenEnvClusterDTO> getEnvClusterInfo(String appId) {
     checkNotEmpty(appId, "App id");
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .appsPathVal(appId)
-        .customResource("envclusters");
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder().appsPathVal(appId).customResource("envclusters");
 
     try (CloseableHttpResponse response = get(pathBuilder)) {
-      return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_ENV_CLUSTER_DTO_LIST_TYPE);
+      return gson.fromJson(
+          EntityUtils.toString(response.getEntity()), OPEN_ENV_CLUSTER_DTO_LIST_TYPE);
     } catch (Throwable ex) {
-      throw new RuntimeException(String.format("Load env cluster information for appId: %s failed", appId), ex);
+      throw new RuntimeException(
+          String.format("Load env cluster information for appId: %s failed", appId), ex);
     }
   }
 
@@ -61,8 +61,7 @@ public class AppOpenApiService extends AbstractOpenApiService implements
 
   @Override
   public List<OpenAppDTO> getAppsInfo(List<String> appIds) {
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .customResource("apps");
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder().customResource("apps");
 
     if (appIds != null && !appIds.isEmpty()) {
       String param = Joiner.on(",").join(appIds);
@@ -72,16 +71,17 @@ public class AppOpenApiService extends AbstractOpenApiService implements
     try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_APP_DTO_LIST_TYPE);
     } catch (Throwable ex) {
-      throw new RuntimeException(String.format("Load app information for appIds: %s failed", appIds), ex);
+      throw new RuntimeException(
+          String.format("Load app information for appIds: %s failed", appIds), ex);
     }
   }
 
   @Override
   public List<OpenAppDTO> getAuthorizedApps() {
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .customResource("apps/authorized");
-    
-    try(CloseableHttpResponse response = this.get(pathBuilder)) {
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder().customResource("apps/authorized");
+
+    try (CloseableHttpResponse response = this.get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_APP_DTO_LIST_TYPE);
     } catch (Throwable ex) {
       throw new RuntimeException("Load authorized apps failed", ex);

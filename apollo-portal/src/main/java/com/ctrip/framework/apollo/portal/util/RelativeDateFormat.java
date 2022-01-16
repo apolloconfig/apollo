@@ -16,14 +16,12 @@
  */
 package com.ctrip.framework.apollo.portal.util;
 
-import org.apache.commons.lang.time.FastDateFormat;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-
+import org.apache.commons.lang.time.FastDateFormat;
 
 public class RelativeDateFormat {
   private static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd");
@@ -35,34 +33,34 @@ public class RelativeDateFormat {
   private static final String ONE_MONTH_AGO = " months ago";
 
   public static String format(Date date) {
-        Instant instant = date.toInstant();
-        ZoneId zoneId = ZoneId.systemDefault();
-        LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
-        Duration duration = Duration.between(localDateTime, LocalDateTime.now());
-        if (duration.toMillis() <= 0L) {
-            return "now";
-        }
-        if (duration.getSeconds() <= 60L) {
-            return (duration.getSeconds() <= 0 ? 1 : duration.getSeconds()) + ONE_SECOND_AGO;
-        }
-        if (duration.toMinutes() < 45L) {
-            return (duration.toMinutes() <= 0 ? 1 : duration.toMinutes()) + ONE_MINUTE_AGO;
-        }
-        if (duration.toHours() < 24L) {
-            return (duration.toHours() <= 0 ? 1 : duration.toHours()) + ONE_HOUR_AGO;
-        }
-        if (localDateTime.isAfter(LocalDateTime.now().minusDays(1))) {
-            return "yesterday";
-        }
-        if (localDateTime.isAfter(LocalDateTime.now().minusDays(2))) {
-            return "the day before yesterday";
-        }
-        if (duration.toDays() < 30L) {
-            return (duration.toDays() <= 0 ? 1 : duration.toDays()) + ONE_DAY_AGO;
-        }
-        if (duration.toDays() / 30 <= 3L) {
-            return duration.toDays() / 30 + ONE_MONTH_AGO;
-        }
-        return TIMESTAMP_FORMAT.format(date);
+    Instant instant = date.toInstant();
+    ZoneId zoneId = ZoneId.systemDefault();
+    LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+    Duration duration = Duration.between(localDateTime, LocalDateTime.now());
+    if (duration.toMillis() <= 0L) {
+      return "now";
     }
+    if (duration.getSeconds() <= 60L) {
+      return (duration.getSeconds() <= 0 ? 1 : duration.getSeconds()) + ONE_SECOND_AGO;
+    }
+    if (duration.toMinutes() < 45L) {
+      return (duration.toMinutes() <= 0 ? 1 : duration.toMinutes()) + ONE_MINUTE_AGO;
+    }
+    if (duration.toHours() < 24L) {
+      return (duration.toHours() <= 0 ? 1 : duration.toHours()) + ONE_HOUR_AGO;
+    }
+    if (localDateTime.isAfter(LocalDateTime.now().minusDays(1))) {
+      return "yesterday";
+    }
+    if (localDateTime.isAfter(LocalDateTime.now().minusDays(2))) {
+      return "the day before yesterday";
+    }
+    if (duration.toDays() < 30L) {
+      return (duration.toDays() <= 0 ? 1 : duration.toDays()) + ONE_DAY_AGO;
+    }
+    if (duration.toDays() / 30 <= 3L) {
+      return duration.toDays() / 30 + ONE_MONTH_AGO;
+    }
+    return TIMESTAMP_FORMAT.format(date);
+  }
 }

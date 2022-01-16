@@ -29,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class AccessKeyServiceTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private AccessKeyService accessKeyService;
+  @Autowired private AccessKeyService accessKeyService;
 
   @Test
   public void testCreate() {

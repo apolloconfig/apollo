@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
  * For non-eureka discovery services such as kubernetes and nacos, there is no eureka home page, so we need to add a default one
  */
@@ -41,8 +40,8 @@ public class HomePageController {
   @GetMapping("/")
   public List<ServiceDTO> listAllServices() {
     List<ServiceDTO> allServices = Lists.newLinkedList();
-    allServices
-        .addAll(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE));
+    allServices.addAll(
+        discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE));
     allServices.addAll(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE));
 
     return allServices;

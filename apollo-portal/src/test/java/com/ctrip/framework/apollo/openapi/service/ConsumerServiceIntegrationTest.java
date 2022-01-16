@@ -31,11 +31,13 @@ import org.springframework.test.context.jdbc.Sql;
  */
 public class ConsumerServiceIntegrationTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private ConsumerService consumerService;
+  @Autowired private ConsumerService consumerService;
 
   @Test
-  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts =
+          "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindAppIdsAuthorizedByConsumerId() {
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(1000L);

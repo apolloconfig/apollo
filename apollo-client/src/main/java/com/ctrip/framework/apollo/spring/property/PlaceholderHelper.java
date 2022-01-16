@@ -44,25 +44,27 @@ public class PlaceholderHelper {
    * <br />
    * "${somePropertyValue}" -> "the actual property value"
    */
-  public Object resolvePropertyValue(ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
+  public Object resolvePropertyValue(
+      ConfigurableBeanFactory beanFactory, String beanName, String placeholder) {
     // resolve string value
     String strVal = beanFactory.resolveEmbeddedValue(placeholder);
 
-    BeanDefinition bd = (beanFactory.containsBean(beanName) ? beanFactory
-        .getMergedBeanDefinition(beanName) : null);
+    BeanDefinition bd =
+        (beanFactory.containsBean(beanName) ? beanFactory.getMergedBeanDefinition(beanName) : null);
 
     // resolve expressions like "#{systemProperties.myProp}"
     return evaluateBeanDefinitionString(beanFactory, strVal, bd);
   }
 
-  private Object evaluateBeanDefinitionString(ConfigurableBeanFactory beanFactory, String value,
-      BeanDefinition beanDefinition) {
+  private Object evaluateBeanDefinitionString(
+      ConfigurableBeanFactory beanFactory, String value, BeanDefinition beanDefinition) {
     if (beanFactory.getBeanExpressionResolver() == null) {
       return value;
     }
-    Scope scope = (beanDefinition != null ? beanFactory
-        .getRegisteredScope(beanDefinition.getScope()) : null);
-    return beanFactory.getBeanExpressionResolver()
+    Scope scope =
+        (beanDefinition != null ? beanFactory.getRegisteredScope(beanDefinition.getScope()) : null);
+    return beanFactory
+        .getBeanExpressionResolver()
         .evaluate(value, new BeanExpressionContext(beanFactory, scope));
   }
 
@@ -80,7 +82,9 @@ public class PlaceholderHelper {
   public Set<String> extractPlaceholderKeys(String propertyString) {
     Set<String> placeholderKeys = Sets.newHashSet();
 
-    if (Strings.isNullOrEmpty(propertyString) || (!isNormalizedPlaceholder(propertyString) && !isExpressionWithPlaceholder(propertyString))) {
+    if (Strings.isNullOrEmpty(propertyString)
+        || (!isNormalizedPlaceholder(propertyString)
+            && !isExpressionWithPlaceholder(propertyString))) {
       return placeholderKeys;
     }
 
@@ -100,7 +104,8 @@ public class PlaceholderHelper {
         continue;
       }
 
-      String placeholderCandidate = strVal.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
+      String placeholderCandidate =
+          strVal.substring(startIndex + PLACEHOLDER_PREFIX.length(), endIndex);
 
       // ${some.key:other.key}
       if (placeholderCandidate.startsWith(PLACEHOLDER_PREFIX)) {
@@ -114,7 +119,8 @@ public class PlaceholderHelper {
         } else {
           stack.push(placeholderCandidate.substring(0, separatorIndex));
           String defaultValuePart =
-              normalizeToPlaceholder(placeholderCandidate.substring(separatorIndex + VALUE_SEPARATOR.length()));
+              normalizeToPlaceholder(
+                  placeholderCandidate.substring(separatorIndex + VALUE_SEPARATOR.length()));
           if (!Strings.isNullOrEmpty(defaultValuePart)) {
             stack.push(defaultValuePart);
           }
@@ -123,7 +129,8 @@ public class PlaceholderHelper {
 
       // has remaining part, e.g. ${a}.${b}
       if (endIndex + PLACEHOLDER_SUFFIX.length() < strVal.length() - 1) {
-        String remainingPart = normalizeToPlaceholder(strVal.substring(endIndex + PLACEHOLDER_SUFFIX.length()));
+        String remainingPart =
+            normalizeToPlaceholder(strVal.substring(endIndex + PLACEHOLDER_SUFFIX.length()));
         if (!Strings.isNullOrEmpty(remainingPart)) {
           stack.push(remainingPart);
         }
@@ -134,12 +141,15 @@ public class PlaceholderHelper {
   }
 
   private boolean isNormalizedPlaceholder(String propertyString) {
-    return propertyString.startsWith(PLACEHOLDER_PREFIX) && propertyString.contains(PLACEHOLDER_SUFFIX);
+    return propertyString.startsWith(PLACEHOLDER_PREFIX)
+        && propertyString.contains(PLACEHOLDER_SUFFIX);
   }
 
   private boolean isExpressionWithPlaceholder(String propertyString) {
-    return propertyString.startsWith(EXPRESSION_PREFIX) && propertyString.contains(EXPRESSION_SUFFIX)
-        && propertyString.contains(PLACEHOLDER_PREFIX) && propertyString.contains(PLACEHOLDER_SUFFIX);
+    return propertyString.startsWith(EXPRESSION_PREFIX)
+        && propertyString.contains(EXPRESSION_SUFFIX)
+        && propertyString.contains(PLACEHOLDER_PREFIX)
+        && propertyString.contains(PLACEHOLDER_SUFFIX);
   }
 
   private String normalizeToPlaceholder(String strVal) {

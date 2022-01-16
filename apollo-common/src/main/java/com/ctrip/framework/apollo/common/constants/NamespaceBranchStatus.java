@@ -23,5 +23,4 @@ public interface NamespaceBranchStatus {
   int ACTIVE = 1;
 
   int MERGED = 2;
-
 }

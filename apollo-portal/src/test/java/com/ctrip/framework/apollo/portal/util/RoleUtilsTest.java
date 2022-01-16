@@ -27,7 +27,6 @@ public class RoleUtilsTest {
     assertEquals("someApp", RoleUtils.extractAppIdFromMasterRoleName("Master+someApp"));
     assertEquals("someApp", RoleUtils.extractAppIdFromMasterRoleName("Master+someApp+xx"));
 
-
     assertNull(RoleUtils.extractAppIdFromMasterRoleName("ReleaseNamespace+app1+application"));
   }
 

@@ -16,8 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal;
 
-
 import com.ctrip.framework.apollo.SkipAuthorizationConfiguration;
+import javax.annotation.PostConstruct;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,13 +27,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {
-    PortalApplication.class,
-    SkipAuthorizationConfiguration.class
-}, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = {PortalApplication.class, SkipAuthorizationConfiguration.class},
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationTest {
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();

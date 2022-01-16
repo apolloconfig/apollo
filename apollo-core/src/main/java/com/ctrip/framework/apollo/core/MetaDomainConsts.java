@@ -17,6 +17,16 @@
 package com.ctrip.framework.apollo.core;
 
 import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.core.spi.MetaServerProvider;
+import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
+import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
+import com.ctrip.framework.apollo.core.utils.NetUtil;
+import com.ctrip.framework.apollo.tracer.Tracer;
+import com.ctrip.framework.apollo.tracer.spi.Transaction;
+import com.ctrip.framework.foundation.internals.ServiceBootstrap;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -26,19 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import org.slf4j.Logger;
-
-import com.ctrip.framework.apollo.core.spi.MetaServerProvider;
-import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
-import com.ctrip.framework.apollo.core.utils.NetUtil;
-import com.ctrip.framework.apollo.tracer.Tracer;
-import com.ctrip.framework.apollo.tracer.spi.Transaction;
-import com.ctrip.framework.foundation.internals.ServiceBootstrap;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 /**
  * The meta domain will try to load the meta server address from MetaServerProviders, the default
@@ -63,7 +61,7 @@ public class MetaDomainConsts {
   private static final Map<Env, String> metaServerAddressCache = Maps.newConcurrentMap();
   private static volatile List<MetaServerProvider> metaServerProviders = null;
 
-  private static final long REFRESH_INTERVAL_IN_SECOND = 60;// 1 min
+  private static final long REFRESH_INTERVAL_IN_SECOND = 60; // 1 min
   private static final Logger logger = DeferredLoggerFactory.getLogger(MetaDomainConsts.class);
   // comma separated meta server address -> selected single meta server address cache
   private static final Map<String, String> selectedMetaServerAddressCache = Maps.newConcurrentMap();
@@ -110,7 +108,10 @@ public class MetaDomainConsts {
     for (MetaServerProvider provider : metaServerProviders) {
       metaAddress = provider.getMetaServerAddress(env);
       if (!Strings.isNullOrEmpty(metaAddress)) {
-        logger.info("Located meta server address {} for env {} from {}", metaAddress, env,
+        logger.info(
+            "Located meta server address {} for env {} from {}",
+            metaAddress,
+            env,
             provider.getClass().getName());
         break;
       }
@@ -121,25 +122,28 @@ public class MetaDomainConsts {
       metaAddress = DEFAULT_META_URL;
       logger.warn(
           "Meta server address fallback to {} for env {}, because it is not available in all MetaServerProviders",
-          metaAddress, env);
+          metaAddress,
+          env);
     }
 
     metaServerAddressCache.put(env, metaAddress.trim());
   }
 
   private static List<MetaServerProvider> initMetaServerProviders() {
-    Iterator<MetaServerProvider> metaServerProviderIterator = ServiceBootstrap
-        .loadAll(MetaServerProvider.class);
+    Iterator<MetaServerProvider> metaServerProviderIterator =
+        ServiceBootstrap.loadAll(MetaServerProvider.class);
 
     List<MetaServerProvider> metaServerProviders = Lists.newArrayList(metaServerProviderIterator);
 
-    Collections.sort(metaServerProviders, new Comparator<MetaServerProvider>() {
-      @Override
-      public int compare(MetaServerProvider o1, MetaServerProvider o2) {
-        // the smaller order has higher priority
-        return Integer.compare(o1.getOrder(), o2.getOrder());
-      }
-    });
+    Collections.sort(
+        metaServerProviders,
+        new Comparator<MetaServerProvider>() {
+          @Override
+          public int compare(MetaServerProvider o1, MetaServerProvider o2) {
+            // the smaller order has higher priority
+            return Integer.compare(o1.getOrder(), o2.getOrder());
+          }
+        });
 
     return metaServerProviders;
   }
@@ -171,8 +175,8 @@ public class MetaDomainConsts {
   private static void updateMetaServerAddresses(String metaServerAddresses) {
     logger.debug("Selecting meta server address for: {}", metaServerAddresses);
 
-    Transaction transaction = Tracer
-        .newTransaction("Apollo.MetaService", "refreshMetaServerAddress");
+    Transaction transaction =
+        Tracer.newTransaction("Apollo.MetaService", "refreshMetaServerAddress");
     transaction.addData("Url", metaServerAddresses);
 
     try {
@@ -184,7 +188,7 @@ public class MetaDomainConsts {
 
       for (String address : metaServers) {
         address = address.trim();
-        //check whether /services/config is accessible
+        // check whether /services/config is accessible
         if (NetUtil.pingUrl(address + "/services/config")) {
           // select the first available meta server
           selectedMetaServerAddressCache.put(metaServerAddresses, address);
@@ -202,7 +206,8 @@ public class MetaDomainConsts {
       if (!serverAvailable) {
         logger.warn(
             "Could not find available meta server for configured meta server addresses: {}, fallback to: {}",
-            metaServerAddresses, selectedMetaServerAddressCache.get(metaServerAddresses));
+            metaServerAddresses,
+            selectedMetaServerAddressCache.get(metaServerAddresses));
       }
 
       transaction.setStatus(Transaction.SUCCESS);
@@ -218,19 +223,25 @@ public class MetaDomainConsts {
     ScheduledExecutorService scheduledExecutorService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("MetaServiceLocator", true));
 
-    scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          for (String metaServerAddresses : selectedMetaServerAddressCache.keySet()) {
-            updateMetaServerAddresses(metaServerAddresses);
+    scheduledExecutorService.scheduleAtFixedRate(
+        new Runnable() {
+          @Override
+          public void run() {
+            try {
+              for (String metaServerAddresses : selectedMetaServerAddressCache.keySet()) {
+                updateMetaServerAddresses(metaServerAddresses);
+              }
+            } catch (Throwable ex) {
+              logger.warn(
+                  String.format(
+                      "Refreshing meta server address failed, will retry in %d seconds",
+                      REFRESH_INTERVAL_IN_SECOND),
+                  ex);
+            }
           }
-        } catch (Throwable ex) {
-          logger
-              .warn(String.format("Refreshing meta server address failed, will retry in %d seconds",
-                  REFRESH_INTERVAL_IN_SECOND), ex);
-        }
-      }
-    }, REFRESH_INTERVAL_IN_SECOND, REFRESH_INTERVAL_IN_SECOND, TimeUnit.SECONDS);
+        },
+        REFRESH_INTERVAL_IN_SECOND,
+        REFRESH_INTERVAL_IN_SECOND,
+        TimeUnit.SECONDS);
   }
 }

@@ -42,9 +42,9 @@ import com.ctrip.framework.apollo.exceptions.ApolloConfigStatusCodeException;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
+import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
-import com.ctrip.framework.apollo.util.http.HttpClient;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -74,19 +74,15 @@ import org.mockito.stubbing.Answer;
 @RunWith(MockitoJUnitRunner.class)
 public class RemoteConfigRepositoryTest {
 
-  @Mock
-  private ConfigServiceLocator configServiceLocator;
+  @Mock private ConfigServiceLocator configServiceLocator;
   private String someNamespace;
   private String someServerUrl;
   private ConfigUtil configUtil;
   private HttpClient httpClient;
-  @Mock
-  private static HttpResponse<ApolloConfig> someResponse;
-  @Mock
-  private static HttpResponse<List<ApolloConfigNotification>> pollResponse;
+  @Mock private static HttpResponse<ApolloConfig> someResponse;
+  @Mock private static HttpResponse<List<ApolloConfigNotification>> pollResponse;
   private RemoteConfigLongPollService remoteConfigLongPollService;
-  @Mock
-  private PropertiesFactory propertiesFactory;
+  @Mock private PropertiesFactory propertiesFactory;
 
   private static String someAppId;
   private static String someCluster;
@@ -116,12 +112,14 @@ public class RemoteConfigRepositoryTest {
 
     MockInjector.setInstance(RemoteConfigLongPollService.class, remoteConfigLongPollService);
 
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new Properties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new Properties();
+              }
+            });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
 
     someAppId = "someAppId";
@@ -164,12 +162,14 @@ public class RemoteConfigRepositoryTest {
 
     when(someResponse.getStatusCode()).thenReturn(200);
     when(someResponse.getBody()).thenReturn(someApolloConfig);
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new OrderedProperties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new OrderedProperties();
+              }
+            });
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
 
@@ -180,7 +180,7 @@ public class RemoteConfigRepositoryTest {
     assertEquals(ConfigSourceType.REMOTE, remoteConfigRepository.getSourceType());
     remoteConfigLongPollService.stopLongPollingRefresh();
 
-    String[] actualArrays = config.keySet().toArray(new String[]{});
+    String[] actualArrays = config.keySet().toArray(new String[] {});
     String[] expectedArrays = {"someKey", "someKey2"};
     assertArrayEquals(expectedArrays, actualArrays);
   }
@@ -196,18 +196,22 @@ public class RemoteConfigRepositoryTest {
 
     when(someResponse.getStatusCode()).thenReturn(200);
     when(someResponse.getBody()).thenReturn(someApolloConfig);
-    doAnswer(new Answer<HttpResponse<ApolloConfig>>() {
-      @Override
-      public HttpResponse<ApolloConfig> answer(InvocationOnMock invocation) throws Throwable {
-        HttpRequest request = invocation.getArgument(0, HttpRequest.class);
-        Map<String, String> headers = request.getHeaders();
-        assertNotNull(headers);
-        assertTrue(headers.containsKey(Signature.HTTP_HEADER_TIMESTAMP));
-        assertTrue(headers.containsKey(HttpHeaders.AUTHORIZATION));
+    doAnswer(
+            new Answer<HttpResponse<ApolloConfig>>() {
+              @Override
+              public HttpResponse<ApolloConfig> answer(InvocationOnMock invocation)
+                  throws Throwable {
+                HttpRequest request = invocation.getArgument(0, HttpRequest.class);
+                Map<String, String> headers = request.getHeaders();
+                assertNotNull(headers);
+                assertTrue(headers.containsKey(Signature.HTTP_HEADER_TIMESTAMP));
+                assertTrue(headers.containsKey(HttpHeaders.AUTHORIZATION));
 
-        return someResponse;
-      }
-    }).when(httpClient).doGet(any(HttpRequest.class), any(Class.class));
+                return someResponse;
+              }
+            })
+        .when(httpClient)
+        .doGet(any(HttpRequest.class), any(Class.class));
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
 
@@ -225,7 +229,7 @@ public class RemoteConfigRepositoryTest {
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
 
-    //must stop the long polling before exception occurred
+    // must stop the long polling before exception occurred
     remoteConfigLongPollService.stopLongPollingRefresh();
 
     remoteConfigRepository.getConfig();
@@ -238,7 +242,7 @@ public class RemoteConfigRepositoryTest {
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
 
-    //must stop the long polling before exception occurred
+    // must stop the long polling before exception occurred
     remoteConfigLongPollService.stopLongPollingRefresh();
 
     remoteConfigRepository.getConfig();
@@ -281,15 +285,17 @@ public class RemoteConfigRepositoryTest {
 
     final SettableFuture<Boolean> longPollFinished = SettableFuture.create();
     RepositoryChangeListener someListener = mock(RepositoryChangeListener.class);
-    doAnswer(new Answer<Void>() {
+    doAnswer(
+            new Answer<Void>() {
 
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        longPollFinished.set(true);
-        return null;
-      }
-
-    }).when(someListener).onRepositoryChange(any(String.class), any(Properties.class));
+              @Override
+              public Void answer(InvocationOnMock invocation) throws Throwable {
+                longPollFinished.set(true);
+                return null;
+              }
+            })
+        .when(someListener)
+        .onRepositoryChange(any(String.class), any(Properties.class));
 
     RemoteConfigRepository remoteConfigRepository = new RemoteConfigRepository(someNamespace);
     remoteConfigRepository.addChangeListener(someListener);
@@ -318,9 +324,10 @@ public class RemoteConfigRepositoryTest {
     verify(someListener, times(1)).onRepositoryChange(eq(someNamespace), captor.capture());
     assertEquals(newConfigurations, captor.getValue());
 
-    final ArgumentCaptor<HttpRequest> httpRequestArgumentCaptor = ArgumentCaptor
-        .forClass(HttpRequest.class);
-    verify(httpClient, atLeast(2)).doGet(httpRequestArgumentCaptor.capture(), eq(ApolloConfig.class));
+    final ArgumentCaptor<HttpRequest> httpRequestArgumentCaptor =
+        ArgumentCaptor.forClass(HttpRequest.class);
+    verify(httpClient, atLeast(2))
+        .doGet(httpRequestArgumentCaptor.capture(), eq(ApolloConfig.class));
 
     HttpRequest request = httpRequestArgumentCaptor.getValue();
 
@@ -347,20 +354,27 @@ public class RemoteConfigRepositoryTest {
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
     when(someApolloConfig.getReleaseKey()).thenReturn(someReleaseKey);
 
-    String queryConfigUrl = remoteConfigRepository
-        .assembleQueryConfigUrl(someUri, someAppId, someCluster, someNamespace, null,
+    String queryConfigUrl =
+        remoteConfigRepository.assembleQueryConfigUrl(
+            someUri,
+            someAppId,
+            someCluster,
+            someNamespace,
+            null,
             notificationMessages,
             someApolloConfig);
 
     remoteConfigLongPollService.stopLongPollingRefresh();
-    assertTrue(queryConfigUrl
-        .contains(
+    assertTrue(
+        queryConfigUrl.contains(
             "http://someServer/configs/someAppId/someCluster+%20&.-_someSign/" + someNamespace));
-    assertTrue(queryConfigUrl
-        .contains("releaseKey=20160705193346-583078ef5716c055%2B20160705193308-31c471ddf9087c3f"));
-    assertTrue(queryConfigUrl
-        .contains("messages=" + UrlEscapers.urlFormParameterEscaper()
-            .escape(gson.toJson(notificationMessages))));
+    assertTrue(
+        queryConfigUrl.contains(
+            "releaseKey=20160705193346-583078ef5716c055%2B20160705193308-31c471ddf9087c3f"));
+    assertTrue(
+        queryConfigUrl.contains(
+            "messages="
+                + UrlEscapers.urlFormParameterEscaper().escape(gson.toJson(notificationMessages))));
   }
 
   private ApolloConfig assembleApolloConfig(Map<String, String> configurations) {
@@ -430,9 +444,10 @@ public class RemoteConfigRepositoryTest {
       if (someResponse.getStatusCode() == 200 || someResponse.getStatusCode() == 304) {
         return (HttpResponse<T>) someResponse;
       }
-      throw new ApolloConfigStatusCodeException(someResponse.getStatusCode(),
-              String.format("Http request failed due to status code: %d",
-          someResponse.getStatusCode()));
+      throw new ApolloConfigStatusCodeException(
+          someResponse.getStatusCode(),
+          String.format(
+              "Http request failed due to status code: %d", someResponse.getStatusCode()));
     }
 
     @Override
@@ -444,5 +459,4 @@ public class RemoteConfigRepositoryTest {
       return (HttpResponse<T>) pollResponse;
     }
   }
-
 }

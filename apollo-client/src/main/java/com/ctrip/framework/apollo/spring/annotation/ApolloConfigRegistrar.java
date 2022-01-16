@@ -29,10 +29,12 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 public class ApolloConfigRegistrar implements ImportBeanDefinitionRegistrar, EnvironmentAware {
 
-  private final ApolloConfigRegistrarHelper helper = ServiceBootstrap.loadPrimary(ApolloConfigRegistrarHelper.class);
+  private final ApolloConfigRegistrarHelper helper =
+      ServiceBootstrap.loadPrimary(ApolloConfigRegistrarHelper.class);
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+  public void registerBeanDefinitions(
+      AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
     helper.registerBeanDefinitions(importingClassMetadata, registry);
   }
 
@@ -40,5 +42,4 @@ public class ApolloConfigRegistrar implements ImportBeanDefinitionRegistrar, Env
   public void setEnvironment(Environment environment) {
     this.helper.setEnvironment(environment);
   }
-
 }

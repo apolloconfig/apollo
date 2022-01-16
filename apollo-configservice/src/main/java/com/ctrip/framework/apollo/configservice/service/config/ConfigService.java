@@ -38,6 +38,13 @@ public interface ConfigService extends ReleaseMessageListener {
    * @param clientMessages the messages received in client side
    * @return the Release
    */
-  Release loadConfig(String clientAppId, String clientIp, String clientLabel, String configAppId, String
-      configClusterName, String configNamespace, String dataCenter, ApolloNotificationMessages clientMessages);
+  Release loadConfig(
+      String clientAppId,
+      String clientIp,
+      String clientLabel,
+      String configAppId,
+      String configClusterName,
+      String configNamespace,
+      String dataCenter,
+      ApolloNotificationMessages clientMessages);
 }

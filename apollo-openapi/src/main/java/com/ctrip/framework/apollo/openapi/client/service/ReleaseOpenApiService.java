@@ -26,15 +26,19 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ReleaseOpenApiService extends AbstractOpenApiService implements
-    com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService {
+public class ReleaseOpenApiService extends AbstractOpenApiService
+    implements com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService {
 
   public ReleaseOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
 
   @Override
-  public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName, String namespaceName,
+  public OpenReleaseDTO publishNamespace(
+      String appId,
+      String env,
+      String clusterName,
+      String namespaceName,
       NamespaceReleaseDTO releaseDTO) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
@@ -48,24 +52,28 @@ public class ReleaseOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(releaseDTO.getReleaseTitle(), "Release title");
     checkNotEmpty(releaseDTO.getReleasedBy(), "Released by");
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .customResource("releases");
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .customResource("releases");
 
     try (CloseableHttpResponse response = post(pathBuilder, releaseDTO)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenReleaseDTO.class);
     } catch (Throwable ex) {
-      throw new RuntimeException(String
-          .format("Release namespace: %s for appId: %s, cluster: %s in env: %s failed", namespaceName, appId,
-              clusterName, env), ex);
+      throw new RuntimeException(
+          String.format(
+              "Release namespace: %s for appId: %s, cluster: %s in env: %s failed",
+              namespaceName, appId, clusterName, env),
+          ex);
     }
   }
 
   @Override
-  public OpenReleaseDTO getLatestActiveRelease(String appId, String env, String clusterName, String namespaceName) {
+  public OpenReleaseDTO getLatestActiveRelease(
+      String appId, String env, String clusterName, String namespaceName) {
     if (Strings.isNullOrEmpty(clusterName)) {
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
     }
@@ -76,19 +84,22 @@ public class ReleaseOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(appId, "App id");
     checkNotEmpty(env, "Env");
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .releasesPathVal("latest");
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .releasesPathVal("latest");
 
     try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenReleaseDTO.class);
     } catch (Throwable ex) {
-      throw new RuntimeException(String
-          .format("Get latest active release for appId: %s, cluster: %s, namespace: %s in env: %s failed", appId,
-              clusterName, namespaceName, env), ex);
+      throw new RuntimeException(
+          String.format(
+              "Get latest active release for appId: %s, cluster: %s, namespace: %s in env: %s failed",
+              appId, clusterName, namespaceName, env),
+          ex);
     }
   }
 
@@ -97,15 +108,17 @@ public class ReleaseOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(env, "Env");
     checkNotEmpty(operator, "Operator");
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .releasesPathVal(String.valueOf(releaseId))
-        .customResource("rollback")
-        .addParam("operator", operator);
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .releasesPathVal(String.valueOf(releaseId))
+            .customResource("rollback")
+            .addParam("operator", operator);
 
     try (CloseableHttpResponse ignored = put(pathBuilder, null)) {
     } catch (Throwable ex) {
-      throw new RuntimeException(String.format("Rollback release: %s in env: %s failed", releaseId, env), ex);
+      throw new RuntimeException(
+          String.format("Rollback release: %s in env: %s failed", releaseId, env), ex);
     }
   }
 }

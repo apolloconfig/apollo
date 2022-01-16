@@ -28,7 +28,6 @@
  */
 package com.ctrip.framework.foundation.internals.io;
 
-
 import static com.ctrip.framework.foundation.internals.io.IOUtils.EOF;
 
 import java.io.IOException;
@@ -101,6 +100,7 @@ public class BOMInputStream extends ProxyInputStream {
    * BOMs are sorted from longest to shortest.
    */
   private final List<ByteOrderMark> boms;
+
   private ByteOrderMark byteOrderMark;
   private int[] firstBytes;
   private int fbLength;
@@ -140,20 +140,21 @@ public class BOMInputStream extends ProxyInputStream {
   /**
    * Compares ByteOrderMark objects in descending length order.
    */
-  private static final Comparator<ByteOrderMark> ByteOrderMarkLengthComparator = new Comparator<ByteOrderMark>() {
+  private static final Comparator<ByteOrderMark> ByteOrderMarkLengthComparator =
+      new Comparator<ByteOrderMark>() {
 
-    public int compare(final ByteOrderMark bom1, final ByteOrderMark bom2) {
-      final int len1 = bom1.length();
-      final int len2 = bom2.length();
-      if (len1 > len2) {
-        return EOF;
-      }
-      if (len2 > len1) {
-        return 1;
-      }
-      return 0;
-    }
-  };
+        public int compare(final ByteOrderMark bom1, final ByteOrderMark bom2) {
+          final int len1 = bom1.length();
+          final int len2 = bom2.length();
+          if (len1 > len2) {
+            return EOF;
+          }
+          if (len2 > len1) {
+            return 1;
+          }
+          return 0;
+        }
+      };
 
   /**
    * Constructs a new BOM InputStream that detects the specified BOMs and optionally includes them.
@@ -162,16 +163,17 @@ public class BOMInputStream extends ProxyInputStream {
    * @param include true to include the specified BOMs or false to exclude them
    * @param boms The BOMs to detect and optionally exclude
    */
-  public BOMInputStream(final InputStream delegate, final boolean include, final ByteOrderMark... boms) {
+  public BOMInputStream(
+      final InputStream delegate, final boolean include, final ByteOrderMark... boms) {
     super(delegate);
     if (boms == null || boms.length == 0) {
       throw new IllegalArgumentException("No BOMs specified");
     }
     this.include = include;
-    // Sort the BOMs to match the longest BOM first because some BOMs have the same starting two bytes.
+    // Sort the BOMs to match the longest BOM first because some BOMs have the same starting two
+    // bytes.
     Arrays.sort(boms, ByteOrderMarkLengthComparator);
     this.boms = Arrays.asList(boms);
-
   }
 
   /**

@@ -23,6 +23,4 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @Configuration
 @ComponentScan(basePackageClasses = ApolloBizConfig.class)
-public class ApolloBizConfig {
-
-}
+public class ApolloBizConfig {}

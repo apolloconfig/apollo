@@ -32,11 +32,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceControllerTest {
 
-  @Mock
-  private DiscoveryService discoveryService;
+  @Mock private DiscoveryService discoveryService;
 
-  @Mock
-  private List<ServiceDTO> someServices;
+  @Mock private List<ServiceDTO> someServices;
 
   private ServiceController serviceController;
 
@@ -67,6 +65,5 @@ public class ServiceControllerTest {
         .thenReturn(someServices);
 
     assertEquals(someServices, serviceController.getAdminService());
-
   }
 }

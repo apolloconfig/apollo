@@ -41,8 +41,8 @@ class InterestedConfigChangeEvent extends ConfigChangeEvent {
    */
   private final Set<String> m_interestedChangedKeys;
 
-  public InterestedConfigChangeEvent(String namespace,
-      Map<String, ConfigChange> changes, Set<String> interestedChangedKeys) {
+  public InterestedConfigChangeEvent(
+      String namespace, Map<String, ConfigChange> changes, Set<String> interestedChangedKeys) {
     super(namespace, changes);
     this.m_interestedChangedKeys = interestedChangedKeys;
   }

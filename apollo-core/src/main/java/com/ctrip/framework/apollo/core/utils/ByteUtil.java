@@ -20,9 +20,11 @@ package com.ctrip.framework.apollo.core.utils;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ByteUtil {
-  private static final char[] HEX_CHARS = new char[] {
-      '0', '1', '2', '3', '4', '5', '6', '7',
-      '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+  private static final char[] HEX_CHARS =
+      new char[] {
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+      };
 
   public static byte int3(final int x) {
     return (byte) (x >> 24);

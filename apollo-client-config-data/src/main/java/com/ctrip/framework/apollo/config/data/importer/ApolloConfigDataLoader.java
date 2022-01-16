@@ -54,23 +54,27 @@ public class ApolloConfigDataLoader implements ConfigDataLoader<ApolloConfigData
     ConfigurableBootstrapContext bootstrapContext = context.getBootstrapContext();
     Binder binder = bootstrapContext.get(Binder.class);
     BindHandler bindHandler = this.getBindHandler(context);
-    bootstrapContext.registerIfAbsent(ApolloConfigDataLoaderInitializer.class, InstanceSupplier
-        .from(() -> new ApolloConfigDataLoaderInitializer(this.log, binder, bindHandler,
-            bootstrapContext)));
-    ApolloConfigDataLoaderInitializer apolloConfigDataLoaderInitializer = bootstrapContext
-        .get(ApolloConfigDataLoaderInitializer.class);
+    bootstrapContext.registerIfAbsent(
+        ApolloConfigDataLoaderInitializer.class,
+        InstanceSupplier.from(
+            () ->
+                new ApolloConfigDataLoaderInitializer(
+                    this.log, binder, bindHandler, bootstrapContext)));
+    ApolloConfigDataLoaderInitializer apolloConfigDataLoaderInitializer =
+        bootstrapContext.get(ApolloConfigDataLoaderInitializer.class);
     // init apollo client
-    List<PropertySource<?>> initialPropertySourceList = apolloConfigDataLoaderInitializer
-        .initApolloClient();
+    List<PropertySource<?>> initialPropertySourceList =
+        apolloConfigDataLoaderInitializer.initApolloClient();
     // load config
-    bootstrapContext.registerIfAbsent(ConfigPropertySourceFactory.class,
+    bootstrapContext.registerIfAbsent(
+        ConfigPropertySourceFactory.class,
         InstanceSupplier.from(() -> SpringInjector.getInstance(ConfigPropertySourceFactory.class)));
-    ConfigPropertySourceFactory configPropertySourceFactory = bootstrapContext
-        .get(ConfigPropertySourceFactory.class);
+    ConfigPropertySourceFactory configPropertySourceFactory =
+        bootstrapContext.get(ConfigPropertySourceFactory.class);
     String namespace = resource.getNamespace();
     Config config = ConfigService.getConfig(namespace);
-    ConfigPropertySource configPropertySource = configPropertySourceFactory
-        .getConfigPropertySource(namespace, config);
+    ConfigPropertySource configPropertySource =
+        configPropertySourceFactory.getConfigPropertySource(namespace, config);
     List<PropertySource<?>> propertySourceList = new ArrayList<>();
     propertySourceList.add(configPropertySource);
     propertySourceList.addAll(initialPropertySourceList);

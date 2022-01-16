@@ -55,21 +55,23 @@ public class ByteOrderMark implements Serializable {
 
   /**
    * UTF-32BE BOM (Big-Endian)
-   * 
+   *
    * @since 2.2
    */
-  public static final ByteOrderMark UTF_32BE = new ByteOrderMark("UTF-32BE", 0x00, 0x00, 0xFE, 0xFF);
+  public static final ByteOrderMark UTF_32BE =
+      new ByteOrderMark("UTF-32BE", 0x00, 0x00, 0xFE, 0xFF);
 
   /**
    * UTF-32LE BOM (Little-Endian)
-   * 
+   *
    * @since 2.2
    */
-  public static final ByteOrderMark UTF_32LE = new ByteOrderMark("UTF-32LE", 0xFF, 0xFE, 0x00, 0x00);
+  public static final ByteOrderMark UTF_32LE =
+      new ByteOrderMark("UTF-32LE", 0xFF, 0xFE, 0x00, 0x00);
 
   /**
    * Unicode BOM character; external form depends on the encoding.
-   * 
+   *
    * @see <a href="http://unicode.org/faq/utf_bom.html#BOM">Byte Order Mark (BOM) FAQ</a>
    * @since 2.5
    */
@@ -199,7 +201,4 @@ public class ByteOrderMark implements Serializable {
     builder.append(']');
     return builder.toString();
   }
-
 }
-
-

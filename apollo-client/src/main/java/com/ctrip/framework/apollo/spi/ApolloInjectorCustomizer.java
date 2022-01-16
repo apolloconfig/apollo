@@ -23,6 +23,4 @@ import com.ctrip.framework.apollo.internals.Injector;
 /**
  * Allow users to inject customized instances, see {@link DefaultInjector#getInstance(java.lang.Class)}
  */
-public interface ApolloInjectorCustomizer extends Injector, Ordered {
-
-}
+public interface ApolloInjectorCustomizer extends Injector, Ordered {}

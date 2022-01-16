@@ -27,7 +27,8 @@ public class ApolloOpenApiClientTest {
     String someUrl = "http://someUrl";
     String someToken = "someToken";
 
-    ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder().withPortalUrl(someUrl).withToken(someToken).build();
+    ApolloOpenApiClient client =
+        ApolloOpenApiClient.newBuilder().withPortalUrl(someUrl).withToken(someToken).build();
 
     assertEquals(someUrl, client.getPortalUrl());
     assertEquals(someToken, client.getToken());

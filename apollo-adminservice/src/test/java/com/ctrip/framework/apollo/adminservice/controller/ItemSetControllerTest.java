@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +34,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-
 public class ItemSetControllerTest extends AbstractControllerTest {
 
-  @Autowired
-  ItemRepository itemRepository;
+  @Autowired ItemRepository itemRepository;
 
   @Test
   @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
@@ -49,13 +46,21 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     AppDTO app =
         restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
 
-    ClusterDTO cluster = restTemplate.getForObject(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
-        ClusterDTO.class);
+    ClusterDTO cluster =
+        restTemplate.getForObject(
+            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
+            ClusterDTO.class);
 
     NamespaceDTO namespace =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + app.getAppId()
-            + "/clusters/" + cluster.getName() + "/namespaces/application", NamespaceDTO.class);
+        restTemplate.getForObject(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/application",
+            NamespaceDTO.class);
 
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
@@ -65,7 +70,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     itemSet.setDataChangeLastModifiedBy("created");
     RestTemplate createdTemplate = (new TestRestTemplate()).getRestTemplate();
     createdTemplate.setMessageConverters(restTemplate.getMessageConverters());
-    
+
     int createdSize = 3;
     for (int i = 0; i < createdSize; i++) {
       ItemDTO item = new ItemDTO();
@@ -77,9 +82,17 @@ public class ItemSetControllerTest extends AbstractControllerTest {
 
     ResponseEntity<Void> response =
         createdTemplate.postForEntity(
-            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/"
-                + cluster.getName() + "/namespaces/" + namespace.getNamespaceName() + "/itemset",
-            itemSet, Void.class);
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/itemset",
+            itemSet,
+            Void.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     List<Item> items = itemRepository.findByNamespaceIdOrderByLineNumAsc(namespace.getId());
     Assert.assertEquals(createdSize, items.size());
@@ -98,13 +111,21 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     AppDTO app =
         restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
 
-    ClusterDTO cluster = restTemplate.getForObject(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
-        ClusterDTO.class);
+    ClusterDTO cluster =
+        restTemplate.getForObject(
+            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
+            ClusterDTO.class);
 
     NamespaceDTO namespace =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + app.getAppId()
-            + "/clusters/" + cluster.getName() + "/namespaces/application", NamespaceDTO.class);
+        restTemplate.getForObject(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/application",
+            NamespaceDTO.class);
 
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
@@ -114,7 +135,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     createChangeSet.setDataChangeLastModifiedBy("created");
     RestTemplate createdRestTemplate = (new TestRestTemplate()).getRestTemplate();
     createdRestTemplate.setMessageConverters(restTemplate.getMessageConverters());
-    
+
     int createdSize = 3;
     for (int i = 0; i < createdSize; i++) {
       ItemDTO item = new ItemDTO();
@@ -124,16 +145,32 @@ public class ItemSetControllerTest extends AbstractControllerTest {
       createChangeSet.addCreateItem(item);
     }
 
-    ResponseEntity<Void> response = createdRestTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/itemset",
-        createChangeSet, Void.class);
+    ResponseEntity<Void> response =
+        createdRestTemplate.postForEntity(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/itemset",
+            createChangeSet,
+            Void.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     ItemDTO[] items =
         createdRestTemplate.getForObject(
-            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/"
-                + cluster.getName() + "/namespaces/" + namespace.getNamespaceName() + "/items",
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/items",
             ItemDTO[].class);
 
     ItemChangeSets updateChangeSet = new ItemChangeSets();
@@ -141,17 +178,26 @@ public class ItemSetControllerTest extends AbstractControllerTest {
 
     RestTemplate updatedRestTemplate = (new TestRestTemplate()).getRestTemplate();
     updatedRestTemplate.setMessageConverters(restTemplate.getMessageConverters());
-    
+
     int updatedSize = 2;
     for (int i = 0; i < updatedSize; i++) {
       items[i].setValue("updated_value_" + i);
       updateChangeSet.addUpdateItem(items[i]);
     }
 
-    response = updatedRestTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/itemset",
-        updateChangeSet, Void.class);
+    response =
+        updatedRestTemplate.postForEntity(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/itemset",
+            updateChangeSet,
+            Void.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     List<Item> savedItems = itemRepository.findByNamespaceIdOrderByLineNumAsc(namespace.getId());
     Assert.assertEquals(createdSize, savedItems.size());
@@ -172,13 +218,21 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     AppDTO app =
         restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
 
-    ClusterDTO cluster = restTemplate.getForObject(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
-        ClusterDTO.class);
+    ClusterDTO cluster =
+        restTemplate.getForObject(
+            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
+            ClusterDTO.class);
 
     NamespaceDTO namespace =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + app.getAppId()
-            + "/clusters/" + cluster.getName() + "/namespaces/application", NamespaceDTO.class);
+        restTemplate.getForObject(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/application",
+            NamespaceDTO.class);
 
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
@@ -188,7 +242,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     createChangeSet.setDataChangeLastModifiedBy("created");
     RestTemplate createdTemplate = (new TestRestTemplate()).getRestTemplate();
     createdTemplate.setMessageConverters(restTemplate.getMessageConverters());
-    
+
     int createdSize = 3;
     for (int i = 0; i < createdSize; i++) {
       ItemDTO item = new ItemDTO();
@@ -198,33 +252,58 @@ public class ItemSetControllerTest extends AbstractControllerTest {
       createChangeSet.addCreateItem(item);
     }
 
-    ResponseEntity<Void> response = createdTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/itemset",
-        createChangeSet, Void.class);
+    ResponseEntity<Void> response =
+        createdTemplate.postForEntity(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/itemset",
+            createChangeSet,
+            Void.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
 
     ItemDTO[] items =
         restTemplate.getForObject(
-            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/"
-                + cluster.getName() + "/namespaces/" + namespace.getNamespaceName() + "/items",
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/items",
             ItemDTO[].class);
 
     ItemChangeSets deleteChangeSet = new ItemChangeSets();
     deleteChangeSet.setDataChangeLastModifiedBy("deleted");
     RestTemplate deletedTemplate = (new TestRestTemplate()).getRestTemplate();
     deletedTemplate.setMessageConverters(restTemplate.getMessageConverters());
-    
+
     int deletedSize = 1;
     for (int i = 0; i < deletedSize; i++) {
       items[i].setValue("deleted_value_" + i);
       deleteChangeSet.addDeleteItem(items[i]);
     }
 
-    response = deletedTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/itemset",
-        deleteChangeSet, Void.class);
+    response =
+        deletedTemplate.postForEntity(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/itemset",
+            deleteChangeSet,
+            Void.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     List<Item> savedItems = itemRepository.findByNamespaceIdOrderByLineNumAsc(namespace.getId());
     Assert.assertEquals(createdSize - deletedSize, savedItems.size());

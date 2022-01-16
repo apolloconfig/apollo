@@ -39,190 +39,244 @@ public class OpenApiPathBuilderTest {
 
     path = String.format("apps/%s/envclusters", tools.escapePath(appId));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .appsPathVal(appId)
-        .customResource("envclusters")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .appsPathVal(appId)
+            .customResource("envclusters")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     String param = "1,2,3";
     path = String.format("apps?appIds=%s", tools.escapeParam(param));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .customResource("apps")
-        .addParam("appIds", param)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .customResource("apps")
+            .addParam("appIds", param)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     path = "apps/authorized";
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .customResource("apps/authorized")
-        .buildPath(baseURL);
+    actual = OpenApiPathBuilder.newBuilder().customResource("apps/authorized").buildPath(baseURL);
     assertEquals(expected, actual);
 
     // ClusterOpenApiService path check
 
-    path = String.format("envs/%s/apps/%s/clusters/%s", tools.escapePath(env),
-        tools.escapePath(appId),
-        tools.escapePath(clusterName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s",
+            tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters", tools.escapePath(env),
-        tools.escapePath(appId));
+    path =
+        String.format("envs/%s/apps/%s/clusters", tools.escapePath(env), tools.escapePath(appId));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .customResource("clusters")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .customResource("clusters")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     // ItemOpenApiService path check
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName), tools.escapePath(key));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName),
+            tools.escapePath(key));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .itemsPathVal(key)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .itemsPathVal(key)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/items",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .customResource("items")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .customResource("items")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format(
-        "envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?createIfNotExists=true",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName), tools.escapePath(key));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?createIfNotExists=true",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName),
+            tools.escapePath(key));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .itemsPathVal(key)
-        .addParam("createIfNotExists", "true")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .itemsPathVal(key)
+            .addParam("createIfNotExists", "true")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?operator=%s",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName), tools.escapePath(key), tools.escapeParam(operator));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?operator=%s",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName),
+            tools.escapePath(key),
+            tools.escapeParam(operator));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .itemsPathVal(key)
-        .addParam("operator", operator)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .itemsPathVal(key)
+            .addParam("operator", operator)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     // NamespaceOpenApiService path check
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s", tools.escapePath(env),
-        tools.escapePath(appId), tools.escapePath(clusterName), tools.escapePath(namespaceName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces", tools.escapePath(env),
-        tools.escapePath(appId), tools.escapePath(clusterName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces",
+            tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .customResource("namespaces")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .customResource("namespaces")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     path = String.format("apps/%s/appnamespaces", tools.escapePath(appId));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .appsPathVal(appId)
-        .customResource("appnamespaces")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .appsPathVal(appId)
+            .customResource("appnamespaces")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/lock", tools.escapePath(env),
-        tools.escapePath(appId), tools.escapePath(clusterName), tools.escapePath(namespaceName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/lock",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .customResource("lock")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .customResource("lock")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
     // ReleaseOpenApiService path check
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/releases",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/releases",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .customResource("releases")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .customResource("releases")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/apps/%s/clusters/%s/namespaces/%s/releases/latest",
-        tools.escapePath(env), tools.escapePath(appId), tools.escapePath(clusterName),
-        tools.escapePath(namespaceName));
+    path =
+        String.format(
+            "envs/%s/apps/%s/clusters/%s/namespaces/%s/releases/latest",
+            tools.escapePath(env),
+            tools.escapePath(appId),
+            tools.escapePath(clusterName),
+            tools.escapePath(namespaceName));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName)
-        .namespacesPathVal(namespaceName)
-        .releasesPathVal("latest")
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .releasesPathVal("latest")
+            .buildPath(baseURL);
     assertEquals(expected, actual);
 
-    path = String.format("envs/%s/releases/%s/rollback?operator=%s", tools.escapePath(env),
-        releaseId,
-        tools.escapeParam(operator));
+    path =
+        String.format(
+            "envs/%s/releases/%s/rollback?operator=%s",
+            tools.escapePath(env), releaseId, tools.escapeParam(operator));
     expected = String.format("%s/%s", baseURL, path);
-    actual = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .releasesPathVal(String.valueOf(releaseId))
-        .customResource("rollback")
-        .addParam("operator", operator)
-        .buildPath(baseURL);
+    actual =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .releasesPathVal(String.valueOf(releaseId))
+            .customResource("rollback")
+            .addParam("operator", operator)
+            .buildPath(baseURL);
     assertEquals(expected, actual);
   }
 

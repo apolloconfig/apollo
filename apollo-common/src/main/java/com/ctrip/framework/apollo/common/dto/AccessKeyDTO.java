@@ -57,5 +57,4 @@ public class AccessKeyDTO extends BaseDTO {
   public void setEnabled(Boolean enabled) {
     this.enabled = enabled;
   }
-
 }

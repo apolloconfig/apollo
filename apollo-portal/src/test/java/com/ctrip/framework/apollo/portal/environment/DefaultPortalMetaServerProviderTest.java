@@ -42,7 +42,8 @@ public class DefaultPortalMetaServerProviderTest extends AbstractUnitTest {
 
   @Test
   public void testFromPropertyFile() {
-    assertEquals("http://localhost:8080", defaultPortalMetaServerProvider.getMetaServerAddress(Env.LOCAL));
+    assertEquals(
+        "http://localhost:8080", defaultPortalMetaServerProvider.getMetaServerAddress(Env.LOCAL));
     assertEquals("${dev_meta}", defaultPortalMetaServerProvider.getMetaServerAddress(Env.DEV));
     assertEquals("${pro_meta}", defaultPortalMetaServerProvider.getMetaServerAddress(Env.PRO));
   }
@@ -67,12 +68,12 @@ public class DefaultPortalMetaServerProviderTest extends AbstractUnitTest {
     assertFalse(defaultPortalMetaServerProvider.exists(Env.addEnvironment(randomEnvironment)));
     // reload above added
     defaultPortalMetaServerProvider.reload();
-    assertEquals(randomAddress,
+    assertEquals(
+        randomAddress,
         defaultPortalMetaServerProvider.getMetaServerAddress(Env.valueOf(randomEnvironment)));
     assertTrue(defaultPortalMetaServerProvider.exists(Env.addEnvironment(randomEnvironment)));
 
     // clear the property
     System.clearProperty(randomEnvironment + "_meta");
   }
-
 }

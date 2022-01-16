@@ -16,12 +16,12 @@
  */
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author xm.lin xm.lin@anxincloud.com
@@ -122,7 +122,7 @@ public class LdapProperties {
 
   public String[] determineUrls(Environment environment) {
     if (ObjectUtils.isEmpty(this.urls)) {
-      return new String[]{"ldap://localhost:" + determinePort(environment)};
+      return new String[] {"ldap://localhost:" + determinePort(environment)};
     }
     return this.urls;
   }

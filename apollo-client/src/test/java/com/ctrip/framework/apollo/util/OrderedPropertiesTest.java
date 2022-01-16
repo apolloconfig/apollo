@@ -48,12 +48,11 @@ public class OrderedPropertiesTest {
 
     assertEquals(orderedProperties.containsKey("key2"), legacyProperties.containsKey("key2"));
     assertEquals(orderedProperties.containsValue("key2"), legacyProperties.containsValue("key2"));
-    assertEquals(orderedProperties.containsValue("value2"),
-        legacyProperties.containsValue("value2"));
+    assertEquals(
+        orderedProperties.containsValue("value2"), legacyProperties.containsValue("value2"));
 
     assertEquals(orderedProperties.entrySet(), legacyProperties.entrySet());
     assertEquals(orderedProperties.keySet(), legacyProperties.keySet());
-
   }
 
   @Test
@@ -91,7 +90,6 @@ public class OrderedPropertiesTest {
     assertTrue(values.contains("value2"));
   }
 
-
   @Test(expected = NullPointerException.class)
   public void testPutNull() {
     orderedProperties.put("key3", null);
@@ -104,7 +102,6 @@ public class OrderedPropertiesTest {
     assertEquals("key2", propertyNames.nextElement());
   }
 
-
   @Test
   public void testKeys() {
     Enumeration<Object> keys = orderedProperties.keys();
@@ -112,7 +109,5 @@ public class OrderedPropertiesTest {
     assertEquals("key1", keys.nextElement());
     assertTrue(keys.hasMoreElements());
     assertEquals("key2", keys.nextElement());
-
   }
-
 }

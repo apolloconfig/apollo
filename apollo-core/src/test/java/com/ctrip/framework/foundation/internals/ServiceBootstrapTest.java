@@ -16,13 +16,12 @@
  */
 package com.ctrip.framework.foundation.internals;
 
-import com.ctrip.framework.apollo.core.spi.Ordered;
-import org.junit.Test;
-
-import java.util.ServiceConfigurationError;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.ctrip.framework.apollo.core.spi.Ordered;
+import java.util.ServiceConfigurationError;
+import org.junit.Test;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -75,26 +74,19 @@ public class ServiceBootstrapTest {
     assertTrue(ServiceBootstrap.loadAllOrdered(Interface7.class).isEmpty());
   }
 
-  interface Interface1 {
-  }
+  interface Interface1 {}
 
-  public static class Interface1Impl implements Interface1 {
-  }
+  public static class Interface1Impl implements Interface1 {}
 
-  interface Interface2 {
-  }
+  interface Interface2 {}
 
-  interface Interface3 {
-  }
+  interface Interface3 {}
 
-  interface Interface4 {
-  }
+  interface Interface4 {}
 
-  interface Interface5 {
-  }
+  interface Interface5 {}
 
-  interface Interface6 extends Ordered {
-  }
+  interface Interface6 extends Ordered {}
 
   public static class Interface6Impl1 implements Interface6 {
     @Override
@@ -110,6 +102,5 @@ public class ServiceBootstrapTest {
     }
   }
 
-  interface Interface7 extends Ordered {
-  }
+  interface Interface7 extends Ordered {}
 }

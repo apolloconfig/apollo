@@ -26,20 +26,16 @@ public class NullMessageProducer implements MessageProducer {
   private static final Transaction NULL_TRANSACTION = new NullTransaction();
 
   @Override
-  public void logError(Throwable cause) {
-  }
+  public void logError(Throwable cause) {}
 
   @Override
-  public void logError(String message, Throwable cause) {
-  }
+  public void logError(String message, Throwable cause) {}
 
   @Override
-  public void logEvent(String type, String name) {
-  }
+  public void logEvent(String type, String name) {}
 
   @Override
-  public void logEvent(String type, String name, String status, String nameValuePairs) {
-  }
+  public void logEvent(String type, String name, String status, String nameValuePairs) {}
 
   @Override
   public Transaction newTransaction(String type, String name) {

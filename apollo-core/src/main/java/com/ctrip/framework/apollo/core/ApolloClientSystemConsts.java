@@ -59,8 +59,7 @@ public class ApolloClientSystemConsts {
   /**
    * local cache directory
    */
-  @Deprecated
-  public static final String DEPRECATED_APOLLO_CACHE_DIR = "apollo.cacheDir";
+  @Deprecated public static final String DEPRECATED_APOLLO_CACHE_DIR = "apollo.cacheDir";
 
   /**
    * local cache directory environment variables
@@ -87,13 +86,15 @@ public class ApolloClientSystemConsts {
   /**
    * apollo client access key environment variables
    */
-  public static final String APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES = "APOLLO_ACCESS_KEY_SECRET";
+  public static final String APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES =
+      "APOLLO_ACCESS_KEY_SECRET";
 
   /**
    * apollo client access key environment variables
    */
   @Deprecated
-  public static final String DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES = "APOLLO_ACCESSKEY_SECRET";
+  public static final String DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES =
+      "APOLLO_ACCESSKEY_SECRET";
 
   /**
    * apollo meta server address
@@ -113,8 +114,7 @@ public class ApolloClientSystemConsts {
   /**
    * apollo config service address
    */
-  @Deprecated
-  public static final String DEPRECATED_APOLLO_CONFIG_SERVICE = "apollo.configService";
+  @Deprecated public static final String DEPRECATED_APOLLO_CONFIG_SERVICE = "apollo.configService";
 
   /**
    * apollo config service address environment variables
@@ -125,7 +125,8 @@ public class ApolloClientSystemConsts {
    * apollo config service address environment variables
    */
   @Deprecated
-  public static final String DEPRECATED_APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES = "APOLLO_CONFIGSERVICE";
+  public static final String DEPRECATED_APOLLO_CONFIG_SERVICE_ENVIRONMENT_VARIABLES =
+      "APOLLO_CONFIGSERVICE";
 
   /**
    * enable property order
@@ -135,17 +136,20 @@ public class ApolloClientSystemConsts {
   /**
    * enable property order environment variables
    */
-  public static final String APOLLO_PROPERTY_ORDER_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_ORDER_ENABLE";
+  public static final String APOLLO_PROPERTY_ORDER_ENABLE_ENVIRONMENT_VARIABLES =
+      "APOLLO_PROPERTY_ORDER_ENABLE";
 
   /**
    * enable property names cache
    */
-  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE = "apollo.property.names.cache.enable";
+  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE =
+      "apollo.property.names.cache.enable";
 
   /**
    * enable property names cache environment variables
    */
-  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_NAMES_CACHE_ENABLE";
+  public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES =
+      "APOLLO_PROPERTY_NAMES_CACHE_ENABLE";
 
   /**
    * enable property names cache
@@ -155,5 +159,6 @@ public class ApolloClientSystemConsts {
   /**
    * enable property names cache environment variables
    */
-  public static final String APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_CACHE_FILE_ENABLE";
+  public static final String APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES =
+      "APOLLO_CACHE_FILE_ENABLE";
 }

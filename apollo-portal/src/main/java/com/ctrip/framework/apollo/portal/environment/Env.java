@@ -37,24 +37,24 @@ public class Env {
   // use to cache Env
   private static final Map<String, Env> STRING_ENV_MAP = new ConcurrentHashMap<>();
   // default environments
-  public static final Env LOCAL = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.LOCAL.name());
-  public static final Env DEV = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.DEV.name());
-  public static final Env FWS = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.FWS.name());
-  public static final Env FAT = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.FAT.name());
-  public static final Env UAT = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.UAT.name());
-  public static final Env LPT = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.LPT.name());
-  public static final Env PRO = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.PRO.name());
-  public static final Env TOOLS = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.TOOLS.name());
-  public static final Env UNKNOWN = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.UNKNOWN.name());
+  public static final Env LOCAL =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.LOCAL.name());
+  public static final Env DEV =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.DEV.name());
+  public static final Env FWS =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.FWS.name());
+  public static final Env FAT =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.FAT.name());
+  public static final Env UAT =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.UAT.name());
+  public static final Env LPT =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.LPT.name());
+  public static final Env PRO =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.PRO.name());
+  public static final Env TOOLS =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.TOOLS.name());
+  public static final Env UNKNOWN =
+      addEnvironment(com.ctrip.framework.apollo.core.enums.Env.UNKNOWN.name());
   // name of environment, cannot be null
   private final String name;
 

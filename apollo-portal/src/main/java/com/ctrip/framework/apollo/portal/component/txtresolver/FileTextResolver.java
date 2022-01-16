@@ -20,15 +20,12 @@ import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-
 @Component("fileTextResolver")
 public class FileTextResolver implements ConfigTextResolver {
-
 
   @Override
   public ItemChangeSets resolve(long namespaceId, String configText, List<ItemDTO> baseItems) {
@@ -40,7 +37,7 @@ public class FileTextResolver implements ConfigTextResolver {
       changeSets.addCreateItem(createItem(namespaceId, 0, configText));
     } else {
       ItemDTO beforeItem = baseItems.get(0);
-      if (!configText.equals(beforeItem.getValue())) {//update
+      if (!configText.equals(beforeItem.getValue())) { // update
         changeSets.addUpdateItem(createItem(namespaceId, beforeItem.getId(), configText));
       }
     }

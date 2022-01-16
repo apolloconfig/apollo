@@ -64,9 +64,11 @@ public class NamespaceOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     HttpGet get = request.getValue();
 
-    assertEquals(String
-        .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s", someBaseUrl, someEnv, someAppId, someCluster,
-            someNamespace), get.getURI().toString());
+    assertEquals(
+        String.format(
+            "%s/envs/%s/apps/%s/clusters/%s/namespaces/%s",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace),
+        get.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)
@@ -89,8 +91,10 @@ public class NamespaceOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     HttpGet get = request.getValue();
 
-    assertEquals(String
-            .format("%s/envs/%s/apps/%s/clusters/%s/namespaces", someBaseUrl, someEnv, someAppId, someCluster),
+    assertEquals(
+        String.format(
+            "%s/envs/%s/apps/%s/clusters/%s/namespaces",
+            someBaseUrl, someEnv, someAppId, someCluster),
         get.getURI().toString());
   }
 
@@ -119,7 +123,9 @@ public class NamespaceOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     HttpPost post = request.getValue();
 
-    assertEquals(String.format("%s/apps/%s/appnamespaces", someBaseUrl, someAppId), post.getURI().toString());
+    assertEquals(
+        String.format("%s/apps/%s/appnamespaces", someBaseUrl, someAppId),
+        post.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)
@@ -147,9 +153,11 @@ public class NamespaceOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     HttpGet post = request.getValue();
 
-    assertEquals(String
-        .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/lock", someBaseUrl, someEnv, someAppId, someCluster,
-            someNamespace), post.getURI().toString());
+    assertEquals(
+        String.format(
+            "%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/lock",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace),
+        post.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)

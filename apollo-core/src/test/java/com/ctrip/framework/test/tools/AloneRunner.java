@@ -28,15 +28,15 @@ import org.junit.runners.model.InitializationError;
  */
 public class AloneRunner extends Runner {
 
-  private static final String CONSTRUCTOR_ERROR_FORMAT = "Custom runner class %s should have a public constructor with signature %s(Class testClass)";
+  private static final String CONSTRUCTOR_ERROR_FORMAT =
+      "Custom runner class %s should have a public constructor with signature %s(Class testClass)";
   private final Runner realRunner;
 
   private final ClassLoader testCaseClassloader;
 
   public AloneRunner(Class<?> clazz) throws InitializationError {
 
-    AloneWith annotation = clazz.getAnnotation(
-        AloneWith.class);
+    AloneWith annotation = clazz.getAnnotation(AloneWith.class);
 
     Class<? extends Runner> realClassRunnerClass =
         annotation == null ? JUnit4.class : annotation.value();
@@ -49,8 +49,8 @@ public class AloneRunner extends Runner {
     Thread.currentThread().setContextClassLoader(testCaseClassloader);
     try {
       Class<?> newTestCaseClass = testCaseClassloader.loadClass(clazz.getName());
-      Class<? extends Runner> realRunnerClass = (Class<? extends Runner>) testCaseClassloader
-          .loadClass(realClassRunnerClass.getName());
+      Class<? extends Runner> realRunnerClass =
+          (Class<? extends Runner>) testCaseClassloader.loadClass(realClassRunnerClass.getName());
       realRunner = buildRunner(realRunnerClass, newTestCaseClass);
     } catch (ReflectiveOperationException e) {
       throw new InitializationError(e);
@@ -72,14 +72,14 @@ public class AloneRunner extends Runner {
     Thread.currentThread().setContextClassLoader(backupClassLoader);
   }
 
-  protected Runner buildRunner(Class<? extends Runner> runnerClass,
-      Class<?> testClass) throws ReflectiveOperationException, InitializationError {
+  protected Runner buildRunner(Class<? extends Runner> runnerClass, Class<?> testClass)
+      throws ReflectiveOperationException, InitializationError {
     try {
       return runnerClass.getConstructor(Class.class).newInstance(testClass);
     } catch (NoSuchMethodException e) {
       String simpleName = runnerClass.getSimpleName();
-      throw new InitializationError(String.format(
-          CONSTRUCTOR_ERROR_FORMAT, simpleName, simpleName));
+      throw new InitializationError(
+          String.format(CONSTRUCTOR_ERROR_FORMAT, simpleName, simpleName));
     }
   }
 }

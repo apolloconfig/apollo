@@ -31,6 +31,7 @@ public class Signature {
    * Authorization=Apollo {appId}:{sign}
    */
   private static final String AUTHORIZATION_FORMAT = "Apollo %s:%s";
+
   private static final String DELIMITER = "\n";
 
   public static final String HTTP_HEADER_TIMESTAMP = "Timestamp";

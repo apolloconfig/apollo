@@ -16,18 +16,16 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-import com.ctrip.framework.apollo.util.ExceptionUtil;
-import java.util.Properties;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
 import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.yaml.YamlParser;
+import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -83,8 +81,9 @@ public class YamlConfigFile extends PlainTextConfigFile implements PropertiesCom
     try {
       return ApolloInjector.getInstance(YamlParser.class).yamlToProperties(getContent());
     } catch (Throwable ex) {
-      ApolloConfigException exception = new ApolloConfigException(
-          "Parse yaml file content failed for namespace: " + m_namespace, ex);
+      ApolloConfigException exception =
+          new ApolloConfigException(
+              "Parse yaml file content failed for namespace: " + m_namespace, ex);
       Tracer.logError(exception);
       throw exception;
     }

@@ -87,7 +87,8 @@ public class UserInfoController {
   }
 
   @GetMapping("/users")
-  public List<UserInfo> searchUsersByKeyword(@RequestParam(value = "keyword") String keyword,
+  public List<UserInfo> searchUsersByKeyword(
+      @RequestParam(value = "keyword") String keyword,
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
     return userService.searchUsers(keyword, offset, limit);
@@ -97,5 +98,4 @@ public class UserInfoController {
   public UserInfo getUserByUserId(@PathVariable String userId) {
     return userService.findByUserId(userId);
   }
-
 }

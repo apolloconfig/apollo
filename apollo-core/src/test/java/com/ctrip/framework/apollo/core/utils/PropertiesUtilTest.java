@@ -16,18 +16,14 @@
  */
 package com.ctrip.framework.apollo.core.utils;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-
 import java.io.IOException;
 import java.util.Properties;
-
+import org.junit.Test;
 
 public class PropertiesUtilTest {
-
 
   @Test
   public void testToString() throws IOException {

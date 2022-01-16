@@ -25,8 +25,8 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 
-public class ClusterOpenApiService extends AbstractOpenApiService implements
-    com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService {
+public class ClusterOpenApiService extends AbstractOpenApiService
+    implements com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService {
 
   public ClusterOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
@@ -41,16 +41,19 @@ public class ClusterOpenApiService extends AbstractOpenApiService implements
       clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
     }
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(appId)
-        .clustersPathVal(clusterName);
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName);
 
     try (CloseableHttpResponse response = get(pathBuilder)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenClusterDTO.class);
     } catch (Throwable ex) {
-      throw new RuntimeException(String
-          .format("Get cluster for appId: %s, cluster: %s in env: %s failed", appId, clusterName, env), ex);
+      throw new RuntimeException(
+          String.format(
+              "Get cluster for appId: %s, cluster: %s in env: %s failed", appId, clusterName, env),
+          ex);
     }
   }
 
@@ -61,17 +64,20 @@ public class ClusterOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(openClusterDTO.getName(), "Cluster name");
     checkNotEmpty(openClusterDTO.getDataChangeCreatedBy(), "Created by");
 
-    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
-        .envsPathVal(env)
-        .appsPathVal(openClusterDTO.getAppId())
-        .customResource("clusters");
+    OpenApiPathBuilder pathBuilder =
+        OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(openClusterDTO.getAppId())
+            .customResource("clusters");
 
     try (CloseableHttpResponse response = post(pathBuilder, openClusterDTO)) {
       return gson.fromJson(EntityUtils.toString(response.getEntity()), OpenClusterDTO.class);
     } catch (Throwable ex) {
-      throw new RuntimeException(String
-          .format("Create cluster: %s for appId: %s in env: %s failed", openClusterDTO.getName(),
-              openClusterDTO.getAppId(), env), ex);
+      throw new RuntimeException(
+          String.format(
+              "Create cluster: %s for appId: %s in env: %s failed",
+              openClusterDTO.getName(), openClusterDTO.getAppId(), env),
+          ex);
     }
   }
 }

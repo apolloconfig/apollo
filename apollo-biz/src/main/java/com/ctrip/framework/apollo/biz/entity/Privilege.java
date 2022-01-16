@@ -17,13 +17,11 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "Privilege")
@@ -65,7 +63,10 @@ public class Privilege extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("namespaceId", namespaceId).add("privilType", privilType)
-        .add("name", name).toString();
+    return toStringHelper()
+        .add("namespaceId", namespaceId)
+        .add("privilType", privilType)
+        .add("name", name)
+        .toString();
   }
 }

@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.util;
 
-import java.util.List;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import java.util.List;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -39,7 +38,7 @@ public class ExceptionUtil {
 
     int counter = 0;
     Throwable current = ex;
-    //retrieve up to 10 causes
+    // retrieve up to 10 causes
     while (current.getCause() != null && counter < 10) {
       Throwable next = current.getCause();
       causes.add(next);

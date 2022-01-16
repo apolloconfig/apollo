@@ -35,10 +35,10 @@ import org.springframework.http.HttpHeaders;
 
 public class AdminServiceAuthenticationFilter implements Filter {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(AdminServiceAuthenticationFilter.class);
-  private static final Splitter ACCESS_TOKEN_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+  private static final Logger logger =
+      LoggerFactory.getLogger(AdminServiceAuthenticationFilter.class);
+  private static final Splitter ACCESS_TOKEN_SPLITTER =
+      Splitter.on(",").omitEmptyStrings().trimResults();
 
   private final BizConfig bizConfig;
   private volatile String lastAccessTokens;
@@ -49,9 +49,7 @@ public class AdminServiceAuthenticationFilter implements Filter {
   }
 
   @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
-
-  }
+  public void init(FilterConfig filterConfig) throws ServletException {}
 
   @Override
   public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
@@ -97,7 +95,5 @@ public class AdminServiceAuthenticationFilter implements Filter {
   }
 
   @Override
-  public void destroy() {
-
-  }
+  public void destroy() {}
 }

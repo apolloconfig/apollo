@@ -32,6 +32,6 @@ public interface ApolloClientExtensionInitializer {
    * @param binder                 properties binder
    * @param bindHandler            properties bind handler
    */
-  void initialize(ApolloClientProperties apolloClientProperties, Binder binder,
-      BindHandler bindHandler);
+  void initialize(
+      ApolloClientProperties apolloClientProperties, Binder binder, BindHandler bindHandler);
 }

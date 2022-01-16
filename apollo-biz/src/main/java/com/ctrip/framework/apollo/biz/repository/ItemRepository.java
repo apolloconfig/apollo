@@ -17,15 +17,13 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Item;
-
+import java.util.Date;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
-
-import java.util.Date;
-import java.util.List;
 
 public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
 
@@ -38,11 +36,10 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   List<Item> findByNamespaceIdAndDataChangeLastModifiedTimeGreaterThan(Long namespaceId, Date date);
 
   Page<Item> findByKey(String key, Pageable pageable);
-  
+
   Item findFirst1ByNamespaceIdOrderByLineNumDesc(Long namespaceId);
 
   @Modifying
   @Query("update Item set isdeleted=1,DataChange_LastModifiedBy = ?2 where namespaceId = ?1")
   int deleteByNamespaceId(long namespaceId, String operator);
-
 }

@@ -35,8 +35,8 @@ public class ConfigFileChangeEvent {
    * @param newValue the value after change
    * @param changeType the change type
    */
-  public ConfigFileChangeEvent(String namespace, String oldValue, String newValue,
-      PropertyChangeType changeType) {
+  public ConfigFileChangeEvent(
+      String namespace, String oldValue, String newValue, PropertyChangeType changeType) {
     this.namespace = namespace;
     this.oldValue = oldValue;
     this.newValue = newValue;

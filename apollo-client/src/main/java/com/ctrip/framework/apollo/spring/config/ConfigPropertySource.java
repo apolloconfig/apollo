@@ -16,12 +16,10 @@
  */
 package com.ctrip.framework.apollo.spring.config;
 
+import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import java.util.Set;
-
 import org.springframework.core.env.EnumerablePropertySource;
-
-import com.ctrip.framework.apollo.Config;
 
 /**
  * Property source wrapper for Config

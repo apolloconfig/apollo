@@ -37,7 +37,9 @@ public class ConfigServiceLocatorTest {
     String someConfigServiceUrl = " someConfigServiceUrl ";
     String anotherConfigServiceUrl = " anotherConfigServiceUrl ";
 
-    System.setProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE, someConfigServiceUrl + "," + anotherConfigServiceUrl);
+    System.setProperty(
+        ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE,
+        someConfigServiceUrl + "," + anotherConfigServiceUrl);
 
     ConfigServiceLocator configServiceLocator = new ConfigServiceLocator();
 
@@ -54,7 +56,8 @@ public class ConfigServiceLocatorTest {
     String someConfigServiceUrl = " someConfigServiceUrl ";
     String anotherConfigServiceUrl = " anotherConfigServiceUrl ";
 
-    System.setProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE,
+    System.setProperty(
+        ApolloClientSystemConsts.DEPRECATED_APOLLO_CONFIG_SERVICE,
         someConfigServiceUrl + "," + anotherConfigServiceUrl);
 
     ConfigServiceLocator configServiceLocator = new ConfigServiceLocator();

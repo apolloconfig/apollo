@@ -53,7 +53,8 @@ public class LegacyMetaServerProvider implements MetaServerProvider {
     // 1. Get from System Property.
     String metaAddress = System.getProperty(sourceName);
     if (Strings.isNullOrEmpty(metaAddress)) {
-      // 2. Get from OS environment variable, which could not contain dot and is normally in UPPER case,like DEV_META.
+      // 2. Get from OS environment variable, which could not contain dot and is normally in UPPER
+      // case,like DEV_META.
       metaAddress = System.getenv(sourceName.toUpperCase());
     }
     if (Strings.isNullOrEmpty(metaAddress)) {

@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-import com.google.gson.Gson;
-
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.entity.GrayReleaseRule;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
@@ -25,7 +23,8 @@ import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
-
+import com.google.gson.Gson;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,18 +33,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.util.Map;
-
 public class ReleaseCreationTest extends AbstractIntegrationTest {
 
   private static final Gson GSON = new Gson();
 
-  @Autowired
-  private ReleaseService releaseService;
-  @Autowired
-  private NamespaceBranchService namespaceBranchService;
-  @Autowired
-  private ReleaseHistoryService releaseHistoryService;
+  @Autowired private ReleaseService releaseService;
+  @Autowired private NamespaceBranchService namespaceBranchService;
+  @Autowired private ReleaseHistoryService releaseHistoryService;
 
   private String testApp = "test";
   private String testNamespace = "application";
@@ -53,7 +47,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
   private Pageable pageable = PageRequest.of(0, 10);
 
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPublishNormalNamespace() {
     long namespaceId = 100;
@@ -72,8 +68,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals("v2", configuration.get("k2"));
     Assert.assertEquals("v3", configuration.get("k3"));
 
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, clusterName, testNamespace, pageable);
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, clusterName, testNamespace, pageable);
 
     ReleaseHistory releaseHistory = releaseHistories.getContent().get(0);
 
@@ -82,7 +79,6 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals(latestRelease.getId(), releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
   }
-
 
   /**
    *               Master     |      Branch
@@ -96,7 +92,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *                          |
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPublishMasterNamespaceAndBranchHasNotItems() {
     long parentNamespaceId = 101;
@@ -109,37 +107,42 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Release latestParentNamespaceRelease = releaseService.findLatestActiveRelease(parentNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestParentNamespaceRelease);
 
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(latestParentNamespaceRelease.getConfigurations());
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(latestParentNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", parentNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", parentNamespaceConfiguration.get("k3"));
 
-    //assert child namespace
+    // assert child namespace
     Namespace childNamespace = instanceNamespace(childNamespaceId, childClusterName);
     Release latestChildNamespaceRelease = releaseService.findLatestActiveRelease(childNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestChildNamespaceRelease);
 
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(latestChildNamespaceRelease.getConfigurations());
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(latestChildNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, childNamespaceConfiguration.size());
     Assert.assertEquals("v1", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", childNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", childNamespaceConfiguration.get("k3"));
 
-    GrayReleaseRule rule= namespaceBranchService.findBranchGrayRules(testApp, parentClusterName,
-                                                                     testNamespace, childClusterName);
+    GrayReleaseRule rule =
+        namespaceBranchService.findBranchGrayRules(
+            testApp, parentClusterName,
+            testNamespace, childClusterName);
     Assert.assertNotNull(rule);
     Assert.assertEquals(1, rule.getBranchStatus());
     Assert.assertEquals(Long.valueOf(latestChildNamespaceRelease.getId()), rule.getReleaseId());
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory masterReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
@@ -148,15 +151,15 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.NORMAL_RELEASE, masterReleaseHistory.getOperation());
     Assert.assertEquals(latestParentNamespaceRelease.getId(), masterReleaseHistory.getReleaseId());
     Assert.assertEquals(0, masterReleaseHistory.getPreviousReleaseId());
-    Assert.assertEquals(ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
-        branchReleaseHistory.getOperation());
+    Assert.assertEquals(
+        ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY, branchReleaseHistory.getOperation());
     Assert.assertEquals(latestChildNamespaceRelease.getId(), branchReleaseHistory.getReleaseId());
-    Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(String.format
-        ("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
+    Assert.assertTrue(
+        branchReleaseHistory
+            .getOperationContext()
+            .contains(String.format("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(rule.getRules()));
-
   }
-
 
   /**
    *               Master     |      Branch
@@ -170,7 +173,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *                          |
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPublishMasterNamespaceAndBranchHasItems() {
     long parentNamespaceId = 103;
@@ -183,36 +188,41 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Release latestParentNamespaceRelease = releaseService.findLatestActiveRelease(parentNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestParentNamespaceRelease);
 
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(latestParentNamespaceRelease.getConfigurations());
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(latestParentNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", parentNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", parentNamespaceConfiguration.get("k3"));
 
-    //assert child namespace
+    // assert child namespace
     Namespace childNamespace = instanceNamespace(childNamespaceId, childClusterName);
     Release latestChildNamespaceRelease = releaseService.findLatestActiveRelease(childNamespace);
 
     Assert.assertNotNull(latestChildNamespaceRelease);
 
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(latestChildNamespaceRelease.getConfigurations());
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(latestChildNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, childNamespaceConfiguration.size());
     Assert.assertEquals("v1", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", childNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", childNamespaceConfiguration.get("k3"));
 
-    GrayReleaseRule rule= namespaceBranchService.findBranchGrayRules(testApp, parentClusterName,
-                                                                     testNamespace, childClusterName);
+    GrayReleaseRule rule =
+        namespaceBranchService.findBranchGrayRules(
+            testApp, parentClusterName,
+            testNamespace, childClusterName);
     Assert.assertNotNull(rule);
     Assert.assertEquals(1, rule.getBranchStatus());
     Assert.assertEquals(Long.valueOf(latestChildNamespaceRelease.getId()), rule.getReleaseId());
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory masterReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
@@ -221,14 +231,15 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.NORMAL_RELEASE, masterReleaseHistory.getOperation());
     Assert.assertEquals(latestParentNamespaceRelease.getId(), masterReleaseHistory.getReleaseId());
     Assert.assertEquals(0, masterReleaseHistory.getPreviousReleaseId());
-    Assert.assertEquals(ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
-        branchReleaseHistory.getOperation());
+    Assert.assertEquals(
+        ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY, branchReleaseHistory.getOperation());
     Assert.assertEquals(latestChildNamespaceRelease.getId(), branchReleaseHistory.getReleaseId());
-    Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(String.format
-        ("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
+    Assert.assertTrue(
+        branchReleaseHistory
+            .getOperationContext()
+            .contains(String.format("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(rule.getRules()));
   }
-
 
   /**
    *               Master     |      Branch
@@ -241,7 +252,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *                k3=v3     |      k3=v3
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testModifyMasterNamespaceItemsAndBranchAlsoModify() {
     long parentNamespaceId = 105;
@@ -254,34 +267,39 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Release latestParentNamespaceRelease = releaseService.findLatestActiveRelease(parentNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestParentNamespaceRelease);
 
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(latestParentNamespaceRelease.getConfigurations());
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(latestParentNamespaceRelease.getConfigurations());
     Assert.assertEquals(2, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2-2", parentNamespaceConfiguration.get("k2"));
 
-    //assert child namespace
+    // assert child namespace
     Namespace childNamespace = instanceNamespace(childNamespaceId, childClusterName);
     Release latestChildNamespaceRelease = releaseService.findLatestActiveRelease(childNamespace);
 
     Assert.assertNotNull(latestChildNamespaceRelease);
 
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(latestChildNamespaceRelease.getConfigurations());
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(latestChildNamespaceRelease.getConfigurations());
     Assert.assertEquals(2, childNamespaceConfiguration.size());
     Assert.assertEquals("v1-1", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2-2", childNamespaceConfiguration.get("k2"));
 
-    GrayReleaseRule rule= namespaceBranchService.findBranchGrayRules(testApp, parentClusterName,
-                                                                     testNamespace, childClusterName);
+    GrayReleaseRule rule =
+        namespaceBranchService.findBranchGrayRules(
+            testApp, parentClusterName,
+            testNamespace, childClusterName);
     Assert.assertNotNull(rule);
     Assert.assertEquals(1, rule.getBranchStatus());
     Assert.assertEquals(Long.valueOf(latestChildNamespaceRelease.getId()), rule.getReleaseId());
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory masterReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
@@ -290,12 +308,14 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.NORMAL_RELEASE, masterReleaseHistory.getOperation());
     Assert.assertEquals(latestParentNamespaceRelease.getId(), masterReleaseHistory.getReleaseId());
     Assert.assertEquals(1, masterReleaseHistory.getPreviousReleaseId());
-    Assert.assertEquals(ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
-        branchReleaseHistory.getOperation());
+    Assert.assertEquals(
+        ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY, branchReleaseHistory.getOperation());
     Assert.assertEquals(latestChildNamespaceRelease.getId(), branchReleaseHistory.getReleaseId());
     Assert.assertEquals(2, branchReleaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(String.format
-        ("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
+    Assert.assertTrue(
+        branchReleaseHistory
+            .getOperationContext()
+            .contains(String.format("\"baseReleaseId\":%d", latestParentNamespaceRelease.getId())));
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(rule.getRules()));
   }
 
@@ -310,14 +330,16 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *                k3=v3     |
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPublishBranchAtFirstTime() {
     long parentNamespaceId = 107;
     String parentClusterName = "default4";
     long childNamespaceId = 108;
     String childClusterName = "child-cluster4";
-    //assert child namespace
+    // assert child namespace
     Namespace childNamespace = instanceNamespace(childNamespaceId, childClusterName);
     releaseService.publish(childNamespace, "", "", operator, false);
 
@@ -325,7 +347,8 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Assert.assertNotNull(latestChildNamespaceRelease);
 
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(latestChildNamespaceRelease.getConfigurations());
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(latestChildNamespaceRelease.getConfigurations());
     Assert.assertEquals(4, childNamespaceConfiguration.size());
     Assert.assertEquals("v1-2", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", childNamespaceConfiguration.get("k2"));
@@ -336,36 +359,38 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Release latestParentNamespaceRelease = releaseService.findLatestActiveRelease(parentNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestParentNamespaceRelease);
 
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(latestParentNamespaceRelease.getConfigurations());
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(latestParentNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", parentNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", parentNamespaceConfiguration.get("k3"));
 
-    GrayReleaseRule rule= namespaceBranchService.findBranchGrayRules(testApp, parentClusterName,
-                                                                     testNamespace, childClusterName);
+    GrayReleaseRule rule =
+        namespaceBranchService.findBranchGrayRules(
+            testApp, parentClusterName,
+            testNamespace, childClusterName);
     Assert.assertNotNull(rule);
     Assert.assertEquals(1, rule.getBranchStatus());
     Assert.assertEquals(Long.valueOf(latestChildNamespaceRelease.getId()), rule.getReleaseId());
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
 
     Assert.assertEquals(1, releaseHistories.getTotalElements());
-    Assert.assertEquals(ReleaseOperation.GRAY_RELEASE,
-        branchReleaseHistory.getOperation());
+    Assert.assertEquals(ReleaseOperation.GRAY_RELEASE, branchReleaseHistory.getOperation());
     Assert.assertEquals(latestChildNamespaceRelease.getId(), branchReleaseHistory.getReleaseId());
     Assert.assertEquals(0, branchReleaseHistory.getPreviousReleaseId());
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains("\"baseReleaseId\":3"));
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(rule.getRules()));
   }
-
 
   /**
    *               Master     |      Branch
@@ -381,14 +406,16 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *                          |      k5=v5
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPublishBranch() {
     long parentNamespaceId = 109;
     String parentClusterName = "default5";
     long childNamespaceId = 1010;
     String childClusterName = "child-cluster5";
-    //assert child namespace
+    // assert child namespace
     Namespace childNamespace = instanceNamespace(childNamespaceId, childClusterName);
     releaseService.publish(childNamespace, "", "", operator, false);
 
@@ -396,7 +423,8 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Assert.assertNotNull(latestChildNamespaceRelease);
 
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(latestChildNamespaceRelease.getConfigurations());
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(latestChildNamespaceRelease.getConfigurations());
     Assert.assertEquals(5, childNamespaceConfiguration.size());
     Assert.assertEquals("v1-2", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", childNamespaceConfiguration.get("k2"));
@@ -408,30 +436,33 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
 
     Release latestParentNamespaceRelease = releaseService.findLatestActiveRelease(parentNamespace);
 
-    //assert parent namespace
+    // assert parent namespace
     Assert.assertNotNull(latestParentNamespaceRelease);
 
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(latestParentNamespaceRelease.getConfigurations());
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(latestParentNamespaceRelease.getConfigurations());
     Assert.assertEquals(3, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2", parentNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", parentNamespaceConfiguration.get("k3"));
 
-    GrayReleaseRule rule= namespaceBranchService.findBranchGrayRules(testApp, parentClusterName,
-                                                                     testNamespace, childClusterName);
+    GrayReleaseRule rule =
+        namespaceBranchService.findBranchGrayRules(
+            testApp, parentClusterName,
+            testNamespace, childClusterName);
     Assert.assertNotNull(rule);
     Assert.assertEquals(1, rule.getBranchStatus());
     Assert.assertEquals(Long.valueOf(latestChildNamespaceRelease.getId()), rule.getReleaseId());
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
 
     Assert.assertEquals(1, releaseHistories.getTotalElements());
-    Assert.assertEquals(ReleaseOperation.GRAY_RELEASE,
-        branchReleaseHistory.getOperation());
+    Assert.assertEquals(ReleaseOperation.GRAY_RELEASE, branchReleaseHistory.getOperation());
     Assert.assertEquals(latestChildNamespaceRelease.getId(), branchReleaseHistory.getReleaseId());
     Assert.assertEquals(5, branchReleaseHistory.getPreviousReleaseId());
     Assert.assertTrue(branchReleaseHistory.getOperationContext().contains("\"baseReleaseId\":4"));
@@ -453,7 +484,9 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
    *
    */
   @Test
-  @Sql(scripts = "/sql/release-creation-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/release-creation-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testRollback() {
 
@@ -461,26 +494,32 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     String childClusterName = "child-cluster6";
     String operator = "apollo";
 
-    Release parentNamespaceLatestRelease = releaseService.findLatestActiveRelease(testApp, parentClusterName, testNamespace);
+    Release parentNamespaceLatestRelease =
+        releaseService.findLatestActiveRelease(testApp, parentClusterName, testNamespace);
     releaseService.rollback(parentNamespaceLatestRelease.getId(), operator);
 
-    Release parentNamespaceNewLatestRelease = releaseService.findLatestActiveRelease(testApp, parentClusterName, testNamespace);
-    Map<String, String> parentNamespaceConfiguration = parseConfiguration(parentNamespaceNewLatestRelease.getConfigurations());
+    Release parentNamespaceNewLatestRelease =
+        releaseService.findLatestActiveRelease(testApp, parentClusterName, testNamespace);
+    Map<String, String> parentNamespaceConfiguration =
+        parseConfiguration(parentNamespaceNewLatestRelease.getConfigurations());
     Assert.assertEquals(3, parentNamespaceConfiguration.size());
     Assert.assertEquals("v1-1", parentNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2-1", parentNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", parentNamespaceConfiguration.get("k3"));
 
-    Release childNamespaceNewLatestRelease = releaseService.findLatestActiveRelease(testApp, childClusterName, testNamespace);
-    Map<String, String> childNamespaceConfiguration = parseConfiguration(childNamespaceNewLatestRelease.getConfigurations());
+    Release childNamespaceNewLatestRelease =
+        releaseService.findLatestActiveRelease(testApp, childClusterName, testNamespace);
+    Map<String, String> childNamespaceConfiguration =
+        parseConfiguration(childNamespaceNewLatestRelease.getConfigurations());
     Assert.assertEquals(3, childNamespaceConfiguration.size());
     Assert.assertEquals("v1-2", childNamespaceConfiguration.get("k1"));
     Assert.assertEquals("v2-1", childNamespaceConfiguration.get("k2"));
     Assert.assertEquals("v3", childNamespaceConfiguration.get("k3"));
 
-    //assert release history
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, parentClusterName, testNamespace, pageable);
+    // assert release history
+    Page<ReleaseHistory> releaseHistories =
+        releaseHistoryService.findReleaseHistoriesByNamespace(
+            testApp, parentClusterName, testNamespace, pageable);
 
     ReleaseHistory masterReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory branchReleaseHistory = releaseHistories.getContent().get(0);
@@ -489,14 +528,17 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.ROLLBACK, masterReleaseHistory.getOperation());
     Assert.assertEquals(6, masterReleaseHistory.getReleaseId());
     Assert.assertEquals(7, masterReleaseHistory.getPreviousReleaseId());
-    Assert.assertEquals(ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY,
-        branchReleaseHistory.getOperation());
-    Assert.assertEquals(childNamespaceNewLatestRelease.getId(), branchReleaseHistory.getReleaseId());
+    Assert.assertEquals(
+        ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY, branchReleaseHistory.getOperation());
+    Assert.assertEquals(
+        childNamespaceNewLatestRelease.getId(), branchReleaseHistory.getReleaseId());
     Assert.assertEquals(8, branchReleaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(branchReleaseHistory.getOperationContext().contains(String.format
-        ("\"baseReleaseId\":%d", parentNamespaceNewLatestRelease.getId())));
+    Assert.assertTrue(
+        branchReleaseHistory
+            .getOperationContext()
+            .contains(
+                String.format("\"baseReleaseId\":%d", parentNamespaceNewLatestRelease.getId())));
   }
-
 
   private Namespace instanceNamespace(long id, String clusterName) {
     Namespace namespace = new Namespace();
@@ -510,5 +552,4 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
   private Map<String, String> parseConfiguration(String configuration) {
     return GSON.fromJson(configuration, GsonType.CONFIG);
   }
-
 }

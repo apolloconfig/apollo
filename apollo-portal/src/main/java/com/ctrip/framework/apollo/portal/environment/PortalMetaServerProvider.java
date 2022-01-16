@@ -43,5 +43,4 @@ public interface PortalMetaServerProvider {
    * reload the meta server address in runtime
    */
   void reload();
-
 }

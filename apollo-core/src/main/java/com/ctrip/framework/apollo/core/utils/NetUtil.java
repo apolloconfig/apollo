@@ -68,7 +68,7 @@ public class NetUtil {
         try {
           CharStreams.toString(esr);
         } catch (IOException ioe) {
-          //ignore
+          // ignore
         }
       }
     } finally {

@@ -22,23 +22,22 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.AppRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 
 @Service
 public class AppService {
@@ -73,7 +72,6 @@ public class AppService {
     this.favoriteService = favoriteService;
     this.userService = userService;
   }
-
 
   public List<App> findAll() {
     Iterable<App> apps = appRepository.findAll();
@@ -219,19 +217,20 @@ public class AppService {
     }
     String operator = userInfoHolder.getUser().getUserId();
 
-    //this operator is passed to com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
+    // this operator is passed to
+    // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
     managedApp.setDataChangeLastModifiedBy(operator);
 
-    //删除portal数据库中的app
+    // 删除portal数据库中的app
     appRepository.deleteApp(appId, operator);
 
-    //删除portal数据库中的appNamespace
+    // 删除portal数据库中的appNamespace
     appNamespaceService.batchDeleteByAppId(appId, operator);
 
-    //删除portal数据库中的收藏表
+    // 删除portal数据库中的收藏表
     favoriteService.batchDeleteByAppId(appId, operator);
 
-    //删除portal数据库中Permission、Role相关数据
+    // 删除portal数据库中Permission、Role相关数据
     rolePermissionService.deleteRolePermissionsByAppId(appId, operator);
 
     return managedApp;

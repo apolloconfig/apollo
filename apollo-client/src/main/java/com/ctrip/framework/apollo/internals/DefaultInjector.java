@@ -30,7 +30,6 @@ import com.ctrip.framework.apollo.util.factory.DefaultPropertiesFactory;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.ctrip.framework.apollo.util.http.DefaultHttpClient;
 import com.ctrip.framework.apollo.util.http.HttpClient;
-
 import com.ctrip.framework.apollo.util.yaml.YamlParser;
 import com.ctrip.framework.foundation.internals.ServiceBootstrap;
 import com.google.inject.AbstractModule;
@@ -51,7 +50,8 @@ public class DefaultInjector implements Injector {
       m_injector = Guice.createInjector(new ApolloModule());
       m_customizers = ServiceBootstrap.loadAllOrdered(ApolloInjectorCustomizer.class);
     } catch (Throwable ex) {
-      ApolloConfigException exception = new ApolloConfigException("Unable to initialize Guice Injector!", ex);
+      ApolloConfigException exception =
+          new ApolloConfigException("Unable to initialize Guice Injector!", ex);
       Tracer.logError(exception);
       throw exception;
     }
@@ -83,7 +83,7 @@ public class DefaultInjector implements Injector {
           return instance;
         }
       }
-      //Guice does not support get instance by type and name
+      // Guice does not support get instance by type and name
       return null;
     } catch (Throwable ex) {
       Tracer.logError(ex);

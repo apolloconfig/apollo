@@ -20,40 +20,34 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.ConfigFile;
+import com.ctrip.framework.apollo.ConfigService;
+import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.internals.ConfigManager;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.DefaultInjector;
 import com.ctrip.framework.apollo.internals.SimpleConfig;
 import com.ctrip.framework.apollo.internals.YamlConfigFile;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.google.common.collect.Maps;
 import com.google.common.io.CharStreams;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-
 import java.util.Objects;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
 import org.springframework.util.ReflectionUtils;
-
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigFile;
-import com.ctrip.framework.apollo.ConfigService;
-import com.ctrip.framework.apollo.build.MockInjector;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.internals.ConfigManager;
-import com.google.common.collect.Maps;
-import org.springframework.util.ReflectionUtils.FieldCallback;
-import org.springframework.util.ReflectionUtils.FieldFilter;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -104,8 +98,8 @@ public abstract class AbstractSpringIntegrationTest {
 
     InputStream inputStream = classLoader.getResourceAsStream(filePath);
     Objects.requireNonNull(inputStream, filePath + " may be not exist under src/test/resources/");
-    String yamlContent = CharStreams
-        .toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    String yamlContent =
+        CharStreams.toString(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
     Properties properties = new Properties();
     properties.setProperty(ConfigConsts.CONFIG_FILE_CONTENT_KEY, yamlContent);
@@ -113,7 +107,8 @@ public abstract class AbstractSpringIntegrationTest {
     return properties;
   }
 
-  protected static YamlConfigFile prepareYamlConfigFile(String namespaceNameWithFormat, Properties properties) {
+  protected static YamlConfigFile prepareYamlConfigFile(
+      String namespaceNameWithFormat, Properties properties) {
     ConfigRepository configRepository = mock(ConfigRepository.class);
 
     when(configRepository.getConfig()).thenReturn(properties);
@@ -141,8 +136,8 @@ public abstract class AbstractSpringIntegrationTest {
     return properties;
   }
 
-  protected Properties assembleProperties(String key, String value, String key2, String value2,
-      String key3, String value3) {
+  protected Properties assembleProperties(
+      String key, String value, String key2, String value2, String key3, String value3) {
 
     Properties properties = new Properties();
     properties.setProperty(key, value);
@@ -152,14 +147,14 @@ public abstract class AbstractSpringIntegrationTest {
     return properties;
   }
 
-  protected Date assembleDate(int year, int month, int day, int hour, int minute, int second, int millisecond) {
+  protected Date assembleDate(
+      int year, int month, int day, int hour, int minute, int second, int millisecond) {
     Calendar date = Calendar.getInstance();
-    date.set(year, month - 1, day, hour, minute, second); //Month in Calendar is 0 based
+    date.set(year, month - 1, day, hour, minute, second); // Month in Calendar is 0 based
     date.set(Calendar.MILLISECOND, millisecond);
 
     return date.getTime();
   }
-
 
   protected static void mockConfig(String namespace, Config config) {
     CONFIG_REGISTRY.put(namespace, config);
@@ -170,9 +165,9 @@ public abstract class AbstractSpringIntegrationTest {
   }
 
   protected static void doSetUp() {
-    //as ConfigService is singleton, so we must manually clear its container
+    // as ConfigService is singleton, so we must manually clear its container
     ReflectionUtils.invokeMethod(CONFIG_SERVICE_RESET, null);
-    //as PropertySourcesProcessor has some static variables, so we must manually clear them
+    // as PropertySourcesProcessor has some static variables, so we must manually clear them
     ReflectionUtils.invokeMethod(PROPERTY_SOURCES_PROCESSOR_RESET, null);
     DefaultInjector defaultInjector = new DefaultInjector();
     ConfigManager defaultConfigManager = defaultInjector.getInstance(ConfigManager.class);
@@ -204,7 +199,8 @@ public abstract class AbstractSpringIntegrationTest {
 
     @Override
     public ConfigFile getConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-      ConfigFile configFile = CONFIG_FILE_REGISTRY.get(String.format("%s.%s", namespace, configFileFormat.getValue()));
+      ConfigFile configFile =
+          CONFIG_FILE_REGISTRY.get(String.format("%s.%s", namespace, configFileFormat.getValue()));
       if (configFile != null) {
         return configFile;
       }

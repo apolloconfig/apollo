@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -41,6 +40,11 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import javax.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -57,13 +61,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
-
-import javax.validation.Valid;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
 
 @RestController
 @RequestMapping("/apps")
@@ -131,9 +128,10 @@ public class AppController {
 
     Set<String> admins = appModel.getAdmins();
     if (!CollectionUtils.isEmpty(admins)) {
-      rolePermissionService
-          .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
-              admins, userInfoHolder.getUser().getUserId());
+      rolePermissionService.assignRoleToUsers(
+          RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
+          admins,
+          userInfoHolder.getUser().getUserId());
     }
 
     return createdApp;
@@ -162,20 +160,26 @@ public class AppController {
       try {
         response.addResponseEntity(RichResponseEntity.ok(appService.createEnvNavNode(env, appId)));
       } catch (Exception e) {
-        response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
-            "load env:" + env.getName() + " cluster error." + e
-                .getMessage()));
+        response.addResponseEntity(
+            RichResponseEntity.error(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "load env:" + env.getName() + " cluster error." + e.getMessage()));
       }
     }
     return response;
   }
 
-  @PostMapping(value = "/envs/{env}", consumes = {"application/json"})
+  @PostMapping(
+      value = "/envs/{env}",
+      consumes = {"application/json"})
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {
     appService.createAppInRemote(Env.valueOf(env), app);
 
-    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION,
-            env, userInfoHolder.getUser().getUserId());
+    roleInitializationService.initNamespaceSpecificEnvRoles(
+        app.getAppId(),
+        ConfigConsts.NAMESPACE_APPLICATION,
+        env,
+        userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();
   }
@@ -184,11 +188,10 @@ public class AppController {
   public AppDTO load(@PathVariable String appId) {
     App app = appService.load(appId);
     AppDTO appDto = BeanUtils.transform(AppDTO.class, app);
-    additionalUserInfoEnrichService.enrichAdditionalUserInfo(Collections.singletonList(appDto),
-        AppDtoUserInfoEnrichedAdapter::new);
+    additionalUserInfoEnrichService.enrichAdditionalUserInfo(
+        Collections.singletonList(appDto), AppDtoUserInfoEnrichedAdapter::new);
     return appDto;
   }
-
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping("/{appId:.+}")
@@ -206,14 +209,14 @@ public class AppController {
       try {
         appService.load(env, appId);
       } catch (Exception e) {
-        if (e instanceof HttpClientErrorException &&
-            ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
+        if (e instanceof HttpClientErrorException
+            && ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
           response.addResponseEntity(RichResponseEntity.ok(env.toString()));
         } else {
-          response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
-              String.format("load appId:%s from env %s error.", appId,
-                  env)
-                  + e.getMessage()));
+          response.addResponseEntity(
+              RichResponseEntity.error(
+                  HttpStatus.INTERNAL_SERVER_ERROR,
+                  String.format("load appId:%s from env %s error.", appId, env) + e.getMessage()));
         }
       }
     }
@@ -235,6 +238,5 @@ public class AppController {
         .orgId(orgId)
         .orgName(orgName)
         .build();
-
   }
 }

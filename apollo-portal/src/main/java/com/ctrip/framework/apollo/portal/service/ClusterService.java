@@ -18,14 +18,13 @@ package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ClusterService {
@@ -33,7 +32,8 @@ public class ClusterService {
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ClusterAPI clusterAPI;
 
-  public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI) {
+  public ClusterService(
+      final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI) {
     this.userInfoHolder = userInfoHolder;
     this.clusterAPI = clusterAPI;
   }
@@ -53,12 +53,11 @@ public class ClusterService {
     return clusterDTO;
   }
 
-  public void deleteCluster(Env env, String appId, String clusterName){
+  public void deleteCluster(Env env, String appId, String clusterName) {
     clusterAPI.delete(env, appId, clusterName, userInfoHolder.getUser().getUserId());
   }
 
-  public ClusterDTO loadCluster(String appId, Env env, String clusterName){
+  public ClusterDTO loadCluster(String appId, Env env, String clusterName) {
     return clusterAPI.loadCluster(appId, env, clusterName);
   }
-
 }

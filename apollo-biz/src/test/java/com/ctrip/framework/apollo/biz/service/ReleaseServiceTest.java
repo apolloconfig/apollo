@@ -16,28 +16,6 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import com.ctrip.framework.apollo.biz.AbstractUnitTest;
-import com.ctrip.framework.apollo.biz.MockBeanFactory;
-import com.ctrip.framework.apollo.biz.entity.Release;
-import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-
-import java.util.ArrayList;
-import java.util.Optional;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.springframework.data.domain.PageRequest;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
@@ -45,18 +23,32 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.biz.AbstractUnitTest;
+import com.ctrip.framework.apollo.biz.MockBeanFactory;
+import com.ctrip.framework.apollo.biz.entity.Release;
+import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.springframework.data.domain.PageRequest;
+
 public class ReleaseServiceTest extends AbstractUnitTest {
 
-  @Mock
-  private ReleaseRepository releaseRepository;
-  @Mock
-  private NamespaceService namespaceService;
-  @Mock
-  private ReleaseHistoryService releaseHistoryService;
-  @Mock
-  private ItemSetService itemSetService;
-  @InjectMocks
-  private ReleaseService releaseService;
+  @Mock private ReleaseRepository releaseRepository;
+  @Mock private NamespaceService namespaceService;
+  @Mock private ReleaseHistoryService releaseHistoryService;
+  @Mock private ItemSetService itemSetService;
+  @InjectMocks private ReleaseService releaseService;
 
   private String appId = "appId-test";
   private String clusterName = "cluster-test";
@@ -98,10 +90,9 @@ public class ReleaseServiceTest extends AbstractUnitTest {
   public void testHasNoRelease() {
 
     when(releaseRepository.findById(releaseId)).thenReturn(Optional.of(firstRelease));
-    when(releaseRepository.findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(appId,
-                                                                                                     clusterName,
-                                                                                                     namespaceName,
-                                                                                                     pageRequest))
+    when(releaseRepository
+            .findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+                appId, clusterName, namespaceName, pageRequest))
         .thenReturn(null);
 
     releaseService.rollback(releaseId, user);
@@ -111,12 +102,10 @@ public class ReleaseServiceTest extends AbstractUnitTest {
   public void testRollback() {
 
     when(releaseRepository.findById(releaseId)).thenReturn(Optional.of(firstRelease));
-    when(releaseRepository.findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(appId,
-                                                                                                     clusterName,
-                                                                                                     namespaceName,
-                                                                                                     pageRequest))
-        .thenReturn(
-            Arrays.asList(firstRelease, secondRelease));
+    when(releaseRepository
+            .findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+                appId, clusterName, namespaceName, pageRequest))
+        .thenReturn(Arrays.asList(firstRelease, secondRelease));
 
     releaseService.rollback(releaseId, user);
 
@@ -141,11 +130,9 @@ public class ReleaseServiceTest extends AbstractUnitTest {
     long releaseId3 = 3;
     when(releaseRepository.findById(releaseId1)).thenReturn(Optional.of(releaseList.get(2)));
     when(releaseRepository.findById(releaseId3)).thenReturn(Optional.of(releaseList.get(0)));
-    when(releaseRepository.findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(appId,
-                                                                                                                 clusterName,
-                                                                                                                 namespaceName,
-                                                                                                                 releaseId1,
-                                                                                                                 releaseId3))
+    when(releaseRepository
+            .findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(
+                appId, clusterName, namespaceName, releaseId1, releaseId3))
         .thenReturn(releaseList);
 
     releaseService.rollbackTo(releaseId3, releaseId1, user);
@@ -168,20 +155,25 @@ public class ReleaseServiceTest extends AbstractUnitTest {
     String someValidConfiguration = "{\"apollo.bar\": \"foo\"}";
 
     Release someRelease =
-        MockBeanFactory.mockRelease(someReleaseId, someReleaseKey, someAppId, someClusterName,
-                        someNamespaceName,
-                        someValidConfiguration);
+        MockBeanFactory.mockRelease(
+            someReleaseId,
+            someReleaseKey,
+            someAppId,
+            someClusterName,
+            someNamespaceName,
+            someValidConfiguration);
 
-    when(releaseRepository.findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(someAppId,
-                                                                                                          someClusterName,
-                                                                                                          someNamespaceName))
+    when(releaseRepository
+            .findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+                someAppId, someClusterName, someNamespaceName))
         .thenReturn(someRelease);
 
-    Release result = releaseService.findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
+    Release result =
+        releaseService.findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
 
     verify(releaseRepository, times(1))
-        .findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(someAppId, someClusterName,
-                                                                                        someNamespaceName);
+        .findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+            someAppId, someClusterName, someNamespaceName);
     assertEquals(someAppId, result.getAppId());
     assertEquals(someClusterName, result.getClusterName());
     assertEquals(someReleaseId, result.getId());
@@ -195,16 +187,18 @@ public class ReleaseServiceTest extends AbstractUnitTest {
     String someClusterName = "someClusterName";
     String someNamespaceName = "someNamespaceName";
 
-    when(releaseRepository.findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(someAppId,
-                                                                                                          someClusterName,
-                                                                                                          someNamespaceName))
+    when(releaseRepository
+            .findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+                someAppId, someClusterName, someNamespaceName))
         .thenReturn(null);
 
-    Release result = releaseService.findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
+    Release result =
+        releaseService.findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
 
     assertNull(result);
-    verify(releaseRepository, times(1)).findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
-        someAppId, someClusterName, someNamespaceName);
+    verify(releaseRepository, times(1))
+        .findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+            someAppId, someClusterName, someNamespaceName);
   }
 
   @Test
@@ -238,6 +232,4 @@ public class ReleaseServiceTest extends AbstractUnitTest {
 
     assertEquals(someReleases, result);
   }
-
-
 }

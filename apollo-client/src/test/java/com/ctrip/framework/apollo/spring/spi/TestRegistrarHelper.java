@@ -22,8 +22,8 @@ import org.springframework.core.type.AnnotationMetadata;
 public class TestRegistrarHelper extends DefaultApolloConfigRegistrarHelper {
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-      BeanDefinitionRegistry registry) {
+  public void registerBeanDefinitions(
+      AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
     super.registerBeanDefinitions(importingClassMetadata, registry);
   }
 

@@ -27,10 +27,10 @@ import org.junit.Test;
 /**
  * @author jian.tan
  */
-
 public class ConfigChangeContentBuilderTest {
 
-  private final ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
+  private final ConfigChangeContentBuilder configChangeContentBuilder =
+      new ConfigChangeContentBuilder();
   private String configString;
 
   @Before
@@ -53,13 +53,12 @@ public class ConfigChangeContentBuilderTest {
 
   @Test
   public void testConvertJsonString() {
-    ConfigChangeContentBuilder contentBuilder = ConfigChangeContentBuilder
-        .convertJsonString(configString);
+    ConfigChangeContentBuilder contentBuilder =
+        ConfigChangeContentBuilder.convertJsonString(configString);
 
     assertNotNull(contentBuilder.getCreateItems());
     assertNotNull(contentBuilder.getUpdateItems().get(0).oldItem);
     assertNotNull(contentBuilder.getUpdateItems().get(0).newItem);
     assertNotNull(contentBuilder.getDeleteItems());
   }
-
 }

@@ -16,17 +16,15 @@
  */
 package com.ctrip.framework.apollo.common.exception;
 
-
 import org.springframework.http.HttpStatus;
 
 public class BadRequestException extends AbstractApolloHttpException {
 
   /**
-   * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...) 
+   * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...)
    */
   public BadRequestException(String msgtpl, Object... args) {
     super(msgtpl, args);
     setHttpStatus(HttpStatus.BAD_REQUEST);
   }
-
 }

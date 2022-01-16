@@ -39,5 +39,4 @@ public class PageSettingController {
 
     return setting;
   }
-
 }

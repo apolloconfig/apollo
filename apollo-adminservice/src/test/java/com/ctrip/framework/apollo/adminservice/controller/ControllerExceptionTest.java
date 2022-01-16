@@ -16,12 +16,17 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.service.AdminService;
 import com.ctrip.framework.apollo.biz.service.AppService;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,22 +36,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public class ControllerExceptionTest {
 
   private AppController appController;
 
-  @Mock
-  private AppService appService;
+  @Mock private AppService appService;
 
-  @Mock
-  private AdminService adminService;
+  @Mock private AdminService adminService;
 
   @Before
   public void setUp() {

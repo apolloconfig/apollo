@@ -42,9 +42,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final AppService appService;
 
   public ServerAppOpenApiService(
-      PortalSettings portalSettings,
-      ClusterService clusterService,
-      AppService appService) {
+      PortalSettings portalSettings, ClusterService clusterService, AppService appService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;

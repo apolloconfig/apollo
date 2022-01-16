@@ -32,21 +32,23 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @author vdisk <vdisk@foxmail.com>
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = ApolloClientPropertyCompatibleTestConfiguration.class,
+@SpringBootTest(
+    classes = ApolloClientPropertyCompatibleTestConfiguration.class,
     webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test-compatible")
 public class ApolloClientApplicationPropertiesCompatibleTest {
 
-  @Autowired
-  private ConfigurableEnvironment environment;
+  @Autowired private ConfigurableEnvironment environment;
 
   @Test
   public void testApplicationPropertiesCompatible() {
-    Assert.assertEquals("test-1/cacheDir",
-        this.environment.getProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR));
-    Assert.assertEquals("test-1-secret",
+    Assert.assertEquals(
+        "test-1/cacheDir", this.environment.getProperty(ApolloClientSystemConsts.APOLLO_CACHE_DIR));
+    Assert.assertEquals(
+        "test-1-secret",
         this.environment.getProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET));
-    Assert.assertEquals("https://test-1-config-service",
+    Assert.assertEquals(
+        "https://test-1-config-service",
         this.environment.getProperty(ApolloClientSystemConsts.APOLLO_CONFIG_SERVICE));
   }
 

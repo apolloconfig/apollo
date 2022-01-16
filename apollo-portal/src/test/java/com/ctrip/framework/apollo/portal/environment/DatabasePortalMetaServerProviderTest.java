@@ -33,8 +33,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class DatabasePortalMetaServerProviderTest {
 
   private DatabasePortalMetaServerProvider databasePortalMetaServerProvider;
-  @Mock
-  private PortalConfig portalConfig;
+  @Mock private PortalConfig portalConfig;
 
   private Map<String, String> metaServiceMap;
 
@@ -60,8 +59,8 @@ public class DatabasePortalMetaServerProviderTest {
 
     databasePortalMetaServerProvider.reload();
 
-    assertEquals(newMetaServerAddress, databasePortalMetaServerProvider.getMetaServerAddress(Env.DEV));
-
+    assertEquals(
+        newMetaServerAddress, databasePortalMetaServerProvider.getMetaServerAddress(Env.DEV));
   }
 
   @Test

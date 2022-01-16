@@ -51,8 +51,7 @@ public class CachedCompositePropertySourceTest {
 
   private CachedCompositePropertySource compositeSource;
 
-  @Mock
-  private ConfigPropertySource configPropertySource;
+  @Mock private ConfigPropertySource configPropertySource;
 
   private List<ConfigChangeListener> listeners;
 
@@ -60,14 +59,18 @@ public class CachedCompositePropertySourceTest {
   public void setUp() throws Exception {
     compositeSource = new CachedCompositePropertySource("testCompositeSource");
     listeners = new LinkedList<>();
-    Mockito.doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ConfigChangeListener listener = invocation.getArgument(0, ConfigChangeListener.class);
-        listeners.add(listener);
-        return Void.class;
-      }
-    }).when(configPropertySource).addChangeListener(any(ConfigChangeListener.class));
+    Mockito.doAnswer(
+            new Answer() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                ConfigChangeListener listener =
+                    invocation.getArgument(0, ConfigChangeListener.class);
+                listeners.add(listener);
+                return Void.class;
+              }
+            })
+        .when(configPropertySource)
+        .addChangeListener(any(ConfigChangeListener.class));
     compositeSource.addPropertySource(configPropertySource);
   }
 
@@ -101,14 +104,18 @@ public class CachedCompositePropertySourceTest {
   public void testAddFirstPropertySource() {
     ConfigPropertySource anotherSource = mock(ConfigPropertySource.class);
     final List<ConfigChangeListener> anotherListenerList = new LinkedList<>();
-    Mockito.doAnswer(new Answer() {
-      @Override
-      public Object answer(InvocationOnMock invocation) throws Throwable {
-        ConfigChangeListener listener = invocation.getArgument(0, ConfigChangeListener.class);
-        anotherListenerList.add(listener);
-        return Void.class;
-      }
-    }).when(anotherSource).addChangeListener(any(ConfigChangeListener.class));
+    Mockito.doAnswer(
+            new Answer() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                ConfigChangeListener listener =
+                    invocation.getArgument(0, ConfigChangeListener.class);
+                anotherListenerList.add(listener);
+                return Void.class;
+              }
+            })
+        .when(anotherSource)
+        .addChangeListener(any(ConfigChangeListener.class));
     compositeSource.addFirstPropertySource(anotherSource);
 
     Collection<PropertySource<?>> propertySources = compositeSource.getPropertySources();

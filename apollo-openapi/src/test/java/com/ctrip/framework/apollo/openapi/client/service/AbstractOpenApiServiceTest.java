@@ -33,12 +33,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 abstract class AbstractOpenApiServiceTest {
-  @Mock
-  protected CloseableHttpClient httpClient;
-  @Mock
-  protected CloseableHttpResponse someHttpResponse;
-  @Mock
-  protected StatusLine statusLine;
+  @Mock protected CloseableHttpClient httpClient;
+  @Mock protected CloseableHttpResponse someHttpResponse;
+  @Mock protected StatusLine statusLine;
 
   protected Gson gson;
 
@@ -54,5 +51,4 @@ abstract class AbstractOpenApiServiceTest {
 
     when(httpClient.execute(any(HttpUriRequest.class))).thenReturn(someHttpResponse);
   }
-
 }

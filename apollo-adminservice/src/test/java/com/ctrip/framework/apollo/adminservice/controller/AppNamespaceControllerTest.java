@@ -19,20 +19,18 @@ package com.ctrip.framework.apollo.adminservice.controller;
 import com.ctrip.framework.apollo.biz.repository.AppNamespaceRepository;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-public class AppNamespaceControllerTest extends AbstractControllerTest{
+public class AppNamespaceControllerTest extends AbstractControllerTest {
 
-  @Autowired
-  private AppNamespaceRepository namespaceRepository;
+  @Autowired private AppNamespaceRepository namespaceRepository;
 
   @Test
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-  public void testCreate(){
+  public void testCreate() {
     String appId = "6666";
     String name = "testnamespace";
     String comment = "comment";
@@ -42,8 +40,13 @@ public class AppNamespaceControllerTest extends AbstractControllerTest{
     dto.setComment(comment);
     dto.setDataChangeCreatedBy("apollo");
 
-    AppNamespaceDTO resultDto = restTemplate.postForEntity(
-        String.format("http://localhost:%d/apps/%s/appnamespaces", port, appId),dto, AppNamespaceDTO.class).getBody();
+    AppNamespaceDTO resultDto =
+        restTemplate
+            .postForEntity(
+                String.format("http://localhost:%d/apps/%s/appnamespaces", port, appId),
+                dto,
+                AppNamespaceDTO.class)
+            .getBody();
 
     Assert.assertEquals(appId, resultDto.getAppId());
     Assert.assertTrue(resultDto.getId() > 0);
@@ -54,9 +57,5 @@ public class AppNamespaceControllerTest extends AbstractControllerTest{
     Assert.assertNotNull(savedAppNs.getDataChangeLastModifiedTime());
     Assert.assertNotNull(savedAppNs.getDataChangeLastModifiedBy());
     Assert.assertNotNull(savedAppNs.getDataChangeCreatedBy());
-
-
-
-
   }
 }

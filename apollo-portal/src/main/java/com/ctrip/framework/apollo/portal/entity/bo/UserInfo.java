@@ -22,9 +22,7 @@ public class UserInfo {
   private String name;
   private String email;
 
-  public UserInfo() {
-
-  }
+  public UserInfo() {}
 
   public UserInfo(String userId) {
     this.userId = userId;
@@ -58,7 +56,7 @@ public class UserInfo {
   public boolean equals(Object o) {
     if (o instanceof UserInfo) {
 
-      if (o == this){
+      if (o == this) {
         return true;
       }
 
@@ -66,6 +64,5 @@ public class UserInfo {
       return userId.equals(anotherUser.userId);
     }
     return false;
-
   }
 }

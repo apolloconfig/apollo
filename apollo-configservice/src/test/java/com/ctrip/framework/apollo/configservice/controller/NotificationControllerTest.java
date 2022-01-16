@@ -16,6 +16,11 @@
  */
 package com.ctrip.framework.apollo.configservice.controller;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.utils.EntityManagerUtil;
@@ -27,6 +32,7 @@ import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,13 +42,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.async.DeferredResult;
-
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -56,21 +55,19 @@ public class NotificationControllerTest {
   private String someDataCenter;
   private long someNotificationId;
   private String someClientIp;
-  @Mock
-  private ReleaseMessageServiceWithCache releaseMessageService;
-  @Mock
-  private EntityManagerUtil entityManagerUtil;
-  @Mock
-  private NamespaceUtil namespaceUtil;
-  @Mock
-  private WatchKeysUtil watchKeysUtil;
+  @Mock private ReleaseMessageServiceWithCache releaseMessageService;
+  @Mock private EntityManagerUtil entityManagerUtil;
+  @Mock private NamespaceUtil namespaceUtil;
+  @Mock private WatchKeysUtil watchKeysUtil;
 
   private Multimap<String, DeferredResult<ResponseEntity<ApolloConfigNotification>>>
       deferredResults;
 
   @Before
   public void setUp() throws Exception {
-    controller = new NotificationController(watchKeysUtil, releaseMessageService, entityManagerUtil, namespaceUtil);
+    controller =
+        new NotificationController(
+            watchKeysUtil, releaseMessageService, entityManagerUtil, namespaceUtil);
 
     someAppId = "someAppId";
     someCluster = "someCluster";
@@ -82,8 +79,8 @@ public class NotificationControllerTest {
     when(namespaceUtil.filterNamespaceName(defaultNamespace)).thenReturn(defaultNamespace);
 
     deferredResults =
-        (Multimap<String, DeferredResult<ResponseEntity<ApolloConfigNotification>>>) ReflectionTestUtils
-            .getField(controller, "deferredResults");
+        (Multimap<String, DeferredResult<ResponseEntity<ApolloConfigNotification>>>)
+            ReflectionTestUtils.getField(controller, "deferredResults");
   }
 
   @Test
@@ -93,15 +90,18 @@ public class NotificationControllerTest {
 
     Set<String> watchKeys = Sets.newHashSet(someWatchKey, anotherWatchKey);
 
-    when(watchKeysUtil
-        .assembleAllWatchKeys(someAppId, someCluster, defaultNamespace,
-            someDataCenter)).thenReturn(
-        watchKeys);
+    when(watchKeysUtil.assembleAllWatchKeys(
+            someAppId, someCluster, defaultNamespace, someDataCenter))
+        .thenReturn(watchKeys);
 
-    DeferredResult<ResponseEntity<ApolloConfigNotification>>
-        deferredResult = controller
-        .pollNotification(someAppId, someCluster, defaultNamespace, someDataCenter,
-            someNotificationId, someClientIp);
+    DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
+        controller.pollNotification(
+            someAppId,
+            someCluster,
+            defaultNamespace,
+            someDataCenter,
+            someNotificationId,
+            someClientIp);
 
     assertEquals(watchKeys.size(), deferredResults.size());
 
@@ -120,15 +120,13 @@ public class NotificationControllerTest {
 
     Set<String> watchKeys = Sets.newHashSet(someWatchKey, anotherWatchKey);
 
-    when(watchKeysUtil
-        .assembleAllWatchKeys(someAppId, someCluster, defaultNamespace,
-            someDataCenter)).thenReturn(
-        watchKeys);
+    when(watchKeysUtil.assembleAllWatchKeys(
+            someAppId, someCluster, defaultNamespace, someDataCenter))
+        .thenReturn(watchKeys);
 
-    DeferredResult<ResponseEntity<ApolloConfigNotification>>
-        deferredResult = controller
-        .pollNotification(someAppId, someCluster, namespace, someDataCenter,
-            someNotificationId, someClientIp);
+    DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
+        controller.pollNotification(
+            someAppId, someCluster, namespace, someDataCenter, someNotificationId, someClientIp);
 
     assertEquals(watchKeys.size(), deferredResults.size());
 
@@ -146,15 +144,12 @@ public class NotificationControllerTest {
     String someWatchKey = "someKey";
 
     Set<String> watchKeys = Sets.newHashSet(someWatchKey);
-    when(watchKeysUtil
-        .assembleAllWatchKeys(someAppId, someCluster, namespace, someDataCenter))
-        .thenReturn(
-            watchKeys);
+    when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster, namespace, someDataCenter))
+        .thenReturn(watchKeys);
 
-    DeferredResult<ResponseEntity<ApolloConfigNotification>>
-        deferredResult = controller
-        .pollNotification(someAppId, someCluster, namespace, someDataCenter,
-            someNotificationId, someClientIp);
+    DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
+        controller.pollNotification(
+            someAppId, someCluster, namespace, someDataCenter, someNotificationId, someClientIp);
 
     assertEquals(watchKeys.size(), deferredResults.size());
 
@@ -172,20 +167,22 @@ public class NotificationControllerTest {
     String someWatchKey = "someKey";
 
     Set<String> watchKeys = Sets.newHashSet(someWatchKey);
-    when(watchKeysUtil
-        .assembleAllWatchKeys(someAppId, someCluster, defaultNamespace,
-            someDataCenter))
-        .thenReturn(
-            watchKeys);
+    when(watchKeysUtil.assembleAllWatchKeys(
+            someAppId, someCluster, defaultNamespace, someDataCenter))
+        .thenReturn(watchKeys);
 
     when(someReleaseMessage.getId()).thenReturn(notificationId);
     when(releaseMessageService.findLatestReleaseMessageForMessages(watchKeys))
         .thenReturn(someReleaseMessage);
 
-    DeferredResult<ResponseEntity<ApolloConfigNotification>>
-        deferredResult = controller
-        .pollNotification(someAppId, someCluster, defaultNamespace, someDataCenter,
-            someNotificationId, someClientIp);
+    DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
+        controller.pollNotification(
+            someAppId,
+            someCluster,
+            defaultNamespace,
+            someDataCenter,
+            someNotificationId,
+            someClientIp);
 
     ResponseEntity<ApolloConfigNotification> result =
         (ResponseEntity<ApolloConfigNotification>) deferredResult.getResult();
@@ -198,20 +195,24 @@ public class NotificationControllerTest {
   @Test
   public void testPollNotificationWithDefaultNamespaceAndHandleMessage() throws Exception {
     String someWatchKey = "someKey";
-    String anotherWatchKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-        .join(someAppId, someCluster, defaultNamespace);
+    String anotherWatchKey =
+        Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+            .join(someAppId, someCluster, defaultNamespace);
 
     Set<String> watchKeys = Sets.newHashSet(someWatchKey, anotherWatchKey);
 
-    when(watchKeysUtil
-        .assembleAllWatchKeys(someAppId, someCluster, defaultNamespace,
-            someDataCenter)).thenReturn(
-        watchKeys);
+    when(watchKeysUtil.assembleAllWatchKeys(
+            someAppId, someCluster, defaultNamespace, someDataCenter))
+        .thenReturn(watchKeys);
 
-    DeferredResult<ResponseEntity<ApolloConfigNotification>>
-        deferredResult = controller
-        .pollNotification(someAppId, someCluster, defaultNamespace, someDataCenter,
-            someNotificationId, someClientIp);
+    DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
+        controller.pollNotification(
+            someAppId,
+            someCluster,
+            defaultNamespace,
+            someDataCenter,
+            someNotificationId,
+            someClientIp);
 
     long someId = 1;
     ReleaseMessage someReleaseMessage = new ReleaseMessage(anotherWatchKey);

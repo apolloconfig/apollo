@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo;
 
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.google.common.base.Function;
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
@@ -210,8 +209,8 @@ public interface Config {
    *
    * @since 1.3.0
    */
-  void addChangeListener(ConfigChangeListener listener, Set<String> interestedKeys,
-      Set<String> interestedKeyPrefixes);
+  void addChangeListener(
+      ConfigChangeListener listener, Set<String> interestedKeys, Set<String> interestedKeyPrefixes);
 
   /**
    * Remove the change listener

@@ -22,7 +22,9 @@ package com.ctrip.framework.apollo.enums;
  * @since 1.1.0
  */
 public enum ConfigSourceType {
-  REMOTE("Loaded from remote config service"), LOCAL("Loaded from local cache"), NONE("Load failed");
+  REMOTE("Loaded from remote config service"),
+  LOCAL("Loaded from local cache"),
+  NONE("Load failed");
 
   private final String description;
 

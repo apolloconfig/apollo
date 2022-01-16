@@ -16,16 +16,21 @@
  */
 package com.ctrip.framework.apollo;
 
+import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.dto.ServiceDTO;
+import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.core.utils.ClassLoaderUtil;
+import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -35,14 +40,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-
-import com.ctrip.framework.apollo.build.MockInjector;
-import com.ctrip.framework.apollo.core.dto.ServiceDTO;
-import com.ctrip.framework.apollo.core.enums.Env;
-import com.ctrip.framework.apollo.core.utils.ClassLoaderUtil;
-import com.ctrip.framework.apollo.util.ConfigUtil;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -87,7 +84,7 @@ public abstract class BaseIntegrationTest {
 
   @After
   public void tearDown() throws Exception {
-    //as ConfigService is singleton, so we must manually clear its container
+    // as ConfigService is singleton, so we must manually clear its container
     ConfigService.reset();
     MockInjector.reset();
 
@@ -127,23 +124,28 @@ public abstract class BaseIntegrationTest {
     final AtomicInteger counter = new AtomicInteger(0);
 
     ContextHandler context = new ContextHandler("/services/config");
-    context.setHandler(new AbstractHandler() {
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
-        if (failedAtFirstTime && counter.incrementAndGet() == 1) {
-          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-          baseRequest.setHandled(true);
-          return;
-        }
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
+    context.setHandler(
+        new AbstractHandler() {
+          @Override
+          public void handle(
+              String target,
+              Request baseRequest,
+              HttpServletRequest request,
+              HttpServletResponse response)
+              throws IOException, ServletException {
+            if (failedAtFirstTime && counter.incrementAndGet() == 1) {
+              response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+              baseRequest.setHandled(true);
+              return;
+            }
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(HttpServletResponse.SC_OK);
 
-        response.getWriter().println(gson.toJson(Lists.newArrayList(someServiceDTO)));
+            response.getWriter().println(gson.toJson(Lists.newArrayList(someServiceDTO)));
 
-        baseRequest.setHandled(true);
-      }
-    });
+            baseRequest.setHandled(true);
+          }
+        });
 
     return context;
   }
@@ -262,5 +264,4 @@ public abstract class BaseIntegrationTest {
     throw new IllegalStateException(
         "Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
   }
-
 }

@@ -64,7 +64,7 @@ public class RetryableRestTemplate {
   /**
    * Admin service access tokens in "PortalDB.ServerConfig"
    */
-  private static final Type ACCESS_TOKENS = new TypeToken<Map<String, String>>(){}.getType();
+  private static final Type ACCESS_TOKENS = new TypeToken<Map<String, String>>() {}.getType();
 
   private RestTemplate restTemplate;
 
@@ -79,14 +79,12 @@ public class RetryableRestTemplate {
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig
-  ) {
+      final PortalConfig portalConfig) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
     this.portalConfig = portalConfig;
   }
-
 
   @PostConstruct
   private void postConstruct() {
@@ -98,19 +96,21 @@ public class RetryableRestTemplate {
     return execute(HttpMethod.GET, env, path, null, responseType, urlVariables);
   }
 
-  public <T> ResponseEntity<T> get(Env env, String path, ParameterizedTypeReference<T> reference,
-                                   Object... uriVariables)
+  public <T> ResponseEntity<T> get(
+      Env env, String path, ParameterizedTypeReference<T> reference, Object... uriVariables)
       throws RestClientException {
 
     return exchangeGet(env, path, reference, uriVariables);
   }
 
-  public <T> T post(Env env, String path, Object request, Class<T> responseType, Object... uriVariables)
+  public <T> T post(
+      Env env, String path, Object request, Class<T> responseType, Object... uriVariables)
       throws RestClientException {
     return execute(HttpMethod.POST, env, path, request, responseType, uriVariables);
   }
 
-  public void put(Env env, String path, Object request, Object... urlVariables) throws RestClientException {
+  public void put(Env env, String path, Object request, Object... urlVariables)
+      throws RestClientException {
     execute(HttpMethod.PUT, env, path, request, null, urlVariables);
   }
 
@@ -118,8 +118,13 @@ public class RetryableRestTemplate {
     execute(HttpMethod.DELETE, env, path, null, null, urlVariables);
   }
 
-  private <T> T execute(HttpMethod method, Env env, String path, Object request, Class<T> responseType,
-                        Object... uriVariables) {
+  private <T> T execute(
+      HttpMethod method,
+      Env env,
+      String path,
+      Object request,
+      Class<T> responseType,
+      Object... uriVariables) {
 
     if (path.startsWith("/")) {
       path = path.substring(1);
@@ -135,7 +140,8 @@ public class RetryableRestTemplate {
     for (ServiceDTO serviceDTO : services) {
       try {
 
-        T result = doExecute(method, extraHeaders, serviceDTO, path, request, responseType, uriVariables);
+        T result =
+            doExecute(method, extraHeaders, serviceDTO, path, request, responseType, uriVariables);
 
         ct.setStatus(Transaction.SUCCESS);
         ct.complete();
@@ -145,7 +151,7 @@ public class RetryableRestTemplate {
         Tracer.logError(t);
         if (canRetry(t, method)) {
           Tracer.logEvent(TracerEventType.API_RETRY, uri);
-        } else {//biz exception rethrow
+        } else { // biz exception rethrow
           ct.setStatus(t);
           ct.complete();
           throw t;
@@ -153,17 +159,19 @@ public class RetryableRestTemplate {
       }
     }
 
-    //all admin server down
+    // all admin server down
     ServiceException e =
-        new ServiceException(String.format("Admin servers are unresponsive. meta server address: %s, admin servers: %s",
+        new ServiceException(
+            String.format(
+                "Admin servers are unresponsive. meta server address: %s, admin servers: %s",
                 portalMetaDomainService.getDomain(env), services));
     ct.setStatus(e);
     ct.complete();
     throw e;
   }
 
-  private <T> ResponseEntity<T> exchangeGet(Env env, String path, ParameterizedTypeReference<T> reference,
-                                            Object... uriVariables) {
+  private <T> ResponseEntity<T> exchangeGet(
+      Env env, String path, ParameterizedTypeReference<T> reference, Object... uriVariables) {
     if (path.startsWith("/")) {
       path = path.substring(1);
     }
@@ -179,7 +187,8 @@ public class RetryableRestTemplate {
       try {
 
         ResponseEntity<T> result =
-            restTemplate.exchange(parseHost(serviceDTO) + path, HttpMethod.GET, entity, reference, uriVariables);
+            restTemplate.exchange(
+                parseHost(serviceDTO) + path, HttpMethod.GET, entity, reference, uriVariables);
 
         ct.setStatus(Transaction.SUCCESS);
         ct.complete();
@@ -189,23 +198,23 @@ public class RetryableRestTemplate {
         Tracer.logError(t);
         if (canRetry(t, HttpMethod.GET)) {
           Tracer.logEvent(TracerEventType.API_RETRY, uri);
-        } else {// biz exception rethrow
+        } else { // biz exception rethrow
           ct.setStatus(t);
           ct.complete();
           throw t;
         }
-
       }
     }
 
-    //all admin server down
+    // all admin server down
     ServiceException e =
-        new ServiceException(String.format("Admin servers are unresponsive. meta server address: %s, admin servers: %s",
+        new ServiceException(
+            String.format(
+                "Admin servers are unresponsive. meta server address: %s, admin servers: %s",
                 portalMetaDomainService.getDomain(env), services));
     ct.setStatus(e);
     ct.complete();
     throw e;
-
   }
 
   private HttpHeaders assembleExtraHeaders(Env env) {
@@ -225,10 +234,13 @@ public class RetryableRestTemplate {
     List<ServiceDTO> services = adminServiceAddressLocator.getServiceList(env);
 
     if (CollectionUtils.isEmpty(services)) {
-      ServiceException e = new ServiceException(String.format("No available admin server."
-                                                              + " Maybe because of meta server down or all admin server down. "
-                                                              + "Meta server address: %s",
-              portalMetaDomainService.getDomain(env)));
+      ServiceException e =
+          new ServiceException(
+              String.format(
+                  "No available admin server."
+                      + " Maybe because of meta server down or all admin server down. "
+                      + "Meta server address: %s",
+                  portalMetaDomainService.getDomain(env)));
       ct.setStatus(e);
       ct.complete();
       throw e;
@@ -259,18 +271,26 @@ public class RetryableRestTemplate {
     try {
       // try to parse
       Map<String, String> map = GSON.fromJson(accessTokens, ACCESS_TOKENS);
-      map.forEach((env, token) -> {
-        if (Env.exists(env)) {
-          tokenMap.put(Env.valueOf(env), token);
-        }
-      });
+      map.forEach(
+          (env, token) -> {
+            if (Env.exists(env)) {
+              tokenMap.put(Env.valueOf(env), token);
+            }
+          });
     } catch (Exception e) {
       logger.error("Wrong format of admin service access tokens: {}", accessTokens, e);
     }
     return tokenMap;
   }
-  private <T> T doExecute(HttpMethod method, HttpHeaders extraHeaders, ServiceDTO service, String path, Object request,
-                          Class<T> responseType, Object... uriVariables) {
+
+  private <T> T doExecute(
+      HttpMethod method,
+      HttpHeaders extraHeaders,
+      ServiceDTO service,
+      String path,
+      Object request,
+      Class<T> responseType,
+      Object... uriVariables) {
     T result = null;
     switch (method) {
       case GET:
@@ -289,12 +309,14 @@ public class RetryableRestTemplate {
         } else {
           entity = new HttpEntity<>(request, extraHeaders);
         }
-        result = restTemplate
-            .exchange(parseHost(service) + path, method, entity, responseType, uriVariables)
-            .getBody();
+        result =
+            restTemplate
+                .exchange(parseHost(service) + path, method, entity, responseType, uriVariables)
+                .getBody();
         break;
       default:
-        throw new UnsupportedOperationException(String.format("unsupported http method(method=%s)", method));
+        throw new UnsupportedOperationException(
+            String.format("unsupported http method(method=%s)", method));
     }
     return result;
   }
@@ -303,16 +325,15 @@ public class RetryableRestTemplate {
     return serviceAddress.getHomepageUrl() + "/";
   }
 
-  //post,delete,put请求在admin server处理超时情况下不重试
+  // post,delete,put请求在admin server处理超时情况下不重试
   private boolean canRetry(Throwable e, HttpMethod method) {
     Throwable nestedException = e.getCause();
     if (method == HttpMethod.GET) {
       return nestedException instanceof SocketTimeoutException
-             || nestedException instanceof HttpHostConnectException
-             || nestedException instanceof ConnectTimeoutException;
+          || nestedException instanceof HttpHostConnectException
+          || nestedException instanceof ConnectTimeoutException;
     }
     return nestedException instanceof HttpHostConnectException
-           || nestedException instanceof ConnectTimeoutException;
+        || nestedException instanceof ConnectTimeoutException;
   }
-
 }

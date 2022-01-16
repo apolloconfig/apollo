@@ -16,9 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
@@ -32,17 +29,8 @@ import com.ctrip.framework.apollo.portal.listener.AppNamespaceCreationEvent;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
 import com.ctrip.framework.apollo.portal.util.ConfigToFileUtils;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.client.HttpStatusCodeException;
-
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +41,15 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpStatusCodeException;
 
 /**
  * @author wxq
@@ -64,16 +61,15 @@ public class ConfigsImportService {
 
   private Gson gson = new Gson();
 
-  private final ItemService               itemService;
-  private final AppService                appService;
-  private final ClusterService            clusterService;
-  private final NamespaceService          namespaceService;
-  private final AppNamespaceService       appNamespaceService;
+  private final ItemService itemService;
+  private final AppService appService;
+  private final ClusterService clusterService;
+  private final NamespaceService namespaceService;
+  private final AppNamespaceService appNamespaceService;
   private final ApplicationEventPublisher publisher;
-  private final UserInfoHolder            userInfoHolder;
+  private final UserInfoHolder userInfoHolder;
   private final RoleInitializationService roleInitializationService;
-  private       String                    currentUser;
-
+  private String currentUser;
 
   public ConfigsImportService(
       final ItemService itemService,
@@ -97,8 +93,8 @@ public class ConfigsImportService {
   /**
    * force import, new items will overwrite existed items.
    */
-  public void forceImportNamespaceFromFile(final Env env, final String standardFilename,
-                                           final InputStream zipInputStream) {
+  public void forceImportNamespaceFromFile(
+      final Env env, final String standardFilename, final InputStream zipInputStream) {
     String configText;
     try (InputStream in = zipInputStream) {
       configText = ConfigToFileUtils.fileToString(in);
@@ -114,7 +110,8 @@ public class ConfigsImportService {
   /**
    * import all data include app、appnamespace、cluster、namespace、item
    */
-  public void importDataFromZipFile(List<Env> importEnvs, ZipInputStream dataZip, boolean ignoreConflictNamespace)
+  public void importDataFromZipFile(
+      List<Env> importEnvs, ZipInputStream dataZip, boolean ignoreConflictNamespace)
       throws IOException {
     List<String> toImportApps = Lists.newArrayList();
     List<String> toImportAppNSs = Lists.newArrayList();
@@ -134,7 +131,7 @@ public class ConfigsImportService {
 
       String fileName;
       if (info.length == 1) {
-        //app namespace metadata file. path format : ${namespaceName}.appnamespace.metadata
+        // app namespace metadata file. path format : ${namespaceName}.appnamespace.metadata
         fileName = info[0];
         if (fileName.endsWith(ConfigFileUtils.APP_NAMESPACE_METADATA_FILE_SUFFIX)) {
           toImportAppNSs.add(content);
@@ -142,21 +139,25 @@ public class ConfigsImportService {
       } else if (info.length == 3) {
         fileName = info[2];
         if (fileName.equals(ConfigFileUtils.APP_METADATA_FILENAME)) {
-          //app metadata file. path format : apollo/${appId}/app.metadata
+          // app metadata file. path format : apollo/${appId}/app.metadata
           toImportApps.add(content);
         }
       } else {
         String env = info[2];
         fileName = info[3];
         if (fileName.endsWith(ConfigFileUtils.CLUSTER_METADATA_FILE_SUFFIX)) {
-          //cluster metadata file. path format : apollo/${appId}/${env}/${clusterName}.cluster.metadata
+          // cluster metadata file. path format :
+          // apollo/${appId}/${env}/${clusterName}.cluster.metadata
           toImportClusters.add(content);
         } else {
-          //namespace file.path format : apollo/${appId}/${env}/${appId}+${cluster}+${namespaceName}
-          //only import for selected envs.
+          // namespace file.path format :
+          // apollo/${appId}/${env}/${appId}+${cluster}+${namespaceName}
+          // only import for selected envs.
           for (Env importEnv : importEnvs) {
             if (Objects.equals(importEnv.getName(), env)) {
-              toImportNSs.add(new NamespaceImportData(Env.valueOf(env), fileName, content, ignoreConflictNamespace));
+              toImportNSs.add(
+                  new NamespaceImportData(
+                      Env.valueOf(env), fileName, content, ignoreConflictNamespace));
             }
           }
         }
@@ -164,9 +165,12 @@ public class ConfigsImportService {
     }
 
     try {
-      LOGGER.info("Import data. app = {}, appns = {}, cluster = {}, namespace = {}", toImportApps.size(),
-                  toImportAppNSs.size(),
-                  toImportClusters.size(), toImportNSs.size());
+      LOGGER.info(
+          "Import data. app = {}, appns = {}, cluster = {}, namespace = {}",
+          toImportApps.size(),
+          toImportAppNSs.size(),
+          toImportClusters.size(),
+          toImportNSs.size());
 
       doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters, toImportNSs);
 
@@ -176,8 +180,12 @@ public class ConfigsImportService {
     }
   }
 
-  private void doImport(List<Env> importEnvs, List<String> toImportApps, List<String> toImportAppNSs,
-                        List<String> toImportClusters, List<NamespaceImportData> toImportNSs)
+  private void doImport(
+      List<Env> importEnvs,
+      List<String> toImportApps,
+      List<String> toImportAppNSs,
+      List<String> toImportClusters,
+      List<NamespaceImportData> toImportNSs)
       throws InterruptedException {
     currentUser = userInfoHolder.getUser().getUserId();
 
@@ -185,15 +193,17 @@ public class ConfigsImportService {
 
     long startTime = System.currentTimeMillis();
     CountDownLatch appLatch = new CountDownLatch(toImportApps.size());
-    toImportApps.parallelStream().forEach(app -> {
-      try {
-        importApp(app, importEnvs);
-      } catch (Exception e) {
-        LOGGER.error("import app error. app = {}", app, e);
-      } finally {
-        appLatch.countDown();
-      }
-    });
+    toImportApps.parallelStream()
+        .forEach(
+            app -> {
+              try {
+                importApp(app, importEnvs);
+              } catch (Exception e) {
+                LOGGER.error("import app error. app = {}", app, e);
+              } finally {
+                appLatch.countDown();
+              }
+            });
     appLatch.await();
 
     LOGGER.info("Finish to import app. duration = {}", System.currentTimeMillis() - startTime);
@@ -201,31 +211,36 @@ public class ConfigsImportService {
 
     startTime = System.currentTimeMillis();
     CountDownLatch appNSLatch = new CountDownLatch(toImportAppNSs.size());
-    toImportAppNSs.parallelStream().forEach(appNS -> {
-      try {
-        importAppNamespace(appNS);
-      } catch (Exception e) {
-        LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
-      } finally {
-        appNSLatch.countDown();
-      }
-    });
+    toImportAppNSs.parallelStream()
+        .forEach(
+            appNS -> {
+              try {
+                importAppNamespace(appNS);
+              } catch (Exception e) {
+                LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
+              } finally {
+                appNSLatch.countDown();
+              }
+            });
     appNSLatch.await();
 
-    LOGGER.info("Finish to import appnamespace. duration = {}", System.currentTimeMillis() - startTime);
+    LOGGER.info(
+        "Finish to import appnamespace. duration = {}", System.currentTimeMillis() - startTime);
     LOGGER.info("Start to import cluster. size = {}", toImportClusters.size());
 
     startTime = System.currentTimeMillis();
     CountDownLatch clusterLatch = new CountDownLatch(toImportClusters.size());
-    toImportClusters.parallelStream().forEach(cluster -> {
-      try {
-        importCluster(cluster, importEnvs);
-      } catch (Exception e) {
-        LOGGER.error("import cluster error. cluster = {}", cluster, e);
-      } finally {
-        clusterLatch.countDown();
-      }
-    });
+    toImportClusters.parallelStream()
+        .forEach(
+            cluster -> {
+              try {
+                importCluster(cluster, importEnvs);
+              } catch (Exception e) {
+                LOGGER.error("import cluster error. cluster = {}", cluster, e);
+              } finally {
+                clusterLatch.countDown();
+              }
+            });
     clusterLatch.await();
 
     LOGGER.info("Finish to import cluster. duration = {}", System.currentTimeMillis() - startTime);
@@ -233,26 +248,32 @@ public class ConfigsImportService {
 
     startTime = System.currentTimeMillis();
     CountDownLatch nsLatch = new CountDownLatch(toImportNSs.size());
-    toImportNSs.parallelStream().forEach(namespace -> {
-      try {
-        importNamespaceFromText(namespace.getEnv(), namespace.getFileName(), namespace.getContent(),
-                                namespace.isIgnoreConflictNamespace());
-      } catch (Exception e) {
-        LOGGER.error("import namespace error. namespace = {}", namespace, e);
-      } finally {
-        nsLatch.countDown();
-      }
-    });
+    toImportNSs.parallelStream()
+        .forEach(
+            namespace -> {
+              try {
+                importNamespaceFromText(
+                    namespace.getEnv(),
+                    namespace.getFileName(),
+                    namespace.getContent(),
+                    namespace.isIgnoreConflictNamespace());
+              } catch (Exception e) {
+                LOGGER.error("import namespace error. namespace = {}", namespace, e);
+              } finally {
+                nsLatch.countDown();
+              }
+            });
     nsLatch.await();
 
-    LOGGER.info("Finish to import namespace. duration = {}", System.currentTimeMillis() - startTime);
+    LOGGER.info(
+        "Finish to import namespace. duration = {}", System.currentTimeMillis() - startTime);
   }
 
   private void importApp(String appInfo, List<Env> importEnvs) {
     App toImportApp = gson.fromJson(appInfo, App.class);
     String appId = toImportApp.getAppId();
 
-    //imported app set owner to current user.
+    // imported app set owner to current user.
     toImportApp.setOwnerName(currentUser);
     toImportApp.setDataChangeCreatedBy(currentUser);
     toImportApp.setDataChangeLastModifiedBy(currentUser);
@@ -264,14 +285,16 @@ public class ConfigsImportService {
       appService.importAppInLocal(toImportApp);
     }
 
-    importEnvs.parallelStream().forEach(env -> {
-      try {
-        appService.load(env, appId);
-      } catch (Exception e) {
-        //not existed
-        appService.createAppInRemote(env, toImportApp);
-      }
-    });
+    importEnvs.parallelStream()
+        .forEach(
+            env -> {
+              try {
+                appService.load(env, appId);
+              } catch (Exception e) {
+                // not existed
+                appService.createAppInRemote(env, toImportApp);
+              }
+            });
   }
 
   private void importAppNamespace(String appNamespace) {
@@ -281,10 +304,10 @@ public class ConfigsImportService {
     String namespaceName = toImportPubAppNS.getName();
     boolean isPublic = toImportPubAppNS.isPublic();
 
-    AppNamespace
-        managedAppNamespace =
-        isPublic ? appNamespaceService.findPublicAppNamespace(namespaceName)
-                 : appNamespaceService.findByAppIdAndName(appId, namespaceName);
+    AppNamespace managedAppNamespace =
+        isPublic
+            ? appNamespaceService.findPublicAppNamespace(namespaceName)
+            : appNamespaceService.findByAppIdAndName(appId, namespaceName);
 
     if (managedAppNamespace == null) {
       managedAppNamespace = new AppNamespace();
@@ -296,9 +319,10 @@ public class ConfigsImportService {
       managedAppNamespace.setDataChangeLastModifiedBy(currentUser);
       managedAppNamespace.setName(namespaceName);
 
-      AppNamespace createdAppNamespace = appNamespaceService.importAppNamespaceInLocal(managedAppNamespace);
+      AppNamespace createdAppNamespace =
+          appNamespaceService.importAppNamespaceInLocal(managedAppNamespace);
 
-      //application namespace will be auto created when creating app
+      // application namespace will be auto created when creating app
       if (!ConfigConsts.NAMESPACE_APPLICATION.equals(namespaceName)) {
         publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
       }
@@ -316,14 +340,16 @@ public class ConfigsImportService {
     String appId = toImportCluster.getAppId();
     String clusterName = toImportCluster.getName();
 
-    importEnvs.parallelStream().forEach(env -> {
-      try {
-        clusterService.loadCluster(appId, env, clusterName);
-      } catch (Exception e) {
-        //not existed
-        clusterService.createCluster(env, toImportCluster);
-      }
-    });
+    importEnvs.parallelStream()
+        .forEach(
+            env -> {
+              try {
+                clusterService.loadCluster(appId, env, clusterName);
+              } catch (Exception e) {
+                // not existed
+                clusterService.createCluster(env, toImportCluster);
+              }
+            });
   }
 
   /**
@@ -338,25 +364,33 @@ public class ConfigsImportService {
    * @param standardFilename appId+cluster+namespace.format
    * @param configText       config content
    */
-  private void importNamespaceFromText(final Env env, final String standardFilename, final String configText,
-                                       boolean ignoreConflictNamespace) {
+  private void importNamespaceFromText(
+      final Env env,
+      final String standardFilename,
+      final String configText,
+      boolean ignoreConflictNamespace) {
     final String appId = ConfigFileUtils.getAppId(standardFilename);
     final String clusterName = ConfigFileUtils.getClusterName(standardFilename);
     final String namespace = ConfigFileUtils.getNamespace(standardFilename);
     final String format = ConfigFileUtils.getFormat(standardFilename);
 
-    this.importNamespace(appId, env, clusterName, namespace, configText, format, ignoreConflictNamespace);
+    this.importNamespace(
+        appId, env, clusterName, namespace, configText, format, ignoreConflictNamespace);
   }
 
-  private void importNamespace(final String appId, final Env env,
-                               final String clusterName, final String namespaceName,
-                               final String configText, final String format,
-                               boolean ignoreConflictNamespace) {
+  private void importNamespace(
+      final String appId,
+      final Env env,
+      final String clusterName,
+      final String namespaceName,
+      final String configText,
+      final String format,
+      boolean ignoreConflictNamespace) {
     NamespaceDTO namespaceDTO;
     try {
       namespaceDTO = namespaceService.loadNamespaceBaseInfo(appId, env, clusterName, namespaceName);
     } catch (Exception e) {
-      //not existed
+      // not existed
       namespaceDTO = null;
     }
 
@@ -382,43 +416,56 @@ public class ConfigsImportService {
     importItems(appId, env, clusterName, namespaceName, configText, namespaceDTO);
   }
 
-  private void importItems(String appId, Env env, String clusterName, String namespaceName, String configText,
-                           NamespaceDTO namespaceDTO) {
+  private void importItems(
+      String appId,
+      Env env,
+      String clusterName,
+      String namespaceName,
+      String configText,
+      NamespaceDTO namespaceDTO) {
     List<ItemDTO> toImportItems = gson.fromJson(configText, GsonType.ITEM_DTOS);
 
-    toImportItems.parallelStream().forEach(newItem -> {
-      String key = newItem.getKey();
-      newItem.setNamespaceId(namespaceDTO.getId());
-      newItem.setDataChangeCreatedBy(currentUser);
-      newItem.setDataChangeLastModifiedBy(currentUser);
-      newItem.setDataChangeCreatedTime(new Date());
-      newItem.setDataChangeLastModifiedTime(new Date());
+    toImportItems.parallelStream()
+        .forEach(
+            newItem -> {
+              String key = newItem.getKey();
+              newItem.setNamespaceId(namespaceDTO.getId());
+              newItem.setDataChangeCreatedBy(currentUser);
+              newItem.setDataChangeLastModifiedBy(currentUser);
+              newItem.setDataChangeCreatedTime(new Date());
+              newItem.setDataChangeLastModifiedTime(new Date());
 
-      if (StringUtils.hasText(key)) {
-        //create or update normal item
-        try {
-          ItemDTO oldItem = itemService.loadItem(env, appId, clusterName, namespaceName, key);
-          newItem.setId(oldItem.getId());
-          //existed
-          itemService.updateItem(appId, env, clusterName, namespaceName, newItem);
-        } catch (Exception e) {
-          if (e instanceof HttpStatusCodeException && ((HttpStatusCodeException) e).getStatusCode()
-              .equals(HttpStatus.NOT_FOUND)) {
-            //not existed
-            itemService.createItem(appId, env, clusterName, namespaceName, newItem);
-          } else {
-            LOGGER.error("Load or update item error. appId = {}, env = {}, cluster = {}, namespace = {}", appId, env,
-                         clusterName, namespaceDTO, e);
-          }
-        }
-      } else if (StringUtils.hasText(newItem.getComment())){
-        //create comment item
-        itemService.createCommentItem(appId, env, clusterName, namespaceName, newItem);
-      }
-
-    });
+              if (StringUtils.hasText(key)) {
+                // create or update normal item
+                try {
+                  ItemDTO oldItem =
+                      itemService.loadItem(env, appId, clusterName, namespaceName, key);
+                  newItem.setId(oldItem.getId());
+                  // existed
+                  itemService.updateItem(appId, env, clusterName, namespaceName, newItem);
+                } catch (Exception e) {
+                  if (e instanceof HttpStatusCodeException
+                      && ((HttpStatusCodeException) e)
+                          .getStatusCode()
+                          .equals(HttpStatus.NOT_FOUND)) {
+                    // not existed
+                    itemService.createItem(appId, env, clusterName, namespaceName, newItem);
+                  } else {
+                    LOGGER.error(
+                        "Load or update item error. appId = {}, env = {}, cluster = {}, namespace = {}",
+                        appId,
+                        env,
+                        clusterName,
+                        namespaceDTO,
+                        e);
+                  }
+                }
+              } else if (StringUtils.hasText(newItem.getComment())) {
+                // create comment item
+                itemService.createCommentItem(appId, env, clusterName, namespaceName, newItem);
+              }
+            });
   }
-
 
   private String readContent(ZipInputStream zipInputStream) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -436,12 +483,13 @@ public class ConfigsImportService {
 
   static class NamespaceImportData {
 
-    private Env     env;
-    private String  fileName;
-    private String  content;
+    private Env env;
+    private String fileName;
+    private String content;
     private boolean ignoreConflictNamespace;
 
-    public NamespaceImportData(Env env, String fileName, String content, boolean ignoreConflictNamespace) {
+    public NamespaceImportData(
+        Env env, String fileName, String content, boolean ignoreConflictNamespace) {
       this.env = env;
       this.fileName = fileName;
       this.content = content;
@@ -482,12 +530,18 @@ public class ConfigsImportService {
 
     @Override
     public String toString() {
-      return "NamespaceImportData{" +
-             "env=" + env +
-             ", fileName='" + fileName + '\'' +
-             ", content='" + content + '\'' +
-             ", ignoreConflictNamespace=" + ignoreConflictNamespace +
-             '}';
+      return "NamespaceImportData{"
+          + "env="
+          + env
+          + ", fileName='"
+          + fileName
+          + '\''
+          + ", content='"
+          + content
+          + '\''
+          + ", ignoreConflictNamespace="
+          + ignoreConflictNamespace
+          + '}';
     }
   }
 }

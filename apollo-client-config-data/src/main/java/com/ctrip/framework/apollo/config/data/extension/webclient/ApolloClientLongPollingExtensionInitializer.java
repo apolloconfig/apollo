@@ -34,30 +34,30 @@ import org.springframework.web.reactive.function.client.WebClient;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class ApolloClientLongPollingExtensionInitializer implements
-    ApolloClientExtensionInitializer {
+public class ApolloClientLongPollingExtensionInitializer
+    implements ApolloClientExtensionInitializer {
 
   private final Log log;
 
   private final ConfigurableBootstrapContext bootstrapContext;
 
-  public ApolloClientLongPollingExtensionInitializer(Log log,
-      ConfigurableBootstrapContext bootstrapContext) {
+  public ApolloClientLongPollingExtensionInitializer(
+      Log log, ConfigurableBootstrapContext bootstrapContext) {
     this.log = log;
     this.bootstrapContext = bootstrapContext;
   }
 
   @Override
-  public void initialize(ApolloClientProperties apolloClientProperties, Binder binder,
-      BindHandler bindHandler) {
+  public void initialize(
+      ApolloClientProperties apolloClientProperties, Binder binder, BindHandler bindHandler) {
     WebClient.Builder webClientBuilder = WebClient.builder();
-    List<ApolloClientWebClientCustomizerFactory> factories = ServiceBootstrap
-        .loadAllOrdered(ApolloClientWebClientCustomizerFactory.class);
+    List<ApolloClientWebClientCustomizerFactory> factories =
+        ServiceBootstrap.loadAllOrdered(ApolloClientWebClientCustomizerFactory.class);
     if (!CollectionUtils.isEmpty(factories)) {
       for (ApolloClientWebClientCustomizerFactory factory : factories) {
-        WebClientCustomizer webClientCustomizer = factory
-            .createWebClientCustomizer(apolloClientProperties, binder, bindHandler, this.log,
-                this.bootstrapContext);
+        WebClientCustomizer webClientCustomizer =
+            factory.createWebClientCustomizer(
+                apolloClientProperties, binder, bindHandler, this.log, this.bootstrapContext);
         if (webClientCustomizer != null) {
           webClientCustomizer.customize(webClientBuilder);
         }

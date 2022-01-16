@@ -17,13 +17,11 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "Audit")
@@ -32,7 +30,9 @@ import javax.persistence.Table;
 public class Audit extends BaseEntity {
 
   public enum OP {
-    INSERT, UPDATE, DELETE
+    INSERT,
+    UPDATE,
+    DELETE
   }
 
   @Column(name = "EntityName", nullable = false)
@@ -80,7 +80,11 @@ public class Audit extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("entityName", entityName).add("entityId", entityId)
-        .add("opName", opName).add("comment", comment).toString();
+    return toStringHelper()
+        .add("entityName", entityName)
+        .add("entityId", entityId)
+        .add("opName", opName)
+        .add("comment", comment)
+        .toString();
   }
 }

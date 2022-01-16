@@ -16,7 +16,12 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.utils.InputValidator;
+import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService;
+import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
@@ -28,11 +33,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.utils.InputValidator;
-import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 
 @RestController("openapiClusterController")
 @RequestMapping("/openapi/v1/envs/{env}")
@@ -41,38 +41,45 @@ public class ClusterController {
   private final UserService userService;
   private final ClusterOpenApiService clusterOpenApiService;
 
-  public ClusterController(
-      UserService userService,
-      ClusterOpenApiService clusterOpenApiService) {
+  public ClusterController(UserService userService, ClusterOpenApiService clusterOpenApiService) {
     this.userService = userService;
     this.clusterOpenApiService = clusterOpenApiService;
   }
 
   @GetMapping(value = "apps/{appId}/clusters/{clusterName:.+}")
-  public OpenClusterDTO getCluster(@PathVariable("appId") String appId, @PathVariable String env,
+  public OpenClusterDTO getCluster(
+      @PathVariable("appId") String appId,
+      @PathVariable String env,
       @PathVariable("clusterName") String clusterName) {
     return this.clusterOpenApiService.getCluster(appId, env, clusterName);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#request, #appId)")
   @PostMapping(value = "apps/{appId}/clusters")
-  public OpenClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
-      @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
+  public OpenClusterDTO createCluster(
+      @PathVariable String appId,
+      @PathVariable String env,
+      @Valid @RequestBody OpenClusterDTO cluster,
+      HttpServletRequest request) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
-      throw new BadRequestException(String.format(
-          "AppId not equal. AppId in path = %s, AppId in payload = %s", appId, cluster.getAppId()));
+      throw new BadRequestException(
+          String.format(
+              "AppId not equal. AppId in path = %s, AppId in payload = %s",
+              appId, cluster.getAppId()));
     }
 
     String clusterName = cluster.getName();
     String operator = cluster.getDataChangeCreatedBy();
 
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(clusterName, operator),
+    RequestPrecondition.checkArguments(
+        !StringUtils.isContainEmpty(clusterName, operator),
         "name and dataChangeCreatedBy should not be null or empty");
 
     if (!InputValidator.isValidClusterNamespace(clusterName)) {
       throw new BadRequestException(
-          String.format("Invalid ClusterName format: %s", InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+          String.format(
+              "Invalid ClusterName format: %s", InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
 
     if (userService.findByUserId(operator) == null) {
@@ -81,5 +88,4 @@ public class ClusterController {
 
     return this.clusterOpenApiService.createCluster(env, cluster);
   }
-
 }

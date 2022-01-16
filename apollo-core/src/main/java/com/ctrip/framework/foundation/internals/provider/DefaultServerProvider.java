@@ -35,6 +35,10 @@
 package com.ctrip.framework.foundation.internals.provider;
 
 import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
+import com.ctrip.framework.foundation.internals.Utils;
+import com.ctrip.framework.foundation.internals.io.BOMInputStream;
+import com.ctrip.framework.foundation.spi.provider.Provider;
+import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,11 +46,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-
-import com.ctrip.framework.foundation.internals.Utils;
-import com.ctrip.framework.foundation.internals.io.BOMInputStream;
-import com.ctrip.framework.foundation.spi.provider.Provider;
-import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import org.slf4j.Logger;
 
 public class DefaultServerProvider implements ServerProvider {
@@ -54,7 +53,8 @@ public class DefaultServerProvider implements ServerProvider {
   private static final Logger logger = DeferredLoggerFactory.getLogger(DefaultServerProvider.class);
 
   static final String DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX = "/opt/settings/server.properties";
-  static final String DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS = "C:/opt/settings/server.properties";
+  static final String DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS =
+      "C:/opt/settings/server.properties";
   private String m_env;
   private String m_dc;
 
@@ -67,21 +67,22 @@ public class DefaultServerProvider implements ServerProvider {
       return serverPropertiesPath;
     }
 
-    return Utils.isOSWindows() ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
+    return Utils.isOSWindows()
+        ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
         : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX;
   }
 
   private String getCustomizedServerPropertiesPath() {
     // 1. Get from System Property
-    final String serverPropertiesPathFromSystemProperty = System
-        .getProperty("apollo.path.server.properties");
+    final String serverPropertiesPathFromSystemProperty =
+        System.getProperty("apollo.path.server.properties");
     if (!Strings.isNullOrEmpty(serverPropertiesPathFromSystemProperty)) {
       return serverPropertiesPathFromSystemProperty;
     }
 
     // 2. Get from OS environment variable
-    final String serverPropertiesPathFromEnvironment = System
-        .getenv("APOLLO_PATH_SERVER_PROPERTIES");
+    final String serverPropertiesPathFromEnvironment =
+        System.getenv("APOLLO_PATH_SERVER_PROPERTIES");
     if (!Strings.isNullOrEmpty(serverPropertiesPathFromEnvironment)) {
       return serverPropertiesPathFromEnvironment;
     }
@@ -112,8 +113,8 @@ public class DefaultServerProvider implements ServerProvider {
     try {
       if (in != null) {
         try {
-          m_serverProperties
-              .load(new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
+          m_serverProperties.load(
+              new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
         } finally {
           in.close();
         }
@@ -229,7 +230,11 @@ public class DefaultServerProvider implements ServerProvider {
 
   @Override
   public String toString() {
-    return "environment [" + getEnvType() + "] data center [" + getDataCenter() + "] properties: "
+    return "environment ["
+        + getEnvType()
+        + "] data center ["
+        + getDataCenter()
+        + "] properties: "
         + m_serverProperties
         + " (DefaultServerProvider)";
   }

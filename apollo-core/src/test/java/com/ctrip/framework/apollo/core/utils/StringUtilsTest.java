@@ -19,8 +19,6 @@ package com.ctrip.framework.apollo.core.utils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-
 public class StringUtilsTest {
 
   @Test

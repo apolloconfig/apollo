@@ -16,73 +16,73 @@
  */
 package com.ctrip.framework.foundation.internals;
 
-import org.junit.After;
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
+import org.junit.Test;
+
 public class UtilsTest {
-    private final String actualOsName = System.getProperty("os.name");
+  private final String actualOsName = System.getProperty("os.name");
 
-    @After
-    public void tearDown() {
-        System.setProperty("os.name", actualOsName);
-    }
+  @After
+  public void tearDown() {
+    System.setProperty("os.name", actualOsName);
+  }
 
-    @Test
-    public void isBlankTrueGivenNull() {
-        assertTrue(Utils.isBlank(null));
-    }
+  @Test
+  public void isBlankTrueGivenNull() {
+    assertTrue(Utils.isBlank(null));
+  }
 
-    @Test
-    public void isBlankTrueGivenEmpty() {
-        assertTrue(Utils.isBlank(""));
-    }
+  @Test
+  public void isBlankTrueGivenEmpty() {
+    assertTrue(Utils.isBlank(""));
+  }
 
-    @Test
-    public void isBlankTrueGivenWhitespace() {
-        assertTrue(Utils.isBlank("   "));
-    }
+  @Test
+  public void isBlankTrueGivenWhitespace() {
+    assertTrue(Utils.isBlank("   "));
+  }
 
-    @Test
-    public void isBlankFalseGivenLoremIpsum() {
-        assertFalse(Utils.isBlank("Lorem Ipsum"));
-    }
+  @Test
+  public void isBlankFalseGivenLoremIpsum() {
+    assertFalse(Utils.isBlank("Lorem Ipsum"));
+  }
 
-    @Test
-    public void isBlankFalseGivenWhitespacePadded() {
-        assertFalse(Utils.isBlank("   Lorem Ipsum   "));
-    }
+  @Test
+  public void isBlankFalseGivenWhitespacePadded() {
+    assertFalse(Utils.isBlank("   Lorem Ipsum   "));
+  }
 
-    @Test
-    public void isOsWindowsTrueGivenWindows10() {
-        System.setProperty("os.name", "Windows 10");
-        assertTrue(Utils.isOSWindows());
-    }
+  @Test
+  public void isOsWindowsTrueGivenWindows10() {
+    System.setProperty("os.name", "Windows 10");
+    assertTrue(Utils.isOSWindows());
+  }
 
-    @Test
-    public void isOSWindowsFalseGivenMacOsX() {
-        System.setProperty("os.name", "Mac OS X");
-        assertFalse(Utils.isOSWindows());
-    }
+  @Test
+  public void isOSWindowsFalseGivenMacOsX() {
+    System.setProperty("os.name", "Mac OS X");
+    assertFalse(Utils.isOSWindows());
+  }
 
-    @Test
-    public void isOSWindowsFalseGivenBlank() {
-        System.setProperty("os.name", "");
-        assertFalse(Utils.isOSWindows());
-    }
+  @Test
+  public void isOSWindowsFalseGivenBlank() {
+    System.setProperty("os.name", "");
+    assertFalse(Utils.isOSWindows());
+  }
 
-    // Explicitly calling out case sensitivity; revisit if Microsoft changes naming convention
-    @Test
-    public void isOSWindowsFalseGivenAllUppercaseWindows() {
-        System.setProperty("os.name", "WINDOWS 10");
-        assertFalse(Utils.isOSWindows());
-    }
+  // Explicitly calling out case sensitivity; revisit if Microsoft changes naming convention
+  @Test
+  public void isOSWindowsFalseGivenAllUppercaseWindows() {
+    System.setProperty("os.name", "WINDOWS 10");
+    assertFalse(Utils.isOSWindows());
+  }
 
-    @Test
-    public void isOSWindowsFalseGivenAllLowercaseWindows() {
-        System.setProperty("os.name", "windows 10");
-        assertFalse(Utils.isOSWindows());
-    }
+  @Test
+  public void isOSWindowsFalseGivenAllLowercaseWindows() {
+    System.setProperty("os.name", "windows 10");
+    assertFalse(Utils.isOSWindows());
+  }
 }

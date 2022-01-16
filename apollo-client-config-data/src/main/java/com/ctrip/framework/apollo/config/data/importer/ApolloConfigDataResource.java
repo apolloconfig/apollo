@@ -28,8 +28,8 @@ public class ApolloConfigDataResource extends ConfigDataResource {
   /**
    * default resource instance
    */
-  public static final ApolloConfigDataResource DEFAULT = new ApolloConfigDataResource(
-      ConfigConsts.NAMESPACE_APPLICATION);
+  public static final ApolloConfigDataResource DEFAULT =
+      new ApolloConfigDataResource(ConfigConsts.NAMESPACE_APPLICATION);
 
   /**
    * apollo config namespace
@@ -63,8 +63,6 @@ public class ApolloConfigDataResource extends ConfigDataResource {
 
   @Override
   public String toString() {
-    return "ApolloConfigDataResource{" +
-        "namespace='" + namespace + '\'' +
-        '}';
+    return "ApolloConfigDataResource{" + "namespace='" + namespace + '\'' + '}';
   }
 }

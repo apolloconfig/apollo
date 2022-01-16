@@ -21,14 +21,13 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -62,7 +61,9 @@ public class DefaultConfigFactoryManagerTest {
 
     ConfigFactory result = defaultConfigFactoryManager.getFactory(someNamespace);
 
-    assertThat("When namespace is registered, should return the registerd config factory", result,
+    assertThat(
+        "When namespace is registered, should return the registerd config factory",
+        result,
         instanceOf(SomeConfigFactory.class));
   }
 
@@ -76,7 +77,8 @@ public class DefaultConfigFactoryManagerTest {
 
     assertThat(
         "Get config factory with the same namespace multiple times should returnt the same instance",
-        anotherResult, equalTo(result));
+        anotherResult,
+        equalTo(result));
   }
 
   @Test
@@ -86,28 +88,30 @@ public class DefaultConfigFactoryManagerTest {
 
     ConfigFactory result = defaultConfigFactoryManager.getFactory(someNamespace);
 
-    assertThat("When namespace is not registered, should return the default config factory", result,
+    assertThat(
+        "When namespace is not registered, should return the default config factory",
+        result,
         instanceOf(AnotherConfigFactory.class));
   }
 
   public static class MockConfigRegistry implements ConfigRegistry {
     public static String NAMESPACE_REGISTERED = "some-namespace-registered";
-    public static ConfigFactory REGISTERED_CONFIGFACTORY = new ConfigFactory() {
-      @Override
-      public Config create(String namespace) {
-        return null;
-      }
+    public static ConfigFactory REGISTERED_CONFIGFACTORY =
+        new ConfigFactory() {
+          @Override
+          public Config create(String namespace) {
+            return null;
+          }
 
-      @Override
-      public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-        return null;
-      }
-
-    };
+          @Override
+          public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
+            return null;
+          }
+        };
 
     @Override
     public void register(String namespace, ConfigFactory factory) {
-      //do nothing
+      // do nothing
     }
 
     @Override
@@ -142,5 +146,4 @@ public class DefaultConfigFactoryManagerTest {
       return null;
     }
   }
-
 }

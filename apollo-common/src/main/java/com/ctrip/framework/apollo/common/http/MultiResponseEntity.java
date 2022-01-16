@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.common.http;
 
-import org.springframework.http.HttpStatus;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.springframework.http.HttpStatus;
 
 /**
  * 一个Response中包含多个ResponseEntity
@@ -43,11 +42,9 @@ public class MultiResponseEntity<T> {
   }
 
   public void addResponseEntity(RichResponseEntity<T> responseEntity) {
-    if (responseEntity == null){
+    if (responseEntity == null) {
       throw new IllegalArgumentException("sub response entity can not be null");
     }
     entities.add(responseEntity);
-
   }
-
 }

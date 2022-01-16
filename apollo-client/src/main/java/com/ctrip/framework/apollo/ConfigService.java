@@ -92,18 +92,22 @@ public class ConfigService {
    * @param config    the config instance
    */
   static void setConfig(String namespace, final Config config) {
-    s_instance.getRegistry().register(namespace, new ConfigFactory() {
-      @Override
-      public Config create(String namespace) {
-        return config;
-      }
+    s_instance
+        .getRegistry()
+        .register(
+            namespace,
+            new ConfigFactory() {
+              @Override
+              public Config create(String namespace) {
+                return config;
+              }
 
-      @Override
-      public ConfigFile createConfigFile(String namespace, ConfigFileFormat configFileFormat) {
-        return null;
-      }
-
-    });
+              @Override
+              public ConfigFile createConfigFile(
+                  String namespace, ConfigFileFormat configFileFormat) {
+                return null;
+              }
+            });
   }
 
   static void setConfigFactory(ConfigFactory factory) {

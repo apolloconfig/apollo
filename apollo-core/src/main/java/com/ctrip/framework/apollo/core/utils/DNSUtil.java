@@ -35,5 +35,4 @@ public class DNSUtil {
 
     return result;
   }
-
 }

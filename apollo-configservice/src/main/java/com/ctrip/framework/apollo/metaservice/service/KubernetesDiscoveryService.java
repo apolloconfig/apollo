@@ -41,8 +41,9 @@ import org.springframework.stereotype.Service;
 @Profile({"kubernetes"})
 public class KubernetesDiscoveryService implements DiscoveryService {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
-  private static final Map<String, String> SERVICE_ID_TO_CONFIG_NAME = ImmutableMap
-      .of(ServiceNameConsts.APOLLO_CONFIGSERVICE, "apollo.config-service.url",
+  private static final Map<String, String> SERVICE_ID_TO_CONFIG_NAME =
+      ImmutableMap.of(
+          ServiceNameConsts.APOLLO_CONFIGSERVICE, "apollo.config-service.url",
           ServiceNameConsts.APOLLO_ADMINSERVICE, "apollo.admin-service.url");
 
   private final BizConfig bizConfig;
@@ -66,13 +67,16 @@ public class KubernetesDiscoveryService implements DiscoveryService {
       return Collections.emptyList();
     }
     List<ServiceDTO> serviceDTOList = Lists.newLinkedList();
-    COMMA_SPLITTER.split(directUrl).forEach(url -> {
-      ServiceDTO service = new ServiceDTO();
-      service.setAppName(serviceId);
-      service.setInstanceId(String.format("%s:%s", serviceId, url));
-      service.setHomepageUrl(url);
-      serviceDTOList.add(service);
-    });
+    COMMA_SPLITTER
+        .split(directUrl)
+        .forEach(
+            url -> {
+              ServiceDTO service = new ServiceDTO();
+              service.setAppName(serviceId);
+              service.setInstanceId(String.format("%s:%s", serviceId, url));
+              service.setHomepageUrl(url);
+              serviceDTOList.add(service);
+            });
 
     return serviceDTOList;
   }

@@ -61,6 +61,5 @@ public class ExceptionUtilTest {
 
     assertEquals("", ExceptionUtil.getDetailMessage(ex));
     assertEquals("", ExceptionUtil.getDetailMessage(null));
-
   }
 }

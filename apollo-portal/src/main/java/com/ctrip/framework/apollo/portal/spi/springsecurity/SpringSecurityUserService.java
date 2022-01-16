@@ -21,7 +21,11 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -30,19 +34,13 @@ import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 /**
  * @author lepdou 2017-03-10
  */
 public class SpringSecurityUserService implements UserService {
 
-  private final List<GrantedAuthority> authorities = Collections
-      .unmodifiableList(Arrays.asList(new SimpleGrantedAuthority("ROLE_user")));
+  private final List<GrantedAuthority> authorities =
+      Collections.unmodifiableList(Arrays.asList(new SimpleGrantedAuthority("ROLE_user")));
 
   private final PasswordEncoder passwordEncoder;
 
@@ -84,8 +82,7 @@ public class SpringSecurityUserService implements UserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 
   private List<UserPO> findUsers(String keyword) {
@@ -93,10 +90,9 @@ public class SpringSecurityUserService implements UserService {
       return userRepository.findFirst20ByEnabled(1);
     }
     List<UserPO> users = new ArrayList<>();
-    List<UserPO> byUsername = userRepository
-        .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-    List<UserPO> byUserDisplayName = userRepository
-        .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUsername = userRepository.findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUserDisplayName =
+        userRepository.findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
     if (!CollectionUtils.isEmpty(byUsername)) {
       users.addAll(byUsername);
     }

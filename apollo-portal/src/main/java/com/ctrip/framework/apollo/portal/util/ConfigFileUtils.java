@@ -24,12 +24,9 @@ import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.controller.ConfigsImportController;
 import com.ctrip.framework.apollo.portal.environment.Env;
-
 import com.google.common.base.Splitter;
-
 import java.io.File;
 import java.util.List;
-
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -38,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class ConfigFileUtils {
 
-  public static final String APP_METADATA_FILENAME              = "app.metadata";
-  public static final String CLUSTER_METADATA_FILE_SUFFIX       = ".cluster.metadata";
+  public static final String APP_METADATA_FILENAME = "app.metadata";
+  public static final String CLUSTER_METADATA_FILE_SUFFIX = ".cluster.metadata";
   public static final String APP_NAMESPACE_METADATA_FILE_SUFFIX = ".appnamespace.metadata";
 
   public static void check(MultipartFile file) {
@@ -163,8 +160,7 @@ public class ConfigFileUtils {
       final String appId,
       final String clusterName,
       final String namespace,
-      final ConfigFileFormat configFileFormat
-  ) {
+      final ConfigFileFormat configFileFormat) {
     final String suffix;
     if (ConfigFileFormat.Properties.equals(configFileFormat)) {
       suffix = "." + ConfigFileFormat.Properties.getValue();
@@ -179,11 +175,7 @@ public class ConfigFileUtils {
    * @return file path in compressed file
    */
   public static String genNamespacePath(
-      final String ownerName,
-      final String appId,
-      final Env env,
-      final String configFilename
-  ) {
+      final String ownerName, final String appId, final Env env, final String configFilename) {
     return String.join(File.separator, ownerName, appId, env.getName(), configFilename);
   }
 
@@ -198,15 +190,23 @@ public class ConfigFileUtils {
    * path = {appNamespace}.appnamespace.metadata
    */
   public static String genAppNamespaceInfoPath(AppNamespace appNamespace) {
-    return String.join(File.separator,
-                       appNamespace.getAppId() + "+" + appNamespace.getName() + APP_NAMESPACE_METADATA_FILE_SUFFIX);
+    return String.join(
+        File.separator,
+        appNamespace.getAppId()
+            + "+"
+            + appNamespace.getName()
+            + APP_NAMESPACE_METADATA_FILE_SUFFIX);
   }
 
   /**
    * path = ownerName/appId/env/${clusterName}.metadata
    */
   public static String genClusterInfoPath(App app, Env env, ClusterDTO cluster) {
-    return String.join(File.separator, app.getOwnerName(), app.getAppId(), env.getName(),
-                       cluster.getName() + CLUSTER_METADATA_FILE_SUFFIX);
+    return String.join(
+        File.separator,
+        app.getOwnerName(),
+        app.getAppId(),
+        env.getName(),
+        cluster.getName() + CLUSTER_METADATA_FILE_SUFFIX);
   }
 }

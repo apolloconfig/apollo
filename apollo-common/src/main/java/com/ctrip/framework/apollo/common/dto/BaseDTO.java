@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-
 import java.util.Date;
 
 public class BaseDTO {

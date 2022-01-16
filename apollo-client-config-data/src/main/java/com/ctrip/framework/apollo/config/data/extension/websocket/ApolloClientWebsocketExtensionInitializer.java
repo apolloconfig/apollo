@@ -32,15 +32,15 @@ public class ApolloClientWebsocketExtensionInitializer implements ApolloClientEx
 
   private final ConfigurableBootstrapContext bootstrapContext;
 
-  public ApolloClientWebsocketExtensionInitializer(Log log,
-      ConfigurableBootstrapContext bootstrapContext) {
+  public ApolloClientWebsocketExtensionInitializer(
+      Log log, ConfigurableBootstrapContext bootstrapContext) {
     this.log = log;
     this.bootstrapContext = bootstrapContext;
   }
 
   @Override
-  public void initialize(ApolloClientProperties apolloClientProperties, Binder binder,
-      BindHandler bindHandler) {
+  public void initialize(
+      ApolloClientProperties apolloClientProperties, Binder binder, BindHandler bindHandler) {
     throw new UnsupportedOperationException("apollo client websocket support is not complete yet.");
   }
 }

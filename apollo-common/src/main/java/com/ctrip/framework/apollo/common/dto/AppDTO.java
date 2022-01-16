@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.common.dto;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.Pattern;
 
-public class AppDTO extends BaseDTO{
+public class AppDTO extends BaseDTO {
 
   private long id;
 
@@ -27,8 +27,7 @@ public class AppDTO extends BaseDTO{
 
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = "Invalid AppId format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
-  )
+      message = "Invalid AppId format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE)
   private String appId;
 
   private String orgId;

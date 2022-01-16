@@ -40,13 +40,23 @@ public class OpenClusterDTO extends BaseDTO {
 
   @Override
   public String toString() {
-    return "OpenClusterDTO{" +
-        "name='" + name + '\'' +
-        ", appId='" + appId + '\'' +
-        ", dataChangeCreatedBy='" + dataChangeCreatedBy + '\'' +
-        ", dataChangeLastModifiedBy='" + dataChangeLastModifiedBy + '\'' +
-        ", dataChangeCreatedTime=" + dataChangeCreatedTime +
-        ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
-        '}';
+    return "OpenClusterDTO{"
+        + "name='"
+        + name
+        + '\''
+        + ", appId='"
+        + appId
+        + '\''
+        + ", dataChangeCreatedBy='"
+        + dataChangeCreatedBy
+        + '\''
+        + ", dataChangeLastModifiedBy='"
+        + dataChangeLastModifiedBy
+        + '\''
+        + ", dataChangeCreatedTime="
+        + dataChangeCreatedTime
+        + ", dataChangeLastModifiedTime="
+        + dataChangeLastModifiedTime
+        + '}';
   }
 }

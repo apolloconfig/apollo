@@ -16,10 +16,8 @@
  */
 package com.ctrip.framework.apollo.common.utils;
 
-
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
 
 public class RequestPrecondition {
 
@@ -31,7 +29,7 @@ public class RequestPrecondition {
     checkArguments(!StringUtils.isContainEmpty(args), CONTAIN_EMPTY_ARGUMENT);
   }
 
-  public static void checkModel(boolean valid){
+  public static void checkModel(boolean valid) {
     checkArguments(valid, ILLEGAL_MODEL);
   }
 

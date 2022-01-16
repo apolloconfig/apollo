@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.model;
 
-
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
 
 /**
@@ -38,8 +37,12 @@ public class ConfigChange {
    * @param newValue the value after change
    * @param changeType the change type
    */
-  public ConfigChange(String namespace, String propertyName, String oldValue, String newValue,
-                      PropertyChangeType changeType) {
+  public ConfigChange(
+      String namespace,
+      String propertyName,
+      String oldValue,
+      String newValue,
+      PropertyChangeType changeType) {
     this.namespace = namespace;
     this.propertyName = propertyName;
     this.oldValue = oldValue;
