@@ -28,4 +28,7 @@ jobs:
       - uses: actions/checkout@v2 # v2 minimum required
       - uses: axel-op/googlejavaformat-action@3.5.0
         with:
+          # By default, only --replace is used in args
+          args: "--skip-reflowing-long-strings --skip-javadoc-formatting --replace"
+          # Default: Google Java Format
           commitMessage: "chore: Google Java Format"
