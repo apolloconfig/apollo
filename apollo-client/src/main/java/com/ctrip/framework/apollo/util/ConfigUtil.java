@@ -40,19 +40,19 @@ public class ConfigUtil {
   private static final Logger logger = LoggerFactory.getLogger(ConfigUtil.class);
   private int refreshInterval = 5;
   private TimeUnit refreshIntervalTimeUnit = TimeUnit.MINUTES;
-  private int connectTimeout = 1000; //1 second
-  private int readTimeout = 5000; //5 seconds
+  private int connectTimeout = 1000; // 1 second
+  private int readTimeout = 5000; // 5 seconds
   private String cluster;
-  private int loadConfigQPS = 2; //2 times per second
-  private int longPollQPS = 2; //2 times per second
-  //for on error retry
-  private long onErrorRetryInterval = 1;//1 second
-  private TimeUnit onErrorRetryIntervalTimeUnit = TimeUnit.SECONDS;//1 second
-  //for typed config cache of parser result, e.g. integer, double, long, etc.
-  private long maxConfigCacheSize = 500;//500 cache key
-  private long configCacheExpireTime = 1;//1 minute
-  private TimeUnit configCacheExpireTimeUnit = TimeUnit.MINUTES;//1 minute
-  private long longPollingInitialDelayInMills = 2000;//2 seconds
+  private int loadConfigQPS = 2; // 2 times per second
+  private int longPollQPS = 2; // 2 times per second
+  // for on error retry
+  private long onErrorRetryInterval = 1; // 1 second
+  private TimeUnit onErrorRetryIntervalTimeUnit = TimeUnit.SECONDS; // 1 second
+  // for typed config cache of parser result, e.g. integer, double, long, etc.
+  private long maxConfigCacheSize = 500; // 500 cache key
+  private long configCacheExpireTime = 1; // 1 minute
+  private TimeUnit configCacheExpireTimeUnit = TimeUnit.MINUTES; // 1 minute
+  private long longPollingInitialDelayInMills = 2000; // 2 seconds
   private boolean autoUpdateInjectedSpringProperties = true;
   private final RateLimiter warnLogRateLimiter;
   private boolean propertiesOrdered = false;
@@ -119,15 +119,15 @@ public class ConfigUtil {
   }
 
   private void initCluster() {
-    //Load data center from system property
+    // Load data center from system property
     cluster = System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY);
 
-    //Use data center as cluster
+    // Use data center as cluster
     if (Strings.isNullOrEmpty(cluster)) {
       cluster = getDataCenter();
     }
 
-    //Use default cluster
+    // Use default cluster
     if (Strings.isNullOrEmpty(cluster)) {
       cluster = ConfigConsts.CLUSTER_NAME_DEFAULT;
     }
@@ -282,31 +282,38 @@ public class ConfigUtil {
     // 1. Get from System Property
     String cacheRoot = System.getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR);
     if (!Strings.isNullOrEmpty(cacheRoot)) {
-      DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
+      DeprecatedPropertyNotifyUtil.warn(
+          ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
           ApolloClientSystemConsts.APOLLO_CACHE_DIR);
     }
     if (Strings.isNullOrEmpty(cacheRoot)) {
       // 2. Get from OS environment variable
-      cacheRoot = System.getenv(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES);
+      cacheRoot =
+          System.getenv(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES);
       if (!Strings.isNullOrEmpty(cacheRoot)) {
-        DeprecatedPropertyNotifyUtil
-            .warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES,
-                ApolloClientSystemConsts.APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES);
+        DeprecatedPropertyNotifyUtil.warn(
+            ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES,
+            ApolloClientSystemConsts.APOLLO_CACHE_DIR_ENVIRONMENT_VARIABLES);
       }
     }
     if (Strings.isNullOrEmpty(cacheRoot)) {
       // 3. Get from server.properties
-      cacheRoot = Foundation.server().getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR, null);
+      cacheRoot =
+          Foundation.server()
+              .getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR, null);
       if (!Strings.isNullOrEmpty(cacheRoot)) {
-        DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
+        DeprecatedPropertyNotifyUtil.warn(
+            ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
             ApolloClientSystemConsts.APOLLO_CACHE_DIR);
       }
     }
     if (Strings.isNullOrEmpty(cacheRoot)) {
       // 4. Get from app.properties
-      cacheRoot = Foundation.app().getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR, null);
+      cacheRoot =
+          Foundation.app().getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR, null);
       if (!Strings.isNullOrEmpty(cacheRoot)) {
-        DeprecatedPropertyNotifyUtil.warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
+        DeprecatedPropertyNotifyUtil.warn(
+            ApolloClientSystemConsts.DEPRECATED_APOLLO_CACHE_DIR,
             ApolloClientSystemConsts.APOLLO_CACHE_DIR);
       }
     }
@@ -317,7 +324,7 @@ public class ConfigUtil {
     try {
       return Env.LOCAL == getApolloEnv();
     } catch (Throwable ex) {
-      //ignore
+      // ignore
     }
     return false;
   }
@@ -354,13 +361,14 @@ public class ConfigUtil {
   }
 
   private void initLongPollingInitialDelayInMills() {
-    String customizedLongPollingInitialDelay = System
-        .getProperty("apollo.longPollingInitialDelayInMills");
+    String customizedLongPollingInitialDelay =
+        System.getProperty("apollo.longPollingInitialDelayInMills");
     if (!Strings.isNullOrEmpty(customizedLongPollingInitialDelay)) {
       try {
         longPollingInitialDelayInMills = Long.parseLong(customizedLongPollingInitialDelay);
       } catch (Throwable ex) {
-        logger.error("Config for apollo.longPollingInitialDelayInMills is invalid: {}",
+        logger.error(
+            "Config for apollo.longPollingInitialDelayInMills is invalid: {}",
             customizedLongPollingInitialDelay);
       }
     }
@@ -375,8 +383,8 @@ public class ConfigUtil {
     String enableAutoUpdate = System.getProperty("apollo.autoUpdateInjectedSpringProperties");
     if (Strings.isNullOrEmpty(enableAutoUpdate)) {
       // 2. Get from app.properties
-      enableAutoUpdate = Foundation.app()
-          .getProperty("apollo.autoUpdateInjectedSpringProperties", null);
+      enableAutoUpdate =
+          Foundation.app().getProperty("apollo.autoUpdateInjectedSpringProperties", null);
     }
     if (!Strings.isNullOrEmpty(enableAutoUpdate)) {
       autoUpdateInjectedSpringProperties = Boolean.parseBoolean(enableAutoUpdate.trim());
@@ -398,8 +406,10 @@ public class ConfigUtil {
       try {
         propertiesOrdered = Boolean.parseBoolean(enablePropertiesOrdered);
       } catch (Throwable ex) {
-        logger.warn("Config for {} is invalid: {}, set default value: false",
-            APOLLO_PROPERTY_ORDER_ENABLE, enablePropertiesOrdered);
+        logger.warn(
+            "Config for {} is invalid: {}, set default value: false",
+            APOLLO_PROPERTY_ORDER_ENABLE,
+            enablePropertiesOrdered);
       }
     }
   }
@@ -417,13 +427,17 @@ public class ConfigUtil {
   }
 
   private void initPropertyNamesCacheEnabled() {
-    propertyNamesCacheEnabled = getPropertyBoolean(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE,
+    propertyNamesCacheEnabled =
+        getPropertyBoolean(
+            ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE,
             ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES,
             propertyNamesCacheEnabled);
   }
 
   private void initPropertyFileCacheEnabled() {
-    propertyFileCacheEnabled = getPropertyBoolean(ApolloClientSystemConsts.APOLLO_CACHE_FILE_ENABLE,
+    propertyFileCacheEnabled =
+        getPropertyBoolean(
+            ApolloClientSystemConsts.APOLLO_CACHE_FILE_ENABLE,
             ApolloClientSystemConsts.APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES,
             propertyFileCacheEnabled);
   }
@@ -440,8 +454,11 @@ public class ConfigUtil {
       try {
         return Boolean.parseBoolean(enablePropertyNamesCache);
       } catch (Throwable ex) {
-        logger.warn("Config for {} is invalid: {}, set default value: {}",
-                propertyName, enablePropertyNamesCache, defaultVal);
+        logger.warn(
+            "Config for {} is invalid: {}, set default value: {}",
+            propertyName,
+            enablePropertyNamesCache,
+            defaultVal);
       }
     }
     return defaultVal;

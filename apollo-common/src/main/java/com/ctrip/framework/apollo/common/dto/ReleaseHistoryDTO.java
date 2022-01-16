@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-
 import java.util.Map;
 
-public class ReleaseHistoryDTO extends BaseDTO{
+public class ReleaseHistoryDTO extends BaseDTO {
 
   private long id;
 
@@ -39,7 +38,7 @@ public class ReleaseHistoryDTO extends BaseDTO{
 
   private Map<String, Object> operationContext;
 
-  public ReleaseHistoryDTO(){}
+  public ReleaseHistoryDTO() {}
 
   public long getId() {
     return id;

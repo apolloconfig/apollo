@@ -17,14 +17,13 @@
 package com.ctrip.framework.apollo.common.entity;
 
 import com.ctrip.framework.apollo.common.utils.InputValidator;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "App")
@@ -39,8 +38,7 @@ public class App extends BaseEntity {
   @NotBlank(message = "AppId cannot be blank")
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
-  )
+      message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE)
   @Column(name = "AppId", nullable = false)
   private String appId;
 
@@ -107,17 +105,19 @@ public class App extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("name", name).add("appId", appId)
+    return toStringHelper()
+        .add("name", name)
+        .add("appId", appId)
         .add("orgId", orgId)
         .add("orgName", orgName)
         .add("ownerName", ownerName)
-        .add("ownerEmail", ownerEmail).toString();
+        .add("ownerEmail", ownerEmail)
+        .toString();
   }
 
   public static class Builder {
 
-    public Builder() {
-    }
+    public Builder() {}
 
     private App app = new App();
 
@@ -154,12 +154,9 @@ public class App extends BaseEntity {
     public App build() {
       return app;
     }
-
   }
 
   public static Builder builder() {
     return new Builder();
   }
-
-
 }

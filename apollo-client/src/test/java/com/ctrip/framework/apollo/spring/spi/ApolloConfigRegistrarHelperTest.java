@@ -33,6 +33,7 @@ public class ApolloConfigRegistrarHelperTest {
     ReflectionUtils.makeAccessible(field);
     Object helper = ReflectionUtils.getField(field, apolloConfigRegistrar);
 
-    assertEquals("helper is not TestRegistrarHelper instance", TestRegistrarHelper.class, helper.getClass());
+    assertEquals(
+        "helper is not TestRegistrarHelper instance", TestRegistrarHelper.class, helper.getClass());
   }
 }

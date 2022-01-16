@@ -66,15 +66,18 @@ public class ReleaseOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     final ArgumentCaptor<HttpPost> request = ArgumentCaptor.forClass(HttpPost.class);
 
-    releaseOpenApiService.publishNamespace(someAppId, someEnv, someCluster, someNamespace, namespaceReleaseDTO);
+    releaseOpenApiService.publishNamespace(
+        someAppId, someEnv, someCluster, someNamespace, namespaceReleaseDTO);
 
     verify(httpClient, times(1)).execute(request.capture());
 
     HttpPost post = request.getValue();
 
-    assertEquals(String
-        .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/releases", someBaseUrl, someEnv, someAppId, someCluster,
-            someNamespace), post.getURI().toString());
+    assertEquals(
+        String.format(
+            "%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/releases",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace),
+        post.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)
@@ -88,7 +91,8 @@ public class ReleaseOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     when(statusLine.getStatusCode()).thenReturn(400);
 
-    releaseOpenApiService.publishNamespace(someAppId, someEnv, someCluster, someNamespace, namespaceReleaseDTO);
+    releaseOpenApiService.publishNamespace(
+        someAppId, someEnv, someCluster, someNamespace, namespaceReleaseDTO);
   }
 
   @Test
@@ -101,9 +105,11 @@ public class ReleaseOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     HttpGet get = request.getValue();
 
-    assertEquals(String
-        .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/releases/latest", someBaseUrl, someEnv, someAppId, someCluster,
-            someNamespace), get.getURI().toString());
+    assertEquals(
+        String.format(
+            "%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/releases/latest",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace),
+        get.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)
@@ -127,7 +133,9 @@ public class ReleaseOpenApiServiceTest extends AbstractOpenApiServiceTest {
     HttpPut put = request.getValue();
 
     assertEquals(
-        String.format("%s/envs/%s/releases/%s/rollback?operator=%s", someBaseUrl, someEnv, someReleaseId, someOperator),
+        String.format(
+            "%s/envs/%s/releases/%s/rollback?operator=%s",
+            someBaseUrl, someEnv, someReleaseId, someOperator),
         put.getURI().toString());
   }
 

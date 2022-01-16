@@ -16,7 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-import com.google.common.collect.Lists;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
@@ -26,24 +28,16 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
-
+import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 
 /**
  * @author lepdou 2021-09-13
@@ -51,16 +45,11 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class SearchControllerTest {
 
-  @Mock
-  private AppService       appService;
-  @Mock
-  private NamespaceService namespaceService;
-  @Mock
-  private PortalSettings   portalSettings;
-  @Mock
-  private PortalConfig     portalConfig;
-  @InjectMocks
-  private SearchController searchController;
+  @Mock private AppService appService;
+  @Mock private NamespaceService namespaceService;
+  @Mock private PortalSettings portalSettings;
+  @Mock private PortalConfig portalConfig;
+  @InjectMocks private SearchController searchController;
 
   @Test
   public void testSearchByEmptyKey() {

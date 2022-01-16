@@ -42,8 +42,15 @@ public class ConfigBO {
 
   private final boolean isPublic;
 
-  public ConfigBO(Env env, String ownerName, String appId, String clusterName,
-      String namespace, boolean isPublic, String configFileContent, ConfigFileFormat format) {
+  public ConfigBO(
+      Env env,
+      String ownerName,
+      String appId,
+      String clusterName,
+      String namespace,
+      boolean isPublic,
+      String configFileContent,
+      ConfigFileFormat format) {
     this.env = env;
     this.ownerName = ownerName;
     this.appId = appId;
@@ -54,26 +61,45 @@ public class ConfigBO {
     this.format = format;
   }
 
-  public ConfigBO(Env env, String ownerName, String appId, String clusterName, NamespaceBO namespaceBO) {
-    this(env, ownerName, appId, clusterName,
-         namespaceBO.getBaseInfo().getNamespaceName(), namespaceBO.isPublic(),
-         NamespaceBOUtils.convert2configFileContent(namespaceBO),
-         ConfigFileFormat.fromString(namespaceBO.getFormat())
-    );
+  public ConfigBO(
+      Env env, String ownerName, String appId, String clusterName, NamespaceBO namespaceBO) {
+    this(
+        env,
+        ownerName,
+        appId,
+        clusterName,
+        namespaceBO.getBaseInfo().getNamespaceName(),
+        namespaceBO.isPublic(),
+        NamespaceBOUtils.convert2configFileContent(namespaceBO),
+        ConfigFileFormat.fromString(namespaceBO.getFormat()));
   }
 
   @Override
   public String toString() {
-    return "ConfigBO{" +
-        "env=" + env +
-        ", ownerName='" + ownerName + '\'' +
-        ", appId='" + appId + '\'' +
-        ", clusterName='" + clusterName + '\'' +
-        ", namespace='" + namespace + '\'' +
-        ", isPublic='" + isPublic + '\'' +
-        ", configFileContent='" + configFileContent + '\'' +
-        ", format=" + format +
-        '}';
+    return "ConfigBO{"
+        + "env="
+        + env
+        + ", ownerName='"
+        + ownerName
+        + '\''
+        + ", appId='"
+        + appId
+        + '\''
+        + ", clusterName='"
+        + clusterName
+        + '\''
+        + ", namespace='"
+        + namespace
+        + '\''
+        + ", isPublic='"
+        + isPublic
+        + '\''
+        + ", configFileContent='"
+        + configFileContent
+        + '\''
+        + ", format="
+        + format
+        + '}';
   }
 
   public Env getEnv() {

@@ -16,18 +16,14 @@
  */
 package com.ctrip.framework.apollo.portal.component.emailbuilder;
 
-
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
-
+import com.ctrip.framework.apollo.portal.environment.Env;
 import org.springframework.stereotype.Component;
-
 
 @Component
 public class RollbackEmailBuilder extends ConfigPublishEmailBuilder {
 
   private static final String EMAIL_SUBJECT = "[Apollo] 配置回滚";
-
 
   @Override
   protected String subject() {

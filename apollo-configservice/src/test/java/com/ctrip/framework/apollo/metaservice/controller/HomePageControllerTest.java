@@ -34,8 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class HomePageControllerTest {
 
-  @Mock
-  private DiscoveryService discoveryService;
+  @Mock private DiscoveryService discoveryService;
 
   private HomePageController homePageController;
 
@@ -49,10 +48,10 @@ public class HomePageControllerTest {
     ServiceDTO someServiceDto = mock(ServiceDTO.class);
     ServiceDTO anotherServiceDto = mock(ServiceDTO.class);
 
-    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE)).thenReturn(
-        Lists.newArrayList(someServiceDto));
-    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE)).thenReturn(
-        Lists.newArrayList(anotherServiceDto));
+    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE))
+        .thenReturn(Lists.newArrayList(someServiceDto));
+    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE))
+        .thenReturn(Lists.newArrayList(anotherServiceDto));
 
     List<ServiceDTO> allServices = homePageController.listAllServices();
 

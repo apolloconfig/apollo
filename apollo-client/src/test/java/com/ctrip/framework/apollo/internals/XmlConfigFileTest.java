@@ -24,12 +24,13 @@ import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.ConfigFileChangeListener;
 import com.ctrip.framework.apollo.build.MockInjector;
+import com.ctrip.framework.apollo.core.ConfigConsts;
+import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
 import com.ctrip.framework.apollo.model.ConfigFileChangeEvent;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.Properties;
-
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -38,9 +39,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -50,21 +48,21 @@ import org.mockito.stubbing.Answer;
 public class XmlConfigFileTest {
 
   private String someNamespace;
-  @Mock
-  private ConfigRepository configRepository;
-  @Mock
-  private PropertiesFactory propertiesFactory;
+  @Mock private ConfigRepository configRepository;
+  @Mock private PropertiesFactory propertiesFactory;
 
   @Before
   public void setUp() throws Exception {
     someNamespace = "someName";
 
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new Properties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new Properties();
+              }
+            });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
   }
 
@@ -129,12 +127,13 @@ public class XmlConfigFileTest {
     anotherProperties.setProperty(key, anotherValue);
 
     final SettableFuture<ConfigFileChangeEvent> configFileChangeFuture = SettableFuture.create();
-    ConfigFileChangeListener someListener = new ConfigFileChangeListener() {
-      @Override
-      public void onChange(ConfigFileChangeEvent changeEvent) {
-        configFileChangeFuture.set(changeEvent);
-      }
-    };
+    ConfigFileChangeListener someListener =
+        new ConfigFileChangeListener() {
+          @Override
+          public void onChange(ConfigFileChangeEvent changeEvent) {
+            configFileChangeFuture.set(changeEvent);
+          }
+        };
 
     configFile.addChangeListener(someListener);
 
@@ -165,12 +164,13 @@ public class XmlConfigFileTest {
     anotherProperties.setProperty(key, someValue);
 
     final SettableFuture<ConfigFileChangeEvent> configFileChangeFuture = SettableFuture.create();
-    ConfigFileChangeListener someListener = new ConfigFileChangeListener() {
-      @Override
-      public void onChange(ConfigFileChangeEvent changeEvent) {
-        configFileChangeFuture.set(changeEvent);
-      }
-    };
+    ConfigFileChangeListener someListener =
+        new ConfigFileChangeListener() {
+          @Override
+          public void onChange(ConfigFileChangeEvent changeEvent) {
+            configFileChangeFuture.set(changeEvent);
+          }
+        };
 
     configFile.addChangeListener(someListener);
 
@@ -201,12 +201,13 @@ public class XmlConfigFileTest {
     Properties anotherProperties = new Properties();
 
     final SettableFuture<ConfigFileChangeEvent> configFileChangeFuture = SettableFuture.create();
-    ConfigFileChangeListener someListener = new ConfigFileChangeListener() {
-      @Override
-      public void onChange(ConfigFileChangeEvent changeEvent) {
-        configFileChangeFuture.set(changeEvent);
-      }
-    };
+    ConfigFileChangeListener someListener =
+        new ConfigFileChangeListener() {
+          @Override
+          public void onChange(ConfigFileChangeEvent changeEvent) {
+            configFileChangeFuture.set(changeEvent);
+          }
+        };
 
     configFile.addChangeListener(someListener);
 

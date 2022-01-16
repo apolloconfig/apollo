@@ -18,10 +18,9 @@ package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.repository.AuditRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class AuditService {
@@ -51,7 +50,7 @@ public class AuditService {
   }
 
   @Transactional
-  void audit(Audit audit){
+  void audit(Audit audit) {
     auditRepository.save(audit);
   }
 }

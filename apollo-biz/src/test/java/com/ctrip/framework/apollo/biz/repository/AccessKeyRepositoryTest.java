@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.biz.repository;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
@@ -31,11 +30,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
-
 public class AccessKeyRepositoryTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private AccessKeyRepository accessKeyRepository;
+  @Autowired private AccessKeyRepository accessKeyRepository;
 
   @Test
   public void testSave() {
@@ -68,14 +65,16 @@ public class AccessKeyRepositoryTest extends AbstractIntegrationTest {
   @Test
   @Sql(scripts = "/sql/accesskey-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
-  public void testFindFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTime() {
-    Instant instant = LocalDateTime.of(2019, 12, 19, 13, 44, 20)
-        .atZone(ZoneId.systemDefault())
-        .toInstant();
+  public void
+      testFindFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTime() {
+    Instant instant =
+        LocalDateTime.of(2019, 12, 19, 13, 44, 20).atZone(ZoneId.systemDefault()).toInstant();
     Date date = Date.from(instant);
 
-    List<AccessKey> accessKeyList = accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(date);
+    List<AccessKey> accessKeyList =
+        accessKeyRepository
+            .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+                date);
 
     assertThat(accessKeyList).hasSize(2);
     assertThat(accessKeyList.get(0).getAppId()).isEqualTo("100004458");
@@ -83,5 +82,4 @@ public class AccessKeyRepositoryTest extends AbstractIntegrationTest {
     assertThat(accessKeyList.get(1).getAppId()).isEqualTo("100004458");
     assertThat(accessKeyList.get(1).getSecret()).isEqualTo("c715cbc80fc44171b43732c3119c9456");
   }
-
 }

@@ -44,7 +44,7 @@ public class PropertiesUtil {
    * @return true if filtered successfully, false otherwise
    */
   static boolean filterPropertiesComment(StringBuffer stringBuffer) {
-    //check whether has comment in the first line
+    // check whether has comment in the first line
     if (stringBuffer.charAt(0) != '#') {
       return false;
     }

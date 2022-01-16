@@ -16,6 +16,10 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import org.junit.Assert;
@@ -23,9 +27,6 @@ import org.junit.Test;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 /**
  * Created by kezhenxu at 2019/1/14 13:24.
@@ -39,9 +40,8 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("validKey");
     serverConfig.setValue("validValue");
-    ResponseEntity<ServerConfig> responseEntity = restTemplate.postForEntity(
-        url("/server/config"), serverConfig, ServerConfig.class
-    );
+    ResponseEntity<ServerConfig> responseEntity =
+        restTemplate.postForEntity(url("/server/config"), serverConfig, ServerConfig.class);
     assertEquals(responseEntity.getBody().getKey(), serverConfig.getKey());
     assertEquals(responseEntity.getBody().getValue(), serverConfig.getValue());
   }
@@ -52,28 +52,22 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setKey("  ");
     serverConfig.setValue("valid");
     try {
-      restTemplate.postForEntity(
-          url("/server/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
       assertThat(
           new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Key cannot be blank")
-      );
+          containsString("ServerConfig.Key cannot be blank"));
     }
     serverConfig.setKey("valid");
     serverConfig.setValue("   ");
     try {
-      restTemplate.postForEntity(
-          url("/server/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
       assertThat(
           new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Value cannot be blank")
-      );
+          containsString("ServerConfig.Value cannot be blank"));
     }
   }
 }

@@ -16,18 +16,15 @@
  */
 package com.ctrip.framework.apollo.common.entity;
 
-
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "AppNamespace")
@@ -38,8 +35,11 @@ public class AppNamespace extends BaseEntity {
   @NotBlank(message = "AppNamespace Name cannot be blank")
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & " + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE
-  )
+      message =
+          "Invalid Namespace format: "
+              + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
+              + " & "
+              + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE)
   @Column(name = "Name", nullable = false)
   private String name;
 
@@ -101,7 +101,12 @@ public class AppNamespace extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("name", name).add("appId", appId).add("comment", comment)
-        .add("format", format).add("isPublic", isPublic).toString();
+    return toStringHelper()
+        .add("name", name)
+        .add("appId", appId)
+        .add("comment", comment)
+        .add("format", format)
+        .add("isPublic", isPublic)
+        .toString();
   }
 }

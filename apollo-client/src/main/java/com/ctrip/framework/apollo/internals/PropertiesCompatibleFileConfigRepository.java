@@ -16,16 +16,15 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-import java.util.Properties;
-
 import com.ctrip.framework.apollo.ConfigFileChangeListener;
 import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.model.ConfigFileChangeEvent;
 import com.google.common.base.Preconditions;
+import java.util.Properties;
 
-public class PropertiesCompatibleFileConfigRepository extends AbstractConfigRepository implements
-    ConfigFileChangeListener {
+public class PropertiesCompatibleFileConfigRepository extends AbstractConfigRepository
+    implements ConfigFileChangeListener {
   private final PropertiesCompatibleConfigFile configFile;
   private volatile Properties cachedProperties;
 
@@ -39,7 +38,8 @@ public class PropertiesCompatibleFileConfigRepository extends AbstractConfigRepo
   protected synchronized void sync() {
     Properties current = configFile.asProperties();
 
-    Preconditions.checkState(current != null, "PropertiesCompatibleConfigFile.asProperties should never return null");
+    Preconditions.checkState(
+        current != null, "PropertiesCompatibleConfigFile.asProperties should never return null");
 
     if (cachedProperties != current) {
       cachedProperties = current;
@@ -57,7 +57,7 @@ public class PropertiesCompatibleFileConfigRepository extends AbstractConfigRepo
 
   @Override
   public void setUpstreamRepository(ConfigRepository upstreamConfigRepository) {
-    //config file is the upstream, so no need to set up extra upstream
+    // config file is the upstream, so no need to set up extra upstream
   }
 
   @Override

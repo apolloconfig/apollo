@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.bo;
 
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-
 import java.util.List;
 
 public class NamespaceBO {

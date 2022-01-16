@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.biz.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.service.BizDBPropertySource;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,17 +28,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BizConfigTest {
 
-  @Mock
-  private ConfigurableEnvironment environment;
+  @Mock private ConfigurableEnvironment environment;
 
   private BizConfig bizConfig;
 
@@ -48,7 +47,8 @@ public class BizConfigTest {
   @Test
   public void testReleaseMessageNotificationBatch() throws Exception {
     int someBatch = 20;
-    when(environment.getProperty("apollo.release-message.notification.batch")).thenReturn(String.valueOf(someBatch));
+    when(environment.getProperty("apollo.release-message.notification.batch"))
+        .thenReturn(String.valueOf(someBatch));
 
     assertEquals(someBatch, bizConfig.releaseMessageNotificationBatch());
   }
@@ -64,7 +64,8 @@ public class BizConfigTest {
   public void testReleaseMessageNotificationBatchWithInvalidNumber() throws Exception {
     int someBatch = -20;
     int defaultBatch = 100;
-    when(environment.getProperty("apollo.release-message.notification.batch")).thenReturn(String.valueOf(someBatch));
+    when(environment.getProperty("apollo.release-message.notification.batch"))
+        .thenReturn(String.valueOf(someBatch));
 
     assertEquals(defaultBatch, bizConfig.releaseMessageNotificationBatch());
   }
@@ -88,10 +89,14 @@ public class BizConfigTest {
     int someMin = someInvalidValue + 1;
     int someMax = anotherInvalidValue - 1;
 
-    assertEquals(someDefaultValue, bizConfig.checkInt(someInvalidValue, someMin, Integer.MAX_VALUE, someDefaultValue));
-    assertEquals(someDefaultValue, bizConfig.checkInt(anotherInvalidValue, Integer.MIN_VALUE, someMax,
-        someDefaultValue));
-    assertEquals(someValidValue, bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE,
-        someDefaultValue));
+    assertEquals(
+        someDefaultValue,
+        bizConfig.checkInt(someInvalidValue, someMin, Integer.MAX_VALUE, someDefaultValue));
+    assertEquals(
+        someDefaultValue,
+        bizConfig.checkInt(anotherInvalidValue, Integer.MIN_VALUE, someMax, someDefaultValue));
+    assertEquals(
+        someValidValue,
+        bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE, someDefaultValue));
   }
 }

@@ -35,45 +35,55 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotationMetadata;
 
 public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrarHelper {
-  private static final Logger logger = LoggerFactory.getLogger(
-      DefaultApolloConfigRegistrarHelper.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(DefaultApolloConfigRegistrarHelper.class);
 
   private Environment environment;
 
   @Override
-  public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-    AnnotationAttributes attributes = AnnotationAttributes
-        .fromMap(importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
+  public void registerBeanDefinitions(
+      AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    AnnotationAttributes attributes =
+        AnnotationAttributes.fromMap(
+            importingClassMetadata.getAnnotationAttributes(EnableApolloConfig.class.getName()));
     final String[] namespaces = attributes.getStringArray("value");
     final int order = attributes.getNumber("order");
     final String[] resolvedNamespaces = this.resolveNamespaces(namespaces);
     PropertySourcesProcessor.addNamespaces(Lists.newArrayList(resolvedNamespaces), order);
 
     Map<String, Object> propertySourcesPlaceholderPropertyValues = new HashMap<>();
-    // to make sure the default PropertySourcesPlaceholderConfigurer's priority is higher than PropertyPlaceholderConfigurer
+    // to make sure the default PropertySourcesPlaceholderConfigurer's priority is higher than
+    // PropertyPlaceholderConfigurer
     propertySourcesPlaceholderPropertyValues.put("order", 0);
 
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class.getName(),
-        PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class.getName(),
-        PropertySourcesProcessor.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class.getName(),
-        ApolloAnnotationProcessor.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class.getName(),
-        SpringValueProcessor.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueDefinitionProcessor.class.getName(),
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(
+        registry,
+        PropertySourcesPlaceholderConfigurer.class.getName(),
+        PropertySourcesPlaceholderConfigurer.class,
+        propertySourcesPlaceholderPropertyValues);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(
+        registry, PropertySourcesProcessor.class.getName(), PropertySourcesProcessor.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(
+        registry, ApolloAnnotationProcessor.class.getName(), ApolloAnnotationProcessor.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(
+        registry, SpringValueProcessor.class.getName(), SpringValueProcessor.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(
+        registry,
+        SpringValueDefinitionProcessor.class.getName(),
         SpringValueDefinitionProcessor.class);
   }
 
   private String[] resolveNamespaces(String[] namespaces) {
-    // no support for Spring version prior to 3.2.x, see https://github.com/apolloconfig/apollo/issues/4178
+    // no support for Spring version prior to 3.2.x, see
+    // https://github.com/apolloconfig/apollo/issues/4178
     if (this.environment == null) {
       logNamespacePlaceholderNotSupportedMessage(namespaces);
       return namespaces;
     }
     String[] resolvedNamespaces = new String[namespaces.length];
     for (int i = 0; i < namespaces.length; i++) {
-      // throw IllegalArgumentException if given text is null or if any placeholders are unresolvable
+      // throw IllegalArgumentException if given text is null or if any placeholders are
+      // unresolvable
       resolvedNamespaces[i] = this.environment.resolveRequiredPlaceholders(namespaces[i]);
     }
     return resolvedNamespaces;
@@ -82,7 +92,8 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
   private void logNamespacePlaceholderNotSupportedMessage(String[] namespaces) {
     for (String namespace : namespaces) {
       if (namespace.contains("${")) {
-        logger.warn("Namespace placeholder {} is not supported for Spring version prior to 3.2.x,"
+        logger.warn(
+            "Namespace placeholder {} is not supported for Spring version prior to 3.2.x,"
                 + " see https://github.com/apolloconfig/apollo/issues/4178 for more details.",
             namespace);
         break;

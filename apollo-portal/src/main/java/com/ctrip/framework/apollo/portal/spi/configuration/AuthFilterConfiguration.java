@@ -28,16 +28,14 @@ public class AuthFilterConfiguration {
 
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
-          ConsumerAuthUtil consumerAuthUtil,
-          ConsumerAuditUtil consumerAuditUtil) {
+      ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
 
-    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter = new FilterRegistrationBean<>();
+    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter =
+        new FilterRegistrationBean<>();
 
     openApiFilter.setFilter(new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil));
     openApiFilter.addUrlPatterns("/openapi/*");
 
     return openApiFilter;
   }
-
-
 }

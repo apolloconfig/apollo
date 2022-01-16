@@ -37,7 +37,8 @@ public class SpringInjector {
           try {
             s_injector = Guice.createInjector(new SpringModule());
           } catch (Throwable ex) {
-            ApolloConfigException exception = new ApolloConfigException("Unable to initialize Apollo Spring Injector!", ex);
+            ApolloConfigException exception =
+                new ApolloConfigException("Unable to initialize Apollo Spring Injector!", ex);
             Tracer.logError(exception);
             throw exception;
           }

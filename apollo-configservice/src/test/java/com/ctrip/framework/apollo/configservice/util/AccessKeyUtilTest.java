@@ -38,10 +38,8 @@ public class AccessKeyUtilTest {
 
   private AccessKeyUtil accessKeyUtil;
 
-  @Mock
-  private AccessKeyServiceWithCache accessKeyServiceWithCache;
-  @Mock
-  private HttpServletRequest request;
+  @Mock private AccessKeyServiceWithCache accessKeyServiceWithCache;
+  @Mock private HttpServletRequest request;
 
   @Before
   public void setUp() {

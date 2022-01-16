@@ -16,6 +16,12 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.entity.Instance;
 import com.ctrip.framework.apollo.biz.entity.InstanceConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -27,6 +33,10 @@ import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,17 +47,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
@@ -55,11 +54,9 @@ import static org.mockito.Mockito.when;
 public class InstanceConfigControllerTest {
   private InstanceConfigController instanceConfigController;
 
-  @Mock
-  private ReleaseService releaseService;
+  @Mock private ReleaseService releaseService;
 
-  @Mock
-  private InstanceService instanceService;
+  @Mock private InstanceService instanceService;
 
   private Pageable pageable;
 
@@ -90,27 +87,36 @@ public class InstanceConfigControllerTest {
 
     when(releaseService.findOne(someReleaseId)).thenReturn(someRelease);
 
-    InstanceConfig someInstanceConfig = assembleInstanceConfig(someInstanceId, someConfigAppId,
-        someConfigNamespace, someReleaseKey, someReleaseDeliveryTime);
-    InstanceConfig anotherInstanceConfig = assembleInstanceConfig(anotherInstanceId,
-        someConfigAppId, someConfigNamespace, someReleaseKey, anotherReleaseDeliveryTime);
-    List<InstanceConfig> instanceConfigs = Lists.newArrayList(someInstanceConfig,
-        anotherInstanceConfig);
-    Page<InstanceConfig> instanceConfigPage = new PageImpl<>(instanceConfigs, pageable,
-        instanceConfigs.size());
+    InstanceConfig someInstanceConfig =
+        assembleInstanceConfig(
+            someInstanceId,
+            someConfigAppId,
+            someConfigNamespace,
+            someReleaseKey,
+            someReleaseDeliveryTime);
+    InstanceConfig anotherInstanceConfig =
+        assembleInstanceConfig(
+            anotherInstanceId,
+            someConfigAppId,
+            someConfigNamespace,
+            someReleaseKey,
+            anotherReleaseDeliveryTime);
+    List<InstanceConfig> instanceConfigs =
+        Lists.newArrayList(someInstanceConfig, anotherInstanceConfig);
+    Page<InstanceConfig> instanceConfigPage =
+        new PageImpl<>(instanceConfigs, pageable, instanceConfigs.size());
 
     when(instanceService.findActiveInstanceConfigsByReleaseKey(someReleaseKey, pageable))
         .thenReturn(instanceConfigPage);
 
-    Instance someInstance = assembleInstance(someInstanceId, someAppId,
-        someCluster, someDataCenter, someIp);
-    Instance anotherInstance = assembleInstance(anotherInstanceId, anotherAppId,
-        someCluster, someDataCenter, someIp);
+    Instance someInstance =
+        assembleInstance(someInstanceId, someAppId, someCluster, someDataCenter, someIp);
+    Instance anotherInstance =
+        assembleInstance(anotherInstanceId, anotherAppId, someCluster, someDataCenter, someIp);
     List<Instance> instances = Lists.newArrayList(someInstance, anotherInstance);
 
     Set<Long> instanceIds = Sets.newHashSet(someInstanceId, anotherInstanceId);
-    when(instanceService.findInstancesByIds(instanceIds))
-        .thenReturn(instances);
+    when(instanceService.findInstancesByIds(instanceIds)).thenReturn(instances);
 
     PageDTO<InstanceDTO> result = instanceConfigController.getByRelease(someReleaseId, pageable);
 
@@ -130,10 +136,13 @@ public class InstanceConfigControllerTest {
     verifyInstance(anotherInstance, anotherInstanceDto);
 
     assertEquals(1, someInstanceDto.getConfigs().size());
-    assertEquals(someReleaseDeliveryTime, someInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
+    assertEquals(
+        someReleaseDeliveryTime, someInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
 
     assertEquals(1, anotherInstanceDto.getConfigs().size());
-    assertEquals(anotherReleaseDeliveryTime, anotherInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
+    assertEquals(
+        anotherReleaseDeliveryTime,
+        anotherInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
   }
 
   @Test(expected = NotFoundException.class)
@@ -179,22 +188,32 @@ public class InstanceConfigControllerTest {
     when(anotherInstanceConfig.getReleaseKey()).thenReturn(anotherInstanceConfigReleaseKey);
     when(someInstanceConfig.getReleaseDeliveryTime()).thenReturn(someReleaseDeliveryTime);
     when(anotherInstanceConfig.getReleaseDeliveryTime()).thenReturn(anotherReleaseDeliveryTime);
-    when(instanceService.findInstanceConfigsByNamespaceWithReleaseKeysNotIn(someConfigAppId,
-        someConfigClusterName, someConfigNamespaceName, Sets.newHashSet(someReleaseKey,
-            anotherReleaseKey))).thenReturn(Lists.newArrayList(someInstanceConfig,
-        anotherInstanceConfig));
+    when(instanceService.findInstanceConfigsByNamespaceWithReleaseKeysNotIn(
+            someConfigAppId,
+            someConfigClusterName,
+            someConfigNamespaceName,
+            Sets.newHashSet(someReleaseKey, anotherReleaseKey)))
+        .thenReturn(Lists.newArrayList(someInstanceConfig, anotherInstanceConfig));
 
     String someInstanceAppId = "someInstanceAppId";
     String someInstanceClusterName = "someInstanceClusterName";
     String someInstanceNamespaceName = "someInstanceNamespaceName";
     String someIp = "someIp";
     String anotherIp = "anotherIp";
-    Instance someInstance = assembleInstance(someInstanceId, someInstanceAppId,
-        someInstanceClusterName,
-        someInstanceNamespaceName, someIp);
-    Instance anotherInstance = assembleInstance(anotherInstanceId, someInstanceAppId,
-        someInstanceClusterName,
-        someInstanceNamespaceName, anotherIp);
+    Instance someInstance =
+        assembleInstance(
+            someInstanceId,
+            someInstanceAppId,
+            someInstanceClusterName,
+            someInstanceNamespaceName,
+            someIp);
+    Instance anotherInstance =
+        assembleInstance(
+            anotherInstanceId,
+            someInstanceAppId,
+            someInstanceClusterName,
+            someInstanceNamespaceName,
+            anotherIp);
     when(instanceService.findInstancesByIds(Sets.newHashSet(someInstanceId, anotherInstanceId)))
         .thenReturn(Lists.newArrayList(someInstance, anotherInstance));
 
@@ -202,12 +221,13 @@ public class InstanceConfigControllerTest {
     someInstanceConfigRelease.setReleaseKey(someInstanceConfigReleaseKey);
     Release anotherInstanceConfigRelease = new Release();
     anotherInstanceConfigRelease.setReleaseKey(anotherInstanceConfigReleaseKey);
-    when(releaseService.findByReleaseKeys(Sets.newHashSet(someInstanceConfigReleaseKey,
-        anotherInstanceConfigReleaseKey))).thenReturn(Lists.newArrayList(someInstanceConfigRelease,
-        anotherInstanceConfigRelease));
+    when(releaseService.findByReleaseKeys(
+            Sets.newHashSet(someInstanceConfigReleaseKey, anotherInstanceConfigReleaseKey)))
+        .thenReturn(Lists.newArrayList(someInstanceConfigRelease, anotherInstanceConfigRelease));
 
-    List<InstanceDTO> result = instanceConfigController.getByReleasesNotIn(someConfigAppId,
-        someConfigClusterName, someConfigNamespaceName, releaseIds);
+    List<InstanceDTO> result =
+        instanceConfigController.getByReleasesNotIn(
+            someConfigAppId, someConfigClusterName, someConfigNamespaceName, releaseIds);
 
     assertEquals(2, result.size());
     InstanceDTO someInstanceDto = null;
@@ -224,15 +244,18 @@ public class InstanceConfigControllerTest {
     verifyInstance(someInstance, someInstanceDto);
     verifyInstance(anotherInstance, anotherInstanceDto);
 
-    assertEquals(someInstanceConfigReleaseKey, someInstanceDto.getConfigs().get(0).getRelease()
-        .getReleaseKey());
-    assertEquals(anotherInstanceConfigReleaseKey, anotherInstanceDto.getConfigs().get(0)
-        .getRelease()
-        .getReleaseKey());
+    assertEquals(
+        someInstanceConfigReleaseKey,
+        someInstanceDto.getConfigs().get(0).getRelease().getReleaseKey());
+    assertEquals(
+        anotherInstanceConfigReleaseKey,
+        anotherInstanceDto.getConfigs().get(0).getRelease().getReleaseKey());
 
-    assertEquals(someReleaseDeliveryTime, someInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
-    assertEquals(anotherReleaseDeliveryTime, anotherInstanceDto.getConfigs().get(0)
-        .getReleaseDeliveryTime());
+    assertEquals(
+        someReleaseDeliveryTime, someInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
+    assertEquals(
+        anotherReleaseDeliveryTime,
+        anotherInstanceDto.getConfigs().get(0).getReleaseDeliveryTime());
   }
 
   @Test
@@ -244,18 +267,20 @@ public class InstanceConfigControllerTest {
     long someInstanceId = 1;
     long anotherInstanceId = 2;
 
-    Instance someInstance = assembleInstance(someInstanceId, someAppId, someClusterName,
-        someNamespaceName, someIp);
-    Instance anotherInstance = assembleInstance(anotherInstanceId, someAppId, someClusterName,
-        someNamespaceName, someIp);
+    Instance someInstance =
+        assembleInstance(someInstanceId, someAppId, someClusterName, someNamespaceName, someIp);
+    Instance anotherInstance =
+        assembleInstance(anotherInstanceId, someAppId, someClusterName, someNamespaceName, someIp);
 
-    Page<Instance> instances = new PageImpl<>(Lists.newArrayList(someInstance, anotherInstance),
-        pageable, 2);
-    when(instanceService.findInstancesByNamespace(someAppId, someClusterName, someNamespaceName,
-        pageable)).thenReturn(instances);
+    Page<Instance> instances =
+        new PageImpl<>(Lists.newArrayList(someInstance, anotherInstance), pageable, 2);
+    when(instanceService.findInstancesByNamespace(
+            someAppId, someClusterName, someNamespaceName, pageable))
+        .thenReturn(instances);
 
-    PageDTO<InstanceDTO> result = instanceConfigController.getInstancesByNamespace(someAppId,
-        someClusterName, someNamespaceName, null, pageable);
+    PageDTO<InstanceDTO> result =
+        instanceConfigController.getInstancesByNamespace(
+            someAppId, someClusterName, someNamespaceName, null, pageable);
 
     assertEquals(2, result.getContent().size());
     InstanceDTO someInstanceDto = null;
@@ -283,18 +308,20 @@ public class InstanceConfigControllerTest {
     long someInstanceId = 1;
     long anotherInstanceId = 2;
 
-    Instance someInstance = assembleInstance(someInstanceId, someAppId, someClusterName,
-        someNamespaceName, someIp);
-    Instance anotherInstance = assembleInstance(anotherInstanceId, someAppId, someClusterName,
-        someNamespaceName, someIp);
+    Instance someInstance =
+        assembleInstance(someInstanceId, someAppId, someClusterName, someNamespaceName, someIp);
+    Instance anotherInstance =
+        assembleInstance(anotherInstanceId, someAppId, someClusterName, someNamespaceName, someIp);
 
-    Page<Instance> instances = new PageImpl<>(Lists.newArrayList(someInstance, anotherInstance),
-        pageable, 2);
-    when(instanceService.findInstancesByNamespaceAndInstanceAppId(someInstanceAppId, someAppId,
-        someClusterName, someNamespaceName, pageable)).thenReturn(instances);
+    Page<Instance> instances =
+        new PageImpl<>(Lists.newArrayList(someInstance, anotherInstance), pageable, 2);
+    when(instanceService.findInstancesByNamespaceAndInstanceAppId(
+            someInstanceAppId, someAppId, someClusterName, someNamespaceName, pageable))
+        .thenReturn(instances);
 
-    PageDTO<InstanceDTO> result = instanceConfigController.getInstancesByNamespace(someAppId,
-        someClusterName, someNamespaceName, someInstanceAppId, pageable);
+    PageDTO<InstanceDTO> result =
+        instanceConfigController.getInstancesByNamespace(
+            someAppId, someClusterName, someNamespaceName, someInstanceAppId, pageable);
 
     assertEquals(2, result.getContent().size());
     InstanceDTO someInstanceDto = null;
@@ -312,7 +339,6 @@ public class InstanceConfigControllerTest {
     verifyInstance(anotherInstance, anotherInstanceDto);
   }
 
-
   @Test
   public void testGetInstancesCountByNamespace() throws Exception {
     String someAppId = "someAppId";
@@ -321,11 +347,13 @@ public class InstanceConfigControllerTest {
 
     Page<Instance> instances = new PageImpl<>(Collections.emptyList(), pageable, 2);
 
-    when(instanceService.findInstancesByNamespace(eq(someAppId), eq(someClusterName),
-        eq(someNamespaceName), any(Pageable.class))).thenReturn(instances);
+    when(instanceService.findInstancesByNamespace(
+            eq(someAppId), eq(someClusterName), eq(someNamespaceName), any(Pageable.class)))
+        .thenReturn(instances);
 
-    long result = instanceConfigController.getInstancesCountByNamespace(someAppId,
-        someClusterName, someNamespaceName);
+    long result =
+        instanceConfigController.getInstancesCountByNamespace(
+            someAppId, someClusterName, someNamespaceName);
 
     assertEquals(2, result);
   }
@@ -339,8 +367,8 @@ public class InstanceConfigControllerTest {
     assertEquals(instance.getDataChangeCreatedTime(), instanceDTO.getDataChangeCreatedTime());
   }
 
-  private Instance assembleInstance(long instanceId, String appId, String clusterName, String
-      dataCenter, String ip) {
+  private Instance assembleInstance(
+      long instanceId, String appId, String clusterName, String dataCenter, String ip) {
     Instance instance = new Instance();
     instance.setId(instanceId);
     instance.setAppId(appId);
@@ -352,8 +380,12 @@ public class InstanceConfigControllerTest {
     return instance;
   }
 
-  private InstanceConfig assembleInstanceConfig(long instanceId, String configAppId, String
-      configNamespaceName, String releaseKey, Date releaseDeliveryTime) {
+  private InstanceConfig assembleInstanceConfig(
+      long instanceId,
+      String configAppId,
+      String configNamespaceName,
+      String releaseKey,
+      Date releaseDeliveryTime) {
     InstanceConfig instanceConfig = new InstanceConfig();
     instanceConfig.setInstanceId(instanceId);
     instanceConfig.setConfigAppId(configAppId);

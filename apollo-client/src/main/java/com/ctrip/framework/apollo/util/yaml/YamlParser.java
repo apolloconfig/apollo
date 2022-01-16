@@ -17,23 +17,19 @@
 package com.ctrip.framework.apollo.util.yaml;
 
 import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.parser.ParserException;
-
-import com.ctrip.framework.apollo.core.utils.StringUtils;
 import org.yaml.snakeyaml.representer.Representer;
 
 /**
@@ -52,12 +48,15 @@ public class YamlParser {
   public Properties yamlToProperties(String yamlContent) {
     Yaml yaml = createYaml();
     final Properties result = propertiesFactory.getPropertiesInstance();
-    process(new MatchCallback() {
-      @Override
-      public void process(Properties properties, Map<String, Object> map) {
-        result.putAll(properties);
-      }
-    }, yaml, yamlContent);
+    process(
+        new MatchCallback() {
+          @Override
+          public void process(Properties properties, Map<String, Object> map) {
+            result.putAll(properties);
+          }
+        },
+        yaml,
+        yamlContent);
     return result;
   }
 
@@ -81,7 +80,13 @@ public class YamlParser {
       }
     }
     if (logger.isDebugEnabled()) {
-      logger.debug("Loaded " + count + " document" + (count > 1 ? "s" : "") + " from YAML resource: " + content);
+      logger.debug(
+          "Loaded "
+              + count
+              + " document"
+              + (count > 1 ? "s" : "")
+              + " from YAML resource: "
+              + content);
     }
     return (count > 0);
   }
@@ -130,7 +135,8 @@ public class YamlParser {
     return result;
   }
 
-  private void buildFlattenedMap(Map<String, Object> result, Map<String, Object> source, String path) {
+  private void buildFlattenedMap(
+      Map<String, Object> result, Map<String, Object> source, String path) {
     for (Map.Entry<String, Object> entry : source.entrySet()) {
       String key = entry.getKey();
       if (!StringUtils.isBlank(path)) {
@@ -165,5 +171,4 @@ public class YamlParser {
   private interface MatchCallback {
     void process(Properties properties, Map<String, Object> map);
   }
-
 }

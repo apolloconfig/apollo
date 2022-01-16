@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.adminservice.aop;
 
-
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
@@ -33,13 +32,11 @@ import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import java.util.List;
+import java.util.Map;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.Map;
-
 
 /**
  * unlock namespace if is redo operation.
@@ -74,29 +71,31 @@ public class NamespaceUnlockAspect {
     this.bizConfig = bizConfig;
   }
 
-
-  //create item
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
-  public void requireLockAdvice(String appId, String clusterName, String namespaceName,
-                                ItemDTO item) {
+  // create item
+  @After(
+      "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
+  public void requireLockAdvice(
+      String appId, String clusterName, String namespaceName, ItemDTO item) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
-  //update item
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
-  public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
-                                ItemDTO item) {
+  // update item
+  @After(
+      "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
+  public void requireLockAdvice(
+      String appId, String clusterName, String namespaceName, long itemId, ItemDTO item) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
-  //update by change set
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
-  public void requireLockAdvice(String appId, String clusterName, String namespaceName,
-                                ItemChangeSets changeSet) {
+  // update by change set
+  @After(
+      "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
+  public void requireLockAdvice(
+      String appId, String clusterName, String namespaceName, ItemChangeSets changeSet) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
-  //delete item
+  // delete item
   @After("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
@@ -114,7 +113,6 @@ public class NamespaceUnlockAspect {
     if (!isModified(namespace)) {
       namespaceLockService.unlock(namespace.getId());
     }
-
   }
 
   boolean isModified(Namespace namespace) {
@@ -125,13 +123,14 @@ public class NamespaceUnlockAspect {
       return hasNormalItems(items);
     }
 
-    Map<String, String> releasedConfiguration = GSON.fromJson(release.getConfigurations(), GsonType.CONFIG);
+    Map<String, String> releasedConfiguration =
+        GSON.fromJson(release.getConfigurations(), GsonType.CONFIG);
     Map<String, String> configurationFromItems = generateConfigurationFromItems(namespace, items);
 
-    MapDifference<String, String> difference = Maps.difference(releasedConfiguration, configurationFromItems);
+    MapDifference<String, String> difference =
+        Maps.difference(releasedConfiguration, configurationFromItems);
 
     return !difference.areEqual();
-
   }
 
   private boolean hasNormalItems(List<Item> items) {
@@ -144,15 +143,16 @@ public class NamespaceUnlockAspect {
     return false;
   }
 
-  private Map<String, String> generateConfigurationFromItems(Namespace namespace, List<Item> namespaceItems) {
+  private Map<String, String> generateConfigurationFromItems(
+      Namespace namespace, List<Item> namespaceItems) {
 
     Map<String, String> configurationFromItems = Maps.newHashMap();
 
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);
-    //parent namespace
+    // parent namespace
     if (parentNamespace == null) {
       generateMapFromItems(namespaceItems, configurationFromItems);
-    } else {//child namespace
+    } else { // child namespace
       Release parentRelease = releaseService.findLatestActiveRelease(parentNamespace);
       if (parentRelease != null) {
         configurationFromItems = GSON.fromJson(parentRelease.getConfigurations(), GsonType.CONFIG);
@@ -163,7 +163,8 @@ public class NamespaceUnlockAspect {
     return configurationFromItems;
   }
 
-  private Map<String, String> generateMapFromItems(List<Item> items, Map<String, String> configurationFromItems) {
+  private Map<String, String> generateMapFromItems(
+      List<Item> items, Map<String, String> configurationFromItems) {
     for (Item item : items) {
       String key = item.getKey();
       if (StringUtils.isBlank(key)) {
@@ -174,5 +175,4 @@ public class NamespaceUnlockAspect {
 
     return configurationFromItems;
   }
-
 }

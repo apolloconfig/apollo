@@ -16,38 +16,32 @@
  */
 package com.ctrip.framework.apollo.common.config;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
-
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-
-
 public abstract class RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(RefreshableConfig.class);
 
   private static final String LIST_SEPARATOR = ",";
-  //TimeUnit: second
+  // TimeUnit: second
   private static final int CONFIG_REFRESH_INTERVAL = 60;
 
   protected Splitter splitter = Splitter.on(LIST_SEPARATOR).omitEmptyStrings().trimResults();
 
-  @Autowired
-  private ConfigurableEnvironment environment;
+  @Autowired private ConfigurableEnvironment environment;
 
   private List<RefreshablePropertySource> propertySources;
 
@@ -65,26 +59,28 @@ public abstract class RefreshableConfig {
       throw new IllegalStateException("Property sources can not be empty.");
     }
 
-    //add property source to environment
+    // add property source to environment
     for (RefreshablePropertySource propertySource : propertySources) {
       propertySource.refresh();
       environment.getPropertySources().addLast(propertySource);
     }
 
-    //task to update configs
-    ScheduledExecutorService
-        executorService =
+    // task to update configs
+    ScheduledExecutorService executorService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
-    executorService
-        .scheduleWithFixedDelay(() -> {
+    executorService.scheduleWithFixedDelay(
+        () -> {
           try {
             propertySources.forEach(RefreshablePropertySource::refresh);
           } catch (Throwable t) {
             logger.error("Refresh configs failed.", t);
             Tracer.logError("Refresh configs failed.", t);
           }
-        }, CONFIG_REFRESH_INTERVAL, CONFIG_REFRESH_INTERVAL, TimeUnit.SECONDS);
+        },
+        CONFIG_REFRESH_INTERVAL,
+        CONFIG_REFRESH_INTERVAL,
+        TimeUnit.SECONDS);
   }
 
   public int getIntProperty(String key, int defaultValue) {
@@ -129,5 +125,4 @@ public abstract class RefreshableConfig {
   public String getValue(String key) {
     return environment.getProperty(key);
   }
-
 }

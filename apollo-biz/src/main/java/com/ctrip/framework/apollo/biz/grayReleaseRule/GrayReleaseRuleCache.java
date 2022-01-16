@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.grayReleaseRule;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
-
 import java.util.Set;
 
 /**
@@ -32,8 +31,14 @@ public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   private int branchStatus;
   private Set<GrayReleaseRuleItemDTO> ruleItems;
 
-  public GrayReleaseRuleCache(long ruleId, String branchName, String namespaceName, long
-      releaseId, int branchStatus, long loadVersion, Set<GrayReleaseRuleItemDTO> ruleItems) {
+  public GrayReleaseRuleCache(
+      long ruleId,
+      String branchName,
+      String namespaceName,
+      long releaseId,
+      int branchStatus,
+      long loadVersion,
+      Set<GrayReleaseRuleItemDTO> ruleItems) {
     this.ruleId = ruleId;
     this.branchName = branchName;
     this.namespaceName = namespaceName;

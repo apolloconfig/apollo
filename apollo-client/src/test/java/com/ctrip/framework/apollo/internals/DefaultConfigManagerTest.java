@@ -21,21 +21,19 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.ctrip.framework.apollo.enums.ConfigSourceType;
-import java.util.Properties;
-import java.util.Set;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.ConfigFactoryManager;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import java.util.Properties;
+import java.util.Set;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -77,7 +75,8 @@ public class DefaultConfigManagerTest {
 
     assertThat(
         "Get config multiple times with the same namespace should return the same config instance",
-        config, equalTo(anotherConfig));
+        config,
+        equalTo(anotherConfig));
   }
 
   @Test
@@ -85,8 +84,7 @@ public class DefaultConfigManagerTest {
     String someNamespace = "someName";
     ConfigFileFormat someConfigFileFormat = ConfigFileFormat.Properties;
 
-    ConfigFile configFile =
-        defaultConfigManager.getConfigFile(someNamespace, someConfigFileFormat);
+    ConfigFile configFile = defaultConfigManager.getConfigFile(someNamespace, someConfigFileFormat);
 
     assertEquals(someConfigFileFormat, configFile.getConfigFileFormat());
     assertEquals(someConfigContent, configFile.getContent());
@@ -104,8 +102,8 @@ public class DefaultConfigManagerTest {
 
     assertThat(
         "Get config file multiple times with the same namespace should return the same config file instance",
-        someConfigFile, equalTo(anotherConfigFile));
-
+        someConfigFile,
+        equalTo(anotherConfigFile));
   }
 
   public static class MockConfigFactoryManager implements ConfigFactoryManager {
@@ -134,14 +132,13 @@ public class DefaultConfigManagerTest {
         }
 
         @Override
-        public ConfigFile createConfigFile(String namespace, final ConfigFileFormat configFileFormat) {
+        public ConfigFile createConfigFile(
+            String namespace, final ConfigFileFormat configFileFormat) {
           ConfigRepository someConfigRepository = mock(ConfigRepository.class);
           return new AbstractConfigFile(namespace, someConfigRepository) {
 
             @Override
-            protected void update(Properties newProperties) {
-
-            }
+            protected void update(Properties newProperties) {}
 
             @Override
             public String getContent() {

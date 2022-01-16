@@ -16,15 +16,14 @@
  */
 package com.ctrip.framework.apollo.core.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApolloThreadFactory implements ThreadFactory {
   private static Logger log = LoggerFactory.getLogger(ApolloThreadFactory.class);
@@ -54,12 +53,15 @@ public class ApolloThreadFactory implements ThreadFactory {
     log.info("Current ACTIVE thread count is: {}", alives.size());
     long expire = System.currentTimeMillis() + timeoutInMillis;
     while (System.currentTimeMillis() < expire) {
-      classify(alives, dies, new ClassifyStandard<Thread>() {
-        @Override
-        public boolean satisfy(Thread thread) {
-          return !thread.isAlive() || thread.isInterrupted() || thread.isDaemon();
-        }
-      });
+      classify(
+          alives,
+          dies,
+          new ClassifyStandard<Thread>() {
+            @Override
+            public boolean satisfy(Thread thread) {
+              return !thread.isAlive() || thread.isInterrupted() || thread.isDaemon();
+            }
+          });
       if (alives.size() > 0) {
         log.info("Alive apollo threads: {}", alives);
         try {
@@ -72,7 +74,8 @@ public class ApolloThreadFactory implements ThreadFactory {
         return true;
       }
     }
-    log.warn("Some apollo threads are still alive but expire time has reached, alive threads: {}",
+    log.warn(
+        "Some apollo threads are still alive but expire time has reached, alive threads: {}",
         alives);
     return false;
   }
@@ -98,8 +101,11 @@ public class ApolloThreadFactory implements ThreadFactory {
   }
 
   public Thread newThread(Runnable runnable) {
-    Thread thread = new Thread(threadGroup, runnable,//
-        threadGroup.getName() + "-" + namePrefix + "-" + threadNumber.getAndIncrement());
+    Thread thread =
+        new Thread(
+            threadGroup,
+            runnable, //
+            threadGroup.getName() + "-" + namePrefix + "-" + threadNumber.getAndIncrement());
     thread.setDaemon(daemon);
     if (thread.getPriority() != Thread.NORM_PRIORITY) {
       thread.setPriority(Thread.NORM_PRIORITY);

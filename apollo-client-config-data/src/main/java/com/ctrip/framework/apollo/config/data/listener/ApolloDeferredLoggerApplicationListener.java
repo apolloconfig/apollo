@@ -25,8 +25,8 @@ import org.springframework.context.ApplicationListener;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class ApolloDeferredLoggerApplicationListener implements
-    ApplicationListener<SpringApplicationEvent> {
+public class ApolloDeferredLoggerApplicationListener
+    implements ApplicationListener<SpringApplicationEvent> {
 
   @Override
   public void onApplicationEvent(SpringApplicationEvent event) {

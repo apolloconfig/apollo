@@ -62,10 +62,8 @@ public class EnvTest {
 
   @Test(expected = RuntimeException.class)
   public void testEqualsWithRuntimeException()
-      throws NoSuchMethodException,
-      IllegalAccessException,
-      InvocationTargetException,
-      InstantiationException {
+      throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
+          InstantiationException {
     // get private constructor
     Constructor<Env> envConstructor = Env.class.getDeclaredConstructor(String.class);
     // make private constructor accessible
@@ -114,7 +112,7 @@ public class EnvTest {
     assertEquals(Env.PRO, Env.transformEnv("prod"));
     assertEquals(Env.PRO, Env.transformEnv("PROD"));
 
-    //FAT/FWS
+    // FAT/FWS
     assertEquals(Env.FAT, Env.transformEnv("FWS"));
     assertEquals(Env.FAT, Env.transformEnv("fws"));
   }
@@ -171,7 +169,6 @@ public class EnvTest {
       Env.addEnvironment(testEnvName);
       Env expected = Env.valueOf(testEnvName);
       assertEquals(expected, Env.transformEnv(specialChar + testEnvName + specialChar));
-
     }
   }
 

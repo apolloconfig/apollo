@@ -16,20 +16,19 @@
  */
 package com.ctrip.framework.apollo.common.conditional;
 
+import static com.ctrip.framework.apollo.common.conditional.ConditionalOnProfileTest.ANOTHER_PROFILE;
+import static com.ctrip.framework.apollo.common.conditional.ConditionalOnProfileTest.SOME_PROFILE;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 import com.ctrip.framework.apollo.common.condition.ConditionalOnProfile;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import static com.ctrip.framework.apollo.common.conditional.ConditionalOnProfileTest.ANOTHER_PROFILE;
-import static com.ctrip.framework.apollo.common.conditional.ConditionalOnProfileTest.SOME_PROFILE;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -76,7 +75,6 @@ public class ConditionalOnProfileTest {
       }
     }
 
-
     @Configuration
     @ConditionalOnMissingProfile(YET_ANOTHER_PROFILE)
     static class YetAnotherConfiguration {
@@ -102,6 +100,5 @@ public class ConditionalOnProfileTest {
         anotherCombinedConfigurationEnabled = true;
       }
     }
-
   }
 }

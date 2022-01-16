@@ -32,23 +32,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class AdminServiceTest extends AbstractIntegrationTest {
 
-  @Autowired
-  private AdminService adminService;
+  @Autowired private AdminService adminService;
 
-  @Autowired
-  private AuditService auditService;
+  @Autowired private AuditService auditService;
 
-  @Autowired
-  private AppRepository appRepository;
+  @Autowired private AppRepository appRepository;
 
-  @Autowired
-  private ClusterService clusterService;
+  @Autowired private ClusterService clusterService;
 
-  @Autowired
-  private NamespaceService namespaceService;
+  @Autowired private NamespaceService namespaceService;
 
-  @Autowired
-  private AppNamespaceService appNamespaceService;
+  @Autowired private AppNamespaceService appNamespaceService;
 
   @Test
   public void testCreateNewApp() {
@@ -117,7 +111,8 @@ public class AdminServiceTest extends AbstractIntegrationTest {
 
     Assert.assertEquals(1, clusterService.findClusters(appId).size());
 
-    Assert.assertEquals(1, namespaceService.findNamespaces(appId, ConfigConsts.CLUSTER_NAME_DEFAULT).size());
+    Assert.assertEquals(
+        1, namespaceService.findNamespaces(appId, ConfigConsts.CLUSTER_NAME_DEFAULT).size());
 
     adminService.deleteApp(app, owner);
 
@@ -125,8 +120,10 @@ public class AdminServiceTest extends AbstractIntegrationTest {
 
     Assert.assertEquals(0, clusterService.findClusters(appId).size());
 
-    Assert
-        .assertEquals(0, namespaceService.findByAppIdAndNamespaceName(appId, ConfigConsts.CLUSTER_NAME_DEFAULT).size());
+    Assert.assertEquals(
+        0,
+        namespaceService
+            .findByAppIdAndNamespaceName(appId, ConfigConsts.CLUSTER_NAME_DEFAULT)
+            .size());
   }
-
 }

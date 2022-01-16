@@ -24,13 +24,12 @@ import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.base.Strings;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClusterService {
@@ -47,7 +46,6 @@ public class ClusterService {
     this.auditService = auditService;
     this.namespaceService = namespaceService;
   }
-
 
   public boolean isClusterNameUnique(String appId, String clusterName) {
     Objects.requireNonNull(appId, "AppId must not be null");
@@ -83,8 +81,8 @@ public class ClusterService {
 
     Cluster savedCluster = saveWithoutInstanceOfAppNamespaces(entity);
 
-    namespaceService.instanceOfAppNamespaces(savedCluster.getAppId(), savedCluster.getName(),
-                                             savedCluster.getDataChangeCreatedBy());
+    namespaceService.instanceOfAppNamespaces(
+        savedCluster.getAppId(), savedCluster.getName(), savedCluster.getDataChangeCreatedBy());
 
     return savedCluster;
   }
@@ -94,11 +92,14 @@ public class ClusterService {
     if (!isClusterNameUnique(entity.getAppId(), entity.getName())) {
       throw new BadRequestException("cluster not unique");
     }
-    entity.setId(0);//protection
+    entity.setId(0); // protection
     Cluster cluster = clusterRepository.save(entity);
 
-    auditService.audit(Cluster.class.getSimpleName(), cluster.getId(), Audit.OP.INSERT,
-                       cluster.getDataChangeCreatedBy());
+    auditService.audit(
+        Cluster.class.getSimpleName(),
+        cluster.getId(),
+        Audit.OP.INSERT,
+        cluster.getDataChangeCreatedBy());
 
     return cluster;
   }
@@ -110,7 +111,7 @@ public class ClusterService {
       throw new BadRequestException("cluster not exist");
     }
 
-    //delete linked namespaces
+    // delete linked namespaces
     namespaceService.deleteByAppIdAndClusterName(cluster.getAppId(), cluster.getName(), operator);
 
     cluster.setDeleted(true);
@@ -127,8 +128,11 @@ public class ClusterService {
     BeanUtils.copyEntityProperties(cluster, managedCluster);
     managedCluster = clusterRepository.save(managedCluster);
 
-    auditService.audit(Cluster.class.getSimpleName(), managedCluster.getId(), Audit.OP.UPDATE,
-                       managedCluster.getDataChangeLastModifiedBy());
+    auditService.audit(
+        Cluster.class.getSimpleName(),
+        managedCluster.getId(),
+        Audit.OP.UPDATE,
+        managedCluster.getDataChangeLastModifiedBy());
 
     return managedCluster;
   }

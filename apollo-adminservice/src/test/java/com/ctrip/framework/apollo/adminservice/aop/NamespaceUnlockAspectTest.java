@@ -16,13 +16,17 @@
  */
 package com.ctrip.framework.apollo.adminservice.aop;
 
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.service.ItemService;
 import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
-
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,25 +34,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public class NamespaceUnlockAspectTest {
 
-  @Mock
-  private ReleaseService releaseService;
-  @Mock
-  private ItemService itemService;
-  @Mock
-  private NamespaceService namespaceService;
+  @Mock private ReleaseService releaseService;
+  @Mock private ItemService itemService;
+  @Mock private NamespaceService namespaceService;
 
-  @InjectMocks
-  private NamespaceUnlockAspect namespaceUnlockAspect;
-
+  @InjectMocks private NamespaceUnlockAspect namespaceUnlockAspect;
 
   @Test
   public void testNamespaceHasNoNormalItemsAndRelease() {
@@ -57,7 +50,8 @@ public class NamespaceUnlockAspectTest {
     Namespace namespace = createNamespace(namespaceId);
 
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(null);
-    when(itemService.findItemsWithoutOrdered(namespaceId)).thenReturn(Collections.singletonList(createItem("", "")));
+    when(itemService.findItemsWithoutOrdered(namespaceId))
+        .thenReturn(Collections.singletonList(createItem("", "")));
 
     boolean isModified = namespaceUnlockAspect.isModified(namespace);
 
@@ -174,7 +168,6 @@ public class NamespaceUnlockAspectTest {
     Assert.assertTrue(isModified);
   }
 
-
   private Namespace createNamespace(long namespaceId) {
     Namespace namespace = new Namespace();
     namespace.setId(namespaceId);
@@ -193,5 +186,4 @@ public class NamespaceUnlockAspectTest {
     release.setConfigurations(configuration);
     return release;
   }
-
 }

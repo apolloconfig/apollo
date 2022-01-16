@@ -29,8 +29,13 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http.httpBasic();
     http.csrf().disable();
-    http.authorizeRequests().antMatchers("/").permitAll().and()
-        .authorizeRequests().antMatchers("/console/**").permitAll();
+    http.authorizeRequests()
+        .antMatchers("/")
+        .permitAll()
+        .and()
+        .authorizeRequests()
+        .antMatchers("/console/**")
+        .permitAll();
 
     http.headers().frameOptions().disable();
   }

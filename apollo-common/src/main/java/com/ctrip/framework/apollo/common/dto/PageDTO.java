@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-import org.springframework.data.domain.Pageable;
-
 import java.util.Collections;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -37,7 +36,6 @@ public class PageDTO<T> {
     this.size = pageable.getPageSize();
   }
 
-
   public long getTotal() {
     return total;
   }
@@ -54,7 +52,7 @@ public class PageDTO<T> {
     return size;
   }
 
-  public boolean hasContent(){
+  public boolean hasContent() {
     return content != null && content.size() > 0;
   }
 }

@@ -29,18 +29,17 @@ import org.springframework.security.oauth2.jwt.Jwt;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class OidcAuthenticationSuccessEventListener implements
-    ApplicationListener<AuthenticationSuccessEvent> {
+public class OidcAuthenticationSuccessEventListener
+    implements ApplicationListener<AuthenticationSuccessEvent> {
 
-  private static final Logger log = LoggerFactory
-      .getLogger(OidcAuthenticationSuccessEventListener.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(OidcAuthenticationSuccessEventListener.class);
 
   private final OidcLocalUserService oidcLocalUserService;
 
   private final ConcurrentMap<String, String> userIdCache = new ConcurrentHashMap<>();
 
-  public OidcAuthenticationSuccessEventListener(
-      OidcLocalUserService oidcLocalUserService) {
+  public OidcAuthenticationSuccessEventListener(OidcLocalUserService oidcLocalUserService) {
     this.oidcLocalUserService = oidcLocalUserService;
   }
 

@@ -35,8 +35,9 @@ import org.springframework.util.CollectionUtils;
 /**
  * Create by zhangzheng on 2018/3/6
  */
-public class AutoUpdateConfigChangeListener implements ConfigChangeListener{
-  private static final Logger logger = LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
+public class AutoUpdateConfigChangeListener implements ConfigChangeListener {
+  private static final Logger logger =
+      LoggerFactory.getLogger(AutoUpdateConfigChangeListener.class);
 
   private final boolean typeConverterHasConvertIfNecessaryWithFieldParameter;
   private final Environment environment;
@@ -46,8 +47,10 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener{
   private final SpringValueRegistry springValueRegistry;
   private final Gson gson;
 
-  public AutoUpdateConfigChangeListener(Environment environment, ConfigurableListableBeanFactory beanFactory){
-    this.typeConverterHasConvertIfNecessaryWithFieldParameter = testTypeConverterHasConvertIfNecessaryWithFieldParameter();
+  public AutoUpdateConfigChangeListener(
+      Environment environment, ConfigurableListableBeanFactory beanFactory) {
+    this.typeConverterHasConvertIfNecessaryWithFieldParameter =
+        testTypeConverterHasConvertIfNecessaryWithFieldParameter();
     this.beanFactory = beanFactory;
     this.typeConverter = this.beanFactory.getTypeConverter();
     this.environment = environment;
@@ -81,8 +84,8 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener{
       Object value = resolvePropertyValue(springValue);
       springValue.update(value);
 
-      logger.info("Auto update apollo changed value successfully, new value: {}, {}", value,
-          springValue);
+      logger.info(
+          "Auto update apollo changed value successfully, new value: {}, {}", value, springValue);
     } catch (Throwable ex) {
       logger.error("Auto update apollo changed value failed, {}", springValue.toString(), ex);
     }
@@ -94,23 +97,27 @@ public class AutoUpdateConfigChangeListener implements ConfigChangeListener{
    */
   private Object resolvePropertyValue(SpringValue springValue) {
     // value will never be null, as @Value and @ApolloJsonValue will not allow that
-    Object value = placeholderHelper
-        .resolvePropertyValue(beanFactory, springValue.getBeanName(), springValue.getPlaceholder());
+    Object value =
+        placeholderHelper.resolvePropertyValue(
+            beanFactory, springValue.getBeanName(), springValue.getPlaceholder());
 
     if (springValue.isJson()) {
-      value = parseJsonValue((String)value, springValue.getGenericType());
+      value = parseJsonValue((String) value, springValue.getGenericType());
     } else {
       if (springValue.isField()) {
-        // org.springframework.beans.TypeConverter#convertIfNecessary(java.lang.Object, java.lang.Class, java.lang.reflect.Field) is available from Spring 3.2.0+
+        // org.springframework.beans.TypeConverter#convertIfNecessary(java.lang.Object,
+        // java.lang.Class, java.lang.reflect.Field) is available from Spring 3.2.0+
         if (typeConverterHasConvertIfNecessaryWithFieldParameter) {
-          value = this.typeConverter
-              .convertIfNecessary(value, springValue.getTargetType(), springValue.getField());
+          value =
+              this.typeConverter.convertIfNecessary(
+                  value, springValue.getTargetType(), springValue.getField());
         } else {
           value = this.typeConverter.convertIfNecessary(value, springValue.getTargetType());
         }
       } else {
-        value = this.typeConverter.convertIfNecessary(value, springValue.getTargetType(),
-            springValue.getMethodParameter());
+        value =
+            this.typeConverter.convertIfNecessary(
+                value, springValue.getTargetType(), springValue.getMethodParameter());
       }
     }
 

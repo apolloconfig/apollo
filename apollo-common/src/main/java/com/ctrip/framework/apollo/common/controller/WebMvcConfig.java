@@ -29,12 +29,13 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
+public class WebMvcConfig
+    implements WebMvcConfigurer, WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
 
   @Override
   public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
     PageableHandlerMethodArgumentResolver pageResolver =
-            new PageableHandlerMethodArgumentResolver();
+        new PageableHandlerMethodArgumentResolver();
     pageResolver.setFallbackPageable(PageRequest.of(0, 10));
 
     argumentResolvers.add(pageResolver);
@@ -49,7 +50,7 @@ public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomize
   public void customize(TomcatServletWebServerFactory factory) {
     MimeMappings mappings = new MimeMappings(MimeMappings.DEFAULT);
     mappings.add("html", "text/html;charset=utf-8");
-    factory.setMimeMappings(mappings );
+    factory.setMimeMappings(mappings);
   }
 
   @Override
@@ -65,7 +66,8 @@ public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomize
   }
 
   private void addCacheControl(ResourceHandlerRegistry registry, String folder, int cachePeriod) {
-    registry.addResourceHandler(String.format("/%s/**", folder))
+    registry
+        .addResourceHandler(String.format("/%s/**", folder))
         .addResourceLocations(String.format("classpath:/static/%s/", folder))
         .setCachePeriod(cachePeriod);
   }

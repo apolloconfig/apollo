@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.assembly;
 import com.ctrip.framework.apollo.adminservice.AdminServiceApplication;
 import com.ctrip.framework.apollo.configservice.ConfigServiceApplication;
 import com.ctrip.framework.apollo.portal.PortalApplication;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.WebApplicationType;
@@ -30,8 +29,8 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class})
+@SpringBootApplication(
+    exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 public class ApolloApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplication.class);
@@ -41,7 +40,9 @@ public class ApolloApplication {
      * Common
      */
     ConfigurableApplicationContext commonContext =
-        new SpringApplicationBuilder(ApolloApplication.class).web(WebApplicationType.NONE).run(args);
+        new SpringApplicationBuilder(ApolloApplication.class)
+            .web(WebApplicationType.NONE)
+            .run(args);
     logger.info(commonContext.getId() + " isActive: " + commonContext.isActive());
 
     /**
@@ -49,8 +50,10 @@ public class ApolloApplication {
      */
     if (commonContext.getEnvironment().containsProperty("configservice")) {
       ConfigurableApplicationContext configContext =
-          new SpringApplicationBuilder(ConfigServiceApplication.class).parent(commonContext)
-              .sources(RefreshScope.class).run(args);
+          new SpringApplicationBuilder(ConfigServiceApplication.class)
+              .parent(commonContext)
+              .sources(RefreshScope.class)
+              .run(args);
       logger.info(configContext.getId() + " isActive: " + configContext.isActive());
     }
 
@@ -59,8 +62,10 @@ public class ApolloApplication {
      */
     if (commonContext.getEnvironment().containsProperty("adminservice")) {
       ConfigurableApplicationContext adminContext =
-          new SpringApplicationBuilder(AdminServiceApplication.class).parent(commonContext)
-              .sources(RefreshScope.class).run(args);
+          new SpringApplicationBuilder(AdminServiceApplication.class)
+              .parent(commonContext)
+              .sources(RefreshScope.class)
+              .run(args);
       logger.info(adminContext.getId() + " isActive: " + adminContext.isActive());
     }
 
@@ -69,10 +74,11 @@ public class ApolloApplication {
      */
     if (commonContext.getEnvironment().containsProperty("portal")) {
       ConfigurableApplicationContext portalContext =
-          new SpringApplicationBuilder(PortalApplication.class).parent(commonContext)
-              .sources(RefreshScope.class).run(args);
+          new SpringApplicationBuilder(PortalApplication.class)
+              .parent(commonContext)
+              .sources(RefreshScope.class)
+              .run(args);
       logger.info(portalContext.getId() + " isActive: " + portalContext.isActive());
     }
   }
-
 }

@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.core.utils;
 
-import java.util.Collection;
-import java.util.Iterator;
 
 public class StringUtils {
 
@@ -47,14 +45,13 @@ public class StringUtils {
     return str == null || str.length() == 0;
   }
 
-
-  public static boolean isContainEmpty(String... args){
-    if (args == null){
+  public static boolean isContainEmpty(String... args) {
+    if (args == null) {
       return false;
     }
 
-    for (String arg: args){
-      if (arg == null || "".equals(arg)){
+    for (String arg : args) {
+      if (arg == null || "".equals(arg)) {
         return true;
       }
     }
@@ -343,5 +340,4 @@ public class StringUtils {
   public interface StringFormatter<T> {
     String format(T obj);
   }
-
 }

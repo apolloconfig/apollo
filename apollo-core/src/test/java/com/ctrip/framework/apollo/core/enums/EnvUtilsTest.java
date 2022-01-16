@@ -62,5 +62,4 @@ public class EnvUtilsTest {
   public void fromNullStringTest() {
     Env.fromString(null);
   }
-
 }

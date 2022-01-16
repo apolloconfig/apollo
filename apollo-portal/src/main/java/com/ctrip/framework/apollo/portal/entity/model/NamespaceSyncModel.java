@@ -18,10 +18,8 @@ package com.ctrip.framework.apollo.portal.entity.model;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
-
-import org.springframework.util.CollectionUtils;
-
 import java.util.List;
+import org.springframework.util.CollectionUtils;
 
 public class NamespaceSyncModel implements Verifiable {
 

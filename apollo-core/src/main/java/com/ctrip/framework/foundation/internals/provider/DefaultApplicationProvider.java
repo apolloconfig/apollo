@@ -31,8 +31,8 @@ import org.slf4j.Logger;
 
 public class DefaultApplicationProvider implements ApplicationProvider {
 
-  private static final Logger logger = DeferredLoggerFactory
-      .getLogger(DefaultApplicationProvider.class);
+  private static final Logger logger =
+      DeferredLoggerFactory.getLogger(DefaultApplicationProvider.class);
   public static final String APP_PROPERTIES_CLASSPATH = "/META-INF/app.properties";
   private Properties m_appProperties = new Properties();
 
@@ -43,8 +43,10 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   @Override
   public void initialize() {
     try {
-      InputStream in = Thread.currentThread().getContextClassLoader()
-          .getResourceAsStream(APP_PROPERTIES_CLASSPATH.substring(1));
+      InputStream in =
+          Thread.currentThread()
+              .getContextClassLoader()
+              .getResourceAsStream(APP_PROPERTIES_CLASSPATH.substring(1));
       if (in == null) {
         in = DefaultApplicationProvider.class.getResourceAsStream(APP_PROPERTIES_CLASSPATH);
       }
@@ -60,8 +62,8 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     try {
       if (in != null) {
         try {
-          m_appProperties
-              .load(new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
+          m_appProperties.load(
+              new InputStreamReader(new BOMInputStream(in), StandardCharsets.UTF_8));
         } finally {
           in.close();
         }
@@ -125,7 +127,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
       return;
     }
 
-    //2. Try to get app id from OS environment variable
+    // 2. Try to get app id from OS environment variable
     m_appId = System.getenv(ApolloClientSystemConsts.APP_ID_ENVIRONMENT_VARIABLES);
     if (!Utils.isBlank(m_appId)) {
       m_appId = m_appId.trim();
@@ -137,13 +139,14 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     m_appId = m_appProperties.getProperty(ApolloClientSystemConsts.APP_ID);
     if (!Utils.isBlank(m_appId)) {
       m_appId = m_appId.trim();
-      logger.info("App ID is set to {} by app.id property from {}", m_appId,
-          APP_PROPERTIES_CLASSPATH);
+      logger.info(
+          "App ID is set to {} by app.id property from {}", m_appId, APP_PROPERTIES_CLASSPATH);
       return;
     }
 
     m_appId = null;
-    logger.warn("app.id is not available from System Property and {}. It is set to null",
+    logger.warn(
+        "app.id is not available from System Property and {}. It is set to null",
         APP_PROPERTIES_CLASSPATH);
   }
 
@@ -156,11 +159,12 @@ public class DefaultApplicationProvider implements ApplicationProvider {
       return;
     }
 
-    //2. Try to get app label from OS environment variable
+    // 2. Try to get app label from OS environment variable
     m_appLabel = System.getenv(ApolloClientSystemConsts.APOLLO_LABEL_ENVIRONMENT_VARIABLES);
     if (!Utils.isBlank(m_appLabel)) {
       m_appLabel = m_appLabel.trim();
-      logger.info("App Label is set to {} by APP_LABEL property from OS environment variable", m_appLabel);
+      logger.info(
+          "App Label is set to {} by APP_LABEL property from OS environment variable", m_appLabel);
       return;
     }
 
@@ -168,13 +172,16 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     m_appLabel = m_appProperties.getProperty(ApolloClientSystemConsts.APOLLO_LABEL);
     if (!Utils.isBlank(m_appLabel)) {
       m_appLabel = m_appLabel.trim();
-      logger.info("App Label is set to {} by app.label property from {}", m_appLabel,
+      logger.info(
+          "App Label is set to {} by app.label property from {}",
+          m_appLabel,
           APP_PROPERTIES_CLASSPATH);
       return;
     }
 
-    m_appLabel=null;
-    logger.warn("app.label is not available from System Property and {}. It is set to null",
+    m_appLabel = null;
+    logger.warn(
+        "app.label is not available from System Property and {}. It is set to null",
         APP_PROPERTIES_CLASSPATH);
   }
 
@@ -183,13 +190,14 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     accessKeySecret = System.getProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
-      logger
-          .info("ACCESS KEY SECRET is set by apollo.access-key.secret property from System Property");
+      logger.info(
+          "ACCESS KEY SECRET is set by apollo.access-key.secret property from System Property");
       return;
     }
 
-    //2. Try to get ACCESS KEY SECRET from OS environment variable
-    accessKeySecret = System.getenv(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
+    // 2. Try to get ACCESS KEY SECRET from OS environment variable
+    accessKeySecret =
+        System.getenv(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
       logger.info(
@@ -198,10 +206,12 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     }
 
     // 3. Try to get ACCESS KEY SECRET from app.properties.
-    accessKeySecret = m_appProperties.getProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
+    accessKeySecret =
+        m_appProperties.getProperty(ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
-      logger.info("ACCESS KEY SECRET is set by apollo.access-key.secret property from {}",
+      logger.info(
+          "ACCESS KEY SECRET is set by apollo.access-key.secret property from {}",
           APP_PROPERTIES_CLASSPATH);
       return;
     }
@@ -217,41 +227,43 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   @SuppressWarnings("deprecation")
   private String initDeprecatedAccessKey() {
     // 1. Get ACCESS KEY SECRET from System Property
-    String accessKeySecret = System
-        .getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET);
+    String accessKeySecret =
+        System.getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
       logger.info(
           "ACCESS KEY SECRET is set by apollo.accesskey.secret property from System Property");
-      DeprecatedPropertyNotifyUtil
-          .warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET,
-              ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
+      DeprecatedPropertyNotifyUtil.warn(
+          ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET,
+          ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
       return accessKeySecret;
     }
 
-    //2. Try to get ACCESS KEY SECRET from OS environment variable
-    accessKeySecret = System
-        .getenv(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
+    // 2. Try to get ACCESS KEY SECRET from OS environment variable
+    accessKeySecret =
+        System.getenv(
+            ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
       logger.info(
           "ACCESS KEY SECRET is set by APOLLO_ACCESSKEY_SECRET property from OS environment variable");
-      DeprecatedPropertyNotifyUtil
-          .warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES,
-              ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
+      DeprecatedPropertyNotifyUtil.warn(
+          ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES,
+          ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET_ENVIRONMENT_VARIABLES);
       return accessKeySecret;
     }
 
     // 3. Try to get ACCESS KEY SECRET from app.properties.
-    accessKeySecret = m_appProperties
-        .getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET);
+    accessKeySecret =
+        m_appProperties.getProperty(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET);
     if (!Utils.isBlank(accessKeySecret)) {
       accessKeySecret = accessKeySecret.trim();
-      logger.info("ACCESS KEY SECRET is set by apollo.accesskey.secret property from {}",
+      logger.info(
+          "ACCESS KEY SECRET is set by apollo.accesskey.secret property from {}",
           APP_PROPERTIES_CLASSPATH);
-      DeprecatedPropertyNotifyUtil
-          .warn(ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET,
-              ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
+      DeprecatedPropertyNotifyUtil.warn(
+          ApolloClientSystemConsts.DEPRECATED_APOLLO_ACCESS_KEY_SECRET,
+          ApolloClientSystemConsts.APOLLO_ACCESS_KEY_SECRET);
       return accessKeySecret;
     }
     return null;
@@ -259,7 +271,10 @@ public class DefaultApplicationProvider implements ApplicationProvider {
 
   @Override
   public String toString() {
-    return "appId [" + getAppId() + "] properties: " + m_appProperties
+    return "appId ["
+        + getAppId()
+        + "] properties: "
+        + m_appProperties
         + " (DefaultApplicationProvider)";
   }
 }

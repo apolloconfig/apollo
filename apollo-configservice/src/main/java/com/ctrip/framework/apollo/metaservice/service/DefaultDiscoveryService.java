@@ -33,7 +33,12 @@ import org.springframework.util.CollectionUtils;
  * Default discovery service for Eureka
  */
 @Service
-@ConditionalOnMissingProfile({"kubernetes", "nacos-discovery", "consul-discovery", "zookeeper-discovery"})
+@ConditionalOnMissingProfile({
+  "kubernetes",
+  "nacos-discovery",
+  "consul-discovery",
+  "zookeeper-discovery"
+})
 public class DefaultDiscoveryService implements DiscoveryService {
 
   private final EurekaClient eurekaClient;
@@ -49,15 +54,17 @@ public class DefaultDiscoveryService implements DiscoveryService {
       Tracer.logEvent("Apollo.Discovery.NotFound", serviceId);
       return Collections.emptyList();
     }
-    return application.getInstances().stream().map(instanceInfoToServiceDTOFunc)
+    return application.getInstances().stream()
+        .map(instanceInfoToServiceDTOFunc)
         .collect(Collectors.toList());
   }
 
-  private static final Function<InstanceInfo, ServiceDTO> instanceInfoToServiceDTOFunc = instance -> {
-    ServiceDTO service = new ServiceDTO();
-    service.setAppName(instance.getAppName());
-    service.setInstanceId(instance.getInstanceId());
-    service.setHomepageUrl(instance.getHomePageUrl());
-    return service;
-  };
+  private static final Function<InstanceInfo, ServiceDTO> instanceInfoToServiceDTOFunc =
+      instance -> {
+        ServiceDTO service = new ServiceDTO();
+        service.setAppName(instance.getAppName());
+        service.setInstanceId(instance.getInstanceId());
+        service.setHomepageUrl(instance.getHomePageUrl());
+        return service;
+      };
 }

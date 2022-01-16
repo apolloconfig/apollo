@@ -17,11 +17,11 @@
 package com.ctrip.framework.apollo.internals;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
-import com.ctrip.framework.apollo.internals.AbstractConfig;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.google.common.collect.Sets;
@@ -36,8 +36,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
 import org.mockito.Matchers;
-
-import static org.mockito.Mockito.*;
 
 /**
  * @author wxq
@@ -54,25 +52,30 @@ public class InterestedConfigChangeEventTest {
     final String anotherKey = UUID.randomUUID().toString();
 
     final SettableFuture<ConfigChangeEvent> onChangeFuture = SettableFuture.create();
-    ConfigChangeListener configChangeListener = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        assertEquals(namespace, changeEvent.getNamespace());
-        assertEquals(2, changeEvent.changedKeys().size());
-        assertTrue(changeEvent.changedKeys().containsAll(Sets.newHashSet(key, anotherKey)));
-        assertEquals(1, changeEvent.interestedChangedKeys().size());
-        assertTrue(changeEvent.interestedChangedKeys().contains(key));
-        onChangeFuture.set(changeEvent);
-      }
-    });
+    ConfigChangeListener configChangeListener =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {
+                assertEquals(namespace, changeEvent.getNamespace());
+                assertEquals(2, changeEvent.changedKeys().size());
+                assertTrue(changeEvent.changedKeys().containsAll(Sets.newHashSet(key, anotherKey)));
+                assertEquals(1, changeEvent.interestedChangedKeys().size());
+                assertTrue(changeEvent.interestedChangedKeys().contains(key));
+                onChangeFuture.set(changeEvent);
+              }
+            });
 
     UnsupportedOperationConfig config = new UnsupportedOperationConfig();
-    config.addChangeListener(configChangeListener, Collections.singleton("key-nothing"), Collections.singleton(keyPrefix));
-
+    config.addChangeListener(
+        configChangeListener,
+        Collections.singleton("key-nothing"),
+        Collections.singleton(keyPrefix));
 
     Map<String, ConfigChange> changes = new HashMap<>();
     changes.put(key, new ConfigChange(namespace, key, "123", "456", PropertyChangeType.MODIFIED));
-    changes.put(anotherKey,
+    changes.put(
+        anotherKey,
         new ConfigChange(namespace, anotherKey, null, "someValue", PropertyChangeType.ADDED));
     config.fireConfigChange(namespace, changes);
 

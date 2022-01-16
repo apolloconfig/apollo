@@ -20,8 +20,10 @@ public class ApolloOpenApiException extends RuntimeException {
   private final int status;
 
   public ApolloOpenApiException(int status, String reason, String message) {
-    super(String.format("Request to apollo open api failed, status code: %d, reason: %s, message: %s", status, reason,
-        message));
+    super(
+        String.format(
+            "Request to apollo open api failed, status code: %d, reason: %s, message: %s",
+            status, reason, message));
     this.status = status;
   }
 

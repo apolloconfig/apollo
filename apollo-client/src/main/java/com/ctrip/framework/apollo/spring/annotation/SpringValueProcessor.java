@@ -50,7 +50,8 @@ import org.springframework.context.annotation.Bean;
  * @author github.com/zhegexiaohuozi  seimimaster@gmail.com  mghio.dev@gmail.com
  * @since 2017/12/20.
  */
-public class SpringValueProcessor extends ApolloProcessor implements BeanFactoryPostProcessor, BeanFactoryAware {
+public class SpringValueProcessor extends ApolloProcessor
+    implements BeanFactoryPostProcessor, BeanFactoryAware {
 
   private static final Logger logger = LoggerFactory.getLogger(SpringValueProcessor.class);
 
@@ -71,9 +72,11 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
       throws BeansException {
-    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() && beanFactory instanceof BeanDefinitionRegistry) {
-      beanName2SpringValueDefinitions = SpringValueDefinitionProcessor
-          .getBeanName2SpringValueDefinitions((BeanDefinitionRegistry) beanFactory);
+    if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()
+        && beanFactory instanceof BeanDefinitionRegistry) {
+      beanName2SpringValueDefinitions =
+          SpringValueDefinitionProcessor.getBeanName2SpringValueDefinitions(
+              (BeanDefinitionRegistry) beanFactory);
     }
   }
 
@@ -86,7 +89,6 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
     }
     return bean;
   }
-
 
   @Override
   protected void processField(Object bean, String beanName, Field field) {
@@ -101,18 +103,21 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
 
   @Override
   protected void processMethod(Object bean, String beanName, Method method) {
-    //register @Value on method
+    // register @Value on method
     Value value = method.getAnnotation(Value.class);
     if (value == null) {
       return;
     }
-    //skip Configuration bean methods
+    // skip Configuration bean methods
     if (method.getAnnotation(Bean.class) != null) {
       return;
     }
     if (method.getParameterTypes().length != 1) {
-      logger.error("Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
-          bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
+      logger.error(
+          "Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
+          bean.getClass().getName(),
+          method.getName(),
+          method.getParameterTypes().length);
       return;
     }
 
@@ -134,8 +139,10 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
         Method method = (Method) member;
         springValue = new SpringValue(key, value.value(), bean, beanName, method, false);
       } else {
-        logger.error("Apollo @Value annotation currently only support to be used on methods and fields, "
-            + "but is used on {}", member.getClass());
+        logger.error(
+            "Apollo @Value annotation currently only support to be used on methods and fields, "
+                + "but is used on {}",
+            member.getClass());
         return;
       }
       springValueRegistry.register(beanFactory, key, springValue);
@@ -144,26 +151,29 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
   }
 
   private void processBeanPropertyValues(Object bean, String beanName) {
-    Collection<SpringValueDefinition> propertySpringValues = beanName2SpringValueDefinitions
-        .get(beanName);
+    Collection<SpringValueDefinition> propertySpringValues =
+        beanName2SpringValueDefinitions.get(beanName);
     if (propertySpringValues == null || propertySpringValues.isEmpty()) {
       return;
     }
 
     for (SpringValueDefinition definition : propertySpringValues) {
       try {
-        PropertyDescriptor pd = BeanUtils
-            .getPropertyDescriptor(bean.getClass(), definition.getPropertyName());
+        PropertyDescriptor pd =
+            BeanUtils.getPropertyDescriptor(bean.getClass(), definition.getPropertyName());
         Method method = pd.getWriteMethod();
         if (method == null) {
           continue;
         }
-        SpringValue springValue = new SpringValue(definition.getKey(), definition.getPlaceholder(),
-            bean, beanName, method, false);
+        SpringValue springValue =
+            new SpringValue(
+                definition.getKey(), definition.getPlaceholder(), bean, beanName, method, false);
         springValueRegistry.register(beanFactory, definition.getKey(), springValue);
         logger.debug("Monitoring {}", springValue);
       } catch (Throwable ex) {
-        logger.error("Failed to enable auto update feature for {}.{}", bean.getClass(),
+        logger.error(
+            "Failed to enable auto update feature for {}.{}",
+            bean.getClass(),
             definition.getPropertyName());
       }
     }

@@ -38,13 +38,13 @@ public class SpringBootApolloRefreshConfig {
   private final RefreshScope refreshScope;
 
   public SpringBootApolloRefreshConfig(
-      final SampleRedisConfig sampleRedisConfig,
-      final RefreshScope refreshScope) {
+      final SampleRedisConfig sampleRedisConfig, final RefreshScope refreshScope) {
     this.sampleRedisConfig = sampleRedisConfig;
     this.refreshScope = refreshScope;
   }
 
-  @ApolloConfigChangeListener(value = {ConfigConsts.NAMESPACE_APPLICATION, "TEST1.apollo", "application.yaml"},
+  @ApolloConfigChangeListener(
+      value = {ConfigConsts.NAMESPACE_APPLICATION, "TEST1.apollo", "application.yaml"},
       interestedKeyPrefixes = {"redis.cache."})
   public void onChange(ConfigChangeEvent changeEvent) {
     logger.info("before refresh {}", sampleRedisConfig.toString());

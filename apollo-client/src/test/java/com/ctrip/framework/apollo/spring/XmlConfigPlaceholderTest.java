@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.spring;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -60,7 +59,8 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     Config config = mock(Config.class);
     when(config.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
-    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class))).thenReturn(String.valueOf(someBatch));
+    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class)))
+        .thenReturn(String.valueOf(someBatch));
 
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
 
@@ -82,7 +82,8 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     Config config = mock(Config.class);
     when(config.getProperty(eq(TIMEOUT_PROPERTY), Mockito.nullable(String.class)))
         .thenReturn(String.valueOf(someTimeout));
-    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class))).thenReturn(String.valueOf(someBatch));
+    when(config.getProperty(eq(BATCH_PROPERTY), Mockito.nullable(String.class)))
+        .thenReturn(String.valueOf(someBatch));
 
     mockConfig(ConfigConsts.NAMESPACE_APPLICATION, config);
 
@@ -156,7 +157,6 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
     check("spring/XmlConfigPlaceholderTest5.xml", DEFAULT_TIMEOUT, DEFAULT_BATCH);
   }
 
-
   @Test
   public void testResolveNamespacesWithDefaultValue() throws Exception {
     int someTimeout = 1000;
@@ -169,7 +169,8 @@ public class XmlConfigPlaceholderTest extends AbstractSpringIntegrationTest {
 
   @Test
   public void testResolveNamespacesFromSystemProperty() throws Exception {
-    System.setProperty(SystemPropertyKeyConstants.XXX_FROM_SYSTEM_PROPERTY, ConfigConsts.NAMESPACE_APPLICATION);
+    System.setProperty(
+        SystemPropertyKeyConstants.XXX_FROM_SYSTEM_PROPERTY, ConfigConsts.NAMESPACE_APPLICATION);
     System.setProperty(SystemPropertyKeyConstants.YYY_FROM_SYSTEM_PROPERTY, "FX.apollo");
     int someTimeout = 1000;
     int anotherTimeout = someTimeout + 1;

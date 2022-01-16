@@ -32,8 +32,10 @@ public class AdminServiceAutoConfiguration {
   }
 
   @Bean
-  public FilterRegistrationBean<AdminServiceAuthenticationFilter> adminServiceAuthenticationFilter() {
-    FilterRegistrationBean<AdminServiceAuthenticationFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+  public FilterRegistrationBean<AdminServiceAuthenticationFilter>
+      adminServiceAuthenticationFilter() {
+    FilterRegistrationBean<AdminServiceAuthenticationFilter> filterRegistrationBean =
+        new FilterRegistrationBean<>();
 
     filterRegistrationBean.setFilter(new AdminServiceAuthenticationFilter(bizConfig));
     filterRegistrationBean.addUrlPatterns("/apps/*");

@@ -17,13 +17,11 @@
 package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * @author Jason Song(song_s@ctrip.com)

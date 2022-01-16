@@ -23,24 +23,22 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.build.MockInjector;
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-
-import com.ctrip.framework.apollo.build.MockInjector;
-import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.ctrip.framework.apollo.util.ConfigUtil;
-import com.google.common.base.Charsets;
-import com.google.common.base.Joiner;
-import com.google.common.io.Files;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -75,12 +73,14 @@ public class LocalFileConfigRepositoryTest {
 
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
     PropertiesFactory propertiesFactory = mock(PropertiesFactory.class);
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new Properties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new Properties();
+              }
+            });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
   }
 
@@ -90,7 +90,7 @@ public class LocalFileConfigRepositoryTest {
     recursiveDelete(someBaseDir);
   }
 
-  //helper method to clean created files
+  // helper method to clean created files
   private void recursiveDelete(File file) {
     if (!file.exists()) {
       return;
@@ -104,10 +104,11 @@ public class LocalFileConfigRepositoryTest {
   }
 
   private String assembleLocalCacheFileName() {
-    return String.format("%s.properties", Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-        .join(someAppId, someCluster, someNamespace));
+    return String.format(
+        "%s.properties",
+        Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+            .join(someAppId, someCluster, someNamespace));
   }
-
 
   @Test
   public void testLoadConfigWithLocalFile() throws Exception {
@@ -135,7 +136,8 @@ public class LocalFileConfigRepositoryTest {
 
     Files.write(defaultKey + "=" + someValue, file, Charsets.UTF_8);
 
-    LocalFileConfigRepository localRepo = new LocalFileConfigRepository(someNamespace, upstreamRepo);
+    LocalFileConfigRepository localRepo =
+        new LocalFileConfigRepository(someNamespace, upstreamRepo);
     localRepo.setLocalCacheDir(someBaseDir, true);
 
     Properties properties = localRepo.getConfig();
@@ -154,7 +156,8 @@ public class LocalFileConfigRepositoryTest {
 
     assertEquals(
         "LocalFileConfigRepository's properties should be the same as fallback repo's when there is no local cache",
-        result, someProperties);
+        result,
+        someProperties);
     assertEquals(someSourceType, localFileConfigRepository.getSourceType());
   }
 
@@ -166,8 +169,7 @@ public class LocalFileConfigRepositoryTest {
 
     Properties someProperties = localRepo.getConfig();
 
-    LocalFileConfigRepository
-        anotherLocalRepoWithNoFallback =
+    LocalFileConfigRepository anotherLocalRepoWithNoFallback =
         new LocalFileConfigRepository(someNamespace);
     anotherLocalRepoWithNoFallback.setLocalCacheDir(someBaseDir, true);
 
@@ -175,7 +177,8 @@ public class LocalFileConfigRepositoryTest {
 
     assertEquals(
         "LocalFileConfigRepository should persist local cache files and return that afterwards",
-        someProperties, anotherProperties);
+        someProperties,
+        anotherProperties);
     assertEquals(someSourceType, localRepo.getSourceType());
   }
 

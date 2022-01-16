@@ -33,6 +33,7 @@ public class ConfigPropertySourcesProcessorHelperTest {
     ReflectionUtils.makeAccessible(field);
     Object helper = ReflectionUtils.getField(field, processor);
 
-    assertEquals("helper is not TestProcessorHelper instance", TestProcessorHelper.class, helper.getClass());
+    assertEquals(
+        "helper is not TestProcessorHelper instance", TestProcessorHelper.class, helper.getClass());
   }
 }

@@ -27,13 +27,12 @@ import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -50,8 +49,8 @@ import org.springframework.util.ReflectionUtils;
  *
  * @author Jason Song(song_s@ctrip.com)
  */
-public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFactoryAware,
-    EnvironmentAware {
+public class ApolloAnnotationProcessor extends ApolloProcessor
+    implements BeanFactoryAware, EnvironmentAware {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloAnnotationProcessor.class);
   private static final Gson GSON = new Gson();
@@ -91,8 +90,11 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
       return;
     }
 
-    Preconditions.checkArgument(Config.class.isAssignableFrom(field.getType()),
-        "Invalid type: %s for field: %s, should be Config", field.getType(), field);
+    Preconditions.checkArgument(
+        Config.class.isAssignableFrom(field.getType()),
+        "Invalid type: %s for field: %s, should be Config",
+        field.getType(),
+        field);
 
     final String namespace = annotation.value();
     final String resolvedNamespace = this.environment.resolveRequiredPlaceholders(namespace);
@@ -103,34 +105,40 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
   }
 
   private void processApolloConfigChangeListener(final Object bean, final Method method) {
-    ApolloConfigChangeListener annotation = AnnotationUtils
-        .findAnnotation(method, ApolloConfigChangeListener.class);
+    ApolloConfigChangeListener annotation =
+        AnnotationUtils.findAnnotation(method, ApolloConfigChangeListener.class);
     if (annotation == null) {
       return;
     }
     Class<?>[] parameterTypes = method.getParameterTypes();
-    Preconditions.checkArgument(parameterTypes.length == 1,
-        "Invalid number of parameters: %s for method: %s, should be 1", parameterTypes.length,
+    Preconditions.checkArgument(
+        parameterTypes.length == 1,
+        "Invalid number of parameters: %s for method: %s, should be 1",
+        parameterTypes.length,
         method);
-    Preconditions.checkArgument(ConfigChangeEvent.class.isAssignableFrom(parameterTypes[0]),
-        "Invalid parameter type: %s for method: %s, should be ConfigChangeEvent", parameterTypes[0],
+    Preconditions.checkArgument(
+        ConfigChangeEvent.class.isAssignableFrom(parameterTypes[0]),
+        "Invalid parameter type: %s for method: %s, should be ConfigChangeEvent",
+        parameterTypes[0],
         method);
 
     ReflectionUtils.makeAccessible(method);
     String[] namespaces = annotation.value();
     String[] annotatedInterestedKeys = annotation.interestedKeys();
     String[] annotatedInterestedKeyPrefixes = annotation.interestedKeyPrefixes();
-    ConfigChangeListener configChangeListener = new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        ReflectionUtils.invokeMethod(method, bean, changeEvent);
-      }
-    };
+    ConfigChangeListener configChangeListener =
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            ReflectionUtils.invokeMethod(method, bean, changeEvent);
+          }
+        };
 
     Set<String> interestedKeys =
         annotatedInterestedKeys.length > 0 ? Sets.newHashSet(annotatedInterestedKeys) : null;
     Set<String> interestedKeyPrefixes =
-        annotatedInterestedKeyPrefixes.length > 0 ? Sets.newHashSet(annotatedInterestedKeyPrefixes)
+        annotatedInterestedKeyPrefixes.length > 0
+            ? Sets.newHashSet(annotatedInterestedKeyPrefixes)
             : null;
 
     for (String namespace : namespaces) {
@@ -145,15 +153,14 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     }
   }
 
-
   private void processApolloJsonValue(Object bean, String beanName, Field field) {
     ApolloJsonValue apolloJsonValue = AnnotationUtils.getAnnotation(field, ApolloJsonValue.class);
     if (apolloJsonValue == null) {
       return;
     }
     String placeholder = apolloJsonValue.value();
-    Object propertyValue = placeholderHelper
-        .resolvePropertyValue(this.configurableBeanFactory, beanName, placeholder);
+    Object propertyValue =
+        placeholderHelper.resolvePropertyValue(this.configurableBeanFactory, beanName, placeholder);
 
     // propertyValue will never be null, as @ApolloJsonValue will not allow that
     if (!(propertyValue instanceof String)) {
@@ -162,8 +169,8 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
 
     boolean accessible = field.isAccessible();
     field.setAccessible(true);
-    ReflectionUtils
-        .setField(field, bean, parseJsonValue((String) propertyValue, field.getGenericType()));
+    ReflectionUtils.setField(
+        field, bean, parseJsonValue((String) propertyValue, field.getGenericType()));
     field.setAccessible(accessible);
 
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
@@ -183,8 +190,8 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     }
     String placeHolder = apolloJsonValue.value();
 
-    Object propertyValue = placeholderHelper
-        .resolvePropertyValue(this.configurableBeanFactory, beanName, placeHolder);
+    Object propertyValue =
+        placeholderHelper.resolvePropertyValue(this.configurableBeanFactory, beanName, placeHolder);
 
     // propertyValue will never be null, as @ApolloJsonValue will not allow that
     if (!(propertyValue instanceof String)) {
@@ -192,9 +199,12 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     }
 
     Type[] types = method.getGenericParameterTypes();
-    Preconditions.checkArgument(types.length == 1,
+    Preconditions.checkArgument(
+        types.length == 1,
         "Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
-        bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
+        bean.getClass().getName(),
+        method.getName(),
+        method.getParameterTypes().length);
 
     boolean accessible = method.isAccessible();
     method.setAccessible(true);
@@ -204,8 +214,8 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder);
       for (String key : keys) {
-        SpringValue springValue = new SpringValue(key, apolloJsonValue.value(), bean, beanName,
-            method, true);
+        SpringValue springValue =
+            new SpringValue(key, apolloJsonValue.value(), bean, beanName, method, true);
         springValueRegistry.register(this.configurableBeanFactory, key, springValue);
         logger.debug("Monitoring {}", springValue);
       }

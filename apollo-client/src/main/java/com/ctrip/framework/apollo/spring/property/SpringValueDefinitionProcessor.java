@@ -16,13 +16,16 @@
  */
 package com.ctrip.framework.apollo.spring.property;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
+import com.ctrip.framework.apollo.util.ConfigUtil;
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
@@ -31,11 +34,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-
-import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.util.ConfigUtil;
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Multimap;
 
 /**
  * To process xml config placeholders, e.g.
@@ -48,9 +46,10 @@ import com.google.common.collect.Multimap;
  * </pre>
  */
 public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPostProcessor {
-  private static final Map<BeanDefinitionRegistry, Multimap<String, SpringValueDefinition>> beanName2SpringValueDefinitions =
-      Maps.newConcurrentMap();
-  private static final Set<BeanDefinitionRegistry> PROPERTY_VALUES_PROCESSED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
+  private static final Map<BeanDefinitionRegistry, Multimap<String, SpringValueDefinition>>
+      beanName2SpringValueDefinitions = Maps.newConcurrentMap();
+  private static final Set<BeanDefinitionRegistry> PROPERTY_VALUES_PROCESSED_BEAN_FACTORIES =
+      Sets.newConcurrentHashSet();
 
   private final ConfigUtil configUtil;
   private final PlaceholderHelper placeholderHelper;
@@ -61,19 +60,21 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
   }
 
   @Override
-  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+  public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+      throws BeansException {
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       processPropertyValues(registry);
     }
   }
 
   @Override
-  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+  public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
+      throws BeansException {}
 
-  }
-
-  public static Multimap<String, SpringValueDefinition> getBeanName2SpringValueDefinitions(BeanDefinitionRegistry registry) {
-    Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.get(registry);
+  public static Multimap<String, SpringValueDefinition> getBeanName2SpringValueDefinitions(
+      BeanDefinitionRegistry registry) {
+    Multimap<String, SpringValueDefinition> springValueDefinitions =
+        beanName2SpringValueDefinitions.get(registry);
     if (springValueDefinitions == null) {
       springValueDefinitions = LinkedListMultimap.create();
     }
@@ -88,10 +89,12 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
     }
 
     if (!beanName2SpringValueDefinitions.containsKey(beanRegistry)) {
-      beanName2SpringValueDefinitions.put(beanRegistry, LinkedListMultimap.<String, SpringValueDefinition>create());
+      beanName2SpringValueDefinitions.put(
+          beanRegistry, LinkedListMultimap.<String, SpringValueDefinition>create());
     }
 
-    Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.get(beanRegistry);
+    Multimap<String, SpringValueDefinition> springValueDefinitions =
+        beanName2SpringValueDefinitions.get(beanRegistry);
 
     String[] beanNames = beanRegistry.getBeanDefinitionNames();
     for (String beanName : beanNames) {
@@ -111,7 +114,8 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
         }
 
         for (String key : keys) {
-          springValueDefinitions.put(beanName, new SpringValueDefinition(key, placeholder, propertyValue.getName()));
+          springValueDefinitions.put(
+              beanName, new SpringValueDefinition(key, placeholder, propertyValue.getName()));
         }
       }
     }

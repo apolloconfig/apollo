@@ -24,8 +24,8 @@ import org.springframework.core.env.PropertySource;
 /**
  * @author Shawyeok (shawyeok@outlook.com)
  */
-public class CachedCompositePropertySource extends CompositePropertySource implements
-    ConfigChangeListener {
+public class CachedCompositePropertySource extends CompositePropertySource
+    implements ConfigChangeListener {
 
   private volatile String[] names;
 

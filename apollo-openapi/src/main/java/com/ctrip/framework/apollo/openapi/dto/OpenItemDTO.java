@@ -50,14 +50,26 @@ public class OpenItemDTO extends BaseDTO {
 
   @Override
   public String toString() {
-    return "OpenItemDTO{" +
-        "key='" + key + '\'' +
-        ", value='" + value + '\'' +
-        ", comment='" + comment + '\'' +
-        ", dataChangeCreatedBy='" + dataChangeCreatedBy + '\'' +
-        ", dataChangeLastModifiedBy='" + dataChangeLastModifiedBy + '\'' +
-        ", dataChangeCreatedTime=" + dataChangeCreatedTime +
-        ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
-        '}';
+    return "OpenItemDTO{"
+        + "key='"
+        + key
+        + '\''
+        + ", value='"
+        + value
+        + '\''
+        + ", comment='"
+        + comment
+        + '\''
+        + ", dataChangeCreatedBy='"
+        + dataChangeCreatedBy
+        + '\''
+        + ", dataChangeLastModifiedBy='"
+        + dataChangeLastModifiedBy
+        + '\''
+        + ", dataChangeCreatedTime="
+        + dataChangeCreatedTime
+        + ", dataChangeLastModifiedTime="
+        + dataChangeLastModifiedTime
+        + '}';
   }
 }

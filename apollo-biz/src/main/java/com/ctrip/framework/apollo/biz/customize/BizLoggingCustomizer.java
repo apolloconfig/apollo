@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("ctrip")
-public class BizLoggingCustomizer extends LoggingCustomizer{
+public class BizLoggingCustomizer extends LoggingCustomizer {
 
   private final BizConfig bizConfig;
 

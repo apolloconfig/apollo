@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import static org.hamcrest.Matchers.containsString;
+
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
@@ -25,7 +27,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.hamcrest.Matchers.containsString;
 
 /**
  * Created by kezhenxu at 2019/1/8 18:17.
@@ -34,8 +35,7 @@ import static org.hamcrest.Matchers.containsString;
  */
 @ActiveProfiles("skipAuthorization")
 public class NamespaceControllerTest extends AbstractControllerTest {
-  @Autowired
-  private ConsumerPermissionValidator consumerPermissionValidator;
+  @Autowired private ConsumerPermissionValidator consumerPermissionValidator;
 
   @Test
   public void shouldFailWhenAppNamespaceNameIsInvalid() {
@@ -49,8 +49,9 @@ public class NamespaceControllerTest extends AbstractControllerTest {
     try {
       restTemplate.postForEntity(
           url("/openapi/v1/apps/{appId}/appnamespaces"),
-          dto, OpenAppNamespaceDTO.class, dto.getAppId()
-      );
+          dto,
+          OpenAppNamespaceDTO.class,
+          dto.getAppId());
       Assert.fail("should throw");
     } catch (HttpClientErrorException e) {
       String result = e.getResponseBodyAsString();

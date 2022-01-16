@@ -30,8 +30,8 @@ import org.springframework.util.StringUtils;
 public class UserDisplayNameEnricher implements AdditionalUserInfoEnricher {
 
   @Override
-  public void enrichAdditionalUserInfo(UserInfoEnrichedAdapter adapter,
-      Map<String, UserInfo> userInfoMap) {
+  public void enrichAdditionalUserInfo(
+      UserInfoEnrichedAdapter adapter, Map<String, UserInfo> userInfoMap) {
     if (StringUtils.hasText(adapter.getFirstUserId())) {
       UserInfo userInfo = userInfoMap.get(adapter.getFirstUserId());
       if (userInfo != null && StringUtils.hasText(userInfo.getName())) {

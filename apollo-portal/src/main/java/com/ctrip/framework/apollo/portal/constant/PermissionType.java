@@ -22,12 +22,12 @@ public interface PermissionType {
    * system level permission
    */
   String CREATE_APPLICATION = "CreateApplication";
+
   String MANAGE_APP_MASTER = "ManageAppMaster";
 
   /**
    * APP level permission
    */
-
   String CREATE_NAMESPACE = "CreateNamespace";
 
   String CREATE_CLUSTER = "CreateCluster";
@@ -40,10 +40,7 @@ public interface PermissionType {
   /**
    * namespace level permission
    */
-
   String MODIFY_NAMESPACE = "ModifyNamespace";
 
   String RELEASE_NAMESPACE = "ReleaseNamespace";
-
-
 }

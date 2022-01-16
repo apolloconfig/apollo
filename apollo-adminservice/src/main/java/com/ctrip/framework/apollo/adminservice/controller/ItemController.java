@@ -31,7 +31,6 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -54,8 +53,11 @@ public class ItemController {
   private final CommitService commitService;
   private final ReleaseService releaseService;
 
-
-  public ItemController(final ItemService itemService, final NamespaceService namespaceService, final CommitService commitService, final ReleaseService releaseService) {
+  public ItemController(
+      final ItemService itemService,
+      final NamespaceService namespaceService,
+      final CommitService commitService,
+      final ReleaseService releaseService) {
     this.itemService = itemService;
     this.namespaceService = namespaceService;
     this.commitService = commitService;
@@ -64,9 +66,11 @@ public class ItemController {
 
   @PreAcquireNamespaceLock
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  public ItemDTO create(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+  public ItemDTO create(
+      @PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName,
+      @RequestBody ItemDTO dto) {
     Item entity = BeanUtils.transform(Item.class, dto);
 
     ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
@@ -91,9 +95,11 @@ public class ItemController {
   }
 
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items")
-  public ItemDTO createComment(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+  public ItemDTO createComment(
+      @PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName,
+      @RequestBody ItemDTO dto) {
     if (!StringUtils.isBlank(dto.getKey()) || !StringUtils.isBlank(dto.getValue())) {
       throw new BadRequestException("Comment item's key or value should be blank.");
     }
@@ -104,8 +110,9 @@ public class ItemController {
     // check if comment existed
     List<Item> allItems = itemService.findItemsWithOrdered(appId, clusterName, namespaceName);
     for (Item item : allItems) {
-      if (StringUtils.isBlank(item.getKey()) && StringUtils.isBlank(item.getValue()) &&
-          Objects.equals(item.getComment(), dto.getComment())) {
+      if (StringUtils.isBlank(item.getKey())
+          && StringUtils.isBlank(item.getValue())
+          && Objects.equals(item.getComment(), dto.getComment())) {
         return BeanUtils.transform(ItemDTO.class, item);
       }
     }
@@ -116,14 +123,14 @@ public class ItemController {
     return BeanUtils.transform(ItemDTO.class, entity);
   }
 
-
   @PreAcquireNamespaceLock
   @PutMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
-  public ItemDTO update(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName,
-                        @PathVariable("itemId") long itemId,
-                        @RequestBody ItemDTO itemDTO) {
+  public ItemDTO update(
+      @PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName,
+      @PathVariable("itemId") long itemId,
+      @RequestBody ItemDTO itemDTO) {
     Item managedEntity = itemService.findOne(itemId);
     if (managedEntity == null) {
       throw new NotFoundException("item not found for itemId " + itemId);
@@ -141,7 +148,7 @@ public class ItemController {
 
     Item beforeUpdateItem = BeanUtils.transform(Item.class, managedEntity);
 
-    //protect. only value,comment,lastModifiedBy can be modified
+    // protect. only value,comment,lastModifiedBy can be modified
     managedEntity.setValue(entity.getValue());
     managedEntity.setComment(entity.getComment());
     managedEntity.setDataChangeLastModifiedBy(entity.getDataChangeLastModifiedBy());
@@ -186,30 +193,44 @@ public class ItemController {
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  public List<ItemDTO> findItems(@PathVariable("appId") String appId,
-                                 @PathVariable("clusterName") String clusterName,
-                                 @PathVariable("namespaceName") String namespaceName) {
-    return BeanUtils.batchTransform(ItemDTO.class, itemService.findItemsWithOrdered(appId, clusterName, namespaceName));
+  public List<ItemDTO> findItems(
+      @PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName) {
+    return BeanUtils.batchTransform(
+        ItemDTO.class, itemService.findItemsWithOrdered(appId, clusterName, namespaceName));
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/deleted")
-  public List<ItemDTO> findDeletedItems(@PathVariable("appId") String appId,
-                                        @PathVariable("clusterName") String clusterName,
-                                        @PathVariable("namespaceName") String namespaceName) {
-    //get latest release time
-    Release latestActiveRelease = releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
+  public List<ItemDTO> findDeletedItems(
+      @PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName) {
+    // get latest release time
+    Release latestActiveRelease =
+        releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
     List<Commit> commits;
     if (Objects.nonNull(latestActiveRelease)) {
-      commits = commitService.find(appId, clusterName, namespaceName, latestActiveRelease.getDataChangeCreatedTime(), null);
+      commits =
+          commitService.find(
+              appId,
+              clusterName,
+              namespaceName,
+              latestActiveRelease.getDataChangeCreatedTime(),
+              null);
     } else {
       commits = commitService.find(appId, clusterName, namespaceName, null);
     }
 
     if (Objects.nonNull(commits)) {
-      List<Item> deletedItems = commits.stream()
-          .map(item -> ConfigChangeContentBuilder.convertJsonString(item.getChangeSets()).getDeleteItems())
-          .flatMap(Collection::stream)
-          .collect(Collectors.toList());
+      List<Item> deletedItems =
+          commits.stream()
+              .map(
+                  item ->
+                      ConfigChangeContentBuilder.convertJsonString(item.getChangeSets())
+                          .getDeleteItems())
+              .flatMap(Collection::stream)
+              .collect(Collectors.toList());
       return BeanUtils.batchTransform(ItemDTO.class, deletedItems);
     }
     return Collections.emptyList();
@@ -225,15 +246,16 @@ public class ItemController {
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public ItemDTO get(@PathVariable("appId") String appId,
+  public ItemDTO get(
+      @PathVariable("appId") String appId,
       @PathVariable("clusterName") String clusterName,
-      @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
+      @PathVariable("namespaceName") String namespaceName,
+      @PathVariable("key") String key) {
     Item item = itemService.findOne(appId, clusterName, namespaceName, key);
     if (item == null) {
-      throw new NotFoundException("item not found for %s %s %s %s", appId, clusterName,
-          namespaceName, key);
+      throw new NotFoundException(
+          "item not found for %s %s %s %s", appId, clusterName, namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }
-
 }

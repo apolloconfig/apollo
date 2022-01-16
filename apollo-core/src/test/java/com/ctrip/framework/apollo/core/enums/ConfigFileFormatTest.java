@@ -32,23 +32,23 @@ import org.junit.rules.ExpectedException;
  */
 public class ConfigFileFormatTest {
 
-  @Rule
-  public ExpectedException expectedEx = ExpectedException.none();
+  @Rule public ExpectedException expectedEx = ExpectedException.none();
 
   @Test
   public void testFromStringEqualsOriginal() {
-    assertEquals(ConfigFileFormat.Properties,
+    assertEquals(
+        ConfigFileFormat.Properties,
         ConfigFileFormat.fromString(ConfigFileFormat.Properties.getValue()));
-    assertEquals(ConfigFileFormat.XML,
-        ConfigFileFormat.fromString(ConfigFileFormat.XML.getValue()));
-    assertEquals(ConfigFileFormat.JSON,
-        ConfigFileFormat.fromString(ConfigFileFormat.JSON.getValue()));
-    assertEquals(ConfigFileFormat.YML,
-        ConfigFileFormat.fromString(ConfigFileFormat.YML.getValue()));
-    assertEquals(ConfigFileFormat.YAML,
-        ConfigFileFormat.fromString(ConfigFileFormat.YAML.getValue()));
-    assertEquals(ConfigFileFormat.TXT,
-        ConfigFileFormat.fromString(ConfigFileFormat.TXT.getValue()));
+    assertEquals(
+        ConfigFileFormat.XML, ConfigFileFormat.fromString(ConfigFileFormat.XML.getValue()));
+    assertEquals(
+        ConfigFileFormat.JSON, ConfigFileFormat.fromString(ConfigFileFormat.JSON.getValue()));
+    assertEquals(
+        ConfigFileFormat.YML, ConfigFileFormat.fromString(ConfigFileFormat.YML.getValue()));
+    assertEquals(
+        ConfigFileFormat.YAML, ConfigFileFormat.fromString(ConfigFileFormat.YAML.getValue()));
+    assertEquals(
+        ConfigFileFormat.TXT, ConfigFileFormat.fromString(ConfigFileFormat.TXT.getValue()));
   }
 
   @Test
@@ -84,20 +84,27 @@ public class ConfigFileFormatTest {
     specialChars.add(" \t ");
     specialChars.add("\t ");
 
-    specialChars.forEach(item -> {
-      assertEquals(ConfigFileFormat.Properties,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.Properties.getValue() + item));
-      assertEquals(ConfigFileFormat.XML,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.XML.getValue() + item));
-      assertEquals(ConfigFileFormat.JSON,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.JSON.getValue() + item));
-      assertEquals(ConfigFileFormat.YML,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.YML.getValue() + item));
-      assertEquals(ConfigFileFormat.YAML,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.YAML.getValue() + item));
-      assertEquals(ConfigFileFormat.TXT,
-          ConfigFileFormat.fromString(item + ConfigFileFormat.TXT.getValue() + item));
-    });
+    specialChars.forEach(
+        item -> {
+          assertEquals(
+              ConfigFileFormat.Properties,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.Properties.getValue() + item));
+          assertEquals(
+              ConfigFileFormat.XML,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.XML.getValue() + item));
+          assertEquals(
+              ConfigFileFormat.JSON,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.JSON.getValue() + item));
+          assertEquals(
+              ConfigFileFormat.YML,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.YML.getValue() + item));
+          assertEquals(
+              ConfigFileFormat.YAML,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.YAML.getValue() + item));
+          assertEquals(
+              ConfigFileFormat.TXT,
+              ConfigFileFormat.fromString(item + ConfigFileFormat.TXT.getValue() + item));
+        });
   }
 
   @Test

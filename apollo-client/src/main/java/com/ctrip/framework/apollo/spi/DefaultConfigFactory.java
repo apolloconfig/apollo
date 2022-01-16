@@ -72,15 +72,16 @@ public class DefaultConfigFactory implements ConfigFactory {
     // should not create a PropertiesCompatibleFileConfigRepository for them
     // calling the method `createLocalConfigRepository(...)` is more suitable
     // for ConfigFileFormat.Properties
-    if (ConfigFileFormat.isPropertiesCompatible(format) &&
-        format != ConfigFileFormat.Properties) {
+    if (ConfigFileFormat.isPropertiesCompatible(format) && format != ConfigFileFormat.Properties) {
       configRepository = createPropertiesCompatibleFileConfigRepository(namespace, format);
     } else {
       configRepository = createConfigRepository(namespace);
     }
 
-    logger.debug("Created a configuration repository of type [{}] for namespace [{}]",
-        configRepository.getClass().getName(), namespace);
+    logger.debug(
+        "Created a configuration repository of type [{}] for namespace [{}]",
+        configRepository.getClass().getName(),
+        namespace);
 
     return this.createRepositoryConfig(namespace, configRepository);
   }
@@ -140,13 +141,14 @@ public class DefaultConfigFactory implements ConfigFactory {
   PropertiesCompatibleFileConfigRepository createPropertiesCompatibleFileConfigRepository(
       String namespace, ConfigFileFormat format) {
     String actualNamespaceName = trimNamespaceFormat(namespace, format);
-    PropertiesCompatibleConfigFile configFile = (PropertiesCompatibleConfigFile) ConfigService
-        .getConfigFile(actualNamespaceName, format);
+    PropertiesCompatibleConfigFile configFile =
+        (PropertiesCompatibleConfigFile) ConfigService.getConfigFile(actualNamespaceName, format);
 
     return new PropertiesCompatibleFileConfigRepository(configFile);
   }
 
-  // for namespaces whose format are not properties, the file extension must be present, e.g. application.yaml
+  // for namespaces whose format are not properties, the file extension must be present, e.g.
+  // application.yaml
   ConfigFileFormat determineFileFormat(String namespaceName) {
     String lowerCase = namespaceName.toLowerCase();
     for (ConfigFileFormat format : ConfigFileFormat.values()) {
@@ -166,5 +168,4 @@ public class DefaultConfigFactory implements ConfigFactory {
 
     return namespaceName.substring(0, namespaceName.length() - extension.length());
   }
-
 }

@@ -37,8 +37,7 @@ public class KubernetesDiscoveryServiceTest {
   private String configServiceConfigName = "apollo.config-service.url";
   private String adminServiceConfigName = "apollo.admin-service.url";
 
-  @Mock
-  private BizConfig bizConfig;
+  @Mock private BizConfig bizConfig;
 
   private KubernetesDiscoveryService kubernetesDiscoveryService;
 
@@ -59,7 +58,8 @@ public class KubernetesDiscoveryServiceTest {
     when(bizConfig.getValue(configServiceConfigName)).thenReturn(null);
 
     assertTrue(
-        kubernetesDiscoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE)
+        kubernetesDiscoveryService
+            .getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE)
             .isEmpty());
 
     verify(bizConfig, times(1)).getValue(configServiceConfigName);
@@ -70,14 +70,15 @@ public class KubernetesDiscoveryServiceTest {
     String someUrl = "http://some-host/some-path";
     when(bizConfig.getValue(configServiceConfigName)).thenReturn(someUrl);
 
-    List<ServiceDTO> serviceDTOList = kubernetesDiscoveryService
-        .getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE);
+    List<ServiceDTO> serviceDTOList =
+        kubernetesDiscoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE);
 
     assertEquals(1, serviceDTOList.size());
     ServiceDTO serviceDTO = serviceDTOList.get(0);
 
     assertEquals(ServiceNameConsts.APOLLO_CONFIGSERVICE, serviceDTO.getAppName());
-    assertEquals(String.format("%s:%s", ServiceNameConsts.APOLLO_CONFIGSERVICE, someUrl),
+    assertEquals(
+        String.format("%s:%s", ServiceNameConsts.APOLLO_CONFIGSERVICE, someUrl),
         serviceDTO.getInstanceId());
     assertEquals(someUrl, serviceDTO.getHomepageUrl());
   }
@@ -89,24 +90,24 @@ public class KubernetesDiscoveryServiceTest {
     when(bizConfig.getValue(adminServiceConfigName))
         .thenReturn(String.format("%s,%s", someUrl, anotherUrl));
 
-    List<ServiceDTO> serviceDTOList = kubernetesDiscoveryService
-        .getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE);
+    List<ServiceDTO> serviceDTOList =
+        kubernetesDiscoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE);
 
     assertEquals(2, serviceDTOList.size());
     ServiceDTO serviceDTO = serviceDTOList.get(0);
 
     assertEquals(ServiceNameConsts.APOLLO_ADMINSERVICE, serviceDTO.getAppName());
-    assertEquals(String.format("%s:%s", ServiceNameConsts.APOLLO_ADMINSERVICE, someUrl),
+    assertEquals(
+        String.format("%s:%s", ServiceNameConsts.APOLLO_ADMINSERVICE, someUrl),
         serviceDTO.getInstanceId());
     assertEquals(someUrl, serviceDTO.getHomepageUrl());
 
     ServiceDTO anotherServiceDTO = serviceDTOList.get(1);
 
     assertEquals(ServiceNameConsts.APOLLO_ADMINSERVICE, anotherServiceDTO.getAppName());
-    assertEquals(String.format("%s:%s", ServiceNameConsts.APOLLO_ADMINSERVICE, anotherUrl),
+    assertEquals(
+        String.format("%s:%s", ServiceNameConsts.APOLLO_ADMINSERVICE, anotherUrl),
         anotherServiceDTO.getInstanceId());
     assertEquals(anotherUrl, anotherServiceDTO.getHomepageUrl());
-
   }
-
 }

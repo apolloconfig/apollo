@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static org.hamcrest.Matchers.containsString;
+
 import com.ctrip.framework.apollo.biz.repository.AppRepository;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -29,12 +31,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.hamcrest.Matchers.containsString;
 
 public class AppControllerTest extends AbstractControllerTest {
 
-  @Autowired
-  AppRepository appRepository;
+  @Autowired AppRepository appRepository;
 
   private String getBaseAppUrl() {
     return "http://localhost:" + port + "/apps/";
@@ -54,8 +54,9 @@ public class AppControllerTest extends AbstractControllerTest {
     Boolean falseUnique =
         restTemplate.getForObject(getBaseAppUrl() + dto.getAppId() + "/unique", Boolean.class);
     Assert.assertFalse(falseUnique);
-    Boolean trueUnique = restTemplate
-        .getForObject(getBaseAppUrl() + dto.getAppId() + "true" + "/unique", Boolean.class);
+    Boolean trueUnique =
+        restTemplate.getForObject(
+            getBaseAppUrl() + dto.getAppId() + "true" + "/unique", Boolean.class);
     Assert.assertTrue(trueUnique);
   }
 
@@ -92,10 +93,9 @@ public class AppControllerTest extends AbstractControllerTest {
 
     try {
       restTemplate.postForEntity(getBaseAppUrl(), dto, AppDTO.class);
-    }catch (HttpClientErrorException e){
+    } catch (HttpClientErrorException e) {
       Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
     }
-
   }
 
   @Test
@@ -123,7 +123,8 @@ public class AppControllerTest extends AbstractControllerTest {
     App app = BeanUtils.transform(App.class, dto);
     app = appRepository.save(app);
 
-    restTemplate.delete("http://localhost:{port}/apps/{appId}?operator={operator}", port, app.getAppId(), "test");
+    restTemplate.delete(
+        "http://localhost:{port}/apps/{appId}?operator={operator}", port, app.getAppId(), "test");
 
     App deletedApp = appRepository.findById(app.getId()).orElse(null);
     Assert.assertNull(deletedApp);
@@ -139,7 +140,9 @@ public class AppControllerTest extends AbstractControllerTest {
       Assert.fail("Should throw");
     } catch (HttpClientErrorException e) {
       Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
-      Assert.assertThat(new String(e.getResponseBodyAsByteArray()), containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+      Assert.assertThat(
+          new String(e.getResponseBodyAsByteArray()),
+          containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
   }
 

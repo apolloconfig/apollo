@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.dto;
 
-
 public class NamespaceReleaseDTO {
 
   private String releaseTitle;

@@ -25,10 +25,8 @@ import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.google.common.util.concurrent.SettableFuture;
-
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -36,8 +34,7 @@ public class ApolloMockServerApiTest {
 
   private static final String anotherNamespace = "anotherNamespace";
 
-  @ClassRule
-  public static EmbeddedApollo embeddedApollo = new EmbeddedApollo();
+  @ClassRule public static EmbeddedApollo embeddedApollo = new EmbeddedApollo();
 
   @Test
   public void testGetProperty() throws Exception {
@@ -55,12 +52,13 @@ public class ApolloMockServerApiTest {
 
     final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        future.set(changeEvent);
-      }
-    });
+    otherConfig.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            future.set(changeEvent);
+          }
+        });
 
     assertEquals("otherValue1", otherConfig.getProperty("key1", null));
     assertEquals("otherValue2", otherConfig.getProperty("key2", null));
@@ -82,12 +80,13 @@ public class ApolloMockServerApiTest {
 
     final Semaphore changes = new Semaphore(0);
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        changes.release();
-      }
-    });
+    otherConfig.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            changes.release();
+          }
+        });
 
     assertEquals("otherValue3", otherConfig.getProperty("key3", null));
 
@@ -105,12 +104,13 @@ public class ApolloMockServerApiTest {
 
     final SettableFuture<ConfigChangeEvent> future = SettableFuture.create();
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        future.set(changeEvent);
-      }
-    });
+    otherConfig.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            future.set(changeEvent);
+          }
+        });
 
     assertEquals("otherValue4", otherConfig.getProperty("key4", null));
     assertEquals("otherValue5", otherConfig.getProperty("key5", null));
@@ -130,12 +130,13 @@ public class ApolloMockServerApiTest {
 
     final Semaphore changes = new Semaphore(0);
 
-    otherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        changes.release();
-      }
-    });
+    otherConfig.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            changes.release();
+          }
+        });
 
     assertEquals("otherValue6", otherConfig.getProperty("key6", null));
 

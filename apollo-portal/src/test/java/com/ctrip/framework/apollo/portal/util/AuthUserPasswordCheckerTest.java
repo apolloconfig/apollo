@@ -35,12 +35,8 @@ public class AuthUserPasswordCheckerTest {
 
   @Test
   public void testRegexMatch() {
-    List<String> unMatchList = Arrays.asList(
-        "11111111",
-        "oibjdiel",
-        "oso87b6",
-        "0vb9xibowkd8bz9dsxbef"
-    );
+    List<String> unMatchList =
+        Arrays.asList("11111111", "oibjdiel", "oso87b6", "0vb9xibowkd8bz9dsxbef");
     String exceptedErrMsg = "Password needs a number and letter and between 8~20 characters";
 
     for (String p : unMatchList) {
@@ -49,11 +45,7 @@ public class AuthUserPasswordCheckerTest {
       Assert.assertEquals(exceptedErrMsg, res.getMessage());
     }
 
-    List<String> matchList = Arrays.asList(
-        "pziv0g87",
-        "8f7zjpf8sci93",
-        "Upz4jF8u2yjV3wn8zp6c"
-    );
+    List<String> matchList = Arrays.asList("pziv0g87", "8f7zjpf8sci93", "Upz4jF8u2yjV3wn8zp6c");
 
     for (String p : matchList) {
       CheckResult res = checker.checkWeakPassword(p);
@@ -63,11 +55,25 @@ public class AuthUserPasswordCheckerTest {
 
   @Test
   public void testIsWeakPassword() {
-    List<String> weakPwdList = Arrays.asList(
-        "a1234567", "b98765432", "c11111111", "d2222222", "e3333333", "f4444444",
-        "g5555555", "h6666666", "i7777777", "j8888888", "k9999999", "l0000000",
-        "1q2w3e4r", "qwertyuiop1", "asdfghjkl2", "asdfghjkl3", "abcd1234"
-    );
+    List<String> weakPwdList =
+        Arrays.asList(
+            "a1234567",
+            "b98765432",
+            "c11111111",
+            "d2222222",
+            "e3333333",
+            "f4444444",
+            "g5555555",
+            "h6666666",
+            "i7777777",
+            "j8888888",
+            "k9999999",
+            "l0000000",
+            "1q2w3e4r",
+            "qwertyuiop1",
+            "asdfghjkl2",
+            "asdfghjkl3",
+            "abcd1234");
     String exceptedErrMsg =
         "Passwords cannot be consecutive, regular letters or numbers. And cannot be commonly used.";
 
@@ -80,5 +86,4 @@ public class AuthUserPasswordCheckerTest {
     CheckResult res = checker.checkWeakPassword("1s39gvisk");
     Assert.assertTrue(res.isSuccess());
   }
-
 }

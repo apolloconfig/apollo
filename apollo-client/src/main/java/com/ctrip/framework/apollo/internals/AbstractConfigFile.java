@@ -16,27 +16,25 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
-import com.ctrip.framework.apollo.enums.ConfigSourceType;
-import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.slf4j.Logger;
-
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.ConfigFileChangeListener;
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
+import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
+import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
 import com.ctrip.framework.apollo.model.ConfigFileChangeEvent;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.ctrip.framework.apollo.util.ExceptionUtil;
+import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -53,8 +51,8 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
   private volatile ConfigSourceType m_sourceType = ConfigSourceType.NONE;
 
   static {
-    m_executorService = Executors.newCachedThreadPool(ApolloThreadFactory
-        .create("ConfigFile", true));
+    m_executorService =
+        Executors.newCachedThreadPool(ApolloThreadFactory.create("ConfigFile", true));
   }
 
   public AbstractConfigFile(String namespace, ConfigRepository configRepository) {
@@ -71,11 +69,13 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
       m_sourceType = m_configRepository.getSourceType();
     } catch (Throwable ex) {
       Tracer.logError(ex);
-      logger.warn("Init Apollo Config File failed - namespace: {}, reason: {}.",
-          m_namespace, ExceptionUtil.getDetailMessage(ex));
+      logger.warn(
+          "Init Apollo Config File failed - namespace: {}, reason: {}.",
+          m_namespace,
+          ExceptionUtil.getDetailMessage(ex));
     } finally {
-      //register the change listener no matter config repository is working or not
-      //so that whenever config repository is recovered, config could get changed
+      // register the change listener no matter config repository is working or not
+      // so that whenever config repository is recovered, config could get changed
       m_configRepository.addChangeListener(this);
     }
   }
@@ -134,23 +134,25 @@ public abstract class AbstractConfigFile implements ConfigFile, RepositoryChange
 
   private void fireConfigChange(final ConfigFileChangeEvent changeEvent) {
     for (final ConfigFileChangeListener listener : m_listeners) {
-      m_executorService.submit(new Runnable() {
-        @Override
-        public void run() {
-          String listenerName = listener.getClass().getName();
-          Transaction transaction = Tracer.newTransaction("Apollo.ConfigFileChangeListener", listenerName);
-          try {
-            listener.onChange(changeEvent);
-            transaction.setStatus(Transaction.SUCCESS);
-          } catch (Throwable ex) {
-            transaction.setStatus(ex);
-            Tracer.logError(ex);
-            logger.error("Failed to invoke config file change listener {}", listenerName, ex);
-          } finally {
-            transaction.complete();
-          }
-        }
-      });
+      m_executorService.submit(
+          new Runnable() {
+            @Override
+            public void run() {
+              String listenerName = listener.getClass().getName();
+              Transaction transaction =
+                  Tracer.newTransaction("Apollo.ConfigFileChangeListener", listenerName);
+              try {
+                listener.onChange(changeEvent);
+                transaction.setStatus(Transaction.SUCCESS);
+              } catch (Throwable ex) {
+                transaction.setStatus(ex);
+                Tracer.logError(ex);
+                logger.error("Failed to invoke config file change listener {}", listenerName, ex);
+              } finally {
+                transaction.complete();
+              }
+            }
+          });
     }
   }
 }

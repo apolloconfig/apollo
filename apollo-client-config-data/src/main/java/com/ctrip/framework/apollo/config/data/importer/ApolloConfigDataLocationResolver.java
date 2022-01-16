@@ -33,8 +33,8 @@ import org.springframework.util.StringUtils;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class ApolloConfigDataLocationResolver implements
-    ConfigDataLocationResolver<ApolloConfigDataResource>, Ordered {
+public class ApolloConfigDataLocationResolver
+    implements ConfigDataLocationResolver<ApolloConfigDataResource>, Ordered {
 
   private static final String PREFIX = "apollo://";
 
@@ -45,14 +45,14 @@ public class ApolloConfigDataLocationResolver implements
   }
 
   @Override
-  public boolean isResolvable(ConfigDataLocationResolverContext context,
-      ConfigDataLocation location) {
+  public boolean isResolvable(
+      ConfigDataLocationResolverContext context, ConfigDataLocation location) {
     return location.hasPrefix(PREFIX);
   }
 
   @Override
-  public List<ApolloConfigDataResource> resolve(ConfigDataLocationResolverContext context,
-      ConfigDataLocation location)
+  public List<ApolloConfigDataResource> resolve(
+      ConfigDataLocationResolverContext context, ConfigDataLocation location)
       throws ConfigDataLocationNotFoundException, ConfigDataResourceNotFoundException {
     return Collections.emptyList();
   }
@@ -66,8 +66,10 @@ public class ApolloConfigDataLocationResolver implements
       log.debug(Slf4jLogMessageFormatter.format("apollo config namespace [{}]", namespace));
       return Collections.singletonList(new ApolloConfigDataResource(namespace));
     }
-    log.debug(Slf4jLogMessageFormatter.format("apollo config namespace is empty, default to [{}]",
-        ConfigConsts.NAMESPACE_APPLICATION));
+    log.debug(
+        Slf4jLogMessageFormatter.format(
+            "apollo config namespace is empty, default to [{}]",
+            ConfigConsts.NAMESPACE_APPLICATION));
     return Collections.singletonList(ApolloConfigDataResource.DEFAULT);
   }
 

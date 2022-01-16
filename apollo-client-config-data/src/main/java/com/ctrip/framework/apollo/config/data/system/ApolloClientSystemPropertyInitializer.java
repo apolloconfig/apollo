@@ -41,19 +41,19 @@ public class ApolloClientSystemPropertyInitializer {
     }
   }
 
-  private void fillSystemPropertyFromBinder(String propertyName, String bindName, Binder binder,
-      BindHandler bindHandler) {
+  private void fillSystemPropertyFromBinder(
+      String propertyName, String bindName, Binder binder, BindHandler bindHandler) {
     if (System.getProperty(propertyName) != null) {
       return;
     }
-    String propertyValue = binder.bind(bindName, Bindable.of(String.class), bindHandler)
-        .orElse(null);
+    String propertyValue =
+        binder.bind(bindName, Bindable.of(String.class), bindHandler).orElse(null);
     if (!StringUtils.hasText(propertyValue)) {
       return;
     }
-    log.debug(Slf4jLogMessageFormatter
-        .format("apollo client set system property key=[{}] value=[{}]", propertyName,
-            propertyValue));
+    log.debug(
+        Slf4jLogMessageFormatter.format(
+            "apollo client set system property key=[{}] value=[{}]", propertyName, propertyValue));
     System.setProperty(propertyName, propertyValue);
   }
 }

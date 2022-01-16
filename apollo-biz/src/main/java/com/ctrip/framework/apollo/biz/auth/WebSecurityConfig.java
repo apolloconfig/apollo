@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.auth;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -48,8 +47,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    */
   @Autowired
   public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication().withUser("user").password("").roles("USER").and()
-        .withUser("apollo").password("").roles("USER", "ADMIN");
+    auth.inMemoryAuthentication()
+        .withUser("user")
+        .password("")
+        .roles("USER")
+        .and()
+        .withUser("apollo")
+        .password("")
+        .roles("USER", "ADMIN");
   }
-
 }

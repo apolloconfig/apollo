@@ -20,12 +20,11 @@ import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -45,7 +44,8 @@ public class ReleaseMessageService {
     return releaseMessageRepository.findTopByMessageInOrderByIdDesc(messages);
   }
 
-  public List<ReleaseMessage> findLatestReleaseMessagesGroupByMessages(Collection<String> messages) {
+  public List<ReleaseMessage> findLatestReleaseMessagesGroupByMessages(
+      Collection<String> messages) {
     if (CollectionUtils.isEmpty(messages)) {
       return Collections.emptyList();
     }

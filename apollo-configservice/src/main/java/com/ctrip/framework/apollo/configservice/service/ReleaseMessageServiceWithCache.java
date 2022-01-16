@@ -27,12 +27,6 @@ import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -41,14 +35,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 @Service
 public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, InitializingBean {
-  private static final Logger logger = LoggerFactory.getLogger(ReleaseMessageServiceWithCache
-      .class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(ReleaseMessageServiceWithCache.class);
   private final ReleaseMessageRepository releaseMessageRepository;
   private final BizConfig bizConfig;
 
@@ -63,8 +62,7 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
   private ExecutorService executorService;
 
   public ReleaseMessageServiceWithCache(
-      final ReleaseMessageRepository releaseMessageRepository,
-      final BizConfig bizConfig) {
+      final ReleaseMessageRepository releaseMessageRepository, final BizConfig bizConfig) {
     this.releaseMessageRepository = releaseMessageRepository;
     this.bizConfig = bizConfig;
     initialize();
@@ -73,8 +71,9 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
   private void initialize() {
     releaseMessageCache = Maps.newConcurrentMap();
     doScan = new AtomicBoolean(true);
-    executorService = Executors.newSingleThreadExecutor(ApolloThreadFactory
-        .create("ReleaseMessageServiceWithCache", true));
+    executorService =
+        Executors.newSingleThreadExecutor(
+            ApolloThreadFactory.create("ReleaseMessageServiceWithCache", true));
   }
 
   public ReleaseMessage findLatestReleaseMessageForMessages(Set<String> messages) {
@@ -113,7 +112,7 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
 
   @Override
   public void handleMessage(ReleaseMessage message, String channel) {
-    //Could stop once the ReleaseMessageScanner starts to work
+    // Could stop once the ReleaseMessageScanner starts to work
     doScan.set(false);
     logger.info("message received - channel: {}, message: {}", channel, message);
 
@@ -127,7 +126,7 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
     if (gap == 1) {
       mergeReleaseMessage(message);
     } else if (gap > 1) {
-      //gap found!
+      // gap found!
       loadReleaseMessages(maxIdScanned);
     }
   }
@@ -135,30 +134,32 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
   @Override
   public void afterPropertiesSet() throws Exception {
     populateDataBaseInterval();
-    //block the startup process until load finished
-    //this should happen before ReleaseMessageScanner due to autowire
+    // block the startup process until load finished
+    // this should happen before ReleaseMessageScanner due to autowire
     loadReleaseMessages(0);
 
-    executorService.submit(() -> {
-      while (doScan.get() && !Thread.currentThread().isInterrupted()) {
-        Transaction transaction = Tracer.newTransaction("Apollo.ReleaseMessageServiceWithCache",
-            "scanNewReleaseMessages");
-        try {
-          loadReleaseMessages(maxIdScanned);
-          transaction.setStatus(Transaction.SUCCESS);
-        } catch (Throwable ex) {
-          transaction.setStatus(ex);
-          logger.error("Scan new release messages failed", ex);
-        } finally {
-          transaction.complete();
-        }
-        try {
-          scanIntervalTimeUnit.sleep(scanInterval);
-        } catch (InterruptedException e) {
-          //ignore
-        }
-      }
-    });
+    executorService.submit(
+        () -> {
+          while (doScan.get() && !Thread.currentThread().isInterrupted()) {
+            Transaction transaction =
+                Tracer.newTransaction(
+                    "Apollo.ReleaseMessageServiceWithCache", "scanNewReleaseMessages");
+            try {
+              loadReleaseMessages(maxIdScanned);
+              transaction.setStatus(Transaction.SUCCESS);
+            } catch (Throwable ex) {
+              transaction.setStatus(ex);
+              logger.error("Scan new release messages failed", ex);
+            } finally {
+              transaction.complete();
+            }
+            try {
+              scanIntervalTimeUnit.sleep(scanInterval);
+            } catch (InterruptedException e) {
+              // ignore
+            }
+          }
+        });
   }
 
   private synchronized void mergeReleaseMessage(ReleaseMessage releaseMessage) {
@@ -172,9 +173,9 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
   private void loadReleaseMessages(long startId) {
     boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
-      //current batch is 500
-      List<ReleaseMessage> releaseMessages = releaseMessageRepository
-          .findFirst500ByIdGreaterThanOrderByIdAsc(startId);
+      // current batch is 500
+      List<ReleaseMessage> releaseMessages =
+          releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(startId);
       if (CollectionUtils.isEmpty(releaseMessages)) {
         break;
       }
@@ -191,7 +192,7 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
     scanIntervalTimeUnit = bizConfig.releaseMessageCacheScanIntervalTimeUnit();
   }
 
-  //only for test use
+  // only for test use
   private void reset() throws Exception {
     executorService.shutdownNow();
     initialize();

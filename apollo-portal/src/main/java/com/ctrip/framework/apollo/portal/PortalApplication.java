@@ -30,8 +30,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableAutoConfiguration(exclude = {LdapAutoConfiguration.class})
 @EnableTransactionManagement
-@ComponentScan(basePackageClasses = {ApolloCommonConfig.class,
-    PortalApplication.class, PortalOpenApiConfig.class})
+@ComponentScan(
+    basePackageClasses = {
+      ApolloCommonConfig.class,
+      PortalApplication.class,
+      PortalOpenApiConfig.class
+    })
 public class PortalApplication {
 
   public static void main(String[] args) throws Exception {

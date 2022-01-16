@@ -56,25 +56,33 @@ public class ApolloWebClientHttpClient implements HttpClient {
 
   private <T> HttpResponse<T> doGetInternal(HttpRequest httpRequest, Type responseType)
       throws ApolloConfigException {
-    WebClient.RequestHeadersSpec<?> requestHeadersSpec = this.webClient.get()
-        .uri(URI.create(httpRequest.getUrl()));
+    WebClient.RequestHeadersSpec<?> requestHeadersSpec =
+        this.webClient.get().uri(URI.create(httpRequest.getUrl()));
     if (!CollectionUtils.isEmpty(httpRequest.getHeaders())) {
       for (Map.Entry<String, String> entry : httpRequest.getHeaders().entrySet()) {
         requestHeadersSpec.header(entry.getKey(), entry.getValue());
       }
     }
-    return requestHeadersSpec.exchangeToMono(clientResponse -> {
-      if (HttpStatus.OK.equals(clientResponse.statusCode())) {
-        return clientResponse.bodyToMono(String.class)
-            .map(body -> new HttpResponse<T>(HttpStatus.OK.value(),
-                gson.fromJson(body, responseType)));
-      }
-      if (HttpStatus.NOT_MODIFIED.equals(clientResponse.statusCode())) {
-        return Mono.just(new HttpResponse<T>(HttpStatus.NOT_MODIFIED.value(), null));
-      }
-      return Mono.error(new ApolloConfigStatusCodeException(clientResponse.rawStatusCode(),
-          String.format("Get operation failed for %s", httpRequest.getUrl())));
-    }).block();
+    return requestHeadersSpec
+        .exchangeToMono(
+            clientResponse -> {
+              if (HttpStatus.OK.equals(clientResponse.statusCode())) {
+                return clientResponse
+                    .bodyToMono(String.class)
+                    .map(
+                        body ->
+                            new HttpResponse<T>(
+                                HttpStatus.OK.value(), gson.fromJson(body, responseType)));
+              }
+              if (HttpStatus.NOT_MODIFIED.equals(clientResponse.statusCode())) {
+                return Mono.just(new HttpResponse<T>(HttpStatus.NOT_MODIFIED.value(), null));
+              }
+              return Mono.error(
+                  new ApolloConfigStatusCodeException(
+                      clientResponse.rawStatusCode(),
+                      String.format("Get operation failed for %s", httpRequest.getUrl())));
+            })
+        .block();
   }
 
   @Override

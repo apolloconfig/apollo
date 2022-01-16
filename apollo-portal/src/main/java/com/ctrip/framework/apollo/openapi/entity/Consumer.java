@@ -17,13 +17,11 @@
 package com.ctrip.framework.apollo.openapi.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "Consumer")
@@ -99,10 +97,13 @@ public class Consumer extends BaseEntity {
 
   @Override
   public String toString() {
-    return toStringHelper().add("name", name).add("appId", appId)
+    return toStringHelper()
+        .add("name", name)
+        .add("appId", appId)
         .add("orgId", orgId)
         .add("orgName", orgName)
         .add("ownerName", ownerName)
-        .add("ownerEmail", ownerEmail).toString();
+        .add("ownerEmail", ownerEmail)
+        .toString();
   }
 }

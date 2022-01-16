@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DeferredLoggerFactory {
 
-  private DeferredLoggerFactory() {
-  }
+  private DeferredLoggerFactory() {}
 
   public static Logger getLogger(Class<?> clazz) {
     Logger logger = LoggerFactory.getLogger(clazz);

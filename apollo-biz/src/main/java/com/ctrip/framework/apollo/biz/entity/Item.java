@@ -17,14 +17,12 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "Item")
@@ -89,7 +87,12 @@ public class Item extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("namespaceId", namespaceId).add("key", key).add("value", value)
-        .add("lineNum", lineNum).add("comment", comment).toString();
+    return toStringHelper()
+        .add("namespaceId", namespaceId)
+        .add("key", key)
+        .add("value", value)
+        .add("lineNum", lineNum)
+        .add("comment", comment)
+        .toString();
   }
 }

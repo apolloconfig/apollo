@@ -17,8 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.bo;
 
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
-import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
-
 import java.util.Set;
 
 public class ReleaseBO {
@@ -42,5 +40,4 @@ public class ReleaseBO {
   public void setItems(Set<KVEntity> items) {
     this.items = items;
   }
-
 }

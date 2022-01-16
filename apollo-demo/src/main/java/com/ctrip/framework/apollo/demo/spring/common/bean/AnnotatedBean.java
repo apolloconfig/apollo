@@ -67,20 +67,18 @@ public class AnnotatedBean {
 
   @Override
   public String toString() {
-    return String.format("[AnnotatedBean] timeout: %d, batch: %d, jsonBeans: %s", timeout, batch, jsonBeans);
+    return String.format(
+        "[AnnotatedBean] timeout: %d, batch: %d, jsonBeans: %s", timeout, batch, jsonBeans);
   }
 
-  private static class JsonBean{
+  private static class JsonBean {
 
     private String someString;
     private int someInt;
 
     @Override
     public String toString() {
-      return "JsonBean{" +
-          "someString='" + someString + '\'' +
-          ", someInt=" + someInt +
-          '}';
+      return "JsonBean{" + "someString='" + someString + '\'' + ", someInt=" + someInt + '}';
     }
   }
 }

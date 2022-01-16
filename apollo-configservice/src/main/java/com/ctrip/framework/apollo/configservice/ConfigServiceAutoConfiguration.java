@@ -102,18 +102,17 @@ public class ConfigServiceAutoConfiguration {
     @Bean
     public ReleaseMessageScanner releaseMessageScanner() {
       ReleaseMessageScanner releaseMessageScanner = new ReleaseMessageScanner();
-      //0. handle release message cache
+      // 0. handle release message cache
       releaseMessageScanner.addMessageListener(releaseMessageServiceWithCache);
-      //1. handle gray release rule
+      // 1. handle gray release rule
       releaseMessageScanner.addMessageListener(grayReleaseRulesHolder);
-      //2. handle server cache
+      // 2. handle server cache
       releaseMessageScanner.addMessageListener(configService);
       releaseMessageScanner.addMessageListener(configFileController);
-      //3. notify clients
+      // 3. notify clients
       releaseMessageScanner.addMessageListener(notificationControllerV2);
       releaseMessageScanner.addMessageListener(notificationController);
       return releaseMessageScanner;
     }
   }
-
 }

@@ -25,13 +25,13 @@ import org.springframework.context.ApplicationListener;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class ApolloSpringApplicationRegisterListener implements
-    ApplicationListener<ApplicationStartingEvent> {
+public class ApolloSpringApplicationRegisterListener
+    implements ApplicationListener<ApplicationStartingEvent> {
 
   @Override
   public void onApplicationEvent(ApplicationStartingEvent event) {
     ConfigurableBootstrapContext bootstrapContext = event.getBootstrapContext();
-    bootstrapContext.registerIfAbsent(SpringApplication.class,
-        InstanceSupplier.of(event.getSpringApplication()));
+    bootstrapContext.registerIfAbsent(
+        SpringApplication.class, InstanceSupplier.of(event.getSpringApplication()));
   }
 }

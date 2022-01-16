@@ -44,5 +44,4 @@ public class DeferredLoggerStateTest {
     DeferredLogger.enable();
     Assert.assertFalse(DeferredLogger.isEnabled());
   }
-
 }

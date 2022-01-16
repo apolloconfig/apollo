@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.message.MessageSender;
 import com.ctrip.framework.apollo.biz.message.Topics;
@@ -30,6 +32,8 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,16 +47,10 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.Mockito.*;
-
 public class ReleaseControllerTest extends AbstractControllerTest {
 
-  private static final  Gson GSON = new Gson();
-  @Autowired
-  ReleaseRepository releaseRepository;
+  private static final Gson GSON = new Gson();
+  @Autowired ReleaseRepository releaseRepository;
 
   @Test
   @Sql(scripts = "/controller/test-release.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
@@ -62,13 +60,21 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     AppDTO app =
         restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
 
-    ClusterDTO cluster = restTemplate.getForObject(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
-        ClusterDTO.class);
+    ClusterDTO cluster =
+        restTemplate.getForObject(
+            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
+            ClusterDTO.class);
 
     NamespaceDTO namespace =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + app.getAppId()
-            + "/clusters/" + cluster.getName() + "/namespaces/application", NamespaceDTO.class);
+        restTemplate.getForObject(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/application",
+            NamespaceDTO.class);
 
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
@@ -76,8 +82,15 @@ public class ReleaseControllerTest extends AbstractControllerTest {
 
     ItemDTO[] items =
         restTemplate.getForObject(
-            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/"
-                + cluster.getName() + "/namespaces/" + namespace.getNamespaceName() + "/items",
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/items",
             ItemDTO[].class);
     Assert.assertEquals(3, items.length);
 
@@ -87,12 +100,20 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     parameters.add("name", "someReleaseName");
     parameters.add("comment", "someComment");
     parameters.add("operator", "test");
-    HttpEntity<MultiValueMap<String, String>> entity =
-        new HttpEntity<>(parameters, headers);
-    ResponseEntity<ReleaseDTO> response = restTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/releases",
-        entity, ReleaseDTO.class);
+    HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(parameters, headers);
+    ResponseEntity<ReleaseDTO> response =
+        restTemplate.postForEntity(
+            "http://localhost:"
+                + port
+                + "/apps/"
+                + app.getAppId()
+                + "/clusters/"
+                + cluster.getName()
+                + "/namespaces/"
+                + namespace.getNamespaceName()
+                + "/releases",
+            entity,
+            ReleaseDTO.class);
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     ReleaseDTO release = response.getBody();
     Assert.assertEquals("someReleaseName", release.getName());
@@ -123,18 +144,19 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     MessageSender someMessageSender = mock(MessageSender.class);
     Namespace someNamespace = mock(Namespace.class);
 
-    ReleaseController releaseController = new ReleaseController(someReleaseService, someNamespaceService, someMessageSender, null);
+    ReleaseController releaseController =
+        new ReleaseController(someReleaseService, someNamespaceService, someMessageSender, null);
 
     when(someNamespaceService.findOne(someAppId, someCluster, someNamespaceName))
         .thenReturn(someNamespace);
 
-    releaseController
-        .publish(someAppId, someCluster, someNamespaceName, someName, someComment, "test", false);
+    releaseController.publish(
+        someAppId, someCluster, someNamespaceName, someName, someComment, "test", false);
 
     verify(someMessageSender, times(1))
-        .sendMessage(Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+        .sendMessage(
+            Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
                 .join(someAppId, someCluster, someNamespaceName),
             Topics.APOLLO_RELEASE_TOPIC);
-
   }
 }

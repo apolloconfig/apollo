@@ -26,12 +26,9 @@ import static org.junit.Assert.assertTrue;
 import com.ctrip.framework.foundation.internals.Utils;
 import java.io.File;
 import java.io.FileInputStream;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.ctrip.framework.foundation.internals.provider.DefaultServerProvider;
 
 public class DefaultServerProviderTest {
   private DefaultServerProvider defaultServerProvider;
@@ -55,8 +52,11 @@ public class DefaultServerProviderTest {
 
   @Test
   public void testGetServerPropertiesPathDefault() {
-    assertEquals(Utils.isOSWindows() ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
-        : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX, defaultServerProvider.getServerPropertiesPath());
+    assertEquals(
+        Utils.isOSWindows()
+            ? DEFAULT_SERVER_PROPERTIES_PATH_ON_WINDOWS
+            : DEFAULT_SERVER_PROPERTIES_PATH_ON_LINUX,
+        defaultServerProvider.getServerPropertiesPath());
   }
 
   @Test

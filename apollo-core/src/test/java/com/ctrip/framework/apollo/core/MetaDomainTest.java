@@ -69,7 +69,8 @@ public class MetaDomainTest extends BaseIntegrationTest {
 
     String metaServer = MetaDomainConsts.getDomain(Env.LPT);
 
-    assertTrue(metaServer.equals(invalidServer.trim()) || metaServer.equals(anotherInvalidServer.trim()));
+    assertTrue(
+        metaServer.equals(invalidServer.trim()) || metaServer.equals(anotherInvalidServer.trim()));
   }
 
   public static class MockMetaServerProvider implements MetaServerProvider {
@@ -91,7 +92,7 @@ public class MetaDomainTest extends BaseIntegrationTest {
 
     @Override
     public int getOrder() {
-      return LegacyMetaServerProvider.ORDER - 1;// just in front of LegacyMetaServerProvider
+      return LegacyMetaServerProvider.ORDER - 1; // just in front of LegacyMetaServerProvider
     }
   }
 }

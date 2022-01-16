@@ -32,8 +32,7 @@ public class ConfigChangeEvent {
    * @param namespace the namespace of this change
    * @param changes the actual changes
    */
-  public ConfigChangeEvent(String namespace,
-                           Map<String, ConfigChange> changes) {
+  public ConfigChangeEvent(String namespace, Map<String, ConfigChange> changes) {
     this.m_namespace = namespace;
     this.m_changes = changes;
   }
@@ -48,7 +47,7 @@ public class ConfigChangeEvent {
 
   /**
    * Maybe subclass override this method.
-   * 
+   *
    * @return interested and changed keys
    */
   public Set<String> interestedChangedKeys() {

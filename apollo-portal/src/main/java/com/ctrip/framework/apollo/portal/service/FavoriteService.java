@@ -23,12 +23,11 @@ import com.ctrip.framework.apollo.portal.repository.FavoriteRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.base.Strings;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FavoriteService {
@@ -48,7 +47,6 @@ public class FavoriteService {
     this.userService = userService;
   }
 
-
   public Favorite addFavorite(Favorite favorite) {
     UserInfo user = userService.findByUserId(favorite.getUserId());
     if (user == null) {
@@ -56,13 +54,14 @@ public class FavoriteService {
     }
 
     UserInfo loginUser = userInfoHolder.getUser();
-    //user can only add himself favorite app
+    // user can only add himself favorite app
     if (!loginUser.equals(user)) {
-      throw new BadRequestException("add favorite fail. "
-                                    + "because favorite's user is not current login user.");
+      throw new BadRequestException(
+          "add favorite fail. " + "because favorite's user is not current login user.");
     }
 
-    Favorite checkedFavorite = favoriteRepository.findByUserIdAndAppId(loginUser.getUserId(), favorite.getAppId());
+    Favorite checkedFavorite =
+        favoriteRepository.findByUserIdAndAppId(loginUser.getUserId(), favorite.getAppId());
     if (checkedFavorite != null) {
       return checkedFavorite;
     }
@@ -74,7 +73,6 @@ public class FavoriteService {
     return favoriteRepository.save(favorite);
   }
 
-
   public List<Favorite> search(String userId, String appId, Pageable page) {
     boolean isUserIdEmpty = Strings.isNullOrEmpty(userId);
     boolean isAppIdEmpty = Strings.isNullOrEmpty(appId);
@@ -85,23 +83,24 @@ public class FavoriteService {
 
     if (!isUserIdEmpty) {
       UserInfo loginUser = userInfoHolder.getUser();
-      //user can only search his own favorite app
+      // user can only search his own favorite app
       if (!Objects.equals(loginUser.getUserId(), userId)) {
         userId = loginUser.getUserId();
       }
     }
 
-    //search by userId
+    // search by userId
     if (isAppIdEmpty && !isUserIdEmpty) {
-      return favoriteRepository.findByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId, page);
+      return favoriteRepository.findByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(
+          userId, page);
     }
 
-    //search by appId
+    // search by appId
     if (!isAppIdEmpty && isUserIdEmpty) {
       return favoriteRepository.findByAppIdOrderByPositionAscDataChangeCreatedTimeAsc(appId, page);
     }
 
-    //search by userId and appId
+    // search by userId and appId
     return Collections.singletonList(favoriteRepository.findByUserIdAndAppId(userId, appId));
   }
 
@@ -119,7 +118,8 @@ public class FavoriteService {
     checkUserOperatePermission(favorite);
 
     String userId = favorite.getUserId();
-    Favorite firstFavorite = favoriteRepository.findFirstByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId);
+    Favorite firstFavorite =
+        favoriteRepository.findFirstByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId);
     long minPosition = firstFavorite.getPosition();
 
     favorite.setPosition(minPosition - 1);

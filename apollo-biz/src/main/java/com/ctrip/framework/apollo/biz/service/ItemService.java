@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.entity.Item;
@@ -26,17 +25,15 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class ItemService {
@@ -57,7 +54,6 @@ public class ItemService {
     this.bizConfig = bizConfig;
   }
 
-
   @Transactional
   public Item delete(long id, String operator) {
     Item item = itemRepository.findById(id).orElse(null);
@@ -76,7 +72,6 @@ public class ItemService {
   @Transactional
   public int batchDelete(long namespaceId, String operator) {
     return itemRepository.deleteByNamespaceId(namespaceId, operator);
-
   }
 
   public Item findOne(String appId, String clusterName, String namespaceName, String key) {
@@ -113,7 +108,8 @@ public class ItemService {
     return items;
   }
 
-  public List<Item> findItemsWithoutOrdered(String appId, String clusterName, String namespaceName) {
+  public List<Item> findItemsWithoutOrdered(
+      String appId, String clusterName, String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace != null) {
       return findItemsWithoutOrdered(namespace.getId());
@@ -138,7 +134,8 @@ public class ItemService {
   }
 
   public List<Item> findItemsModifiedAfterDate(long namespaceId, Date date) {
-    return itemRepository.findByNamespaceIdAndDataChangeLastModifiedTimeGreaterThan(namespaceId, date);
+    return itemRepository.findByNamespaceIdAndDataChangeLastModifiedTimeGreaterThan(
+        namespaceId, date);
   }
 
   public Page<Item> findItemsByKey(String key, Pageable pageable) {
@@ -150,7 +147,7 @@ public class ItemService {
     checkItemKeyLength(entity.getKey());
     checkItemValueLength(entity.getNamespaceId(), entity.getValue());
 
-    entity.setId(0);//protection
+    entity.setId(0); // protection
 
     if (entity.getLineNum() == 0) {
       Item lastItem = findLastOne(entity.getNamespaceId());
@@ -160,8 +157,8 @@ public class ItemService {
 
     Item item = itemRepository.save(entity);
 
-    auditService.audit(Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT,
-                       item.getDataChangeCreatedBy());
+    auditService.audit(
+        Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT, item.getDataChangeCreatedBy());
 
     return item;
   }
@@ -170,7 +167,7 @@ public class ItemService {
   public Item saveComment(Item entity) {
     entity.setKey("");
     entity.setValue("");
-    entity.setId(0);//protection
+    entity.setId(0); // protection
 
     if (entity.getLineNum() == 0) {
       Item lastItem = findLastOne(entity.getNamespaceId());
@@ -180,8 +177,8 @@ public class ItemService {
 
     Item item = itemRepository.save(entity);
 
-    auditService.audit(Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT,
-                       item.getDataChangeCreatedBy());
+    auditService.audit(
+        Item.class.getSimpleName(), item.getId(), Audit.OP.INSERT, item.getDataChangeCreatedBy());
 
     return item;
   }
@@ -193,8 +190,11 @@ public class ItemService {
     BeanUtils.copyEntityProperties(item, managedItem);
     managedItem = itemRepository.save(managedItem);
 
-    auditService.audit(Item.class.getSimpleName(), managedItem.getId(), Audit.OP.UPDATE,
-                       managedItem.getDataChangeLastModifiedBy());
+    auditService.audit(
+        Item.class.getSimpleName(),
+        managedItem.getId(),
+        Audit.OP.UPDATE,
+        managedItem.getDataChangeLastModifiedBy());
 
     return managedItem;
   }
@@ -216,10 +216,10 @@ public class ItemService {
 
   private int getItemValueLengthLimit(long namespaceId) {
     Map<Long, Integer> namespaceValueLengthOverride = bizConfig.namespaceValueLengthLimitOverride();
-    if (namespaceValueLengthOverride != null && namespaceValueLengthOverride.containsKey(namespaceId)) {
+    if (namespaceValueLengthOverride != null
+        && namespaceValueLengthOverride.containsKey(namespaceId)) {
       return namespaceValueLengthOverride.get(namespaceId);
     }
     return bizConfig.itemValueLengthLimit();
   }
-
 }

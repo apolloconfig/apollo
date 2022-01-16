@@ -28,11 +28,13 @@ public class NotFoundExceptionTest {
     String namespaceName = "application";
     String key = "test.key";
     NotFoundException e1, e2;
-    e1 = new NotFoundException("item not found for %s %s %s %s", appId,
-        clusterName, namespaceName, key);
-    e2 = new NotFoundException(
-        String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
+    e1 =
+        new NotFoundException(
+            "item not found for %s %s %s %s", appId, clusterName, namespaceName, key);
+    e2 =
+        new NotFoundException(
+            String.format(
+                "item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
     Assert.assertEquals(e1.getMessage(), e2.getMessage());
   }
-
 }

@@ -38,8 +38,7 @@ import org.springframework.http.HttpHeaders;
 @RunWith(MockitoJUnitRunner.class)
 public class AdminServiceAuthenticationFilterTest {
 
-  @Mock
-  private BizConfig bizConfig;
+  @Mock private BizConfig bizConfig;
   private HttpServletRequest servletRequest;
   private HttpServletResponse servletResponse;
   private FilterChain filterChain;
@@ -123,7 +122,6 @@ public class AdminServiceAuthenticationFilterTest {
         .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, never()).doFilter(servletRequest, servletResponse);
   }
-
 
   @Test
   public void testWithAccessControlEnabledWithMultipleTokenSpecifiedWithValidTokenPassed()

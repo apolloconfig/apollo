@@ -49,8 +49,7 @@ public interface UserInfoEnrichedAdapter {
    *
    * @param userDisplayName user display name
    */
-  default void setSecondUserDisplayName(String userDisplayName) {
-  }
+  default void setSecondUserDisplayName(String userDisplayName) {}
 
   /**
    * get operator id from the object
@@ -66,6 +65,5 @@ public interface UserInfoEnrichedAdapter {
    *
    * @param userDisplayName user display name
    */
-  default void setThirdUserDisplayName(String userDisplayName) {
-  }
+  default void setThirdUserDisplayName(String userDisplayName) {}
 }

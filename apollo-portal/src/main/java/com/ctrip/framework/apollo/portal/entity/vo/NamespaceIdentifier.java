@@ -16,9 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.entity.vo;
 
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.entity.model.Verifiable;
+import com.ctrip.framework.apollo.portal.environment.Env;
 
 public class NamespaceIdentifier implements Verifiable {
   private String appId;
@@ -58,7 +58,6 @@ public class NamespaceIdentifier implements Verifiable {
     this.namespaceName = namespaceName;
   }
 
-
   @Override
   public boolean isInvalid() {
     return StringUtils.isContainEmpty(env, clusterName, namespaceName);
@@ -66,11 +65,19 @@ public class NamespaceIdentifier implements Verifiable {
 
   @Override
   public String toString() {
-    return "NamespaceIdentifer{" +
-        "appId='" + appId + '\'' +
-        ", env='" + env + '\'' +
-        ", clusterName='" + clusterName + '\'' +
-        ", namespaceName='" + namespaceName + '\'' +
-        '}';
+    return "NamespaceIdentifer{"
+        + "appId='"
+        + appId
+        + '\''
+        + ", env='"
+        + env
+        + '\''
+        + ", clusterName='"
+        + clusterName
+        + '\''
+        + ", namespaceName='"
+        + namespaceName
+        + '\''
+        + '}';
   }
 }

@@ -17,14 +17,12 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "Commit")
@@ -90,7 +88,12 @@ public class Commit extends BaseEntity {
 
   @Override
   public String toString() {
-    return toStringHelper().add("changeSets", changeSets).add("appId", appId).add("clusterName", clusterName)
-        .add("namespaceName", namespaceName).add("comment", comment).toString();
+    return toStringHelper()
+        .add("changeSets", changeSets)
+        .add("appId", appId)
+        .add("clusterName", clusterName)
+        .add("namespaceName", namespaceName)
+        .add("comment", comment)
+        .toString();
   }
 }

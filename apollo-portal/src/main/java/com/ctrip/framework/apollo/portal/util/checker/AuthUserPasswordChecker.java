@@ -25,26 +25,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserPasswordChecker implements UserPasswordChecker {
 
-  private static final Pattern PWD_PATTERN = Pattern
-      .compile("^(?=.*[0-9].*)(?=.*[a-zA-Z].*).{8,20}$");
+  private static final Pattern PWD_PATTERN =
+      Pattern.compile("^(?=.*[0-9].*)(?=.*[a-zA-Z].*).{8,20}$");
 
-  private static final List<String> LIST_OF_CODE_FRAGMENT = Arrays.asList(
-      "111", "222", "333", "444", "555", "666", "777", "888", "999", "000",
-      "001122", "112233", "223344", "334455", "445566", "556677", "667788", "778899", "889900",
-      "009988", "998877", "887766", "776655", "665544", "554433", "443322", "332211", "221100",
-      "0123", "1234", "2345", "3456", "4567", "5678", "6789", "7890",
-      "0987", "9876", "8765", "7654", "6543", "5432", "4321", "3210",
-      "1q2w", "2w3e", "3e4r", "5t6y", "abcd", "qwer", "asdf", "zxcv"
-  );
+  private static final List<String> LIST_OF_CODE_FRAGMENT =
+      Arrays.asList(
+          "111", "222", "333", "444", "555", "666", "777", "888", "999", "000", "001122", "112233",
+          "223344", "334455", "445566", "556677", "667788", "778899", "889900", "009988", "998877",
+          "887766", "776655", "665544", "554433", "443322", "332211", "221100", "0123", "1234",
+          "2345", "3456", "4567", "5678", "6789", "7890", "0987", "9876", "8765", "7654", "6543",
+          "5432", "4321", "3210", "1q2w", "2w3e", "3e4r", "5t6y", "abcd", "qwer", "asdf", "zxcv");
 
   @Override
   public CheckResult checkWeakPassword(String password) {
     if (!PWD_PATTERN.matcher(password).matches()) {
-      return new CheckResult(Boolean.FALSE,
-          "Password needs a number and letter and between 8~20 characters");
+      return new CheckResult(
+          Boolean.FALSE, "Password needs a number and letter and between 8~20 characters");
     }
     if (isCommonlyUsed(password)) {
-      return new CheckResult(Boolean.FALSE,
+      return new CheckResult(
+          Boolean.FALSE,
           "Passwords cannot be consecutive, regular letters or numbers. And cannot be commonly used. "
               + "e.g: abcd1234, 1234qwer, 1q2w3e4r, 1234asdfghjk, ...");
     }

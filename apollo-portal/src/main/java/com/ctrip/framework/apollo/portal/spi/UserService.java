@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.spi;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-
 import java.util.List;
 
 /**
@@ -29,5 +28,4 @@ public interface UserService {
   UserInfo findByUserId(String userId);
 
   List<UserInfo> findByUserIds(List<String> userIds);
-
 }

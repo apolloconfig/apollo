@@ -17,18 +17,17 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
-import com.ctrip.framework.apollo.openapi.service.ConsumerService;
-import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.service.ConsumerService;
+import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController("openapiAppController")
 @RequestMapping("/openapi/v1")
@@ -48,12 +47,13 @@ public class AppController {
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")
-  public List<OpenEnvClusterDTO> getEnvClusterInfo(@PathVariable String appId){
+  public List<OpenEnvClusterDTO> getEnvClusterInfo(@PathVariable String appId) {
     return this.appOpenApiService.getEnvClusterInfo(appId);
   }
 
   @GetMapping("/apps")
-  public List<OpenAppDTO> findApps(@RequestParam(value = "appIds", required = false) String appIds) {
+  public List<OpenAppDTO> findApps(
+      @RequestParam(value = "appIds", required = false) String appIds) {
     if (StringUtils.hasText(appIds)) {
       return this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(",")));
     } else {
@@ -72,5 +72,4 @@ public class AppController {
 
     return this.appOpenApiService.getAppsInfo(new ArrayList<>(appIds));
   }
-
 }

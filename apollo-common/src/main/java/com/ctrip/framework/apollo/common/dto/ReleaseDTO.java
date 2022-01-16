@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-public class ReleaseDTO extends BaseDTO{
+public class ReleaseDTO extends BaseDTO {
   private long id;
 
   private String releaseKey;

@@ -41,9 +41,6 @@ public class OpenEnvClusterDTO {
 
   @Override
   public String toString() {
-    return "OpenEnvClusterDTO{" +
-        "env='" + env + '\'' +
-        ", clusters=" + clusters +
-        '}';
+    return "OpenEnvClusterDTO{" + "env='" + env + '\'' + ", clusters=" + clusters + '}';
   }
 }

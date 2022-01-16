@@ -30,15 +30,17 @@ public class ApolloClientPropertiesFactory {
   public static final String PROPERTIES_PREFIX = "apollo.client";
 
   public ApolloClientProperties createApolloClientProperties(
-      Binder binder,
-      BindHandler bindHandler) {
-    return binder.bind(PROPERTIES_PREFIX,
-        Bindable.of(ApolloClientProperties.class), bindHandler).orElse(null);
+      Binder binder, BindHandler bindHandler) {
+    return binder
+        .bind(PROPERTIES_PREFIX, Bindable.of(ApolloClientProperties.class), bindHandler)
+        .orElse(null);
   }
 
-  public OAuth2ClientProperties createOauth2ClientProperties(Binder binder,
-      BindHandler bindHandler) {
-    return binder.bind("spring.security.oauth2.client", Bindable.of(OAuth2ClientProperties.class),
-        bindHandler).orElse(null);
+  public OAuth2ClientProperties createOauth2ClientProperties(
+      Binder binder, BindHandler bindHandler) {
+    return binder
+        .bind(
+            "spring.security.oauth2.client", Bindable.of(OAuth2ClientProperties.class), bindHandler)
+        .orElse(null);
   }
 }

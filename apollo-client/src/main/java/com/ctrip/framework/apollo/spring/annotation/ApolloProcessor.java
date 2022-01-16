@@ -59,32 +59,36 @@ public abstract class ApolloProcessor implements BeanPostProcessor, PriorityOrde
    */
   protected abstract void processMethod(Object bean, String beanName, Method method);
 
-
   @Override
   public int getOrder() {
-    //make it as late as possible
+    // make it as late as possible
     return Ordered.LOWEST_PRECEDENCE;
   }
 
   private List<Field> findAllField(Class clazz) {
     final List<Field> res = new LinkedList<>();
-    ReflectionUtils.doWithFields(clazz, new ReflectionUtils.FieldCallback() {
-      @Override
-      public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
-        res.add(field);
-      }
-    });
+    ReflectionUtils.doWithFields(
+        clazz,
+        new ReflectionUtils.FieldCallback() {
+          @Override
+          public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+            res.add(field);
+          }
+        });
     return res;
   }
 
   private List<Method> findAllMethod(Class clazz) {
     final List<Method> res = new LinkedList<>();
-    ReflectionUtils.doWithMethods(clazz, new ReflectionUtils.MethodCallback() {
-      @Override
-      public void doWith(Method method) throws IllegalArgumentException, IllegalAccessException {
-        res.add(method);
-      }
-    });
+    ReflectionUtils.doWithMethods(
+        clazz,
+        new ReflectionUtils.MethodCallback() {
+          @Override
+          public void doWith(Method method)
+              throws IllegalArgumentException, IllegalAccessException {
+            res.add(method);
+          }
+        });
     return res;
   }
 }

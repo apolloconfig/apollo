@@ -37,11 +37,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultDiscoveryServiceTest {
 
-  @Mock
-  private EurekaClient eurekaClient;
+  @Mock private EurekaClient eurekaClient;
 
-  @Mock
-  private Application someApplication;
+  @Mock private Application someApplication;
 
   private DefaultDiscoveryService defaultDiscoveryService;
 
@@ -73,13 +71,12 @@ public class DefaultDiscoveryServiceTest {
   public void testGetServiceInstances() throws URISyntaxException {
     String someUri = "http://1.2.3.4:8080/some-path/";
     String someInstanceId = "someInstanceId";
-    InstanceInfo someServiceInstance = mockServiceInstance(someServiceId, someInstanceId,
-        someUri);
+    InstanceInfo someServiceInstance = mockServiceInstance(someServiceId, someInstanceId, someUri);
 
     String anotherUri = "http://2.3.4.5:9090/anotherPath";
     String anotherInstanceId = "anotherInstanceId";
-    InstanceInfo anotherServiceInstance = mockServiceInstance(someServiceId, anotherInstanceId,
-        anotherUri);
+    InstanceInfo anotherServiceInstance =
+        mockServiceInstance(someServiceId, anotherInstanceId, anotherUri);
 
     when(eurekaClient.getApplication(someServiceId)).thenReturn(someApplication);
     when(someApplication.getInstances())
@@ -98,7 +95,8 @@ public class DefaultDiscoveryServiceTest {
     assertEquals(serviceInstance.getHomePageUrl(), serviceDTO.getHomepageUrl());
   }
 
-  private InstanceInfo mockServiceInstance(String serviceId, String instanceId, String homePageUrl) {
+  private InstanceInfo mockServiceInstance(
+      String serviceId, String instanceId, String homePageUrl) {
     InstanceInfo serviceInstance = mock(InstanceInfo.class);
     when(serviceInstance.getAppName()).thenReturn(serviceId);
     when(serviceInstance.getInstanceId()).thenReturn(instanceId);

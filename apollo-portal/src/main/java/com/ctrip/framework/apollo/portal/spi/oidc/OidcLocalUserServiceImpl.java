@@ -40,20 +40,21 @@ import org.springframework.util.CollectionUtils;
  */
 public class OidcLocalUserServiceImpl implements OidcLocalUserService {
 
-  private final Collection<? extends GrantedAuthority> authorities = Collections
-      .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+  private final Collection<? extends GrantedAuthority> authorities =
+      Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
-  private final PasswordEncoder placeholderDelegatingPasswordEncoder = new DelegatingPasswordEncoder(
-      PlaceholderPasswordEncoder.ENCODING_ID, Collections
-      .singletonMap(PlaceholderPasswordEncoder.ENCODING_ID, new PlaceholderPasswordEncoder()));
+  private final PasswordEncoder placeholderDelegatingPasswordEncoder =
+      new DelegatingPasswordEncoder(
+          PlaceholderPasswordEncoder.ENCODING_ID,
+          Collections.singletonMap(
+              PlaceholderPasswordEncoder.ENCODING_ID, new PlaceholderPasswordEncoder()));
 
   private final JdbcUserDetailsManager userDetailsManager;
 
   private final UserRepository userRepository;
 
   public OidcLocalUserServiceImpl(
-      JdbcUserDetailsManager userDetailsManager,
-      UserRepository userRepository) {
+      JdbcUserDetailsManager userDetailsManager, UserRepository userRepository) {
     this.userDetailsManager = userDetailsManager;
     this.userRepository = userRepository;
   }
@@ -61,8 +62,11 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
   @Transactional(rollbackFor = Exception.class)
   @Override
   public void createLocalUser(UserInfo newUserInfo) {
-    UserDetails user = new User(newUserInfo.getUserId(),
-        this.placeholderDelegatingPasswordEncoder.encode(""), authorities);
+    UserDetails user =
+        new User(
+            newUserInfo.getUserId(),
+            this.placeholderDelegatingPasswordEncoder.encode(""),
+            authorities);
     userDetailsManager.createUser(user);
     this.updateUserInfoInternal(newUserInfo);
   }
@@ -90,8 +94,7 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 
   private List<UserPO> findUsers(String keyword) {
@@ -99,10 +102,9 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
       return userRepository.findFirst20ByEnabled(1);
     }
     List<UserPO> users = new ArrayList<>();
-    List<UserPO> byUsername = userRepository
-        .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-    List<UserPO> byUserDisplayName = userRepository
-        .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUsername = userRepository.findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUserDisplayName =
+        userRepository.findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
     if (!CollectionUtils.isEmpty(byUsername)) {
       users.addAll(byUsername);
     }
@@ -124,7 +126,6 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 }

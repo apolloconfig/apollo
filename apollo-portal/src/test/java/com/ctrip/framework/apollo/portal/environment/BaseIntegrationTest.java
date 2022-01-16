@@ -16,17 +16,17 @@
  */
 package com.ctrip.framework.apollo.portal.environment;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.junit.After;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.ServerSocket;
 
 public abstract class BaseIntegrationTest {
   protected static final int PORT = findFreePort();
@@ -47,7 +47,6 @@ public abstract class BaseIntegrationTest {
     return server;
   }
 
-
   @After
   public void tearDown() throws Exception {
     if (server != null && server.isStarted()) {
@@ -57,18 +56,23 @@ public abstract class BaseIntegrationTest {
 
   ContextHandler mockServerHandler(final int statusCode, final String response) {
     ContextHandler context = new ContextHandler("/");
-    context.setHandler(new AbstractHandler() {
+    context.setHandler(
+        new AbstractHandler() {
 
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
+          @Override
+          public void handle(
+              String target,
+              Request baseRequest,
+              HttpServletRequest request,
+              HttpServletResponse response)
+              throws IOException, ServletException {
 
-        response.setContentType("text/plain;charset=UTF-8");
-        response.setStatus(statusCode);
-        response.getWriter().println(response);
-        baseRequest.setHandled(true);
-      }
-    });
+            response.setContentType("text/plain;charset=UTF-8");
+            response.setStatus(statusCode);
+            response.getWriter().println(response);
+            baseRequest.setHandled(true);
+          }
+        });
     return context;
   }
 
@@ -102,6 +106,7 @@ public abstract class BaseIntegrationTest {
         }
       }
     }
-    throw new IllegalStateException("Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
+    throw new IllegalStateException(
+        "Could not find a free TCP/IP port to start embedded Jetty HTTP Server on");
   }
 }

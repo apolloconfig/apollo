@@ -86,12 +86,14 @@ public class YamlParserTest {
     Properties nonOrderedProperties = parser.yamlToProperties(yamlContent);
 
     PropertiesFactory propertiesFactory = mock(PropertiesFactory.class);
-    when(propertiesFactory.getPropertiesInstance()).thenAnswer(new Answer<Properties>() {
-      @Override
-      public Properties answer(InvocationOnMock invocation) {
-        return new OrderedProperties();
-      }
-    });
+    when(propertiesFactory.getPropertiesInstance())
+        .thenAnswer(
+            new Answer<Properties>() {
+              @Override
+              public Properties answer(InvocationOnMock invocation) {
+                return new OrderedProperties();
+              }
+            });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
 
     parser = new YamlParser();
@@ -136,15 +138,14 @@ public class YamlParserTest {
 
     Properties actual = parser.yamlToProperties(yamlContent);
 
-    assertTrue("expected: " + expected + " actual: " + actual, checkPropertiesEquals(expected, actual));
+    assertTrue(
+        "expected: " + expected + " actual: " + actual, checkPropertiesEquals(expected, actual));
   }
 
   private boolean checkPropertiesEquals(Properties expected, Properties actual) {
-    if (expected == actual)
-      return true;
+    if (expected == actual) return true;
 
-    if (expected.size() != actual.size())
-      return false;
+    if (expected.size() != actual.size()) return false;
 
     for (Object key : expected.keySet()) {
       if (!expected.getProperty((String) key).equals(actual.getProperty((String) key))) {

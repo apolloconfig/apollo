@@ -37,8 +37,7 @@ public class AccessKeyController {
 
   private final AccessKeyService accessKeyService;
 
-  public AccessKeyController(
-      AccessKeyService accessKeyService) {
+  public AccessKeyController(AccessKeyService accessKeyService) {
     this.accessKeyService = accessKeyService;
   }
 

@@ -41,7 +41,10 @@ public interface ApolloClientWebClientCustomizerFactory extends Ordered {
    * @return WebClientCustomizer instance or null
    */
   @Nullable
-  WebClientCustomizer createWebClientCustomizer(ApolloClientProperties apolloClientProperties,
-      Binder binder, BindHandler bindHandler, Log log,
+  WebClientCustomizer createWebClientCustomizer(
+      ApolloClientProperties apolloClientProperties,
+      Binder binder,
+      BindHandler bindHandler,
+      Log log,
       ConfigurableBootstrapContext bootstrapContext);
 }

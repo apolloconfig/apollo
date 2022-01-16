@@ -25,19 +25,21 @@ import java.io.InputStreamReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public class AnnotationApplication {
   public static void main(String[] args) throws IOException {
-    ApplicationContext context = new AnnotationConfigApplicationContext("com.ctrip.framework.apollo.demo.spring.common");
+    ApplicationContext context =
+        new AnnotationConfigApplicationContext("com.ctrip.framework.apollo.demo.spring.common");
     AnnotatedBean annotatedBean = context.getBean(AnnotatedBean.class);
 
-    System.out.println("AnnotationApplication Demo. Input any key except quit to print the values. Input quit to exit.");
+    System.out.println(
+        "AnnotationApplication Demo. Input any key except quit to print the values. Input quit to exit.");
     while (true) {
       System.out.print("> ");
-      String input = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
+      String input =
+          new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
       if (!Strings.isNullOrEmpty(input) && input.trim().equalsIgnoreCase("quit")) {
         System.exit(0);
       }

@@ -21,27 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.ctrip.framework.apollo.util.OrderedProperties;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ContextHandler;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.test.util.ReflectionTestUtils;
-
 import com.ctrip.framework.apollo.BaseIntegrationTest;
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
@@ -53,11 +32,29 @@ import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.ctrip.framework.apollo.core.utils.ClassLoaderUtil;
 import com.ctrip.framework.apollo.internals.RemoteConfigLongPollService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
+import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.SettableFuture;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.ContextHandler;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -107,7 +104,6 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     } catch (IOException e) {
       e.printStackTrace();
     }
-
   }
 
   @Test
@@ -147,7 +143,6 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     Iterator<String> it = propertyNames.iterator();
     assertEquals(someKey1, it.next());
     assertEquals(someKey2, it.next());
-
   }
 
   @Test
@@ -206,7 +201,6 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     assertEquals(someKey1, it.next());
     assertEquals(someKey2, it.next());
     assertEquals(anotherValue1, config.getProperty(someKey1, ""));
-
   }
 
   @Test
@@ -319,24 +313,25 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     final List<ConfigChangeEvent> changeEvents = Lists.newArrayList();
 
     final SettableFuture<Boolean> refreshFinished = SettableFuture.create();
-    config.addChangeListener(new ConfigChangeListener() {
-      AtomicInteger counter = new AtomicInteger(0);
+    config.addChangeListener(
+        new ConfigChangeListener() {
+          AtomicInteger counter = new AtomicInteger(0);
 
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        //only need to assert once
-        if (counter.incrementAndGet() > 1) {
-          return;
-        }
-        assertEquals(1, changeEvent.changedKeys().size());
-        assertTrue(changeEvent.isChanged(someKey));
-        assertEquals(someValue, changeEvent.getChange(someKey).getOldValue());
-        assertEquals(anotherValue, changeEvent.getChange(someKey).getNewValue());
-        // if there is any assertion failed above, this line won't be executed
-        changeEvents.add(changeEvent);
-        refreshFinished.set(true);
-      }
-    });
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            // only need to assert once
+            if (counter.incrementAndGet() > 1) {
+              return;
+            }
+            assertEquals(1, changeEvent.changedKeys().size());
+            assertTrue(changeEvent.isChanged(someKey));
+            assertEquals(someValue, changeEvent.getChange(someKey).getOldValue());
+            assertEquals(anotherValue, changeEvent.getChange(someKey).getNewValue());
+            // if there is any assertion failed above, this line won't be executed
+            changeEvents.add(changeEvent);
+            refreshFinished.set(true);
+          }
+        });
 
     apolloConfig.getConfigurations().put(someKey, anotherValue);
 
@@ -344,7 +339,8 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
 
     assertThat(
         "Change event's size should equal to one or there must be some assertion failed in change listener",
-        1, equalTo(changeEvents.size()));
+        1,
+        equalTo(changeEvents.size()));
     assertEquals(anotherValue, config.getProperty(someKey, null));
   }
 
@@ -361,7 +357,9 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     ApolloConfig apolloConfig = assembleApolloConfig(configurations);
     ContextHandler configHandler = mockConfigServerHandler(HttpServletResponse.SC_OK, apolloConfig);
     ContextHandler pollHandler =
-        mockPollNotificationHandler(pollTimeoutInMS, HttpServletResponse.SC_OK,
+        mockPollNotificationHandler(
+            pollTimeoutInMS,
+            HttpServletResponse.SC_OK,
             Lists.newArrayList(
                 new ApolloConfigNotification(apolloConfig.getNamespaceName(), someNotificationId)),
             false);
@@ -373,12 +371,13 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
 
     final SettableFuture<Boolean> longPollFinished = SettableFuture.create();
 
-    config.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        longPollFinished.set(true);
-      }
-    });
+    config.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            longPollFinished.set(true);
+          }
+        });
 
     apolloConfig.getConfigurations().put(someKey, anotherValue);
 
@@ -401,7 +400,9 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     ApolloConfig apolloConfig = assembleApolloConfig(configurations);
     ContextHandler configHandler = mockConfigServerHandler(HttpServletResponse.SC_OK, apolloConfig);
     ContextHandler pollHandler =
-        mockPollNotificationHandler(pollTimeoutInMS, HttpServletResponse.SC_OK,
+        mockPollNotificationHandler(
+            pollTimeoutInMS,
+            HttpServletResponse.SC_OK,
             Lists.newArrayList(
                 new ApolloConfigNotification(apolloConfig.getNamespaceName(), someNotificationId)),
             false);
@@ -415,12 +416,13 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
 
     final SettableFuture<Boolean> longPollFinished = SettableFuture.create();
 
-    config.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        longPollFinished.set(true);
-      }
-    });
+    config.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            longPollFinished.set(true);
+          }
+        });
 
     apolloConfig.getConfigurations().put(someKey, anotherValue);
 
@@ -446,7 +448,9 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     ApolloConfig apolloConfig = assembleApolloConfig(configurations);
     ContextHandler configHandler = mockConfigServerHandler(HttpServletResponse.SC_OK, apolloConfig);
     ContextHandler pollHandler =
-        mockPollNotificationHandler(pollTimeoutInMS, HttpServletResponse.SC_OK,
+        mockPollNotificationHandler(
+            pollTimeoutInMS,
+            HttpServletResponse.SC_OK,
             Lists.newArrayList(
                 new ApolloConfigNotification(apolloConfig.getNamespaceName(), someNotificationId),
                 new ApolloConfigNotification(someOtherNamespace, someNotificationId)),
@@ -462,18 +466,20 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
     final SettableFuture<Boolean> longPollFinished = SettableFuture.create();
     final SettableFuture<Boolean> someOtherNamespacelongPollFinished = SettableFuture.create();
 
-    config.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        longPollFinished.set(true);
-      }
-    });
-    someOtherConfig.addChangeListener(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        someOtherNamespacelongPollFinished.set(true);
-      }
-    });
+    config.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            longPollFinished.set(true);
+          }
+        });
+    someOtherConfig.addChangeListener(
+        new ConfigChangeListener() {
+          @Override
+          public void onChange(ConfigChangeEvent changeEvent) {
+            someOtherNamespacelongPollFinished.set(true);
+          }
+        });
 
     apolloConfig.getConfigurations().put(someKey, anotherValue);
 
@@ -482,65 +488,74 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
 
     assertEquals(anotherValue, config.getProperty(someKey, null));
     assertEquals(anotherValue, someOtherConfig.getProperty(someKey, null));
-
   }
 
-  private ContextHandler mockPollNotificationHandler(final long pollResultTimeOutInMS,
+  private ContextHandler mockPollNotificationHandler(
+      final long pollResultTimeOutInMS,
       final int statusCode,
       final List<ApolloConfigNotification> result,
       final boolean failedAtFirstTime) {
     ContextHandler context = new ContextHandler("/notifications/v2");
-    context.setHandler(new AbstractHandler() {
-      AtomicInteger counter = new AtomicInteger(0);
+    context.setHandler(
+        new AbstractHandler() {
+          AtomicInteger counter = new AtomicInteger(0);
 
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
-        if (failedAtFirstTime && counter.incrementAndGet() == 1) {
-          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-          baseRequest.setHandled(true);
-          return;
-        }
+          @Override
+          public void handle(
+              String target,
+              Request baseRequest,
+              HttpServletRequest request,
+              HttpServletResponse response)
+              throws IOException, ServletException {
+            if (failedAtFirstTime && counter.incrementAndGet() == 1) {
+              response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+              baseRequest.setHandled(true);
+              return;
+            }
 
-        try {
-          TimeUnit.MILLISECONDS.sleep(pollResultTimeOutInMS);
-        } catch (InterruptedException e) {
-        }
+            try {
+              TimeUnit.MILLISECONDS.sleep(pollResultTimeOutInMS);
+            } catch (InterruptedException e) {
+            }
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(statusCode);
-        response.getWriter().println(gson.toJson(result));
-        baseRequest.setHandled(true);
-      }
-    });
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(statusCode);
+            response.getWriter().println(gson.toJson(result));
+            baseRequest.setHandled(true);
+          }
+        });
 
     return context;
   }
 
-  private ContextHandler mockConfigServerHandler(final int statusCode, final ApolloConfig result,
-      final boolean failedAtFirstTime) {
+  private ContextHandler mockConfigServerHandler(
+      final int statusCode, final ApolloConfig result, final boolean failedAtFirstTime) {
     ContextHandler context = new ContextHandler("/configs/*");
-    context.setHandler(new AbstractHandler() {
-      AtomicInteger counter = new AtomicInteger(0);
+    context.setHandler(
+        new AbstractHandler() {
+          AtomicInteger counter = new AtomicInteger(0);
 
-      @Override
-      public void handle(String target, Request baseRequest, HttpServletRequest request,
-          HttpServletResponse response) throws IOException, ServletException {
-        if (failedAtFirstTime && counter.incrementAndGet() == 1) {
-          response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-          baseRequest.setHandled(true);
-          return;
-        }
+          @Override
+          public void handle(
+              String target,
+              Request baseRequest,
+              HttpServletRequest request,
+              HttpServletResponse response)
+              throws IOException, ServletException {
+            if (failedAtFirstTime && counter.incrementAndGet() == 1) {
+              response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+              baseRequest.setHandled(true);
+              return;
+            }
 
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(statusCode);
-        response.getWriter().println(gson.toJson(result));
-        baseRequest.setHandled(true);
-      }
-    });
+            response.setContentType("application/json;charset=UTF-8");
+            response.setStatus(statusCode);
+            response.getWriter().println(gson.toJson(result));
+            baseRequest.setHandled(true);
+          }
+        });
     return context;
   }
-
 
   private ContextHandler mockConfigServerHandler(int statusCode, ApolloConfig result) {
     return mockConfigServerHandler(statusCode, result, false);
@@ -564,7 +579,9 @@ public class ConfigIntegrationTest extends BaseIntegrationTest {
   }
 
   private String assembleLocalCacheFileName() {
-    return String.format("%s.properties", Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-        .join(someAppId, someClusterName, defaultNamespace));
+    return String.format(
+        "%s.properties",
+        Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+            .join(someAppId, someClusterName, defaultNamespace));
   }
 }

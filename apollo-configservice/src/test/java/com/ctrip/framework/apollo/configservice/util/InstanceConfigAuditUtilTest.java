@@ -16,21 +16,20 @@
  */
 package com.ctrip.framework.apollo.configservice.util;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.biz.entity.Instance;
 import com.ctrip.framework.apollo.biz.entity.InstanceConfig;
 import com.ctrip.framework.apollo.biz.service.InstanceService;
+import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -39,8 +38,7 @@ import static org.mockito.Mockito.*;
 public class InstanceConfigAuditUtilTest {
   private InstanceConfigAuditUtil instanceConfigAuditUtil;
 
-  @Mock
-  private InstanceService instanceService;
+  @Mock private InstanceService instanceService;
   private BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel> audits;
 
   private String someAppId;
@@ -58,8 +56,9 @@ public class InstanceConfigAuditUtilTest {
   public void setUp() throws Exception {
     instanceConfigAuditUtil = new InstanceConfigAuditUtil(instanceService);
 
-    audits = (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>)
-        ReflectionTestUtils.getField(instanceConfigAuditUtil, "audits");
+    audits =
+        (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>)
+            ReflectionTestUtils.getField(instanceConfigAuditUtil, "audits");
 
     someAppId = "someAppId";
     someClusterName = "someClusterName";
@@ -70,15 +69,30 @@ public class InstanceConfigAuditUtilTest {
     someConfigNamespace = "someConfigNamespace";
     someReleaseKey = "someReleaseKey";
 
-    someAuditModel = new InstanceConfigAuditUtil.InstanceConfigAuditModel(someAppId,
-        someClusterName, someDataCenter, someIp, someConfigAppId, someConfigClusterName,
-        someConfigNamespace, someReleaseKey);
+    someAuditModel =
+        new InstanceConfigAuditUtil.InstanceConfigAuditModel(
+            someAppId,
+            someClusterName,
+            someDataCenter,
+            someIp,
+            someConfigAppId,
+            someConfigClusterName,
+            someConfigNamespace,
+            someReleaseKey);
   }
 
   @Test
   public void testAudit() throws Exception {
-    boolean result = instanceConfigAuditUtil.audit(someAppId, someClusterName, someDataCenter,
-        someIp, someConfigAppId, someConfigClusterName, someConfigNamespace, someReleaseKey);
+    boolean result =
+        instanceConfigAuditUtil.audit(
+            someAppId,
+            someClusterName,
+            someDataCenter,
+            someIp,
+            someConfigAppId,
+            someConfigClusterName,
+            someConfigNamespace,
+            someReleaseKey);
 
     InstanceConfigAuditUtil.InstanceConfigAuditModel audit = audits.poll();
 
@@ -96,13 +110,11 @@ public class InstanceConfigAuditUtilTest {
 
     instanceConfigAuditUtil.doAudit(someAuditModel);
 
-    verify(instanceService, times(1)).findInstance(someAppId, someClusterName, someDataCenter,
-        someIp);
+    verify(instanceService, times(1))
+        .findInstance(someAppId, someClusterName, someDataCenter, someIp);
     verify(instanceService, times(1)).createInstance(any(Instance.class));
-    verify(instanceService, times(1)).findInstanceConfig(someInstanceId, someConfigAppId,
-        someConfigNamespace);
+    verify(instanceService, times(1))
+        .findInstanceConfig(someInstanceId, someConfigAppId, someConfigNamespace);
     verify(instanceService, times(1)).createInstanceConfig(any(InstanceConfig.class));
   }
-
-
 }

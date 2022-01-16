@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.vo;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-
 import java.util.Set;
 
 public class AppRolesAssignedUsers {

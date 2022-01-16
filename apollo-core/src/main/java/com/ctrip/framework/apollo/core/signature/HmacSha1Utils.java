@@ -34,10 +34,7 @@ public class HmacSha1Utils {
   public static String signString(String stringToSign, String accessKeySecret) {
     try {
       Mac mac = Mac.getInstance(ALGORITHM_NAME);
-      mac.init(new SecretKeySpec(
-          accessKeySecret.getBytes(ENCODING),
-          ALGORITHM_NAME
-      ));
+      mac.init(new SecretKeySpec(accessKeySecret.getBytes(ENCODING), ALGORITHM_NAME));
       byte[] signData = mac.doFinal(stringToSign.getBytes(ENCODING));
       return BaseEncoding.base64().encode(signData);
     } catch (NoSuchAlgorithmException | UnsupportedEncodingException | InvalidKeyException e) {

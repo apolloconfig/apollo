@@ -22,6 +22,7 @@ import org.junit.Test;
 
 public class ClassLoaderUtilTest {
   private static boolean shouldFailInInitialization = false;
+
   @Test
   public void testGetClassLoader() {
     assertNotNull(ClassLoaderUtil.getLoader());

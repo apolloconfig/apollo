@@ -36,7 +36,12 @@ import java.util.stream.Stream;
  * @author Diego Krupitza(info@diegokrupitza.com)
  */
 public enum ConfigFileFormat {
-  Properties("properties"), XML("xml"), JSON("json"), YML("yml"), YAML("yaml"), TXT("txt");
+  Properties("properties"),
+  XML("xml"),
+  JSON("json"),
+  YML("yml"),
+  YAML("yaml"),
+  TXT("txt");
 
   private final String value;
 

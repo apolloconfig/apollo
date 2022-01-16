@@ -23,18 +23,23 @@ import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
  */
 public interface ItemOpenApiService {
 
-  OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName,
-      String key);
+  OpenItemDTO getItem(
+      String appId, String env, String clusterName, String namespaceName, String key);
 
-  OpenItemDTO createItem(String appId, String env, String clusterName, String namespaceName,
-      OpenItemDTO itemDTO);
+  OpenItemDTO createItem(
+      String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO);
 
-  void updateItem(String appId, String env, String clusterName, String namespaceName,
-      OpenItemDTO itemDTO);
+  void updateItem(
+      String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO);
 
-  void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName,
-      OpenItemDTO itemDTO);
+  void createOrUpdateItem(
+      String appId, String env, String clusterName, String namespaceName, OpenItemDTO itemDTO);
 
-  void removeItem(String appId, String env, String clusterName, String namespaceName, String key,
+  void removeItem(
+      String appId,
+      String env,
+      String clusterName,
+      String namespaceName,
+      String key,
       String operator);
 }

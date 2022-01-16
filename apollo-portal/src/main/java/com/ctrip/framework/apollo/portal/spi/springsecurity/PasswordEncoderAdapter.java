@@ -31,8 +31,7 @@ public class PasswordEncoderAdapter implements PasswordEncoder {
 
   private final PasswordEncoder encoder;
 
-  public PasswordEncoderAdapter(
-      PasswordEncoder encoder) {
+  public PasswordEncoderAdapter(PasswordEncoder encoder) {
     this.encoder = encoder;
   }
 
@@ -69,5 +68,4 @@ public class PasswordEncoderAdapter implements PasswordEncoder {
     }
     return prefixEncodedPassword.substring(start + 1, end);
   }
-
 }

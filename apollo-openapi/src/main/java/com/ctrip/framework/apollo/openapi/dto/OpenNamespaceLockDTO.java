@@ -48,10 +48,15 @@ public class OpenNamespaceLockDTO {
 
   @Override
   public String toString() {
-    return "OpenNamespaceLockDTO{" +
-        "namespaceName='" + namespaceName + '\'' +
-        ", isLocked=" + isLocked +
-        ", lockedBy='" + lockedBy + '\'' +
-        '}';
+    return "OpenNamespaceLockDTO{"
+        + "namespaceName='"
+        + namespaceName
+        + '\''
+        + ", isLocked="
+        + isLocked
+        + ", lockedBy='"
+        + lockedBy
+        + '\''
+        + '}';
   }
 }

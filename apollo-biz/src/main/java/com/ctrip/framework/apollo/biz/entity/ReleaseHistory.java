@@ -17,13 +17,11 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -122,9 +120,14 @@ public class ReleaseHistory extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("appId", appId).add("clusterName", clusterName)
-        .add("namespaceName", namespaceName).add("branchName", branchName)
-        .add("releaseId", releaseId).add("previousReleaseId", previousReleaseId)
-        .add("operation", operation).toString();
+    return toStringHelper()
+        .add("appId", appId)
+        .add("clusterName", clusterName)
+        .add("namespaceName", namespaceName)
+        .add("branchName", branchName)
+        .add("releaseId", releaseId)
+        .add("previousReleaseId", previousReleaseId)
+        .add("operation", operation)
+        .toString();
   }
 }

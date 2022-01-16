@@ -60,6 +60,4 @@ public class Email {
   public void setBody(String body) {
     this.body = body;
   }
-
-
 }

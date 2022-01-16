@@ -16,25 +16,20 @@
  */
 package com.ctrip.framework.apollo.portal.config;
 
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.core.env.ConfigurableEnvironment;
 
-import static org.mockito.Mockito.when;
+public class ConfigTest extends AbstractUnitTest {
 
-public class ConfigTest extends AbstractUnitTest{
-
-  @Mock
-  private ConfigurableEnvironment environment;
-  @InjectMocks
-  private PortalConfig config;
-
+  @Mock private ConfigurableEnvironment environment;
+  @InjectMocks private PortalConfig config;
 
   @Test
   public void testGetNotExistValue() {
@@ -83,8 +78,5 @@ public class ConfigTest extends AbstractUnitTest{
     int result = config.getIntProperty(testKey, 0);
 
     Assert.assertEquals(1024, result);
-
   }
-
-
 }

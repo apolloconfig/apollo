@@ -36,8 +36,9 @@ public class EntityManagerUtil extends EntityManagerFactoryAccessor {
    * close the entity manager until the async request is finished.
    */
   public void closeEntityManager() {
-    EntityManagerHolder emHolder = (EntityManagerHolder)
-        TransactionSynchronizationManager.getResource(getEntityManagerFactory());
+    EntityManagerHolder emHolder =
+        (EntityManagerHolder)
+            TransactionSynchronizationManager.getResource(getEntityManagerFactory());
     if (emHolder == null) {
       return;
     }

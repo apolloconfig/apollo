@@ -73,9 +73,19 @@ import org.springframework.security.web.authentication.LoginUrlAuthenticationEnt
 @Configuration
 public class AuthConfiguration {
 
-  private static final String[] BY_PASS_URLS = {"/prometheus/**", "/metrics/**", "/openapi/**",
-      "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path",
-      "/health"};
+  private static final String[] BY_PASS_URLS = {
+    "/prometheus/**",
+    "/metrics/**",
+    "/openapi/**",
+    "/vendor/**",
+    "/styles/**",
+    "/scripts/**",
+    "/views/**",
+    "/img/**",
+    "/i18n/**",
+    "/prefix-path",
+    "/health"
+  };
 
   /**
    * spring.profiles.active = auth
@@ -109,39 +119,44 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public static JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
-      JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
-          .passwordEncoder(passwordEncoder).dataSource(datasource)
-          .usersByUsernameQuery("select Username,Password,Enabled from `Users` where Username = ?")
-          .authoritiesByUsernameQuery(
-              "select Username,Authority from `Authorities` where Username = ?")
-          .getUserDetailsService();
+    public static JdbcUserDetailsManager jdbcUserDetailsManager(
+        PasswordEncoder passwordEncoder, AuthenticationManagerBuilder auth, DataSource datasource)
+        throws Exception {
+      JdbcUserDetailsManager jdbcUserDetailsManager =
+          auth.jdbcAuthentication()
+              .passwordEncoder(passwordEncoder)
+              .dataSource(datasource)
+              .usersByUsernameQuery(
+                  "select Username,Password,Enabled from `Users` where Username = ?")
+              .authoritiesByUsernameQuery(
+                  "select Username,Authority from `Authorities` where Username = ?")
+              .getUserDetailsService();
 
       jdbcUserDetailsManager.setUserExistsSql("select Username from `Users` where Username = ?");
-      jdbcUserDetailsManager
-          .setCreateUserSql("insert into `Users` (Username, Password, Enabled) values (?,?,?)");
-      jdbcUserDetailsManager
-          .setUpdateUserSql("update `Users` set Password = ?, Enabled = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
-      jdbcUserDetailsManager.setDeleteUserSql("delete from `Users` where id = (select u.id from (select id from `Users` where Username = ?) as u)");
-      jdbcUserDetailsManager
-          .setCreateAuthoritySql("insert into `Authorities` (Username, Authority) values (?,?)");
-      jdbcUserDetailsManager
-          .setDeleteUserAuthoritiesSql("delete from `Authorities` where id in (select a.id from (select id from `Authorities` where Username = ?) as a)");
-      jdbcUserDetailsManager
-          .setChangePasswordSql("update `Users` set Password = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+      jdbcUserDetailsManager.setCreateUserSql(
+          "insert into `Users` (Username, Password, Enabled) values (?,?,?)");
+      jdbcUserDetailsManager.setUpdateUserSql(
+          "update `Users` set Password = ?, Enabled = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+      jdbcUserDetailsManager.setDeleteUserSql(
+          "delete from `Users` where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+      jdbcUserDetailsManager.setCreateAuthoritySql(
+          "insert into `Authorities` (Username, Authority) values (?,?)");
+      jdbcUserDetailsManager.setDeleteUserAuthoritiesSql(
+          "delete from `Authorities` where id in (select a.id from (select id from `Authorities` where Username = ?) as a)");
+      jdbcUserDetailsManager.setChangePasswordSql(
+          "update `Users` set Password = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
 
       return jdbcUserDetailsManager;
     }
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
-    public UserService springSecurityUserService(PasswordEncoder passwordEncoder,
+    public UserService springSecurityUserService(
+        PasswordEncoder passwordEncoder,
         JdbcUserDetailsManager userDetailsManager,
         UserRepository userRepository) {
       return new SpringSecurityUserService(passwordEncoder, userDetailsManager, userRepository);
     }
-
   }
 
   @Order(99)
@@ -158,15 +173,25 @@ public class AuthConfiguration {
       http.csrf().disable();
       http.headers().frameOptions().sameOrigin();
       http.authorizeRequests()
-          .antMatchers(BY_PASS_URLS).permitAll()
-          .antMatchers("/**").hasAnyRole(USER_ROLE);
-      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
+          .antMatchers(BY_PASS_URLS)
+          .permitAll()
+          .antMatchers("/**")
+          .hasAnyRole(USER_ROLE);
+      http.formLogin()
+          .loginPage("/signin")
+          .defaultSuccessUrl("/", true)
+          .permitAll()
+          .failureUrl("/signin?#/error")
+          .and()
           .httpBasic();
-      http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
+      http.logout()
+          .logoutUrl("/user/logout")
+          .invalidateHttpSession(true)
+          .clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+      http.exceptionHandling()
+          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
     }
-
   }
 
   /**
@@ -174,13 +199,14 @@ public class AuthConfiguration {
    */
   @Configuration
   @Profile("ldap")
-  @EnableConfigurationProperties({LdapProperties.class,LdapExtendProperties.class})
+  @EnableConfigurationProperties({LdapProperties.class, LdapExtendProperties.class})
   static class SpringSecurityLDAPAuthAutoConfiguration {
 
     private final LdapProperties properties;
     private final Environment environment;
 
-    public SpringSecurityLDAPAuthAutoConfiguration(final LdapProperties properties, final Environment environment) {
+    public SpringSecurityLDAPAuthAutoConfiguration(
+        final LdapProperties properties, final Environment environment) {
       this.properties = properties;
       this.environment = environment;
     }
@@ -244,7 +270,8 @@ public class AuthConfiguration {
 
     private final LdapExtendProperties ldapExtendProperties;
 
-    public SpringSecurityLDAPConfigurer(final LdapProperties ldapProperties,
+    public SpringSecurityLDAPConfigurer(
+        final LdapProperties ldapProperties,
         final LdapContextSource ldapContextSource,
         final LdapExtendProperties ldapExtendProperties) {
       this.ldapProperties = ldapProperties;
@@ -254,21 +281,24 @@ public class AuthConfiguration {
 
     @Bean
     public FilterBasedLdapUserSearch userSearch() {
-      if (ldapExtendProperties.getGroup() == null || StringUtils
-          .isBlank(ldapExtendProperties.getGroup().getGroupSearch())) {
-        FilterBasedLdapUserSearch filterBasedLdapUserSearch = new FilterBasedLdapUserSearch("",
-            ldapProperties.getSearchFilter(), ldapContextSource
-        );
+      if (ldapExtendProperties.getGroup() == null
+          || StringUtils.isBlank(ldapExtendProperties.getGroup().getGroupSearch())) {
+        FilterBasedLdapUserSearch filterBasedLdapUserSearch =
+            new FilterBasedLdapUserSearch("", ldapProperties.getSearchFilter(), ldapContextSource);
         filterBasedLdapUserSearch.setSearchSubtree(true);
         return filterBasedLdapUserSearch;
       }
 
-      FilterLdapByGroupUserSearch filterLdapByGroupUserSearch = new FilterLdapByGroupUserSearch(
-          ldapProperties.getBase(), ldapProperties.getSearchFilter(), ldapExtendProperties.getGroup().getGroupBase(),
-          ldapContextSource, ldapExtendProperties.getGroup().getGroupSearch(),
-          ldapExtendProperties.getMapping().getRdnKey(),
-          ldapExtendProperties.getGroup().getGroupMembership(), ldapExtendProperties.getMapping().getLoginId()
-      );
+      FilterLdapByGroupUserSearch filterLdapByGroupUserSearch =
+          new FilterLdapByGroupUserSearch(
+              ldapProperties.getBase(),
+              ldapProperties.getSearchFilter(),
+              ldapExtendProperties.getGroup().getGroupBase(),
+              ldapContextSource,
+              ldapExtendProperties.getGroup().getGroupSearch(),
+              ldapExtendProperties.getMapping().getRdnKey(),
+              ldapExtendProperties.getGroup().getGroupMembership(),
+              ldapExtendProperties.getMapping().getLoginId());
       filterLdapByGroupUserSearch.setSearchSubtree(true);
       return filterLdapByGroupUserSearch;
     }
@@ -277,8 +307,8 @@ public class AuthConfiguration {
     public LdapAuthenticationProvider ldapAuthProvider() {
       BindAuthenticator bindAuthenticator = new BindAuthenticator(ldapContextSource);
       bindAuthenticator.setUserSearch(userSearch());
-      DefaultLdapAuthoritiesPopulator defaultAuthAutoConfiguration = new DefaultLdapAuthoritiesPopulator(
-          ldapContextSource, null);
+      DefaultLdapAuthoritiesPopulator defaultAuthAutoConfiguration =
+          new DefaultLdapAuthoritiesPopulator(ldapContextSource, null);
       defaultAuthAutoConfiguration.setIgnorePartialResultException(true);
       defaultAuthAutoConfiguration.setSearchSubtree(true);
       // Rewrite the logic of LdapAuthenticationProvider with ApolloLdapAuthenticationProvider,
@@ -292,13 +322,24 @@ public class AuthConfiguration {
       http.csrf().disable();
       http.headers().frameOptions().sameOrigin();
       http.authorizeRequests()
-          .antMatchers(BY_PASS_URLS).permitAll()
-          .antMatchers("/**").authenticated();
-      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
+          .antMatchers(BY_PASS_URLS)
+          .permitAll()
+          .antMatchers("/**")
+          .authenticated();
+      http.formLogin()
+          .loginPage("/signin")
+          .defaultSuccessUrl("/", true)
+          .permitAll()
+          .failureUrl("/signin?#/error")
+          .and()
           .httpBasic();
-      http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
+      http.logout()
+          .logoutUrl("/user/logout")
+          .invalidateHttpSession(true)
+          .clearAuthentication(true)
           .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+      http.exceptionHandling()
+          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
     }
 
     @Override
@@ -308,7 +349,10 @@ public class AuthConfiguration {
   }
 
   @Profile("oidc")
-  @EnableConfigurationProperties({OAuth2ClientProperties.class, OAuth2ResourceServerProperties.class})
+  @EnableConfigurationProperties({
+    OAuth2ClientProperties.class,
+    OAuth2ResourceServerProperties.class
+  })
   @Configuration
   static class OidcAuthAutoConfiguration {
 
@@ -338,21 +382,23 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(JdbcUserDetailsManager.class)
-    public JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
-      return SpringSecurityAuthAutoConfiguration
-          .jdbcUserDetailsManager(passwordEncoder, auth, datasource);
+    public JdbcUserDetailsManager jdbcUserDetailsManager(
+        PasswordEncoder passwordEncoder, AuthenticationManagerBuilder auth, DataSource datasource)
+        throws Exception {
+      return SpringSecurityAuthAutoConfiguration.jdbcUserDetailsManager(
+          passwordEncoder, auth, datasource);
     }
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
-    public OidcLocalUserService oidcLocalUserService(JdbcUserDetailsManager userDetailsManager,
-        UserRepository userRepository) {
+    public OidcLocalUserService oidcLocalUserService(
+        JdbcUserDetailsManager userDetailsManager, UserRepository userRepository) {
       return new OidcLocalUserServiceImpl(userDetailsManager, userRepository);
     }
 
     @Bean
-    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(OidcLocalUserService oidcLocalUserService) {
+    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(
+        OidcLocalUserService oidcLocalUserService) {
       return new OidcAuthenticationSuccessEventListener(oidcLocalUserService);
     }
   }
@@ -379,17 +425,19 @@ public class AuthConfiguration {
       http.csrf().disable();
       http.authorizeRequests(requests -> requests.antMatchers(BY_PASS_URLS).permitAll());
       http.authorizeRequests(requests -> requests.anyRequest().authenticated());
-      http.oauth2Login(configure ->
-          configure.clientRegistrationRepository(
-              new ExcludeClientCredentialsClientRegistrationRepository(
-                  this.clientRegistrationRepository)));
+      http.oauth2Login(
+          configure ->
+              configure.clientRegistrationRepository(
+                  new ExcludeClientCredentialsClientRegistrationRepository(
+                      this.clientRegistrationRepository)));
       http.oauth2Client();
-      http.logout(configure -> {
-        OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler = new OidcClientInitiatedLogoutSuccessHandler(
-            this.clientRegistrationRepository);
-        logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
-        configure.logoutSuccessHandler(logoutSuccessHandler);
-      });
+      http.logout(
+          configure -> {
+            OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler =
+                new OidcClientInitiatedLogoutSuccessHandler(this.clientRegistrationRepository);
+            logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
+            configure.logoutSuccessHandler(logoutSuccessHandler);
+          });
       // make jwt optional
       String jwtIssuerUri = this.oauth2ResourceServerProperties.getJwt().getIssuerUri();
       if (!StringUtils.isBlank(jwtIssuerUri)) {

@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 public class DefaultMetaServerProvider implements MetaServerProvider {
 
   public static final int ORDER = 0;
-  private static final Logger logger = DeferredLoggerFactory
-      .getLogger(DefaultMetaServerProvider.class);
+  private static final Logger logger =
+      DeferredLoggerFactory.getLogger(DefaultMetaServerProvider.class);
 
   private final String metaServerAddress;
 
@@ -41,7 +41,8 @@ public class DefaultMetaServerProvider implements MetaServerProvider {
     // 1. Get from System Property
     String metaAddress = System.getProperty(ConfigConsts.APOLLO_META_KEY);
     if (Strings.isNullOrEmpty(metaAddress)) {
-      // 2. Get from OS environment variable, which could not contain dot and is normally in UPPER case
+      // 2. Get from OS environment variable, which could not contain dot and is normally in UPPER
+      // case
       metaAddress = System.getenv(ApolloClientSystemConsts.APOLLO_META_ENVIRONMENT_VARIABLES);
     }
     if (Strings.isNullOrEmpty(metaAddress)) {
@@ -66,7 +67,7 @@ public class DefaultMetaServerProvider implements MetaServerProvider {
 
   @Override
   public String getMetaServerAddress(Env targetEnv) {
-    //for default meta server provider, we don't care the actual environment
+    // for default meta server provider, we don't care the actual environment
     return metaServerAddress;
   }
 

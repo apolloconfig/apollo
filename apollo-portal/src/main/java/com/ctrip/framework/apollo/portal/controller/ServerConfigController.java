@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
@@ -39,7 +38,8 @@ public class ServerConfigController {
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
 
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
+  public ServerConfigController(
+      final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
   }
@@ -51,13 +51,13 @@ public class ServerConfigController {
 
     ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
 
-    if (Objects.isNull(storedConfig)) {//create
+    if (Objects.isNull(storedConfig)) { // create
       serverConfig.setDataChangeCreatedBy(modifiedBy);
       serverConfig.setDataChangeLastModifiedBy(modifiedBy);
-      serverConfig.setId(0L);//为空，设置ID 为0，jpa执行新增操作
+      serverConfig.setId(0L); // 为空，设置ID 为0，jpa执行新增操作
       return serverConfigRepository.save(serverConfig);
     }
-    //update
+    // update
     BeanUtils.copyEntityProperties(serverConfig, storedConfig);
     storedConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigRepository.save(storedConfig);
@@ -68,5 +68,4 @@ public class ServerConfigController {
   public ServerConfig loadServerConfig(@PathVariable String key) {
     return serverConfigRepository.findByKey(key);
   }
-
 }

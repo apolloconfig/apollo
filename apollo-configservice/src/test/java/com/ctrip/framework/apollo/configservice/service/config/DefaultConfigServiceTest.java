@@ -50,15 +50,11 @@ public class DefaultConfigServiceTest {
   private String someDataCenter;
   private String someClientIp;
   private String someClientLabel;
-  @Mock
-  private ApolloNotificationMessages someNotificationMessages;
-  @Mock
-  private ReleaseService releaseService;
-  @Mock
-  private GrayReleaseRulesHolder grayReleaseRulesHolder;
+  @Mock private ApolloNotificationMessages someNotificationMessages;
+  @Mock private ReleaseService releaseService;
+  @Mock private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
-  @Mock
-  private Release someRelease;
+  @Mock private Release someRelease;
 
   @Before
   public void setUp() throws Exception {
@@ -75,20 +71,30 @@ public class DefaultConfigServiceTest {
     someClientIp = "someClientIp";
     someClientLabel = "someClientLabel";
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(anyString(), anyString(), anyString(),
-        anyString(), anyString(), anyString())).thenReturn(null);
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString()))
+        .thenReturn(null);
   }
 
   @Test
   public void testLoadConfig() throws Exception {
-    when(releaseService.findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName))
+    when(releaseService.findLatestActiveRelease(
+            someConfigAppId, someClusterName, defaultNamespaceName))
         .thenReturn(someRelease);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+    Release release =
+        configService.loadConfig(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            someClusterName,
+            defaultNamespaceName,
+            someDataCenter,
             someNotificationMessages);
 
-    verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
+    verify(releaseService, times(1))
+        .findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
 
     assertEquals(someRelease, release);
   }
@@ -98,27 +104,49 @@ public class DefaultConfigServiceTest {
     Release grayRelease = mock(Release.class);
     long grayReleaseId = 999;
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId, someClientIp, someClientLabel,
-        someConfigAppId, someClusterName, defaultNamespaceName)).thenReturn(grayReleaseId);
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            someClusterName,
+            defaultNamespaceName))
+        .thenReturn(grayReleaseId);
     when(releaseService.findActiveOne(grayReleaseId)).thenReturn(grayRelease);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+    Release release =
+        configService.loadConfig(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            someClusterName,
+            defaultNamespaceName,
+            someDataCenter,
             someNotificationMessages);
 
     verify(releaseService, times(1)).findActiveOne(grayReleaseId);
-    verify(releaseService, never()).findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
+    verify(releaseService, never())
+        .findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
 
     assertEquals(grayRelease, release);
   }
 
   @Test
   public void testLoadConfigWithReleaseNotFound() throws Exception {
-    when(releaseService.findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName))
+    when(releaseService.findLatestActiveRelease(
+            someConfigAppId, someClusterName, defaultNamespaceName))
         .thenReturn(null);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+    Release release =
+        configService.loadConfig(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            someClusterName,
+            defaultNamespaceName,
+            someDataCenter,
             someNotificationMessages);
 
     assertNull(release);
@@ -126,30 +154,49 @@ public class DefaultConfigServiceTest {
 
   @Test
   public void testLoadConfigWithDefaultClusterWithDataCenterRelease() throws Exception {
-    when(releaseService.findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName))
+    when(releaseService.findLatestActiveRelease(
+            someConfigAppId, someDataCenter, defaultNamespaceName))
         .thenReturn(someRelease);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
+    Release release =
+        configService.loadConfig(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            defaultClusterName,
+            defaultNamespaceName,
+            someDataCenter,
             someNotificationMessages);
 
-    verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);
+    verify(releaseService, times(1))
+        .findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);
 
     assertEquals(someRelease, release);
   }
 
   @Test
   public void testLoadConfigWithDefaultClusterWithNoDataCenterRelease() throws Exception {
-    when(releaseService.findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName))
+    when(releaseService.findLatestActiveRelease(
+            someConfigAppId, someDataCenter, defaultNamespaceName))
         .thenReturn(null);
-    when(releaseService.findLatestActiveRelease(someConfigAppId, defaultClusterName, defaultNamespaceName))
+    when(releaseService.findLatestActiveRelease(
+            someConfigAppId, defaultClusterName, defaultNamespaceName))
         .thenReturn(someRelease);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
+    Release release =
+        configService.loadConfig(
+            someClientAppId,
+            someClientIp,
+            someClientLabel,
+            someConfigAppId,
+            defaultClusterName,
+            defaultNamespaceName,
+            someDataCenter,
             someNotificationMessages);
 
-    verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);
+    verify(releaseService, times(1))
+        .findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);
     verify(releaseService, times(1))
         .findLatestActiveRelease(someConfigAppId, defaultClusterName, defaultNamespaceName);
 

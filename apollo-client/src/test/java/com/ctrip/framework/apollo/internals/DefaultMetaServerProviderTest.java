@@ -41,5 +41,4 @@ public class DefaultMetaServerProviderTest {
 
     assertEquals(someMetaAddress, defaultMetaServerProvider.getMetaServerAddress(someEnv));
   }
-
 }

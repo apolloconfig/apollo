@@ -49,8 +49,9 @@ public class ApolloClientSystemPropertyInitializerTest {
     }
     MapConfigurationPropertySource propertySource = new MapConfigurationPropertySource(map);
     Binder binder = new Binder(propertySource);
-    ApolloClientSystemPropertyInitializer initializer = new ApolloClientSystemPropertyInitializer(
-        LogFactory.getLog(ApolloClientSystemPropertyInitializerTest.class));
+    ApolloClientSystemPropertyInitializer initializer =
+        new ApolloClientSystemPropertyInitializer(
+            LogFactory.getLog(ApolloClientSystemPropertyInitializerTest.class));
     initializer.initializeSystemProperty(binder, null);
     for (String propertyName : ApolloApplicationContextInitializer.APOLLO_SYSTEM_PROPERTIES) {
       Assert.assertEquals(map.get(propertyName), System.getProperty(propertyName));

@@ -56,12 +56,13 @@ public class DefaultHttpClient implements HttpClient {
    */
   @Override
   public <T> HttpResponse<T> doGet(HttpRequest httpRequest, final Class<T> responseType) {
-    Function<String, T> convertResponse = new Function<String, T>() {
-      @Override
-      public T apply(String input) {
-        return GSON.fromJson(input, responseType);
-      }
-    };
+    Function<String, T> convertResponse =
+        new Function<String, T>() {
+          @Override
+          public T apply(String input) {
+            return GSON.fromJson(input, responseType);
+          }
+        };
 
     return doGetWithSerializeFunction(httpRequest, convertResponse);
   }
@@ -76,18 +77,19 @@ public class DefaultHttpClient implements HttpClient {
    */
   @Override
   public <T> HttpResponse<T> doGet(HttpRequest httpRequest, final Type responseType) {
-    Function<String, T> convertResponse = new Function<String, T>() {
-      @Override
-      public T apply(String input) {
-        return GSON.fromJson(input, responseType);
-      }
-    };
+    Function<String, T> convertResponse =
+        new Function<String, T>() {
+          @Override
+          public T apply(String input) {
+            return GSON.fromJson(input, responseType);
+          }
+        };
 
     return doGetWithSerializeFunction(httpRequest, convertResponse);
   }
 
-  private <T> HttpResponse<T> doGetWithSerializeFunction(HttpRequest httpRequest,
-                                                         Function<String, T> serializeFunction) {
+  private <T> HttpResponse<T> doGetWithSerializeFunction(
+      HttpRequest httpRequest, Function<String, T> serializeFunction) {
     InputStreamReader isr = null;
     InputStreamReader esr = null;
     int statusCode;
@@ -137,7 +139,7 @@ public class DefaultHttpClient implements HttpClient {
           try {
             CharStreams.toString(esr);
           } catch (IOException ioe) {
-            //ignore
+            // ignore
           }
         }
 
@@ -178,8 +180,7 @@ public class DefaultHttpClient implements HttpClient {
       }
     }
 
-    throw new ApolloConfigStatusCodeException(statusCode,
-        String.format("Get operation failed for %s", httpRequest.getUrl()));
+    throw new ApolloConfigStatusCodeException(
+        statusCode, String.format("Get operation failed for %s", httpRequest.getUrl()));
   }
-
 }

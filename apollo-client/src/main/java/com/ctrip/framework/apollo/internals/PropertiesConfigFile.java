@@ -31,13 +31,12 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Jason Song(song_s@ctrip.com)
  * @author Diego Krupitza(info@diegokrupitza.com)
  */
-public class PropertiesConfigFile extends AbstractConfigFile implements
-    PropertiesCompatibleConfigFile {
+public class PropertiesConfigFile extends AbstractConfigFile
+    implements PropertiesCompatibleConfigFile {
 
   protected AtomicReference<String> m_contentCache;
 
-  public PropertiesConfigFile(String namespace,
-      ConfigRepository configRepository) {
+  public PropertiesConfigFile(String namespace, ConfigRepository configRepository) {
     super(namespace, configRepository);
     m_contentCache = new AtomicReference<>();
   }
@@ -65,8 +64,9 @@ public class PropertiesConfigFile extends AbstractConfigFile implements
       return PropertiesUtil.toString(m_configProperties.get());
     } catch (Throwable ex) {
       ApolloConfigException exception =
-          new ApolloConfigException(String
-              .format("Parse properties file content failed for namespace: %s, cause: %s",
+          new ApolloConfigException(
+              String.format(
+                  "Parse properties file content failed for namespace: %s, cause: %s",
                   m_namespace, ExceptionUtil.getDetailMessage(ex)));
       Tracer.logError(exception);
       throw exception;
@@ -85,6 +85,6 @@ public class PropertiesConfigFile extends AbstractConfigFile implements
 
   @Override
   public Properties asProperties() {
-      return this.hasContent() ? m_configProperties.get() : propertiesFactory.getPropertiesInstance();
+    return this.hasContent() ? m_configProperties.get() : propertiesFactory.getPropertiesInstance();
   }
 }

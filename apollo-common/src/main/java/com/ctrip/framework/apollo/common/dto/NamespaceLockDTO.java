@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-public class NamespaceLockDTO extends BaseDTO{
+public class NamespaceLockDTO extends BaseDTO {
 
   private long namespaceId;
 

@@ -15,7 +15,6 @@
  *
  */
 
-
 package com.ctrip.framework.apollo.portal.spi.ldap;
 
 import com.ctrip.framework.apollo.portal.spi.configuration.LdapExtendProperties;
@@ -43,13 +42,11 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
   private LdapExtendProperties properties;
 
   public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator,
-      LdapAuthoritiesPopulator authoritiesPopulator) {
+      LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
     super(authenticator, authoritiesPopulator);
   }
 
-  public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator) {
+  public ApolloLdapAuthenticationProvider(LdapAuthenticator authenticator) {
     super(authenticator);
   }
 
@@ -62,18 +59,21 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
   }
 
   public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator,
-      LdapExtendProperties properties) {
+      LdapAuthenticator authenticator, LdapExtendProperties properties) {
     super(authenticator);
     this.properties = properties;
   }
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication, this.messages
-        .getMessage("LdapAuthenticationProvider.onlySupports",
+    Assert.isInstanceOf(
+        UsernamePasswordAuthenticationToken.class,
+        authentication,
+        this.messages.getMessage(
+            "LdapAuthenticationProvider.onlySupports",
             "Only UsernamePasswordAuthenticationToken is supported"));
-    UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken) authentication;
+    UsernamePasswordAuthenticationToken userToken =
+        (UsernamePasswordAuthenticationToken) authentication;
     String username = userToken.getName();
     String password = (String) authentication.getCredentials();
     if (this.logger.isDebugEnabled()) {
@@ -85,14 +85,18 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
           this.messages.getMessage("LdapAuthenticationProvider.emptyUsername", "Empty Username"));
     }
     if (!StringUtils.hasLength(password)) {
-      throw new BadCredentialsException(this.messages
-          .getMessage("AbstractLdapAuthenticationProvider.emptyPassword", "Empty Password"));
+      throw new BadCredentialsException(
+          this.messages.getMessage(
+              "AbstractLdapAuthenticationProvider.emptyPassword", "Empty Password"));
     }
     Assert.notNull(password, "Null password was supplied in authentication token");
     DirContextOperations userData = this.doAuthentication(userToken);
     String loginId = userData.getStringAttribute(properties.getMapping().getLoginId());
-    UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, loginId,
-        this.loadUserAuthorities(userData, loginId, (String) authentication.getCredentials()));
+    UserDetails user =
+        this.userDetailsContextMapper.mapUserFromContext(
+            userData,
+            loginId,
+            this.loadUserAuthorities(userData, loginId, (String) authentication.getCredentials()));
     return this.createSuccessfulAuthentication(userToken, user);
   }
 }

@@ -23,6 +23,4 @@ import org.springframework.context.annotation.Configuration;
 @EnableAutoConfiguration
 @Configuration
 @ComponentScan(basePackageClasses = PortalOpenApiConfig.class)
-public class PortalOpenApiConfig {
-
-}
+public class PortalOpenApiConfig {}

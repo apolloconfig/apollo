@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class SignInController {
 
   @GetMapping("/signin")
-  public String login(@RequestParam(value = "error", required = false) String error,
-                      @RequestParam(value = "logout", required = false) String logout) {
+  public String login(
+      @RequestParam(value = "error", required = false) String error,
+      @RequestParam(value = "logout", required = false) String logout) {
     return "login.html";
   }
-
 }

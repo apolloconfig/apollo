@@ -18,19 +18,17 @@ package com.ctrip.framework.apollo;
 
 import static org.junit.Assert.assertEquals;
 
-import com.ctrip.framework.apollo.enums.ConfigSourceType;
-import java.util.Set;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.internals.AbstractConfig;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.util.ConfigUtil;
+import java.util.Set;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -47,7 +45,7 @@ public class ConfigServiceTest {
 
   @After
   public void tearDown() throws Exception {
-    //as ConfigService is singleton, so we must manually clear its container
+    // as ConfigService is singleton, so we must manually clear its container
     ConfigService.reset();
     MockInjector.reset();
   }
@@ -71,8 +69,8 @@ public class ConfigServiceTest {
 
     Config config = ConfigService.getAppConfig();
 
-    assertEquals(ConfigConsts.NAMESPACE_APPLICATION + ":" + someKey,
-        config.getProperty(someKey, null));
+    assertEquals(
+        ConfigConsts.NAMESPACE_APPLICATION + ":" + someKey, config.getProperty(someKey, null));
   }
 
   @Test
@@ -98,7 +96,8 @@ public class ConfigServiceTest {
     ConfigFile configFile = ConfigService.getConfigFile(someNamespace, someConfigFileFormat);
 
     assertEquals(someNamespaceFileName, configFile.getNamespace());
-    assertEquals(someNamespaceFileName + ":" + someConfigFileFormat.getValue(), configFile.getContent());
+    assertEquals(
+        someNamespaceFileName + ":" + someConfigFileFormat.getValue(), configFile.getContent());
   }
 
   private static class MockConfig extends AbstractConfig {
@@ -132,8 +131,7 @@ public class ConfigServiceTest {
     private ConfigFileFormat m_configFileFormat;
     private String m_namespace;
 
-    public MockConfigFile(String namespace,
-                          ConfigFileFormat configFileFormat) {
+    public MockConfigFile(String namespace, ConfigFileFormat configFileFormat) {
       m_namespace = namespace;
       m_configFileFormat = configFileFormat;
     }
@@ -159,9 +157,7 @@ public class ConfigServiceTest {
     }
 
     @Override
-    public void addChangeListener(ConfigFileChangeListener listener) {
-
-    }
+    public void addChangeListener(ConfigFileChangeListener listener) {}
 
     @Override
     public boolean removeChangeListener(ConfigFileChangeListener listener) {
@@ -192,5 +188,4 @@ public class ConfigServiceTest {
       return someAppId;
     }
   }
-
 }

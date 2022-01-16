@@ -27,7 +27,8 @@ public class AloneClassLoader extends URLClassLoader {
   private final ClassLoader appClassLoader;
 
   public AloneClassLoader() {
-    super(((URLClassLoader) getSystemClassLoader()).getURLs(),
+    super(
+        ((URLClassLoader) getSystemClassLoader()).getURLs(),
         Thread.currentThread().getContextClassLoader().getParent());
     appClassLoader = Thread.currentThread().getContextClassLoader();
   }

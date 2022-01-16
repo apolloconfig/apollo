@@ -23,5 +23,6 @@ import org.springframework.core.type.AnnotationMetadata;
 
 public interface ApolloConfigRegistrarHelper extends Ordered, EnvironmentAware {
 
-  void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry);
+  void registerBeanDefinitions(
+      AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry);
 }

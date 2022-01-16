@@ -51,18 +51,18 @@ public class AbstractConfigTest {
     AbstractConfig abstractConfig = spy(new ErrorConfig());
     final String namespace = "app-namespace-0";
 
-    ConfigChangeListener configChangeListener = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-
-      }
-    });
-    abstractConfig
-        .addChangeListener(configChangeListener, Collections.singleton("cannot-be-match-key"));
+    ConfigChangeListener configChangeListener =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {}
+            });
+    abstractConfig.addChangeListener(
+        configChangeListener, Collections.singleton("cannot-be-match-key"));
 
     Map<String, ConfigChange> changes = new HashMap<>();
-    changes.put("key1",
-        new ConfigChange(namespace, "key1", null, "new-value", PropertyChangeType.ADDED));
+    changes.put(
+        "key1", new ConfigChange(namespace, "key1", null, "new-value", PropertyChangeType.ADDED));
     ConfigChangeEvent configChangeEvent = new ConfigChangeEvent(namespace, changes);
 
     abstractConfig.fireConfigChange(configChangeEvent);
@@ -86,25 +86,30 @@ public class AbstractConfigTest {
 
     final AtomicInteger invokeCount = new AtomicInteger();
 
-    final ConfigChangeListener configChangeListener1 = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        invokeCount.incrementAndGet();
-        future1.set(changeEvent);
-      }
-    });
-    final ConfigChangeListener configChangeListener2 = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        invokeCount.incrementAndGet();
-        future2.set(changeEvent);
-      }
-    });
+    final ConfigChangeListener configChangeListener1 =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {
+                invokeCount.incrementAndGet();
+                future1.set(changeEvent);
+              }
+            });
+    final ConfigChangeListener configChangeListener2 =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {
+                invokeCount.incrementAndGet();
+                future2.set(changeEvent);
+              }
+            });
     abstractConfig.addChangeListener(configChangeListener1, Collections.singleton(key));
     abstractConfig.addChangeListener(configChangeListener2, Collections.singleton(key));
 
     Map<String, ConfigChange> changes = new HashMap<>();
-    changes.put(key,
+    changes.put(
+        key,
         new ConfigChange(namespace, key, "old-value", "new-value", PropertyChangeType.MODIFIED));
     ConfigChangeEvent configChangeEvent = new ConfigChangeEvent(namespace, changes);
 
@@ -131,25 +136,30 @@ public class AbstractConfigTest {
 
     final AtomicInteger invokeCount = new AtomicInteger();
 
-    final ConfigChangeListener configChangeListener1 = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        invokeCount.incrementAndGet();
-        future1.set(changeEvent);
-      }
-    });
-    final ConfigChangeListener configChangeListener2 = spy(new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        invokeCount.incrementAndGet();
-        future2.set(changeEvent);
-      }
-    });
+    final ConfigChangeListener configChangeListener1 =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {
+                invokeCount.incrementAndGet();
+                future1.set(changeEvent);
+              }
+            });
+    final ConfigChangeListener configChangeListener2 =
+        spy(
+            new ConfigChangeListener() {
+              @Override
+              public void onChange(ConfigChangeEvent changeEvent) {
+                invokeCount.incrementAndGet();
+                future2.set(changeEvent);
+              }
+            });
     abstractConfig.addChangeListener(configChangeListener1, Collections.singleton(key));
     abstractConfig.addChangeListener(configChangeListener2, Collections.singleton(key));
 
     Map<String, ConfigChange> changes = new HashMap<>();
-    changes.put(key,
+    changes.put(
+        key,
         new ConfigChange(namespace, key, "old-value", "new-value", PropertyChangeType.MODIFIED));
 
     abstractConfig.fireConfigChange(namespace, changes);

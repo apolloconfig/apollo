@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.common.dto;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.Pattern;
 
-public class NamespaceDTO extends BaseDTO{
+public class NamespaceDTO extends BaseDTO {
   private long id;
 
   private String appId;
@@ -28,8 +28,7 @@ public class NamespaceDTO extends BaseDTO{
 
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
-  )
+      message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE)
   private String namespaceName;
 
   public long getId() {

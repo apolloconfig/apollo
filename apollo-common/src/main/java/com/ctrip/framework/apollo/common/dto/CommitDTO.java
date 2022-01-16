@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-public class CommitDTO extends BaseDTO{
+public class CommitDTO extends BaseDTO {
 
   private String changeSets;
 
