@@ -75,24 +75,45 @@
                                 <li>{{'Namespace.CreatePrivate.Tips4' | translate }}</li>
                             </ul>
                         </div>
-                        <div class="row text-right" style="padding-right: 20px;">
-                            <div class="btn-group btn-group-sm" role="group" aria-label="...">
-                                <button type="button" class="btn btn-default" ng-class="{active:type=='link'}"
-                                    ng-click="switchType('link')">{{'Namespace.AssociationPublicNamespace' | translate }}
-                                </button>
-                                <button type="button" class="btn btn-default" ng-class="{active:type=='create'}"
-                                    ng-click="switchType('create')">{{'Namespace.CreateNamespace' | translate }}
-                                </button>
-                            </div>
-                        </div>
-
 
                         <form class="form-horizontal" name="namespaceForm" valdr-type="AppNamespace"
                             style="margin-top: 30px;" ng-show="step == 1" ng-submit="createNamespace()">
                             <div class="form-group">
+                                <label class="col-sm-3 control-label">
+                                </label>
+
+                                <div class="col-sm-5">
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="...">
+                                        <button type="button" class="btn btn-default" ng-class="{active:type=='create'}"
+                                                ng-click="switchType('create')">{{'Namespace.CreateNamespace' | translate }}
+                                        </button>
+                                        <button type="button" class="btn btn-default" ng-class="{active:type=='link'}"
+                                                ng-click="switchType('link')">{{'Namespace.AssociationPublicNamespace' | translate }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label class="col-sm-3 control-label">{{'Common.AppId' | translate }}</label>
                                 <div class="col-sm-6" valdr-form-group>
                                     <label class="form-control-static" ng-bind="appId"></label>
+                                </div>
+                            </div>
+                            <div class="form-group"
+                                 ng-show="type == 'create' && (pageSetting.canAppAdminCreatePrivateNamespace || hasRootPermission)">
+                                <label class="col-sm-3 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Namespace.NamespaceType' | translate }}
+                                </label>
+                                <div class="col-sm-5" valdr-form-group>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="namespaceType" value="false" ng-value="false"
+                                               ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Private' | translate }}
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="namespaceType" value="true" ng-value="true"
+                                               ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Public' | translate }}
+                                    </label>
                                 </div>
                             </div>
                             <div class="form-horizontal" ng-show="type == 'link'">
@@ -105,6 +126,20 @@
                                         <apolloclusterselector apollo-app-id="appId" apollo-default-all-checked="true"
                                             apollo-select="collectSelectedClusters"></apolloclusterselector>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="type == 'create' && appNamespace.isPublic">
+                                <label class="col-sm-3 control-label">
+                                    {{'Namespace.AutoAddDepartmentPrefix' | translate }}
+                                </label>
+                                <div class="col-sm-6" valdr-form-group>
+                                    <div>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="appendNamespacePrefix" />
+                                            {{appBaseInfo.namespacePrefix}}
+                                        </label>
+                                    </div>
+                                    <small>{{'Namespace.AutoAddDepartmentPrefixTips' | translate }}</small>
                                 </div>
                             </div>
                             <div class="form-group" ng-show="type == 'create'">
@@ -138,38 +173,6 @@
                                     ng-bind="concatNamespace()" style="line-height: 34px;"></span>
                             </div>
 
-                            <div class="form-group" ng-show="type == 'create' && appNamespace.isPublic">
-                                <label class="col-sm-3 control-label">
-                                    {{'Namespace.AutoAddDepartmentPrefix' | translate }}
-                                </label>
-                                <div class="col-sm-6" valdr-form-group>
-                                    <div>
-                                        <label class="checkbox-inline">
-                                            <input type="checkbox" ng-model="appendNamespacePrefix" />
-                                            {{appBaseInfo.namespacePrefix}}
-                                        </label>
-                                    </div>
-                                    <small>{{'Namespace.AutoAddDepartmentPrefixTips' | translate }}</small>
-                                </div>
-                            </div>
-
-                            <div class="form-group"
-                                ng-show="type == 'create' && (pageSetting.canAppAdminCreatePrivateNamespace || hasRootPermission)">
-                                <label class="col-sm-3 control-label">
-                                    <apollorequiredfield></apollorequiredfield>
-                                    {{'Namespace.NamespaceType' | translate }}
-                                </label>
-                                <div class="col-sm-4" valdr-form-group>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="namespaceType" value="true" ng-value="true"
-                                            ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Public' | translate }}
-                                    </label>
-                                    <label class="radio-inline">
-                                        <input type="radio" name="namespaceType" value="false" ng-value="false"
-                                            ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Private' | translate }}
-                                    </label>
-                                </div>
-                            </div>
                             <div class="form-group" ng-show="type == 'create'" valdr-form-group>
                                 <label class="col-sm-3 control-label">{{'Namespace.Remark' | translate }}</label>
                                 <div class="col-sm-7" valdr-form-group>

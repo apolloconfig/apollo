@@ -22,7 +22,7 @@ namespace_module.controller("LinkNamespaceController",
 
             var params = AppUtil.parseParams($location.$$url);
             $scope.appId = params.appid;
-            $scope.type = 'link';
+            $scope.type = 'create';
 
             $scope.step = 1;
 
@@ -66,7 +66,7 @@ namespace_module.controller("LinkNamespaceController",
                 appId: $scope.appId,
                 name: '',
                 comment: '',
-                isPublic: true,
+                isPublic: false,
                 format: 'properties'
             };
 

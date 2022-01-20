@@ -35,6 +35,7 @@ Apollo 2.0.0
 * [The release history of namespaces that are not properties will also show comments and release times](https://github.com/apolloconfig/apollo/pull/4198)
 * [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
 * [Change Copy Right year to 2022](https://github.com/apolloconfig/apollo/pull/4202)
+* [Optimize create namespace page](https://github.com/apolloconfig/apollo/pull/4213)
 * [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
 * [Make password check not hardcoded](https://github.com/apolloconfig/apollo/pull/4207)
 
