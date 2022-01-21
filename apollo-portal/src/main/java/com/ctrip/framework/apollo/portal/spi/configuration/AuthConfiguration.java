@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.repository.AuthorityRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.SsoHeartbeatHandler;
@@ -137,9 +138,8 @@ public class AuthConfiguration {
     @Bean
     @ConditionalOnMissingBean(UserService.class)
     public UserService springSecurityUserService(PasswordEncoder passwordEncoder,
-        JdbcUserDetailsManager userDetailsManager,
-        UserRepository userRepository) {
-      return new SpringSecurityUserService(passwordEncoder, userDetailsManager, userRepository);
+        UserRepository userRepository, AuthorityRepository authorityRepository) {
+      return new SpringSecurityUserService(passwordEncoder, userRepository, authorityRepository);
     }
 
   }
