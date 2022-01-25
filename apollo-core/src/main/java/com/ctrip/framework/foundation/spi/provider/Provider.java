@@ -16,7 +16,9 @@
  */
 package com.ctrip.framework.foundation.spi.provider;
 
-public interface Provider {
+import com.ctrip.framework.apollo.core.spi.Ordered;
+
+public interface Provider extends Ordered {
   /**
    * @return the current provider's type
    */

@@ -17,6 +17,7 @@
 package com.ctrip.framework.foundation.internals.provider;
 
 import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import com.ctrip.framework.apollo.core.utils.DeprecatedPropertyNotifyUtil;
 import com.ctrip.framework.foundation.internals.Utils;
@@ -116,6 +117,11 @@ public class DefaultApplicationProvider implements ApplicationProvider {
     return ApplicationProvider.class;
   }
 
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
+  }
+
   private void initAppId() {
     // 1. Get app.id from System Property
     m_appId = System.getProperty(ApolloClientSystemConsts.APP_ID);
@@ -173,7 +179,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
       return;
     }
 
-    m_appLabel=null;
+    m_appLabel = null;
     logger.warn("app.label is not available from System Property and {}. It is set to null",
         APP_PROPERTIES_CLASSPATH);
   }

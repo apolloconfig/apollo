@@ -34,7 +34,12 @@
 
 package com.ctrip.framework.foundation.internals.provider;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
+import com.ctrip.framework.foundation.internals.Utils;
+import com.ctrip.framework.foundation.internals.io.BOMInputStream;
+import com.ctrip.framework.foundation.spi.provider.Provider;
+import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import com.google.common.base.Strings;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,11 +47,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-
-import com.ctrip.framework.foundation.internals.Utils;
-import com.ctrip.framework.foundation.internals.io.BOMInputStream;
-import com.ctrip.framework.foundation.spi.provider.Provider;
-import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import org.slf4j.Logger;
 
 public class DefaultServerProvider implements ServerProvider {
@@ -144,6 +144,11 @@ public class DefaultServerProvider implements ServerProvider {
   @Override
   public boolean isEnvTypeSet() {
     return m_env != null;
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
   }
 
   @Override

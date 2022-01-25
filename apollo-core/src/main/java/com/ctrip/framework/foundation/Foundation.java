@@ -26,8 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class Foundation {
+
   private static final Logger logger = LoggerFactory.getLogger(Foundation.class);
-  private static Object lock = new Object();
+  private static final Object LOCK = new Object();
 
   private static volatile ProviderManager s_manager;
 
@@ -40,9 +41,9 @@ public abstract class Foundation {
     try {
       if (s_manager == null) {
         // Double locking to make sure only one thread initializes ProviderManager.
-        synchronized (lock) {
+        synchronized (LOCK) {
           if (s_manager == null) {
-            s_manager = ServiceBootstrap.loadFirst(ProviderManager.class);
+            s_manager = ServiceBootstrap.loadPrimary(ProviderManager.class);
           }
         }
       }

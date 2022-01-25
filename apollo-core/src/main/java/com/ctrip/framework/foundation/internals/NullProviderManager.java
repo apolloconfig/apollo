@@ -16,10 +16,12 @@
  */
 package com.ctrip.framework.foundation.internals;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.foundation.internals.provider.NullProvider;
 import com.ctrip.framework.foundation.spi.ProviderManager;
 
 public class NullProviderManager implements ProviderManager {
+
   public static final NullProvider provider = new NullProvider();
 
   @Override
@@ -30,6 +32,11 @@ public class NullProviderManager implements ProviderManager {
   @Override
   public NullProvider provider(Class clazz) {
     return provider;
+  }
+
+  @Override
+  public int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
   }
 
   @Override
