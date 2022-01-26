@@ -39,6 +39,7 @@ Apollo 2.0.0
 * [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
 * [Make password check not hardcoded](https://github.com/apolloconfig/apollo/pull/4207)
 * [Fix update user's password failure](https://github.com/apolloconfig/apollo/pull/4212)
+* [Fix bug: associated namespace display incorrect in text view](https://github.com/apolloconfig/apollo/pull/4219)
 
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
