@@ -24,4 +24,9 @@ public interface ProviderManager extends Ordered {
   String getProperty(String name, String defaultValue);
 
   <T extends Provider> T provider(Class<T> clazz);
+
+  @Override
+  default int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
+  }
 }
