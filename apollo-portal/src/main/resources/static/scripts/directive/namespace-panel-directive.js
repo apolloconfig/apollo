@@ -352,7 +352,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                     publicNamespace.hasPublishedItem = true;
                                 }
                             });
-                            publicNamespace.isPropertiesFormat = publicNamespace.format == 'properties'
+                            publicNamespace.isPropertiesFormat = publicNamespace.format == 'properties';
                             loadParentNamespaceText(namespace);
                         });
                 }
