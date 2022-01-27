@@ -16,36 +16,35 @@
  */
 package com.ctrip.framework.foundation.internals;
 
-import com.ctrip.framework.apollo.core.spi.Ordered;
-import com.ctrip.framework.foundation.spi.ProviderManager;
-import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
-import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
-import com.ctrip.framework.foundation.spi.provider.Provider;
-import com.ctrip.framework.foundation.spi.provider.ServerProvider;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import com.ctrip.framework.foundation.internals.provider.DefaultApplicationProvider;
+import com.ctrip.framework.foundation.internals.provider.DefaultNetworkProvider;
+import com.ctrip.framework.foundation.internals.provider.DefaultServerProvider;
+import com.ctrip.framework.foundation.spi.ProviderManager;
+import com.ctrip.framework.foundation.spi.provider.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DefaultProviderManager implements ProviderManager {
-
   private static final Logger logger = LoggerFactory.getLogger(DefaultProviderManager.class);
   private Map<Class<? extends Provider>, Provider> m_providers = new LinkedHashMap<>();
 
   public DefaultProviderManager() {
     // Load per-application configuration, like app id, from classpath://META-INF/app.properties
-    Provider applicationProvider = ServiceBootstrap.loadPrimary(ApplicationProvider.class);
+    Provider applicationProvider = new DefaultApplicationProvider();
     applicationProvider.initialize();
     register(applicationProvider);
 
     // Load network parameters
-    Provider networkProvider = ServiceBootstrap.loadPrimary(NetworkProvider.class);
+    Provider networkProvider = new DefaultNetworkProvider();
     networkProvider.initialize();
     register(networkProvider);
 
     // Load environment (fat, fws, uat, prod ...) and dc, from /opt/settings/server.properties, JVM property and/or OS
     // environment variables.
-    Provider serverProvider = ServiceBootstrap.loadPrimary(ServerProvider.class);
+    Provider serverProvider = new DefaultServerProvider();
     serverProvider.initialize();
     register(serverProvider);
   }
@@ -78,11 +77,6 @@ public class DefaultProviderManager implements ProviderManager {
     }
 
     return defaultValue;
-  }
-
-  @Override
-  public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
   }
 
   @Override

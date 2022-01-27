@@ -18,7 +18,6 @@ package com.ctrip.framework.foundation.internals.provider;
 
 import java.io.InputStream;
 
-import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.foundation.spi.provider.ApplicationProvider;
 import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
 import com.ctrip.framework.foundation.spi.provider.Provider;
@@ -93,11 +92,6 @@ public class NullProvider implements ApplicationProvider, NetworkProvider, Serve
   @Override
   public String getHostName() {
     return null;
-  }
-
-  @Override
-  public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
   }
 
   @Override

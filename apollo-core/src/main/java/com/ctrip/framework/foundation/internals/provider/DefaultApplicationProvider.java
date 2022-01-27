@@ -17,7 +17,6 @@
 package com.ctrip.framework.foundation.internals.provider;
 
 import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
-import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import com.ctrip.framework.apollo.core.utils.DeprecatedPropertyNotifyUtil;
 import com.ctrip.framework.foundation.internals.Utils;
@@ -115,11 +114,6 @@ public class DefaultApplicationProvider implements ApplicationProvider {
   @Override
   public Class<? extends Provider> getType() {
     return ApplicationProvider.class;
-  }
-
-  @Override
-  public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
   }
 
   private void initAppId() {

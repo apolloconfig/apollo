@@ -16,13 +16,11 @@
  */
 package com.ctrip.framework.foundation.internals.provider;
 
-import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.foundation.internals.NetworkInterfaceManager;
 import com.ctrip.framework.foundation.spi.provider.NetworkProvider;
 import com.ctrip.framework.foundation.spi.provider.Provider;
 
 public class DefaultNetworkProvider implements NetworkProvider {
-
   @Override
   public String getProperty(String name, String defaultValue) {
     if ("host.address".equalsIgnoreCase(name)) {
@@ -54,11 +52,6 @@ public class DefaultNetworkProvider implements NetworkProvider {
   @Override
   public Class<? extends Provider> getType() {
     return NetworkProvider.class;
-  }
-
-  @Override
-  public int getOrder() {
-    return Ordered.LOWEST_PRECEDENCE;
   }
 
   @Override
