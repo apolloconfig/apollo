@@ -41,6 +41,6 @@ Apollo 2.0.0
 * [Fix update user's password failure](https://github.com/apolloconfig/apollo/pull/4212)
 * [Fix bug: associated namespace display incorrect in text view](https://github.com/apolloconfig/apollo/pull/4219)
 * [Add Ordered interface to ProviderManager SPI](https://github.com/apolloconfig/apollo/pull/4218)
-
+* [Using commons-lang3 to replace commons-lang](https://github.com/apolloconfig/apollo/pull/4225)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

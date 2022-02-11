@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.component.emailbuilder;
 
-
 import com.google.common.collect.Lists;
 
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
@@ -38,7 +37,7 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 
-import org.apache.commons.lang.time.FastDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -49,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
-
 
 public abstract class ConfigPublishEmailBuilder {
 
@@ -80,7 +78,6 @@ public abstract class ConfigPublishEmailBuilder {
   protected static final int VALUE_MAX_LENGTH = 100;
 
   protected FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
-
 
   @Autowired
   private RolePermissionService rolePermissionService;

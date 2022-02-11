@@ -27,7 +27,7 @@ import com.ctrip.framework.apollo.portal.service.ConfigsExportService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.util.NamespaceBOUtils;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;

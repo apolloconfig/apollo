@@ -16,12 +16,10 @@
  */
 package com.ctrip.framework.apollo.common.utils;
 
-import com.google.common.base.Joiner;
-
 import com.ctrip.framework.apollo.core.utils.ByteUtil;
 import com.ctrip.framework.apollo.core.utils.MachineUtil;
-
-import org.apache.commons.lang.time.FastDateFormat;
+import com.google.common.base.Joiner;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.security.SecureRandom;
 import java.util.Date;
@@ -33,8 +31,6 @@ public class UniqueKeyGenerator {
   private static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
   private static final AtomicInteger counter = new AtomicInteger(new SecureRandom().nextInt());
   private static final Joiner KEY_JOINER = Joiner.on("-");
-
-
 
   public static String generate(Object... args){
     String hexIdString =
