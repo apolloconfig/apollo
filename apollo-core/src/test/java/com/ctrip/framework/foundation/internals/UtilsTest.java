@@ -25,6 +25,11 @@ import static org.junit.Assert.assertTrue;
 public class UtilsTest {
     private final String actualOsName = System.getProperty("os.name");
 
+    @After
+    public void tearDown() {
+        System.setProperty("os.name", actualOsName);
+    }
+
     @Test
     public void isBlankTrueGivenNull() {
         assertTrue(Utils.isBlank(null));
@@ -52,11 +57,32 @@ public class UtilsTest {
 
     @Test
     public void isOsWindowsTrueGivenWindows10() {
-        if (actualOsName.startsWith("Windows")) {
-            assertTrue(Utils.isOSWindows());
-        } else {
+        System.setProperty("os.name", "Windows 10");
+        assertTrue(Utils.isOSWindows());
+    }
+
+    @Test
+    public void isOSWindowsFalseGivenMacOsX() {
+        System.setProperty("os.name", "Mac OS X");
+        assertFalse(Utils.isOSWindows());
+    }
+
+    @Test
+    public void isOSWindowsFalseGivenBlank() {
+        System.setProperty("os.name", "");
+        assertFalse(Utils.isOSWindows());
+    }
+
+    // Explicitly calling out case sensitivity; revisit if Microsoft changes naming convention
+    @Test
+    public void isOSWindowsFalseGivenAllUppercaseWindows() {
+        System.setProperty("os.name", "WINDOWS 10");
+        assertFalse(Utils.isOSWindows());
+    }
+
+    @Test
+    public void isOSWindowsFalseGivenAllLowercaseWindows() {
+        System.setProperty("os.name", "windows 10");
             assertFalse(Utils.isOSWindows());
         }
     }
-
-}

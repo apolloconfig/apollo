@@ -16,27 +16,18 @@
  */
 package com.ctrip.framework.foundation.internals;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
+import com.google.common.base.Strings;
 
 public class Utils {
-
-  /**
-   * Judge if the given string contains any char.
-   *
-   * @param str
-   * @return true if the given string is blank
-   */
   public static boolean isBlank(String str) {
-    return StringUtils.isBlank(str);
+    return Strings.nullToEmpty(str).trim().isEmpty();
   }
 
-  /**
-   * Judge if the system is windows.
-   *
-   * @return true if the current system is windows.
-   */
   public static boolean isOSWindows() {
-    return SystemUtils.IS_OS_WINDOWS;
+    String osName = System.getProperty("os.name");
+    if (Utils.isBlank(osName)) {
+      return false;
+    }
+    return osName.startsWith("Windows");
   }
 }
