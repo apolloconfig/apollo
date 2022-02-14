@@ -83,6 +83,6 @@ public class UtilsTest {
     @Test
     public void isOSWindowsFalseGivenAllLowercaseWindows() {
         System.setProperty("os.name", "windows 10");
-            assertFalse(Utils.isOSWindows());
-        }
+        assertFalse(Utils.isOSWindows());
     }
+}
