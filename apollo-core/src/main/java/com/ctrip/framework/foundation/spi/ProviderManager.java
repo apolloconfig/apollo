@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,17 @@
  */
 package com.ctrip.framework.foundation.spi;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.foundation.spi.provider.Provider;
 
-public interface ProviderManager {
+public interface ProviderManager extends Ordered {
+
   String getProperty(String name, String defaultValue);
 
   <T extends Provider> T provider(Class<T> clazz);
+
+  @Override
+  default int getOrder() {
+    return Ordered.LOWEST_PRECEDENCE;
+  }
 }

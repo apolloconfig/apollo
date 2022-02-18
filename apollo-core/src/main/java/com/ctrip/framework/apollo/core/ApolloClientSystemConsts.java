@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,4 +146,14 @@ public class ApolloClientSystemConsts {
    * enable property names cache environment variables
    */
   public static final String APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_PROPERTY_NAMES_CACHE_ENABLE";
+
+  /**
+   * enable property names cache
+   */
+  public static final String APOLLO_CACHE_FILE_ENABLE = "apollo.cache.file.enable";
+
+  /**
+   * enable property names cache environment variables
+   */
+  public static final String APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_CACHE_FILE_ENABLE";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ namespace_module.controller("LinkNamespaceController",
 
             var params = AppUtil.parseParams($location.$$url);
             $scope.appId = params.appid;
-            $scope.type = 'link';
+            $scope.type = 'create';
 
             $scope.step = 1;
 
@@ -66,7 +66,7 @@ namespace_module.controller("LinkNamespaceController",
                 appId: $scope.appId,
                 name: '',
                 comment: '',
-                isPublic: true,
+                isPublic: false,
                 format: 'properties'
             };
 
