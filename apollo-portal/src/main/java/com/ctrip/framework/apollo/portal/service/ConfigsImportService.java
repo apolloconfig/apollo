@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,6 @@ public class ConfigsImportService {
   private final ApplicationEventPublisher publisher;
   private final UserInfoHolder            userInfoHolder;
   private final RoleInitializationService roleInitializationService;
-  private       String                    currentUser;
-
 
   public ConfigsImportService(
       final ItemService itemService,
@@ -106,9 +104,9 @@ public class ConfigsImportService {
       throw new ServiceException("Read config file errors:{}", e);
     }
 
-    currentUser = userInfoHolder.getUser().getUserId();
+    String operator = userInfoHolder.getUser().getUserId();
 
-    this.importNamespaceFromText(env, standardFilename, configText, false);
+    this.importNamespaceFromText(env, standardFilename, configText, false, operator);
   }
 
   /**
@@ -179,15 +177,15 @@ public class ConfigsImportService {
   private void doImport(List<Env> importEnvs, List<String> toImportApps, List<String> toImportAppNSs,
                         List<String> toImportClusters, List<NamespaceImportData> toImportNSs)
       throws InterruptedException {
-    currentUser = userInfoHolder.getUser().getUserId();
-
     LOGGER.info("Start to import app. size = {}", toImportApps.size());
+
+    String operator = userInfoHolder.getUser().getUserId();
 
     long startTime = System.currentTimeMillis();
     CountDownLatch appLatch = new CountDownLatch(toImportApps.size());
     toImportApps.parallelStream().forEach(app -> {
       try {
-        importApp(app, importEnvs);
+        importApp(app, importEnvs, operator);
       } catch (Exception e) {
         LOGGER.error("import app error. app = {}", app, e);
       } finally {
@@ -203,7 +201,7 @@ public class ConfigsImportService {
     CountDownLatch appNSLatch = new CountDownLatch(toImportAppNSs.size());
     toImportAppNSs.parallelStream().forEach(appNS -> {
       try {
-        importAppNamespace(appNS);
+        importAppNamespace(appNS, operator);
       } catch (Exception e) {
         LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
       } finally {
@@ -219,7 +217,7 @@ public class ConfigsImportService {
     CountDownLatch clusterLatch = new CountDownLatch(toImportClusters.size());
     toImportClusters.parallelStream().forEach(cluster -> {
       try {
-        importCluster(cluster, importEnvs);
+        importCluster(cluster, importEnvs, operator);
       } catch (Exception e) {
         LOGGER.error("import cluster error. cluster = {}", cluster, e);
       } finally {
@@ -236,7 +234,7 @@ public class ConfigsImportService {
     toImportNSs.parallelStream().forEach(namespace -> {
       try {
         importNamespaceFromText(namespace.getEnv(), namespace.getFileName(), namespace.getContent(),
-                                namespace.isIgnoreConflictNamespace());
+                                namespace.isIgnoreConflictNamespace(), operator);
       } catch (Exception e) {
         LOGGER.error("import namespace error. namespace = {}", namespace, e);
       } finally {
@@ -248,14 +246,12 @@ public class ConfigsImportService {
     LOGGER.info("Finish to import namespace. duration = {}", System.currentTimeMillis() - startTime);
   }
 
-  private void importApp(String appInfo, List<Env> importEnvs) {
+  private void importApp(String appInfo, List<Env> importEnvs, String operator) {
     App toImportApp = gson.fromJson(appInfo, App.class);
     String appId = toImportApp.getAppId();
 
-    //imported app set owner to current user.
-    toImportApp.setOwnerName(currentUser);
-    toImportApp.setDataChangeCreatedBy(currentUser);
-    toImportApp.setDataChangeLastModifiedBy(currentUser);
+    toImportApp.setDataChangeCreatedBy(operator);
+    toImportApp.setDataChangeLastModifiedBy(operator);
     toImportApp.setDataChangeCreatedTime(new Date());
     toImportApp.setDataChangeLastModifiedTime(new Date());
 
@@ -274,7 +270,7 @@ public class ConfigsImportService {
     });
   }
 
-  private void importAppNamespace(String appNamespace) {
+  private void importAppNamespace(String appNamespace, String operator) {
     AppNamespace toImportPubAppNS = gson.fromJson(appNamespace, AppNamespace.class);
 
     String appId = toImportPubAppNS.getAppId();
@@ -292,8 +288,8 @@ public class ConfigsImportService {
       managedAppNamespace.setPublic(isPublic);
       managedAppNamespace.setFormat(toImportPubAppNS.getFormat());
       managedAppNamespace.setComment(toImportPubAppNS.getComment());
-      managedAppNamespace.setDataChangeCreatedBy(currentUser);
-      managedAppNamespace.setDataChangeLastModifiedBy(currentUser);
+      managedAppNamespace.setDataChangeCreatedBy(operator);
+      managedAppNamespace.setDataChangeLastModifiedBy(operator);
       managedAppNamespace.setName(namespaceName);
 
       AppNamespace createdAppNamespace = appNamespaceService.importAppNamespaceInLocal(managedAppNamespace);
@@ -305,11 +301,11 @@ public class ConfigsImportService {
     }
   }
 
-  private void importCluster(String clusterInfo, List<Env> importEnvs) {
+  private void importCluster(String clusterInfo, List<Env> importEnvs, String operator) {
     ClusterDTO toImportCluster = gson.fromJson(clusterInfo, ClusterDTO.class);
 
-    toImportCluster.setDataChangeCreatedBy(currentUser);
-    toImportCluster.setDataChangeLastModifiedBy(currentUser);
+    toImportCluster.setDataChangeCreatedBy(operator);
+    toImportCluster.setDataChangeLastModifiedBy(operator);
     toImportCluster.setDataChangeCreatedTime(new Date());
     toImportCluster.setDataChangeLastModifiedTime(new Date());
 
@@ -339,19 +335,19 @@ public class ConfigsImportService {
    * @param configText       config content
    */
   private void importNamespaceFromText(final Env env, final String standardFilename, final String configText,
-                                       boolean ignoreConflictNamespace) {
+                                       boolean ignoreConflictNamespace, String operator) {
     final String appId = ConfigFileUtils.getAppId(standardFilename);
     final String clusterName = ConfigFileUtils.getClusterName(standardFilename);
     final String namespace = ConfigFileUtils.getNamespace(standardFilename);
     final String format = ConfigFileUtils.getFormat(standardFilename);
 
-    this.importNamespace(appId, env, clusterName, namespace, configText, format, ignoreConflictNamespace);
+    this.importNamespace(appId, env, clusterName, namespace, configText, format, ignoreConflictNamespace, operator);
   }
 
   private void importNamespace(final String appId, final Env env,
                                final String clusterName, final String namespaceName,
                                final String configText, final String format,
-                               boolean ignoreConflictNamespace) {
+                               boolean ignoreConflictNamespace, String operator) {
     NamespaceDTO namespaceDTO;
     try {
       namespaceDTO = namespaceService.loadNamespaceBaseInfo(appId, env, clusterName, namespaceName);
@@ -365,12 +361,12 @@ public class ConfigsImportService {
       namespaceDTO.setAppId(appId);
       namespaceDTO.setClusterName(clusterName);
       namespaceDTO.setNamespaceName(namespaceName);
-      namespaceDTO.setDataChangeCreatedBy(currentUser);
-      namespaceDTO.setDataChangeLastModifiedBy(currentUser);
+      namespaceDTO.setDataChangeCreatedBy(operator);
+      namespaceDTO.setDataChangeLastModifiedBy(operator);
       namespaceDTO = namespaceService.createNamespace(env, namespaceDTO);
 
-      roleInitializationService.initNamespaceRoles(appId, namespaceName, currentUser);
-      roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, currentUser);
+      roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
+      roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, operator);
     }
 
     List<ItemDTO> itemDTOS = itemService.findItems(appId, env, clusterName, namespaceName);
@@ -379,18 +375,18 @@ public class ConfigsImportService {
       return;
     }
 
-    importItems(appId, env, clusterName, namespaceName, configText, namespaceDTO);
+    importItems(appId, env, clusterName, namespaceName, configText, namespaceDTO, operator);
   }
 
   private void importItems(String appId, Env env, String clusterName, String namespaceName, String configText,
-                           NamespaceDTO namespaceDTO) {
+                           NamespaceDTO namespaceDTO, String operator) {
     List<ItemDTO> toImportItems = gson.fromJson(configText, GsonType.ITEM_DTOS);
 
     toImportItems.parallelStream().forEach(newItem -> {
       String key = newItem.getKey();
       newItem.setNamespaceId(namespaceDTO.getId());
-      newItem.setDataChangeCreatedBy(currentUser);
-      newItem.setDataChangeLastModifiedBy(currentUser);
+      newItem.setDataChangeCreatedBy(operator);
+      newItem.setDataChangeLastModifiedBy(operator);
       newItem.setDataChangeCreatedTime(new Date());
       newItem.setDataChangeLastModifiedTime(new Date());
 

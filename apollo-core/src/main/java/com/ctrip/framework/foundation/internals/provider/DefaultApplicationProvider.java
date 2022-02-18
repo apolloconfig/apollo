@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,7 @@ public class DefaultApplicationProvider implements ApplicationProvider {
       return;
     }
 
-    m_appLabel=null;
+    m_appLabel = null;
     logger.warn("app.label is not available from System Property and {}. It is set to null",
         APP_PROPERTIES_CLASSPATH);
   }

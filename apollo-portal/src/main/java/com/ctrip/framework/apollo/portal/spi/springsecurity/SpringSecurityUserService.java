@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,17 @@ package com.ctrip.framework.apollo.portal.spi.springsecurity;
 
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.po.Authority;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
+import com.ctrip.framework.apollo.portal.repository.AuthorityRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,41 +38,43 @@ import java.util.stream.Collectors;
  */
 public class SpringSecurityUserService implements UserService {
 
-  private final List<GrantedAuthority> authorities = Collections
-      .unmodifiableList(Arrays.asList(new SimpleGrantedAuthority("ROLE_user")));
-
   private final PasswordEncoder passwordEncoder;
-
-  private final JdbcUserDetailsManager userDetailsManager;
 
   private final UserRepository userRepository;
 
+  private final AuthorityRepository authorityRepository;
+
   public SpringSecurityUserService(
       PasswordEncoder passwordEncoder,
-      JdbcUserDetailsManager userDetailsManager,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      AuthorityRepository authorityRepository) {
     this.passwordEncoder = passwordEncoder;
-    this.userDetailsManager = userDetailsManager;
     this.userRepository = userRepository;
+    this.authorityRepository = authorityRepository;
   }
 
   @Transactional
   public void createOrUpdate(UserPO user) {
     String username = user.getUsername();
-
-    User userDetails = new User(username, passwordEncoder.encode(user.getPassword()), authorities);
-
-    if (userDetailsManager.userExists(username)) {
-      userDetailsManager.updateUser(userDetails);
-    } else {
-      userDetailsManager.createUser(userDetails);
-    }
+    String newPassword = passwordEncoder.encode(user.getPassword());
 
     UserPO managedUser = userRepository.findByUsername(username);
-    managedUser.setEmail(user.getEmail());
-    managedUser.setUserDisplayName(user.getUserDisplayName());
+    if (managedUser == null) {
+      user.setPassword(newPassword);
+      user.setEnabled(1);
+      userRepository.save(user);
 
-    userRepository.save(managedUser);
+      //save authorities
+      Authority authority = new Authority();
+      authority.setUsername(username);
+      authority.setAuthority("ROLE_user");
+      authorityRepository.save(authority);
+    } else {
+      managedUser.setPassword(newPassword);
+      managedUser.setEmail(user.getEmail());
+      managedUser.setUserDisplayName(user.getUserDisplayName());
+      userRepository.save(managedUser);
+    }
   }
 
   @Override

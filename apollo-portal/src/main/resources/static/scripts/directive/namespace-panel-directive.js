@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Apollo Authors
+ * Copyright 2022 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -352,6 +352,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                     publicNamespace.hasPublishedItem = true;
                                 }
                             });
+                            publicNamespace.isPropertiesFormat = publicNamespace.format == 'properties';
                             loadParentNamespaceText(namespace);
                         });
                 }

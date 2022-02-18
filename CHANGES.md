@@ -32,6 +32,16 @@ Apollo 2.0.0
 * [Bump guava from 29.0 to 31.0.1](https://github.com/apolloconfig/apollo/pull/4182)
 * [fix the json number display issue when it's longer than 16](https://github.com/apolloconfig/apollo/pull/4183)
 * [Bump client springboot version](https://github.com/apolloconfig/apollo/pull/4189)
-
+* [The release history of namespaces that are not properties will also show comments and release times](https://github.com/apolloconfig/apollo/pull/4198)
+* [Add unit tests for Utils](https://github.com/apolloconfig/apollo/pull/4193)
+* [Change Copy Right year to 2022](https://github.com/apolloconfig/apollo/pull/4202)
+* [Optimize create namespace page](https://github.com/apolloconfig/apollo/pull/4213)
+* [Allow disable apollo client cache](https://github.com/apolloconfig/apollo/pull/4199)
+* [Make password check not hardcoded](https://github.com/apolloconfig/apollo/pull/4207)
+* [Fix update user's password failure](https://github.com/apolloconfig/apollo/pull/4212)
+* [Fix bug: associated namespace display incorrect in text view](https://github.com/apolloconfig/apollo/pull/4219)
+* [Add Ordered interface to ProviderManager SPI](https://github.com/apolloconfig/apollo/pull/4218)
+* [Using commons-lang3 to replace commons-lang](https://github.com/apolloconfig/apollo/pull/4225)
+* [optimize import/export config](https://github.com/apolloconfig/apollo/pull/4231)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
