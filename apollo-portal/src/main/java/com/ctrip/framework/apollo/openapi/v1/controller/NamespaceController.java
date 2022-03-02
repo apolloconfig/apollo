@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.portal.spi.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,13 +38,10 @@ import java.util.Objects;
 @RestController("openapiNamespaceController")
 public class NamespaceController {
 
-  private final UserService userService;
   private final NamespaceOpenApiService namespaceOpenApiService;
 
   public NamespaceController(
-      final UserService userService,
       NamespaceOpenApiService namespaceOpenApiService) {
-    this.userService = userService;
     this.namespaceOpenApiService = namespaceOpenApiService;
   }
 
@@ -70,11 +66,6 @@ public class NamespaceController {
 
     if (!ConfigFileFormat.isValidFormat(appNamespaceDTO.getFormat())) {
       throw new BadRequestException(String.format("Invalid namespace format. format = %s", appNamespaceDTO.getFormat()));
-    }
-
-    String operator = appNamespaceDTO.getDataChangeCreatedBy();
-    if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException(String.format("Illegal user. user = %s", operator));
     }
 
     return this.namespaceOpenApiService.createAppNamespace(appNamespaceDTO);

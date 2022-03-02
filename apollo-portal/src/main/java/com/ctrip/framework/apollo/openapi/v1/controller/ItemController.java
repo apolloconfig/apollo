@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.service.ItemService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,13 +43,10 @@ import javax.servlet.http.HttpServletRequest;
 public class ItemController {
 
   private final ItemService itemService;
-  private final UserService userService;
   private final ItemOpenApiService itemOpenApiService;
 
-  public ItemController(final ItemService itemService, final UserService userService,
-      ItemOpenApiService itemOpenApiService) {
+  public ItemController(final ItemService itemService, ItemOpenApiService itemOpenApiService) {
     this.itemService = itemService;
-    this.userService = userService;
     this.itemOpenApiService = itemOpenApiService;
   }
 
@@ -69,10 +65,6 @@ public class ItemController {
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
         "key and dataChangeCreatedBy should not be null or empty");
-
-    if (userService.findByUserId(item.getDataChangeCreatedBy()) == null) {
-      throw new BadRequestException("User " + item.getDataChangeCreatedBy() + " doesn't exist!");
-    }
 
     if(!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > 256){
       throw new BadRequestException("Comment length should not exceed 256 characters");
@@ -96,10 +88,6 @@ public class ItemController {
 
     RequestPrecondition.checkArguments(item.getKey().equals(key), "Key in path and payload is not consistent");
 
-    if (userService.findByUserId(item.getDataChangeLastModifiedBy()) == null) {
-      throw new BadRequestException("user(dataChangeLastModifiedBy) not exists");
-    }
-
     if(!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > 256){
       throw new BadRequestException("Comment length should not exceed 256 characters");
     }
@@ -118,10 +106,6 @@ public class ItemController {
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestParam String operator,
                          HttpServletRequest request) {
-
-    if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("user(operator) not exists");
-    }
 
     ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null){

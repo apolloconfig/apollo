@@ -32,7 +32,6 @@ import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseMod
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,19 +49,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReleaseController {
 
   private final ReleaseService releaseService;
-  private final UserService userService;
   private final NamespaceBranchService namespaceBranchService;
   private final ConsumerPermissionValidator consumerPermissionValidator;
   private final ReleaseOpenApiService releaseOpenApiService;
 
   public ReleaseController(
       final ReleaseService releaseService,
-      final UserService userService,
       final NamespaceBranchService namespaceBranchService,
       final ConsumerPermissionValidator consumerPermissionValidator,
       ReleaseOpenApiService releaseOpenApiService) {
     this.releaseService = releaseService;
-    this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
     this.consumerPermissionValidator = consumerPermissionValidator;
     this.releaseOpenApiService = releaseOpenApiService;
@@ -78,10 +74,6 @@ public class ReleaseController {
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
             .getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
-
-    if (userService.findByUserId(model.getReleasedBy()) == null) {
-      throw new BadRequestException("user(releaseBy) not exists");
-    }
 
     return this.releaseOpenApiService.publishNamespace(appId, env, clusterName, namespaceName, model);
   }
@@ -103,10 +95,6 @@ public class ReleaseController {
                         .getReleaseTitle()),
                 "Params(releaseTitle and releasedBy) can not be empty");
 
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
-        }
-
         ReleaseDTO mergedRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName,
                 model.getReleaseTitle(), model.getReleaseComment(),
                 model.isEmergencyPublish(), deleteBranch, model.getReleasedBy());
@@ -124,10 +112,6 @@ public class ReleaseController {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
                         .getReleaseTitle()),
                 "Params(releaseTitle and releasedBy) can not be empty");
-
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
-        }
 
         NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
 
@@ -152,10 +136,6 @@ public class ReleaseController {
         RequestPrecondition.checkArguments(model.getGrayDelKeys() != null,
                 "Params(grayDelKeys) can not be null");
 
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
-        }
-
         NamespaceGrayDelReleaseModel releaseModel = BeanUtils.transform(NamespaceGrayDelReleaseModel.class, model);
         releaseModel.setAppId(appId);
         releaseModel.setEnv(env.toUpperCase());
@@ -170,10 +150,6 @@ public class ReleaseController {
       @PathVariable long releaseId, @RequestParam String operator, HttpServletRequest request) {
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
         "Param operator can not be empty");
-
-    if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("user(operator) not exists");
-    }
 
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 

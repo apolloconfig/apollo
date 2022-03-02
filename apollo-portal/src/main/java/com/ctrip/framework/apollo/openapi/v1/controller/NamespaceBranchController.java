@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -30,7 +29,6 @@ import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -52,17 +50,14 @@ public class NamespaceBranchController {
     private final ConsumerPermissionValidator consumerPermissionValidator;
     private final ReleaseService releaseService;
     private final NamespaceBranchService namespaceBranchService;
-    private final UserService userService;
 
     public NamespaceBranchController(
         final ConsumerPermissionValidator consumerPermissionValidator,
         final ReleaseService releaseService,
-        final NamespaceBranchService namespaceBranchService,
-        final UserService userService) {
+        final NamespaceBranchService namespaceBranchService) {
         this.consumerPermissionValidator = consumerPermissionValidator;
         this.releaseService = releaseService;
         this.namespaceBranchService = namespaceBranchService;
-        this.userService = userService;
     }
 
     @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
@@ -87,10 +82,6 @@ public class NamespaceBranchController {
                                          HttpServletRequest request) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
-        if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
-        }
-
         NamespaceDTO namespaceDTO = namespaceBranchService.createBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, operator);
         if (namespaceDTO == null) {
             return null;
@@ -108,10 +99,6 @@ public class NamespaceBranchController {
                              @RequestParam("operator") String operator,
                              HttpServletRequest request) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
-
-        if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
-        }
 
         boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(request, appId, namespaceName, env) ||
             (consumerPermissionValidator.hasModifyNamespacePermission(request, appId, namespaceName, env) &&
@@ -147,10 +134,6 @@ public class NamespaceBranchController {
                                   @RequestParam("operator") String operator,
                                   HttpServletRequest request) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
-
-        if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
-        }
 
         rules.setAppId(appId);
         rules.setClusterName(clusterName);

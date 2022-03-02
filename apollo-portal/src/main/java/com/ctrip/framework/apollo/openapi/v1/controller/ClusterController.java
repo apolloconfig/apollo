@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -38,13 +37,9 @@ import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
 @RequestMapping("/openapi/v1/envs/{env}")
 public class ClusterController {
 
-  private final UserService userService;
   private final ClusterOpenApiService clusterOpenApiService;
 
-  public ClusterController(
-      UserService userService,
-      ClusterOpenApiService clusterOpenApiService) {
-    this.userService = userService;
+  public ClusterController(ClusterOpenApiService clusterOpenApiService) {
     this.clusterOpenApiService = clusterOpenApiService;
   }
 
@@ -73,10 +68,6 @@ public class ClusterController {
     if (!InputValidator.isValidClusterNamespace(clusterName)) {
       throw new BadRequestException(
           String.format("Invalid ClusterName format: %s", InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
-    }
-
-    if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("User " + operator + " doesn't exist!");
     }
 
     return this.clusterOpenApiService.createCluster(env, cluster);
