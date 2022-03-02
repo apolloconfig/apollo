@@ -43,5 +43,6 @@ Apollo 2.0.0
 * [Add Ordered interface to ProviderManager SPI](https://github.com/apolloconfig/apollo/pull/4218)
 * [Using commons-lang3 to replace commons-lang](https://github.com/apolloconfig/apollo/pull/4225)
 * [optimize import/export config](https://github.com/apolloconfig/apollo/pull/4231)
+* [OpenAPI does not verify userId authenticity](https://github.com/apolloconfig/apollo/pull/4246)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
