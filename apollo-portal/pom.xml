@@ -112,6 +112,13 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- end of test -->
+		<!-- https://mvnrepository.com/artifact/com.nimbusds/oauth2-oidc-sdk -->
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>oauth2-oidc-sdk</artifactId>
+			<version>9.27</version>
+			<scope>runtime</scope>
+		</dependency>
 
 	</dependencies>
 	<build>
