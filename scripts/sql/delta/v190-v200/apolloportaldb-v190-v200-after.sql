@@ -13,21 +13,22 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-# delta schema to upgrade apollo portal db from v1.9.0 to v1.10.0
+# delta schema to upgrade apollo portal db from v1.9.0 to v2.0.0
 
 Use ApolloPortalDB;
 
-UPDATE `App` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `AppNamespace` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `Consumer` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `ConsumerRole` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `ConsumerToken` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `Favorite` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `Permission` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `Role` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `RolePermission` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `ServerConfig` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
-UPDATE `UserRole` SET `DeletedAt` = -Id WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+-- the follow DML won't change the `DataChange_LastTime` field
+UPDATE `App` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `AppNamespace` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `Consumer` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `ConsumerRole` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `ConsumerToken` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `Favorite` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `Permission` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `Role` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `RolePermission` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `ServerConfig` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
+UPDATE `UserRole` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 
 -- add UNIQUE CONSTRAINT INDEX for each table
 ALTER TABLE `App`

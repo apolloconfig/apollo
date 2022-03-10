@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-# delta schema to upgrade apollo portal db from v1.9.0 to v1.10.0
+# delta schema to upgrade apollo portal db from v1.9.0 to v2.0.0
 
 Use ApolloPortalDB;
 
