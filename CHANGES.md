@@ -44,5 +44,7 @@ Apollo 2.0.0
 * [Using commons-lang3 to replace commons-lang](https://github.com/apolloconfig/apollo/pull/4225)
 * [optimize import/export config](https://github.com/apolloconfig/apollo/pull/4231)
 * [Configure publish and rollback modal boxes to add scrollbars](https://github.com/apolloconfig/apollo/pull/4251)
+* [fix import config bug](https://github.com/apolloconfig/apollo/pull/4262)
+
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
