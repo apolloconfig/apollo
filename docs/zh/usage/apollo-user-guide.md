@@ -111,7 +111,7 @@ Apollo除了支持表格模式，逐个添加、修改配置外，还提供文�
 ## 1.5 应用读取配置
 配置发布成功后，应用就可以通过Apollo客户端读取到配置了。
 
-Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](zh/usage/java-sdk-user-guide)：
+Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](java-sdk-user-guide.md)：
 
 如果应用使用了其它语言，也可以通过直接访问Http接口获取配置，具体可以参考[其它语言客户端接入指南](zh/usage/other-language-client-user-guide)
 
