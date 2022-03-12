@@ -1,4 +1,4 @@
->注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](development/apollo-development-guide.md)。
+>注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](../development/apollo-development-guide.md)。
 
 # &nbsp;
 # 一、准备工作
