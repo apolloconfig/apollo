@@ -53,13 +53,9 @@ ALTER TABLE `Cluster`
 
 -- Ignore TABLE `Commit`
 
-ALTER TABLE `GrayReleaseRule`
-    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_BranchName_DeletedAt` (`AppId`,`ClusterName`,`NamespaceName`,`BranchName`,`DeletedAt`),
-    DROP INDEX `IX_Namespace`;
+-- Ignore TABLE `GrayReleaseRule`, add unique index in future
 
-ALTER TABLE `Item`
-    ADD UNIQUE INDEX `UK_NamespaceId_LineNum_Key_DeletedAt` (`NamespaceId`,`Key`,`LineNum`,`DeletedAt`),
-    DROP INDEX `IX_GroupId`;
+-- Ignore TABLE `Item`, add unique index in future
 
 ALTER TABLE `Namespace`
     ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`(191),`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
