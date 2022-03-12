@@ -96,6 +96,11 @@ public class ItemService {
     }
     long namespaceId = namespace.getId();
 
+    // In case someone constructs an attack scenario
+    if (model.getNamespaceId() != namespaceId) {
+      throw new BadRequestException("Invalid request, item and namespace do not match!");
+    }
+
     String configText = model.getConfigText();
 
     ConfigTextResolver resolver =
