@@ -37,6 +37,23 @@ You are also encouraged to participate in the projects in the following ways:
 - Give representations of Apollo topic in conferences.
 - Take part in our discussions of features, enhancements, etc.
 
+## Members
+
+Members are active contributors who have made multiple contributions to the project or community. They will be invited as a member of the [apollo organization](https://github.com/apolloconfig).
+
+### How to become a Member
+
+- Enabled [two-factor authentication](https://help.github.com/articles/about-two-factor-authentication) on their GitHub account
+- Have made multiple contributions to the project or community, e.g. authoring or reviewing PRs, commenting on issues/discussions, etc
+- [Submit a member request](https://github.com/apolloconfig/apollo-community/issues/new?template=membership-request.md&title=REQUEST%3A+New+membership+for+%3Cyour-github-username%3E) in the [apollo-community](https://github.com/apolloconfig/apollo-community) repo
+- Sponsored by two PMC members, i.e. replying `+1` to confirm sponsorship in the member request
+
+### Privileges and responsibilities
+
+- Have the [Triage role](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-peoples-access-to-your-organization-with-roles/managing-custom-repository-roles-for-an-organization#about-the-inherited-role) of the apollo community
+- Responsive to issues and PRs assigned to them
+- Active owner of code contributed by them, e.g. Addresses bugs or issues discovered after code is accepted
+
 ## Committers
 
 Committers are contributors who have shown that they are committed to the continued development of the project through ongoing engagement with the community and recognized by PMCs for their outstanding contributions.
@@ -53,6 +70,7 @@ A Committer must have accomplished one or more of the following items:
 
 ### Privileges and responsibilities
 
+- Have the [Write role](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-peoples-access-to-your-organization-with-roles/managing-custom-repository-roles-for-an-organization#about-the-inherited-role) of the apollo community
 - Control overall code quality of projects
 - Guide Contributors to contribute to the community continuously
 - Participate in design discussions
@@ -91,4 +109,4 @@ Any change in this Governance document, or similar nature of changes to other go
 
 # Credits
 
-The contents of this document are based on <http://oss-watch.ac.uk/resources/meritocraticgovernancemodel> by Ross Gardler and Gabriel Hanganu, and [TiDB Governance](https://github.com/pingcap/community/blob/master/GOVERNANCE.md).
+The contents of this document are based on [Meritocratic Governance Model](http://oss-watch.ac.uk/resources/meritocraticgovernancemodel), [TiDB Governance](https://github.com/pingcap/community/blob/master/GOVERNANCE.md) and [Dapr Community Membership](https://github.com/dapr/community/blob/master/community-membership.md).
