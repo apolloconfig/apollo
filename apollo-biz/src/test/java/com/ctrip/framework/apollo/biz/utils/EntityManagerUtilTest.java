@@ -8,6 +8,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+/**
+ * @author Ayush Jha
+ */
+
 @RunWith(MockitoJUnitRunner.class)
 public class EntityManagerUtilTest {
 
