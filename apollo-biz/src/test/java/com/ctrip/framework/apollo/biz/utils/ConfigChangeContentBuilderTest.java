@@ -17,12 +17,14 @@
 package com.ctrip.framework.apollo.biz.utils;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import com.ctrip.framework.apollo.biz.MockBeanFactory;
 import com.ctrip.framework.apollo.biz.entity.Item;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * @author jian.tan
@@ -32,23 +34,43 @@ public class ConfigChangeContentBuilderTest {
 
   private final ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
   private String configString;
-
+  private Item createdItem;
+  private Item updatedItem;
+  private Item updatedItemFalseCheck;
+  private Item createdItemFalseCheck;
   @Before
   public void initConfig() {
 
-    Item createdItem = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
-    Item updatedItem = MockBeanFactory.mockItem(1, 1, "timeout", "1001", 1);
+     createdItem = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
+     updatedItem = MockBeanFactory.mockItem(1, 1, "timeout", "1001", 1);
+     updatedItemFalseCheck = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
+     createdItemFalseCheck = MockBeanFactory.mockItem(1, 1, "", "100", 1);
 
     configChangeContentBuilder.createItem(createdItem);
+    configChangeContentBuilder.createItem(createdItemFalseCheck);
     configChangeContentBuilder.updateItem(createdItem, updatedItem);
+    configChangeContentBuilder.updateItem(createdItem, updatedItemFalseCheck);
     configChangeContentBuilder.deleteItem(updatedItem);
+    configChangeContentBuilder.deleteItem(createdItemFalseCheck);
 
     configString = configChangeContentBuilder.build();
   }
-
+  
   @Test
   public void testHasContent() {
-    assertTrue(configChangeContentBuilder.hasContent());
+	  assertTrue(configChangeContentBuilder.hasContent());
+	  configChangeContentBuilder.getCreateItems().clear();
+	  assertTrue(configChangeContentBuilder.hasContent());
+	  configChangeContentBuilder.getUpdateItems().clear();
+	  assertTrue(configChangeContentBuilder.hasContent());
+  }
+
+  @Test
+  public void testHasContentFalseCheck() {
+	  configChangeContentBuilder.getCreateItems().clear();
+	  configChangeContentBuilder.getUpdateItems().clear();
+	  configChangeContentBuilder.getDeleteItems().clear();
+	  assertFalse(configChangeContentBuilder.hasContent());
   }
 
   @Test
