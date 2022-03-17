@@ -33,7 +33,7 @@ import org.springframework.util.CollectionUtils;
  * Default discovery service for Eureka
  */
 @Service
-@ConditionalOnMissingProfile({"kubernetes", "nacos-discovery", "consul-discovery", "zookeeper-discovery"})
+@ConditionalOnMissingProfile({"kubernetes", "nacos-discovery", "consul-discovery", "zookeeper-discovery", "custom-defined-discovery"})
 public class DefaultDiscoveryService implements DiscoveryService {
 
   private final EurekaClient eurekaClient;

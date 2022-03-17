@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
  * </ul>
  */
 @Service
-@Profile({"kubernetes"})
+@Profile({"kubernetes", "custom-defined-discovery"})
 public class KubernetesDiscoveryService implements DiscoveryService {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
   private static final Map<String, String> SERVICE_ID_TO_CONFIG_NAME = ImmutableMap
