@@ -40,6 +40,7 @@ public class ConfigChangeContentBuilderTest {
   private Item createdItemFalseCheck;
   @Before
   public void initConfig() {
+	  
 
      createdItem = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
      updatedItem = MockBeanFactory.mockItem(1, 1, "timeout", "1001", 1);

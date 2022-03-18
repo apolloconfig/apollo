@@ -26,6 +26,5 @@ public class EntityManagerUtilTest {
 		entityManagerUtil.closeEntityManager();
 
 	}
-	// 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
-	//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(git token)
+
 }
