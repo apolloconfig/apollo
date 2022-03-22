@@ -32,7 +32,7 @@ import com.ctrip.framework.apollo.biz.entity.Item;
 
 public class ConfigChangeContentBuilderTest {
 
-	private final ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
+	private ConfigChangeContentBuilder configChangeContentBuilder;
 	private String configString;
 	private Item createdItem;
 	private Item updatedItem;
@@ -41,7 +41,7 @@ public class ConfigChangeContentBuilderTest {
 
 	@Before
 	public void initConfig() {
-
+		configChangeContentBuilder = new ConfigChangeContentBuilder();
 		createdItem = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
 		updatedItem = MockBeanFactory.mockItem(1, 1, "timeout", "1001", 1);
 		updatedItemFalseCheck = MockBeanFactory.mockItem(1, 1, "timeout", "100", 1);
