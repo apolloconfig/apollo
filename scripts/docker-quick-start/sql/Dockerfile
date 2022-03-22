@@ -30,7 +30,7 @@ EXPOSE 3306
 
 VOLUME [ "/var/lib/mysql" ]
 
-COPY ./*.sql /tmp
+COPY ./*.sql /tmp/
 
 RUN if [ ! -z ${COMPONENT} ];then cp /tmp/apollo${COMPONENT}db.sql /docker-entrypoint-initdb.d;else cp /tmp/*.sql /docker-entrypoint-initdb.d;fi
 
