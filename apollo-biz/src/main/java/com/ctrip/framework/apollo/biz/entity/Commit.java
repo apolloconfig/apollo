@@ -28,7 +28,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "Commit")
-@SQLDelete(sql = "Update Commit set isDeleted = 1 where id = ?")
+@SQLDelete(sql = "Update Commit set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class Commit extends BaseEntity {
 

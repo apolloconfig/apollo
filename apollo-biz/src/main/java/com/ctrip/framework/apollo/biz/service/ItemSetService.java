@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -36,14 +37,17 @@ public class ItemSetService {
   private final AuditService auditService;
   private final CommitService commitService;
   private final ItemService itemService;
+  private final NamespaceService namespaceService;
 
   public ItemSetService(
       final AuditService auditService,
       final CommitService commitService,
-      final ItemService itemService) {
+      final ItemService itemService,
+      final NamespaceService namespaceService) {
     this.auditService = auditService;
     this.commitService = commitService;
     this.itemService = itemService;
+    this.namespaceService = namespaceService;
   }
 
   @Transactional
@@ -54,11 +58,21 @@ public class ItemSetService {
   @Transactional
   public ItemChangeSets updateSet(String appId, String clusterName,
                                   String namespaceName, ItemChangeSets changeSet) {
+    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
+
+    if (namespace == null) {
+      throw new NotFoundException(String.format("Namespace %s not found", namespaceName));
+    }
+
     String operator = changeSet.getDataChangeLastModifiedBy();
     ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
 
     if (!CollectionUtils.isEmpty(changeSet.getCreateItems())) {
       for (ItemDTO item : changeSet.getCreateItems()) {
+        if (item.getNamespaceId() != namespace.getId()) {
+          throw new BadRequestException("Invalid request, item and namespace do not match!");
+        }
+
         Item entity = BeanUtils.transform(Item.class, item);
         entity.setDataChangeCreatedBy(operator);
         entity.setDataChangeLastModifiedBy(operator);
@@ -75,6 +89,9 @@ public class ItemSetService {
         Item managedItem = itemService.findOne(entity.getId());
         if (managedItem == null) {
           throw new NotFoundException(String.format("item not found.(key=%s)", entity.getKey()));
+        }
+        if (managedItem.getNamespaceId() != namespace.getId()) {
+          throw new BadRequestException("Invalid request, item and namespace do not match!");
         }
         Item beforeUpdateItem = BeanUtils.transform(Item.class, managedItem);
 
@@ -94,6 +111,9 @@ public class ItemSetService {
     if (!CollectionUtils.isEmpty(changeSet.getDeleteItems())) {
       for (ItemDTO item : changeSet.getDeleteItems()) {
         Item deletedItem = itemService.delete(item.getId(), operator);
+        if (deletedItem.getNamespaceId() != namespace.getId()) {
+          throw new BadRequestException("Invalid request, item and namespace do not match!");
+        }
         configChangeContentBuilder.deleteItem(deletedItem);
       }
       auditService.audit("ItemSet", null, Audit.OP.DELETE, operator);

@@ -239,6 +239,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-oidc.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-oidc-sample.yml)），相关的内容需要按照具体情况调整：
 
 #### 1.1 最小配置
+
 ```yml
 server:
   # 解析反向代理请求头
@@ -249,20 +250,20 @@ spring:
       client:
         provider:
           # provider-name 是 oidc 提供者的名称, 任意字符均可, registration 的配置需要用到这个名称
-          provider-name:
+          <fill-in-the-provider-name-here>:
             # 必须是 https, oidc 的 issuer-uri
             # 例如 你的 issuer-uri 是 https://host:port/auth/realms/apollo/.well-known/openid-configuration, 那么此处只需要配置 https://host:port/auth/realms/apollo 即可, spring boot 处理的时候会加上 /.well-known/openid-configuration 的后缀
             issuer-uri: https://host:port/auth/realms/apollo
         registration:
           # registration-name 是 oidc 客户端的名称, 任意字符均可, oidc 登录必须配置一个 authorization_code 类型的 registration
-          registration-name:
+          <fill-in-the-registration-name-here>:
             # oidc 登录必须配置一个 authorization_code 类型的 registration
             authorization-grant-type: authorization_code
             client-authentication-method: basic
             # client-id 是在 oidc 提供者处配置的客户端ID, 用于登录 provider
             client-id: apollo-portal
             # provider 的名称, 需要和上面配置的 provider 名称保持一致
-            provider: provider-name
+            provider: <fill-in-the-provider-name-here>
             # openid 为 oidc 登录的必须 scope, 此处可以添加其它自定义的 scope
             scope:
               - openid
@@ -276,6 +277,7 @@ spring:
 #### 1.2 扩展配置
 * 如果 OpenID Connect 登录服务支持 client_credentials 模式, 还可以再配置一个 client_credentials 类型的 registration, 用于 apollo-portal 作为客户端请求其它被 oidc 保护的资源
 * 如果 OpenID Connect 登录服务支持 jwt, 还可以配置 ${spring.security.oauth2.resourceserver.jwt.issuer-uri}, 以支持通过 jwt 访问 apollo-portal
+
 ```yml
 server:
   # 解析反向代理请求头
@@ -286,19 +288,19 @@ spring:
       client:
         provider:
           # provider-name 是 oidc 提供者的名称, 任意字符均可, registration 的配置需要用到这个名称
-          provider-name:
+          <fill-in-the-provider-name-here>:
             # 必须是 https, oidc 的 issuer-uri, 和 jwt 的 issuer-uri 一致的话直接引用即可, 也可以单独设置
             issuer-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}
         registration:
           # registration-name 是 oidc 客户端的名称, 任意字符均可, oidc 登录必须配置一个 authorization_code 类型的 registration
-          registration-name:
+          <fill-in-the-registration-name-here>:
             # oidc 登录必须配置一个 authorization_code 类型的 registration
             authorization-grant-type: authorization_code
             client-authentication-method: basic
             # client-id 是在 oidc 提供者处配置的客户端ID, 用于登录 provider
             client-id: apollo-portal
             # provider 的名称, 需要和上面配置的 provider 名称保持一致
-            provider: provider-name
+            provider: <fill-in-the-provider-name-here>
             # openid 为 oidc 登录的必须 scope, 此处可以添加其它自定义的 scope
             scope:
               - openid
@@ -314,7 +316,7 @@ spring:
             # client-id 是在 oidc 提供者处配置的客户端ID, 用于登录 provider
             client-id: apollo-portal
             # provider 的名称, 需要和上面配置的 provider 名称保持一致
-            provider: provider-name
+            provider: <fill-in-the-provider-name-here>
             # openid 为 oidc 登录的必须 scope, 此处可以添加其它自定义的 scope
             scope:
               - openid
@@ -378,6 +380,7 @@ server {
 
 #### 3.2 检查 application-oidc.yml 配置
 在 `application-oidc.yml` 里必须存在配置项 `server.forward-headers-strategy=framework`
+
 ```yml
 server:
   # 解析反向代理请求头

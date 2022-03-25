@@ -12,9 +12,7 @@ Our code style is in line with [Google Java Style Guide](https://google.github.i
 
 We provide template files [intellij-java-google-style.xml](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml) for IntelliJ IDEA and [eclipse-java-google-style.xml](https://github.com/ctripcorp/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml) for Eclipse. If you use other IDEs, then you may config manually by referencing the template files.
 
-* Make sure all new .java files have a simple Javadoc class comment with at least an `@author` tag identifying you, and preferably at least a paragraph on what the class is for.
-
-* Add yourself as an @author to the .java files that you modify substantially (more than cosmetic changes).
+* Make sure all new .java files have a simple Javadoc class comment on what the class is for.
 
 * Add some Javadocs and, if you change the namespace, some XSD doc elements.
 

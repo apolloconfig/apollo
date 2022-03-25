@@ -13,9 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-# delta schema to upgrade apollo config db from v1.9.0 to v2.0.0
+# delta schema to upgrade apollo portal db from v1.9.0 to v2.0.0
 
-Use ApolloConfigDB;
+Use ApolloPortalDB;
 
 ALTER TABLE `App`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
@@ -23,36 +23,29 @@ ALTER TABLE `App`
 ALTER TABLE `AppNamespace`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `Audit`
+ALTER TABLE `Consumer`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `Cluster`
+ALTER TABLE `ConsumerRole`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `Commit`
+ALTER TABLE `ConsumerToken`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `GrayReleaseRule`
+ALTER TABLE `Favorite`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `Item`
-    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`,
-    ADD INDEX IX_key (`Key`);
-
-ALTER TABLE `Namespace`
+ALTER TABLE `Permission`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `NamespaceLock`
+ALTER TABLE `Role`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `Release`
-    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
-
-ALTER TABLE `ReleaseHistory`
+ALTER TABLE `RolePermission`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
 ALTER TABLE `ServerConfig`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
-ALTER TABLE `AccessKey`
+ALTER TABLE `UserRole`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
