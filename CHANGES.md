@@ -47,5 +47,6 @@ Apollo 2.0.0
 * [fix import config bug](https://github.com/apolloconfig/apollo/pull/4262)
 * [Refactor the soft delete design](https://github.com/apolloconfig/apollo/pull/3866)
 * [Fix the potential data inconsistency issue](https://github.com/apolloconfig/apollo/pull/4256)
+* [Fix the deleted items display issue in text mode](https://github.com/apolloconfig/apollo/pull/4279)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
