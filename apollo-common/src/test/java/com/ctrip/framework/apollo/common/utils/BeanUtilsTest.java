@@ -16,16 +16,13 @@ package com.ctrip.framework.apollo.common.utils;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import java.util.ArrayList;
 import java.util.List;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
 import com.ctrip.framework.apollo.common.exception.BeanUtilsException;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,39 +30,41 @@ public class BeanUtilsTest {
 
   @InjectMocks
   private BeanUtils beanUtils;
+  List<Integer> someList;
+  List<KeyClass> someAnotherList;
+
+  @Before
+  public void setUp() {
+    someList = new ArrayList<>();
+    someAnotherList = new ArrayList<>();
+  }
 
   @Test
   public void testBatchTransformListNotEmpty() {
-    List<Integer> someList = new ArrayList<>();
     someList.add(77);
     assertNotNull(BeanUtils.batchTransform(String.class, someList));
   }
 
   @Test
   public void testBatchTransformListIsEmpty() {
-    List<Integer> someList = new ArrayList<>();
     assertNotNull(BeanUtils.batchTransform(String.class, someList));
   }
 
   @Test(expected = BeanUtilsException.class)
   public void testBatchTransformBeanUtilsException() {
-    List<Integer> someList = new ArrayList<>();
     someList.add(77);
     assertNotNull(BeanUtils.batchTransform(null, someList));
   }
 
   @Test
   public void testBatchTransformSrcIsNull() {
-    List<Integer> someList = new ArrayList<>();
     someList.add(null);
     assertNotNull(BeanUtils.batchTransform(String.class, someList));
   }
 
   @Test
   public void testMapByKeyEmptyList() {
-    List<Integer> someList = new ArrayList<>();
     assertNotNull(BeanUtils.mapByKey(null, someList));
-
   }
 
   class KeyClass {
@@ -74,73 +73,54 @@ public class BeanUtilsTest {
 
   @Test
   public void testMapByKeyNotEmptyList() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.mapByKey("keys", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.mapByKey("keys", someAnotherList));
   }
 
   @Test(expected = BeanUtilsException.class)
   public void testMapByKeyNotEmptyListThrowsEx() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.mapByKey("wrongKey", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.mapByKey("wrongKey", someAnotherList));
   }
 
   @Test
   public void testAggByKeyToListEmpty() {
-    List<KeyClass> someList = new ArrayList<>();
-    assertNotNull(BeanUtils.aggByKeyToList("keys", someList));
-
+    assertNotNull(BeanUtils.aggByKeyToList("keys", someAnotherList));
   }
 
   @Test
   public void testAggByKeyToListNotEmpty() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.aggByKeyToList("keys", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.aggByKeyToList("keys", someAnotherList));
   }
 
   @Test(expected = BeanUtilsException.class)
   public void testAggByKeyToListNotEmptyThrowsEx() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.aggByKeyToList("wrongKey", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.aggByKeyToList("wrongKey", someAnotherList));
   }
 
   @Test
   public void testToPropertySetEmpty() {
-    List<KeyClass> someList = new ArrayList<>();
-    assertNotNull(BeanUtils.toPropertySet("keys", someList));
-
+    assertNotNull(BeanUtils.toPropertySet("keys", someAnotherList));
   }
 
   @Test
   public void testToPropertySetNotEmpty() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.toPropertySet("keys", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.toPropertySet("keys", someAnotherList));
   }
 
   @Test(expected = BeanUtilsException.class)
   public void testToPropertySetNotEmptyThrowsEx() {
-    List<KeyClass> someList = new ArrayList<>();
-    someList.add(new KeyClass());
-    assertNotNull(BeanUtils.toPropertySet("wrongKey", someList));
-
+    someAnotherList.add(new KeyClass());
+    assertNotNull(BeanUtils.toPropertySet("wrongKey", someAnotherList));
   }
 
   @Test
   public void testGetAndsetProperty() {
     BeanUtils.setProperty(new KeyClass(), "keys", "value");
     assertNull(BeanUtils.getProperty(new KeyClass(), "keys"));
-
   }
-
-
 
 }
