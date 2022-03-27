@@ -141,16 +141,6 @@ public class BeanUtilsTest {
 
   }
 
-  @Test
-  public void testCopyProperties() {
-    BeanUtils.copyProperties(Mockito.mock(Object.class), Mockito.mock(Object.class),
-        Mockito.any(String.class));
-  }
 
-  @Test
-  public void testCopyEntityProperties() {
-    BeanUtils.copyEntityProperties(Mockito.mock(Object.class), Mockito.mock(Object.class));
-
-  }
 
 }
