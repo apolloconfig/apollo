@@ -12,7 +12,7 @@
   - [Deployment Architecture](en/deployment/deployment-architecture.md)
   - [Distributed Deployment Guide](en/deployment/distributed-deployment-guide.md)
   - Deployment By Third-party Tool 
-    - [Install the HA Apollo cluster in Rainbond with one-click](en/deployment/deployment-rainbond.md)
+    - [Install the HA Apollo cluster in Rainbond with one-click](en/deployment/third-party-tool-rainbond.md)
   - [Release New Version Guide](en/development/apollo-release-guide.md)
 
 - Development Document
