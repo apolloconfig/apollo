@@ -21,7 +21,7 @@ Application template is a package manager for Rainbond cloud native application 
 
 # Prerequisite
 
-- Deployed Rainbond cloud native application management platform,[Quick Start](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo) Can run in a PC within a container.
+- Deployed Rainbond cloud native application management platform. The [Quick Start](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo) can be used to run in a PC within a container.
 
 - Internet connection.
 
