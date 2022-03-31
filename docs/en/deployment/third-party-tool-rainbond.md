@@ -4,7 +4,7 @@
 
 # Background
 
-Current documentation describes how to install a high availability Apollo cluster with one-click through [Rainbond](https://www.rainbond.com/?channel=apollo), a cloud native application management platform. This approach is suitable for users who are less familiar with Kubernetes, containerization and other complex technologies, and lowers the barrier to deploying Apollo in Kubernetes.
+Current documentation describes how to install a high availability Apollo cluster with one-click through [Rainbond](https://www.rainbond.com/?channel=apollo), a cloud native application management platform. This approach is suitable for users who are less familiar with Kubernetes, containerization and other complex technologies, and lowers the barrier to deploy Apollo in Kubernetes.
 
 ## Combination of Rainbond and Apollo
 
