@@ -12,7 +12,7 @@ Rainbond is an easy to use open source cloud native application management platf
 
 Rainbond has a built-in native Service Mesh microservice framework, and also has a good integration experience with other microservice frameworks such as Spring Cloud and Dubbo. Therefore, a large number of Rainbond users may also be users of the Apollo configuration center. Instead of worrying about how to deploy a Apollo cluster, the Rainbond team made Apollo a one-click application template for free download and installation by open source users. This installation method greatly reduces the deployment burden of users using Apollo clusters. Currently, versions 1.9.2 is supported.
 
-The current installation mode integrates a set of `PRO` environments by default, with additional environments, as described in the advanced features section later.
+The current installation mode integrates a set of `PRO` environments by default. Instructions to add additional environments is described in the advanced features section later.
 
 ## About application template
 
