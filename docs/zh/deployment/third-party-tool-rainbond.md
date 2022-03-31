@@ -47,7 +47,7 @@ Rainbond 内置原生 Service Mesh 微服务框架，同时与 Spring Cloud、Du
 | 选择应用 | 选择 Apollo 被部署到哪一个应用，应用中包含有若干有关联的组件 |
 | 应用版本 | 选择 Apollo 的版本，目前可选版本为 1.9.2        |
 
-等待几分钟后，Nacos 集群就会安装完成，并运行起来。
+等待几分钟后，Apollo 集群就会安装完成，并运行起来。
 
 ![apollo-3](https://static.goodrain.com/wechat/apollo/apollo-3.png)
 
