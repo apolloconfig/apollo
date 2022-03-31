@@ -83,7 +83,7 @@ Take `Apollo-portal-1.9.2` as an example, click **scale**, modify the number of 
 
 ![apollo-5](https://static.goodrain.com/wechat/apollo/apollo-5.png)
 
-## Append envs
+## Add envs
 
 The Apollo configuration center supports multiple environments and manages them using a unified Portal page. Apollo clusters based on Rainbond's one-click installation ship with the 'PRO' environment by default. In the Rainbond scenario, I'll show you how to append a set of 'DEV' environments. Access the `Apollo-config-dev` and `Apollo-admin-dev` components, respectively.
 
