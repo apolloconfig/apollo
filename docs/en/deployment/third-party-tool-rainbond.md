@@ -16,7 +16,7 @@ The current installation mode integrates a set of `PRO` environments by default.
 
 ## About application template
 
-Application template is package manager for Rainbond cloud native application management platform. Users can install applications into Rainbond with one-click. No matter how complex the application is, the application template abstracts it into an package, which is installed with docker images of all the components, configuration information, and relationships between all the components.
+Application template is a package manager for Rainbond cloud native application management platform. Users can install applications into Rainbond with one-click. No matter how complex the application is, the application template abstracts it into an package, which is installed with docker images of all the components, configuration information, and relationships between all the components.
 
 
 # Prerequisite
