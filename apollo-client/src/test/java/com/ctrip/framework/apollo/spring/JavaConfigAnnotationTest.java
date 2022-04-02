@@ -56,10 +56,9 @@ import java.util.Set;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anySetOf;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -405,7 +404,7 @@ public class JavaConfigAnnotationTest extends AbstractSpringIntegrationTest {
 
     verify(simpleConfig, atLeastOnce())
         .addChangeListener(any(ConfigChangeListener.class), Mockito.nullable(Set.class),
-            anySetOf(String.class));
+            anySet());
 
     Properties properties = new Properties();
     properties.put("logging.level.com", "debug");
