@@ -10,7 +10,13 @@
 
 [Rainbond](https://www.rainbond.com/?channel=apollo) 是一款易于使用的开源云原生应用管理平台。借助于它，用户可以在图形化界面中完成微服务的部署与运维。借助 Kubernetes 和容器化技术的能力，将故障自愈、弹性伸缩等自动化运维能力赋能给用户的业务。
 
-Rainbond 内置原生 Service Mesh 微服务框架，同时与 Spring Cloud、Dubbo 等其他微服务框架也有很好的整合体验。故而大量的 Rainbond 用户也可能是 Apollo 分布式配置管理中心的用户。这类用户不必再关心如何部署 Apollo 集群，Rainbond 团队将 Apollo 制作成为可以一键部署的应用模版，供开源用户免费下载安装。这种安装方式极大的降低了用户使用 Apollo 集群的部署负担，目前支持 1.9.2 版本。
+Rainbond 内置原生 Service Mesh 微服务框架，同时与 Spring Cloud、Dubbo 等其他微服务框架也有很好的整合体验。
+
+故而大量的 Rainbond 用户也可能是 Apollo 分布式配置管理中心的用户。
+
+这类用户不必再关心如何部署 Apollo 集群，Rainbond 团队将 Apollo 制作成为可以一键部署的应用模版，供开源用户免费下载安装。
+
+这种安装方式极大的降低了用户使用 Apollo 集群的部署负担，目前支持 1.9.2 版本。
 
 当前的安装方式，默认集成了一套 `PRO` 环境，追加其他环境，参见后文中的高级特性章节。
 
