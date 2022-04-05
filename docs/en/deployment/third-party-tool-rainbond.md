@@ -8,9 +8,19 @@ Current documentation describes how to install a high availability Apollo cluste
 
 ## Combination of Rainbond and Apollo
 
-Rainbond is an easy to use open source cloud native application management platform. With the help of it, users can complete the deployment, operation and maintenance of microservices in a graphical interface. With the help of Kubernetes and containerization technology, automatic operation and maintenance capabilities such as fault self-healing and elastic expansion can be endowed to users' applications.
+Rainbond is an easy to use open source cloud native application management platform. 
 
-Rainbond has a built-in native Service Mesh microservice framework, and also has a good integration experience with other microservice frameworks such as Spring Cloud and Dubbo. Therefore, a large number of Rainbond users may also be users of the Apollo configuration center. Instead of worrying about how to deploy a Apollo cluster, the Rainbond team made Apollo a one-click application template for free download and installation by open source users. This installation method greatly reduces the deployment burden of users using Apollo clusters. Currently, versions 1.9.2 is supported.
+With the help of it, users can complete the deployment, operation and maintenance of microservices in a graphical interface. 
+
+With the help of Kubernetes and containerization technology, automatic operation and maintenance capabilities such as fault self-healing and elastic expansion can be endowed to users' applications.
+
+Rainbond has a built-in native Service Mesh microservice framework, and also has a good integration experience with other microservice frameworks such as Spring Cloud and Dubbo. 
+
+Therefore, a large number of Rainbond users may also be users of the Apollo configuration center. 
+
+Instead of worrying about how to deploy a Apollo cluster, the Rainbond team made Apollo a one-click application template for free download and installation by open source users. 
+
+This installation method greatly reduces the deployment burden of users using Apollo clusters. Currently, versions 1.9.2 is supported.
 
 The current installation mode integrates a set of `PRO` environments by default. Instructions to add additional environments is described in the advanced features section later.
 
@@ -21,7 +31,7 @@ Application template is a package manager for Rainbond cloud native application 
 
 # Prerequisite
 
-- Deployed Rainbond cloud native application management platform. The [Quick Start](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo) can be used to run in a PC within a container.
+- Deployed Rainbond cloud native application management platform. For example: The [Quick Start](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo) can be used to run in a PC within a container.
 
 - Internet connection.
 
