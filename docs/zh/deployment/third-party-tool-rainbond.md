@@ -30,7 +30,7 @@ Rainbond 内置原生 Service Mesh 微服务框架，同时与 Spring Cloud、Du
 
 # 二、前提条件
 
-- 部署好的 Rainbond 云原生应用管理平台，[快速体验版本](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo) 可以在个人 PC 环境中以启动一个容器的代价运行。
+- 部署好的 Rainbond 云原生应用管理平台：例如 [快速体验版本](https://www.rainbond.com/docs/quick-start/quick-install/?channel=apollo)，可以在个人 PC 环境中以启动一个容器的代价运行。
 
 - 互联网连接。
 
