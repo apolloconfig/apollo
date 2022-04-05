@@ -65,7 +65,7 @@ Rainbond 内置原生 Service Mesh 微服务框架，同时与 Spring Cloud、Du
 
 - 配置文件：通过在不同的组件页面中的环境配置中，可以为组件设置配置文件。
   
-  -  `Apollo-portal-1.9.2` 挂载 `/apollo-portal/config/apollo-env.properties` 用于定义不同环境的 meta 地址。
+  - `Apollo-portal-1.9.2` 挂载 `/apollo-portal/config/apollo-env.properties` 用于定义不同环境的 meta 地址。
   
   - `Apollo-config-1.9.2` 挂载 `/apollo-configservice/config/application-github.properties` 用于声明当前环境 config 和 admin 的服务地址。
 
