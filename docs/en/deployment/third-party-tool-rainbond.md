@@ -43,10 +43,10 @@ Parameters：
 
 | Options  | Instructions                                 |
 | ---- | ---------------------------------- |
-| 团队名称 | User-defined workspace isolated by namespace                 |
-| 集群名称 |  Select which K8s cluster Apollo will be deployed to           |
-| 选择应用 | Select the application to which Apollo will be deployed, which contains several associated components |
-| 应用版本 | Select the version of Apollo, the useable version is 1.9.2       |
+| team name | User-defined workspace isolated by namespace                 |
+| cluster name |  Select which K8s cluster Apollo will be deployed to           |
+| application | Select the application to which Apollo will be deployed, which contains several associated components |
+| version | Select the version of Apollo, the useable version is 1.9.2       |
 
 After a few minutes, the Apollo is installed and up and running.
 
