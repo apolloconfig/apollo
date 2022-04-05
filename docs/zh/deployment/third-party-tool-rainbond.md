@@ -4,7 +4,7 @@
 
 # 一、背景信息
 
-当前文档描述如何通过云原生应用管理平台 [Rainbond](https://www.rainbond.com/?channel=apollo) 一键安装高可用 Apollo 集群。这种方式适合不太了解 Kubernetes、容器化等复杂技术的用户使用，降低了在 Kubernetes 中部署 Apollo 的门槛。
+当前文档描述如何通过云原生应用管理平台 [Rainbond](https://www.rainbond.com/?channel=apollo) 一键安装高可用 Apollo 集群。这种方式适合给不太了解 Kubernetes、容器化等复杂技术的用户使用，降低了在 Kubernetes 中部署 Apollo 的门槛。
 
 ## 1.1 Rainbond 与 Apollo 的结合
 
