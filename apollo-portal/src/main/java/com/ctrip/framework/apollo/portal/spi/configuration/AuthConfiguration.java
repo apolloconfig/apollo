@@ -49,6 +49,7 @@ import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2Res
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
@@ -136,6 +137,7 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @DependsOn("jdbcUserDetailsManager")
     @ConditionalOnMissingBean(UserService.class)
     public UserService springSecurityUserService(PasswordEncoder passwordEncoder,
         UserRepository userRepository, AuthorityRepository authorityRepository) {
