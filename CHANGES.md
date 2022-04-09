@@ -50,5 +50,6 @@ Apollo 2.0.0
 * [Fix the deleted items display issue in text mode](https://github.com/apolloconfig/apollo/pull/4279)
 * [Upgrade spring boot to 2.6.6 and spring cloud to 2021.0.1](https://github.com/apolloconfig/apollo/pull/4295)
 * [Fix the apollo portal start failed issue](https://github.com/apolloconfig/apollo/pull/4298)
+* [fix: javax.net.ssl.SSLHandshakeException: No appropriate protocol](https://github.com/apolloconfig/apollo/pull/4308)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)
