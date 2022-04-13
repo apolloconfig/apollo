@@ -44,6 +44,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
@@ -101,7 +102,7 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     Assert.assertEquals("default", release.getClusterName());
     Assert.assertEquals("application", release.getNamespaceName());
 
-    Map<String, String> configurations = new HashMap<>();
+    Map<String, String> configurations = new LinkedHashMap<>();
     configurations.put("k1", "v1");
     configurations.put("k2", "v2");
     configurations.put("k3", "v3");

@@ -693,7 +693,7 @@
 					<plugin>
 						<groupId>org.flywaydb</groupId>
 						<artifactId>flyway-maven-plugin</artifactId>
-						<version>5.2.4</version>
+						<version>8.0.5</version>
 						<dependencies>
 							<dependency>
 								<groupId>mysql</groupId>
@@ -702,7 +702,11 @@
 							</dependency>
 						</dependencies>
 						<configuration>
-							<configFile>scripts/flyway/flyway-configdb.properties</configFile>
+							<configFiles>
+								<configFile>
+									scripts/flyway/flyway-configdb.properties
+								</configFile>
+							</configFiles>
 						</configuration>
 						<inherited>false</inherited>
 					</plugin>
@@ -716,7 +720,7 @@
 					<plugin>
 						<groupId>org.flywaydb</groupId>
 						<artifactId>flyway-maven-plugin</artifactId>
-						<version>5.2.4</version>
+						<version>8.0.5</version>
 						<dependencies>
 							<dependency>
 								<groupId>mysql</groupId>
@@ -725,7 +729,11 @@
 							</dependency>
 						</dependencies>
 						<configuration>
-							<configFile>scripts/flyway/flyway-portaldb.properties</configFile>
+							<configFiles>
+								<configFile>
+									scripts/flyway/flyway-portaldb.properties
+								</configFile>
+							</configFiles>
 						</configuration>
 						<inherited>false</inherited>
 					</plugin>
