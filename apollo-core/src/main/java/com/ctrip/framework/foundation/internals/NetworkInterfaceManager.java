@@ -17,6 +17,7 @@
 package com.ctrip.framework.foundation.internals;
 
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -42,7 +43,7 @@ public enum NetworkInterfaceManager {
     InetAddress local = null;
     int maxWeight = -1;
     for (InetAddress address : addresses) {
-      if (address instanceof Inet4Address) {
+      if (address instanceof Inet4Address || address instanceof Inet6Address) {
         int weight = 0;
 
         if (address.isSiteLocalAddress()) {
@@ -112,22 +113,15 @@ public enum NetworkInterfaceManager {
         m_local = InetAddress.getByName(ip);
         return;
       } catch (Exception e) {
-        System.err.println(e);
-        // ignore
+        // ignore it
       }
     }
 
     try {
       Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-      List<NetworkInterface> nis = interfaces == null ? Collections.<NetworkInterface>emptyList()
-          : Collections.list(interfaces);
-      //sort the network interfaces according to the index asc
-      Collections.sort(nis, new Comparator<NetworkInterface>() {
-        @Override
-        public int compare(NetworkInterface nis1, NetworkInterface nis2) {
-          return Integer.compare(nis1.getIndex(), nis2.getIndex());
-        }
-      });
+      List<NetworkInterface> nis = Collections.list(interfaces);
+      // sort the network interfaces according to the index asc
+      nis.sort(Comparator.comparingInt(NetworkInterface::getIndex));
       List<InetAddress> addresses = new ArrayList<>();
       InetAddress local = null;
 
@@ -139,7 +133,7 @@ public enum NetworkInterfaceManager {
         }
         local = findValidateIp(addresses);
       } catch (Exception e) {
-        // ignore
+        // ignore it
       }
       if (local != null) {
         m_local = local;
