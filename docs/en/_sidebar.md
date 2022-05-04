@@ -34,7 +34,7 @@
   - [Apollo Openapi Guide](en/usage/apollo-open-api-platform.md)
   - [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
   - [Apollo User Practices](en/usage/apollo-user-practices.md)
-  - [Apollo Security Best Practices](en/usage/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
+  - [Apollo Security Best Practices](en/usage/apollo-user-guide?id=_71-security-related)
 
 - FAQ
   - [Frequently Asked Question](en/faq/faq.md)

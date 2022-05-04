@@ -70,6 +70,7 @@ public class ConsumerController {
     return consumerService.generateAndSaveConsumerToken(createdConsumer, expires);
   }
 
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping(value = "/consumers/by-appId")
   public ConsumerToken getConsumerTokenByAppId(@RequestParam String appId) {
     return consumerService.getConsumerTokenByAppId(appId);

@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.spring.spi;
 import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor;
 import com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor;
+import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
 import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
 import java.util.HashMap;
@@ -37,6 +38,8 @@ public class DefaultConfigPropertySourcesProcessorHelper implements ConfigProper
 
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class.getName(),
         PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry,
+        AutoUpdateConfigChangeListener.class.getName(), AutoUpdateConfigChangeListener.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class.getName(),
         ApolloAnnotationProcessor.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class.getName(),

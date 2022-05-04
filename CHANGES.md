@@ -52,5 +52,7 @@ Apollo 2.0.0
 * [Fix the apollo portal start failed issue](https://github.com/apolloconfig/apollo/pull/4298)
 * [fix: javax.net.ssl.SSLHandshakeException: No appropriate protocol](https://github.com/apolloconfig/apollo/pull/4308)
 * [Upgrade flyway to 8.0.5](https://github.com/apolloconfig/apollo/pull/4312)
+* [Broadcast ConfigChangeEvent using Spring ApplicationEvent](https://github.com/apolloconfig/apollo/pull/4305)
+* [Upgrade maven plugin versions to fix error in Java 17](https://github.com/apolloconfig/apollo/pull/4333)
 ------------------
 All issues and pull requests are [here](https://github.com/ctripcorp/apollo/milestone/8?closed=1)

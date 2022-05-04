@@ -16,33 +16,33 @@
  */
 package com.ctrip.framework.apollo.spring.config;
 
+import com.ctrip.framework.apollo.Config;
+import com.ctrip.framework.apollo.ConfigChangeListener;
+import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.build.ApolloInjector;
-import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
+import com.ctrip.framework.apollo.spring.events.ApolloConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-
-import com.ctrip.framework.apollo.Config;
-import com.ctrip.framework.apollo.ConfigService;
-
 import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.core.env.CompositePropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
-
-import java.util.Collection;
-import java.util.Iterator;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
 
@@ -56,7 +56,8 @@ import org.springframework.core.env.PropertySource;
  *
  * @author Jason Song(song_s@ctrip.com)
  */
-public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware, PriorityOrdered {
+public class PropertySourcesProcessor implements BeanFactoryPostProcessor, EnvironmentAware,
+    ApplicationEventPublisherAware, PriorityOrdered {
   private static final Multimap<Integer, String> NAMESPACE_NAMES = LinkedHashMultimap.create();
   private static final Set<BeanFactory> AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES = Sets.newConcurrentHashSet();
 
@@ -64,6 +65,7 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
       .getInstance(ConfigPropertySourceFactory.class);
   private ConfigUtil configUtil;
   private ConfigurableEnvironment environment;
+  private ApplicationEventPublisher applicationEventPublisher;
 
   public static boolean addNamespaces(Collection<String> namespaces, int order) {
     return NAMESPACE_NAMES.putAll(order, namespaces);
@@ -134,17 +136,16 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
   }
 
   private void initializeAutoUpdatePropertiesFeature(ConfigurableListableBeanFactory beanFactory) {
-    if (!configUtil.isAutoUpdateInjectedSpringPropertiesEnabled() ||
-        !AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
+    if (!AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES.add(beanFactory)) {
       return;
     }
 
-    AutoUpdateConfigChangeListener autoUpdateConfigChangeListener = new AutoUpdateConfigChangeListener(
-        environment, beanFactory);
+    ConfigChangeListener configChangeEventPublisher = changeEvent ->
+        applicationEventPublisher.publishEvent(new ApolloConfigChangeEvent(changeEvent));
 
     List<ConfigPropertySource> configPropertySources = configPropertySourceFactory.getAllConfigPropertySources();
     for (ConfigPropertySource configPropertySource : configPropertySources) {
-      configPropertySource.addChangeListener(autoUpdateConfigChangeListener);
+      configPropertySource.addChangeListener(configChangeEventPublisher);
     }
   }
 
@@ -164,5 +165,10 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
   static void reset() {
     NAMESPACE_NAMES.clear();
     AUTO_UPDATE_INITIALIZED_BEAN_FACTORIES.clear();
+  }
+
+  @Override
+  public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 }
