@@ -111,6 +111,7 @@ public class ConfigsExportController {
    * Export all configs in a compressed file. Just export namespace which current exists read permission. The permission
    * check in service.
    */
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/configs/export")
   public void exportAll(@RequestParam(value = "envs") String envs,
                         HttpServletRequest request, HttpServletResponse response) throws IOException {
