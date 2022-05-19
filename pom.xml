@@ -687,60 +687,6 @@
 				</plugins>
 			</build>
 		</profile>
-		<profile>
-			<id>configdb</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.flywaydb</groupId>
-						<artifactId>flyway-maven-plugin</artifactId>
-						<version>8.0.5</version>
-						<dependencies>
-							<dependency>
-								<groupId>mysql</groupId>
-								<artifactId>mysql-connector-java</artifactId>
-								<version>${mysql-connector-java.version}</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<configFiles>
-								<configFile>
-									scripts/flyway/flyway-configdb.properties
-								</configFile>
-							</configFiles>
-						</configuration>
-						<inherited>false</inherited>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>portaldb</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.flywaydb</groupId>
-						<artifactId>flyway-maven-plugin</artifactId>
-						<version>8.0.5</version>
-						<dependencies>
-							<dependency>
-								<groupId>mysql</groupId>
-								<artifactId>mysql-connector-java</artifactId>
-								<version>${mysql-connector-java.version}</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<configFiles>
-								<configFile>
-									scripts/flyway/flyway-portaldb.properties
-								</configFile>
-							</configFiles>
-						</configuration>
-						<inherited>false</inherited>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 
 	<reporting>
