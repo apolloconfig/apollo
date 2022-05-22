@@ -23,7 +23,9 @@ import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -98,7 +100,7 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (StringUtils.isEmpty(keyword)) {
       return userRepository.findFirst20ByEnabled(1);
     }
-    List<UserPO> users = new ArrayList<>();
+    Set<UserPO> users = new HashSet<>();
     List<UserPO> byUsername = userRepository
         .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
     List<UserPO> byUserDisplayName = userRepository
@@ -109,7 +111,7 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (!CollectionUtils.isEmpty(byUserDisplayName)) {
       users.addAll(byUserDisplayName);
     }
-    return users;
+    return new ArrayList<>(users);
   }
 
   @Override
