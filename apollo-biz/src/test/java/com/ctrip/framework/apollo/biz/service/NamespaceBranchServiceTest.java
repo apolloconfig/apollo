@@ -94,7 +94,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, firstRule);
 
     GrayReleaseRule secondRule = instanceGrayReleaseRule();
-    secondRule.setRules("[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"]}]");
+    secondRule.setRules("[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"],\"clientLabelList\":[\"branch-test\"]}]");
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, secondRule);
 
     GrayReleaseRule
@@ -200,7 +200,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     rule.setNamespaceName(testNamespace);
     rule.setBranchName(testBranchName);
     rule.setBranchStatus(NamespaceBranchStatus.ACTIVE);
-    rule.setRules("[{\"clientAppId\":\"test\",\"clientIpList\":[\"1.0.0.4\"]}]");
+    rule.setRules("[{\"clientAppId\":\"test\",\"clientIpList\":[\"1.0.0.4\"],\"clientLabelList\":[]}]");
     return rule;
   }
 
