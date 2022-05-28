@@ -33,6 +33,11 @@ public class GrayReleaseRuleItemDTO {
   private Set<String> clientIpList;
   private Set<String> clientLabelList;
 
+  // this default constructor is for json deserialize use, to make sure all fields are initialized
+  public GrayReleaseRuleItemDTO() {
+    this("");
+  }
+
   public GrayReleaseRuleItemDTO(String clientAppId) {
     this(clientAppId, Sets.newHashSet(), Sets.newHashSet());
   }
