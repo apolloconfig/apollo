@@ -46,9 +46,8 @@ public class DefaultConfigManagerTest {
 
   @Before
   public void setUp() throws Exception {
-    MockInjector.setInstance(ConfigFactoryManager.class, new MockConfigFactoryManager());
     MockInjector.setInstance(ConfigUtil.class, new ConfigUtil());
-    defaultConfigManager = new DefaultConfigManager();
+    defaultConfigManager = new DefaultConfigManager(new MockConfigFactoryManager());
     someConfigContent = "someContent";
   }
 

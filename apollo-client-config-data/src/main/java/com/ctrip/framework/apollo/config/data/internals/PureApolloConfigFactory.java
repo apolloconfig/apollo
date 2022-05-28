@@ -20,11 +20,16 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.DefaultConfigFactory;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
 public class PureApolloConfigFactory extends DefaultConfigFactory implements ConfigFactory {
+
+  public PureApolloConfigFactory(ConfigUtil configUtil) {
+    super(configUtil);
+  }
 
   @Override
   protected Config createRepositoryConfig(String namespace, ConfigRepository configRepository) {

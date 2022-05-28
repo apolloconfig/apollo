@@ -112,7 +112,8 @@ public class RemoteConfigRepositoryTest {
     httpClient = spy(new MockHttpClient());
     MockInjector.setInstance(HttpClient.class, httpClient);
 
-    remoteConfigLongPollService = new RemoteConfigLongPollService();
+    remoteConfigLongPollService = new RemoteConfigLongPollService(configUtil, httpClient,
+        configServiceLocator);
 
     MockInjector.setInstance(RemoteConfigLongPollService.class, remoteConfigLongPollService);
 

@@ -33,7 +33,7 @@ public class HttpUtil implements HttpClient {
    * Constructor.
    */
   public HttpUtil() {
-    m_httpClient = new DefaultHttpClient();
+    m_httpClient = new DefaultHttpClient(null);
   }
 
   /**

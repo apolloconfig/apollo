@@ -33,31 +33,36 @@ import com.ctrip.framework.apollo.util.http.HttpClient;
 
 import com.ctrip.framework.apollo.util.yaml.YamlParser;
 import com.ctrip.framework.foundation.internals.ServiceBootstrap;
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Singleton;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
- * Guice injector
+ * self define injector
  * @author Jason Song(song_s@ctrip.com)
+ * @author wxq
  */
 public class DefaultInjector implements Injector {
-  private final com.google.inject.Injector m_injector;
+
+  /**
+   * container for injection.
+   */
+  private final Map<Class<?>, Object> container = new ConcurrentHashMap<>(32);
   private final List<ApolloInjectorCustomizer> m_customizers;
 
   public DefaultInjector() {
     try {
-      m_injector = Guice.createInjector(new ApolloModule());
       m_customizers = ServiceBootstrap.loadAllOrdered(ApolloInjectorCustomizer.class);
     } catch (Throwable ex) {
-      ApolloConfigException exception = new ApolloConfigException("Unable to initialize Guice Injector!", ex);
+      ApolloConfigException exception = new ApolloConfigException("Unable to initialize Injector!", ex);
       Tracer.logError(exception);
       throw exception;
     }
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public <T> T getInstance(Class<T> clazz) {
     try {
       for (ApolloInjectorCustomizer customizer : m_customizers) {
@@ -66,12 +71,70 @@ public class DefaultInjector implements Injector {
           return instance;
         }
       }
-      return m_injector.getInstance(clazz);
+      return (T) this.getInstanceByHardCode(clazz);
     } catch (Throwable ex) {
       Tracer.logError(ex);
       throw new ApolloConfigException(
           String.format("Unable to load instance for %s!", clazz.getName()), ex);
     }
+  }
+
+  /**
+   * inject singleton manually by hard code.
+   * <p>
+   * watch out {@link IllegalStateException} Recursive update when invoke {@link Map#computeIfAbsent(Object, Function)} nested.
+   */
+  private Object getInstanceByHardCode(Class<?> clazz) {
+    if (!this.container.containsKey(clazz)) {
+      if (ConfigRegistry.class.equals(clazz)) {
+        this.container.computeIfAbsent(ConfigRegistry.class, key -> new DefaultConfigRegistry());
+      }
+      if (ConfigFactoryManager.class.equals(clazz)) {
+        ConfigRegistry configRegistry = this.getInstance(ConfigRegistry.class);
+        this.container.computeIfAbsent(ConfigFactoryManager.class,
+            key -> new DefaultConfigFactoryManager(configRegistry));
+      }
+      if (ConfigManager.class.equals(clazz)) {
+        ConfigFactoryManager configFactoryManager = this.getInstance(ConfigFactoryManager.class);
+        this.container.computeIfAbsent(ConfigManager.class,
+            key -> new DefaultConfigManager(configFactoryManager));
+      }
+      if (ConfigUtil.class.equals(clazz)) {
+        this.container.computeIfAbsent(ConfigUtil.class, key -> new ConfigUtil());
+      }
+      if (ConfigFactory.class.equals(clazz)) {
+        ConfigUtil configUtil = this.getInstance(ConfigUtil.class);
+        this.container.computeIfAbsent(ConfigFactory.class,
+            key -> new DefaultConfigFactory(configUtil));
+      }
+      if (HttpClient.class.equals(clazz)) {
+        ConfigUtil configUtil = this.getInstance(ConfigUtil.class);
+        this.container.computeIfAbsent(HttpClient.class, key -> new DefaultHttpClient(configUtil));
+      }
+      if (ConfigServiceLocator.class.equals(clazz)) {
+        HttpClient httpClient = this.getInstance(HttpClient.class);
+        ConfigUtil configUtil = this.getInstance(ConfigUtil.class);
+        this.container.computeIfAbsent(ConfigServiceLocator.class,
+            key -> new ConfigServiceLocator(httpClient, configUtil));
+      }
+      if (RemoteConfigLongPollService.class.equals(clazz)) {
+        ConfigUtil configUtil = this.getInstance(ConfigUtil.class);
+        HttpClient httpClient = this.getInstance(HttpClient.class);
+        ConfigServiceLocator configServiceLocator = this.getInstance(ConfigServiceLocator.class);
+        this.container.computeIfAbsent(RemoteConfigLongPollService.class,
+            key -> new RemoteConfigLongPollService(configUtil, httpClient, configServiceLocator));
+      }
+      if (PropertiesFactory.class.equals(clazz)) {
+        ConfigUtil configUtil = this.getInstance(ConfigUtil.class);
+        this.container.computeIfAbsent(PropertiesFactory.class,
+            key -> new DefaultPropertiesFactory(configUtil));
+      }
+      if (YamlParser.class.equals(clazz)) {
+        PropertiesFactory propertiesFactory = this.getInstance(PropertiesFactory.class);
+        this.container.computeIfAbsent(YamlParser.class, key -> new YamlParser(propertiesFactory));
+      }
+    }
+    return this.container.get(clazz);
   }
 
   @Override
@@ -83,28 +146,12 @@ public class DefaultInjector implements Injector {
           return instance;
         }
       }
-      //Guice does not support get instance by type and name
+      //does not support get instance by type and name
       return null;
     } catch (Throwable ex) {
       Tracer.logError(ex);
       throw new ApolloConfigException(
           String.format("Unable to load instance for %s with name %s!", clazz.getName(), name), ex);
-    }
-  }
-
-  private static class ApolloModule extends AbstractModule {
-    @Override
-    protected void configure() {
-      bind(ConfigManager.class).to(DefaultConfigManager.class).in(Singleton.class);
-      bind(ConfigFactoryManager.class).to(DefaultConfigFactoryManager.class).in(Singleton.class);
-      bind(ConfigRegistry.class).to(DefaultConfigRegistry.class).in(Singleton.class);
-      bind(ConfigFactory.class).to(DefaultConfigFactory.class).in(Singleton.class);
-      bind(ConfigUtil.class).in(Singleton.class);
-      bind(HttpClient.class).to(DefaultHttpClient.class).in(Singleton.class);
-      bind(ConfigServiceLocator.class).in(Singleton.class);
-      bind(RemoteConfigLongPollService.class).in(Singleton.class);
-      bind(YamlParser.class).in(Singleton.class);
-      bind(PropertiesFactory.class).to(DefaultPropertiesFactory.class).in(Singleton.class);
     }
   }
 }

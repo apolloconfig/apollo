@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.internals;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
@@ -72,22 +71,30 @@ public class RemoteConfigLongPollService {
   private static final int LONG_POLLING_READ_TIMEOUT = 90 * 1000;
   private final ExecutorService m_longPollingService;
   private final AtomicBoolean m_longPollingStopped;
-  private SchedulePolicy m_longPollFailSchedulePolicyInSecond;
-  private RateLimiter m_longPollRateLimiter;
+  private final SchedulePolicy m_longPollFailSchedulePolicyInSecond;
+  private final RateLimiter m_longPollRateLimiter;
   private final AtomicBoolean m_longPollStarted;
   private final Multimap<String, RemoteConfigRepository> m_longPollNamespaces;
   private final ConcurrentMap<String, Long> m_notifications;
   private final Map<String, ApolloNotificationMessages> m_remoteNotificationMessages;//namespaceName -> watchedKey -> notificationId
-  private Type m_responseType;
+  private final Type m_responseType;
   private static final Gson GSON = new Gson();
-  private ConfigUtil m_configUtil;
-  private HttpClient m_httpClient;
-  private ConfigServiceLocator m_serviceLocator;
+  private final ConfigUtil configUtil;
+  private final HttpClient httpClient;
+  private final ConfigServiceLocator configServiceLocator;
 
   /**
    * Constructor.
+   * @param configUtil
+   * @param httpClient
+   * @param configServiceLocator
    */
-  public RemoteConfigLongPollService() {
+  public RemoteConfigLongPollService(ConfigUtil configUtil,
+      HttpClient httpClient,
+      ConfigServiceLocator configServiceLocator) {
+    this.configUtil = configUtil;
+    this.httpClient = httpClient;
+    this.configServiceLocator = configServiceLocator;
     m_longPollFailSchedulePolicyInSecond = new ExponentialSchedulePolicy(1, 120); //in second
     m_longPollingStopped = new AtomicBoolean(false);
     m_longPollingService = Executors.newSingleThreadExecutor(
@@ -99,10 +106,7 @@ public class RemoteConfigLongPollService {
     m_remoteNotificationMessages = Maps.newConcurrentMap();
     m_responseType = new TypeToken<List<ApolloConfigNotification>>() {
     }.getType();
-    m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
-    m_httpClient = ApolloInjector.getInstance(HttpClient.class);
-    m_serviceLocator = ApolloInjector.getInstance(ConfigServiceLocator.class);
-    m_longPollRateLimiter = RateLimiter.create(m_configUtil.getLongPollQPS());
+    m_longPollRateLimiter = RateLimiter.create(this.configUtil.getLongPollQPS());
   }
 
   public boolean submit(String namespace, RemoteConfigRepository remoteConfigRepository) {
@@ -120,11 +124,11 @@ public class RemoteConfigLongPollService {
       return;
     }
     try {
-      final String appId = m_configUtil.getAppId();
-      final String cluster = m_configUtil.getCluster();
-      final String dataCenter = m_configUtil.getDataCenter();
-      final String secret = m_configUtil.getAccessKeySecret();
-      final long longPollingInitialDelayInMills = m_configUtil.getLongPollingInitialDelayInMills();
+      final String appId = configUtil.getAppId();
+      final String cluster = configUtil.getCluster();
+      final String dataCenter = configUtil.getDataCenter();
+      final String secret = configUtil.getAccessKeySecret();
+      final long longPollingInitialDelayInMills = configUtil.getLongPollingInitialDelayInMills();
       m_longPollingService.submit(new Runnable() {
         @Override
         public void run() {
@@ -187,7 +191,7 @@ public class RemoteConfigLongPollService {
         transaction.addData("Url", url);
 
         final HttpResponse<List<ApolloConfigNotification>> response =
-            m_httpClient.doGet(request, m_responseType);
+            httpClient.doGet(request, m_responseType);
 
         logger.debug("Long polling response: {}, url: {}", response.getStatusCode(), url);
         if (response.getStatusCode() == 200 && response.getBody() != null) {
@@ -302,7 +306,7 @@ public class RemoteConfigLongPollService {
     if (!Strings.isNullOrEmpty(dataCenter)) {
       queryParams.put("dataCenter", queryParamEscaper.escape(dataCenter));
     }
-    String localIp = m_configUtil.getLocalIp();
+    String localIp = configUtil.getLocalIp();
     if (!Strings.isNullOrEmpty(localIp)) {
       queryParams.put("ip", queryParamEscaper.escape(localIp));
     }
@@ -325,7 +329,7 @@ public class RemoteConfigLongPollService {
   }
 
   private List<ServiceDTO> getConfigServices() {
-    List<ServiceDTO> services = m_serviceLocator.getConfigServices();
+    List<ServiceDTO> services = configServiceLocator.getConfigServices();
     if (services.size() == 0) {
       throw new ApolloConfigException("No available config service");
     }

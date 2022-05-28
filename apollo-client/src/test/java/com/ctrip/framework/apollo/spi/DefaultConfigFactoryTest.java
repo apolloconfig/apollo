@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.internals.PropertiesCompatibleFileConfigRepository;
 import java.util.Properties;
 
@@ -61,7 +62,7 @@ public class DefaultConfigFactoryTest {
     someAppId = "someId";
     someEnv = Env.DEV;
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
-    defaultConfigFactory = spy(new DefaultConfigFactory());
+    defaultConfigFactory = spy(new DefaultConfigFactory(ApolloInjector.getInstance(ConfigUtil.class)));
   }
 
   @After

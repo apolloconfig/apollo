@@ -21,6 +21,7 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class DefaultConfigFactoryManagerTest {
   @Before
   public void setUp() throws Exception {
     MockInjector.setInstance(ConfigRegistry.class, new MockConfigRegistry());
-    defaultConfigFactoryManager = new DefaultConfigFactoryManager();
+    defaultConfigFactoryManager = new DefaultConfigFactoryManager(ApolloInjector.getInstance(ConfigRegistry.class));
   }
 
   @After

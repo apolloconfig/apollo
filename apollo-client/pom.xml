@@ -36,12 +36,6 @@
 			<artifactId>apollo-core</artifactId>
 		</dependency>
 		<!-- end of apollo -->
-		<!-- guice -->
-		<dependency>
-			<groupId>com.google.inject</groupId>
-			<artifactId>guice</artifactId>
-		</dependency>
-		<!-- end of guice -->
 		<!-- log -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

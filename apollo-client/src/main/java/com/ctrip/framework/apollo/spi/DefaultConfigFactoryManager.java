@@ -25,18 +25,18 @@ import com.google.common.collect.Maps;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultConfigFactoryManager implements ConfigFactoryManager {
-  private ConfigRegistry m_registry;
+  private final ConfigRegistry configRegistry;
 
-  private Map<String, ConfigFactory> m_factories = Maps.newConcurrentMap();
+  private final Map<String, ConfigFactory> m_factories = Maps.newConcurrentMap();
 
-  public DefaultConfigFactoryManager() {
-    m_registry = ApolloInjector.getInstance(ConfigRegistry.class);
+  public DefaultConfigFactoryManager(ConfigRegistry configRegistry) {
+    this.configRegistry = configRegistry;
   }
 
   @Override
   public ConfigFactory getFactory(String namespace) {
     // step 1: check hacked factory
-    ConfigFactory factory = m_registry.getFactory(namespace);
+    ConfigFactory factory = configRegistry.getFactory(namespace);
 
     if (factory != null) {
       return factory;

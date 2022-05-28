@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.util.OrderedProperties;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
@@ -46,7 +47,7 @@ public class YamlParserTest {
 
   @Before
   public void setUp() throws Exception {
-    parser = new YamlParser();
+    parser = ApolloInjector.getInstance(YamlParser.class);
   }
 
   @After
@@ -94,7 +95,7 @@ public class YamlParserTest {
     });
     MockInjector.setInstance(PropertiesFactory.class, propertiesFactory);
 
-    parser = new YamlParser();
+    parser = new YamlParser(propertiesFactory);
 
     Properties orderedProperties = parser.yamlToProperties(yamlContent);
 

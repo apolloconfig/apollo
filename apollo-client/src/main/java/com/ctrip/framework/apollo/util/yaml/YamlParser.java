@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.util.yaml;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.util.factory.PropertiesFactory;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,8 +29,6 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.parser.ParserException;
 
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import org.yaml.snakeyaml.representer.Representer;
@@ -44,7 +41,11 @@ import org.yaml.snakeyaml.representer.Representer;
 public class YamlParser {
   private static final Logger logger = LoggerFactory.getLogger(YamlParser.class);
 
-  private PropertiesFactory propertiesFactory = ApolloInjector.getInstance(PropertiesFactory.class);
+  private final PropertiesFactory propertiesFactory;
+
+  public YamlParser(PropertiesFactory propertiesFactory) {
+    this.propertiesFactory = propertiesFactory;
+  }
 
   /**
    * Transform yaml content to properties

@@ -20,7 +20,6 @@ import java.util.Map;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.spi.ConfigFactory;
 import com.ctrip.framework.apollo.spi.ConfigFactoryManager;
@@ -30,13 +29,13 @@ import com.google.common.collect.Maps;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultConfigManager implements ConfigManager {
-  private ConfigFactoryManager m_factoryManager;
+  private final ConfigFactoryManager configFactoryManager;
 
-  private Map<String, Config> m_configs = Maps.newConcurrentMap();
-  private Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap();
+  private final Map<String, Config> m_configs = Maps.newConcurrentMap();
+  private final Map<String, ConfigFile> m_configFiles = Maps.newConcurrentMap();
 
-  public DefaultConfigManager() {
-    m_factoryManager = ApolloInjector.getInstance(ConfigFactoryManager.class);
+  public DefaultConfigManager(ConfigFactoryManager configFactoryManager) {
+    this.configFactoryManager = configFactoryManager;
   }
 
   @Override
@@ -48,7 +47,7 @@ public class DefaultConfigManager implements ConfigManager {
         config = m_configs.get(namespace);
 
         if (config == null) {
-          ConfigFactory factory = m_factoryManager.getFactory(namespace);
+          ConfigFactory factory = configFactoryManager.getFactory(namespace);
 
           config = factory.create(namespace);
           m_configs.put(namespace, config);
@@ -69,7 +68,7 @@ public class DefaultConfigManager implements ConfigManager {
         configFile = m_configFiles.get(namespaceFileName);
 
         if (configFile == null) {
-          ConfigFactory factory = m_factoryManager.getFactory(namespaceFileName);
+          ConfigFactory factory = configFactoryManager.getFactory(namespaceFileName);
 
           configFile = factory.createConfigFile(namespaceFileName, configFileFormat);
           m_configFiles.put(namespaceFileName, configFile);

@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.util.http;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigStatusCodeException;
 import com.ctrip.framework.apollo.util.ConfigUtil;
@@ -36,14 +35,15 @@ import java.util.Map;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultHttpClient implements HttpClient {
-  private ConfigUtil m_configUtil;
+  private final ConfigUtil configUtil;
   private static final Gson GSON = new Gson();
 
   /**
    * Constructor.
+   * @param configUtil
    */
-  public DefaultHttpClient() {
-    m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+  public DefaultHttpClient(ConfigUtil configUtil) {
+    this.configUtil = configUtil;
   }
 
   /**
@@ -105,12 +105,12 @@ public class DefaultHttpClient implements HttpClient {
 
       int connectTimeout = httpRequest.getConnectTimeout();
       if (connectTimeout < 0) {
-        connectTimeout = m_configUtil.getConnectTimeout();
+        connectTimeout = configUtil.getConnectTimeout();
       }
 
       int readTimeout = httpRequest.getReadTimeout();
       if (readTimeout < 0) {
-        readTimeout = m_configUtil.getReadTimeout();
+        readTimeout = configUtil.getReadTimeout();
       }
 
       conn.setConnectTimeout(connectTimeout);

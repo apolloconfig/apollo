@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigFile;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.PropertiesCompatibleConfigFile;
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.DefaultConfig;
@@ -56,10 +55,10 @@ import org.slf4j.LoggerFactory;
 public class DefaultConfigFactory implements ConfigFactory {
 
   private static final Logger logger = LoggerFactory.getLogger(DefaultConfigFactory.class);
-  private final ConfigUtil m_configUtil;
+  private final ConfigUtil configUtil;
 
-  public DefaultConfigFactory() {
-    m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
+  public DefaultConfigFactory(ConfigUtil configUtil) {
+    this.configUtil = configUtil;
   }
 
   @Override
@@ -111,7 +110,7 @@ public class DefaultConfigFactory implements ConfigFactory {
   }
 
   ConfigRepository createConfigRepository(String namespace) {
-    if (m_configUtil.isPropertyFileCacheEnabled()) {
+    if (configUtil.isPropertyFileCacheEnabled()) {
       return createLocalConfigRepository(namespace);
     }
     return createRemoteConfigRepository(namespace);
@@ -124,7 +123,7 @@ public class DefaultConfigFactory implements ConfigFactory {
    * @return the newly created repository for the given namespace
    */
   LocalFileConfigRepository createLocalConfigRepository(String namespace) {
-    if (m_configUtil.isInLocalMode()) {
+    if (configUtil.isInLocalMode()) {
       logger.warn(
           "==== Apollo is in local mode! Won't pull configs from remote server for namespace {} ! ====",
           namespace);

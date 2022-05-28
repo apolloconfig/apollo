@@ -28,6 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
@@ -90,7 +91,11 @@ public class RemoteConfigLongPollServiceTest {
 
     MockInjector.setInstance(ConfigUtil.class, new MockConfigUtil());
 
-    remoteConfigLongPollService = new RemoteConfigLongPollService();
+    remoteConfigLongPollService = new RemoteConfigLongPollService(
+        ApolloInjector.getInstance(ConfigUtil.class),
+        ApolloInjector.getInstance(HttpClient.class),
+        ApolloInjector.getInstance(ConfigServiceLocator.class)
+    );
 
     responseType =
         (Type) ReflectionTestUtils.getField(remoteConfigLongPollService, "m_responseType");

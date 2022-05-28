@@ -25,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.build.MockInjector;
 import com.ctrip.framework.apollo.internals.ConfigRepository;
 import com.ctrip.framework.apollo.internals.LocalFileConfigRepository;
@@ -45,7 +46,7 @@ public class DefaultConfigFactoryFileCachePropertyTest {
     someNamespace = "someNamespace";
     someConfigUtil = mock(ConfigUtil.class);
     MockInjector.setInstance(ConfigUtil.class, someConfigUtil);
-    configFactory = spy(new DefaultConfigFactory());
+    configFactory = spy(new DefaultConfigFactory(ApolloInjector.getInstance(ConfigUtil.class)));
   }
 
   @Test

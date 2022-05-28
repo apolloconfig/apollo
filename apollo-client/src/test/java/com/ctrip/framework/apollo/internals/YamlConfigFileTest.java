@@ -104,7 +104,7 @@ public class YamlConfigFileTest {
     someProperties.setProperty(key, someContent);
     someSourceType = ConfigSourceType.LOCAL;
 
-    Properties yamlProperties = new YamlParser().yamlToProperties(someContent);
+    Properties yamlProperties = new YamlParser(propertiesFactory).yamlToProperties(someContent);
 
     when(configRepository.getConfig()).thenReturn(someProperties);
     when(configRepository.getSourceType()).thenReturn(someSourceType);

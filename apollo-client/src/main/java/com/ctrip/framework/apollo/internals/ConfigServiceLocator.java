@@ -29,9 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.ctrip.framework.apollo.build.ApolloInjector;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
@@ -52,24 +50,27 @@ import com.google.gson.reflect.TypeToken;
 
 public class ConfigServiceLocator {
   private static final Logger logger = DeferredLoggerFactory.getLogger(ConfigServiceLocator.class);
-  private HttpClient m_httpClient;
-  private ConfigUtil m_configUtil;
-  private AtomicReference<List<ServiceDTO>> m_configServices;
-  private Type m_responseType;
-  private ScheduledExecutorService m_executorService;
+  private final HttpClient httpClient;
+  private final ConfigUtil configUtil;
+  private final AtomicReference<List<ServiceDTO>> m_configServices;
+  private final Type m_responseType;
+  private final ScheduledExecutorService m_executorService;
   private static final Joiner.MapJoiner MAP_JOINER = Joiner.on("&").withKeyValueSeparator("=");
   private static final Escaper queryParamEscaper = UrlEscapers.urlFormParameterEscaper();
 
   /**
    * Create a config service locator.
+   * @param httpClient
+   * @param configUtil
    */
-  public ConfigServiceLocator() {
+  public ConfigServiceLocator(HttpClient httpClient,
+      ConfigUtil configUtil) {
+    this.httpClient = httpClient;
+    this.configUtil = configUtil;
     List<ServiceDTO> initial = Lists.newArrayList();
     m_configServices = new AtomicReference<>(initial);
     m_responseType = new TypeToken<List<ServiceDTO>>() {
     }.getType();
-    m_httpClient = ApolloInjector.getInstance(HttpClient.class);
-    m_configUtil = ApolloInjector.getInstance(ConfigUtil.class);
     this.m_executorService = Executors.newScheduledThreadPool(1,
         ApolloThreadFactory.create("ConfigServiceLocator", true));
     initConfigServices();
@@ -186,8 +187,8 @@ public class ConfigServiceLocator {
             Tracer.logEvent("Apollo.MetaService", "periodicRefresh");
             tryUpdateConfigServices();
           }
-        }, m_configUtil.getRefreshInterval(), m_configUtil.getRefreshInterval(),
-        m_configUtil.getRefreshIntervalTimeUnit());
+        }, configUtil.getRefreshInterval(), configUtil.getRefreshInterval(),
+        configUtil.getRefreshIntervalTimeUnit());
   }
 
   private synchronized void updateConfigServices() {
@@ -201,7 +202,7 @@ public class ConfigServiceLocator {
       Transaction transaction = Tracer.newTransaction("Apollo.MetaService", "getConfigService");
       transaction.addData("Url", url);
       try {
-        HttpResponse<List<ServiceDTO>> response = m_httpClient.doGet(request, m_responseType);
+        HttpResponse<List<ServiceDTO>> response = httpClient.doGet(request, m_responseType);
         transaction.setStatus(Transaction.SUCCESS);
         List<ServiceDTO> services = response.getBody();
         if (services == null || services.isEmpty()) {
@@ -219,7 +220,7 @@ public class ConfigServiceLocator {
       }
 
       try {
-        m_configUtil.getOnErrorRetryIntervalTimeUnit().sleep(m_configUtil.getOnErrorRetryInterval());
+        configUtil.getOnErrorRetryIntervalTimeUnit().sleep(configUtil.getOnErrorRetryInterval());
       } catch (InterruptedException ex) {
         //ignore
       }
@@ -235,9 +236,9 @@ public class ConfigServiceLocator {
   }
 
   private String assembleMetaServiceUrl() {
-    String domainName = m_configUtil.getMetaServerDomainName();
-    String appId = m_configUtil.getAppId();
-    String localIp = m_configUtil.getLocalIp();
+    String domainName = configUtil.getMetaServerDomainName();
+    String appId = configUtil.getAppId();
+    String localIp = configUtil.getLocalIp();
 
     Map<String, String> queryParams = Maps.newHashMap();
     queryParams.put("appId", queryParamEscaper.escape(appId));
