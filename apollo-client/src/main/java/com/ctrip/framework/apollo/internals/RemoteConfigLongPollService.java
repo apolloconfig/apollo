@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.core.signature.Signature;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
+import com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.ctrip.framework.apollo.util.ConfigUtil;
@@ -35,6 +36,7 @@ import com.ctrip.framework.apollo.util.ExceptionUtil;
 import com.ctrip.framework.apollo.util.http.HttpRequest;
 import com.ctrip.framework.apollo.util.http.HttpResponse;
 import com.ctrip.framework.apollo.util.http.HttpClient;
+import com.ctrip.framework.foundation.internals.ServiceBootstrap;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
@@ -50,10 +52,10 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -83,6 +85,8 @@ public class RemoteConfigLongPollService {
   private ConfigUtil m_configUtil;
   private HttpClient m_httpClient;
   private ConfigServiceLocator m_serviceLocator;
+  private final ConfigServiceLoadBalancerClient configServiceLoadBalancerClient = ServiceBootstrap.loadPrimary(
+      ConfigServiceLoadBalancerClient.class);
 
   /**
    * Constructor.
@@ -153,7 +157,6 @@ public class RemoteConfigLongPollService {
   }
 
   private void doLongPollingRefresh(String appId, String cluster, String dataCenter, String secret) {
-    final Random random = new Random();
     ServiceDTO lastServiceDto = null;
     while (!m_longPollingStopped.get() && !Thread.currentThread().isInterrupted()) {
       if (!m_longPollRateLimiter.tryAcquire(5, TimeUnit.SECONDS)) {
@@ -167,8 +170,7 @@ public class RemoteConfigLongPollService {
       String url = null;
       try {
         if (lastServiceDto == null) {
-          List<ServiceDTO> configServices = getConfigServices();
-          lastServiceDto = configServices.get(random.nextInt(configServices.size()));
+          lastServiceDto = this.resolveConfigService();
         }
 
         url =
@@ -198,7 +200,7 @@ public class RemoteConfigLongPollService {
         }
 
         //try to load balance
-        if (response.getStatusCode() == 304 && random.nextBoolean()) {
+        if (response.getStatusCode() == 304 && ThreadLocalRandom.current().nextBoolean()) {
           lastServiceDto = null;
         }
 
@@ -322,6 +324,11 @@ public class RemoteConfigLongPollService {
       notifications.add(notification);
     }
     return GSON.toJson(notifications);
+  }
+
+  private ServiceDTO resolveConfigService() {
+    List<ServiceDTO> configServices = this.getConfigServices();
+    return this.configServiceLoadBalancerClient.chooseOneFrom(configServices);
   }
 
   private List<ServiceDTO> getConfigServices() {
