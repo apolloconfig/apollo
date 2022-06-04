@@ -31,7 +31,7 @@ public class CatMessageProducer implements MessageProducer {
 
   @Override
   public void logError(String message, Throwable cause) {
-    Cat.logError( message, cause);
+    Cat.logError(message, cause);
   }
 
   @Override
