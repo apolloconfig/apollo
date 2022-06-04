@@ -47,6 +47,6 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   List<Long> findPermissionIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
-  @Query("UPDATE Permission SET IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1")
+  @Query("UPDATE Permission SET IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = 0")
   Integer batchDelete(List<Long> permissionIds, String operator);
 }

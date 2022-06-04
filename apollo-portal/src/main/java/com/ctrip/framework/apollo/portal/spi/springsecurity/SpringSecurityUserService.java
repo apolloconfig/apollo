@@ -24,6 +24,8 @@ import com.ctrip.framework.apollo.portal.repository.AuthorityRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -91,18 +93,22 @@ public class SpringSecurityUserService implements UserService {
     if (StringUtils.isEmpty(keyword)) {
       return userRepository.findFirst20ByEnabled(1);
     }
-    List<UserPO> users = new ArrayList<>();
+    Map<Long, UserPO> users = new HashMap<>();
     List<UserPO> byUsername = userRepository
         .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
     List<UserPO> byUserDisplayName = userRepository
         .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
     if (!CollectionUtils.isEmpty(byUsername)) {
-      users.addAll(byUsername);
+      for (UserPO user : byUsername) {
+        users.put(user.getId(), user);
+      }
     }
     if (!CollectionUtils.isEmpty(byUserDisplayName)) {
-      users.addAll(byUserDisplayName);
+      for (UserPO user : byUserDisplayName) {
+        users.put(user.getId(), user);
+      }
     }
-    return users;
+    return new ArrayList<>(users.values());
   }
 
   @Override
