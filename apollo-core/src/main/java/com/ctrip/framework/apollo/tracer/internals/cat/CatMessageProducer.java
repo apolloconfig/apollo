@@ -26,47 +26,27 @@ import com.dianping.cat.Cat;
 public class CatMessageProducer implements MessageProducer {
   @Override
   public void logError(Throwable cause) {
-    try {
-      Cat.logError(cause);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    Cat.logError(cause);
   }
 
   @Override
   public void logError(String message, Throwable cause) {
-    try {
-      Cat.logError( message, cause);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    Cat.logError( message, cause);
   }
 
   @Override
   public void logEvent(String type, String name) {
-    try {
       Cat.logEvent(type, name);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
   }
 
   @Override
   public void logEvent(String type, String name, String status, String nameValuePairs) {
-    try {
-      Cat.logEvent(type, name,
+    Cat.logEvent(type, name,
           status, nameValuePairs);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
   }
 
   @Override
   public Transaction newTransaction(String type, String name) {
-    try {
-      return new CatTransaction(Cat.newTransaction(type, name));
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    return new CatTransaction(Cat.newTransaction(type, name));
   }
 }

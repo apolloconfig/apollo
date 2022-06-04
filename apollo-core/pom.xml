@@ -34,8 +34,7 @@
 		<dependency>
 			<groupId>com.dianping.cat</groupId>
 			<artifactId>cat-client</artifactId>
-			<version>3.0.1</version>
-			<scope>provided</scope>
+			<optional>true</optional>
 		</dependency>
 		<!-- json -->
 		<dependency>

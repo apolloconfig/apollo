@@ -33,37 +33,21 @@ public class CatTransaction implements Transaction {
 
   @Override
   public void setStatus(String status) {
-    try {
       catTransaction.setStatus(status);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
   }
 
   @Override
   public void setStatus(Throwable status) {
-    try {
-      catTransaction.setStatus(status);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    catTransaction.setStatus(status);
   }
 
   @Override
   public void addData(String key, Object value) {
-    try {
-      catTransaction.addData(key, value);
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    catTransaction.addData(key, value);
   }
 
   @Override
   public void complete() {
-    try {
-      catTransaction.complete();
-    } catch (Throwable ex) {
-      throw new IllegalStateException(ex);
-    }
+    catTransaction.complete();
   }
 }
