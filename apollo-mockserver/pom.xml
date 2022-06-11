@@ -30,6 +30,7 @@
 
   <properties>
     <github.path>${project.artifactId}</github.path>
+    <okhttp3.version>4.9.3</okhttp3.version>
   </properties>
 
   <dependencyManagement>
@@ -37,12 +38,12 @@
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>mockwebserver</artifactId>
-        <version>3.11.0</version>
+        <version>${okhttp3.version}</version>
       </dependency>
       <dependency>
         <groupId>com.squareup.okhttp3</groupId>
         <artifactId>okhttp</artifactId>
-        <version>3.11.0</version>
+        <version>${okhttp3.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
