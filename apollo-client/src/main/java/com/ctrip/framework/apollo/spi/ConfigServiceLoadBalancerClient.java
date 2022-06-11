@@ -21,9 +21,6 @@ import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.internals.ConfigServiceLocator;
 import java.util.List;
 
-/**
- * @author wxq
- */
 public interface ConfigServiceLoadBalancerClient extends Ordered {
 
   /**

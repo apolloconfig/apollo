@@ -24,9 +24,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import org.junit.jupiter.api.Test;
 
-/**
- * @author wxq
- */
 class ConfigServiceLoadBalancerClientTest {
 
   /**
