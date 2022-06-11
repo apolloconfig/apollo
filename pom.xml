@@ -60,7 +60,7 @@
 	</developers>
 
 	<properties>
-		<revision>2.0.1</revision>
+		<revision>2.1.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.6.8</spring-boot.version>
