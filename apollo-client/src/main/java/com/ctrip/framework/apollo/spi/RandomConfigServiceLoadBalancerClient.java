@@ -20,6 +20,9 @@ import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * default service provider of {@link ConfigServiceLoadBalancerClient}
+ */
 public class RandomConfigServiceLoadBalancerClient implements ConfigServiceLoadBalancerClient {
 
   private static final int ORDER = 0;

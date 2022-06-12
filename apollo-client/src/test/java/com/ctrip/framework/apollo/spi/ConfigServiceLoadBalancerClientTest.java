@@ -51,6 +51,6 @@ class ConfigServiceLoadBalancerClientTest {
   void classTypeMatch() {
     ConfigServiceLoadBalancerClient loadBalancerClient =
         ServiceBootstrap.loadPrimary(ConfigServiceLoadBalancerClient.class);
-    assertTrue(loadBalancerClient instanceof DefaultConfigServiceLoadBalancerClient);
+    assertTrue(loadBalancerClient instanceof RandomConfigServiceLoadBalancerClient);
   }
 }

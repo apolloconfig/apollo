@@ -1,1 +1,1 @@
-com.ctrip.framework.apollo.spi.DefaultConfigServiceLoadBalancerClient
+com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient
