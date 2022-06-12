@@ -32,6 +32,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertiesPropertySource;
+import org.springframework.core.env.StandardEnvironment;
+
+import java.util.Properties;
 
 public class ApolloApplicationContextInitializerTest {
 
@@ -142,5 +146,28 @@ public class ApolloApplicationContextInitializerTest {
 
     assertTrue(propertySources.contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME));
     assertTrue(propertySources.iterator().next() instanceof CachedCompositePropertySource);
+  }
+
+  @Test
+  public void testOverrideSystemProperties() {
+    Properties properties = new Properties();
+    properties.setProperty("server.port", "8080");
+    ConfigurableEnvironment environment = mock(ConfigurableEnvironment.class);
+
+    MutablePropertySources propertySources = new MutablePropertySources();
+    propertySources.addLast(new PropertiesPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, properties));
+
+    when(environment.getPropertySources()).thenReturn(propertySources);
+    when(environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_NAMESPACES,
+            ConfigConsts.NAMESPACE_APPLICATION)).thenReturn("");
+    ConfigUtil configUtil = new ConfigUtil();
+    configUtil = spy(configUtil);
+    when(configUtil.isOverrideSystemProperties()).thenReturn(false);
+    MockInjector.setInstance(ConfigUtil.class, configUtil);
+
+    apolloApplicationContextInitializer.initialize(environment);
+
+    assertTrue(propertySources.contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME));
+    assertEquals(propertySources.iterator().next().getName(), StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
   }
 }

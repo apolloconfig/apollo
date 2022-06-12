@@ -381,6 +381,23 @@ apollo.label=YOUR-APOLLO-LABEL
 
 > 注：apollo.label是用来标识应用身份的标签，格式为string。
 
+#### 1.2.4.8 覆盖系统属性
+
+> 适用于2.1.0及以上版本
+
+`apollo.override-system-properties` 标识Apollo的远程属性是否应该覆盖Java的系统属性。默认为 true。
+
+配置方式按照优先级从高到低分别为：
+1. 通过Java System Property `apollo.override-system-properties`
+    * 可以通过Java的System Property `apollo.override-system-properties`来指定
+    * 在Java程序启动脚本中，可以指定`-Dapollo.override-system-properties=true`
+        * 如果是运行jar文件，需要注意格式是`java -Dapollo.override-system-properties=true -jar xxx.jar`
+    * 也可以通过程序指定，如`System.setProperty("apollo.override-system-properties", "true");`
+2. 通过Spring Boot的配置文件
+    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.override-system-properties=true`
+3. 通过`app.properties`配置文件
+    * 可以在`classpath:/META-INF/app.properties`指定`apollo.override-system-properties=true`
+
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
 ```xml

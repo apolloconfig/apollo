@@ -16,17 +16,19 @@
  */
 package com.ctrip.framework.apollo.spring.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
+import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.build.MockInjector;
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.AbstractSpringIntegrationTest;
 import com.ctrip.framework.apollo.spring.events.ApolloConfigChangeEvent;
+import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.collect.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -34,9 +36,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.core.env.CompositePropertySource;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.*;
+
+import java.util.Properties;
 
 public class PropertySourcesProcessorTest extends AbstractSpringIntegrationTest {
 
@@ -121,5 +123,32 @@ public class PropertySourcesProcessorTest extends AbstractSpringIntegrationTest 
 
     ApolloConfigChangeEvent event = eventCaptor.getValue();
     assertSame(someConfigChangeEvent, event.getConfigChangeEvent());
+  }
+
+
+  @Test
+  public void testOverrideSystemProperties() {
+    Properties properties = new Properties();
+    properties.setProperty("server.port", "8080");
+    properties.setProperty(ApolloClientSystemConsts.APOLLO_OVERRIDE_SYSTEM_PROPERTIES, "false");
+    ConfigurableEnvironment environment = mock(ConfigurableEnvironment.class);
+
+    MutablePropertySources propertySources = new MutablePropertySources();
+    propertySources.addLast(new PropertiesPropertySource(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, properties));
+
+    when(environment.getPropertySources()).thenReturn(propertySources);
+    when(environment.getProperty(PropertySourcesConstants.APOLLO_BOOTSTRAP_NAMESPACES,
+            ConfigConsts.NAMESPACE_APPLICATION)).thenReturn("");
+
+    ConfigUtil configUtil = new ConfigUtil();
+    configUtil = spy(configUtil);
+    when(configUtil.isOverrideSystemProperties()).thenReturn(false);
+    MockInjector.setInstance(ConfigUtil.class, configUtil);
+
+    processor.setEnvironment(environment);
+    processor.postProcessBeanFactory(beanFactory);
+
+    assertTrue(propertySources.contains(PropertySourcesConstants.APOLLO_PROPERTY_SOURCE_NAME));
+    assertEquals(propertySources.iterator().next().getName(), StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME);
   }
 }
