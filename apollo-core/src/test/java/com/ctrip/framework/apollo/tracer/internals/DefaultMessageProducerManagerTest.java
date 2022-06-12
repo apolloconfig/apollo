@@ -37,7 +37,7 @@ public class DefaultMessageProducerManagerTest {
 
   @Test
   public void testGetProducer() throws Exception {
-    assertTrue(messageProducerManager.getProducer() instanceof CatMessageProducer);
+     assertTrue(messageProducerManager.getProducer() instanceof CatMessageProducer);
   }
 
 }
