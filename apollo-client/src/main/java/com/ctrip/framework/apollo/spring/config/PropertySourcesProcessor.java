@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.build.ApolloInjector;
+import com.ctrip.framework.apollo.core.ApolloClientSystemConsts;
 import com.ctrip.framework.apollo.spring.events.ApolloConfigChangeEvent;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
@@ -40,11 +41,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
-import org.springframework.core.env.CompositePropertySource;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.*;
 
 /**
  * Apollo Property Sources processor for Spring Annotation Based Application. <br /> <br />
@@ -110,12 +107,20 @@ public class PropertySourcesProcessor implements BeanFactoryPostProcessor, Envir
     if (environment.getPropertySources()
         .contains(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME)) {
 
-      // ensure ApolloBootstrapPropertySources is still the first
-      ensureBootstrapPropertyPrecedence(environment);
+      if (configUtil.isOverrideSystemProperties()) {
+        // ensure ApolloBootstrapPropertySources is still the first
+        ensureBootstrapPropertyPrecedence(environment);
+      }
 
       environment.getPropertySources()
           .addAfter(PropertySourcesConstants.APOLLO_BOOTSTRAP_PROPERTY_SOURCE_NAME, composite);
     } else {
+      if (!configUtil.isOverrideSystemProperties()) {
+        if (environment.getPropertySources().contains(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME)) {
+          environment.getPropertySources().addAfter(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, composite);
+          return;
+        }
+      }
       environment.getPropertySources().addFirst(composite);
     }
   }

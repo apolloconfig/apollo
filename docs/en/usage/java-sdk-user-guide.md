@@ -396,6 +396,24 @@ The file location reference is as follows.
 
 > Note: apollo.label is a label used to identify the application identity in the format string.
 
+#### 1.2.4.8 Enable Apollo Override System Properties
+
+> For version 2.1.0 and above
+
+Flag to indicate that Apollo's remote properties should override system properties. Default true.
+
+The configuration methods, in descending order of priority, are
+
+1. Via the Java System Property `apollo.override-system-properties`
+    * Can be specified via Java's System Property `apollo.override-system-properties`
+    * You can specify `-Dapollo.override-system-properties=true` in the Java program startup script
+        * If you are running a jar file, you need to note that the format is `java -Dapollo.override-system-properties=true -jar xxx.jar`
+    * You can also specify it programmatically, such as `System.setProperty("apollo.override-system-properties", "true");`
+2. Via the Spring Boot configuration file
+    * You can specify `apollo.override-system-properties=true` in Spring Boot's `application.properties` or `bootstrap.properties`
+3. Via the `app.properties` configuration file
+    * You can specify `apollo.override-system-properties=true` in `classpath:/META-INF/app.properties`
+
 # II. Maven Dependency
 
 Apollo's client jar package has been uploaded to the central repository, the application only needs to be introduced in the following way when it is actually used.

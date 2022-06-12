@@ -156,4 +156,9 @@ public class ApolloClientSystemConsts {
    * enable property names cache environment variables
    */
   public static final String APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES = "APOLLO_CACHE_FILE_ENABLE";
+
+  /**
+   * enable apollo overrideSystemProperties
+   */
+  public static final String APOLLO_OVERRIDE_SYSTEM_PROPERTIES = "apollo.override-system-properties";
 }
