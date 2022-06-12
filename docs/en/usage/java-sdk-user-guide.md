@@ -1251,3 +1251,16 @@ public class SpringIntegrationTest {
 }
 ```
 
+# Ⅶ. apollo-client customization
+
+## 7.1 ConfigService load balancing algorithm
+
+> from version 2.1.0
+
+For satisfy user's different demands on ConfigService load balancing algorithm when user use apollo-client, we provide **spi** in version 2.1.0
+
+The interface is `com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`.
+
+The Input is multiple ConfigServices returned by meta server, and the output is a ConfigService.
+
+The default service provider is `com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，use random strategy which choose one ConfigService from multiple ConfigServices.

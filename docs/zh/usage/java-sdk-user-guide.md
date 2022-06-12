@@ -1194,12 +1194,12 @@ public class SpringIntegrationTest {
 
 > from version 2.1.0
 
-为了满足用户使用apollo-client时，在ConfigService负载均衡算法上的不同需求，
+为了满足用户使用apollo-client时，对ConfigService负载均衡算法的不同需求，
 
-我们在2.1.0版本中，为用户提供了spi
+我们在2.1.0版本中提供了**spi**。
 
-interface是com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient
+interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 
-输入是meta server返回的多个ConfigService，返回1个ConfigService，
+输入是meta server返回的多个ConfigService，输出是1个ConfigService。
 
-默认实现是random策略，也就是随机选择1个ConfigService返回
+默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。
