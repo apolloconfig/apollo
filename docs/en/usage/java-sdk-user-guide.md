@@ -1279,6 +1279,6 @@ To satisfy users' different demands on ConfigService load balancing algorithm wh
 
 The interface is `com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`.
 
-The Input is multiple ConfigServices returned by meta server, and the output is a ConfigService.
+The Input is multiple ConfigServices returned by meta server, and the output is a ConfigService selected.
 
 The default service provider is `com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，use random strategy which choose one ConfigService from multiple ConfigServices.
