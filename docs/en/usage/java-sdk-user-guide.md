@@ -1275,7 +1275,7 @@ public class SpringIntegrationTest {
 
 > from version 2.1.0
 
-For satisfy user's different demands on ConfigService load balancing algorithm when user use apollo-client, we provide **spi** in version 2.1.0
+To satisfy users' different demands on ConfigService load balancing algorithm when using apollo-client, we provide **spi** since version 2.1.0
 
 The interface is `com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`.
 
