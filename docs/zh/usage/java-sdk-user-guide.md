@@ -3,7 +3,7 @@
 # &nbsp;
 # 一、准备工作
 ## 1.1 环境要求
-    
+
 * Java: 1.8+
     * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 * Guava: 20.0+
@@ -638,7 +638,7 @@ Spring Boot除了支持上述两种集成方式以外，还支持通过applicati
      # will inject 'application' namespace in bootstrap phase
      apollo.bootstrap.enabled = true
 ```
-   
+
 2. 注入非默认`application` namespace或多个namespace的配置示例
 ```properties
      apollo.bootstrap.enabled = true
@@ -1204,3 +1204,19 @@ public class SpringIntegrationTest {
   }
 }
 ```
+
+# 七、apollo-client定制
+
+## 7.1 ConfigService负载均衡算法
+
+> from version 2.1.0
+
+为了满足用户使用apollo-client时，对ConfigService负载均衡算法的不同需求，
+
+我们在2.1.0版本中提供了**spi**。
+
+interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
+
+输入是meta server返回的多个ConfigService，输出是1个ConfigService。
+
+默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。
