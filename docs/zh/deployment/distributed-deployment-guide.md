@@ -529,7 +529,21 @@ spring.cloud.zookeeper.connect-string=127.0.0.1:2181
 admin.enableServer
 admin.serverPort
 ```
-
+##### 2.2.1.2.10 启用custom-defined-discovery替换内置eureka
+1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+2. 配置自定义的 config-service 与 admin-service 的访问地址有两种方式：一种在mysql数据库ApolloConfigDB，表ServerConfig当中写入两条数据。
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService 访问地址');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService 访问地址');
+```
+另外一种修改apollo-configservice安装包中config目录下的application-github.properties
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
 ### 2.2.2 部署Apollo服务端
 
 #### 2.2.2.1 部署apollo-configservice

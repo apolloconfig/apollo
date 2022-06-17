@@ -36,6 +36,13 @@
       "defaultValue": false
     },
     {
+      "name": "apollo.override-system-properties",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",
+      "description": "enable apollo server config override system properties.",
+      "defaultValue": true
+    },
+    {
       "name": "apollo.cache-dir",
       "type": "java.lang.String",
       "sourceType": "com.ctrip.framework.apollo.util.ConfigUtil",

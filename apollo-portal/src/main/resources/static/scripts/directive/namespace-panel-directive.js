@@ -843,7 +843,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 var itemCnt = 0;
                 namespace.items.forEach(function (item) {
                     //deleted key
-                    if (!item.item.dataChangeLastModifiedBy) {
+                    if (item.isDeleted) {
                         return;
                     }
                     if (item.item.key) {

@@ -26,11 +26,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
   <meta name="google-site-verification" content="CuvYz6OxISNH7wdJsnS8oNtJJn9IP6k0zz5x6m9uXco" />
 
-  <!-- mermaid theme -->
-  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
-  <!-- mermaid -->
-  <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-
   <!-- theme -->
   <link rel="stylesheet" href="css/vue.css" title="vue" />
   <link rel="stylesheet" href="css/dark.css" title="dark" disabled />
@@ -54,10 +49,6 @@
 <body>
   <div id="app">Loading ...</div>
   <script>
-    // mermaid
-    var num = 0;
-    mermaid.initialize({ startOnLoad: false });
-
     window.$docsify = {
       alias: {
         '/': 'zh/README.md',
@@ -162,32 +153,42 @@
     };
   </script>
 
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <!-- docsify -->
+  <script src="//unpkg.com/docsify@4.12.2/lib/docsify.min.js"></script>
 
-  <!-- plugins -->
+  <!-- docsify plugins -->
   <!-- support search -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="//unpkg.com/docsify@4.12.2/lib/plugins/search.min.js"></script>
   <!-- Support docsify sidebar catalog expand and collapse -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-sidebar-collapse/dist/docsify-sidebar-collapse.min.js"></script>
+  <script src="//unpkg.com/docsify-sidebar-collapse@1.3.5/dist/docsify-sidebar-collapse.min.js"></script>
   <!-- Medium's image zoom -->
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+  <script src="//unpkg.com/docsify@4.12.2/lib/plugins/zoom-image.min.js"></script>
   <!-- Add a simple Click to copy button to all preformatted code blocks to effortlessly allow users to copy example code from your docs -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
+  <script src="//unpkg.com/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js"></script>
   <!-- docsify-pagination -->
-  <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
+  <script src="//unpkg.com/docsify-pagination@2.6.2/dist/docsify-pagination.min.js"></script>
 
   <!-- code highlight -->
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-csharp.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-java.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-markdown.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-nginx.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-properties.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-sql.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-xml-doc.min.js"></script>
-  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-yaml.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-bash.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-csharp.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-java.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-json.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-markdown.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-nginx.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-properties.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-sql.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-xml-doc.min.js"></script>
+  <script src="//unpkg.com/prismjs@1.27.0/components/prism-yaml.min.js"></script>
+
 </body>
+
+<!-- mermaid -->
+<script src="//unpkg.com/mermaid@8.14.0/dist/mermaid.min.js"></script>
+<script>
+  // mermaid
+  var num = 0;
+  mermaid.initialize({ startOnLoad: false });
+</script>
 
 <script>
   var _hmt = _hmt || [];

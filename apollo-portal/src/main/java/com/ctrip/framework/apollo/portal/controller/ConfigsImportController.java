@@ -76,6 +76,7 @@ public class ConfigsImportController {
     configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename, file.getInputStream());
   }
 
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=cover")
   public void importConfigByZipWithCoverConflictNamespace(@RequestParam(value = "envs") String envs,
                                 @RequestParam("file") MultipartFile file) throws IOException {
@@ -90,6 +91,7 @@ public class ConfigsImportController {
     }
   }
 
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=ignore")
   public void importConfigByZipWithIgnoreConflictNamespace(@RequestParam(value = "envs") String envs,
                                 @RequestParam("file") MultipartFile file) throws IOException {

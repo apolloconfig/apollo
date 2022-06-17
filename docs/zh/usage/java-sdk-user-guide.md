@@ -3,7 +3,7 @@
 # &nbsp;
 # 一、准备工作
 ## 1.1 环境要求
-    
+
 * Java: 1.8+
     * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 * Guava: 20.0+
@@ -381,6 +381,23 @@ apollo.label=YOUR-APOLLO-LABEL
 
 > 注：apollo.label是用来标识应用身份的标签，格式为string。
 
+#### 1.2.4.8 覆盖系统属性
+
+> 适用于2.1.0及以上版本
+
+`apollo.override-system-properties` 标识Apollo的远程属性是否应该覆盖Java的系统属性。默认为 true。
+
+配置方式按照优先级从高到低分别为：
+1. 通过Java System Property `apollo.override-system-properties`
+    * 可以通过Java的System Property `apollo.override-system-properties`来指定
+    * 在Java程序启动脚本中，可以指定`-Dapollo.override-system-properties=true`
+        * 如果是运行jar文件，需要注意格式是`java -Dapollo.override-system-properties=true -jar xxx.jar`
+    * 也可以通过程序指定，如`System.setProperty("apollo.override-system-properties", "true");`
+2. 通过Spring Boot的配置文件
+    * 可以在Spring Boot的`application.properties`或`bootstrap.properties`中指定`apollo.override-system-properties=true`
+3. 通过`app.properties`配置文件
+    * 可以在`classpath:/META-INF/app.properties`指定`apollo.override-system-properties=true`
+
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
 ```xml
@@ -621,7 +638,7 @@ Spring Boot除了支持上述两种集成方式以外，还支持通过applicati
      # will inject 'application' namespace in bootstrap phase
      apollo.bootstrap.enabled = true
 ```
-   
+
 2. 注入非默认`application` namespace或多个namespace的配置示例
 ```properties
      apollo.bootstrap.enabled = true
@@ -1187,3 +1204,19 @@ public class SpringIntegrationTest {
   }
 }
 ```
+
+# 七、apollo-client定制
+
+## 7.1 ConfigService负载均衡算法
+
+> from version 2.1.0
+
+为了满足用户使用apollo-client时，对ConfigService负载均衡算法的不同需求，
+
+我们在2.1.0版本中提供了**spi**。
+
+interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
+
+输入是meta server返回的多个ConfigService，输出是1个ConfigService。
+
+默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。

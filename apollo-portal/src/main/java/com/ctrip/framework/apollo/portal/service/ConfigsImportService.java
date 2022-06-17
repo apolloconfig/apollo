@@ -116,8 +116,8 @@ public class ConfigsImportService {
       throws IOException {
     List<String> toImportApps = Lists.newArrayList();
     List<String> toImportAppNSs = Lists.newArrayList();
-    List<String> toImportClusters = Lists.newArrayList();
-    List<NamespaceImportData> toImportNSs = Lists.newArrayList();
+    List<ImportClusterData> toImportClusters = Lists.newArrayList();
+    List<ImportNamespaceData> toImportNSs = Lists.newArrayList();
 
     ZipEntry entry;
     while ((entry = dataZip.getNextEntry()) != null) {
@@ -146,17 +146,16 @@ public class ConfigsImportService {
       } else {
         String env = info[2];
         fileName = info[3];
-        if (fileName.endsWith(ConfigFileUtils.CLUSTER_METADATA_FILE_SUFFIX)) {
-          //cluster metadata file. path format : apollo/${appId}/${env}/${clusterName}.cluster.metadata
-          toImportClusters.add(content);
-        } else {
-          //namespace file.path format : apollo/${appId}/${env}/${appId}+${cluster}+${namespaceName}
-          //only import for selected envs.
           for (Env importEnv : importEnvs) {
             if (Objects.equals(importEnv.getName(), env)) {
-              toImportNSs.add(new NamespaceImportData(Env.valueOf(env), fileName, content, ignoreConflictNamespace));
+              if (fileName.endsWith(ConfigFileUtils.CLUSTER_METADATA_FILE_SUFFIX)) {
+                //cluster metadata file. path format : apollo/${appId}/${env}/${clusterName}.cluster.metadata
+                toImportClusters.add(new ImportClusterData(Env.transformEnv(env), content));
+              } else {
+                //namespace file.path format : apollo/${appId}/${env}/${appId}+${cluster}+${namespaceName}
+                toImportNSs.add(new ImportNamespaceData(Env.valueOf(env), fileName, content, ignoreConflictNamespace));
+              }
             }
-          }
         }
       }
     }
@@ -175,7 +174,7 @@ public class ConfigsImportService {
   }
 
   private void doImport(List<Env> importEnvs, List<String> toImportApps, List<String> toImportAppNSs,
-                        List<String> toImportClusters, List<NamespaceImportData> toImportNSs)
+                        List<ImportClusterData> toImportClusters, List<ImportNamespaceData> toImportNSs)
       throws InterruptedException {
     LOGGER.info("Start to import app. size = {}", toImportApps.size());
 
@@ -217,7 +216,7 @@ public class ConfigsImportService {
     CountDownLatch clusterLatch = new CountDownLatch(toImportClusters.size());
     toImportClusters.parallelStream().forEach(cluster -> {
       try {
-        importCluster(cluster, importEnvs, operator);
+        importCluster(cluster, operator);
       } catch (Exception e) {
         LOGGER.error("import cluster error. cluster = {}", cluster, e);
       } finally {
@@ -301,8 +300,9 @@ public class ConfigsImportService {
     }
   }
 
-  private void importCluster(String clusterInfo, List<Env> importEnvs, String operator) {
-    ClusterDTO toImportCluster = gson.fromJson(clusterInfo, ClusterDTO.class);
+  private void importCluster(ImportClusterData importClusterData, String operator) {
+    Env env = importClusterData.getEnv();
+    ClusterDTO toImportCluster = gson.fromJson(importClusterData.clusterInfo, ClusterDTO.class);
 
     toImportCluster.setDataChangeCreatedBy(operator);
     toImportCluster.setDataChangeLastModifiedBy(operator);
@@ -312,14 +312,12 @@ public class ConfigsImportService {
     String appId = toImportCluster.getAppId();
     String clusterName = toImportCluster.getName();
 
-    importEnvs.parallelStream().forEach(env -> {
-      try {
-        clusterService.loadCluster(appId, env, clusterName);
-      } catch (Exception e) {
-        //not existed
-        clusterService.createCluster(env, toImportCluster);
-      }
-    });
+    try {
+      clusterService.loadCluster(appId, env, clusterName);
+    } catch (Exception e) {
+      //not existed
+      clusterService.createCluster(env, toImportCluster);
+    }
   }
 
   /**
@@ -430,14 +428,14 @@ public class ConfigsImportService {
     }
   }
 
-  static class NamespaceImportData {
+  static class ImportNamespaceData {
 
     private Env     env;
     private String  fileName;
     private String  content;
     private boolean ignoreConflictNamespace;
 
-    public NamespaceImportData(Env env, String fileName, String content, boolean ignoreConflictNamespace) {
+    public ImportNamespaceData(Env env, String fileName, String content, boolean ignoreConflictNamespace) {
       this.env = env;
       this.fileName = fileName;
       this.content = content;
@@ -483,6 +481,41 @@ public class ConfigsImportService {
              ", fileName='" + fileName + '\'' +
              ", content='" + content + '\'' +
              ", ignoreConflictNamespace=" + ignoreConflictNamespace +
+             '}';
+    }
+  }
+
+  static class ImportClusterData {
+
+    private Env    env;
+    private String clusterInfo;
+
+    public ImportClusterData(Env env, String clusterInfo) {
+      this.env = env;
+      this.clusterInfo = clusterInfo;
+    }
+
+    public Env getEnv() {
+      return env;
+    }
+
+    public void setEnv(Env env) {
+      this.env = env;
+    }
+
+    public String getClusterInfo() {
+      return clusterInfo;
+    }
+
+    public void setClusterInfo(String clusterInfo) {
+      this.clusterInfo = clusterInfo;
+    }
+
+    @Override
+    public String toString() {
+      return "ImportClusterData{" +
+             "env=" + env +
+             ", clusterName='" + clusterInfo + '\'' +
              '}';
     }
   }

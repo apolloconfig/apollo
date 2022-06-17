@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.spring.annotation.ApolloAnnotationProcessor;
 import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import com.ctrip.framework.apollo.spring.annotation.SpringValueProcessor;
 import com.ctrip.framework.apollo.spring.config.PropertySourcesProcessor;
+import com.ctrip.framework.apollo.spring.property.AutoUpdateConfigChangeListener;
 import com.ctrip.framework.apollo.spring.property.SpringValueDefinitionProcessor;
 import com.ctrip.framework.apollo.spring.util.BeanRegistrationUtil;
 import com.google.common.collect.Lists;
@@ -55,6 +56,8 @@ public class DefaultApolloConfigRegistrarHelper implements ApolloConfigRegistrar
 
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class.getName(),
         PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry,
+        AutoUpdateConfigChangeListener.class.getName(), AutoUpdateConfigChangeListener.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesProcessor.class.getName(),
         PropertySourcesProcessor.class);
     BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class.getName(),

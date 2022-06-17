@@ -150,14 +150,15 @@ public class ReleaseMessageServiceWithCacheTest {
     assertNotNull(latestReleaseMsg);
     assertEquals(501, latestReleaseMsg.getId());
     assertEquals(antherMsgContent, latestReleaseMsg.getMessage());
-
+    
+    List<String> msgContentList = Arrays.asList(someMsgContent, antherMsgContent);
     List<ReleaseMessage> latestReleaseMsgGroupByMsgContent =
         releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMsgContent, antherMsgContent));
+            .findLatestReleaseMessagesGroupByMessages(Sets.newLinkedHashSet(msgContentList));
 
     assertEquals(2, latestReleaseMsgGroupByMsgContent.size());
-    assertEquals(500, latestReleaseMsgGroupByMsgContent.get(1).getId());
-    assertEquals(501, latestReleaseMsgGroupByMsgContent.get(0).getId());
+    assertEquals(500, latestReleaseMsgGroupByMsgContent.get(0).getId());
+    assertEquals(501, latestReleaseMsgGroupByMsgContent.get(1).getId());
   }
 
   @Test

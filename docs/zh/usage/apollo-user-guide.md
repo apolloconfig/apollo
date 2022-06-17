@@ -345,6 +345,8 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 ![gray-release-ip-selected](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-ip-selected.png)
 
+除了IP维度以外，从2.0.0版本开始还支持通过label来标识灰度的实例列表，适用于IP不固定的场景如`Kubernetes`。
+
 手动输入想要设置的label标签，输入完成后点击点击添加按钮。
 
 ![manual-input-gray-release-label](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label.png)
@@ -352,6 +354,10 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 ![manual-input-gray-release-label-2](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/manual-input-gray-release-label2.png)
 
 ![gray-release-rule-saved](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-rule-saved.png)
+
+上述规则配置后，灰度配置会对AppId为`100004458`，IP为`10.32.21.22`或者`Label`标记为`myLabel`或`appLabel`的实例生效。
+
+> 关于`Label`如何标记，可以参考[ApolloLabel](zh/usage/java-sdk-user-guide?id=_1247-apollolabel)的配置说明。
 
 如果下拉框中没找到需要的IP，说明机器还没从Apollo取过配置，可以点击手动输入IP来输入，输入完后点击添加按钮
 

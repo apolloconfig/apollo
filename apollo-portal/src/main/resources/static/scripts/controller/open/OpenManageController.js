@@ -106,6 +106,8 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
                         token: $translate.instant('Open.Manage.AppNotCreated', { appId: $scope.consumer.appId })
                     };
                 }
+            }, function (response) {
+                AppUtil.showErrorMsg(response);
             });
     }
 

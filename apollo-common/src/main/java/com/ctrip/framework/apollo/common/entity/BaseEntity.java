@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.common.entity;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.time.Instant;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -44,6 +45,9 @@ public abstract class BaseEntity {
   @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
   protected boolean isDeleted = false;
 
+  @Column(name = "DeletedAt", columnDefinition = "Bigint default '0'")
+  protected long deletedAt;
+
   @Column(name = "DataChange_CreatedBy", nullable = false)
   private String dataChangeCreatedBy;
 
@@ -56,52 +60,62 @@ public abstract class BaseEntity {
   @Column(name = "DataChange_LastTime")
   private Date dataChangeLastModifiedTime;
 
-  public String getDataChangeCreatedBy() {
-    return dataChangeCreatedBy;
-  }
-
-  public Date getDataChangeCreatedTime() {
-    return dataChangeCreatedTime;
-  }
-
-  public String getDataChangeLastModifiedBy() {
-    return dataChangeLastModifiedBy;
-  }
-
-  public Date getDataChangeLastModifiedTime() {
-    return dataChangeLastModifiedTime;
-  }
-
   public long getId() {
     return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 
   public boolean isDeleted() {
     return isDeleted;
   }
 
+  public void setDeleted(boolean deleted) {
+    isDeleted = deleted;
+    // also set deletedAt value as epoch millisecond
+    this.deletedAt = System.currentTimeMillis();
+  }
+
+  public long getDeletedAt() {
+    return deletedAt;
+  }
+
+  public void setDeletedAt(long deletedAt) {
+    this.deletedAt = deletedAt;
+  }
+
+  public String getDataChangeCreatedBy() {
+    return dataChangeCreatedBy;
+  }
+
   public void setDataChangeCreatedBy(String dataChangeCreatedBy) {
     this.dataChangeCreatedBy = dataChangeCreatedBy;
+  }
+
+  public Date getDataChangeCreatedTime() {
+    return dataChangeCreatedTime;
   }
 
   public void setDataChangeCreatedTime(Date dataChangeCreatedTime) {
     this.dataChangeCreatedTime = dataChangeCreatedTime;
   }
 
+  public String getDataChangeLastModifiedBy() {
+    return dataChangeLastModifiedBy;
+  }
+
   public void setDataChangeLastModifiedBy(String dataChangeLastModifiedBy) {
     this.dataChangeLastModifiedBy = dataChangeLastModifiedBy;
   }
 
+  public Date getDataChangeLastModifiedTime() {
+    return dataChangeLastModifiedTime;
+  }
+
   public void setDataChangeLastModifiedTime(Date dataChangeLastModifiedTime) {
     this.dataChangeLastModifiedTime = dataChangeLastModifiedTime;
-  }
-
-  public void setDeleted(boolean deleted) {
-    isDeleted = deleted;
-  }
-
-  public void setId(long id) {
-    this.id = id;
   }
 
   @PrePersist
