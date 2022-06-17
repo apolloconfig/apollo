@@ -162,6 +162,7 @@ public class AppService {
       return app;
     }
 
+    app.setId(0);
     App createdApp = appRepository.save(app);
 
     roleInitializationService.initAppRoles(createdApp);

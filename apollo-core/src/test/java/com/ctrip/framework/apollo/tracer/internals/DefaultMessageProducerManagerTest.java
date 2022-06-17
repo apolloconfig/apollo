@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.tracer.internals;
 
+import com.ctrip.framework.apollo.tracer.internals.cat.CatMessageProducer;
 import com.ctrip.framework.apollo.tracer.spi.MessageProducerManager;
 
 import org.junit.Before;
@@ -36,7 +37,7 @@ public class DefaultMessageProducerManagerTest {
 
   @Test
   public void testGetProducer() throws Exception {
-    assertTrue(messageProducerManager.getProducer() instanceof NullMessageProducer);
+    assertTrue(messageProducerManager.getProducer() instanceof CatMessageProducer);
   }
 
 }

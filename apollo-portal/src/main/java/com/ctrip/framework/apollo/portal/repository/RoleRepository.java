@@ -43,6 +43,6 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
   List<Long> findRoleIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
-  @Query("UPDATE Role SET IsDeleted=1, DataChange_LastModifiedBy = ?2 WHERE Id in ?1")
+  @Query("UPDATE Role SET IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = 0")
   Integer batchDelete(List<Long> roleIds, String operator);
 }

@@ -17,6 +17,8 @@
 package com.ctrip.framework.apollo.internals;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -36,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 /**
  * @author wxq
@@ -71,7 +72,7 @@ public class AbstractConfigTest {
     // wait a minute for invoking
     Thread.sleep(100);
 
-    verify(configChangeListener, times(0)).onChange(Matchers.<ConfigChangeEvent>any());
+    verify(configChangeListener, times(0)).onChange(any());
   }
 
   @Test
@@ -115,8 +116,8 @@ public class AbstractConfigTest {
 
     assertEquals(2, invokeCount.get());
 
-    verify(configChangeListener1, times(1)).onChange(Matchers.eq(configChangeEvent));
-    verify(configChangeListener2, times(1)).onChange(Matchers.eq(configChangeEvent));
+    verify(configChangeListener1, times(1)).onChange(eq(configChangeEvent));
+    verify(configChangeListener2, times(1)).onChange(eq(configChangeEvent));
   }
 
   @Test
@@ -159,8 +160,8 @@ public class AbstractConfigTest {
 
     assertEquals(2, invokeCount.get());
 
-    verify(configChangeListener1, times(1)).onChange(Matchers.<ConfigChangeEvent>any());
-    verify(configChangeListener2, times(1)).onChange(Matchers.<ConfigChangeEvent>any());
+    verify(configChangeListener1, times(1)).onChange(any());
+    verify(configChangeListener2, times(1)).onChange(any());
   }
 
   /**

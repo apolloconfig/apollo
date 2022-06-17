@@ -19,4 +19,8 @@ INSERT INTO Cluster (AppId, Name) VALUES ('someAppId', 'default');
 
 INSERT INTO AppNamespace (AppId, Name) VALUES ('someAppId', 'application');
 
+INSERT INTO AppNamespace (AppId, Name) VALUES ('someAppId', 'someNamespace');
+
 INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'application');
+
+INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'someNamespace');

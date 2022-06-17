@@ -58,6 +58,7 @@ public class ConfigUtil {
   private boolean propertiesOrdered = false;
   private boolean propertyNamesCacheEnabled = false;
   private boolean propertyFileCacheEnabled = true;
+  private boolean overrideSystemProperties = true;
 
   public ConfigUtil() {
     warnLogRateLimiter = RateLimiter.create(0.017); // 1 warning log output per minute
@@ -72,6 +73,7 @@ public class ConfigUtil {
     initPropertiesOrdered();
     initPropertyNamesCacheEnabled();
     initPropertyFileCacheEnabled();
+    initOverrideSystemProperties();
   }
 
   /**
@@ -416,6 +418,10 @@ public class ConfigUtil {
     return propertyFileCacheEnabled;
   }
 
+  public boolean isOverrideSystemProperties() {
+    return overrideSystemProperties;
+  }
+
   private void initPropertyNamesCacheEnabled() {
     propertyNamesCacheEnabled = getPropertyBoolean(ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE,
             ApolloClientSystemConsts.APOLLO_PROPERTY_NAMES_CACHE_ENABLE_ENVIRONMENT_VARIABLES,
@@ -426,6 +432,12 @@ public class ConfigUtil {
     propertyFileCacheEnabled = getPropertyBoolean(ApolloClientSystemConsts.APOLLO_CACHE_FILE_ENABLE,
             ApolloClientSystemConsts.APOLLO_CACHE_FILE_ENABLE_ENVIRONMENT_VARIABLES,
             propertyFileCacheEnabled);
+  }
+
+  private void initOverrideSystemProperties() {
+    overrideSystemProperties = getPropertyBoolean(ApolloClientSystemConsts.APOLLO_OVERRIDE_SYSTEM_PROPERTIES,
+            ApolloClientSystemConsts.APOLLO_OVERRIDE_SYSTEM_PROPERTIES,
+            overrideSystemProperties);
   }
 
   private boolean getPropertyBoolean(String propertyName, String envName, boolean defaultVal) {

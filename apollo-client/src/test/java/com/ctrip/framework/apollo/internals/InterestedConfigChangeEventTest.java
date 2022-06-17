@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.enums.PropertyChangeType;
-import com.ctrip.framework.apollo.internals.AbstractConfig;
 import com.ctrip.framework.apollo.model.ConfigChange;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import com.google.common.collect.Sets;
@@ -35,7 +34,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import static org.mockito.Mockito.*;
 
@@ -78,7 +76,7 @@ public class InterestedConfigChangeEventTest {
 
     onChangeFuture.get(500, TimeUnit.MILLISECONDS);
 
-    verify(configChangeListener, atLeastOnce()).onChange(Matchers.<ConfigChangeEvent>any());
+    verify(configChangeListener, atLeastOnce()).onChange(any());
   }
 
   /**

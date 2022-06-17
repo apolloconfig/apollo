@@ -11,6 +11,9 @@
   - [Docker方式部署Quick Start](zh/deployment/quick-start-docker.md)
   - [分布式部署指南](zh/deployment/distributed-deployment-guide.md)
   - [部署架构](zh/deployment/deployment-architecture.md)
+  - 第三方工具部署
+    - [基于Rainbond一键安装高可用Apollo集群](zh/deployment/third-party-tool-rainbond.md)
+  
 
 - 开发文档
   - [Apollo开发指南](zh/development/apollo-development-guide.md)

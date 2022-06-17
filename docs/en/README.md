@@ -10,9 +10,9 @@ The Java SDK does not rely on any framework and can run in all Java runtime envi
 
 The .Net SDK does not rely on any framework and can run in all .Net runtime environments.
 
-For more details of the product introduction, please refer [Introduction to Apollo Configuration Center](zh/design/apollo-introduction).
+For more details of the product introduction, please refer [Introduction to Apollo Configuration Center](en/design/apollo-introduction).
 
-For local demo purpose, please refer [Quick Start](zh/deployment/quick-start).
+For local demo purpose, please refer [Quick Start](en/deployment/quick-start).
 
 Demo Environment:
 - [http://106.54.227.205](http://106.54.227.205/)
@@ -63,38 +63,38 @@ Demo Environment:
     * Apollo also provides a packaging script, which can generate all required installation packages with just one click, and supports customization of runtime parameters
 
 # Usage
-1. [Apollo User Guide](zh/usage/apollo-user-guide)
-2. [Java SDK User Guide](zh/usage/java-sdk-user-guide)
-3. [.Net SDK user Guide](zh/usage/dotnet-sdk-user-guide)
-4. [Third Party SDK User Guide](zh/usage/third-party-sdks-user-guide)
-5. [Other Language Client User Guide](zh/usage/other-language-client-user-guide)
-6. [Apollo Open APIs](zh/usage/apollo-open-api-platform)
+1. [Apollo User Guide](en/usage/apollo-user-guide)
+2. [Java SDK User Guide](en/usage/java-sdk-user-guide)
+3. [.Net SDK user Guide](en/usage/dotnet-sdk-user-guide)
+4. [Third Party SDK User Guide](en/usage/third-party-sdks-user-guide)
+5. [Other Language Client User Guide](en/usage/other-language-client-user-guide)
+6. [Apollo Open APIs](en/usage/apollo-open-api-platform)
 7. [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
-8. [Apollo User Practices](zh/usage/apollo-user-practices)
-9. [Apollo Security Best Practices](zh/usage/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
+8. [Apollo User Practices](en/usage/apollo-user-practices)
+9. [Apollo Security Best Practices](en/usage/apollo-user-guide?id=_71-security-related)
 
 # Design
-* [Apollo Design](zh/design/apollo-design)
-* [Apollo Core Concept - Namespace](zh/design/apollo-core-concept-namespace)
+* [Apollo Design](en/design/apollo-design)
+* [Apollo Core Concept - Namespace](en/design/apollo-core-concept-namespace)
 * [Apollo Architecture Analysis](https://mp.weixin.qq.com/s/-hUaQPzfsl9Lm3IqQW3VDQ)
 * [Apollo Source Code Explanation](http://www.iocoder.cn/categories/Apollo/)
 
 # Development
-* [Apollo Development Guide](zh/development/apollo-development-guide)
+* [Apollo Development Guide](en/development/apollo-development-guide)
 * Code Styles
     * [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     * [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
 
 # Deployment
-* [Quick Start](zh/deployment/quick-start)
-* [Distributed Deployment Guide](zh/deployment/distributed-deployment-guide)
+* [Quick Start](en/deployment/quick-start)
+* [Distributed Deployment Guide](en/deployment/distributed-deployment-guide)
 
 # Release Notes
 * [Releases](https://github.com/apolloconfig/apollo/releases)
 
 # FAQ
-* [FAQ](zh/faq/faq)
-* [Common Issues in Deployment & Development Phase](zh/faq/common-issues-in-deployment-and-development-phase)
+* [FAQ](en/faq/faq)
+* [Common Issues in Deployment & Development Phase](en/faq/common-issues-in-deployment-and-development-phase)
 
 # Presentation
 * [Design and Implementation Details of Apollo](http://www.itdks.com/dakalive/detail/3420)

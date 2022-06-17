@@ -31,7 +31,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "Release")
-@SQLDelete(sql = "Update Release set isDeleted = 1 where id = ?")
+@SQLDelete(sql = "Update Release set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class Release extends BaseEntity {
   @Column(name = "ReleaseKey", nullable = false)
