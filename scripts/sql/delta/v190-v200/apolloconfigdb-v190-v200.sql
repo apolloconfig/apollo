@@ -36,8 +36,7 @@ ALTER TABLE `GrayReleaseRule`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
 ALTER TABLE `Item`
-    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`,
-    ADD INDEX IX_key (`Key`);
+    ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
 
 ALTER TABLE `Namespace`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`;
