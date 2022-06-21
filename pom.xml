@@ -71,7 +71,7 @@
 		<javassist.version>3.23.1-GA</javassist.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
 		<common-lang3.version>3.12.0</common-lang3.version>
-		<mysql-connector-java.version>8.0.28</mysql-connector-java.version>
+		<mysql-connector-java.version>8.0.29</mysql-connector-java.version>
 		<cat.client.version>3.1.0</cat.client.version>
 		<!-- Plugins Version -->
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
