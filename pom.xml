@@ -60,7 +60,7 @@
 	</developers>
 
 	<properties>
-		<revision>2.0.1-SNAPSHOT</revision>
+		<revision>2.1.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-boot.version>2.6.8</spring-boot.version>
@@ -71,7 +71,8 @@
 		<javassist.version>3.23.1-GA</javassist.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
 		<common-lang3.version>3.12.0</common-lang3.version>
-		<mysql-connector-java.version>8.0.28</mysql-connector-java.version>
+		<mysql-connector-java.version>8.0.29</mysql-connector-java.version>
+		<cat.client.version>3.1.0</cat.client.version>
 		<!-- Plugins Version -->
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -165,7 +166,7 @@
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.0</version>
+				<version>2.8.9</version>
 			</dependency>
 			<dependency>
 				<groupId>mysql</groupId>
@@ -181,6 +182,11 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>${common-lang3.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.dianping.cat</groupId>
+				<artifactId>cat-client</artifactId>
+				<version>${cat.client.version}</version>
 			</dependency>
 			<!-- to fix CVE-2020-26217 -->
 			<dependency>
@@ -753,4 +759,3 @@
 		</snapshotRepository>
 	</distributionManagement>
 </project>
-
