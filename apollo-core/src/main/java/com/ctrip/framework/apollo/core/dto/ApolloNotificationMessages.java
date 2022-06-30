@@ -28,7 +28,7 @@ public class ApolloNotificationMessages {
   private Map<String, Long> details;
 
   public ApolloNotificationMessages() {
-    this(Maps.<String, Long>newTreeMap());
+    this(Maps.newTreeMap());
   }
 
   private ApolloNotificationMessages(Map<String, Long> details) {

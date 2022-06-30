@@ -119,7 +119,7 @@ public enum NetworkInterfaceManager {
 
     try {
       Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-      List<NetworkInterface> nis = interfaces == null ? Collections.<NetworkInterface>emptyList()
+      List<NetworkInterface> nis = interfaces == null ? Collections.emptyList()
           : Collections.list(interfaces);
       //sort the network interfaces according to the index asc
       Collections.sort(nis, new Comparator<NetworkInterface>() {

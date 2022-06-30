@@ -42,7 +42,7 @@ public class AnnotationApplication {
         System.exit(0);
       }
 
-      System.out.println(annotatedBean.toString());
+      System.out.println(annotatedBean);
     }
   }
 }
