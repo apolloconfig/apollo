@@ -44,13 +44,8 @@ public class ServiceBootstrap {
   public static <S extends Ordered> List<S> loadAllOrdered(Class<S> clazz) {
     Iterator<S> iterator = loadAll(clazz);
     List<S> candidates = Lists.newArrayList(iterator);
-    Collections.sort(candidates, new Comparator<S>() {
-      @Override
-      public int compare(S o1, S o2) {
-        // the smaller order has higher priority
-        return Integer.compare(o1.getOrder(), o2.getOrder());
-      }
-    });
+    // the smaller order has higher priority
+    candidates.sort(Comparator.comparingInt(Ordered::getOrder));
 
     return candidates;
   }
