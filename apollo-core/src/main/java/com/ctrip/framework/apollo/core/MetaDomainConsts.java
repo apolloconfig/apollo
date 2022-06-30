@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.ctrip.framework.apollo.core.spi.Ordered;
 import com.ctrip.framework.apollo.core.utils.DeferredLoggerFactory;
 import org.slf4j.Logger;
 
@@ -133,13 +134,8 @@ public class MetaDomainConsts {
 
     List<MetaServerProvider> metaServerProviders = Lists.newArrayList(metaServerProviderIterator);
 
-    Collections.sort(metaServerProviders, new Comparator<MetaServerProvider>() {
-      @Override
-      public int compare(MetaServerProvider o1, MetaServerProvider o2) {
-        // the smaller order has higher priority
-        return Integer.compare(o1.getOrder(), o2.getOrder());
-      }
-    });
+    // the smaller order has higher priority
+    metaServerProviders.sort(Comparator.comparingInt(Ordered::getOrder));
 
     return metaServerProviders;
   }
