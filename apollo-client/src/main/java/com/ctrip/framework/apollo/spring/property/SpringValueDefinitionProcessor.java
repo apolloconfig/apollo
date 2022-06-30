@@ -88,7 +88,7 @@ public class SpringValueDefinitionProcessor implements BeanDefinitionRegistryPos
     }
 
     if (!beanName2SpringValueDefinitions.containsKey(beanRegistry)) {
-      beanName2SpringValueDefinitions.put(beanRegistry, LinkedListMultimap.<String, SpringValueDefinition>create());
+      beanName2SpringValueDefinitions.put(beanRegistry, LinkedListMultimap.create());
     }
 
     Multimap<String, SpringValueDefinition> springValueDefinitions = beanName2SpringValueDefinitions.get(beanRegistry);
