@@ -127,6 +127,7 @@ public class ConsumerController {
   }
 
   @DeleteMapping(value = "/consumers/delete/by-appId")
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   public void deleteConsumers(@RequestParam String appId) {
     consumerService.deleteConsumer(appId);
   }
