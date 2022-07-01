@@ -17,12 +17,25 @@
 package com.ctrip.framework.apollo.common;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.firewall.RequestRejectedHandler;
 
 @EnableAutoConfiguration
 @Configuration
 @ComponentScan(basePackageClasses = ApolloCommonConfig.class)
 public class ApolloCommonConfig {
+
+  /**
+   * Spring-Security Firewall Deny Request Response 400
+   * @return RequestRejectedHandler
+   */
+  @Bean
+  public RequestRejectedHandler requestRejectedHandler() {
+    return new HttpStatusRequestRejectedHandler(HttpStatus.BAD_REQUEST.value());
+  }
 
 }
