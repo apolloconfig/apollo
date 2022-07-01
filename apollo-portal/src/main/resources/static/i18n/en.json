@@ -597,6 +597,7 @@
   "Open.Manage.DeleteConsumer.Confirm": "You are deleting a third-party app with <b>AppId={{toOperationConsumer.appId}},AppName={{toOperationConsumer.name}}</b>,<br>Are you sure you want to delete?",
   "Open.Manage.DeleteConsumer.Success": "Third-party app deleted successfully",
   "Open.Manage.DeleteConsumer.Error": "Third-party app deletion failed",
+  "Open.Manage.CreateConsumer.Button": "Create Third-Party App",
   "Namespace.Role.Title": "Permission Management",
   "Namespace.Role.GrantModifyTo": "Permission to edit",
   "Namespace.Role.GrantModifyTo2": "(Can edit the configuration)",

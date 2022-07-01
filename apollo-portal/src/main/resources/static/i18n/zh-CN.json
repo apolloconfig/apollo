@@ -597,6 +597,7 @@
   "Open.Manage.DeleteConsumer.Confirm": "您正在删除 <b>AppId='{{toOperationConsumer.appId}}',应用名称='{{toOperationConsumer.name}}'</b> 的第三方应用，<br>确定要删除吗?",
   "Open.Manage.DeleteConsumer.Success": "第三方应用删除成功",
   "Open.Manage.DeleteConsumer.Error": "第三方应用删除失败",
+  "Open.Manage.CreateConsumer.Button": "创建第三方应用",
   "Namespace.Role.Title": "权限管理",
   "Namespace.Role.GrantModifyTo": "修改权",
   "Namespace.Role.GrantModifyTo2": "（可以修改配置）",
