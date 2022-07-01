@@ -103,7 +103,7 @@ namespace_module.controller("LinkNamespaceController",
                     if ($scope.namespaceType === 1) {
                         var selectedNamespaceNames = $('#namespaces').select2('data');
                         var ids = []
-                        selectedNamespaceNames.map().forEach(function (namespace) {
+                        selectedNamespaceNames.forEach(function (namespace) {
                             ids.push(namespace.id)
                         })
                         if (ids.length === 0) {
