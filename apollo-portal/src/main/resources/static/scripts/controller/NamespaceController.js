@@ -94,32 +94,38 @@ namespace_module.controller("LinkNamespaceController",
                 selectedClusters = data;
             };
             $scope.createNamespace = function () {
-                if ($scope.type == 'link') {
-                    if (selectedClusters.length == 0) {
+                if ($scope.type === 'link') {
+                    if (selectedClusters.length === 0) {
                         toastr.warning($translate.instant('Namespace.PleaseChooseCluster'));
                         return;
                     }
 
-                    if ($scope.namespaceType == 1) {
-                        var selectedNamespaceName = $('#namespaces').select2('data')[0].id;
-                        if (!selectedNamespaceName) {
+                    if ($scope.namespaceType === 1) {
+                        var selectedNamespaceNames = $('#namespaces').select2('data');
+                        var ids = []
+                        selectedNamespaceNames.map().forEach(function (namespace) {
+                            ids.push(namespace.id)
+                        })
+                        if (ids.length === 0) {
                             toastr.warning($translate.instant('Namespace.PleaseChooseNamespace'));
                             return;
                         }
 
-                        $scope.namespaceName = selectedNamespaceName;
+                        $scope.namespaceNames = ids;
                     }
 
                     var namespaceCreationModels = [];
                     selectedClusters.forEach(function (cluster) {
-                        namespaceCreationModels.push({
-                            env: cluster.env,
-                            namespace: {
-                                appId: $scope.appId,
-                                clusterName: cluster.clusterName,
-                                namespaceName: $scope.namespaceName
-                            }
-                        });
+                        $scope.namespaceNames.forEach(function (namespace) {
+                            namespaceCreationModels.push({
+                                env: cluster.env,
+                                namespace: {
+                                    appId: $scope.appId,
+                                    clusterName: cluster.clusterName,
+                                    namespaceName: namespace
+                                }
+                            });
+                        })
                     });
 
                     $scope.submitBtnDisabled = true;
