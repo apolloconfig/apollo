@@ -263,7 +263,7 @@ public abstract class AbstractConfig implements Config {
       if (!m_arrayCache.containsKey(delimiter)) {
         synchronized (this) {
           if (!m_arrayCache.containsKey(delimiter)) {
-            m_arrayCache.put(delimiter, this.<String[]>newCache());
+            m_arrayCache.put(delimiter, this.newCache());
           }
         }
       }

@@ -39,7 +39,7 @@ public class TitanEntityManager {
   public DataSource datasource() throws Exception {
     Class clazz = Class.forName("com.ctrip.datasource.configure.DalDataSourceFactory");
     Object obj = clazz.newInstance();
-    Method method = clazz.getMethod("createDataSource", new Class[] {String.class, String.class});
+    Method method = clazz.getMethod("createDataSource", String.class, String.class);
     DataSource ds = ((DataSource) method.invoke(obj,
         new Object[] {settings.getTitanDbname(), settings.getTitanUrl()}));
     Tracer.logEvent("Apollo.Datasource.Titan", settings.getTitanDbname());

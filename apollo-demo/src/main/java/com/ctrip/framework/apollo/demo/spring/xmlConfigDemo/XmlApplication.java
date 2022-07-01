@@ -43,7 +43,7 @@ public class XmlApplication {
         System.exit(0);
       }
 
-      System.out.println(xmlBean.toString());
+      System.out.println(xmlBean);
     }
   }
 }

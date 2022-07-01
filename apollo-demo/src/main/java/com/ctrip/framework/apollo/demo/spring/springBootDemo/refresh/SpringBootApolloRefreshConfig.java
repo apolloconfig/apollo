@@ -49,6 +49,6 @@ public class SpringBootApolloRefreshConfig {
   public void onChange(ConfigChangeEvent changeEvent) {
     logger.info("before refresh {}", sampleRedisConfig.toString());
     refreshScope.refresh("sampleRedisConfig");
-    logger.info("after refresh {}", sampleRedisConfig.toString());
+    logger.info("after refresh {}", sampleRedisConfig);
   }
 }
