@@ -165,9 +165,7 @@ Encapsulated bash functions, the underlying use of curl to send HTTP requests
 ]
 ```
 
-##### 3.2.4 Getting the cluster interface 
-
-##### 3.2.4 Getting the cluster interface 
+##### 3.2.3 Getting the cluster interface 
 
 * **URL** : `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}`
 * **Method** : GET

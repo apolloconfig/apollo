@@ -88,7 +88,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 
 - [3.2.1 获取 App 的环境，集群信息](#_321-获取app的环境，集群信息)
 - [3.2.2 获取 App 信息](#_322-获取app信息)
-- [3.2.4 获取集群详细信息](#_323-获取集群接口)
+- [3.2.3 获取集群详细信息](#_323-获取集群接口)
 - [3.2.4 创建集群](#_324-创建集群接口)
 - [3.2.5 获取集群下所有 Namespace 信息](#_325-获取集群下所有namespace信息接口)
 - [3.2.6 获取 Namespace 信息](#_326-获取某个namespace信息接口)
@@ -175,7 +175,7 @@ appIds | false | String | appId列表，以逗号分隔，如果为空则返回�
 ]
 ```
 
-##### 3.2.4 获取集群接口 
+##### 3.2.3 获取集群接口 
 
 * **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}
 * **Method** ： GET
