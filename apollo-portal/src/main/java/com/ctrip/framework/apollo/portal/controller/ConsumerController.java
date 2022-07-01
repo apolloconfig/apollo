@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -119,6 +120,15 @@ public class ConsumerController {
     return consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName);
   }
 
+  @GetMapping("/consumers/list")
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  public List<Consumer> getConsumerList(Pageable page){
+    return consumerService.findAllConsumer(page);
+  }
 
+  @DeleteMapping(value = "/consumers/delete/by-appId")
+  public void deleteConsumers(@RequestParam String appId) {
+    consumerService.deleteConsumer(appId);
+  }
 
 }

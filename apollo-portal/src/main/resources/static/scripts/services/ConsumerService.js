@@ -31,6 +31,16 @@ appService.service('ConsumerService', ['$resource', '$q', 'AppUtil',
             method: 'POST',
             isArray: true,
             url: AppUtil.prefixPath() + '/consumers/:token/assign-role'
+        },
+        get_consumer_list: {
+            method: 'GET',
+            isArray: true,
+            url: AppUtil.prefixPath() + '/consumers/list'
+        },
+        delete_consumer: {
+            method: 'DELETE',
+            isArray: false,
+            url: AppUtil.prefixPath() + '/consumers/delete/by-appId'
         }
 
     });
@@ -56,6 +66,21 @@ appService.service('ConsumerService', ['$resource', '$q', 'AppUtil',
                                     appId: appId,
                                     namespaceName: namespaceName
                                 }
+            )
+        },
+        getConsumerList: function (page, size){
+            return AppUtil.ajax(resource.get_consumer_list,
+                {
+                    page: page,
+                    size: size
+                }
+            )
+        },
+        deleteConsumer: function (appId){
+            return AppUtil.ajax(resource.delete_consumer,
+                {
+                    appId: appId
+                }
             )
         }
     }
