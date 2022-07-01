@@ -1141,3 +1141,35 @@ table th {
     height: 35px;
     margin-top: -4px
 }
+
+
+.margin-top10 { margin-top:10px; }
+
+#consumer-list th {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 16px;
+    text-align: left;
+    word-break: break-all;
+}
+
+#consumer-list td {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+#consumer-list table {
+    margin-left: 20px;
+}
+
+#consumer-list .more-img {
+    width: 20px;
+    height: 20px;
+}
+
+#consumer-list .create-btn img {
+    width: 16px;
+    height: 16px;
+}
