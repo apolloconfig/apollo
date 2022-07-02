@@ -135,8 +135,14 @@ namespace_module.controller("LinkNamespaceController",
                             $scope.step = 2;
                             setInterval(function () {
                                 $scope.submitBtnDisabled = false;
-                                $window.location.href =
-                                AppUtil.prefixPath() + '/config.html?#/appid=' + $scope.appId;
+                                if ($scope.namespaceNames.length === 1) {
+                                    $window.location.href =
+                                    AppUtil.prefixPath() + '/namespace/role.html?#appid=' + $scope.appId
+                                    + "&namespaceName=" + $scope.namespaceNames[0];
+                                } else {
+                                    $window.location.href =
+                                        AppUtil.prefixPath() + '/config.html?#/appid=' + $scope.appId;
+                                }
                             }, 1000);
                         }, function (result) {
                             $scope.submitBtnDisabled = false;
