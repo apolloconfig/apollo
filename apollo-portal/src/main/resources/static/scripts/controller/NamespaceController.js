@@ -136,8 +136,7 @@ namespace_module.controller("LinkNamespaceController",
                             setInterval(function () {
                                 $scope.submitBtnDisabled = false;
                                 $window.location.href =
-                                AppUtil.prefixPath() + '/namespace/role.html?#appid=' + $scope.appId
-                                    + "&namespaceName=" + $scope.namespaceName;
+                                AppUtil.prefixPath() + '/config.html?#/appid=' + $scope.appId;
                             }, 1000);
                         }, function (result) {
                             $scope.submitBtnDisabled = false;
