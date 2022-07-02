@@ -142,19 +142,19 @@ public class ApolloConfigDemo {
       }
       input = input.trim();
       try {
-        if (input.equalsIgnoreCase("application")) {
+        if ("application".equalsIgnoreCase(input)) {
           apolloConfigDemo.print("application");
           continue;
         }
-        if (input.equalsIgnoreCase("xml")) {
+        if ("xml".equalsIgnoreCase(input)) {
           apolloConfigDemo.print("xml");
           continue;
         }
-        if (input.equalsIgnoreCase("yaml") || input.equalsIgnoreCase("yml")) {
+        if ("yaml".equalsIgnoreCase(input) || "yml".equalsIgnoreCase(input)) {
           apolloConfigDemo.print("yaml");
           continue;
         }
-        if (input.equalsIgnoreCase("quit")) {
+        if ("quit".equalsIgnoreCase(input)) {
           System.exit(0);
         }
         apolloConfigDemo.getConfig(input);

@@ -73,7 +73,7 @@ public class SimpleApolloConfigDemo {
         continue;
       }
       input = input.trim();
-      if (input.equalsIgnoreCase("quit")) {
+      if ("quit".equalsIgnoreCase(input)) {
         System.exit(0);
       }
       apolloConfigDemo.getConfig(input);

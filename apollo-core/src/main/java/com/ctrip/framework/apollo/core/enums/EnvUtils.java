@@ -42,11 +42,11 @@ public final class EnvUtils {
 
     // fix up in case there is a typo
     // like prod/pro
-    if (cleanedEnvName.equals("PROD")) {
+    if ("PROD".equals(cleanedEnvName)) {
       return Env.PRO;
     }
 
-    if (cleanedEnvName.equals("FWS")) {
+    if ("FWS".equals(cleanedEnvName)) {
       // special case that FAT & FWS
       // should return the same
       return Env.FAT;

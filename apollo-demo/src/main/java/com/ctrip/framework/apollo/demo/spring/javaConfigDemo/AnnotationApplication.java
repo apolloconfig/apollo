@@ -38,7 +38,7 @@ public class AnnotationApplication {
     while (true) {
       System.out.print("> ");
       String input = new BufferedReader(new InputStreamReader(System.in, Charsets.UTF_8)).readLine();
-      if (!Strings.isNullOrEmpty(input) && input.trim().equalsIgnoreCase("quit")) {
+      if (!Strings.isNullOrEmpty(input) && "quit".equalsIgnoreCase(input.trim())) {
         System.exit(0);
       }
 

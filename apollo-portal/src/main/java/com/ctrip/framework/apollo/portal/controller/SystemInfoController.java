@@ -146,6 +146,6 @@ public class SystemInfoController {
   }
 
   private boolean isValidVersion(String version) {
-    return !version.equals("java-null");
+    return !"java-null".equals(version);
   }
 }
