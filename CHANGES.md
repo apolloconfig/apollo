@@ -13,6 +13,6 @@ Apollo 2.1.0
 * [Upgrade mysql-connector-java version to fix possible transaction rollback failure issue](https://github.com/apolloconfig/apollo/pull/4425)
 * [Remove database migration tool Flyway](https://github.com/apolloconfig/apollo/pull/4361)
 * [Optimize Spring-Security Firewall Deny Request Response 400](https://github.com/apolloconfig/apollo/pull/4428)
-* [On the Namespace association screen, you can select multiple namespaces at a time](https://github.com/apolloconfig/apollo/pull/4437)
+* [Allow users to associate multiple public namespaces at a time](https://github.com/apolloconfig/apollo/pull/4437)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
