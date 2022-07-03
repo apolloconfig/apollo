@@ -16,7 +16,15 @@ docker -v
 
 ### 1.2 下载Docker Quick Start配置文件
 
-确保[docker-quick-start](https://github.com/apolloconfig/apollo/tree/master/scripts/docker-quick-start)文件夹已经在本地存在，如果本地已经clone过Apollo的代码，则可以跳过此步骤。
+下载[docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml)和[sql 文件夹](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql)到本地目录，如 docker-quick-start。
+
+```bash
+- docker-quick-start
+  - docker-compose.yml
+  - sql
+    - apolloconfigdb.sql
+    - apolloportaldb.sql
+```
 
 ## 二、启动Apollo配置中心
 
