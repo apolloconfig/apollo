@@ -143,14 +143,12 @@ public class NamespaceController {
                                               @RequestBody List<NamespaceCreationModel> models) {
 
     checkModel(!CollectionUtils.isEmpty(models));
-
-    String namespaceName = models.get(0).getNamespace().getNamespaceName();
     String operator = userInfoHolder.getUser().getUserId();
 
-    roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
-    roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, operator);
-
     for (NamespaceCreationModel model : models) {
+      String namespaceName = model.getNamespace().getNamespaceName();
+      roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
+      roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, operator);
       NamespaceDTO namespace = model.getNamespace();
       RequestPrecondition.checkArgumentsNotEmpty(model.getEnv(), namespace.getAppId(),
                                                  namespace.getClusterName(), namespace.getNamespaceName());
@@ -163,9 +161,8 @@ public class NamespaceController {
                 String.format("create namespace fail. (env=%s namespace=%s)", model.getEnv(),
                         namespace.getNamespaceName()), e);
       }
+      namespaceService.assignNamespaceRoleToOperator(appId, namespaceName,userInfoHolder.getUser().getUserId());
     }
-
-    namespaceService.assignNamespaceRoleToOperator(appId, namespaceName,userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();
   }

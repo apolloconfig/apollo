@@ -14,5 +14,7 @@ Apollo 2.1.0
 * [Remove database migration tool Flyway](https://github.com/apolloconfig/apollo/pull/4361)
 * [Optimize Spring-Security Firewall Deny Request Response 400](https://github.com/apolloconfig/apollo/pull/4428)
 * [Optimize the UI experience of open platform authorization management](https://github.com/apolloconfig/apollo/pull/4436)
+* [Allow users to associate multiple public namespaces at a time](https://github.com/apolloconfig/apollo/pull/4437)
+
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
