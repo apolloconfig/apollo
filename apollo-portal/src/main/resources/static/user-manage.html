@@ -36,6 +36,7 @@
     <div id="user-list" class="container-fluid apollo-container" ng-controller="UserController">
         <div class="col-md-8 col-md-offset-2 panel">
             <section class="panel-body" ng-show="isRootUser">
+                <div class="main-table"></div>
                 <div class="row">
                     <header class="panel-heading">
                         {{'UserMange.Title' | translate }}
@@ -43,23 +44,85 @@
                             {{'UserMange.TitleTips' | translate }}
                         </small>
                     </header>
-                    <div class="display-table" ng-show="createdUsers.length > 0">
-                        <table>
+                    <div class="table-responsive" ng-show="status==='1' && createdUsers.length > 0">
+                        <button type="button" ng-click="changeStatus('2')" class="btn btn-link">{{'UserMange.Add' | translate }}</button>
+                        <table class="table">
                             <tr>
-                                <th style="width: 15%">{{'UserMange.UserName' | translate }}</th>
-                                <th style="width: 25%">{{'UserMange.UserDisplayName' | translate }}</th>
-                                <th style="width: 20%">{{'UserMange.Email' | translate }}</th>
-                                <th style="width: 20%">{{'UserMange.Enabled' | translate }}</th>
-                                <th style="width: 20%">{{'UserMange.Operation' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.UserName' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.UserDisplayName' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Email' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Enabled' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Operation' | translate }}</th>
                             </tr>
                             <tr ng-repeat="user in createdUsers" href="#" class="hover cursor-pointer">
-                                <td style="width: 15%">{{ user.name }}</td>
-                                <td style="width: 25%">{{ user.name }}</td>
-                                <td style="width: 20%">{{ user.email }}</td>
-                                <td style="width: 20%">{{ user.email }}</td>
-                                <td style="width: 20%"></td>
+                                <td>{{ user.userId }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.enabled === 1 ? '启用' : '禁用' }}</td>
+                                <td><button type="button" ng-click="changeStatus('3', user)" class="btn btn-link">{{'UserMange.Edit' | translate }}</button></td>
                             </tr>
                         </table>
+                    </div>
+                    <div ng-show="status==='2' || status==='3'">
+                        <form class="form-horizontal panel-body" name="appForm"
+                               valdr-type="App" ng-submit="createOrUpdateUser()">
+                        <span>{{status==='3' ? '编辑' : '新增'}}</span>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.UserName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="username" ng-model="user.username">
+                                <small ng-show="status !== '3'">{{'UserMange.UserNameTips' | translate }}</small>
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.UserDisplayName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="userDisplayName" ng-model="user.userDisplayName">
+                            </div>
+                        </div>
+                        <div class="form-group" ng-show="status !== '3'" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.Pwd' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="password" ng-model="user.password">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.Email' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="password" ng-model="user.email">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                 <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.Enabled' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="radio" name="enabled" ng-model="user.enabled" checked="user.enabled === 1"/> 启用
+                                <input type="radio" name="enabled" ng-model="user.enabled" checked="user.enabled !== 1"/> 禁用
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
+                                <button type="submit" class="btn btn-primary"
+                                        ng-disabled="appForm.$invalid || submitBtnDisabled">{{'Common.Submit' | translate }}
+                                </button>
+                                <button type="button" ng-click="changeStatus('1')" class="btn">{{'UserMange.Back' | translate }}</button>
+                            </div>
+                        </div>
+                    </form>
                     </div>
                     <div ng-show="!hasMoreCreatedUsers" style="height: 15px"></div>
                     <div class="homepage-loading-more-panel" ng-show="hasMoreCreatedUsers"
@@ -70,55 +133,6 @@
                             <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
                         </div>
                     </div>
-<!--                    <form class="form-horizontal panel-body" name="appForm"-->
-<!--                          valdr-type="App" ng-submit="createOrUpdateUser()">-->
-<!--                        <div class="form-group" valdr-form-group>-->
-<!--                            <label class="col-sm-2 control-label">-->
-<!--                                <apollorequiredfield></apollorequiredfield>-->
-<!--                                {{'UserMange.UserName' | translate }}-->
-<!--                            </label>-->
-<!--                            <div class="col-sm-5">-->
-<!--                                <input type="text" class="form-control" name="username" ng-model="user.username">-->
-<!--                                <small>{{'UserMange.UserNameTips' | translate }}</small>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="form-group" valdr-form-group>-->
-<!--                            <label class="col-sm-2 control-label">-->
-<!--                                <apollorequiredfield></apollorequiredfield>-->
-<!--                                {{'UserMange.UserDisplayName' | translate }}-->
-<!--                            </label>-->
-<!--                            <div class="col-sm-5">-->
-<!--                                <input type="text" class="form-control" name="userDisplayName" ng-model="user.userDisplayName">-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="form-group" valdr-form-group>-->
-<!--                            <label class="col-sm-2 control-label">-->
-<!--                                <apollorequiredfield></apollorequiredfield>-->
-<!--                                {{'UserMange.Pwd' | translate }}-->
-<!--                            </label>-->
-<!--                            <div class="col-sm-5">-->
-<!--                                <input type="text" class="form-control" name="password" ng-model="user.password">-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="form-group" valdr-form-group>-->
-<!--                            <label class="col-sm-2 control-label">-->
-<!--                                <apollorequiredfield></apollorequiredfield>-->
-<!--                                {{'UserMange.Email' | translate }}-->
-<!--                            </label>-->
-<!--                            <div class="col-sm-5">-->
-<!--                                <input type="text" class="form-control" name="password" ng-model="user.email">-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        <div class="form-group">-->
-<!--                            <div class="col-sm-offset-2 col-sm-9">-->
-
-<!--                                <button type="submit" class="btn btn-primary"-->
-<!--                                    ng-disabled="appForm.$invalid || submitBtnDisabled">{{'Common.Submit' | translate }}-->
-<!--                                </button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </form>-->
                 </div>
             </section>
             <section class="panel-body text-center" ng-if="!isRootUser">

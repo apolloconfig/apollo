@@ -24,6 +24,8 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
     $scope.createdUsersPage = 0;
     $scope.createdUsers = [];
     $scope.hasMoreCreatedUsers = false
+    $scope.status = "1"
+    $scope.changeStatus = changeStatus
 
     initPermission();
 
@@ -51,6 +53,19 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
                 });
 
             })
+    }
+
+    function changeStatus(status, user){
+        $scope.status = status
+        $scope.user = {}
+        if (user != null) {
+            $scope.user = {
+                username: user.userId,
+                userDisplayName: user.name,
+                email: user.email,
+                enabled: user.enabled,
+            }
+        }
     }
 
     $scope.createOrUpdateUser = function () {

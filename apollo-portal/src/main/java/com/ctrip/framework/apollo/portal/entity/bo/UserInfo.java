@@ -21,6 +21,7 @@ public class UserInfo {
   private String userId;
   private String name;
   private String email;
+  private int enabled;
 
   public UserInfo() {
 
@@ -52,6 +53,14 @@ public class UserInfo {
 
   public void setEmail(String email) {
     this.email = email;
+  }
+
+  public int getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(int enabled) {
+    this.enabled = enabled;
   }
 
   @Override
