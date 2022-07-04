@@ -567,6 +567,8 @@
   "UserMange.Email": "Email",
   "UserMange.Created": "Create user successfully",
   "UserMange.CreateFailed": "Failed to create user",
+  "UserMange.Enabled": "Enabled",
+  "UserMange.Operation": "Operation",
   "Open.Manage.Title": "Open Platform",
   "Open.Manage.CreateThirdApp": "Create third-party applications",
   "Open.Manage.CreateThirdAppTips": "(Note: Third-party applications can manage configuration through Apollo Open Platform)",

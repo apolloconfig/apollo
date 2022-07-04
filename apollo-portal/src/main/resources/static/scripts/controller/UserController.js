@@ -21,14 +21,36 @@ user_module.controller('UserController',
 function UserController($scope, $window, $translate, toastr, AppUtil, UserService, PermissionService) {
 
     $scope.user = {};
+    $scope.createdUsersPage = 0;
+    $scope.createdUsers = [];
+    $scope.hasMoreCreatedUsers = false
 
     initPermission();
+
+    getCreatedUsers()
 
     function initPermission() {
         PermissionService.has_root_permission()
         .then(function (result) {
             $scope.isRootUser = result.hasPermission;
         })
+    }
+
+    function getCreatedUsers() {
+        var size = 10;
+        UserService.find_users("", $scope.createdUsersPage, size)
+            .then(function (result) {
+                $scope.createdUsersPage += 1;
+                $scope.hasMoreCreatedUsers = result.length === size;
+
+                if (!result || result.length === 0) {
+                    return;
+                }
+                result.forEach(function (app) {
+                    $scope.createdUsers.push(app);
+                });
+
+            })
     }
 
     $scope.createOrUpdateUser = function () {

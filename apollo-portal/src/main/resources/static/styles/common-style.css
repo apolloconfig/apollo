@@ -824,6 +824,13 @@ table th {
     word-break: break-all;
 }
 
+#user-list .display-table {
+    padding: 15px;
+    margin-left: 30px;
+    margin-right: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
 .left-bar h5 {
     font-size: 15px;
     margin-left: 12px;
@@ -1018,6 +1025,19 @@ table th {
 }
 
 .create-app-list .create-btn img {
+    width: 16px;
+    height: 16px;
+}
+
+.create-user-list .media-left {
+    background: #a9d96c;
+}
+.create-user-list .create-btn-panel {
+    padding-right: 35px;
+    padding-bottom: 15px;
+}
+
+.create-user-list .create-btn img {
     width: 16px;
     height: 16px;
 }

@@ -15,14 +15,15 @@
  *
  */
 appService.service('UserService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
-    var user_resource = $resource('', {}, {
+    const user_resource = $resource('', {}, {
         load_user: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/user'
         },
         find_users: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/users'
+            isArray: true,
+            url: AppUtil.prefixPath() + '/users?keyword=:keyword&offset=:offset&limit=:limit'
         },
         create_or_update_user: {
             method: 'POST',
@@ -44,17 +45,17 @@ appService.service('UserService', ['$resource', '$q', 'AppUtil', function ($reso
                                     });
             return d.promise;
         },
-        find_users: function (keyword) {
+        find_users: function (keyword, offset, limit) {
             var d = $q.defer();
             user_resource.find_users({
-                                         keyword: keyword
-                                     },
-                                     function (result) {
-                                         d.resolve(result);
-                                     },
-                                     function (result) {
-                                         d.reject(result);
-                                     });
+                keyword: keyword,
+                offset: offset,
+                limit: limit
+            }, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
             return d.promise;
         },
         createOrUpdateUser: function (user) {
@@ -66,7 +67,7 @@ appService.service('UserService', ['$resource', '$q', 'AppUtil', function ($reso
                                      function (result) {
                                          d.reject(result);
                                      });
-            return d.promise;   
-        }
+            return d.promise;
+        },
     }
 }]);

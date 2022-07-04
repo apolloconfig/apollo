@@ -567,6 +567,8 @@
   "UserMange.Email": "邮箱",
   "UserMange.Created": "创建用户成功",
   "UserMange.CreateFailed": "创建用户失败",
+  "UserMange.Enabled": "是否启用",
+  "UserMange.Operation": "操作",
   "Open.Manage.Title": "开放平台",
   "Open.Manage.CreateThirdApp": "创建第三方应用",
   "Open.Manage.CreateThirdAppTips": "（说明: 第三方应用可以通过 Apollo 开放平台来对配置进行管理）",
