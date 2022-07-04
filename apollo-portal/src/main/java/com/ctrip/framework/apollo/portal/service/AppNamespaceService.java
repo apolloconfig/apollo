@@ -158,19 +158,8 @@ public class AppNamespaceService {
     appNamespace.setDataChangeLastModifiedBy(operator);
 
     // globally uniqueness check for public app namespace
-    if (appNamespace.isPublic()) {
-      checkAppNamespaceGlobalUniqueness(appNamespace);
-    } else {
-      // check private app namespace
-      if (appNamespaceRepository.findByAppIdAndName(appNamespace.getAppId(), appNamespace.getName()) != null) {
-        throw new BadRequestException("Private AppNamespace " + appNamespace.getName() + " already exists!");
-      }
-      // should not have the same with public app namespace
-      checkPublicAppNamespaceGlobalUniqueness(appNamespace);
-    }
-
+    checkAppNamespace(appNamespace);
     AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
-
     roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
     roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
 
@@ -180,6 +169,17 @@ public class AppNamespaceService {
   @Transactional
   public AppNamespace importAppNamespaceInLocal(AppNamespace appNamespace) {
     // globally uniqueness check for public app namespace
+    checkAppNamespace(appNamespace);
+    AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
+    String operator = appNamespace.getDataChangeCreatedBy();
+
+    roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+    roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
+
+    return createdAppNamespace;
+  }
+
+  private void checkAppNamespace(AppNamespace appNamespace) {
     if (appNamespace.isPublic()) {
       checkAppNamespaceGlobalUniqueness(appNamespace);
     } else {
@@ -190,15 +190,6 @@ public class AppNamespaceService {
       // should not have the same with public app namespace
       checkPublicAppNamespaceGlobalUniqueness(appNamespace);
     }
-
-    AppNamespace createdAppNamespace = appNamespaceRepository.save(appNamespace);
-
-    String operator = appNamespace.getDataChangeCreatedBy();
-
-    roleInitializationService.initNamespaceRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
-    roleInitializationService.initNamespaceEnvRoles(appNamespace.getAppId(), appNamespace.getName(), operator);
-
-    return createdAppNamespace;
   }
 
   private void checkAppNamespaceGlobalUniqueness(AppNamespace appNamespace) {
