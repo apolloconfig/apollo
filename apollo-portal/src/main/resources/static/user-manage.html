@@ -74,7 +74,7 @@
                             </label>
                             <div class="col-sm-5">
                                 <input type="text" class="form-control" name="username" ng-model="user.username">
-                                <small ng-show="status !== '3'">{{'UserMange.UserNameTips' | translate }}</small>
+                                <small>{{'UserMange.UserNameTips' | translate }}</small>
                             </div>
                         </div>
                         <div class="form-group" valdr-form-group>
@@ -86,7 +86,7 @@
                                 <input type="text" class="form-control" name="userDisplayName" ng-model="user.userDisplayName">
                             </div>
                         </div>
-                        <div class="form-group" ng-show="status !== '3'" valdr-form-group>
+                        <div class="form-group" valdr-form-group>
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
                                 {{'UserMange.Pwd' | translate }}
@@ -110,8 +110,8 @@
                                 {{'UserMange.Enabled' | translate }}
                             </label>
                             <div class="col-sm-5">
-                                <input type="radio" name="enabled" ng-model="user.enabled" checked="user.enabled === 1"/> 启用
-                                <input type="radio" name="enabled" ng-model="user.enabled" checked="user.enabled !== 1"/> 禁用
+                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="{{user.enabled}}"/> 启用
+                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="{{user.enabled}}"/> 禁用
                             </div>
                         </div>
                         <div class="form-group">
