@@ -72,7 +72,7 @@ public class ConsumerController {
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
-  @GetMapping(value = "/consumers/by-appId")
+  @GetMapping(value = "/consumer-tokens/by-appId")
   public ConsumerToken getConsumerTokenByAppId(@RequestParam String appId) {
     return consumerService.getConsumerTokenByAppId(appId);
   }
@@ -120,13 +120,13 @@ public class ConsumerController {
     return consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName);
   }
 
-  @GetMapping("/consumers/list")
+  @GetMapping("/consumers")
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   public List<Consumer> getConsumerList(Pageable page){
     return consumerService.findAllConsumer(page);
   }
 
-  @DeleteMapping(value = "/consumers/delete/by-appId")
+  @DeleteMapping(value = "/consumers/by-appId")
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   public void deleteConsumers(@RequestParam String appId) {
     consumerService.deleteConsumer(appId);
