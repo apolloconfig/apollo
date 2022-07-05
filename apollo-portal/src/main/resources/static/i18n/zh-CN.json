@@ -568,6 +568,8 @@
   "UserMange.Created": "创建用户成功",
   "UserMange.CreateFailed": "创建用户失败",
   "UserMange.Enabled": "是否启用",
+  "UserMange.Enable": "启用",
+  "UserMange.Disable": "禁用",
   "UserMange.Operation": "操作",
   "UserMange.Edit": "编辑",
   "UserMange.Add": "新增",

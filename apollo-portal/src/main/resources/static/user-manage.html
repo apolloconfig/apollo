@@ -58,15 +58,15 @@
                                 <td>{{ user.userId }}</td>
                                 <td>{{ user.name }}</td>
                                 <td>{{ user.email }}</td>
-                                <td>{{ user.enabled === 1 ? '启用' : '禁用' }}</td>
-                                <td><button type="button" ng-click="changeStatus('3', user)" class="btn btn-link">{{'UserMange.Edit' | translate }}</button></td>
+                                <td>{{ user.enabled === 1 ? ('UserMange.Enable'| translate) : ('UserMange.Disable'| translate) }}</td>
+                                <td><span class="btn-link" ng-click="changeStatus('3', user)">{{'UserMange.Edit' | translate }}</span></td>
                             </tr>
                         </table>
                     </div>
                     <div ng-show="status==='2' || status==='3'">
                         <form class="form-horizontal panel-body" name="appForm"
                                valdr-type="App" ng-submit="createOrUpdateUser()">
-                        <span>{{status==='3' ? '编辑' : '新增'}}</span>
+                        <span>{{status==='3' ? ('UserMange.Edit'| translate) : ('UserMange.Add'|translate) }}</span>
                         <div class="form-group" valdr-form-group>
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
@@ -110,8 +110,8 @@
                                 {{'UserMange.Enabled' | translate }}
                             </label>
                             <div class="col-sm-5">
-                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="{{user.enabled}}"/> 启用
-                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="{{user.enabled}}"/> 禁用
+                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="1"/> {{'UserMange.Enable' | translate }}
+                                <input type="radio" name="enabled" ng-model="user.enabled" ng-value="2"/> {{'UserMange.Disable' | translate }}
                             </div>
                         </div>
                         <div class="form-group">

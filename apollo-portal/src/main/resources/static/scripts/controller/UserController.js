@@ -65,6 +65,8 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
                 email: user.email,
                 enabled: user.enabled,
             }
+        } else {
+
         }
     }
 

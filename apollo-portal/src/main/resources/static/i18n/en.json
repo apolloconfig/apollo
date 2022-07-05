@@ -568,6 +568,8 @@
   "UserMange.Created": "Create user successfully",
   "UserMange.CreateFailed": "Failed to create user",
   "UserMange.Enabled": "Enabled",
+  "UserMange.Enable": "Enable",
+  "UserMange.Disable": "Disable",
   "UserMange.Operation": "Operation",
   "UserMange.Edit": "Edit",
   "UserMange.Add": "Add",
