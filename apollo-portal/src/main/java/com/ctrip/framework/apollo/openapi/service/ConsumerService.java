@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
@@ -38,7 +39,9 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
+import java.util.Objects;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -291,4 +294,27 @@ public class ConsumerService {
 
     return appIds;
   }
+
+  public List<Consumer> findAllConsumer(Pageable page){
+    return this.consumerRepository.findAll(page).getContent();
+  }
+
+  @Transactional
+  public void deleteConsumer(String appId){
+    Consumer consumer = consumerRepository.findByAppId(appId);
+    if (consumer == null) {
+      throw new BadRequestException("ConsumerApp not exist");
+    }
+    long consumerId = consumer.getId();
+    List<ConsumerRole> consumerRoleList = consumerRoleRepository.findByConsumerId(consumerId);
+    ConsumerToken consumerToken = consumerTokenRepository.findByConsumerId(consumerId);
+
+    consumerRoleRepository.deleteAll(consumerRoleList);
+    consumerRepository.delete(consumer);
+
+    if (Objects.nonNull(consumerToken)) {
+      consumerTokenRepository.delete(consumerToken);
+    }
+  }
+
 }
