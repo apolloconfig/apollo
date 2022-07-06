@@ -593,7 +593,7 @@
   "Open.Manage.AppNotCreated": "App('{{appId}}') does not exist, please create it first",
   "Open.Manage.GrantSuccessfully": "Authorize Successfully",
   "Open.Manage.GrantFailed": "Failed to authorize",
-  "Open.Manage.ViewAndGrantPermission": "GrantPermission",
+  "Open.Manage.ViewAndGrantPermission": "Grant Permission",
   "Open.Manage.DeleteConsumer.Confirm": "You are deleting a third-party app with <b>AppId={{toOperationConsumer.appId}},AppName={{toOperationConsumer.name}}</b>,<br>Are you sure you want to delete?",
   "Open.Manage.DeleteConsumer.Success": "Third-party app deleted successfully",
   "Open.Manage.DeleteConsumer.Error": "Third-party app deletion failed",
