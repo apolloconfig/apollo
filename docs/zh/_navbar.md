@@ -1,3 +1,8 @@
+- Version
+  - [2.0.1 Release Latest](https://github.com/apolloconfig/apollo/releases/tag/v2.0.1)
+  - [2.0.0 Release](https://github.com/apolloconfig/apollo/releases/tag/v2.0.0)
+  - [more version](https://github.com/apolloconfig/apollo/releases)
+
 - 社区
   - [团队](zh/community/team.md)
   - [社区治理](zh/governance.md)

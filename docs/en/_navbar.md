@@ -2,6 +2,7 @@
   - [2.0.1 Release Latest](https://github.com/apolloconfig/apollo/releases/tag/v2.0.1)
   - [2.0.0 Release](https://github.com/apolloconfig/apollo/releases/tag/v2.0.0)
   - [more version](https://github.com/apolloconfig/apollo/releases)
+
 - Community
   - [Team](en/community/team.md)
   - [Community Governance](en/governance.md)
