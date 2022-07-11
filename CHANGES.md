@@ -13,6 +13,9 @@ Apollo 2.1.0
 * [Upgrade mysql-connector-java version to fix possible transaction rollback failure issue](https://github.com/apolloconfig/apollo/pull/4425)
 * [Remove database migration tool Flyway](https://github.com/apolloconfig/apollo/pull/4361)
 * [Optimize Spring-Security Firewall Deny Request Response 400](https://github.com/apolloconfig/apollo/pull/4428)
+* [Optimize the UI experience of open platform authorization management](https://github.com/apolloconfig/apollo/pull/4436)
 * [Allow users to associate multiple public namespaces at a time](https://github.com/apolloconfig/apollo/pull/4437)
+* [Move apollo-demo, scripts/docker-quick-start and scripts/apollo-on-kubernetes out of main repository](https://github.com/apolloconfig/apollo/pull/4440)
+
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
