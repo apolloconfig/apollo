@@ -163,7 +163,7 @@ CREATE TABLE `GrayReleaseRule` (
   `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name',
   `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name',
   `BranchName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'branch name',
-  `Rules` longtext DEFAULT '[]' COMMENT '灰度规则',
+  `Rules` text DEFAULT '[]' COMMENT '灰度规则',
   `ReleaseId` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '灰度对应的release',
   `BranchStatus` tinyint(2) DEFAULT '1' COMMENT '灰度分支状态: 0:删除分支,1:正在使用的规则 2：全量发布',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
