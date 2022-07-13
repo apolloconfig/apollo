@@ -109,17 +109,6 @@ public class BizConfig extends RefreshableConfig {
     return !getBooleanProperty("namespace.lock.switch", false);
   }
 
-  /**
-   * ctrip config
-   **/
-  public String cloggingUrl() {
-    return getValue("clogging.server.url");
-  }
-
-  public String cloggingPort() {
-    return getValue("clogging.server.port");
-  }
-
   public int appNamespaceCacheScanInterval() {
     int interval = getIntProperty("apollo.app-namespace-cache-scan.interval", DEFAULT_APPNAMESPACE_CACHE_SCAN_INTERVAL);
     return checkInt(interval, 1, Integer.MAX_VALUE, DEFAULT_APPNAMESPACE_CACHE_SCAN_INTERVAL);

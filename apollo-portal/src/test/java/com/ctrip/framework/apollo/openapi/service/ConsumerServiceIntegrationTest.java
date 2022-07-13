@@ -19,11 +19,19 @@ package com.ctrip.framework.apollo.openapi.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
 import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
+import org.assertj.core.api.Assertions;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
 /**
@@ -41,5 +49,33 @@ public class ConsumerServiceIntegrationTest extends AbstractIntegrationTest {
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(1000L);
     assertEquals(Sets.newHashSet("consumer-test-app-id-0", "consumer-test-app-id-1"), appIds);
     assertFalse(appIds.contains("consumer-test-app-id-2"));
+  }
+
+  @Test
+  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testFindAllConsumer() {
+    List<Consumer> consumerList = consumerService.findAllConsumer(Pageable.ofSize(1));
+    assertEquals(1, consumerList.size());
+    consumerList = consumerService.findAllConsumer(Pageable.ofSize(4));
+    assertEquals(4, consumerList.size());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteConsumer() {
+    long consumerId = 1000;
+    String appId = "consumer-test-app-role";
+
+    Assertions.assertThatNoException()
+        .isThrownBy(()-> consumerService.deleteConsumer(appId));
+
+    Assertions.assertThatExceptionOfType(BadRequestException.class)
+        .isThrownBy(()-> consumerService.deleteConsumer(appId))
+        .withMessage("ConsumerApp not exist");
+
+    Assertions.assertThat(consumerService.getConsumerByConsumerId(consumerId))
+        .isNull();
   }
 }

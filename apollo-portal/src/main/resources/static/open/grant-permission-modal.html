@@ -1,0 +1,106 @@
+<div id="grantPermissionModal" class="modal fade">
+    <!--
+      ~ Copyright 2022 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-primary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                    aria-hidden="true">&times;</span></button>
+<!--                <h4 class="modal-title">{{title}}</h4>-->
+                <h4 class="modal-title">{{'Open.Manage.GrantPermission' | translate }}
+                    <small>
+                        {{'Open.Manage.GrantPermissionTips' | translate }}
+                    </small>
+                </h4>
+            </div>
+            <div class="modal-body form-horizontal">
+                <section class="panel-body">
+                    <section class="row">
+                        <form class="form-horizontal" ng-submit="doAssignRoleToConsumer()">
+
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Open.Manage.Token' | translate }}
+                                </label>
+                                <div class="col-sm-5">
+                                    <input type="text" class="form-control" ng-model="consumerRole.token" disabled required>
+                                </div>
+                            </div>
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Open.Manage.ManagedAppId' | translate }}
+                                </label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" ng-model="consumerRole.appId" required>
+                                </div>
+                            </div>
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    {{'Open.Manage.ManagedNamespace' | translate }}</label>
+                                <div class="col-sm-3">
+                                    <input type="text" class="form-control" ng-model="consumerRole.namespaceName">
+                                    <small>{{'Open.Manage.ManagedNamespaceTips' | translate }}</small>
+                                </div>
+                            </div>
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    {{'Open.Manage.GrantType' | translate }}
+                                </label>
+                                <div class="col-sm-3">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="inlineRadioOptions" ng-value="'NamespaceRole'"
+                                               ng-model="consumerRole.type">
+                                        {{'Open.Manage.GrantType.Namespace' | translate }}
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="inlineRadioOptions" ng-value="'AppRole'"
+                                               ng-model="consumerRole.type">
+                                        {{'Open.Manage.GrantType.App' | translate }}
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group" valdr-form-group ng-show="consumerRole.type=='NamespaceRole'">
+                                <label class="col-sm-2 control-label">
+                                    {{'Open.Manage.GrantEnv' | translate }}
+                                </label>
+                                <div class="col-sm-10">
+                                    <div>
+                                        <label class="checkbox-inline" ng-repeat="env in envs">
+                                            <input type="checkbox" ng-checked="env.checked" ng-click="switchSelect(env)" />
+                                            {{env.env}}
+                                        </label>
+                                    </div>
+                                    <small>{{'Open.Manage.GrantEnvTips' | translate }}</small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-9">
+                                    <button type="submit" class="btn btn-primary">
+                                        {{'Common.Submit' | translate }}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                </section>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>

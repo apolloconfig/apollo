@@ -84,9 +84,6 @@
 		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
 		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-		<!-- for travis usage -->
-		<github.global.server>github</github.global.server>
-		<github.global.oauth2Token>${env.GITHUB_OAUTH_TOKEN}</github.global.oauth2Token>
 	</properties>
 
 	<modules>
@@ -100,7 +97,6 @@
 		<module>apollo-adminservice</module>
 		<module>apollo-portal</module>
 		<module>apollo-assembly</module>
-		<module>apollo-demo</module>
 		<module>apollo-mockserver</module>
 		<module>apollo-openapi</module>
 	</modules>
