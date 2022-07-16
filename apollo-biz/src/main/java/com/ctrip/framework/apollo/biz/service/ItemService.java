@@ -80,20 +80,12 @@ public class ItemService {
   }
 
   public Item findOne(String appId, String clusterName, String namespaceName, String key) {
-    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
-    if (namespace == null) {
-      throw new NotFoundException(
-          String.format("namespace not found for %s %s %s", appId, clusterName, namespaceName));
-    }
+    Namespace namespace = findNamespaceByAppIdAndClusterNameAndNamespaceName(appId, clusterName, namespaceName);
     return itemRepository.findByNamespaceIdAndKey(namespace.getId(), key);
   }
 
   public Item findLastOne(String appId, String clusterName, String namespaceName) {
-    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
-    if (namespace == null) {
-      throw new NotFoundException(
-          String.format("namespace not found for %s %s %s", appId, clusterName, namespaceName));
-    }
+    Namespace namespace = findNamespaceByAppIdAndClusterNameAndNamespaceName(appId, clusterName, namespaceName);
     return findLastOne(namespace.getId());
   }
 
@@ -143,6 +135,11 @@ public class ItemService {
 
   public Page<Item> findItemsByKey(String key, Pageable pageable) {
     return itemRepository.findByKey(key, pageable);
+  }
+
+  public Page<Item> findItemsByNamespace(String appId, String clusterName, String namespaceName, Pageable pageable) {
+    Namespace namespace = findNamespaceByAppIdAndClusterNameAndNamespaceName(appId, clusterName, namespaceName);
+    return itemRepository.findByNamespaceId(namespace.getId(), pageable);
   }
 
   @Transactional
@@ -220,6 +217,17 @@ public class ItemService {
       return namespaceValueLengthOverride.get(namespaceId);
     }
     return bizConfig.itemValueLengthLimit();
+  }
+
+  private Namespace findNamespaceByAppIdAndClusterNameAndNamespaceName(String appId,
+                                                                       String clusterName,
+                                                                       String namespaceName) {
+    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
+    if (namespace == null) {
+      throw new NotFoundException(String.format("namespace not found for appId:%s clusterName:%s namespaceName:%s",
+              appId, clusterName, namespaceName));
+    }
+    return namespace;
   }
 
 }

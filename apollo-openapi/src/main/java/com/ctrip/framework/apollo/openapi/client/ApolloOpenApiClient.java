@@ -22,15 +22,7 @@ import com.ctrip.framework.apollo.openapi.client.service.ClusterOpenApiService;
 import com.ctrip.framework.apollo.openapi.client.service.ItemOpenApiService;
 import com.ctrip.framework.apollo.openapi.client.service.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.openapi.client.service.ReleaseOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.dto.*;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -158,6 +150,14 @@ public class ApolloOpenApiClient {
    */
   public OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName, String key) {
     return itemService.getItem(appId, env, clusterName, namespaceName, key);
+  }
+
+  /**
+   * Paging get configs
+   */
+  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(String appId, String env, String clusterName,
+                                                       String namespaceName, int page, int size) {
+    return itemService.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
   }
 
   /**

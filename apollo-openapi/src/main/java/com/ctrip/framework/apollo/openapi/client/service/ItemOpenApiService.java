@@ -20,11 +20,15 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.client.exception.ApolloOpenApiException;
 import com.ctrip.framework.apollo.openapi.client.url.OpenApiPathBuilder;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.google.common.base.Strings;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+
+import java.lang.reflect.Type;
 
 public class ItemOpenApiService extends AbstractOpenApiService implements
     com.ctrip.framework.apollo.openapi.api.ItemOpenApiService {
@@ -188,5 +192,42 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
               clusterName, namespaceName, env), ex);
     }
 
+  }
+
+  @Override
+  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(String appId, String env, String clusterName,
+                                                       String namespaceName, int page, int size) {
+    if (Strings.isNullOrEmpty(clusterName)) {
+      clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    }
+    if (Strings.isNullOrEmpty(namespaceName)) {
+      namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
+    }
+
+    checkNotEmpty(appId, "App id");
+    checkNotEmpty(env, "Env");
+    checkPage(page);
+    checkSize(size);
+
+    OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
+            .envsPathVal(env)
+            .appsPathVal(appId)
+            .clustersPathVal(clusterName)
+            .namespacesPathVal(namespaceName)
+            .itemsPathVal("")
+            .addParam("page", page)
+            .addParam("size", size);
+
+    try (CloseableHttpResponse response = get(pathBuilder)) {
+      Type type = new TypeToken<OpenPageDTO<OpenItemDTO>>(){}.getType();
+      return gson.fromJson(EntityUtils.toString(response.getEntity()), type);
+    } catch (Throwable ex) {
+      // return null if item doesn't exist
+      if (ex instanceof ApolloOpenApiException && ((ApolloOpenApiException)ex).getStatus() == 404) {
+        return null;
+      }
+      throw new RuntimeException(String.format("Paging get items: appId: %s, cluster: %s, namespace: %s in env: %s failed",
+              appId, clusterName, namespaceName, env), ex);
+    }
   }
 }

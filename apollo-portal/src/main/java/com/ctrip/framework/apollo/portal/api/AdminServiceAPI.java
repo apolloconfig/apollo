@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.api;
 
 import com.ctrip.framework.apollo.common.dto.*;
+import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
 import org.springframework.boot.actuate.health.Health;
@@ -164,6 +165,9 @@ public class AdminServiceAPI {
   @Service
   public static class ItemAPI extends API {
 
+    private final ParameterizedTypeReference<PageDTO<OpenItemDTO>> openItemPageDTO =
+            new ParameterizedTypeReference<PageDTO<OpenItemDTO>>() {};
+
     public List<ItemDTO> findItems(String appId, Env env, String clusterName, String namespaceName) {
       ItemDTO[] itemDTOs =
           restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
@@ -212,6 +216,14 @@ public class AdminServiceAPI {
     public void deleteItem(Env env, long itemId, String operator) {
 
       restTemplate.delete(env, "items/{itemId}?operator={operator}", itemId, operator);
+    }
+
+    public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
+                                                     String namespaceName, int page, int size) {
+      ResponseEntity<PageDTO<OpenItemDTO>> entity =
+              restTemplate.get(env, "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items?page={page}&size={size}",
+                      openItemPageDTO, appId, clusterName, namespaceName, page, size);
+      return entity.getBody();
     }
   }
 

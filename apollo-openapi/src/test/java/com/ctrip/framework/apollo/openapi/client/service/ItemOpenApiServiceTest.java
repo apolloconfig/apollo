@@ -236,4 +236,31 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
     itemOpenApiService.removeItem(someAppId, someEnv, someCluster, someNamespace, someKey, someOperator);
   }
+
+  @Test
+  public void testFindItemsByNamespace() throws Exception {
+    final int page = 0;
+    final int size = 50;
+    final ArgumentCaptor<HttpGet> request = ArgumentCaptor.forClass(HttpGet.class);
+
+    itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
+
+    verify(httpClient, times(1)).execute(request.capture());
+
+    HttpGet get = request.getValue();
+
+    assertEquals(String.format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/items?size=%s&page=%s",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace, size, page), get.getURI().toString());
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void testFindItemsByNamespaceWithError() {
+    final int page = 0;
+    final int size = 50;
+
+    when(statusLine.getStatusCode()).thenReturn(400);
+
+    itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
+  }
+
 }
