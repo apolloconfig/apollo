@@ -33,7 +33,7 @@ public class OpenPageDTO<T> {
         this.page = page;
         this.size = size;
         this.total = total;
-        this.content = content;
+        this.content = Collections.unmodifiableList(content);
     }
 
     public int getPage() {
@@ -49,7 +49,7 @@ public class OpenPageDTO<T> {
     }
 
     public List<T> getContent() {
-        return Collections.unmodifiableList(content);
+        return content;
     }
 
     public boolean hasContent() {

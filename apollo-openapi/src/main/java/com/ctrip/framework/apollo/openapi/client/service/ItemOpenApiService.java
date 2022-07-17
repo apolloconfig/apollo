@@ -33,6 +33,9 @@ import java.lang.reflect.Type;
 public class ItemOpenApiService extends AbstractOpenApiService implements
     com.ctrip.framework.apollo.openapi.api.ItemOpenApiService {
 
+  private static final Type OPEN_PAGE_DTO_OPEN_ITEM_DTO_TYPE_REFERENCE = new TypeToken<OpenPageDTO<OpenItemDTO>>() {
+  }.getType();
+
   public ItemOpenApiService(CloseableHttpClient client, String baseUrl, Gson gson) {
     super(client, baseUrl, gson);
   }
@@ -219,8 +222,7 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
             .addParam("size", size);
 
     try (CloseableHttpResponse response = get(pathBuilder)) {
-      Type type = new TypeToken<OpenPageDTO<OpenItemDTO>>(){}.getType();
-      return gson.fromJson(EntityUtils.toString(response.getEntity()), type);
+      return gson.fromJson(EntityUtils.toString(response.getEntity()), OPEN_PAGE_DTO_OPEN_ITEM_DTO_TYPE_REFERENCE);
     } catch (Throwable ex) {
       throw new RuntimeException(String.format("Paging get items: appId: %s, cluster: %s, namespace: %s in env: %s failed",
               appId, clusterName, namespaceName, env), ex);

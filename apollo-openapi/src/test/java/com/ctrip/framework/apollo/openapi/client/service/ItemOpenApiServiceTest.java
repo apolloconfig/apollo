@@ -263,4 +263,28 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
     itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testFindItemsByNamespaceWithPageNegativeError() {
+    final int page = -1;
+    final int size = 50;
+
+    itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFindItemsByNamespaceWithSizeNegativeError() {
+    final int page = 0;
+    final int size = -50;
+
+    itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testFindItemsByNamespaceWithPageAndSizeAllNegativeError() {
+    final int page = -1;
+    final int size = -50;
+
+    itemOpenApiService.findItemsByNamespace(someAppId, someEnv, someCluster, someNamespace, page, size);
+  }
+
 }

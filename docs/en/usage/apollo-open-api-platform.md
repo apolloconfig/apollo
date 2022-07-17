@@ -574,7 +574,7 @@ This interface is the interface used to get whether the current namespace is loc
 | page           | false    | int  | page number, starting from 0, default is 0 |
 | size           | false    | int  | records in each page, default is 50        |
 
-* **返回值Sample** ：
+* **Response Sample** ：
 
 ``` json
 {
