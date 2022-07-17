@@ -240,7 +240,7 @@ public class ItemController {
     return BeanUtils.transform(ItemDTO.class, item);
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/page")
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")
   public PageDTO<ItemDTO> findItemsByNamespace(@PathVariable("appId") String appId,
                                                @PathVariable("clusterName") String clusterName,
                                                @PathVariable("namespaceName") String namespaceName,

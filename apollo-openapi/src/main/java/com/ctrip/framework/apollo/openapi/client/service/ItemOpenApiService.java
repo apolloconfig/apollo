@@ -222,10 +222,6 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
       Type type = new TypeToken<OpenPageDTO<OpenItemDTO>>(){}.getType();
       return gson.fromJson(EntityUtils.toString(response.getEntity()), type);
     } catch (Throwable ex) {
-      // return null if item doesn't exist
-      if (ex instanceof ApolloOpenApiException && ((ApolloOpenApiException)ex).getStatus() == 404) {
-        return null;
-      }
       throw new RuntimeException(String.format("Paging get items: appId: %s, cluster: %s, namespace: %s in env: %s failed",
               appId, clusterName, namespaceName, env), ex);
     }

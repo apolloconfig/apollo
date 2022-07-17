@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.dto;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class OpenPageDTO<T> {
     }
 
     public List<T> getContent() {
-        return content;
+        return Collections.unmodifiableList(content);
     }
 
     public boolean hasContent() {

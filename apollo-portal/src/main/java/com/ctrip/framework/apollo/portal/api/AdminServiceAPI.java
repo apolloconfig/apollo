@@ -221,7 +221,7 @@ public class AdminServiceAPI {
     public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
                                                      String namespaceName, int page, int size) {
       ResponseEntity<PageDTO<OpenItemDTO>> entity = restTemplate.get(env,
-              "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/page?page={page}&size={size}",
+              "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page?page={page}&size={size}",
                       openItemPageDTO, appId, clusterName, namespaceName, page, size);
       return entity.getBody();
     }
