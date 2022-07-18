@@ -563,7 +563,7 @@ This interface is the interface used to get whether the current namespace is loc
 
 * **Response Value** : None
 
-##### 3.2.16 Paging get the configuration interface
+##### 3.2.16 Get configuration items with pagination
 
 * **URL** ：  `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items`
 * **Method** ： GET
