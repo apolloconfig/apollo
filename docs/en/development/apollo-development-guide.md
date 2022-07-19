@@ -145,13 +145,13 @@ You can refer to [General Application Access Guide](en/usage/apollo-user-guide?i
 
 ## 2.3 Java sample client startup
 
-There is a sample client project in the project: `apollo-demo`, the following is an example of how to start it locally with Intellij Community 2016.2 version.
+There is a sample client project: [apollo-demo-java](https://github.com/apolloconfig/apollo-demo-java), the following is an example of how to start it locally with Intellij.
 
 ### 2.3.1 Configure the project AppId
 
-When creating a demo project in `2.2.5 Demo Application Access`, the system will ask to fill in a globally unique AppId, which we need to configure into the app.properties file of the `apollo-demo` project: `apollo-demo/src/main/resources/ META-INF/app.properties`.
+When creating a demo project in `2.2.5 Demo Application Access`, the system will ask to fill in a globally unique AppId, which we need to configure into the app.properties file of the `apollo-demo` project: `apollo-demo-java/api-demo/src/main/resources/ META-INF/app.properties`.
 
-![apollo-demo-app-properties](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-app-properties.png)
+![apollo-demo-app-properties](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-app-properties.jpg)
 
 If our own demo project uses an AppId of 100004458, then the file content would be
 
@@ -169,11 +169,11 @@ If our own demo project uses an AppId of 100004458, then the file content would 
 
 ### 2.3.3 Main class configuration
 
-`com.ctrip.framework.apollo.demo.api.SimpleApolloConfigDemo`
+`com.apolloconfig.apollo.demo.api.SimpleApolloConfigDemo`
 
 ### 2.3.4 VM options configuration
 
-![apollo-demo-vm-options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-vm-options.png)
+![apollo-demo-vm-options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-vm-options.jpg)
 
     -Dapollo.meta=http://localhost:8080
 
@@ -183,7 +183,7 @@ If our own demo project uses an AppId of 100004458, then the file content would 
 
 ### 2.3.5 Overview
 
-![apollo-demo-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-overview.png)
+![apollo-demo-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-overview.jpg)
 
 ### 2.3.6 Running
 

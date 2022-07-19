@@ -28,10 +28,10 @@ diff_item_module.controller("DiffItemController",
             var sourceItems = [];
 
             $scope.diff = diff;
+            $scope.searchKey = ''
             $scope.syncBtnDisabled = false;
             $scope.showCommentDiff = false;
             $scope.onlyShowDiffKeys = true;
-
             $scope.collectSelectedClusters = collectSelectedClusters;
 
             $scope.syncItemNextStep = syncItemNextStep;
