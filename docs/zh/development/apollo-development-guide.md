@@ -130,12 +130,12 @@ Apollo本地开发需要以下组件：
 
 ## 2.3 Java样例客户端启动
 
-项目中有一个样例客户端的项目：`apollo-demo`，下面以Intellij Community 2016.2版本为例来说明如何在本地启动。
+仓库中有一个样例客户端的项目：[apollo-demo-java](https://github.com/apolloconfig/apollo-demo-java)，下面以Intellij为例来说明如何在本地启动。
 
 ### 2.3.1 配置项目AppId
-在`2.2.5 Demo应用接入`中创建Demo项目时，系统会要求填入一个全局唯一的AppId，我们需要把这个AppId配置到`apollo-demo`项目的app.properties文件中：`apollo-demo/src/main/resources/META-INF/app.properties`。
+在`2.2.5 Demo应用接入`中创建Demo项目时，系统会要求填入一个全局唯一的AppId，我们需要把这个AppId配置到`apollo-demo`项目的app.properties文件中：`apollo-demo-java/api-demo/src/main/resources/META-INF/app.properties`。
 
-![apollo-demo-app-properties](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-app-properties.png)
+![apollo-demo-app-properties](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-app-properties.jpg)
 
 如我们自己的demo项目使用的AppId是100004458，那么文件内容就是：
 
@@ -151,10 +151,10 @@ Apollo本地开发需要以下组件：
 ![NewConfiguration-Application](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/NewConfiguration-Application.png)
 
 ### 2.3.3 Main class配置
-`com.ctrip.framework.apollo.demo.api.SimpleApolloConfigDemo`
+`com.apolloconfig.apollo.demo.api.SimpleApolloConfigDemo`
 
 ### 2.3.4 VM options配置
-![apollo-demo-vm-options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-vm-options.png)
+![apollo-demo-vm-options](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-vm-options.jpg)
 
     -Dapollo.meta=http://localhost:8080
 
@@ -164,7 +164,7 @@ Apollo本地开发需要以下组件：
 
 ### 2.3.5 概览
 
-![apollo-demo-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-overview.png)
+![apollo-demo-overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/apollo-demo-overview.jpg)
 
 ### 2.3.6 运行
 对新建的运行配置点击Run或Debug皆可。

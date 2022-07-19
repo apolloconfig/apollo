@@ -93,6 +93,11 @@
                         <div class="form-horizontal">
                             <div class="col-sm-12">
                                 <label class="control-label">
+                                    <input type="text" class="comment-toggle"
+                                           ng-model="searchKey"
+                                           placeholder="{{'Config.Diff.SearchKey' | translate }}">
+                                </label>
+                                <label class="control-label">
                                     <input type="checkbox" class="comment-toggle" ng-checked="showCommentDiff"
                                         ng-click="showCommentDiff=!showCommentDiff">
                                     {{'Config.Diff.HasDiffComment' | translate }}
@@ -117,7 +122,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="(key, itemsKeyedByCluster) in itemsKeyedByKey" ng-if="!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key])">
+                                        <tr ng-repeat="(key, itemsKeyedByCluster) in itemsKeyedByKey" ng-if="(searchKey === '' || key.indexOf(searchKey) !== -1 ) && (!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key]))">
                                             <td width="15%" ng-bind="key"></td>
                                             <td ng-repeat="cluster in syncData.syncToNamespaces"
                                                 ng-bind="(itemsKeyedByCluster[cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName] || {}).value">
