@@ -18,13 +18,7 @@
 # 2. Build with: mvn docker:build -pl apollo-adminservice
 # 3. Run with: docker run -p 8090:8090 -e SPRING_DATASOURCE_URL="jdbc:mysql://fill-in-the-correct-server:3306/ApolloConfigDB?characterEncoding=utf8" -e SPRING_DATASOURCE_USERNAME=FillInCorrectUser -e SPRING_DATASOURCE_PASSWORD=FillInCorrectPassword -d -v /tmp/logs:/opt/logs --name apollo-adminservice apolloconfig/apollo-adminservice
 
-FROM openjdk:8-jre-alpine
-LABEL maintainer="finchcn@gmail.com;ameizi<sxyx2008@163.com>"
-
-RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories \
-    && echo "http://mirrors.aliyun.com/alpine/v3.8/community" >> /etc/apk/repositories \
-    && apk update upgrade \
-    && apk add --no-cache unzip
+FROM alpine:3.15.5
 
 ARG VERSION
 ENV VERSION $VERSION
@@ -35,16 +29,16 @@ RUN unzip /apollo-adminservice/apollo-adminservice-${VERSION}-github.zip -d /apo
     && rm -rf /apollo-adminservice/apollo-adminservice-${VERSION}-github.zip \
     && chmod +x /apollo-adminservice/scripts/startup.sh 
 
-FROM openjdk:8-jre-alpine
-LABEL maintainer="finchcn@gmail.com;ameizi<sxyx2008@163.com>"
+FROM openjdk:8-jre-slim
+LABEL maintainer="g632104866@gmail.com;finchcn@gmail.com;ameizi<sxyx2008@163.com>"
 
 ENV APOLLO_RUN_MODE "Docker"
 ENV SERVER_PORT 8090
 
-RUN echo "http://mirrors.aliyun.com/alpine/v3.8/main" > /etc/apk/repositories \
-    && echo "http://mirrors.aliyun.com/alpine/v3.8/community" >> /etc/apk/repositories \
-    && apk update upgrade \
-    && apk add --no-cache procps curl bash tzdata \
+RUN echo "deb http://mirrors.aliyun.com/debian/ bullseye main non-free contrib" > /etc/apt/sources.list \
+    && echo "deb http://mirrors.aliyun.com/debian-security/ bullseye-security main" >> /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends procps curl bash tzdata \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
 
