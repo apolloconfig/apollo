@@ -184,7 +184,6 @@ public class NamespaceService {
         } catch (Exception e) {
           LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
               appId, env, clusterName, namespace.getNamespaceName(), e);
-          throw e;
         } finally {
           latch.countDown();
         }
@@ -195,6 +194,10 @@ public class NamespaceService {
       latch.await();
     } catch (InterruptedException e) {
       //ignore
+    }
+
+    if(namespaceBOs.size() != namespaces.size()){
+       throw new RuntimeException("Parse namespace error");
     }
     return namespaceBOs;
   }
