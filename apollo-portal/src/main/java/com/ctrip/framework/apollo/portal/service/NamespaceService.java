@@ -174,6 +174,7 @@ public class NamespaceService {
     }
 
     List<NamespaceBO> namespaceBOs = new CopyOnWriteArrayList<>();
+    List<String> exceptionNamespaces = new CopyOnWriteArrayList<>();
     CountDownLatch latch = new CountDownLatch(namespaces.size());
     for (NamespaceDTO namespace : namespaces) {
       executorService.submit(() -> {
@@ -184,6 +185,7 @@ public class NamespaceService {
         } catch (Exception e) {
           LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
               appId, env, clusterName, namespace.getNamespaceName(), e);
+          exceptionNamespaces.add(namespace.getNamespaceName());
         } finally {
           latch.countDown();
         }
@@ -197,7 +199,8 @@ public class NamespaceService {
     }
 
     if(namespaceBOs.size() != namespaces.size()){
-       throw new RuntimeException("Parse namespace error");
+       throw new RuntimeException(String
+           .format("Parse namespaces error, expected: %s, but actual: %s, cannot get those namespaces: %s", namespaces.size(), namespaceBOs.size(), exceptionNamespaces));
     }
     return namespaceBOs;
   }
