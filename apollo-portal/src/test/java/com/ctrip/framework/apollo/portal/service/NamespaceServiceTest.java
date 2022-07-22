@@ -133,7 +133,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, "hermes")).thenReturn(errorRelease);
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(()-> namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName))
-        .withMessage("Parse namespaces error, expected: 2, but actual: 0, cannot get those namespaces: [hermes, application]");
+        .withMessageContaining("hermes", testNamespaceName)
+        .withMessageStartingWith("Parse namespaces error, expected: 2, but actual: 0, cannot get those namespaces: ");
 
   }
 
