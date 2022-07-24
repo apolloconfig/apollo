@@ -101,4 +101,12 @@ abstract class AbstractOpenApiService {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(value), name + " should not be null or empty");
   }
 
+  protected void checkPage(int page) {
+    Preconditions.checkArgument(page >= 0, "page should be positive or 0");
+  }
+
+  protected void checkSize(int size) {
+    Preconditions.checkArgument(size > 0, "size should be positive number");
+  }
+
 }

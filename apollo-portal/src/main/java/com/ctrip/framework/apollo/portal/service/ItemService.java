@@ -18,13 +18,11 @@ package com.ctrip.framework.apollo.portal.service;
 
 
 import com.ctrip.framework.apollo.common.constants.GsonType;
-import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
-import com.ctrip.framework.apollo.common.dto.ItemDTO;
-import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ItemAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.NamespaceAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ReleaseAPI;
@@ -266,6 +264,11 @@ public class ItemService {
     }
 
     return result;
+  }
+
+  public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
+                                                   String namespaceName, int page, int size) {
+    return itemAPI.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
   }
 
   private long getNamespaceId(NamespaceIdentifier namespaceIdentifier) {
