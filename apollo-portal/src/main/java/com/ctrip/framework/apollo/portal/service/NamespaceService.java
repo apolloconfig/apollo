@@ -42,12 +42,12 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -174,7 +174,7 @@ public class NamespaceService {
     }
 
     List<NamespaceBO> namespaceBOs = Collections.synchronizedList(new LinkedList<>());
-    List<String> exceptionNamespaces = new CopyOnWriteArrayList<>();
+    List<String> exceptionNamespaces = Collections.synchronizedList(new LinkedList<>());
     CountDownLatch latch = new CountDownLatch(namespaces.size());
     for (NamespaceDTO namespace : namespaces) {
       executorService.submit(() -> {
