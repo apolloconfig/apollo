@@ -173,7 +173,7 @@ public class NamespaceService {
       throw new BadRequestException("namespaces not exist");
     }
 
-    List<NamespaceBO> namespaceBOs = new CopyOnWriteArrayList<>();
+    List<NamespaceBO> namespaceBOs = Collections.synchronizedList(new LinkedList<>());
     List<String> exceptionNamespaces = new CopyOnWriteArrayList<>();
     CountDownLatch latch = new CountDownLatch(namespaces.size());
     for (NamespaceDTO namespace : namespaces) {
