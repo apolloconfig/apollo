@@ -20,6 +20,7 @@ Apollo 2.1.0
 * [Optimize performance of '/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces' interface queries](https://github.com/apolloconfig/apollo/pull/4473)
 * [Add a new API to load items with pagination](https://github.com/apolloconfig/apollo/pull/4468)
 * [fix(#4474):'openjdk:8-jre-alpine' potentially causing wrong number of cpu cores](https://github.com/apolloconfig/apollo/pull/4475)
+* [Switching spring-session serialization mode to json for compatibility with spring-security version updates]()
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
