@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -126,6 +127,14 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     assertEquals(testAppId, namespaceVO.getBaseInfo().getAppId());
     assertEquals(testClusterName, namespaceVO.getBaseInfo().getClusterName());
     assertEquals(testNamespaceName, namespaceVO.getBaseInfo().getNamespaceName());
+
+    ReleaseDTO errorRelease = new ReleaseDTO();
+    someRelease.setConfigurations("\"a\":\"123\",\"b\":\"123\"");
+    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, "hermes")).thenReturn(errorRelease);
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(()-> namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName))
+        .withMessageContaining("hermes", testNamespaceName)
+        .withMessageStartingWith("Parse namespaces error, expected: 2, but actual: 0, cannot get those namespaces: ");
 
   }
 

@@ -101,6 +101,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.13 发布 Namespace](#_3213-发布配置接口)
 - [3.2.14 获取 Namespace 最后一次发布的内容](#_3214-获取某个namespace当前生效的已发布配置接口)
 - [3.2.15 回滚 Namespace](#_3215-回滚已发布配置接口)
+- [3.2.16 分页获取配置项](#_3216-分页获取配置项接口) 
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -565,6 +566,47 @@ releasedBy | true | String | 发布人，域账号，注意：如果`ApolloConfi
 operator | true | String | 删除配置的操作者，域账号
 
 * **返回值** ： 无
+
+##### 3.2.16 分页获取配置项接口
+
+* **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items
+* **Method** ： GET
+* **Request Params** ：
+
+参数名 | 必选    | 类型  | 说明
+--- |-------|-----| ---
+page | false | int | 页码，从 0 开始，默认为 0
+size | false | int | 页大小，默认为 50
+
+* **返回值Sample** ：
+
+``` json
+{
+    "content": [
+        {
+            "key": "timeout",
+            "value": "3000",
+            "comment": "超时时间",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        },
+        {
+            "key": "page.size",
+            "value": "200",
+            "comment": "页大小",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        }
+    ],
+    "page": 0,
+    "size": 50,
+    "total": 2
+}
+```
 
 ### 四、错误码说明
 
