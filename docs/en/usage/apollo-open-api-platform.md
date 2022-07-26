@@ -563,6 +563,47 @@ This interface is the interface used to get whether the current namespace is loc
 
 * **Response Value** : None
 
+##### 3.2.16 Get configuration items with pagination
+
+* **URL** ：  `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items`
+* **Method** ： GET
+* **Request Params** ：
+
+| Parameter Name | Required | Type | Description                                |
+|----------------|----------|------|--------------------------------------------|
+| page           | false    | int  | page number, starting from 0, default is 0 |
+| size           | false    | int  | records in each page, default is 50        |
+
+* **Response Sample** ：
+
+``` json
+{
+    "content": [
+        {
+            "key": "timeout",
+            "value": "3000",
+            "comment": "timeout",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        },
+        {
+            "key": "page.size",
+            "value": "200",
+            "comment": "page size",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        }
+    ],
+    "page": 0,
+    "size": 50,
+    "total": 2
+}
+```
+
 ### IV. Error code description
 
 Under normal circumstances, the Http status code returned by the interface is 200, the following lists the non-200 error code descriptions that Apollo will return.
