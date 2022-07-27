@@ -151,10 +151,9 @@ public class PropertyResolver implements ConfigTextResolver {
 
     if (oldItem == null) {//new item
       changeSets.addCreateItem(buildNormalItem(0L, namespaceId, newKey, newValue, "", lineCounter));
-    } else if (!newValue.equals(oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {//update item
+    } else if (!newValue.equals(oldItem.getValue())) {//update item
       changeSets.addUpdateItem(
-          buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(),
-              lineCounter));
+          buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(), lineCounter));
     }
     keyMapOldItem.remove(newKey);
   }
