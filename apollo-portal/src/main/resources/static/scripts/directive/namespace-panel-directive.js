@@ -997,7 +997,6 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                             } else {
                                 text += '\r\n' + e[0].lines[i]
                             }
-                            console.log(text)
                         }
                         scope.namespace.editText = text
                     }
