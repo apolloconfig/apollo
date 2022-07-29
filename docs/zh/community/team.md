@@ -15,6 +15,7 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 | Anilople   | Xiaoquan Wang | Some Bank    |
 | JaredTan95 | Jared Tan     | DaoCloud     |
 | kezhenxu94 | Zhenxu Ke     | Tetrate      |
+| klboke     | Kailing Chen  | TapTap       |
 | lepdou     | Le Zhang      | Tencent      |
 | nobodyiam  | Jason Song    | Ant Group    |
 | zouyx      | Joe Zou       | Shein        |
