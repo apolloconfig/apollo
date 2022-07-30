@@ -17,6 +17,10 @@
 
 Use ApolloConfigDB;
 
+-- Begin：Create indexes to solve the problem of updating large tables
+ALTER TABLE `Commit` ADD INDEX `idx_IsDeleted_DeletedAt` (`IsDeleted`, `DeletedAt`);
+ALTER TABLE `Release` ADD INDEX `idx_IsDeleted_DeletedAt` (`IsDeleted`, `DeletedAt`);
+
 -- the follow DML won't change the `DataChange_LastTime` field
 UPDATE `AccessKey` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
 UPDATE `App` SET `DeletedAt` = -Id, `DataChange_LastTime` = `DataChange_LastTime` WHERE `IsDeleted` = 1 and `DeletedAt` = 0;
@@ -74,3 +78,7 @@ ALTER TABLE `Release`
 ALTER TABLE `ServerConfig`
     ADD UNIQUE INDEX `UK_Key_Cluster_DeletedAt` (`Key`,`Cluster`,`DeletedAt`),
     DROP INDEX `IX_Key`;
+
+-- End：Delete temporarily created indexes
+ALTER TABLE `Commit` DROP INDEX `idx_IsDeleted_DeletedAt`;
+ALTER TABLE `Release` DROP INDEX `idx_IsDeleted_DeletedAt`;
