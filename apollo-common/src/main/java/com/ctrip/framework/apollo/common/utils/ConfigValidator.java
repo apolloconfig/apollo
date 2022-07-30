@@ -37,17 +37,20 @@ public class ConfigValidator {
   private void checkDataBaseName() {
     String dataSourceUrl = System.getProperty("spring.datasource.url");
     if (!StringUtils.isBlank(dataSourceUrl) && !StringUtils.isBlank(applicationContext.getId())) {
-      switch (applicationContext.getId()) {
-        case "apollo-adminservice":
-        case "apollo-configservice":
-          Assert.isTrue(!dataSourceUrl.toLowerCase().contains("config"), "Please configure the" +
-              " correct database name, it should be ApolloConfigDB!");
-          break;
-        case "apollo-portal":
-          Assert.isTrue(!dataSourceUrl.toLowerCase().contains("portal"), "Please configure the" +
-              " correct database name, it should be ApolloPortalDB!");
-          break;
-        default:
+      String dbName = dataSourceUrl.substring(dataSourceUrl.lastIndexOf("/"), dataSourceUrl.indexOf("?"));
+      if (!StringUtils.isEmpty(dbName)) {
+        switch (applicationContext.getId()) {
+          case "apollo-adminservice":
+          case "apollo-configservice":
+            Assert.isTrue(!dbName.toLowerCase().contains("config"), "Please configure the" +
+                    " correct database name, it should be ApolloConfigDB!");
+            break;
+          case "apollo-portal":
+            Assert.isTrue(!dbName.toLowerCase().contains("portal"), "Please configure the" +
+                    " correct database name, it should be ApolloPortalDB!");
+            break;
+          default:
+        }
       }
     }
   }
