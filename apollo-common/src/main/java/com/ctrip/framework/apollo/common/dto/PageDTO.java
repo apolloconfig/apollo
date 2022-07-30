@@ -37,7 +37,6 @@ public class PageDTO<T> {
     this.size = pageable.getPageSize();
   }
 
-
   public long getTotal() {
     return total;
   }
@@ -54,7 +53,7 @@ public class PageDTO<T> {
     return size;
   }
 
-  public boolean hasContent(){
+  public boolean hasContent() {
     return content != null && content.size() > 0;
   }
 }

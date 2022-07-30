@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -41,11 +42,15 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -58,6 +63,9 @@ public class NamespaceService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(NamespaceService.class);
   private static final Gson GSON = new Gson();
+  private static final ExecutorService executorService = Executors.newFixedThreadPool(
+      Runtime.getRuntime().availableProcessors() * 2
+      , ApolloThreadFactory.create("NamespaceService", true));
 
   private final PortalConfig portalConfig;
   private final PortalSettings portalSettings;
@@ -165,20 +173,35 @@ public class NamespaceService {
       throw new BadRequestException("namespaces not exist");
     }
 
-    List<NamespaceBO> namespaceBOs = new LinkedList<>();
+    List<NamespaceBO> namespaceBOs = Collections.synchronizedList(new LinkedList<>());
+    List<String> exceptionNamespaces = Collections.synchronizedList(new LinkedList<>());
+    CountDownLatch latch = new CountDownLatch(namespaces.size());
     for (NamespaceDTO namespace : namespaces) {
+      executorService.submit(() -> {
+        NamespaceBO namespaceBO;
+        try {
+          namespaceBO = transformNamespace2BO(env, namespace);
+          namespaceBOs.add(namespaceBO);
+        } catch (Exception e) {
+          LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
+              appId, env, clusterName, namespace.getNamespaceName(), e);
+          exceptionNamespaces.add(namespace.getNamespaceName());
+        } finally {
+          latch.countDown();
+        }
+      });
 
-      NamespaceBO namespaceBO;
-      try {
-        namespaceBO = transformNamespace2BO(env, namespace);
-        namespaceBOs.add(namespaceBO);
-      } catch (Exception e) {
-        LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
-            appId, env, clusterName, namespace.getNamespaceName(), e);
-        throw e;
-      }
+    }
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      //ignore
     }
 
+    if(namespaceBOs.size() != namespaces.size()){
+       throw new RuntimeException(String
+           .format("Parse namespaces error, expected: %s, but actual: %s, cannot get those namespaces: %s", namespaces.size(), namespaceBOs.size(), exceptionNamespaces));
+    }
     return namespaceBOs;
   }
 
