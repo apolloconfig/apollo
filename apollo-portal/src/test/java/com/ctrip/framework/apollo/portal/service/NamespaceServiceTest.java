@@ -124,6 +124,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
 
     when(namespaceAPI.findNamespaceByCluster(testAppId, Env.DEV, testClusterName)).thenReturn(Lists.list(application));
     namespaceVOs = namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName);
+    assertEquals(1, namespaceVOs.size());
     NamespaceBO namespaceVO = namespaceVOs.get(0);
     assertEquals(4, namespaceVO.getItems().size());
     assertEquals("a", namespaceVO.getItems().get(0).getItem().getKey());
