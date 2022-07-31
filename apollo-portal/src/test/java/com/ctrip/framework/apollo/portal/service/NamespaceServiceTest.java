@@ -134,8 +134,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     assertEquals(testNamespaceName, namespaceVO.getBaseInfo().getNamespaceName());
 
     ReleaseDTO errorRelease = new ReleaseDTO();
-    someRelease.setConfigurations("\"a\":\"123\",\"b\":\"123\"");
-    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, "hermes")).thenReturn(errorRelease);
+    errorRelease.setConfigurations("\"a\":\"123\",\"b\":\"123\"");
+    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, testNamespaceName)).thenReturn(errorRelease);
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(()-> namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName))
         .withMessageStartingWith("Parse namespaces error, expected: 1, but actual: 0, cannot get those namespaces: [application]");
