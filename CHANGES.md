@@ -21,5 +21,6 @@ Apollo 2.1.0
 * [Add a new API to load items with pagination](https://github.com/apolloconfig/apollo/pull/4468)
 * [fix(#4474):'openjdk:8-jre-alpine' potentially causing wrong number of cpu cores](https://github.com/apolloconfig/apollo/pull/4475)
 * [fix(#4483):Fixed overwrite JSON type configuration being empty](https://github.com/apolloconfig/apollo/pull/4486)
+* [Validate the db name for all three moudles](https://github.com/apolloconfig/apollo/pull/4496)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
