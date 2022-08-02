@@ -24,7 +24,7 @@ import java.util.List;
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface UserService {
-  List<UserInfo> searchUsers(String keyword, int offset, int limit);
+  List<UserInfo> searchUsers(String keyword, int offset, int limit, boolean includeInactiveUsers);
 
   UserInfo findByUserId(String userId);
 

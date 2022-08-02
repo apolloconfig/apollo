@@ -87,8 +87,9 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
   }
 
   @Override
-  public List<UserInfo> searchUsers(String keyword, int offset, int limit) {
-    List<UserPO> users = this.findUsers(keyword);
+  public List<UserInfo> searchUsers(String keyword, int offset, int limit,
+      boolean includeInactiveUsers) {
+    List<UserPO> users = this.findUsers(keyword, includeInactiveUsers);
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
@@ -96,15 +97,25 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
         .collect(Collectors.toList());
   }
 
-  private List<UserPO> findUsers(String keyword) {
-    if (StringUtils.isEmpty(keyword)) {
-      return userRepository.findFirst20ByEnabled(1);
-    }
+  private List<UserPO> findUsers(String keyword, boolean includeInactiveUsers) {
     Map<Long, UserPO> users = new HashMap<>();
-    List<UserPO> byUsername = userRepository
-        .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-    List<UserPO> byUserDisplayName = userRepository
-        .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+    List<UserPO> byUsername;
+    List<UserPO> byUserDisplayName;
+    if (includeInactiveUsers) {
+      if (StringUtils.isEmpty(keyword)) {
+        return (List<UserPO>) userRepository.findAll();
+      }
+      byUsername = userRepository.findByUsernameLike("%" + keyword + "%");
+      byUserDisplayName = userRepository.findByUserDisplayNameLike("%" + keyword + "%");
+    } else {
+      if (StringUtils.isEmpty(keyword)) {
+        return userRepository.findFirst20ByEnabled(1);
+      }
+      byUsername = userRepository
+          .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
+      byUserDisplayName = userRepository
+          .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+    }
     if (!CollectionUtils.isEmpty(byUsername)) {
       for (UserPO user : byUsername) {
         users.put(user.getId(), user);
