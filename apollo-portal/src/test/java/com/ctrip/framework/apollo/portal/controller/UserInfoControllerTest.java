@@ -48,7 +48,7 @@ public class UserInfoControllerTest {
     Mockito.when(userPasswordChecker.checkWeakPassword(Mockito.anyString()))
         .thenReturn(new CheckResult(Boolean.TRUE, ""));
 
-    userInfoController.createOrUpdateUser(user);
+    userInfoController.createOrUpdateUser(true, user);
   }
 
   @Test(expected = BadRequestException.class)
@@ -63,7 +63,7 @@ public class UserInfoControllerTest {
         .thenReturn(new CheckResult(Boolean.FALSE, msg));
 
     try {
-      userInfoController.createOrUpdateUser(user);
+      userInfoController.createOrUpdateUser(true, user);
     } catch (BadRequestException e) {
       Assert.assertEquals(msg, e.getMessage());
       throw e;
