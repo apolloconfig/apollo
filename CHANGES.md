@@ -17,6 +17,7 @@ Apollo 2.1.0
 * [Allow users to associate multiple public namespaces at a time](https://github.com/apolloconfig/apollo/pull/4437)
 * [Move apollo-demo, scripts/docker-quick-start and scripts/apollo-on-kubernetes out of main repository](https://github.com/apolloconfig/apollo/pull/4440)
 * [Add search key when comparing Configuration items](https://github.com/apolloconfig/apollo/pull/4459)
+* [A user-friendly user management page for apollo portal](https://github.com/apolloconfig/apollo/pull/4464)
 * [Optimize performance of '/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces' interface queries](https://github.com/apolloconfig/apollo/pull/4473)
 * [Add a new API to load items with pagination](https://github.com/apolloconfig/apollo/pull/4468)
 * [fix(#4474):'openjdk:8-jre-alpine' potentially causing wrong number of cpu cores](https://github.com/apolloconfig/apollo/pull/4475)
