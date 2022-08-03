@@ -43,6 +43,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +52,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -202,7 +204,10 @@ public class NamespaceService {
        throw new RuntimeException(String
            .format("Parse namespaces error, expected: %s, but actual: %s, cannot get those namespaces: %s", namespaces.size(), namespaceBOs.size(), exceptionNamespaces));
     }
-    return namespaceBOs;
+
+    return namespaceBOs.stream()
+        .sorted(Comparator.comparing(o -> o.getBaseInfo().getNamespaceName()))
+        .collect(Collectors.toList());
   }
 
   public List<NamespaceDTO> findNamespaces(String appId, Env env, String clusterName) {
