@@ -37,7 +37,11 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         },
         deleteNamespace: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName'
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName'
+        },
+        deleteLinkedNamespace: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/linked-namespaces/:namespaceName'
         },
         getPublicAppNamespaceAllNamespaces: {
             method: 'GET',
@@ -102,12 +106,10 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         return d.promise;
     }
 
-    function deleteNamespace(appId, env, clusterName, namespaceName) {
+    function deleteNamespace(appId, namespaceName) {
         var d = $q.defer();
         namespace_source.deleteNamespace({
                                              appId: appId,
-                                             env: env,
-                                             clusterName: clusterName,
                                              namespaceName: namespaceName
                                          },
                                          function (result) {
@@ -116,6 +118,24 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
                                          function (result) {
                                              d.reject(result);
                                          });
+
+        return d.promise;
+    }
+
+    function deleteLinkedNamespace(appId, env, clusterName, namespaceName) {
+        var d = $q.defer();
+        namespace_source.deleteLinkedNamespace({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                namespaceName: namespaceName
+            },
+            function (result) {
+                d.resolve(result);
+            },
+            function (result) {
+                d.reject(result);
+            });
 
         return d.promise;
     }
@@ -175,6 +195,7 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         createAppNamespace: createAppNamespace,
         getNamespacePublishInfo: getNamespacePublishInfo,
         deleteNamespace: deleteNamespace,
+        deleteLinkedNamespace: deleteLinkedNamespace,
         getPublicAppNamespaceAllNamespaces: getPublicAppNamespaceAllNamespaces,
         loadAppNamespace: loadAppNamespace,
         deleteAppNamespace: deleteAppNamespace

@@ -168,13 +168,19 @@ public class NamespaceController {
   }
 
   @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
-  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
-  public ResponseEntity<Void> deleteNamespace(@PathVariable String appId, @PathVariable String env,
-                                              @PathVariable String clusterName, @PathVariable String namespaceName) {
+  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/linked-namespaces/{namespaceName:.+}")
+  public ResponseEntity<Void> deleteLinkedNamespace(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
 
     namespaceService.deleteNamespace(appId, Env.valueOf(env), clusterName, namespaceName);
 
     return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
+  @DeleteMapping("/apps/{appId}/namespaces/{namespaceName:.+}")
+  public ResponseEntity<Void> deleteNamespace(@PathVariable String appId, @PathVariable String namespaceName) {
+    return this.deleteAppNamespace(appId, namespaceName);
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")

@@ -28,8 +28,6 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
         },
         link: function (scope) {
 
-
-
             scope.doDeleteNamespace = doDeleteNamespace;
 
             EventManager.subscribe(EventManager.EventType.PRE_DELETE_NAMESPACE, function (context) {
@@ -39,24 +37,18 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                 //1. check operator has master permission
                 checkPermission(toDeleteNamespace).then(function () {
 
-                    //2. check namespace's master branch has not instances
-                    if (!checkMasterInstance(toDeleteNamespace)) {
-                        return;
-                    }
+                    if(toDeleteNamespace.isLinkedNamespace){
+                        //2. check namespace's master branch has not instances
+                        if (!checkMasterInstance(toDeleteNamespace)) {
+                            return;
+                        }
 
-                    //3. check namespace's gray branch has not instances
-                    if (!checkBranchInstance(toDeleteNamespace)) {
-                        return;
+                        //3. check namespace's gray branch has not instances
+                        if (!checkBranchInstance(toDeleteNamespace)) {
+                            return;
+                        }
                     }
-
-                    if (!toDeleteNamespace.isPublic || toDeleteNamespace.isLinkedNamespace) {
-                        showDeleteNamespaceConfirmDialog();
-                    } else {
-                        //5. check public namespace has not associated namespace
-                        checkPublicNamespace(toDeleteNamespace).then(function () {
-                            showDeleteNamespaceConfirmDialog();
-                        });
-                    }
+                    showDeleteNamespaceConfirmDialog();
                 })
 
             });
@@ -124,6 +116,9 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                 return true;
             }
 
+            /**
+             * @deprecated
+             */
             function checkPublicNamespace(namespace) {
                 var d = $q.defer();
 
@@ -162,9 +157,10 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
 
             function doDeleteNamespace() {
                 var toDeleteNamespace = scope.toDeleteNamespace;
-                NamespaceService.deleteNamespace(toDeleteNamespace.baseInfo.appId, scope.env,
-                    toDeleteNamespace.baseInfo.clusterName,
-                    toDeleteNamespace.baseInfo.namespaceName)
+                if(toDeleteNamespace.isLinkedNamespace){
+                    NamespaceService.deleteLinkedNamespace(toDeleteNamespace.baseInfo.appId, scope.env,
+                        toDeleteNamespace.baseInfo.clusterName,
+                        toDeleteNamespace.baseInfo.namespaceName)
                     .then(function () {
                         toastr.success($translate.instant('Common.Deleted'));
 
@@ -175,7 +171,20 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                     }, function (result) {
                         AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
                     })
+                }else {
+                    NamespaceService.deleteNamespace(toDeleteNamespace.baseInfo.appId,
+                        toDeleteNamespace.baseInfo.namespaceName)
+                    .then(function () {
+                        toastr.success($translate.instant('Common.Deleted'));
 
+                        setTimeout(function () {
+                            $window.location.reload();
+                        }, 1000);
+
+                    }, function (result) {
+                        AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
+                    })
+                }
             }
 
         }

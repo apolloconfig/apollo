@@ -24,8 +24,11 @@
                         {{'Component.DeleteNamespace.Title' | translate }}
                 </h4>
             </div>
-            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic">
+            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic && !toDeleteNamespace.isLinkedNamespace">
                     {{'Component.DeleteNamespace.PublicContent' | translate }}
+            </div>
+            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic && toDeleteNamespace.isLinkedNamespace">
+                {{'Component.DeleteNamespace.LinkedContent' | translate }}
             </div>
             <div class="modal-body form-horizontal" ng-show="!toDeleteNamespace.isPublic">
                     {{'Component.DeleteNamespace.PrivateContent' | translate }}
