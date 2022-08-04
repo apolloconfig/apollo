@@ -429,7 +429,7 @@
   "Delete.ClusterNameTips": "（删除前请先查询应用集群信息）",
   "Delete.ClusterInfo": "集群信息",
   "Delete.DeleteNamespace": "删除 AppNamespace",
-  "Delete.DeleteNamespaceTips": "（注意，所有环境的 Namespace 和 AppNamespace 都会被删除!）",
+  "Delete.DeleteNamespaceTips": "（注意，所有环境的 Namespace 和 AppNamespace 都会被删除！）",
   "Delete.DeleteNamespaceTips2": "对于公共 Namespace 需要确保没有应用关联了该 AppNamespace。",
   "Delete.AppNamespaceName": "AppNamespace 名称",
   "Delete.AppNamespaceNameTips": "（非 properties 类型的 Namespace 请加上类型后缀，例如 apollo.xml）",
