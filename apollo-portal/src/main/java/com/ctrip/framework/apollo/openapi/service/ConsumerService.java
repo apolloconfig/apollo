@@ -250,9 +250,9 @@ public class ConsumerService {
         .getDataChangeCreatedTime(), portalConfig.consumerTokenSalt()));
   }
 
-  String generateToken(String consumerAppId, Date generationTime, String
-      consumerTokenSalt) {
-    return Hashing.sha1().hashString(KEY_JOINER.join(consumerAppId, TIMESTAMP_FORMAT.format
+  @SuppressWarnings("UnstableApiUsage")
+  String generateToken(String consumerAppId, Date generationTime, String consumerTokenSalt) {
+    return Hashing.sha256().hashString(KEY_JOINER.join(consumerAppId, TIMESTAMP_FORMAT.format
         (generationTime), consumerTokenSalt), Charsets.UTF_8).toString();
   }
 
