@@ -1,0 +1,138 @@
+version: 2.1
+
+orbs:
+  gradle: smartnews/gradle@1
+  terraform: smartnews/terraform@1
+
+orb_dockers:
+  gradle: &orb_docker_gradle 165463520094.dkr.ecr.ap-northeast-1.amazonaws.com/circleci-orbs/gradle:2
+  terraform: &orb_docker_terraform 165463520094.dkr.ecr.ap-northeast-1.amazonaws.com/circleci-orbs/terraform:1
+
+workflow_filters:
+  branch-filter: &branch-filter
+    filters:
+      branches:
+        ignore:
+          - master
+  master-filter: &master-filter
+    filters:
+      branches:
+        only: master
+
+workflows:
+  # build:
+  #   when: << pipeline.parameters.workflow_main >>
+  #   jobs:
+  #     - gradle/build:
+  #         <<: *branch-filter
+  #         name: build
+  #         docker: *orb_docker_gradle
+  # deliver:
+  #   when: << pipeline.parameters.workflow_main >>
+  #   jobs:
+  #     - gradle/deliver:
+  #         <<: *master-filter
+  #         name: deliver/dev
+  #         docker: *orb_docker_gradle
+  #         env: dev
+  #         region: tokyo
+  #         cluster: spaas_sn
+  #         system: sn-configuration
+  #         publish: true
+  #         multiplatform: true
+  #     - approve:
+  #         <<: *master-filter
+  #         name: approve/release
+  #         type: approval
+  #         requires:
+  #           - deliver/dev
+  #     - gradle/release:
+  #         <<: *master-filter
+  #         name: release
+  #         docker: *orb_docker_gradle
+  #         requires:
+  #           - approve/release
+  #     - gradle/deliver:
+  #         <<: *master-filter
+  #         name: deliver/prd
+  #         docker: *orb_docker_gradle
+  #         env: prd
+  #         region: tokyo
+  #         cluster: spaas_sn
+  #         system: sn-configuration
+  #         publish: true
+  #         multiplatform: true
+  #         requires:
+  #           - release
+  # redeploy:
+  #   when: << pipeline.parameters.workflow_main >>
+  #   jobs:
+  #     - approve:
+  #         <<: *master-filter
+  #         name: approve/redeploy/prd
+  #         type: approval
+  #     - gradle/deliver:
+  #         <<: *master-filter
+  #         name: redeploy/prd
+  #         docker: *orb_docker_gradle
+  #         env: prd
+  #         region: tokyo
+  #         cluster: spaas_sn
+  #         system: sn-configuration
+  #         target: redeploy
+  #         requires:
+  #           - approve/redeploy/prd
+  main:
+    when: << pipeline.parameters.workflow_main >>
+    jobs:
+      - terraform/trigger:
+          docker: *orb_docker_terraform
+          name: terraform/trigger
+          system: sn-configuration
+          path: .
+  terraform:
+    when: << pipeline.parameters.workflow_terraform >>
+    jobs:
+      - terraform/plan:
+          docker: *orb_docker_terraform
+          name: << pipeline.parameters.env >>/<< pipeline.parameters.region >>/<< pipeline.parameters.system >>/plan
+          env: << pipeline.parameters.env >>
+          region: << pipeline.parameters.region >>
+          system: << pipeline.parameters.system >>
+          path: << pipeline.parameters.path >>
+      - approve:
+          <<: *master-filter
+          name: << pipeline.parameters.env >>/<< pipeline.parameters.region >>/<< pipeline.parameters.system >>/approve
+          type: approval
+          requires:
+            - << pipeline.parameters.env >>/<< pipeline.parameters.region >>/<< pipeline.parameters.system >>/plan
+      - terraform/apply:
+          <<: *master-filter
+          docker: *orb_docker_terraform
+          name: << pipeline.parameters.env >>/<< pipeline.parameters.region >>/<< pipeline.parameters.system >>/apply
+          env: << pipeline.parameters.env >>
+          region: << pipeline.parameters.region >>
+          system: << pipeline.parameters.system >>
+          path: << pipeline.parameters.path >>
+          requires:
+            - << pipeline.parameters.env >>/<< pipeline.parameters.region >>/<< pipeline.parameters.system >>/approve
+
+parameters:
+  workflow_main:
+    type: boolean
+    default: true
+  workflow_terraform:
+    type: boolean
+    default: false
+  env:
+    type: string
+    default: ""
+  region:
+    type: string
+    default: ""
+  system:
+    type: string
+    default: ""
+  path:
+    type: string
+    default: ""
