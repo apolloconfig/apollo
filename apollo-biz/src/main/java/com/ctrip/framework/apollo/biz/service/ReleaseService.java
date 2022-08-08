@@ -33,6 +33,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -61,7 +62,7 @@ public class ReleaseService {
       .newHashSet(ReleaseOperation.GRAY_RELEASE, ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
           ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY);
   private static final Pageable FIRST_ITEM = PageRequest.of(0, 1);
-  private static final Type OPERATION_CONTEXT_TYPE_REFERENCE = new TypeToken<Map<String, Object>>() { }.getType();
+  private static final Type OPERATION_CONTEXT_TYPE_REFERENCE = new TypeToken<Map<String, Collection<String>>>() { }.getType();
 
   private final ReleaseRepository releaseRepository;
   private final ItemService itemService;
@@ -322,14 +323,20 @@ public class ReleaseService {
       return null;
     }
 
-    Map<String, Object> operationContext = GSON
-        .fromJson(releaseHistories.getContent().get(0).getOperationContext(), OPERATION_CONTEXT_TYPE_REFERENCE);
-
-    if (operationContext == null || !operationContext.containsKey(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
+    String operationContextJson = releaseHistories.getContent().get(0).getOperationContext();
+    if (Strings.isNullOrEmpty(operationContextJson)
+        || !operationContextJson.contains(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
       return null;
     }
 
-    return (Collection<String>) operationContext.get(ReleaseOperationContext.BRANCH_RELEASE_KEYS);
+    Map<String, Collection<String>> operationContext = GSON
+        .fromJson(operationContextJson, OPERATION_CONTEXT_TYPE_REFERENCE);
+
+    if (operationContext == null) {
+      return null;
+    }
+
+    return operationContext.get(ReleaseOperationContext.BRANCH_RELEASE_KEYS);
   }
 
   private Release publishBranchNamespace(Namespace parentNamespace, Namespace childNamespace,
@@ -396,20 +403,17 @@ public class ReleaseService {
 
   private Map<String, String> mergeConfiguration(Map<String, String> baseConfigurations,
                                                  Map<String, String> coverConfigurations) {
-    Map<String, String> result = new LinkedHashMap<>();
+    int expectedSize = baseConfigurations.size() + coverConfigurations.size();
+    Map<String, String> result = Maps.newLinkedHashMapWithExpectedSize(expectedSize);
+
     //copy base configuration
-    for (Map.Entry<String, String> entry : baseConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(baseConfigurations);
 
     //update and publish
-    for (Map.Entry<String, String> entry : coverConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(coverConfigurations);
 
     return result;
   }
-
 
   private Map<String, String> getNamespaceItems(Namespace namespace) {
     List<Item> items = itemService.findItemsWithOrdered(namespace.getId());
