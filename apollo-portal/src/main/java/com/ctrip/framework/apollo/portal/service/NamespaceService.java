@@ -206,7 +206,7 @@ public class NamespaceService {
     }
 
     return namespaceBOs.stream()
-        .sorted(Comparator.comparing(o -> o.getBaseInfo().getNamespaceName()))
+        .sorted(Comparator.comparing(o -> o.getBaseInfo().getId()))
         .collect(Collectors.toList());
   }
 
