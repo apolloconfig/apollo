@@ -66,7 +66,6 @@ public class ConsumerServiceTest extends AbstractUnitTest {
   @InjectMocks
   private ConsumerService consumerService;
 
-
   private String someTokenSalt = "someTokenSalt";
   private String testAppId = "testAppId";
   private String testConsumerName = "testConsumerName";
@@ -75,7 +74,6 @@ public class ConsumerServiceTest extends AbstractUnitTest {
   @Before
   public void setUp() throws Exception {
     when(portalConfig.consumerTokenSalt()).thenReturn(someTokenSalt);
-
   }
 
   @Test
@@ -126,9 +124,11 @@ public class ConsumerServiceTest extends AbstractUnitTest {
     String someConsumerAppId = "100003171";
     Date generationTime = new GregorianCalendar(2016, Calendar.AUGUST, 9, 12, 10, 50).getTime();
     String tokenSalt = "apollo";
+    String expectedToken = "151067a53d08d70de161fa06b455623741877ce2f019f6e3018844c1a16dd8c6";
 
-    assertEquals("d0da35292dd5079eeb73cc3a5f7c0759afabd806", consumerService
-        .generateToken(someConsumerAppId, generationTime, tokenSalt));
+    String actualToken = consumerService.generateToken(someConsumerAppId, generationTime, tokenSalt);
+
+    assertEquals(expectedToken, actualToken);
   }
 
   @Test
