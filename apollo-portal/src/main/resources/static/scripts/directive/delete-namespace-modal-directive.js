@@ -38,17 +38,27 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                 checkPermission(toDeleteNamespace).then(function () {
 
                     if(toDeleteNamespace.isLinkedNamespace){
-                        //2. check namespace's master branch has not instances
-                        if (!checkMasterInstance(toDeleteNamespace)) {
-                            return;
-                        }
-
-                        //3. check namespace's gray branch has not instances
-                        if (!checkBranchInstance(toDeleteNamespace)) {
-                            return;
-                        }
+                        NamespaceService.getLinkedNamespaceUsage(toDeleteNamespace.baseInfo.appId, scope.env,
+                            toDeleteNamespace.baseInfo.clusterName,
+                            toDeleteNamespace.baseInfo.namespaceName
+                        ).then(function (usage) {
+                            scope.toDeleteNamespace.namespaceUsage = usage;
+                            if(usage[0].instanceCount > 0 || usage[0].branchInstanceCount > 0){
+                                scope.toDeleteNamespace.forceDeleteButton = true;
+                            }
+                            showDeleteNamespaceConfirmDialog();
+                        });
+                    }else {
+                        NamespaceService.getNamespaceUsage(toDeleteNamespace.baseInfo.appId,
+                            toDeleteNamespace.baseInfo.namespaceName
+                        ).then(function (usage) {
+                            scope.toDeleteNamespace.namespaceUsage = usage;
+                            if(usage.length > 0){
+                                scope.toDeleteNamespace.forceDeleteButton = true;
+                            }
+                            showDeleteNamespaceConfirmDialog();
+                        });
                     }
-                    showDeleteNamespaceConfirmDialog();
                 })
 
             });
@@ -90,67 +100,6 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                 return d.promise;
             }
 
-            function checkMasterInstance(namespace) {
-                if (namespace.instancesCount > 0) {
-                    EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                        namespace: namespace,
-                        reason: 'master_instance'
-                    });
-
-                    return false;
-                }
-
-                return true;
-            }
-
-            function checkBranchInstance(namespace) {
-                if (namespace.hasBranch && namespace.branch.latestReleaseInstances.total > 0) {
-                    EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                        namespace: namespace,
-                        reason: 'branch_instance'
-                    });
-
-                    return false;
-                }
-
-                return true;
-            }
-
-            /**
-             * @deprecated
-             */
-            function checkPublicNamespace(namespace) {
-                var d = $q.defer();
-
-                var publicAppId = namespace.baseInfo.appId;
-                NamespaceService.getPublicAppNamespaceAllNamespaces(scope.env,
-                    namespace.baseInfo.namespaceName,
-                    0, 20)
-                    .then(function (associatedNamespaces) {
-                        var otherAppAssociatedNamespaces = [];
-                        associatedNamespaces.forEach(function (associatedNamespace) {
-                            if (associatedNamespace.appId != publicAppId) {
-                                otherAppAssociatedNamespaces.push(associatedNamespace);
-                            }
-                        });
-
-                        if (otherAppAssociatedNamespaces.length) {
-                            EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                                namespace: namespace,
-                                reason: 'public_namespace',
-                                otherAppAssociatedNamespaces: otherAppAssociatedNamespaces
-                            });
-                            d.reject();
-                        } else {
-                            d.resolve();
-                        }
-
-                    });
-
-                return d.promise;
-
-            }
-
             function showDeleteNamespaceConfirmDialog() {
                 AppUtil.showModal('#deleteNamespaceModal');
             }
@@ -172,7 +121,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                         AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
                     })
                 }else {
-                    NamespaceService.deleteNamespace(toDeleteNamespace.baseInfo.appId,
+                    NamespaceService.deleteAppNamespace(toDeleteNamespace.baseInfo.appId,
                         toDeleteNamespace.baseInfo.namespaceName)
                     .then(function () {
                         toastr.success($translate.instant('Common.Deleted'));
