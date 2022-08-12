@@ -48,7 +48,7 @@
   "Component.DeleteNamespace.PublicContent": "Caution, the public namespace for all environments will be deleted! This will cause the instances unable to get the configuration of this namespace. Are you sure you want to delete it?",
   "Component.DeleteNamespace.PrivateContent": "Caution, the private namespace for all environments will be deleted! This will cause the instances unable to get the configuration of this namespace. Are you sure you want to delete it?",
   "Component.DeleteNamespace.LinkedContent": "Caution, all the namespaces associated with the current environment will be deleted! This will cause the instances unable to get the configuration of this namespace. Are you sure you want to delete it?",
-  "Component.DeleteNamespace.ForceDeleteContent": "There are instances in use in the current Namespace within 24H, Does secondary confirmation force deletion?",
+  "Component.DeleteNamespace.ForceDeleteContent": "There are instances in use for the current namespace within 24 hours, are you sure to force delete the namespace?",
   "Component.GrayscalePublishRule.Title": "Edit Grayscale Rule",
   "Component.GrayscalePublishRule.AppId": "Grayscale AppId",
   "Component.GrayscalePublishRule.AcceptRule": "Grayscale Application Rule",
