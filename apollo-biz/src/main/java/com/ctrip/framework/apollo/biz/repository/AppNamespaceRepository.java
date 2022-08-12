@@ -38,7 +38,7 @@ public interface AppNamespaceRepository extends PagingAndSortingRepository<AppNa
 
   List<AppNamespace> findByAppIdAndIsPublic(String appId, boolean isPublic);
 
-  List<AppNamespace> findByAppId(String appId);
+  List<AppNamespace> findByAppIdOrderByIdAsc(String appId);
 
   List<AppNamespace> findFirst500ByIdGreaterThanOrderByIdAsc(long id);
 

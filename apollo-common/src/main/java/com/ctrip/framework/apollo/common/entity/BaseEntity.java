@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.common.entity;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
-import java.time.Instant;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -74,16 +73,16 @@ public abstract class BaseEntity {
 
   public void setDeleted(boolean deleted) {
     isDeleted = deleted;
-    // also set deletedAt value as epoch millisecond
-    this.deletedAt = System.currentTimeMillis();
+    if (deleted && this.deletedAt == 0) {
+      // also set deletedAt value as epoch millisecond
+      this.deletedAt = System.currentTimeMillis();
+    } else if (!deleted) {
+      this.deletedAt = 0L;
+    }
   }
 
   public long getDeletedAt() {
     return deletedAt;
-  }
-
-  public void setDeletedAt(long deletedAt) {
-    this.deletedAt = deletedAt;
   }
 
   public String getDataChangeCreatedBy() {
