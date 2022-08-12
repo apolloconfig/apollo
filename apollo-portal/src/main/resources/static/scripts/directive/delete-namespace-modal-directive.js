@@ -43,7 +43,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                             toDeleteNamespace.baseInfo.namespaceName
                         ).then(function (usage) {
                             scope.toDeleteNamespace.namespaceUsage = usage;
-                            if(usage[0].instanceCount > 0 || usage[0].branchInstanceCount > 0){
+                            if (usage[0].instanceCount > 0 || usage[0].branchInstanceCount > 0) {
                                 scope.toDeleteNamespace.forceDeleteButton = true;
                             }
                             showDeleteNamespaceConfirmDialog();
