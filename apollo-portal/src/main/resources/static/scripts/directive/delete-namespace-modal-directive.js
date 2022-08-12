@@ -37,7 +37,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                 //1. check operator has master permission
                 checkPermission(toDeleteNamespace).then(function () {
 
-                    if(toDeleteNamespace.isLinkedNamespace){
+                    if (toDeleteNamespace.isLinkedNamespace) {
                         NamespaceService.getLinkedNamespaceUsage(toDeleteNamespace.baseInfo.appId, scope.env,
                             toDeleteNamespace.baseInfo.clusterName,
                             toDeleteNamespace.baseInfo.namespaceName
