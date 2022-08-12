@@ -187,7 +187,6 @@ public class NamespaceController {
     return Lists.newArrayList(usage);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
   @GetMapping("/apps/{appId}/namespaces/{namespaceName}/usage")
   public List<NamespaceUsage> findNamespaceUsage(@PathVariable String appId, @PathVariable String namespaceName) {
     return namespaceService.getNamespaceUsageByAppId(appId, namespaceName);
