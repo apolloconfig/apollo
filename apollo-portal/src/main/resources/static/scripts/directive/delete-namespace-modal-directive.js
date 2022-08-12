@@ -48,7 +48,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                             }
                             showDeleteNamespaceConfirmDialog();
                         });
-                    }else {
+                    } else {
                         NamespaceService.getNamespaceUsage(toDeleteNamespace.baseInfo.appId,
                             toDeleteNamespace.baseInfo.namespaceName
                         ).then(function (usage) {
