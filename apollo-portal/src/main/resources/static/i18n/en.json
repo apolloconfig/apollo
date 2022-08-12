@@ -43,7 +43,7 @@
   "Common.LoginExpiredTips": "Your login is expired. Please refresh the page and try again.",
   "Common.Operation": "Operation",
   "Common.Delete": "Delete",
-  "Common.ForceDelete": "ForceDelete",
+  "Common.ForceDelete": "Force Delete",
   "Component.DeleteNamespace.Title": "Delete Namespace",
   "Component.DeleteNamespace.PublicContent": "Caution, the public namespace for all environments will be deleted! This will cause the instances unable to get the configuration of this namespace. Are you sure you want to delete it?",
   "Component.DeleteNamespace.PrivateContent": "Caution, the private namespace for all environments will be deleted! This will cause the instances unable to get the configuration of this namespace. Are you sure you want to delete it?",
