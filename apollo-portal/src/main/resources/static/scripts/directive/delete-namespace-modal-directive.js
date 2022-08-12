@@ -120,7 +120,7 @@ function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil,
                     }, function (result) {
                         AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
                     })
-                }else {
+                } else {
                     NamespaceService.deleteAppNamespace(toDeleteNamespace.baseInfo.appId,
                         toDeleteNamespace.baseInfo.namespaceName)
                     .then(function () {
