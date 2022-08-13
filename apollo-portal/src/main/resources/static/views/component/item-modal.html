@@ -51,10 +51,15 @@
                         {{'Component.ConfigItem.ItemValueTips' | translate }} <a
                             ng-click="showHiddenChars()">{{'Component.ConfigItem.ItemValueShowDetection' | translate }}</a>
                         <br>
+                        {{'Component.ConfigItem.ItemJSONValueTips' | translate }} <a
+                            ng-click="detectJSON()">{{'Component.ConfigItem.ItemJSONValueDetection' | translate }}</a>
+                        <br>
                         <div class="bg-info" ng-show="showHiddenCharsContext && hiddenCharCounter == 0">
                             {{'Component.ConfigItem.ItemValueNotHiddenChars' | translate }}</div>
                         <div class="bg-info" ng-bind-html="valueWithHiddenChars"
                             ng-show="showHiddenCharsContext && hiddenCharCounter > 0"></div>
+                        <div class="bg-info" ng-bind-html="jsonDetectResult"
+                             ng-show="showJSONDetectContext"></div>
                     </div>
 
 

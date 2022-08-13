@@ -39,11 +39,14 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             scope.doItem = doItem;
             scope.collectSelectedClusters = collectSelectedClusters;
             scope.showHiddenChars = showHiddenChars;
+            scope.detectJSON = detectJSON;
 
             $('#itemModal').on('show.bs.modal', function (e) {
                 scope.showHiddenCharsContext = false;
                 scope.hiddenCharCounter = 0;
                 scope.valueWithHiddenChars = $sce.trustAsHtml('');
+                scope.showJSONDetectContext = false;
+                scope.jsonDetectResult = $sce.trustAsHtml('');
             });
 
             $("#valueEditor").textareafullscreen();
@@ -152,6 +155,23 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
 
             function collectSelectedClusters(data) {
                 selectedClusters = data;
+            }
+
+            function detectJSON() {
+                var value = scope.item.value;
+                if (!value) {
+                    scope.showJSONDetectContext = false;
+                    return;
+                }
+                var res = "";
+                try {
+                    JSON.parse(value);
+                    res = $translate.instant('Component.ConfigItem.ValidItemJSONValue')
+                } catch(e) {
+                    res = $translate.instant('Component.ConfigItem.InvalidItemJSONValue')
+                }
+                scope.showJSONDetectContext = true;
+                scope.jsonDetectResult = $sce.trustAsHtml(res);
             }
 
             function showHiddenChars() {
