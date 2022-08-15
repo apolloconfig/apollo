@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author kl (http://kailing.pub)
  * @since 2022/8/12
  */
-public class WebUtils {
+public final class WebUtils {
 
   private static final Splitter X_FORWARDED_FOR_SPLITTER = Splitter.on(",").omitEmptyStrings()
       .trimResults();
