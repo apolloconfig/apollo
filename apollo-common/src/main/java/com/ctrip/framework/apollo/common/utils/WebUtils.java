@@ -26,9 +26,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class WebUtils {
 
-  private WebUtils(){}
   private static final Splitter X_FORWARDED_FOR_SPLITTER = Splitter.on(",").omitEmptyStrings()
       .trimResults();
+
+  private WebUtils(){}
 
   public static String tryToGetClientIp(HttpServletRequest request) {
     String forwardedFor = request.getHeader("X-FORWARDED-FOR");
