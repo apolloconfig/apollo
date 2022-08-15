@@ -73,20 +73,18 @@ public class ItemController {
                         @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
     Item entity = BeanUtils.transform(Item.class, dto);
 
-    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {
       throw new BadRequestException("item already exists");
     }
     entity = itemService.save(entity);
-    builder.createItem(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
 
     Commit commit = new Commit();
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
     commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(builder.build());
+    commit.setChangeSets(new ConfigChangeContentBuilder().createItem(entity).build());
     commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
     commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
     commitService.save(commit);
