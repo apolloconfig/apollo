@@ -104,18 +104,18 @@
                 <div class="row" ng-show="syncItemStep == 2">
                     <div class="row" style="margin-top: 10px;">
                         <div class="form-horizontal">
-                            <div class="col-sm-12">
+                            <div class="col-sm-12" ng-show="isTableDiff">
                                 <label class="control-label">
                                     <input type="text" class="comment-toggle"
                                            ng-model="searchKey"
                                            placeholder="{{'Config.Diff.SearchKey' | translate }}">
                                 </label>
-                                <label class="control-label" ng-show="isTableDiff">
+                                <label class="control-label">
                                     <input type="checkbox"  class="comment-toggle" ng-checked="showCommentDiff"
                                         ng-click="showCommentDiff=!showCommentDiff">
                                     {{'Config.Diff.HasDiffComment' | translate }}
                                 </label>
-                                <label class="control-label" ng-show="isTableDiff">
+                                <label class="control-label">
                                     <input type="checkbox"  class="comment-toggle" checked="true" ng-checked="onlyShowDiffKeys"
                                            ng-click="onlyShowDiffKeys=!onlyShowDiffKeys">
                                     {{'Config.Diff.OnlyShowDiffKeys' | translate }}
