@@ -24,7 +24,7 @@ Apollo支持4个维度管理Key-Value格式的配置：
 
 同时，Apollo基于开源模式开发，开源地址：<a href="https://github.com/ctripcorp/apollo" target="_blank">https://github.com/ctripcorp/apollo</a>
 
-## 1.2 配置基本概念
+## 1.3 配置基本概念
 
 既然Apollo定位于配置中心，那么在这里有必要先简单介绍一下什么是配置。
 
