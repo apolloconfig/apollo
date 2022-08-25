@@ -38,6 +38,9 @@ public class Item extends BaseEntity {
   @Column(name = "key", nullable = false)
   private String key;
 
+  @Column(name = "type")
+  private int type;
+
   @Column(name = "value")
   @Lob
   private String value;
@@ -89,7 +92,16 @@ public class Item extends BaseEntity {
   }
 
   public String toString() {
-    return toStringHelper().add("namespaceId", namespaceId).add("key", key).add("value", value)
-        .add("lineNum", lineNum).add("comment", comment).toString();
+    return toStringHelper().add("namespaceId", namespaceId).add("key", key)
+            .add("type", type).add("value", value)
+            .add("lineNum", lineNum).add("comment", comment).toString();
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public void setType(int type) {
+    this.type = type;
   }
 }

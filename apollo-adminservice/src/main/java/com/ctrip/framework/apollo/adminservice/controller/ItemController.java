@@ -143,8 +143,8 @@ public class ItemController {
 
     Item beforeUpdateItem = BeanUtils.transform(Item.class, managedEntity);
 
-    //protect. only value,comment,lastModifiedBy can be modified
-    managedEntity.setValue(entity.getValue());
+    //protect. only value,type,comment,lastModifiedBy can be modified
+    managedEntity.setType(entity.getType());
     managedEntity.setComment(entity.getComment());
     managedEntity.setDataChangeLastModifiedBy(entity.getDataChangeLastModifiedBy());
 

@@ -25,6 +25,8 @@ public class ItemDTO extends BaseDTO{
 
   private String key;
 
+  private int type;
+
   private String value;
 
   private String comment;
@@ -88,6 +90,14 @@ public class ItemDTO extends BaseDTO{
 
   public void setLineNum(int lineNum) {
     this.lineNum = lineNum;
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public void setType(int type) {
+    this.type = type;
   }
 
 }
