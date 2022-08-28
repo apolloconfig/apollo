@@ -26,6 +26,7 @@ Apollo 2.1.0
 * [Allow users to delete AppNamespace](https://github.com/apolloconfig/apollo/pull/4499)
 * [fix the deleted at timestamp issue](https://github.com/apolloconfig/apollo/pull/4493)
 * [add configuration processor for portal developers](https://github.com/apolloconfig/apollo/pull/4521)
+* [Add a potential json value check feature](https://github.com/apolloconfig/apollo/pull/4519)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
