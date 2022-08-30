@@ -89,13 +89,13 @@
                             <div class="col-sm-6">
                                 <div class="radio-inline">
                                     <label >
-                                        <input type="radio" name="tableDiff"  ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
+                                        <input type="radio" name="tableDiff" ng-click="isTableDiff" checked="true" ng-checked="isTableDiff">
                                         {{'Config.Diff.TableDiff' | translate }}
                                     </label>
                                 </div>
                                 <div class="radio-inline">
                                     <label >
-                                        <input type="radio" name="tableDiff"  ng-click="isTableDiff = false" ng-checked="!isTableDiff">
+                                        <input type="radio" name="tableDiff" ng-click="!isTableDiff" ng-checked="!isTableDiff">
                                         {{'Config.Diff.TextDiff' | translate }}
                                     </label>
                                 </div>
@@ -116,12 +116,12 @@
                                            placeholder="{{'Config.Diff.SearchKey' | translate }}">
                                 </label>
                                 <label class="control-label">
-                                    <input type="checkbox"  class="comment-toggle" ng-checked="showCommentDiff"
+                                    <input type="checkbox" class="comment-toggle" ng-checked="showCommentDiff"
                                         ng-click="showCommentDiff=!showCommentDiff">
                                     {{'Config.Diff.HasDiffComment' | translate }}
                                 </label>
                                 <label class="control-label">
-                                    <input type="checkbox"  class="comment-toggle" checked="true" ng-checked="onlyShowDiffKeys"
+                                    <input type="checkbox" class="comment-toggle" checked="true" ng-checked="onlyShowDiffKeys"
                                            ng-click="onlyShowDiffKeys=!onlyShowDiffKeys">
                                     {{'Config.Diff.OnlyShowDiffKeys' | translate }}
                                 </label>
