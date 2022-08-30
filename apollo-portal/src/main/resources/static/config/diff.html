@@ -84,21 +84,21 @@
                                     apollo-default-checked-cluster="pageContext.clusterName"></apolloclusterselector>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-horizontal">
                         <div class="form-group">
                             <label class="col-sm-2 control-label">{{'Config.Diff.DiffType' | translate }}</label>
-                            <div class="radio-inline">
-                                <label >
-                                    <input type="radio" name="tableDiff"  ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
-                                    {{'Config.Diff.TableDiff' | translate }}
-                                </label>
-                            </div>
-                            <div class="radio-inline">
-                                <label >
-                                    <input type="radio" name="tableDiff"  ng-click="isTableDiff = false" ng-checked="!isTableDiff">
-                                    {{'Config.Diff.TextDiff' | translate }}
-                                </label>
+                            <div class="col-sm-6">
+                                <div class="radio-inline">
+                                    <label >
+                                        <input type="radio" name="tableDiff"  ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
+                                        {{'Config.Diff.TableDiff' | translate }}
+                                    </label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label >
+                                        <input type="radio" name="tableDiff"  ng-click="isTableDiff = false" ng-checked="!isTableDiff">
+                                        {{'Config.Diff.TextDiff' | translate }}
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
