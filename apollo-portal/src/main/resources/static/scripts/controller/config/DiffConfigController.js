@@ -74,19 +74,22 @@ diff_item_module.controller("DiffItemController",
                                 }
                                 let res = [];
                                 // prop
-                                if(suffixArray.length===0){
+                                if (suffixArray.length === 0) {
                                     res.push(originItem)
-                                }else{
+                                } else {
                                     namespace.originTextInfo = originItem.value
                                     const suffix = suffixArray[0];
-                                    if(suffix==='yml'){
-                                        res = Obj2Prop(YAML.parse(originItem.value))
-                                    }else if(suffix==='json'){
-                                        res = Obj2Prop(JSON.parse(originItem.value))
-                                    }else if(suffix==='xml'){
+                                    if (suffix === 'yml') {
+                                        res = Obj2Prop(
+                                            YAML.parse(originItem.value))
+                                    } else if (suffix === 'json') {
+                                        res = Obj2Prop(
+                                            JSON.parse(originItem.value))
+                                    } else if (suffix === 'xml') {
                                         const x2js = new X2JS();
-                                        res = Obj2Prop(x2js.xml_str2json(originItem.value))
-                                    }else{
+                                        res = Obj2Prop(
+                                            x2js.xml_str2json(originItem.value))
+                                    } else {
                                         //txt
                                         res.push(originItem)
                                     }

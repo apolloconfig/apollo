@@ -68,18 +68,6 @@
             <!--step 1-->
             <div class="panel-body">
                 <div class="row" ng-show="syncItemStep == 1">
-                    <div class="radio-inline">
-                        <label >
-                            <input type="radio" name="tableDiff"  ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff == true">
-                            {{'Config.Diff.TableDiff' | translate }}
-                        </label>
-                    </div>
-                    <div class="radio-inline">
-                        <label >
-                            <input type="radio" name="tableDiff"  ng-click="isTableDiff = false" ng-checked="isTableDiff == false">
-                            {{'Config.Diff.TextDiff' | translate }}
-                        </label>
-                    </div>
                     <div class="alert-info alert no-radius">
                         <strong>{{'Config.Diff.TipsTitle' | translate }}:</strong>
                         <ul>
@@ -94,6 +82,23 @@
                                     apollo-default-all-checked="false" apollo-select="collectSelectedClusters"
                                     apollo-default-checked-env="pageContext.env"
                                     apollo-default-checked-cluster="pageContext.clusterName"></apolloclusterselector>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Config.Diff.DiffType' | translate }}</label>
+                            <div class="radio-inline">
+                                <label >
+                                    <input type="radio" name="tableDiff"  ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
+                                    {{'Config.Diff.TableDiff' | translate }}
+                                </label>
+                            </div>
+                            <div class="radio-inline">
+                                <label >
+                                    <input type="radio" name="tableDiff"  ng-click="isTableDiff = false" ng-checked="!isTableDiff">
+                                    {{'Config.Diff.TextDiff' | translate }}
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -181,6 +186,7 @@
 
     <script type="text/javascript" src="../vendor/yaml.min.js"></script>
     <script type="text/javascript" src="../vendor/xml2json.min.js"></script>
+    <script type="text/javascript" src="../vendor/diff.min.js"></script>
 
     <!-- bootstrap.js -->
     <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
@@ -203,7 +209,7 @@
     <script type="application/javascript" src="../scripts/directive/show-text-modal-directive.js"></script>
     <script type="application/javascript" src="../scripts/directive/diff-directive.js"></script>
 
-    <script src="../vendor/diff.min.js" type="text/javascript"></script>
+
 </body>
 
 </html>
