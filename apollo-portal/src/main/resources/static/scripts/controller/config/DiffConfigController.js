@@ -42,6 +42,7 @@ diff_item_module.controller("DiffItemController",
 
             $scope.itemsKeyedByKey = {};
             $scope.allNamespaceValueEqualed = {};
+            $scope.isTableDiff = true;
 
             $scope.syncData = {
                 syncToNamespaces: [],
@@ -54,6 +55,10 @@ diff_item_module.controller("DiffItemController",
                     toastr.warning($translate.instant('Config.Diff.PleaseChooseTwoCluster'));
                     return;
                 }
+                if (!$scope.isTableDiff && $scope.syncData.syncToNamespaces.length > 2) {
+                    toastr.warning($translate.instant('Config.Diff.TextDiffMostChooseTwoCluster'));
+                    return;
+                }
                 const namespaceCnt = $scope.syncData.syncToNamespaces.length;
                 let loadedNamespaceCnt = 0;
                 $scope.syncData.syncToNamespaces.forEach(function (namespace) {
@@ -62,13 +67,39 @@ diff_item_module.controller("DiffItemController",
                         namespace.clusterName,
                         namespace.namespaceName).then(function (result) {
                             loadedNamespaceCnt ++;
-                            result.forEach(function (item) {
-                                if (item.key === "") {
+                            const suffixArray = namespace.namespaceName.match(/[^.]+$/);
+                            result.forEach(function (originItem) {
+                                if (originItem.key === "") {
                                     return
                                 }
-                                var itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
-                                itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
-                                $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
+                                let res = [];
+                                // prop
+                                if (suffixArray.length === 0) {
+                                    res.push(originItem)
+                                } else {
+                                    namespace.originTextInfo = originItem.value
+                                    const suffix = suffixArray[0];
+                                    if (suffix === 'yml') {
+                                        res = Obj2Prop(
+                                            YAML.parse(originItem.value))
+                                    } else if (suffix === 'json') {
+                                        res = Obj2Prop(
+                                            JSON.parse(originItem.value))
+                                    } else if (suffix === 'xml') {
+                                        const x2js = new X2JS();
+                                        res = Obj2Prop(
+                                            x2js.xml_str2json(originItem.value))
+                                    } else {
+                                        //txt
+                                        res.push(originItem)
+                                    }
+                                }
+
+                                res.forEach(function (item){
+                                    const itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
+                                    itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
+                                    $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
+                                })
                             });
 
                             //After loading all the compared namespaces, check whether the values are consistent
@@ -136,3 +167,24 @@ diff_item_module.controller("DiffItemController",
                 AppUtil.showModal('#showTextModal');
             }
         }]);
+// transfer js obj to properties
+function Obj2Prop(obj,prefix){
+    let result = []
+    const keys = Object.keys(obj)
+    keys.forEach(function (key){
+        let keyPrefix;
+        if(obj[key] && typeof obj[key]=='object'){
+            const currentPrefix = key.concat('.');
+            keyPrefix = prefix? prefix.concat(currentPrefix) : currentPrefix
+            result = result.concat(Obj2Prop(obj[key],keyPrefix))
+        }else{
+            keyPrefix = prefix? prefix.concat(key):key
+            result.push({
+                key:keyPrefix,
+                value:(obj[key] || '')
+            })
+        }
+    })
+    return result
+
+}
