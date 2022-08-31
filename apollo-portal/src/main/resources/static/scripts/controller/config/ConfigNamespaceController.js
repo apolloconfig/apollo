@@ -250,7 +250,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         }
 
         $scope.item = _.clone(toEditItem);
-
+        $scope.item.type = String($scope.item.type || 0)
         if (namespace.isBranch || namespace.isLinkedNamespace) {
             var existedItem = false;
             namespace.items.forEach(function (item) {
@@ -283,6 +283,9 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         $scope.item = {
             tableViewOperType: 'create'
         };
+        $scope.item.type = '0';
+        $scope.showNumberError = false;
+        $scope.showJsonError = false;
 
         $scope.toOperationNamespace = namespace;
         AppUtil.showModal('#itemModal');

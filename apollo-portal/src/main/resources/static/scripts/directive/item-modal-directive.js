@@ -41,6 +41,8 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             scope.showHiddenChars = showHiddenChars;
             scope.detectJSON = detectJSON;
             scope.check = check;
+            scope.changeType = changeType;
+            scope.verifyLoseFocus = verifyLoseFocus;
 
             $('#itemModal').on('show.bs.modal', function (e) {
                 scope.showHiddenCharsContext = false;
@@ -57,10 +59,47 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
 
             $("#valueEditor").textareafullscreen();
 
+            function verifyLoseFocus() {
+                if (scope.item.type == '1') {
+                    //校验类型为Number的时候输入框的值是否满足
+                    let regNumber = /-[0-9]+(\\.[0-9]+)?|[0-9]+(\\.[0-9]+)?/
+                    if (regNumber.test(Number(scope.item.value)) == true) {
+                        scope.showNumberError = false
+                    } else {
+                        scope.showNumberError = true
+                    }
+                } else if (scope.item.type == '3') {
+                    checkJson(scope.item.value)
+                } else {
+                    scope.showNumberError = false
+                    scope.showJsonError = false
+                }
+            }
+            // 数字 null  字符串 true  false 是合法json 这里暂时排除掉这些内容 为了规范格式
+            function checkJson(str) {
+                if (str.trim() == 'null') {
+                    scope.showJsonError = true
+                } else {
+                    try {
+                        if (!(typeof JSON.parse(str) == 'object')) {
+                            scope.showJsonError = true
+                        } else {
+                            scope.showJsonError = false
+                        }
+                    } catch (error) {
+                        scope.showJsonError = true
+                    }
+                }
+            }
+
             function doItem() {
 
                 if (!scope.item.value) {
                     scope.item.value = "";
+                }
+
+                if (scope.item.type) {
+                    scope.item.type = Number(scope.item.type)
                 }
 
                 if (scope.item.tableViewOperType == TABLE_VIEW_OPER_TYPE.CREATE) {
@@ -163,6 +202,24 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                 selectedClusters = data;
             }
 
+            function changeType() {
+                scope.showNumberError = false
+                scope.showJsonError = false
+                if (scope.item.type == '2') {
+                    scope.item.lastValue = scope.item.value
+                    scope.item.value = 'false'
+                } else {
+                    if (scope.item.lastType =='2') {
+                        scope.item.value = scope.item.lastValue
+                    } else {
+                        // String Number Json互相切换不做更改
+                    }
+                }
+
+                scope.item.lastType = scope.item.type
+                verifyLoseFocus()
+            }
+
             function check(){
                 var value = scope.item.value;
                 if (!value || value.length < 2) {
@@ -220,7 +277,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             }
 
             function isHiddenChar(c) {
-                return c == '\t' || c == '\n' || c == ' ';
+                return c == '\t' || c == '\n' || c == ' ' || c == '，';
             }
 
             function viewHiddenChar(c) {
@@ -231,6 +288,8 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                     return '<mark>#' + $translate.instant('ItemModal.NewLine') + '#</mark>';
                 } else if (c == ' ') {
                     return '<mark>#' + $translate.instant('ItemModal.Space') + '#</mark>';
+                } else if (c == '，') {
+                    return '<mark>#' + $translate.instant('ItemModal.ChineseComma') + '#</mark>';
                 }
 
             }

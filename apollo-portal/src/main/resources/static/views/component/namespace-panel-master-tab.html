@@ -285,7 +285,9 @@
                                     ng-click="col='item.key';desc=!desc;">
                                     {{'Component.Namespace.Master.Items.Body.ItemKey' | translate }}&nbsp;
                                     <span class="glyphicon glyphicon-sort"></span>
-
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.MasterBranch.Body.ItemType' | translate }}
                                 </th>
                                 <th>
                                     {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
@@ -344,13 +346,23 @@
                                         data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
                                 </td>
-                                <td width="30%" class="cursor-pointer"
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.Namespace.MasterBranch.Body.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.Namespace.MasterBranch.Body.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.Namespace.MasterBranch.Body.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.Namespace.MasterBranch.Body.ItemTypeJson' | translate }}</span>
+                                </td>
+                                <td width="25%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.value)">
                                     <span ng-bind="config.item.value | limitTo: 250"></span>
                                     <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
                                 </td>
-                                <td width="13%" title="{{config.item.comment}}">
+                                <td width="11%" title="{{config.item.comment}}">
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
