@@ -68,7 +68,7 @@
   "Component.ConfigItem.ModifyItem": "修改配置项",
   "Component.ConfigItem.ItemKey": "Key",
   "Component.ConfigItem.ItemValue": "Value",
-  "Component.ConfigItem.ItemValueTips": "注意: 特殊字符(空格、换行符、制表符Tab、中文逗号)容易导致配置出错，如果需要检测Value中特殊字符，请点击",
+  "Component.ConfigItem.ItemValueTips": "注意: 特殊字符(空格、换行符、制表符Tab、中文逗号)容易导致配置出错，如果需要检测 Value 中特殊字符，请点击",
   "Component.ConfigItem.ItemValueShowDetection": "检测特殊字符",
   "Component.ConfigItem.ItemValueNotHiddenChars": "无特殊字符",
   "Component.ConfigItem.ItemJSONValueTips": "注意: 检测JSON字符串格式是否正确，请点击",
