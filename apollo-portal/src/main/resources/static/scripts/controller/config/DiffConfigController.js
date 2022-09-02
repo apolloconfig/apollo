@@ -107,9 +107,7 @@ diff_item_module.controller("DiffItemController",
                         // For prop textDiff,need parse prop to text
                         if (suffix === '') {
                             // to align key
-                            propTextArr.sort(
-                                (item1, item2) => item1.key.localeCompare(
-                                    item2.key));
+                            propTextArr.sort((item1, item2) => item1.key.localeCompare(item2.key));
                             propTextArr.forEach(function (item) {
                                 if (item.key) {
                                     //use string \n to display as new line
@@ -125,11 +123,8 @@ diff_item_module.controller("DiffItemController",
                             namespace.originTextInfo = propTextInfo
                         }
                         res.forEach(function (item) {
-                            const itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key]
-                                || {};
-                            itemsKeyedByClusterName[namespace.env + ':'
-                            + namespace.clusterName + ':'
-                            + namespace.namespaceName] = item;
+                            const itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
+                            itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
                             $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
                         })
                         //After loading all the compared namespaces, check whether the values are consistent
@@ -140,14 +135,11 @@ diff_item_module.controller("DiffItemController",
                                     let lastValue = null;
                                     let allEqualed = true;
                                     // some namespace lack key,determined as not allEqual
-                                    if (Object.keys(
-                                            $scope.itemsKeyedByKey[key]).length
-                                        !== namespaceCnt) {
+                                    if (Object.keys($scope.itemsKeyedByKey[key]).length !== namespaceCnt) {
                                         allEqualed = false;
                                     } else {
                                         // check key items allEqual
-                                        Object.values(
-                                            $scope.itemsKeyedByKey[key]).forEach(
+                                        Object.values($scope.itemsKeyedByKey[key]).forEach(
                                             function (item) {
                                                 if (lastValue == null) {
                                                     lastValue = item.value;
