@@ -43,6 +43,7 @@ diff_item_module.controller("DiffItemController",
             $scope.itemsKeyedByKey = {};
             $scope.allNamespaceValueEqualed = {};
             $scope.isTableDiff = true;
+            $scope.isPropertiesFormat = true;
 
             $scope.syncData = {
                 syncToNamespaces: [],
@@ -66,48 +67,75 @@ diff_item_module.controller("DiffItemController",
                         namespace.env,
                         namespace.clusterName,
                         namespace.namespaceName).then(function (result) {
-                            loadedNamespaceCnt ++;
-                            const suffixArray = namespace.namespaceName.match(/[^.]+$/);
-                            result.forEach(function (originItem) {
-                                if (originItem.key === "") {
-                                    return
-                                }
-                                let res = [];
-                                // prop
-                                if (suffixArray.length === 0) {
-                                    res.push(originItem)
+                        loadedNamespaceCnt ++;
+                        let suffix = ''
+                        if (namespace.namespaceName.includes('.')){
+                            suffix = namespace.namespaceName.match(/[^.]+$/)[0];
+                            $scope.isPropertiesFormat = false
+                        }
+                        let res = [];
+                        let propTextInfo = "";
+                        let propTextArr = [];
+
+                        result.forEach(function (originItem) {
+                            if (originItem.key === "") {
+                                return
+                            }
+                            // prop
+                            if (suffix === '') {
+                                res.push(originItem)
+                                propTextArr.push(originItem)
+
+                            } else {
+                                namespace.originTextInfo = originItem.value
+                                if (suffix === 'yml') {
+                                    res = Obj2Prop(
+                                        YAML.parse(originItem.value))
+                                } else if (suffix === 'json') {
+                                    res = Obj2Prop(
+                                        JSON.parse(originItem.value))
+                                } else if (suffix === 'xml') {
+                                    const x2js = new X2JS();
+                                    res = Obj2Prop(
+                                        x2js.xml_str2json(originItem.value))
                                 } else {
-                                    namespace.originTextInfo = originItem.value
-                                    const suffix = suffixArray[0];
-                                    if (suffix === 'yml') {
-                                        res = Obj2Prop(
-                                            YAML.parse(originItem.value))
-                                    } else if (suffix === 'json') {
-                                        res = Obj2Prop(
-                                            JSON.parse(originItem.value))
-                                    } else if (suffix === 'xml') {
-                                        const x2js = new X2JS();
-                                        res = Obj2Prop(
-                                            x2js.xml_str2json(originItem.value))
-                                    } else {
-                                        //txt
-                                        res.push(originItem)
-                                    }
+                                    //txt
+                                    res.push(originItem)
                                 }
+                            }
+                        });
+                        // For prop textDiff,need parse prop to text
+                        if (suffix === '') {
+                            // to align key
+                            propTextArr.sort((item1, item2) => item1.key.localeCompare(item2.key));
+                            propTextArr.forEach(function (item){
+                                if (item.key) {
+                                    //use string \n to display as new line
+                                    var itemValue = item.value.replace(/\n/g, "\\n");
 
-                                res.forEach(function (item){
-                                    const itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
-                                    itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
-                                    $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
-                                })
+                                    propTextInfo += item.key + " = " + itemValue + "\n";
+                                } else {
+                                    propTextInfo += item.comment + "\n";
+                                }
                             });
-
-                            //After loading all the compared namespaces, check whether the values are consistent
-                            //itemsKeyedByKey struct : itemKey => namespace => item
-                            if (loadedNamespaceCnt === namespaceCnt) {
-                                Object.keys($scope.itemsKeyedByKey).forEach(function (key) {
-                                    let lastValue = null;
-                                    let allEqualed = true;
+                            namespace.originTextInfo = propTextInfo
+                        }
+                        res.forEach(function (item){
+                            const itemsKeyedByClusterName = $scope.itemsKeyedByKey[item.key] || {};
+                            itemsKeyedByClusterName[namespace.env + ':' + namespace.clusterName + ':' + namespace.namespaceName] = item;
+                            $scope.itemsKeyedByKey[item.key] = itemsKeyedByClusterName;
+                        })
+                        //After loading all the compared namespaces, check whether the values are consistent
+                        //itemsKeyedByKey struct : itemKey => namespace => item
+                        if (loadedNamespaceCnt === namespaceCnt) {
+                            Object.keys($scope.itemsKeyedByKey).forEach(function (key) {
+                                let lastValue = null;
+                                let allEqualed = true;
+                                // some namespace lack key,determined as not allEqual
+                                if (Object.keys($scope.itemsKeyedByKey[key]).length !== namespaceCnt){
+                                    allEqualed = false;
+                                }else{
+                                    // check key items allEqual
                                     Object.values($scope.itemsKeyedByKey[key]).forEach(function (item) {
                                         if (lastValue == null) {
                                             lastValue = item.value;
@@ -116,10 +144,11 @@ diff_item_module.controller("DiffItemController",
                                             allEqualed = false;
                                         }
                                     })
-                                    $scope.allNamespaceValueEqualed[key]=allEqualed;
-                                })
-                            }
-                        });
+                                }
+                                $scope.allNamespaceValueEqualed[key] = allEqualed;
+                            })
+                        }
+                    });
                 });
                 $scope.syncItemNextStep(1);
             }
