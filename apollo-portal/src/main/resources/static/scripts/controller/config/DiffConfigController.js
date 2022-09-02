@@ -111,11 +111,9 @@ diff_item_module.controller("DiffItemController",
                             propTextArr.forEach(function (item) {
                                 if (item.key) {
                                     //use string \n to display as new line
-                                    var itemValue = item.value.replace(/\n/g,
-                                        "\\n");
+                                    var itemValue = item.value.replace(/\n/g, "\\n");
 
-                                    propTextInfo += item.key + " = " + itemValue
-                                        + "\n";
+                                    propTextInfo += item.key + " = " + itemValue + "\n";
                                 } else {
                                     propTextInfo += item.comment + "\n";
                                 }
