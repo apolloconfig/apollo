@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.api;
 
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.common.utils.UrlUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
 import org.springframework.boot.actuate.health.Health;
@@ -30,9 +31,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -189,9 +192,8 @@ public class AdminServiceAPI {
     }
 
     public ItemDTO loadItemByEncodeKey(Env env, String appId, String clusterName, String namespaceName, String key) {
-      key = new String(Base64.getEncoder().encode(key.getBytes(StandardCharsets.UTF_8)));
       return restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodeItems/{key}",
-              ItemDTO.class, appId, clusterName, namespaceName, key);
+              ItemDTO.class, appId, clusterName, namespaceName, UrlUtils.encode(key));
     }
 
     public ItemDTO loadItemById(Env env, long itemId) {

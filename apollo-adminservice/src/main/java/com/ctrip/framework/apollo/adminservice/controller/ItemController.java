@@ -31,12 +31,13 @@ import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.common.utils.UrlUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -233,8 +234,7 @@ public class ItemController {
   public ItemDTO getByEncodeKey(@PathVariable("appId") String appId,
                      @PathVariable("clusterName") String clusterName,
                      @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
-    key = new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8)));
-    return this.get(appId,clusterName,namespaceName,key);
+    return this.get(appId,clusterName,namespaceName, UrlUtils.decode(key));
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")

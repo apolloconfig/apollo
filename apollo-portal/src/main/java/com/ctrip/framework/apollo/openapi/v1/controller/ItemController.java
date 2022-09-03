@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
+import com.ctrip.framework.apollo.common.utils.UrlUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
@@ -42,8 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Validated
 @RestController("openapiItemController")
@@ -72,8 +71,7 @@ public class ItemController {
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodeItems/{key:.+}")
   public OpenItemDTO getItemByEncodeKey(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
                              @PathVariable String namespaceName, @PathVariable String key) {
-    key = new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8)));
-    return this.getItem(appId, env, clusterName, namespaceName, key);
+    return this.getItem(appId, env, clusterName, namespaceName, UrlUtils.decode(key));
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -133,8 +131,7 @@ public class ItemController {
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
                          @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request){
-    key = new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8)));
-    this.updateItem(appId,env,clusterName,namespaceName,key,item,createIfNotExists,request);
+    this.updateItem(appId,env,clusterName,namespaceName,UrlUtils.decode(key),item,createIfNotExists,request);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -162,8 +159,7 @@ public class ItemController {
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestParam String operator,
                          HttpServletRequest request) {
-    key = new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8)));
-    this.deleteItem(appId,env,clusterName,namespaceName,key,operator,request);
+    this.deleteItem(appId,env,clusterName,namespaceName,UrlUtils.decode(key),operator,request);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")

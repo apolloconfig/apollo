@@ -16,14 +16,16 @@
  */
 package com.ctrip.framework.apollo.openapi.client.url;
 
-import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
+import com.ctrip.framework.apollo.common.utils.UrlUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OpenApiPathBuilder {
 
@@ -84,10 +86,9 @@ public class OpenApiPathBuilder {
   }
 
   public OpenApiPathBuilder itemsPathVal(String items) {
-    if(UrlUtils.hasIllegalChar(items)){
-      items = new String(Base64.getUrlEncoder().encode(items.getBytes(StandardCharsets.UTF_8)));
-      pathVariable.put(ENCODE_ITEMS_PATH, items);
-    }else{
+    if (UrlUtils.hasIllegalChar(items)) {
+      pathVariable.put(ENCODE_ITEMS_PATH, UrlUtils.encode(items));
+    } else {
       pathVariable.put(ITEMS_PATH, escapePath(items));
     }
 

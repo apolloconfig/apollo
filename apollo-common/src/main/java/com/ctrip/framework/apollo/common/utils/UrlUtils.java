@@ -14,10 +14,12 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.utils;
+package com.ctrip.framework.apollo.common.utils;
 
 import com.google.common.base.Strings;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +27,7 @@ import java.util.regex.Pattern;
  * @author Abner
  * @since  8/31/22
  */
-public class UrlUtils {
+public final class UrlUtils {
     private static final String ILLEGAL_KEY_REGEX = "[/\\\\]+|^\\.";
 
     private UrlUtils() {}
@@ -38,4 +40,13 @@ public class UrlUtils {
         final Matcher matcher = pattern.matcher(key);
         return matcher.find();
     }
+
+    public static String encode(String key){
+        return new String(Base64.getEncoder().encode(key.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public static String decode(String key){
+        return new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8)));
+    }
+
 }
