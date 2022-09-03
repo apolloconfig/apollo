@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -185,6 +186,12 @@ public class AdminServiceAPI {
     public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
       return restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}",
           ItemDTO.class, appId, clusterName, namespaceName, key);
+    }
+
+    public ItemDTO loadItemByEncodeKey(Env env, String appId, String clusterName, String namespaceName, String key) {
+      key = new String(Base64.getEncoder().encode(key.getBytes(StandardCharsets.UTF_8)));
+      return restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodeItems/{key}",
+              ItemDTO.class, appId, clusterName, namespaceName, key);
     }
 
     public ItemDTO loadItemById(Env env, long itemId) {

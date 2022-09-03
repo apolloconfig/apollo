@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ItemAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.NamespaceAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ReleaseAPI;
@@ -169,6 +170,9 @@ public class ItemService {
   }
 
   public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
+    if(UrlUtils.hasIllegalChar(key)){
+      return itemAPI.loadItemByEncodeKey(env,appId,clusterName,namespaceName,key);
+    }
     return itemAPI.loadItem(env, appId, clusterName, namespaceName, key);
   }
 

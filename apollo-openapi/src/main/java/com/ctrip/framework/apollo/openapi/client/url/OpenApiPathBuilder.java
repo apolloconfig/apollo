@@ -16,15 +16,14 @@
  */
 package com.ctrip.framework.apollo.openapi.client.url;
 
+import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.escape.Escaper;
 import com.google.common.net.UrlEscapers;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class OpenApiPathBuilder {
 
@@ -34,11 +33,12 @@ public class OpenApiPathBuilder {
   private static final String CLUSTERS_PATH = "clusters";
   private static final String NAMESPACES_PATH = "namespaces";
   private static final String ITEMS_PATH = "items";
+  private static final String ENCODE_ITEMS_PATH = "encodeItems";
   private static final String RELEASE_PATH = "releases";
 
   private final static List<String> SORTED_PATH_KEYS = Arrays.asList(ENVS_PATH, ENV_PATH, APPS_PATH,
       CLUSTERS_PATH,
-      NAMESPACES_PATH, ITEMS_PATH, RELEASE_PATH);
+      NAMESPACES_PATH, ITEMS_PATH, ENCODE_ITEMS_PATH, RELEASE_PATH);
 
   private static final Escaper PATH_ESCAPER = UrlEscapers.urlPathSegmentEscaper();
   private static final Escaper QUERY_PARAM_ESCAPER = UrlEscapers.urlFormParameterEscaper();
@@ -84,7 +84,13 @@ public class OpenApiPathBuilder {
   }
 
   public OpenApiPathBuilder itemsPathVal(String items) {
-    pathVariable.put(ITEMS_PATH, escapePath(items));
+    if(UrlUtils.hasIllegalChar(items)){
+      items = new String(Base64.getUrlEncoder().encode(items.getBytes(StandardCharsets.UTF_8)));
+      pathVariable.put(ENCODE_ITEMS_PATH, items);
+    }else{
+      pathVariable.put(ITEMS_PATH, escapePath(items));
+    }
+
     return this;
   }
 
