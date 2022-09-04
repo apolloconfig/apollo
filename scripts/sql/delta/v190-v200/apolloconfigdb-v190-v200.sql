@@ -37,7 +37,6 @@ ALTER TABLE `GrayReleaseRule`
 
 ALTER TABLE `Item`
     ADD COLUMN `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds' AFTER `IsDeleted`,
-    ADD COLUMN `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '配置项类型，0: String，1: Number，2: Boolean，3: Json' AFTER `Key`,
     ADD INDEX IX_key (`Key`);
 
 ALTER TABLE `Namespace`
