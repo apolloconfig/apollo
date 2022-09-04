@@ -89,13 +89,13 @@
                             <div class="col-sm-6">
                                 <div class="radio-inline">
                                     <label >
-                                        <input type="radio" name="tableDiff" ng-click="isTableDiff" checked="true" ng-checked="isTableDiff">
+                                        <input type="radio" name="tableDiff" ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
                                         {{'Config.Diff.TableDiff' | translate }}
                                     </label>
                                 </div>
                                 <div class="radio-inline">
                                     <label >
-                                        <input type="radio" name="tableDiff" ng-click="!isTableDiff" ng-checked="!isTableDiff">
+                                        <input type="radio" name="tableDiff" ng-click="isTableDiff = false" ng-checked="!isTableDiff">
                                         {{'Config.Diff.TextDiff' | translate }}
                                     </label>
                                 </div>
@@ -115,7 +115,7 @@
                                            ng-model="searchKey"
                                            placeholder="{{'Config.Diff.SearchKey' | translate }}">
                                 </label>
-                                <label class="control-label">
+                                <label class="control-label" ng-show="isPropertiesFormat">
                                     <input type="checkbox" class="comment-toggle" ng-checked="showCommentDiff"
                                         ng-click="showCommentDiff=!showCommentDiff">
                                     {{'Config.Diff.HasDiffComment' | translate }}
