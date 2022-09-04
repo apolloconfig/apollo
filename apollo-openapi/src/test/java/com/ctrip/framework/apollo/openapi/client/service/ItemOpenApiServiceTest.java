@@ -21,8 +21,9 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -73,6 +74,26 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
     assertEquals(String
         .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s", someBaseUrl, someEnv,
             someAppId, someCluster, someNamespace, someKey), get.getURI().toString());
+  }
+
+  @Test
+  public void testGetItemByIllegalKey() throws Exception {
+    String someKey = "/";
+
+    final ArgumentCaptor<HttpGet> request = ArgumentCaptor.forClass(HttpGet.class);
+
+    itemOpenApiService.getItem(someAppId, someEnv, someCluster, someNamespace, someKey);
+
+    verify(httpClient, times(1)).execute(request.capture());
+
+    HttpGet get = request.getValue();
+
+    assertEquals(String
+            .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/encodedItems/%s", someBaseUrl,
+                someEnv,
+                someAppId, someCluster, someNamespace,
+                new String(Base64.getEncoder().encode(someKey.getBytes(StandardCharsets.UTF_8)))),
+        get.getURI().toString());
   }
 
   @Test
@@ -153,6 +174,33 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
             someNamespace, someKey), put.getURI().toString());
   }
 
+  @Test
+  public void testUpdateItemByIllegalKey() throws Exception {
+    String someKey = "\\";
+    String someValue = "someValue";
+    String someModifiedBy = "someModifiedBy";
+
+    OpenItemDTO itemDTO = new OpenItemDTO();
+    itemDTO.setKey(someKey);
+    itemDTO.setValue(someValue);
+    itemDTO.setDataChangeLastModifiedBy(someModifiedBy);
+
+    final ArgumentCaptor<HttpPut> request = ArgumentCaptor.forClass(HttpPut.class);
+
+    itemOpenApiService.updateItem(someAppId, someEnv, someCluster, someNamespace, itemDTO);
+
+    verify(httpClient, times(1)).execute(request.capture());
+
+    HttpPut put = request.getValue();
+
+    assertEquals(String
+            .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/encodedItems/%s", someBaseUrl,
+                someEnv, someAppId, someCluster,
+                someNamespace,
+                new String(Base64.getEncoder().encode(someKey.getBytes(StandardCharsets.UTF_8)))),
+        put.getURI().toString());
+  }
+
   @Test(expected = RuntimeException.class)
   public void testUpdateItemWithError() throws Exception {
     String someKey = "someKey";
@@ -225,6 +273,27 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
     assertEquals(String
         .format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/items/%s?operator=%s", someBaseUrl, someEnv,
             someAppId, someCluster, someNamespace, someKey, someOperator), delete.getURI().toString());
+  }
+
+  @Test
+  public void testRemoveItemByIllegalKey() throws Exception {
+    String someKey = ".";
+    String someOperator = "someOperator";
+
+    final ArgumentCaptor<HttpDelete> request = ArgumentCaptor.forClass(HttpDelete.class);
+
+    itemOpenApiService.removeItem(someAppId, someEnv, someCluster, someNamespace, someKey,
+        someOperator);
+
+    verify(httpClient, times(1)).execute(request.capture());
+
+    HttpDelete delete = request.getValue();
+
+    assertEquals(
+        String.format("%s/envs/%s/apps/%s/clusters/%s/namespaces/%s/encodedItems/%s?operator=%s",
+            someBaseUrl, someEnv, someAppId, someCluster, someNamespace,
+            new String(Base64.getEncoder().encode(someKey.getBytes(StandardCharsets.UTF_8))),
+            someOperator), delete.getURI().toString());
   }
 
   @Test(expected = RuntimeException.class)

@@ -31,8 +31,9 @@ import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.common.utils.UrlUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -40,7 +41,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class ItemController {
@@ -230,11 +238,12 @@ public class ItemController {
     return BeanUtils.transform(ItemDTO.class, item);
   }
 
-  @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodeItems/{key:.+}")
-  public ItemDTO getByEncodeKey(@PathVariable("appId") String appId,
-                     @PathVariable("clusterName") String clusterName,
-                     @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
-    return this.get(appId,clusterName,namespaceName, UrlUtils.decode(key));
+  @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public ItemDTO getByEncodedKey(@PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
+    return this.get(appId, clusterName, namespaceName,
+        new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")

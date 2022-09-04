@@ -38,10 +38,6 @@
       <artifactId>apollo-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.ctrip.framework.apollo</groupId>
-      <artifactId>apollo-common</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <exclusions>
