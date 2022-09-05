@@ -346,7 +346,8 @@ CREATE TABLE `ReleaseHistory` (
   PRIMARY KEY (`Id`),
   KEY `IX_Namespace` (`AppId`,`ClusterName`,`NamespaceName`,`BranchName`),
   KEY `IX_ReleaseId` (`ReleaseId`),
-  KEY `IX_DataChange_LastTime` (`DataChange_LastTime`)
+  KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
+  KEY `IX_PreviousReleaseId` (`PreviousReleaseId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='发布历史';
 
 
