@@ -21,4 +21,4 @@ Use ApolloConfigDB;
 CREATE INDEX IX_PreviousReleaseId ON ReleaseHistory(PreviousReleaseId);
 
 ALTER TABLE `Item`
-    ADD COLUMN `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '配置项类型，0: String，1: Number，2: Boolean，3: Json' AFTER `Key`;
+    ADD COLUMN `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '配置项类型，0: String，1: Number，2: Boolean，3: JSON' AFTER `Key`;
