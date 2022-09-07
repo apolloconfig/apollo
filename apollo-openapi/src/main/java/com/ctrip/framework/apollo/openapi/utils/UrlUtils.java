@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 public final class UrlUtils {
 
-    private static final String ILLEGAL_KEY_REGEX = "[/\\\\]+|^\\.";
+    private static final String ILLEGAL_KEY_REGEX = "[/\\\\]+";
     private static final Pattern ILLEGAL_KEY_PATTERN = Pattern.compile(ILLEGAL_KEY_REGEX,
         Pattern.MULTILINE);
 

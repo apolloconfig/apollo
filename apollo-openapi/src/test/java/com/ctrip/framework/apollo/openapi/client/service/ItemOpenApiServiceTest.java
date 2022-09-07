@@ -78,7 +78,7 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
   @Test
   public void testGetItemByIllegalKey() throws Exception {
-    String someKey = "/";
+    String someKey = "protocol//:host:port";
 
     final ArgumentCaptor<HttpGet> request = ArgumentCaptor.forClass(HttpGet.class);
 
@@ -176,7 +176,7 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
   @Test
   public void testUpdateItemByIllegalKey() throws Exception {
-    String someKey = "\\";
+    String someKey = "hello\\world";
     String someValue = "someValue";
     String someModifiedBy = "someModifiedBy";
 
@@ -277,7 +277,7 @@ public class ItemOpenApiServiceTest extends AbstractOpenApiServiceTest {
 
   @Test
   public void testRemoveItemByIllegalKey() throws Exception {
-    String someKey = ".";
+    String someKey = "protocol//:host:port";
     String someOperator = "someOperator";
 
     final ArgumentCaptor<HttpDelete> request = ArgumentCaptor.forClass(HttpDelete.class);

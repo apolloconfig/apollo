@@ -171,7 +171,7 @@ public class ItemService {
 
   public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
     if (UrlUtils.hasIllegalChar(key)) {
-      return itemAPI.loadItemByEncodeKey(env,appId,clusterName,namespaceName,key);
+      return itemAPI.loadItemByEncodeKey(env, appId, clusterName, namespaceName, key);
     }
     return itemAPI.loadItem(env, appId, clusterName, namespaceName, key);
   }
