@@ -90,8 +90,8 @@ public class OpenApiPathBuilder {
 
   public OpenApiPathBuilder itemsPathVal(String items) {
     if (UrlUtils.hasIllegalChar(items)) {
-      pathVariable.put(ENCODED_ITEMS_PATH,
-          new String(Base64.getEncoder().encode(items.getBytes(StandardCharsets.UTF_8))));
+      items = new String(Base64.getEncoder().encode(items.getBytes(StandardCharsets.UTF_8)));
+      pathVariable.put(ENCODED_ITEMS_PATH, escapePath(items));
     } else {
       pathVariable.put(ITEMS_PATH, escapePath(items));
     }
