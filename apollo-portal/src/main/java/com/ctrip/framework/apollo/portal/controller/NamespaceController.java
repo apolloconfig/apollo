@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.common.http.RichResponseEntity;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
@@ -38,6 +39,7 @@ import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,16 +170,28 @@ public class NamespaceController {
   }
 
   @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
-  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
-  public ResponseEntity<Void> deleteNamespace(@PathVariable String appId, @PathVariable String env,
-                                              @PathVariable String clusterName, @PathVariable String namespaceName) {
+  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/linked-namespaces/{namespaceName:.+}")
+  public ResponseEntity<Void> deleteLinkedNamespace(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
 
     namespaceService.deleteNamespace(appId, Env.valueOf(env), clusterName, namespaceName);
 
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/linked-namespaces/{namespaceName}/usage")
+  public List<NamespaceUsage> findLinkedNamespaceUsage(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
+    NamespaceUsage usage = namespaceService.getNamespaceUsageByEnv(appId, namespaceName, Env.valueOf(env), clusterName);
+    return Lists.newArrayList(usage);
+  }
+
+  @GetMapping("/apps/{appId}/namespaces/{namespaceName}/usage")
+  public List<NamespaceUsage> findNamespaceUsage(@PathVariable String appId, @PathVariable String namespaceName) {
+    return namespaceService.getNamespaceUsageByAppId(appId, namespaceName);
+  }
+
+  @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
   public ResponseEntity<Void> deleteAppNamespace(@PathVariable String appId, @PathVariable String namespaceName) {
 

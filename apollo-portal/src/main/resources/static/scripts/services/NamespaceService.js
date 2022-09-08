@@ -35,9 +35,9 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
             method: 'GET',
             url: AppUtil.prefixPath() + '/apps/:appId/namespaces/publish_info'
         },
-        deleteNamespace: {
+        deleteLinkedNamespace: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/linked-namespaces/:namespaceName'
         },
         getPublicAppNamespaceAllNamespaces: {
             method: 'GET',
@@ -51,6 +51,16 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         deleteAppNamespace: {
             method: 'DELETE',
             url: AppUtil.prefixPath() + '/apps/:appId/appnamespaces/:namespaceName'
+        },
+        getLinkedNamespaceUsage: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/linked-namespaces/:namespaceName/usage',
+            isArray: true
+        },
+        getNamespaceUsage: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/usage',
+            isArray: true
         }
     });
 
@@ -102,20 +112,20 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         return d.promise;
     }
 
-    function deleteNamespace(appId, env, clusterName, namespaceName) {
+    function deleteLinkedNamespace(appId, env, clusterName, namespaceName) {
         var d = $q.defer();
-        namespace_source.deleteNamespace({
-                                             appId: appId,
-                                             env: env,
-                                             clusterName: clusterName,
-                                             namespaceName: namespaceName
-                                         },
-                                         function (result) {
-                                             d.resolve(result);
-                                         },
-                                         function (result) {
-                                             d.reject(result);
-                                         });
+        namespace_source.deleteLinkedNamespace({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                namespaceName: namespaceName
+            },
+            function (result) {
+                d.resolve(result);
+            },
+            function (result) {
+                d.reject(result);
+            });
 
         return d.promise;
     }
@@ -169,15 +179,49 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         return d.promise;
     }
 
+    function getLinkedNamespaceUsage(appId, env, clusterName, namespaceName) {
+        var d = $q.defer();
+        namespace_source.getLinkedNamespaceUsage({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                namespaceName: namespaceName
+            },
+            function (result) {
+                d.resolve(result);
+            },
+            function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
+    function getNamespaceUsage(appId, namespaceName) {
+        var d = $q.defer();
+        namespace_source.getNamespaceUsage({
+                appId: appId,
+                namespaceName: namespaceName
+            },
+            function (result) {
+                d.resolve(result);
+            },
+            function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
     return {
         find_public_namespaces: find_public_namespaces,
         createNamespace: createNamespace,
         createAppNamespace: createAppNamespace,
         getNamespacePublishInfo: getNamespacePublishInfo,
-        deleteNamespace: deleteNamespace,
+        deleteLinkedNamespace: deleteLinkedNamespace,
         getPublicAppNamespaceAllNamespaces: getPublicAppNamespaceAllNamespaces,
         loadAppNamespace: loadAppNamespace,
-        deleteAppNamespace: deleteAppNamespace
+        deleteAppNamespace: deleteAppNamespace,
+        getLinkedNamespaceUsage: getLinkedNamespaceUsage,
+        getNamespaceUsage: getNamespaceUsage
     }
 
 }]);
