@@ -175,6 +175,12 @@
                     </ul>
                 </div>
                 <div class="col-md-6 col-sm-6 text-right">
+                    <img src="img/compare.png" class="ns_btn clipboard cursor-pointer"
+                         data-tooltip="tooltip" data-placement="bottom"
+                         title="{{'Component.Namespace.Master.Items.DiffItemTips' | translate }}"
+                         ng-click="goToDiffPage(namespace)"
+                         ng-show="namespace.displayControl.currentOperateBranch == 'master' && !namespace.isPropertiesFormat && !namespace.isTextEditing">
+                    &nbsp;
                     <img src="img/copy.png" class="ns_btn clipboard cursor-pointer"
                         data-clipboard-text="{{namespace.text}}" data-tooltip="tooltip" data-placement="bottom"
                         title="{{'Component.Namespace.Master.Items.CopyText' | translate }}"

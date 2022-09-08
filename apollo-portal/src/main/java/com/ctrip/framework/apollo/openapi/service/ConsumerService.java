@@ -146,6 +146,7 @@ public class ConsumerService {
     return consumerRepository.findById(consumerId).orElse(null);
   }
 
+  @Transactional
   public List<ConsumerRole> assignNamespaceRoleToConsumer(String token, String appId, String namespaceName) {
     return assignNamespaceRoleToConsumer(token, appId, namespaceName, null);
   }

@@ -27,13 +27,13 @@ import com.ctrip.framework.apollo.spring.property.SpringValueRegistry;
 import com.ctrip.framework.apollo.spring.util.SpringInjector;
 import com.ctrip.framework.apollo.util.ConfigUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Set;
-
-import com.google.common.collect.Sets;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -120,12 +120,7 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     String[] namespaces = annotation.value();
     String[] annotatedInterestedKeys = annotation.interestedKeys();
     String[] annotatedInterestedKeyPrefixes = annotation.interestedKeyPrefixes();
-    ConfigChangeListener configChangeListener = new ConfigChangeListener() {
-      @Override
-      public void onChange(ConfigChangeEvent changeEvent) {
-        ReflectionUtils.invokeMethod(method, bean, changeEvent);
-      }
-    };
+    ConfigChangeListener configChangeListener = changeEvent -> ReflectionUtils.invokeMethod(method, bean, changeEvent);
 
     Set<String> interestedKeys =
         annotatedInterestedKeys.length > 0 ? Sets.newHashSet(annotatedInterestedKeys) : null;
@@ -145,18 +140,15 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     }
   }
 
-
   private void processApolloJsonValue(Object bean, String beanName, Field field) {
     ApolloJsonValue apolloJsonValue = AnnotationUtils.getAnnotation(field, ApolloJsonValue.class);
     if (apolloJsonValue == null) {
       return;
     }
-    String placeholder = apolloJsonValue.value();
-    Object propertyValue = placeholderHelper
-        .resolvePropertyValue(this.configurableBeanFactory, beanName, placeholder);
 
-    // propertyValue will never be null, as @ApolloJsonValue will not allow that
-    if (!(propertyValue instanceof String)) {
+    String placeholder = apolloJsonValue.value();
+    Object propertyValue = this.resolvePropertyValue(beanName, placeholder);
+    if (propertyValue == null) {
       return;
     }
 
@@ -181,19 +173,16 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     if (apolloJsonValue == null) {
       return;
     }
+
     String placeHolder = apolloJsonValue.value();
-
-    Object propertyValue = placeholderHelper
-        .resolvePropertyValue(this.configurableBeanFactory, beanName, placeHolder);
-
-    // propertyValue will never be null, as @ApolloJsonValue will not allow that
-    if (!(propertyValue instanceof String)) {
+    Object propertyValue = this.resolvePropertyValue(beanName, placeHolder);
+    if (propertyValue == null) {
       return;
     }
 
     Type[] types = method.getGenericParameterTypes();
     Preconditions.checkArgument(types.length == 1,
-        "Ignore @Value setter {}.{}, expecting 1 parameter, actual {} parameters",
+        "Ignore @ApolloJsonValue setter {}.{}, expecting 1 parameter, actual {} parameters",
         bean.getClass().getName(), method.getName(), method.getParameterTypes().length);
 
     boolean accessible = method.isAccessible();
@@ -204,12 +193,24 @@ public class ApolloAnnotationProcessor extends ApolloProcessor implements BeanFa
     if (configUtil.isAutoUpdateInjectedSpringPropertiesEnabled()) {
       Set<String> keys = placeholderHelper.extractPlaceholderKeys(placeHolder);
       for (String key : keys) {
-        SpringValue springValue = new SpringValue(key, apolloJsonValue.value(), bean, beanName,
-            method, true);
+        SpringValue springValue = new SpringValue(key, placeHolder, bean, beanName, method, true);
         springValueRegistry.register(this.configurableBeanFactory, key, springValue);
         logger.debug("Monitoring {}", springValue);
       }
     }
+  }
+
+  @Nullable
+  private Object resolvePropertyValue(String beanName, String placeHolder) {
+    Object propertyValue = placeholderHelper
+        .resolvePropertyValue(this.configurableBeanFactory, beanName, placeHolder);
+
+    // propertyValue will never be null, as @ApolloJsonValue will not allow that
+    if (!(propertyValue instanceof String)) {
+      return null;
+    }
+
+    return propertyValue;
   }
 
   private Object parseJsonValue(String json, Type targetType) {

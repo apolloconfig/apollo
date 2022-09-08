@@ -16,12 +16,14 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -40,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -67,6 +70,10 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   private UserInfoHolder userInfoHolder;
   @Mock
   private AdditionalUserInfoEnrichService additionalUserInfoEnrichService;
+  @Mock
+  private PortalSettings portalSettings;
+  @Mock
+  private ClusterService clusterService;
 
   @InjectMocks
   private NamespaceService namespaceService;
@@ -156,51 +163,38 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName, testNamespaceName, operator);
   }
 
-  @Test(expected = BadRequestException.class)
-  public void testDeleteNamespaceHasInstance() {
-    AppNamespace publicNamespace = createAppNamespace(testAppId, testNamespaceName, true);
-
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
-        .thenReturn(10);
-
-    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
-
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void testDeleteNamespaceBranchHasInstance() {
-    AppNamespace publicNamespace = createAppNamespace(testAppId, testNamespaceName, true);
-    String branchName = "branch";
-    NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
-
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
-        .thenReturn(0);
-    when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(10);
-
-    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
-
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void testDeleteNamespaceWithAssociatedNamespace() {
+  @Test
+  public void testGetNamespaceUsage() {
     AppNamespace publicNamespace = createAppNamespace(testAppId, testNamespaceName, true);
     String branchName = "branch";
 
     NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
 
+    when(portalSettings.getActiveEnvs()).thenReturn(Lists.newArrayList(testEnv));
+    ClusterDTO cluster = new ClusterDTO();
+    cluster.setName(testClusterName);
+    cluster.setAppId(testAppId);
+    when(clusterService.findClusters(testEnv, testAppId)).thenReturn(Lists.newArrayList(cluster));
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
     when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
-        .thenReturn(0);
+        .thenReturn(8);
     when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(9);
     when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicNamespace);
 
-   when(namespaceAPI.countPublicAppNamespaceAssociatedNamespaces(testEnv, testNamespaceName)).thenReturn(10);
+    when(namespaceAPI.countPublicAppNamespaceAssociatedNamespaces(testEnv, testNamespaceName)).thenReturn(10);
 
-    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
+    List<NamespaceUsage> usages = namespaceService.getNamespaceUsageByAppId(testAppId, testNamespaceName);
+    assertThat(usages).asList().hasSize(1);
+    assertThat(usages.get(0).getInstanceCount()).isEqualTo(8);
+    assertThat(usages.get(0).getBranchInstanceCount()).isEqualTo(9);
+    assertThat(usages.get(0).getLinkedNamespaceCount()).isEqualTo(10);
+
+    NamespaceUsage usage = namespaceService.getNamespaceUsageByEnv(testAppId, testNamespaceName, testEnv, testClusterName);
+    assertThat(usage).isNotNull();
+    assertThat(usage.getInstanceCount()).isEqualTo(8);
+    assertThat(usage.getBranchInstanceCount()).isEqualTo(9);
+    assertThat(usage.getLinkedNamespaceCount()).isEqualTo(0);
   }
 
   @Test
