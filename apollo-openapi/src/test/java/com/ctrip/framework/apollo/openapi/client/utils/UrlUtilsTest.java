@@ -26,17 +26,29 @@ import org.junit.Test;
  * @author huanghousheng
  * @since 9/7/22
  */
-public class UrlUtilsTest {
+public class  UrlUtilsTest {
 
   @Test
-  public void testHasIllegalChar() {
+  public void testSlash() {
     String someKey = "protocol//:host:port";
     assertTrue(UrlUtils.hasIllegalChar(someKey));
   }
 
   @Test
-  public void testNotHasIllegalChar() {
+  public void testBackslash() {
+    String someKey = "a\\c";
+    assertTrue(UrlUtils.hasIllegalChar(someKey));
+  }
+
+  @Test
+  public void testNormalKey() {
     String someKey = "someKey";
+    assertFalse(UrlUtils.hasIllegalChar(someKey));
+  }
+
+  @Test
+  public void testDot() {
+    String someKey = "a.b";
     assertFalse(UrlUtils.hasIllegalChar(someKey));
   }
 
