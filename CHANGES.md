@@ -30,6 +30,7 @@ Apollo 2.1.0
 * [Add index for table ReleaseHistory](https://github.com/apolloconfig/apollo/pull/4550)
 * [add an option to custom oidc userDisplayName](https://github.com/apolloconfig/apollo/pull/4507)
 * [fix openapi item with url illegalKey 400 error](https://github.com/apolloconfig/apollo/pull/4549)
+* [fix the exception occurred when publish/rollback namespaces with grayrelease](https://github.com/apolloconfig/apollo/pull/4564)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
