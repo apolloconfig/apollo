@@ -426,6 +426,9 @@
 
                                 </th>
                                 <th>
+                                    {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                </th>
+                                <th>
                                     {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
                                 </th>
                                 <th>
@@ -480,19 +483,29 @@
                                         data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
                                 </td>
-                                <td width="30%" class="cursor-pointer"
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                </td>
+                                <td width="25%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.value)">
                                     <span ng-bind="config.item.value | limitTo: 250"></span>
                                     <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
                                 </td>
-                                <td width="13%" title="{{config.item.comment}}">
+                                <td width="11%" title="{{config.item.comment}}">
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                <td width="7%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                 </td>
-                                <td width="16%"
+                                <td width="13%"
                                     ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
                                 </td>
 
@@ -581,6 +594,9 @@
 
                                         </th>
                                         <th>
+                                            {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                        </th>
+                                        <th>
                                             {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
                                         </th>
                                         <th>
@@ -614,19 +630,29 @@
                                             <span ng-bind="config.item.key | limitTo: 250"></span>
                                             <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
                                         </td>
-                                        <td width="35%" class="cursor-pointer"
+                                        <td width="7%" class="text-center">
+                                            <span ng-if="config.item.type == '0'"
+                                            >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                            <span ng-if="config.item.type == '1'"
+                                            >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                            <span ng-if="config.item.type == '2'"
+                                            >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                            <span ng-if="config.item.type == '3'"
+                                            >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                        </td>
+                                        <td width="30%" class="cursor-pointer"
                                             title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
                                             ng-click="showText(config.item.value)">
                                             <span ng-bind="config.item.value | limitTo: 250"></span>
                                             <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
                                         </td>
-                                        <td width="15%" title="{{config.item.comment}}">
+                                        <td width="13%" title="{{config.item.comment}}">
                                             <span ng-bind="config.item.comment | limitTo: 250"></span>
                                             <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                         </td>
-                                        <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                        <td width="7%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                         </td>
-                                        <td width="15%"
+                                        <td width="12%"
                                             ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
                                         </td>
 
