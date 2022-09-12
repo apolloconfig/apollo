@@ -69,7 +69,7 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public void updateItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO) {
-    // Type value should be in [0, 3]
+    // Type value should be in [0, 3], old version SDKs are compatible because default type is 0.
     Preconditions.checkArgument(itemDTO != null && itemDTO.getType() >= 0 && itemDTO.getType() <= 3);
     ItemDTO toUpdateItem = itemService
         .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
