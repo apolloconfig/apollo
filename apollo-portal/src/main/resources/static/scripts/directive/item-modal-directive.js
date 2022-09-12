@@ -40,7 +40,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             scope.collectSelectedClusters = collectSelectedClusters;
             scope.showHiddenChars = showHiddenChars;
             scope.changeType = changeType;
-            scope.verifyLoseFocus = verifyLoseFocus;
+            scope.validateItemValue = validateItemValue;
 
             $('#itemModal').on('show.bs.modal', function (e) {
                 scope.showHiddenCharsContext = false;
@@ -55,15 +55,15 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                     //校验类型为Number的时候输入框的值是否满足
                     let regNumber = /-[0-9]+(\\.[0-9]+)?|[0-9]+(\\.[0-9]+)?/;
                     if (regNumber.test(Number(scope.item.value)) === true && !(scope.item.value.trim() === '')) {
-                        scope.showNumberError = false
+                        scope.showNumberError = false;
                     } else {
-                        scope.showNumberError = true
+                        scope.showNumberError = true;
                     }
                 } else if (scope.item.type === '3') {
-                    detectJSON()
+                    detectJSON();
                 } else {
-                    scope.showNumberError = false
-                    scope.showJsonError = false
+                    scope.showNumberError = false;
+                    scope.showJsonError = false;
                 }
             }
 
@@ -174,33 +174,33 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             }
 
             function changeType() {
-                scope.showNumberError = false
-                scope.showJsonError = false
-                if (scope.item.type == '2') {
-                    scope.item.lastValue = scope.item.value
-                    scope.item.value = 'false'
+                scope.showNumberError = false;
+                scope.showJsonError = false;
+                if (scope.item.type === '2') {
+                    scope.item.lastValue = scope.item.value;
+                    scope.item.value = 'false';
                 } else {
-                    if (scope.item.lastType =='2') {
-                        scope.item.value = scope.item.lastValue
+                    if (scope.item.lastType === '2') {
+                        scope.item.value = scope.item.lastValue;
                     } else {
                         // String Number Json互相切换不做更改
                     }
                 }
-                scope.item.lastType = scope.item.type
-                verifyLoseFocus()
+                scope.item.lastType = scope.item.type;
+                validateItemValue();
             }
 
             function detectJSON() {
                 var value = scope.item.value;
                 if (!value) {
-                    scope.showJsonError = true
+                    scope.showJsonError = true;
                     return;
                 }
                 try {
                     JSON.parse(value);
-                    scope.showJsonError = false
+                    scope.showJsonError = false;
                 } catch(e) {
-                    scope.showJsonError = true
+                    scope.showJsonError = true;
                 }
             }
 
