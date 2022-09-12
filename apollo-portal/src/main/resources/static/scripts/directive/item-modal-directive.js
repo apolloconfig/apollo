@@ -39,8 +39,6 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             scope.doItem = doItem;
             scope.collectSelectedClusters = collectSelectedClusters;
             scope.showHiddenChars = showHiddenChars;
-            scope.detectJSON = detectJSON;
-            scope.check = check;
             scope.changeType = changeType;
             scope.verifyLoseFocus = verifyLoseFocus;
 
@@ -48,13 +46,6 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                 scope.showHiddenCharsContext = false;
                 scope.hiddenCharCounter = 0;
                 scope.valueWithHiddenChars = $sce.trustAsHtml('');
-                scope.showCheckJSONHint = false;
-                scope.showJSONDetectContext = false;
-                scope.jsonDetectResult = $sce.trustAsHtml('');
-            });
-
-            $('#itemModal').on('shown.bs.modal', function (e) {
-                scope.$apply("check()");
             });
 
             $("#valueEditor").textareafullscreen();
@@ -63,32 +54,16 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                 if (scope.item.type == '1') {
                     //校验类型为Number的时候输入框的值是否满足
                     let regNumber = /-[0-9]+(\\.[0-9]+)?|[0-9]+(\\.[0-9]+)?/
-                    if (regNumber.test(Number(scope.item.value)) == true) {
+                    if (regNumber.test(Number(scope.item.value)) == true && !(scope.item.value.trim() == '')) {
                         scope.showNumberError = false
                     } else {
                         scope.showNumberError = true
                     }
                 } else if (scope.item.type == '3') {
-                    checkJson(scope.item.value)
+                    detectJSON()
                 } else {
                     scope.showNumberError = false
                     scope.showJsonError = false
-                }
-            }
-            // 数字 null  字符串 true  false 是合法json 这里暂时排除掉这些内容 为了规范格式
-            function checkJson(str) {
-                if (str.trim() == 'null') {
-                    scope.showJsonError = true
-                } else {
-                    try {
-                        if (!(typeof JSON.parse(str) == 'object')) {
-                            scope.showJsonError = true
-                        } else {
-                            scope.showJsonError = false
-                        }
-                    } catch (error) {
-                        scope.showJsonError = true
-                    }
                 }
             }
 
@@ -96,10 +71,6 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
 
                 if (!scope.item.value) {
                     scope.item.value = "";
-                }
-
-                if (scope.item.type) {
-                    scope.item.type = Number(scope.item.type)
                 }
 
                 if (scope.item.tableViewOperType == TABLE_VIEW_OPER_TYPE.CREATE) {
@@ -124,19 +95,19 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                             scope.toOperationNamespace.baseInfo.clusterName,
                             scope.toOperationNamespace.baseInfo.namespaceName,
                             scope.item).then(
-                                function (result) {
-                                    toastr.success($translate.instant('ItemModal.AddedTips'));
-                                    scope.item.addItemBtnDisabled = false;
-                                    AppUtil.hideModal('#itemModal');
-                                    EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                        {
-                                            namespace: scope.toOperationNamespace
-                                        });
+                            function (result) {
+                                toastr.success($translate.instant('ItemModal.AddedTips'));
+                                scope.item.addItemBtnDisabled = false;
+                                AppUtil.hideModal('#itemModal');
+                                EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                                    {
+                                        namespace: scope.toOperationNamespace
+                                    });
 
-                                }, function (result) {
-                                    toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.AddFailed'));
-                                    scope.item.addItemBtnDisabled = false;
-                                });
+                            }, function (result) {
+                                toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.AddFailed'));
+                                scope.item.addItemBtnDisabled = false;
+                            });
                     } else {
                         if (selectedClusters.length == 0) {
                             toastr.error($translate.instant('ItemModal.PleaseChooseCluster'));
@@ -150,22 +121,22 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                                 cluster.name,
                                 scope.toOperationNamespace.baseInfo.namespaceName,
                                 scope.item).then(
-                                    function (result) {
-                                        scope.item.addItemBtnDisabled = false;
-                                        AppUtil.hideModal('#itemModal');
-                                        toastr.success(cluster.env + " , " + scope.item.key, $translate.instant('ItemModal.AddedTips'));
-                                        if (cluster.env == scope.env &&
-                                            cluster.name == scope.cluster) {
+                                function (result) {
+                                    scope.item.addItemBtnDisabled = false;
+                                    AppUtil.hideModal('#itemModal');
+                                    toastr.success(cluster.env + " , " + scope.item.key, $translate.instant('ItemModal.AddedTips'));
+                                    if (cluster.env == scope.env &&
+                                        cluster.name == scope.cluster) {
 
-                                            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                                {
-                                                    namespace: scope.toOperationNamespace
-                                                });
-                                        }
-                                    }, function (result) {
-                                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.AddFailed'));
-                                        scope.item.addItemBtnDisabled = false;
-                                    });
+                                        EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                                            {
+                                                namespace: scope.toOperationNamespace
+                                            });
+                                    }
+                                }, function (result) {
+                                    toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.AddFailed'));
+                                    scope.item.addItemBtnDisabled = false;
+                                });
                         });
                     }
 
@@ -180,18 +151,18 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                         scope.toOperationNamespace.baseInfo.clusterName,
                         scope.toOperationNamespace.baseInfo.namespaceName,
                         scope.item).then(
-                            function (result) {
-                                EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                    {
-                                        namespace: scope.toOperationNamespace
-                                    });
+                        function (result) {
+                            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                                {
+                                    namespace: scope.toOperationNamespace
+                                });
 
-                                AppUtil.hideModal('#itemModal');
+                            AppUtil.hideModal('#itemModal');
 
-                                toastr.success($translate.instant('ItemModal.ModifiedTips'));
-                            }, function (result) {
-                                toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.ModifyFailed'));
-                            });
+                            toastr.success($translate.instant('ItemModal.ModifiedTips'));
+                        }, function (result) {
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('ItemModal.ModifyFailed'));
+                        });
                 }
 
             }
@@ -215,43 +186,22 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                         // String Number Json互相切换不做更改
                     }
                 }
-
                 scope.item.lastType = scope.item.type
                 verifyLoseFocus()
-            }
-
-            function check(){
-                var value = scope.item.value;
-                if (!value || value.length < 2) {
-                    scope.showCheckJSONHint = false;
-                    scope.showJSONDetectContext = false;
-                    return;
-                }
-                //this way may more effective than regex
-                var signal = value.charAt(0)+value.charAt(value.length-1);
-                if(signal === "{}" || signal === "[]"){
-                    scope.showCheckJSONHint = true;
-                }else{
-                    scope.showCheckJSONHint = false;
-                    scope.showJSONDetectContext = false;
-                }
             }
 
             function detectJSON() {
                 var value = scope.item.value;
                 if (!value) {
-                    scope.showJSONDetectContext = false;
+                    scope.showJsonError = true
                     return;
                 }
-                var res = "";
                 try {
                     JSON.parse(value);
-                    res = $translate.instant('Component.ConfigItem.ValidItemJSONValue')
+                    scope.showJsonError = false
                 } catch(e) {
-                    res = $translate.instant('Component.ConfigItem.InvalidItemJSONValue')
+                    scope.showJsonError = true
                 }
-                scope.showJSONDetectContext = true;
-                scope.jsonDetectResult = $sce.trustAsHtml(res);
             }
 
             function showHiddenChars() {
