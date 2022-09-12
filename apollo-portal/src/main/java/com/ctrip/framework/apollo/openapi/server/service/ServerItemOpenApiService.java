@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
+import com.google.common.base.Preconditions;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -68,10 +69,13 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public void updateItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO) {
+    // Type value should be in [0, 3]
+    Preconditions.checkArgument(itemDTO != null && itemDTO.getType() >= 0 && itemDTO.getType() <= 3);
     ItemDTO toUpdateItem = itemService
         .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
     //protect. only value,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
+    toUpdateItem.setType(itemDTO.getType());
     toUpdateItem.setValue(itemDTO.getValue());
     toUpdateItem.setDataChangeLastModifiedBy(itemDTO.getDataChangeLastModifiedBy());
 
