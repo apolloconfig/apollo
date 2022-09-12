@@ -109,4 +109,7 @@ abstract class AbstractOpenApiService {
     Preconditions.checkArgument(size > 0, "size should be positive number");
   }
 
+  protected void checkItemType(int type) {
+    Preconditions.checkArgument(type >= 0 && type <= 3, "type should be in [0, 3]");
+  }
 }
