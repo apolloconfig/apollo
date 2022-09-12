@@ -143,7 +143,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
-  private void createManageAppMasterRole(String appId, String operator) {
+  public void createManageAppMasterRole(String appId, String operator) {
     Permission permission = createPermission(appId, PermissionType.MANAGE_APP_MASTER, operator);
     rolePermissionService.createPermission(permission);
     Role role = createRole(RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER), operator);
