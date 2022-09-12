@@ -50,7 +50,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
 
             $("#valueEditor").textareafullscreen();
 
-            function verifyLoseFocus() {
+            function validateItemValue() {
                 if (scope.item.type === '1') {
                     //校验类型为Number的时候输入框的值是否满足
                     let regNumber = /-[0-9]+(\\.[0-9]+)?|[0-9]+(\\.[0-9]+)?/;
