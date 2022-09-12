@@ -59,7 +59,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                     } else {
                         scope.showNumberError = true
                     }
-                } else if (scope.item.type == '3') {
+                } else if (scope.item.type === '3') {
                     detectJSON()
                 } else {
                     scope.showNumberError = false
