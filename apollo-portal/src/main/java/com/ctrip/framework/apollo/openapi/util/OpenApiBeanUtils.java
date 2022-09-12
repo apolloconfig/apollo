@@ -60,6 +60,8 @@ public class OpenApiBeanUtils {
 
   public static ItemDTO transformToItemDTO(OpenItemDTO openItemDTO) {
     Preconditions.checkArgument(openItemDTO != null);
+    // Type value should be in [0, 3]
+    Preconditions.checkArgument(openItemDTO.getType() >= 0 && openItemDTO.getType() <= 3);
     return BeanUtils.transform(ItemDTO.class, openItemDTO);
   }
 

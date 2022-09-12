@@ -52,7 +52,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
 
             function validateItemValue() {
                 if (scope.item.type === '1') {
-                    //校验类型为Number的时候输入框的值是否满足
+                    //check whether the Number format is correct
                     let regNumber = /-[0-9]+(\\.[0-9]+)?|[0-9]+(\\.[0-9]+)?/;
                     if (regNumber.test(Number(scope.item.value)) === true && !(scope.item.value.trim() === '')) {
                         scope.showNumberError = false;
@@ -183,7 +183,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                     if (scope.item.lastType === '2') {
                         scope.item.value = scope.item.lastValue;
                     } else {
-                        // String Number Json互相切换不做更改
+                        // switch between 'String' 'Number' 'Json', the value is not changed.
                     }
                 }
                 scope.item.lastType = scope.item.type;

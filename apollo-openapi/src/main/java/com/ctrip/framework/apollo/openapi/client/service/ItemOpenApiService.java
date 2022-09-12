@@ -86,7 +86,6 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(env, "Env");
     checkNotEmpty(itemDTO.getKey(), "Item key");
     checkNotEmpty(itemDTO.getDataChangeCreatedBy(), "Item created by");
-    checkItemType(itemDTO.getType());
 
     OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
         .envsPathVal(env)
@@ -117,7 +116,6 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(env, "Env");
     checkNotEmpty(itemDTO.getKey(), "Item key");
     checkNotEmpty(itemDTO.getDataChangeLastModifiedBy(), "Item modified by");
-    checkItemType(itemDTO.getType());
 
     OpenApiPathBuilder pathBuilder = OpenApiPathBuilder.newBuilder()
         .envsPathVal(env)
@@ -147,7 +145,6 @@ public class ItemOpenApiService extends AbstractOpenApiService implements
     checkNotEmpty(env, "Env");
     checkNotEmpty(itemDTO.getKey(), "Item key");
     checkNotEmpty(itemDTO.getDataChangeCreatedBy(), "Item created by");
-    checkItemType(itemDTO.getType());
 
     if (Strings.isNullOrEmpty(itemDTO.getDataChangeLastModifiedBy())) {
       itemDTO.setDataChangeLastModifiedBy(itemDTO.getDataChangeCreatedBy());
