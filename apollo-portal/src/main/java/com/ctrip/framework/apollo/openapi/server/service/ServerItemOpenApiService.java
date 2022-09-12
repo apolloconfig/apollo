@@ -70,7 +70,7 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
       OpenItemDTO itemDTO) {
     ItemDTO toUpdateItem = itemService
         .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
-    //protect. only value,comment,lastModifiedBy can be modified
+    //protect. only value,type,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
     toUpdateItem.setType(itemDTO.getType());
     toUpdateItem.setValue(itemDTO.getValue());

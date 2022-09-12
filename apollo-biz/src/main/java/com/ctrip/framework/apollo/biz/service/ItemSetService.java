@@ -119,7 +119,8 @@ public class ItemSetService {
       }
       Item beforeUpdateItem = BeanUtils.transform(Item.class, managedItem);
 
-      //protect. only value,comment,lastModifiedBy,lineNum can be modified
+      //protect. only value,type,comment,lastModifiedBy can be modified
+      managedItem.setType(entity.getType());
       managedItem.setValue(entity.getValue());
       managedItem.setComment(entity.getComment());
       managedItem.setLineNum(entity.getLineNum());
