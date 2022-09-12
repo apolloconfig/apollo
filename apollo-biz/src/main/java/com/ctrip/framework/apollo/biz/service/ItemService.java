@@ -145,6 +145,7 @@ public class ItemService {
   @Transactional
   public Item save(Item entity) {
     checkItemKeyLength(entity.getKey());
+    checkItemType(entity.getType());
     checkItemValueLength(entity.getNamespaceId(), entity.getValue());
 
     entity.setId(0);//protection
@@ -185,6 +186,7 @@ public class ItemService {
 
   @Transactional
   public Item update(Item item) {
+    checkItemType(item.getType());
     checkItemValueLength(item.getNamespaceId(), item.getValue());
     Item managedItem = itemRepository.findById(item.getId()).orElse(null);
     BeanUtils.copyEntityProperties(item, managedItem);
@@ -207,6 +209,13 @@ public class ItemService {
   private boolean checkItemKeyLength(String key) {
     if (!StringUtils.isEmpty(key) && key.length() > bizConfig.itemKeyLengthLimit()) {
       throw new BadRequestException("key too long. length limit:" + bizConfig.itemKeyLengthLimit());
+    }
+    return true;
+  }
+
+  private boolean checkItemType(int type) {
+    if (type < 0 || type > 3) {
+      throw new BadRequestException("type is invalid. type should be in [0, 3]. ");
     }
     return true;
   }
