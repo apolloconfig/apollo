@@ -118,6 +118,7 @@ public class AppNamespaceService {
     return Objects.isNull(appNamespaceRepository.findByAppIdAndName(appId, namespaceName));
   }
 
+  @Transactional
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace) {
     return createAppNamespaceInLocal(appNamespace, true);
   }

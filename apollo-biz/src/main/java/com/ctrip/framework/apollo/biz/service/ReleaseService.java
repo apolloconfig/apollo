@@ -39,6 +39,15 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -46,9 +55,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.lang.reflect.Type;
-import java.util.*;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -62,7 +68,7 @@ public class ReleaseService {
       .newHashSet(ReleaseOperation.GRAY_RELEASE, ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
           ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY);
   private static final Pageable FIRST_ITEM = PageRequest.of(0, 1);
-  private static final Type OPERATION_CONTEXT_TYPE_REFERENCE = new TypeToken<Map<String, Collection<String>>>() { }.getType();
+  private static final Type OPERATION_CONTEXT_TYPE_REFERENCE = new TypeToken<Map<String, Object>>() { }.getType();
 
   private final ReleaseRepository releaseRepository;
   private final ItemService itemService;
@@ -329,14 +335,14 @@ public class ReleaseService {
       return null;
     }
 
-    Map<String, Collection<String>> operationContext = GSON
-        .fromJson(operationContextJson, OPERATION_CONTEXT_TYPE_REFERENCE);
+    Map<String, Object> operationContext = GSON.fromJson(operationContextJson,
+        OPERATION_CONTEXT_TYPE_REFERENCE);
 
     if (operationContext == null) {
       return null;
     }
 
-    return operationContext.get(ReleaseOperationContext.BRANCH_RELEASE_KEYS);
+    return (Collection<String>) operationContext.get(ReleaseOperationContext.BRANCH_RELEASE_KEYS);
   }
 
   private Release publishBranchNamespace(Namespace parentNamespace, Namespace childNamespace,

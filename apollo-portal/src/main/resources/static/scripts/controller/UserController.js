@@ -24,10 +24,8 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
     $scope.createdUsers = [];
     $scope.filterUser = [];
     $scope.status = '1'
-    $scope.showSearchUsernameInput = false
     $scope.searchKey = ''
     $scope.changeStatus = changeStatus
-    $scope.toggleUsernameSearchInput = toggleUsernameSearchInput
     $scope.searchUsers = searchUsers
     $scope.resetSearchUser = resetSearchUser
 
@@ -68,10 +66,6 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
                 enabled: user.enabled,
             }
         }
-    }
-
-    function toggleUsernameSearchInput() {
-        $scope.showSearchUsernameInput = !$scope.showSearchUsernameInput
     }
 
     function searchUsers() {
