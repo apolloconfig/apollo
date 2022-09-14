@@ -20,6 +20,8 @@ import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -30,8 +32,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -185,6 +190,13 @@ public class AdminServiceAPI {
     public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
       return restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}",
           ItemDTO.class, appId, clusterName, namespaceName, key);
+    }
+
+    public ItemDTO loadItemByEncodeKey(Env env, String appId, String clusterName, String namespaceName, String key) {
+      return restTemplate.get(env,
+          "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}",
+          ItemDTO.class, appId, clusterName, namespaceName,
+          new String(Base64.getEncoder().encode(key.getBytes(StandardCharsets.UTF_8))));
     }
 
     public ItemDTO loadItemById(Env env, long itemId) {
