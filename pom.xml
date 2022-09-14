@@ -216,14 +216,14 @@
 				<version>1.2.0</version>
 				<scope>test</scope>
 			</dependency>
-      <!-- Spring-security BOMs -->
-      <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-bom</artifactId>
-        <version>${spring-security.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+			<!-- Spring-security BOMs -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-bom</artifactId>
+				<version>${spring-security.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
 			<!-- declare Spring BOMs in order -->
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
