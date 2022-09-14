@@ -30,6 +30,7 @@
 		<github.path>${project.artifactId}</github.path>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.security</groupId>

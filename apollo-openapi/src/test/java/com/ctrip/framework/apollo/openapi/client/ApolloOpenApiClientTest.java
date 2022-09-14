@@ -16,8 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.client;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class ApolloOpenApiClientTest {
