@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 public class InputValidator {
   public static final String INVALID_CLUSTER_NAMESPACE_MESSAGE = "Only digits, alphabets and symbol - _ . (except single .) are allowed";
   public static final String INVALID_NAMESPACE_NAMESPACE_MESSAGE = "not allowed to end with .json, .yml, .yaml, .xml, .properties";
-  public static final String CLUSTER_NAMESPACE_VALIDATOR = "[0-9a-zA-Z-]+[0-9a-zA-Z._-]*";
-  private static final String APP_NAMESPACE_VALIDATOR = "[a-zA-Z0-9._-]+(?<!\\.(json|yml|yaml|xml|properties))$";
+  public static final String CLUSTER_NAMESPACE_VALIDATOR = "[0-9a-zA-Z_-]+[0-9a-zA-Z_.-]*";
+  private static final String APP_NAMESPACE_VALIDATOR = "[a-zA-Z0-9_-]+[a-zA-Z0-9._-]*(?<!\\.(json|yml|yaml|xml|properties))$";
   private static final Pattern CLUSTER_NAMESPACE_PATTERN = Pattern.compile(CLUSTER_NAMESPACE_VALIDATOR);
   private static final Pattern APP_NAMESPACE_PATTERN = Pattern.compile(APP_NAMESPACE_VALIDATOR);
 
