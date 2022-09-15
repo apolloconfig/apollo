@@ -62,7 +62,7 @@ public class ItemSetService {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
 
     if (namespace == null) {
-      throw new NotFoundException(String.format("Namespace %s not found", namespaceName));
+      throw new NotFoundException("Namespace %s not found", namespaceName);
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
@@ -112,7 +112,7 @@ public class ItemSetService {
 
       Item managedItem = itemService.findOne(entity.getId());
       if (managedItem == null) {
-        throw new NotFoundException(String.format("item not found.(key=%s)", entity.getKey()));
+        throw new NotFoundException("item not found.(key=%s)", entity.getKey());
       }
       if (managedItem.getNamespaceId() != namespace.getId()) {
         throw new BadRequestException("Invalid request, item and namespace do not match!");

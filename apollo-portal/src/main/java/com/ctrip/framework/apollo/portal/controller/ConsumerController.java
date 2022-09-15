@@ -105,7 +105,7 @@ public class ConsumerController {
           continue;
         }
         if (Env.UNKNOWN.equals(Env.transformEnv(env))) {
-          throw new BadRequestException(String.format("env: %s is illegal", env));
+          throw new BadRequestException("env: %s is illegal", env);
         }
         envList.add(env);
       }
