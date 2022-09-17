@@ -51,9 +51,9 @@ public class ItemsComparator {
         copiedItem.setNamespaceId(baseNamespaceId);
         changeSets.addCreateItem(copiedItem);
       }else if (!Objects.equals(sourceItem.getValue(), item.getValue())){//update
-        //only value & comment can be update
-        sourceItem.setValue(item.getValue());
+        //only type & value & comment can be update
         sourceItem.setType(item.getType());
+        sourceItem.setValue(item.getValue());
         sourceItem.setComment(item.getComment());
         changeSets.addUpdateItem(sourceItem);
       }
