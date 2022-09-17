@@ -53,6 +53,7 @@ public class ItemsComparator {
       }else if (!Objects.equals(sourceItem.getValue(), item.getValue())){//update
         //only value & comment can be update
         sourceItem.setValue(item.getValue());
+        sourceItem.setType(item.getType());
         sourceItem.setComment(item.getComment());
         changeSets.addUpdateItem(sourceItem);
       }
@@ -90,6 +91,7 @@ public class ItemsComparator {
   private ItemDTO copyItem(ItemDTO sourceItem){
     ItemDTO copiedItem = new ItemDTO();
     copiedItem.setKey(sourceItem.getKey());
+    copiedItem.setType(sourceItem.getType());
     copiedItem.setValue(sourceItem.getValue());
     copiedItem.setComment(sourceItem.getComment());
     return copiedItem;
