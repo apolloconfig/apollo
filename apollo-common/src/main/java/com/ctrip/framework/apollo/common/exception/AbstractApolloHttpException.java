@@ -27,13 +27,13 @@ public abstract class AbstractApolloHttpException extends RuntimeException{
 
   /**
    * When args not empty, use {@link com.google.common.base.Strings#lenientFormat(String, Object...)}
-   * to replace %s in msgtpl with args to set the error message. Otherwise, use msgtpl 
+   * to replace %s in msgTpl with args to set the error message. Otherwise, use msgTpl
    * to set the error message. e.g.: 
    * <pre>{@code new NotFoundException("... %s ... %s ... %s", "str", 0, 0.1)}</pre>
-   * If the number of '%s' in `msgtpl` does not match args length, the '%s' string will be printed.
+   * If the number of '%s' in `msgTpl` does not match args length, the '%s' string will be printed.
    */
-  public AbstractApolloHttpException(String msgtpl, Object... args){
-    super(args == null || args.length == 0 ? msgtpl : Strings.lenientFormat(msgtpl, args));
+  public AbstractApolloHttpException(String msgTpl, Object... args){
+    super(args == null || args.length == 0 ? msgTpl : Strings.lenientFormat(msgTpl, args));
   }
   
   public AbstractApolloHttpException(String msg, Exception e){

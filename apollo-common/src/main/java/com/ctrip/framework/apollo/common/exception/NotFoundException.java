@@ -23,8 +23,8 @@ public class NotFoundException extends AbstractApolloHttpException {
   /**
    * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...)
    */
-  public NotFoundException(String msgtpl, Object... args) {
-    super(msgtpl, args);
+  public NotFoundException(String msgTpl, Object... args) {
+    super(msgTpl, args);
     setHttpStatus(HttpStatus.NOT_FOUND);
   }
 }

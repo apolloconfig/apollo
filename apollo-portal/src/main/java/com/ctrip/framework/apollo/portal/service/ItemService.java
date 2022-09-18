@@ -285,9 +285,9 @@ public class ItemService {
       namespaceDTO = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-        throw new BadRequestException(String.format(
+        throw new BadRequestException(
             "namespace not exist. appId:%s, env:%s, clusterName:%s, namespaceName:%s", appId, env, clusterName,
-            namespaceName));
+            namespaceName);
       }
       throw e;
     }
