@@ -97,7 +97,7 @@ public class AppNamespaceService {
   @Transactional
   public void createDefaultAppNamespace(String appId) {
     if (!isAppNamespaceNameUnique(appId, ConfigConsts.NAMESPACE_APPLICATION)) {
-      throw new BadRequestException(String.format("App already has application namespace. AppId = %s", appId));
+      throw new BadRequestException("App already has application namespace. AppId = %s", appId);
     }
 
     AppNamespace appNs = new AppNamespace();

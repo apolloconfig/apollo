@@ -178,7 +178,7 @@ public class NamespaceService {
       String namespaceName) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException(String.format("Namespace: %s not exist.", namespaceName));
+      throw new BadRequestException("Namespace: %s not exist.", namespaceName);
     }
     return namespace;
   }

@@ -92,7 +92,7 @@ public class ItemController {
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException(String.format("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH));
+      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
     }
 
     return this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
@@ -118,7 +118,7 @@ public class ItemController {
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException(String.format("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH));
+      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
     }
 
     if (createIfNotExists) {

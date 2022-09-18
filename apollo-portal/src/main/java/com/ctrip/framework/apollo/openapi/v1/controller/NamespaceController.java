@@ -56,25 +56,25 @@ public class NamespaceController {
                                              HttpServletRequest request) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
-      throw new BadRequestException(String.format("AppId not equal. AppId in path = %s, AppId in payload = %s", appId,
-                                                  appNamespaceDTO.getAppId()));
+      throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s", appId,
+                                                  appNamespaceDTO.getAppId());
     }
     RequestPrecondition.checkArgumentsNotEmpty(appNamespaceDTO.getAppId(), appNamespaceDTO.getName(),
                                                appNamespaceDTO.getFormat(), appNamespaceDTO.getDataChangeCreatedBy());
 
     if (!InputValidator.isValidAppNamespace(appNamespaceDTO.getName())) {
-      throw new BadRequestException(String.format("Invalid Namespace format: %s",
+      throw new BadRequestException("Invalid Namespace format: %s",
                                                   InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
-                                                  + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE));
+                                                  + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
     }
 
     if (!ConfigFileFormat.isValidFormat(appNamespaceDTO.getFormat())) {
-      throw new BadRequestException(String.format("Invalid namespace format. format = %s", appNamespaceDTO.getFormat()));
+      throw new BadRequestException("Invalid namespace format. format = %s", appNamespaceDTO.getFormat());
     }
 
     String operator = appNamespaceDTO.getDataChangeCreatedBy();
     if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException(String.format("Illegal user. user = %s", operator));
+      throw new BadRequestException("Illegal user. user = %s", operator);
     }
 
     return this.namespaceOpenApiService.createAppNamespace(appNamespaceDTO);

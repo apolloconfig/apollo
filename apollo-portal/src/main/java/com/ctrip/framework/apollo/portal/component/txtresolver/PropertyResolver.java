@@ -54,7 +54,7 @@ public class PropertyResolver implements ConfigTextResolver {
     String[] newItems = configText.split(ITEM_SEPARATOR);
     Set<String> repeatKeys = new HashSet<>();
     if (isHasRepeatKey(newItems, repeatKeys)) {
-      throw new BadRequestException(String.format("Config text has repeated keys: %s, please check your input.", repeatKeys));
+      throw new BadRequestException("Config text has repeated keys: %s, please check your input.", repeatKeys);
     }
 
     ItemChangeSets changeSets = new ItemChangeSets();

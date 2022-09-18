@@ -104,7 +104,7 @@ public class ConsumerService {
     String ownerName = consumer.getOwnerName();
     UserInfo owner = userService.findByUserId(ownerName);
     if (owner == null) {
-      throw new BadRequestException(String.format("User does not exist. UserId = %s", ownerName));
+      throw new BadRequestException("User does not exist. UserId = %s", ownerName);
     }
     consumer.setOwnerEmail(owner.getEmail());
 
