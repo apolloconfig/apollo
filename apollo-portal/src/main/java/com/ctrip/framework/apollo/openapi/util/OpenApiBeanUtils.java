@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.util.CollectionUtils;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
@@ -99,8 +100,9 @@ public class OpenApiBeanUtils {
     List<OpenItemDTO> items = new LinkedList<>();
     List<ItemBO> itemBOs = namespaceBO.getItems();
     if (!CollectionUtils.isEmpty(itemBOs)) {
-      items.addAll(itemBOs.stream().map(itemBO -> transformFromItemDTO(itemBO.getItem()))
-              .collect(Collectors.toList()));
+      items.addAll(itemBOs.stream()
+          .map(OpenApiBeanUtils::transformFromItemBO)
+          .collect(Collectors.toList()));
     }
     openNamespaceDTO.setItems(items);
     return openNamespaceDTO;
@@ -188,4 +190,17 @@ public class OpenApiBeanUtils {
     Preconditions.checkArgument(openClusterDTO != null);
     return BeanUtils.transform(ClusterDTO.class, openClusterDTO);
   }
+
+  public static OpenItemDTO transformFromItemBO(ItemBO itemBO) {
+    Preconditions.checkArgument(itemBO != null);
+    Preconditions.checkArgument(itemBO.getItem() != null);
+
+    OpenItemDTO openItemDTO = BeanUtils.transform(OpenItemDTO.class, itemBO.getItem());
+    // Modified unreleased, use released value
+    if (itemBO.isModified() && Strings.isNotBlank(itemBO.getOldValue())) {
+      openItemDTO.setValue(itemBO.getOldValue());
+    }
+    return openItemDTO;
+  }
+
 }
