@@ -473,11 +473,11 @@ public class ReleaseService {
     PageRequest page = PageRequest.of(0, 2);
     List<Release> twoLatestActiveReleases = findActiveReleases(appId, clusterName, namespaceName, page);
     if (twoLatestActiveReleases == null || twoLatestActiveReleases.size() < 2) {
-      throw new BadRequestException(String.format(
+      throw new BadRequestException(
           "Can't rollback namespace(appId=%s, clusterName=%s, namespaceName=%s) because there is only one active release",
           appId,
           clusterName,
-          namespaceName));
+          namespaceName);
     }
 
     release.setAbandoned(true);

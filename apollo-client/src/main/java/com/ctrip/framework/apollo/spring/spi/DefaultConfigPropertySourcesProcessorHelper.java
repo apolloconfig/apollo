@@ -36,14 +36,11 @@ public class DefaultConfigPropertySourcesProcessorHelper implements ConfigProper
     // to make sure the default PropertySourcesPlaceholderConfigurer's priority is higher than PropertyPlaceholderConfigurer
     propertySourcesPlaceholderPropertyValues.put("order", 0);
 
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class.getName(),
-        PropertySourcesPlaceholderConfigurer.class, propertySourcesPlaceholderPropertyValues);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry,
-        AutoUpdateConfigChangeListener.class.getName(), AutoUpdateConfigChangeListener.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class.getName(),
-        ApolloAnnotationProcessor.class);
-    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class.getName(),
-        SpringValueProcessor.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, PropertySourcesPlaceholderConfigurer.class,
+            propertySourcesPlaceholderPropertyValues);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, AutoUpdateConfigChangeListener.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, ApolloAnnotationProcessor.class);
+    BeanRegistrationUtil.registerBeanDefinitionIfNotExists(registry, SpringValueProcessor.class);
 
     processSpringValueDefinition(registry);
   }

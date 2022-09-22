@@ -29,6 +29,7 @@ public class InputValidatorTest {
     checkClusterName("some.&.name", false);
     checkClusterName("", false);
     checkClusterName(null, false);
+    checkClusterName(".",false);
   }
 
   @Test
@@ -42,6 +43,7 @@ public class InputValidatorTest {
     checkAppNamespaceName("some.name.yaml", false);
     checkAppNamespaceName("some.name.xml", false);
     checkAppNamespaceName("some.name.properties", false);
+    checkAppNamespaceName("..xml", false);
   }
 
   private void checkClusterName(String name, boolean valid) {
