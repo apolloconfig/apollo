@@ -28,9 +28,12 @@ Apollo 2.1.0
 * [add configuration processor for portal developers](https://github.com/apolloconfig/apollo/pull/4521)
 * [Add a potential json value check feature](https://github.com/apolloconfig/apollo/pull/4519)
 * [Add index for table ReleaseHistory](https://github.com/apolloconfig/apollo/pull/4550)
+* [Add basic type check for Item value](https://github.com/apolloconfig/apollo/pull/4542)
 * [add an option to custom oidc userDisplayName](https://github.com/apolloconfig/apollo/pull/4507)
 * [fix openapi item with url illegalKey 400 error](https://github.com/apolloconfig/apollo/pull/4549)
 * [fix the exception occurred when publish/rollback namespaces with grayrelease](https://github.com/apolloconfig/apollo/pull/4564)
+* [fix create namespace with single dot 500 error](https://github.com/apolloconfig/apollo/pull/4568)
+* [Add overloaded shortcut method to register BeanDefinition](https://github.com/apolloconfig/apollo/pull/4574)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)

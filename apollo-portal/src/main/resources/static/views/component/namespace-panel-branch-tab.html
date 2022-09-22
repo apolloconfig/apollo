@@ -131,6 +131,9 @@
 
                                 </th>
                                 <th>
+                                    {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                </th>
+                                <th>
                                     {{'Component.Namespace.Branch.Body.ItemMasterValue' | translate }}
                                 </th>
                                 <th>
@@ -170,7 +173,7 @@
                                         title="{{'Component.Namespace.Branch.Body.ItemEffective' | translate }}"
                                         ng-if="!config.isModified">{{'Component.Namespace.Branch.Body.ItemPublished' | translate }}</span>
                                 </td>
-                                <td width="15%" class="cursor-pointer"
+                                <td width="10%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Branch.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.key)">
                                     <span ng-bind="config.item.key | limitTo: 250"></span>
@@ -185,6 +188,16 @@
                                         ng-if="!config.isDeleted && !config.masterItemExists" data-tooltip="tooltip"
                                         data-placement="bottom"
                                         title="{{'Component.Namespace.Branch.Body.AddedByGrayscale' | translate }}">{{'Component.Namespace.Branch.Body.Added' | translate }}</span>
+                                </td>
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
                                 </td>
                                 <td width="20%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Branch.Body.ClickToSee' | translate }}"
@@ -202,7 +215,7 @@
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                <td width="7%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                 </td>
                                 <td width="10%"
                                     ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
@@ -242,6 +255,9 @@
 
                                 </th>
                                 <th>
+                                    {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                </th>
+                                <th>
                                     {{'Component.Namespace.MasterBranch.Body.ItemValue' | translate }}
                                 </th>
                                 <th>
@@ -278,7 +294,7 @@
                                         title="{{'Component.Namespace.MasterBranch.Body.ItemEffective' | translate }}"
                                         ng-if="!config.isModified">{{'Component.Namespace.MasterBranch.Body.ItemPublished' | translate }}</span>
                                 </td>
-                                <td width="15%" class="cursor-pointer"
+                                <td width="10%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Branch.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.key)">
                                     <span ng-bind="config.item.key | limitTo: 250"></span>
@@ -294,7 +310,17 @@
                                         data-placement="bottom"
                                         title="{{'Component.Namespace.Branch.Body.DeletedItem' | translate }}">{{'Component.Namespace.Branch.Body.Delete' | translate }}</span>
                                 </td>
-                                <td width="35%" class="cursor-pointer"
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                </td>
+                                <td width="33%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Branch.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.value)">
                                     <span ng-bind="config.item.value | limitTo: 250"></span>

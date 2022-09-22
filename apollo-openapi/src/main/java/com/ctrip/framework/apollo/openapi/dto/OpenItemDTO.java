@@ -20,6 +20,8 @@ public class OpenItemDTO extends BaseDTO {
 
   private String key;
 
+  private int type;
+
   private String value;
 
   private String comment;
@@ -30,6 +32,14 @@ public class OpenItemDTO extends BaseDTO {
 
   public void setKey(String key) {
     this.key = key;
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public void setType(int type) {
+    this.type = type;
   }
 
   public String getValue() {
@@ -51,13 +61,15 @@ public class OpenItemDTO extends BaseDTO {
   @Override
   public String toString() {
     return "OpenItemDTO{" +
-        "key='" + key + '\'' +
-        ", value='" + value + '\'' +
-        ", comment='" + comment + '\'' +
-        ", dataChangeCreatedBy='" + dataChangeCreatedBy + '\'' +
-        ", dataChangeLastModifiedBy='" + dataChangeLastModifiedBy + '\'' +
-        ", dataChangeCreatedTime=" + dataChangeCreatedTime +
-        ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
-        '}';
+            "key='" + key + '\'' +
+            ", type='" + type + '\'' +
+            ", value='" + value + '\'' +
+            ", comment='" + comment + '\'' +
+            ", dataChangeCreatedBy='" + dataChangeCreatedBy + '\'' +
+            ", dataChangeLastModifiedBy='" + dataChangeLastModifiedBy + '\'' +
+            ", dataChangeCreatedTime=" + dataChangeCreatedTime +
+            ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
+            '}';
   }
+
 }

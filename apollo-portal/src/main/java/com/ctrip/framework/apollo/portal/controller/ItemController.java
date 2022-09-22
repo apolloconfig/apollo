@@ -249,8 +249,12 @@ public class ItemController {
     // use YamlPropertiesFactoryBean to check the yaml syntax
     TypeLimitedYamlPropertiesFactoryBean yamlPropertiesFactoryBean = new TypeLimitedYamlPropertiesFactoryBean();
     yamlPropertiesFactoryBean.setResources(new ByteArrayResource(model.getConfigText().getBytes()));
-    // this call converts yaml to properties and will throw exception if the conversion fails
-    yamlPropertiesFactoryBean.getObject();
+    try {
+      // this call converts yaml to properties and will throw exception if the conversion fails
+      yamlPropertiesFactoryBean.getObject();
+    }catch (Exception ex){
+      throw new BadRequestException(ex.getMessage());
+    }
   }
 
   private boolean isValidItem(ItemDTO item) {

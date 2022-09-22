@@ -145,6 +145,7 @@ public class ItemService {
   @Transactional
   public Item save(Item entity) {
     checkItemKeyLength(entity.getKey());
+    checkItemType(entity.getType());
     checkItemValueLength(entity.getNamespaceId(), entity.getValue());
 
     entity.setId(0);//protection
@@ -185,6 +186,7 @@ public class ItemService {
 
   @Transactional
   public Item update(Item item) {
+    checkItemType(item.getType());
     checkItemValueLength(item.getNamespaceId(), item.getValue());
     Item managedItem = itemRepository.findById(item.getId()).orElse(null);
     BeanUtils.copyEntityProperties(item, managedItem);
@@ -211,6 +213,13 @@ public class ItemService {
     return true;
   }
 
+  private boolean checkItemType(int type) {
+    if (type < 0 || type > 3) {
+      throw new BadRequestException("type is invalid. type should be in [0, 3]. ");
+    }
+    return true;
+  }
+
   private int getItemValueLengthLimit(long namespaceId) {
     Map<Long, Integer> namespaceValueLengthOverride = bizConfig.namespaceValueLengthLimitOverride();
     if (namespaceValueLengthOverride != null && namespaceValueLengthOverride.containsKey(namespaceId)) {
@@ -224,8 +233,8 @@ public class ItemService {
                                                                        String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException(String.format("namespace not found for appId:%s clusterName:%s namespaceName:%s",
-              appId, clusterName, namespaceName));
+      throw new NotFoundException("namespace not found for appId:%s clusterName:%s namespaceName:%s",
+              appId, clusterName, namespaceName);
     }
     return namespace;
   }

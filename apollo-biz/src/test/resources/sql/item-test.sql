@@ -13,12 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-# delta schema to upgrade apollo config db from v2.0.0 to v2.1.0
+INSERT INTO `item` (`Id`, `NamespaceId`, `Key`, `Type`, `Value`, `Comment`, `LineNum`)
+    VALUES
+        (9901, 1, 'k1', 0, 'v1', '', 1),
+        (9902, 2, 'k2', 2, 'v2', '', 2);
 
-Use ApolloConfigDB;
 
--- add INDEX for ReleaseHistory table
-CREATE INDEX IX_PreviousReleaseId ON ReleaseHistory(PreviousReleaseId);
 
-ALTER TABLE `Item`
-    ADD COLUMN `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '配置项类型，0: String，1: Number，2: Boolean，3: JSON' AFTER `Key`;
