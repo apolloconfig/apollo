@@ -567,6 +567,7 @@ This interface is the interface used to get whether the current namespace is loc
 
 * **URL** ：  `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items`
 * **Method** ： GET
+* **Version** ： >= 2.1.0
 * **Request Params** ：
 
 | Parameter Name | Required | Type | Description                                |
