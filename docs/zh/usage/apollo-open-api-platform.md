@@ -571,6 +571,7 @@ operator | true | String | 删除配置的操作者，域账号
 
 * **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items
 * **Method** ： GET
+* **Version** ： >= 2.1.0
 * **Request Params** ：
 
 参数名 | 必选    | 类型  | 说明

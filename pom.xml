@@ -666,7 +666,7 @@
 			<id>nacos-discovery</id>
 			<properties>
 				<nacos.discovery.version>0.2.7</nacos.discovery.version>
-				<fastjson.version>1.2.75</fastjson.version>
+				<fastjson.version>1.2.83</fastjson.version>
 			</properties>
 			<dependencyManagement>
 				<dependencies>
