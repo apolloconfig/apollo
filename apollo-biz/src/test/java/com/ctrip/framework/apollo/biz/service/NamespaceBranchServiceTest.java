@@ -82,7 +82,15 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, releaseHistory.getOperation());
     Assert.assertEquals(0, releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(releaseHistory.getOperationContext().contains(rule.getRules()));
+    Assert.assertTrue(containRule(releaseHistory.getOperationContext(),rule.getRules()));
+  }
+
+  public boolean containRule(String context, String rule){
+    boolean contains = true;
+    String[] rules = rule.substring(2,rule.length()-2).split(",");
+    for (int i = 0; i<rules.length; i++)
+      contains = contains && context.contains(rules[i]);
+    return contains;
   }
 
   @Test
