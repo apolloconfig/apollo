@@ -45,7 +45,7 @@ public class SpringValueRegistry {
     if (!registry.containsKey(beanFactory)) {
       synchronized (LOCK) {
         if (!registry.containsKey(beanFactory)) {
-          registry.put(beanFactory, Multimaps.synchronizedListMultimap(LinkedListMultimap.<String, SpringValue>create()));
+          registry.put(beanFactory, Multimaps.synchronizedListMultimap(LinkedListMultimap.create()));
         }
       }
     }

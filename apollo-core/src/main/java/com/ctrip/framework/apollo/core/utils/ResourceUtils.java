@@ -65,7 +65,7 @@ public class ResourceUtils {
 
       }
       if (sb.length() > 0) {
-        logger.debug("Reading properties: \n" + sb.toString());
+        logger.debug("Reading properties: \n" + sb);
       } else {
         logger.warn("No available properties: {}", configPath);
       }

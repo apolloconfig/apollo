@@ -17,8 +17,10 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
@@ -68,8 +70,9 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
       OpenItemDTO itemDTO) {
     ItemDTO toUpdateItem = itemService
         .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
-    //protect. only value,comment,lastModifiedBy can be modified
+    //protect. only value,type,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
+    toUpdateItem.setType(itemDTO.getType());
     toUpdateItem.setValue(itemDTO.getValue());
     toUpdateItem.setDataChangeLastModifiedBy(itemDTO.getDataChangeLastModifiedBy());
 
@@ -98,5 +101,15 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
       String key, String operator) {
     ItemDTO toDeleteItem = this.itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     this.itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
+  }
+
+  @Override
+  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(String appId, String env, String clusterName,
+                                                       String namespaceName, int page, int size) {
+    PageDTO<OpenItemDTO> commonOpenItemDTOPage =
+            this.itemService.findItemsByNamespace(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+
+    return new OpenPageDTO<>(commonOpenItemDTOPage.getPage(), commonOpenItemDTOPage.getSize(),
+            commonOpenItemDTOPage.getTotal(), commonOpenItemDTOPage.getContent());
   }
 }

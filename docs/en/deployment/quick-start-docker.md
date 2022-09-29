@@ -16,7 +16,15 @@ To speed up Docker image download, it is recommended to [configure image gas ped
 
 ### 1.2 Download Docker Quick Start configuration file
 
-Make sure the [docker-quick-start](https://github.com/apolloconfig/apollo/tree/master/scripts/docker-quick-start) folder already exists locally, if the Apollo has already been cloned locally code, then you can skip this step.
+Download [docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml) and [sql folder](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql) to a local directory, such as docker-quick-start.
+
+```bash
+- docker-quick-start
+  - docker-compose.yml
+  - sql
+    - apolloconfigdb.sql
+    - apolloportaldb.sql
+```
 
 ## II. Starting Apollo Configuration Center
 

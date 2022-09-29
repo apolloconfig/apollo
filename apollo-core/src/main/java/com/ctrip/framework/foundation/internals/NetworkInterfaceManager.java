@@ -119,15 +119,13 @@ public enum NetworkInterfaceManager {
 
     try {
       Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-      List<NetworkInterface> nis = interfaces == null ? Collections.<NetworkInterface>emptyList()
-          : Collections.list(interfaces);
+      if (interfaces == null) {
+        m_local = InetAddress.getLoopbackAddress();
+        return;
+      }
+      List<NetworkInterface> nis = Collections.list(interfaces);
       //sort the network interfaces according to the index asc
-      Collections.sort(nis, new Comparator<NetworkInterface>() {
-        @Override
-        public int compare(NetworkInterface nis1, NetworkInterface nis2) {
-          return Integer.compare(nis1.getIndex(), nis2.getIndex());
-        }
-      });
+      nis.sort(Comparator.comparingInt(NetworkInterface::getIndex));
       List<InetAddress> addresses = new ArrayList<>();
       InetAddress local = null;
 

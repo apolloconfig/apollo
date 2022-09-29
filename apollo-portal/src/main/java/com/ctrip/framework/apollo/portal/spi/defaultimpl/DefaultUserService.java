@@ -31,7 +31,7 @@ import java.util.List;
 public class DefaultUserService implements UserService {
 
   @Override
-  public List<UserInfo> searchUsers(String keyword, int offset, int limit) {
+  public List<UserInfo> searchUsers(String keyword, int offset, int limit, boolean includeInactiveUsers) {
     return Collections.singletonList(assembleDefaultUser());
   }
 

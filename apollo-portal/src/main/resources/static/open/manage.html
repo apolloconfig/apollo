@@ -26,6 +26,7 @@
     <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
     <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/iconfont/iconfont.css">
     <title>{{'Open.Manage.Title' | translate }}</title>
 </head>
 
@@ -33,153 +34,76 @@
 
     <apollonav></apollonav>
 
-
-    <div class="container-fluid" ng-controller="OpenManageController">
+    <div id="consumer-list" class="container-fluid" ng-controller="OpenManageController">
         <div class="col-md-10 col-md-offset-1 panel">
 
             <section class="panel-body" ng-show="isRootUser">
                 <!--project admin-->
                 <section class="row">
-                    <h5>{{'Open.Manage.CreateThirdApp' | translate }}
-                        <small>
-                            {{'Open.Manage.CreateThirdAppTips' | translate }}
-                        </small>
-                    </h5>
-                    <hr>
-                    <form class="form-horizontal">
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Open.Manage.ThirdAppId' | translate }}
-                            </label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" ng-model="consumer.appId">
-                                <small>{{'Open.Manage.ThirdAppIdTips' | translate }}</small>
-                            </div>
-                            <div class="col-sm-1">
-                                <button class="btn btn-info" ng-click="getTokenByAppId()">{{'Common.Search' | translate }}</button>
-                            </div>
-                            <div class="col-sm-6">
-                                <h4 style="color: red" ng-show="consumerToken"
-                                    ng-bind="'Token: ' + consumerToken.token"></h4>
-                            </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{'Open.Manage.CreateThirdApp' | translate }}
+                                <small>
+                                    {{'Open.Manage.CreateThirdAppTips' | translate }}
+                                </small>
+                            </h5>
                         </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Common.Department' | translate }}
-                            </label>
-                            <div class="col-sm-3">
-                                <select id="organization">
-                                    <option></option>
-                                </select>
-                            </div>
+                        <div class="col-md-6">
+                            <a class="btn btn-primary btn-md create-btn pull-right"
+                               href="{{ '/open/add-consumer.html' | prefixPath }}" target="_blank">
+                                <img src="../img/plus.png"/>
+                                {{'Open.Manage.CreateConsumer.Button' | translate }}
+                            </a>
                         </div>
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Open.Manage.ThirdAppName' | translate }}
-                            </label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" ng-model="consumer.name">
-                                <small>{{'Open.Manage.ThirdAppNameTips' | translate }}</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Open.Manage.ProjectOwner' | translate }}
-                            </label>
-                            <div class="col-sm-6 J_ownerSelectorPanel">
-                                <apollouserselector apollo-id="'ownerSelector'"></apollouserselector>
-                            </div>
-                        </div>
+                    </div>
+                    <div class="row margin-top10" >
+                        <table class="table">
+                            <tr>
+                                <th style="width: 10%">{{'Common.AppId' | translate }}</th>
+                                <th style="width: 15%">{{'Common.AppName' | translate }}</th>
+                                <th style="width: 15%">{{'Common.AppOwner' | translate }}</th>
+                                <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                                <th style="width: 20%">{{'Common.Email' | translate }}</th>
+                                <th style="width: 20%">{{'Common.Operation' | translate}}</th>
+                            </tr>
+                            <tr ng-repeat="app in consumerList" href="#">
+                                <td style="width: 10%">{{ app.appId }}</td>
+                                <td style="width: 15%">{{ app.name }}</td>
+                                <td style="width: 15%">{{ app.ownerName }}</td>
+                                <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                                <td style="width: 20%">{{ app.ownerEmail }}</td>
+                                <td style="width: 20%;">
+                                    <button class="btn btn-default btn-md" ng-click="preGrantPermission(app)">
+                                        <img class="more-img" src="../img/edit.png" data-tooltip="tooltip"
+                                             data-placement="bottom">{{'Open.Manage.ViewAndGrantPermission' | translate}}
+                                    </button>
 
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-9">
-                                <button type="submit" class="btn btn-primary" ng-disabled="submitBtnDisabled"
-                                    ng-click="createConsumer()">
-                                    {{'Open.Manage.Create' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </section>
+                                    <button class="btn btn-default btn-md" ng-click="preDeleteConsumer(app)">
+                                        <img class="more-img" style="margin-left: 5px;" src="../img/cancel.png" data-tooltip="tooltip"
+                                             data-placement="bottom">{{'Common.Delete' | translate}}
+                                    </button>
 
-                <section class="row">
-                    <h5>{{'Open.Manage.GrantPermission' | translate }}
-                        <small>
-                            {{'Open.Manage.GrantPermissionTips' | translate }}
-                        </small>
-                    </h5>
-                    <hr>
-                    <form class="form-horizontal" ng-submit="assignRoleToConsumer()">
+                                </td>
+                            </tr>
 
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Open.Manage.Token' | translate }}
-                            </label>
-                            <div class="col-sm-5">
-                                <input type="text" class="form-control" ng-model="consumerRole.token" required>
-                            </div>
+                        </table>
+                    </div>
+                    <div ng-show="!hasMoreconsumerList" style="height: 15px"></div>
+                    <div class="homepage-loading-more-panel" ng-show="hasMoreconsumerList"
+                         ng-click="getConsumerList()">
+                        <div href="#" class="thumbnail hover cursor-pointer"
+                             style="display: flex;justify-content: center;align-items: center">
+                            <div><img class="more-img" src="../img/more.png" /></div>
+                            <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
                         </div>
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Open.Manage.ManagedAppId' | translate }}
-                            </label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" ng-model="consumerRole.appId" required>
-                            </div>
-                        </div>
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                    {{'Open.Manage.ManagedNamespace' | translate }}</label>
-                            <div class="col-sm-3">
-                                <input type="text" class="form-control" ng-model="consumerRole.namespaceName">
-                                <small>{{'Open.Manage.ManagedNamespaceTips' | translate }}</small>
-                            </div>
-                        </div>
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                    {{'Open.Manage.GrantType' | translate }}
-                            </label>
-                            <div class="col-sm-3">
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" ng-value="'NamespaceRole'"
-                                        ng-model="consumerRole.type">
-                                        {{'Open.Manage.GrantType.Namespace' | translate }}
-                                </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="inlineRadioOptions" ng-value="'AppRole'"
-                                        ng-model="consumerRole.type">
-                                        {{'Open.Manage.GrantType.App' | translate }}
-                                </label>
-                            </div>
-                        </div>
-                        <div class="form-group" valdr-form-group ng-show="consumerRole.type=='NamespaceRole'">
-                            <label class="col-sm-2 control-label">
-                                    {{'Open.Manage.GrantEnv' | translate }}
-                            </label>
-                            <div class="col-sm-10">
-                                <div>
-                                    <label class="checkbox-inline" ng-repeat="env in envs">
-                                        <input type="checkbox" ng-checked="env.checked" ng-click="switchSelect(env)" />
-                                        {{env.env}}
-                                    </label>
-                                </div>
-                                <small>{{'Open.Manage.GrantEnvTips' | translate }}</small>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-9">
-                                <button type="submit" class="btn btn-primary" ng-disabled="submitBtnDisabled">
-                                        {{'Common.Submit' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
+                    <apolloconfirmdialog apollo-dialog-id="'deleteConsumerDialog'"
+                                         apollo-title="'Delete.DeleteApp' | translate"
+                                         apollo-detail="'Open.Manage.DeleteConsumer.Confirm' | translate:this" apollo-show-cancel-btn="true"
+                                         apollo-confirm="deleteConsumer"></apolloconfirmdialog>
+
+                    <grantpermissionmodal consumer-role="consumerRole" assign-role-to-consumer="assignRoleToConsumer">
+                    </grantpermissionmodal>
 
                 </section>
 
@@ -233,6 +157,7 @@
 
     <script type="application/javascript" src="../scripts/PageCommon.js"></script>
     <script type="application/javascript" src="../scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="../scripts/directive/open-manage-grant-permission-modal-directive.js"></script>
     <script type="application/javascript" src="../scripts/valdr.js"></script>
 
     <script type="application/javascript" src="../scripts/controller/open/OpenManageController.js"></script>

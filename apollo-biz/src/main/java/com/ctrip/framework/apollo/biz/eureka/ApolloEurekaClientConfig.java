@@ -46,6 +46,7 @@ public class ApolloEurekaClientConfig extends EurekaClientConfigBean {
   /**
    * Assert only one zone: defaultZone, but multiple environments.
    */
+  @Override
   public List<String> getEurekaServerServiceUrls(String myZone) {
     List<String> urls = bizConfig.eurekaServiceUrls();
     return CollectionUtils.isEmpty(urls) ? super.getEurekaServerServiceUrls(myZone) : urls;

@@ -188,7 +188,7 @@ It should be noted that Quick Start does not support adding environments, but on
 > If prompted `system error, please retry or contact system owner`, please retry a few seconds later, because there is a refresh delay for services registered through Eureka.
 
 ### 4.1.2 Running the client application
-We have prepared a simple [Demo client](https://github.com/apolloconfig/apollo/blob/master/apollo-demo/src/main/java/com/ctrip/framework/apollo/demo/api/SimpleApolloConfigDemo.java) to demonstrate getting configuration from Apollo Configuration Center.
+We have prepared a simple [Demo client](https://github.com/apolloconfig/apollo-demo-java/blob/main/api-demo/src/main/java/com/apolloconfig/apollo/demo/api/SimpleApolloConfigDemo.java) to demonstrate getting configuration from Apollo Configuration Center.
 
 The program is simple: the user enters the name of a key, and the program outputs the value corresponding to that key.
 

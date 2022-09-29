@@ -29,15 +29,24 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
 
     $scope.submitBtnDisabled = false;
     $scope.userSelectWidgetId = 'toAssignMasterRoleUser';
+    $scope.consumerListPage = 0;
+    $scope.consumerList = [];
+    $scope.hasMoreconsumerList = false;
+    $scope.toOperationConsumer={}
 
     $scope.getTokenByAppId = getTokenByAppId;
     $scope.createConsumer = createConsumer;
     $scope.assignRoleToConsumer = assignRoleToConsumer;
+    $scope.getConsumerList = getConsumerList;
+    $scope.preDeleteConsumer = preDeleteConsumer;
+    $scope.deleteConsumer = deleteConsumer;
+    $scope.preGrantPermission = preGrantPermission;
 
     function init() {
         initOrganization();
         initPermission();
         initEnv();
+        getConsumerList();
     }
 
     function initOrganization() {
@@ -58,6 +67,41 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), "load organizations error");
         });
+    }
+
+    function getConsumerList() {
+        var size = 10;
+        ConsumerService.getConsumerList($scope.consumerListPage, size)
+        .then(function (result) {
+            $scope.consumerListPage += 1;
+            $scope.hasMoreconsumerList = result.length === size;
+
+            if (!result || result.length === 0) {
+                return;
+            }
+            result.forEach(function (app) {
+                $scope.consumerList.push(app);
+            });
+
+        })
+    }
+
+    let toDeleteAppId = '';
+
+    function preDeleteConsumer(app) {
+        $scope.toOperationConsumer = app;
+        toDeleteAppId = app.appId;
+        $("#deleteConsumerDialog").modal("show");
+    }
+
+    function deleteConsumer(){
+        ConsumerService.deleteConsumer(toDeleteAppId)
+        .then(function () {
+            toastr.success($translate.instant('Open.Manage.DeleteConsumer.Success'));
+            $scope.consumerList = $scope.consumerList.filter(consumer => consumer.appId !== toDeleteAppId);
+        },function (error) {
+            toastr.error(AppUtil.errorMsg(error), $translate.instant('Open.Manage.DeleteConsumer.Error'));
+        })
     }
 
     function initPermission() {
@@ -148,6 +192,12 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
                 $scope.submitBtnDisabled = false;
             })
 
+    }
+
+    function preGrantPermission(app){
+        $scope.consumer.appId = app.appId;
+        getTokenByAppId();
+        AppUtil.showModal('#grantPermissionModal');
     }
 
     function assignRoleToConsumer() {

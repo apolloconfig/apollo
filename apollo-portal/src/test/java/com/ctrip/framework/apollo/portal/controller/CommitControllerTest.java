@@ -17,11 +17,13 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
-import java.util.List;
 import org.junit.Test;
 import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
@@ -40,7 +42,7 @@ public class CommitControllerTest extends AbstractIntegrationTest {
       );
       fail("should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
+     assertThat(
           new String(e.getResponseBodyAsByteArray()), containsString("page should be positive or 0")
       );
     }

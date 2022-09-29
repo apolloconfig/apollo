@@ -80,7 +80,7 @@ public class ReleaseController {
     model.setNamespaceName(namespaceName);
 
     if (model.isEmergencyPublish() && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
-      throw new BadRequestException(String.format("Env: %s is not supported emergency publish now", env));
+      throw new BadRequestException("Env: %s is not supported emergency publish now", env);
     }
 
     ReleaseDTO createdRelease = releaseService.publish(model);
@@ -110,7 +110,7 @@ public class ReleaseController {
     model.setNamespaceName(namespaceName);
 
     if (model.isEmergencyPublish() && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
-      throw new BadRequestException(String.format("Env: %s is not supported emergency publish now", env));
+      throw new BadRequestException("Env: %s is not supported emergency publish now", env);
     }
 
     ReleaseDTO createdRelease = releaseService.publish(model);

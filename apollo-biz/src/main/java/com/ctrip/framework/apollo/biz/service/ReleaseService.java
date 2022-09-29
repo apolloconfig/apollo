@@ -33,11 +33,21 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,9 +55,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-
-import java.lang.reflect.Type;
-import java.util.*;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -322,10 +329,16 @@ public class ReleaseService {
       return null;
     }
 
-    Map<String, Object> operationContext = GSON
-        .fromJson(releaseHistories.getContent().get(0).getOperationContext(), OPERATION_CONTEXT_TYPE_REFERENCE);
+    String operationContextJson = releaseHistories.getContent().get(0).getOperationContext();
+    if (Strings.isNullOrEmpty(operationContextJson)
+        || !operationContextJson.contains(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
+      return null;
+    }
 
-    if (operationContext == null || !operationContext.containsKey(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
+    Map<String, Object> operationContext = GSON.fromJson(operationContextJson,
+        OPERATION_CONTEXT_TYPE_REFERENCE);
+
+    if (operationContext == null) {
       return null;
     }
 
@@ -396,20 +409,17 @@ public class ReleaseService {
 
   private Map<String, String> mergeConfiguration(Map<String, String> baseConfigurations,
                                                  Map<String, String> coverConfigurations) {
-    Map<String, String> result = new LinkedHashMap<>();
+    int expectedSize = baseConfigurations.size() + coverConfigurations.size();
+    Map<String, String> result = Maps.newLinkedHashMapWithExpectedSize(expectedSize);
+
     //copy base configuration
-    for (Map.Entry<String, String> entry : baseConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(baseConfigurations);
 
     //update and publish
-    for (Map.Entry<String, String> entry : coverConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(coverConfigurations);
 
     return result;
   }
-
 
   private Map<String, String> getNamespaceItems(Namespace namespace) {
     List<Item> items = itemService.findItemsWithOrdered(namespace.getId());
@@ -463,11 +473,11 @@ public class ReleaseService {
     PageRequest page = PageRequest.of(0, 2);
     List<Release> twoLatestActiveReleases = findActiveReleases(appId, clusterName, namespaceName, page);
     if (twoLatestActiveReleases == null || twoLatestActiveReleases.size() < 2) {
-      throw new BadRequestException(String.format(
+      throw new BadRequestException(
           "Can't rollback namespace(appId=%s, clusterName=%s, namespaceName=%s) because there is only one active release",
           appId,
           clusterName,
-          namespaceName));
+          namespaceName);
     }
 
     release.setAbandoned(true);
