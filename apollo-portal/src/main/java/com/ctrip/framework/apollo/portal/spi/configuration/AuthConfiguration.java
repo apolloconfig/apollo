@@ -310,7 +310,8 @@ public class AuthConfiguration {
   }
 
   @Profile("oidc")
-  @EnableConfigurationProperties({OAuth2ClientProperties.class, OAuth2ResourceServerProperties.class})
+  @EnableConfigurationProperties({OAuth2ClientProperties.class,
+      OAuth2ResourceServerProperties.class, OidcExtendProperties.class})
   @Configuration
   static class OidcAuthAutoConfiguration {
 
@@ -322,8 +323,9 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder oidcUserInfoHolder(UserService userService) {
-      return new OidcUserInfoHolder(userService);
+    public UserInfoHolder oidcUserInfoHolder(UserService userService,
+        OidcExtendProperties oidcExtendProperties) {
+      return new OidcUserInfoHolder(userService, oidcExtendProperties);
     }
 
     @Bean
@@ -354,8 +356,9 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(OidcLocalUserService oidcLocalUserService) {
-      return new OidcAuthenticationSuccessEventListener(oidcLocalUserService);
+    public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(
+        OidcLocalUserService oidcLocalUserService, OidcExtendProperties oidcExtendProperties) {
+      return new OidcAuthenticationSuccessEventListener(oidcLocalUserService, oidcExtendProperties);
     }
   }
 

@@ -34,6 +34,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -59,7 +60,9 @@ public class UserInfoController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/users")
-  public void createOrUpdateUser(@RequestBody UserPO user) {
+  public void createOrUpdateUser(
+      @RequestParam(value = "isCreate", defaultValue = "false") boolean isCreate,
+      @RequestBody UserPO user) {
     if (StringUtils.isContainEmpty(user.getUsername(), user.getPassword())) {
       throw new BadRequestException("Username and password can not be empty.");
     }
@@ -70,9 +73,23 @@ public class UserInfoController {
     }
 
     if (userService instanceof SpringSecurityUserService) {
-      ((SpringSecurityUserService) userService).createOrUpdate(user);
+      if (isCreate) {
+        ((SpringSecurityUserService) userService).create(user);
+      } else {
+        ((SpringSecurityUserService) userService).update(user);
+      }
     } else {
       throw new UnsupportedOperationException("Create or update user operation is unsupported");
+    }
+  }
+
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PutMapping("/users/enabled")
+  public void changeUserEnabled(@RequestBody UserPO user) {
+    if (userService instanceof SpringSecurityUserService) {
+      ((SpringSecurityUserService) userService).changeEnabled(user);
+    } else {
+      throw new UnsupportedOperationException("change user enabled is unsupported");
     }
   }
 
@@ -88,9 +105,10 @@ public class UserInfoController {
 
   @GetMapping("/users")
   public List<UserInfo> searchUsersByKeyword(@RequestParam(value = "keyword") String keyword,
+      @RequestParam(value = "includeInactiveUsers", defaultValue = "false") boolean includeInactiveUsers,
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
-    return userService.searchUsers(keyword, offset, limit);
+    return userService.searchUsers(keyword, offset, limit, includeInactiveUsers);
   }
 
   @GetMapping("/users/{userId}")

@@ -286,7 +286,7 @@ public class PermissionController {
 
   private void checkUserExists(String userId) {
     if (userService.findByUserId(userId) == null) {
-      throw new BadRequestException(String.format("User %s does not exist!", userId));
+      throw new BadRequestException("User %s does not exist!", userId);
     }
   }
 

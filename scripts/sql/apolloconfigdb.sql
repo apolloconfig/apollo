@@ -232,6 +232,7 @@ CREATE TABLE `Item` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
   `NamespaceId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '集群NamespaceId',
   `Key` varchar(128) NOT NULL DEFAULT 'default' COMMENT '配置项Key',
+  `Type` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '配置项类型，0: String，1: Number，2: Boolean，3: JSON',
   `Value` longtext NOT NULL COMMENT '配置项值',
   `Comment` varchar(1024) DEFAULT '' COMMENT '注释',
   `LineNum` int(10) unsigned DEFAULT '0' COMMENT '行号',
@@ -345,7 +346,8 @@ CREATE TABLE `ReleaseHistory` (
   PRIMARY KEY (`Id`),
   KEY `IX_Namespace` (`AppId`,`ClusterName`,`NamespaceName`,`BranchName`),
   KEY `IX_ReleaseId` (`ReleaseId`),
-  KEY `IX_DataChange_LastTime` (`DataChange_LastTime`)
+  KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
+  KEY `IX_PreviousReleaseId` (`PreviousReleaseId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='发布历史';
 
 

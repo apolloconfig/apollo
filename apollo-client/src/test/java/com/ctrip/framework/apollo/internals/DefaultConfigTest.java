@@ -902,7 +902,7 @@ public class DefaultConfigTest {
       public List<String> apply(String s) {
         return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(s);
       }
-    }, Lists.<String>newArrayList()), Lists.newArrayList("a", "b", "c"));
+    }, Lists.newArrayList()), Lists.newArrayList("a", "b", "c"));
     assertEquals(defaultConfig.getProperty(someNullKey, new Function<String, List<String>>() {
       @Override
       public List<String> apply(String s) {

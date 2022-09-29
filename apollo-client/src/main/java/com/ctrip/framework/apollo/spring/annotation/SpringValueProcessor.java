@@ -87,7 +87,6 @@ public class SpringValueProcessor extends ApolloProcessor implements BeanFactory
     return bean;
   }
 
-
   @Override
   protected void processField(Object bean, String beanName, Field field) {
     // register @Value on field
