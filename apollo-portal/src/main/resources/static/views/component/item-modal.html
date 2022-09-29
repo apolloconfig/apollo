@@ -43,18 +43,44 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'Component.ConfigItem.ItemValue' | translate }}</label>
+                    <label class="col-sm-2 control-label">
+                        <apollorequiredfield></apollorequiredfield>
+                        {{'Component.ConfigItem.ItemTypeName' | translate }}
+                    </label>
                     <div class="col-sm-10" valdr-form-group>
+                        <select class="form-control" name="type" ng-model="item.type" ng-change="changeType()">
+                            <option value="0">{{'Component.ConfigItem.ItemTypeString' | translate }}</option>
+                            <option value="1">{{'Component.ConfigItem.ItemTypeNumber' | translate }}</option>
+                            <option value="2">{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</option>
+                            <option value="3">{{'Component.ConfigItem.ItemTypeJson' | translate }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">{{'Component.ConfigItem.ItemValue' | translate }}</label>
+                    <div class="col-sm-10" valdr-form-group ng-show="item.type != '2'">
                         <textarea id="valueEditor" name="value" class="form-control" rows="6" tabindex="2"
-                            ng-required="false" ng-model="item.value">
+                            ng-required="false" ng-model="item.value" ng-blur="validateItemValue()">
                             </textarea>
                         {{'Component.ConfigItem.ItemValueTips' | translate }} <a
                             ng-click="showHiddenChars()">{{'Component.ConfigItem.ItemValueShowDetection' | translate }}</a>
                         <br>
+                        <div ng-show="showNumberError" ng-model="showNumberError" style="color:red">
+                            {{'Component.ConfigItem.ItemNumberError' | translate }}
+                        </div>
+                        <div ng-show="showJsonError" ng-model="showJsonError" style="color:red">
+                            {{'Component.ConfigItem.ItemJsonError' | translate }}
+                        </div>
                         <div class="bg-info" ng-show="showHiddenCharsContext && hiddenCharCounter == 0">
                             {{'Component.ConfigItem.ItemValueNotHiddenChars' | translate }}</div>
                         <div class="bg-info" ng-bind-html="valueWithHiddenChars"
                             ng-show="showHiddenCharsContext && hiddenCharCounter > 0"></div>
+                    </div>
+                    <div class="col-sm-10" valdr-form-group ng-show="item.type == '2'">
+                        <select class="form-control" name="value" ng-model="item.value">
+                            <option value="true">{{'Component.ConfigItem.ItemTypeTrue' | translate }}</option>
+                            <option value="false">{{'Component.ConfigItem.ItemTypeFalse' | translate }}</option>
+                        </select>
                     </div>
 
 
@@ -85,7 +111,7 @@
                     {{'Common.Cancel' | translate }}
                 </button>
                 <button type="submit" class="btn btn-primary"
-                    ng-disabled="itemForm.$invalid || (item.addItemBtnDisabled && item.tableViewOperType == 'create')">
+                    ng-disabled="itemForm.$invalid || (item.addItemBtnDisabled && item.tableViewOperType == 'create') || showNumberError || showJsonError ">
                     {{'Common.Submit' | translate }}
                 </button>
             </div>

@@ -39,8 +39,17 @@ public class BeanRegistrationUtil {
     );
   }
 
+  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass) {
+    return registerBeanDefinitionIfNotExists(registry, beanClass, null);
+  }
+
+  public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, Class<?> beanClass,
+                                                          Map<String, Object> extraPropertyValues) {
+    return registerBeanDefinitionIfNotExists(registry, beanClass.getName(), beanClass, extraPropertyValues);
+  }
+
   public static boolean registerBeanDefinitionIfNotExists(BeanDefinitionRegistry registry, String beanName,
-      Class<?> beanClass) {
+                                                          Class<?> beanClass) {
     return registerBeanDefinitionIfNotExists(registry, beanName, beanClass, null);
   }
 
@@ -79,6 +88,5 @@ public class BeanRegistrationUtil {
 
     return true;
   }
-
 
 }

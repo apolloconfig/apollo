@@ -21,6 +21,7 @@ public class UserInfo {
   private String userId;
   private String name;
   private String email;
+  private int enabled;
 
   public UserInfo() {
 
@@ -54,6 +55,13 @@ public class UserInfo {
     this.email = email;
   }
 
+  public int getEnabled() {
+    return enabled;
+  }
+
+  public void setEnabled(int enabled) {
+    this.enabled = enabled;
+  }
   @Override
   public boolean equals(Object o) {
     if (o instanceof UserInfo) {

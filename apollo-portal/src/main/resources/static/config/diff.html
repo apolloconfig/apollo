@@ -65,6 +65,7 @@
                     </div>
                 </div>
             </header>
+            <!--step 1-->
             <div class="panel-body">
                 <div class="row" ng-show="syncItemStep == 1">
                     <div class="alert-info alert no-radius">
@@ -83,6 +84,23 @@
                                     apollo-default-checked-cluster="pageContext.clusterName"></apolloclusterselector>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Config.Diff.DiffType' | translate }}</label>
+                            <div class="col-sm-6">
+                                <div class="radio-inline">
+                                    <label >
+                                        <input type="radio" name="tableDiff" ng-click="isTableDiff = true" checked="true" ng-checked="isTableDiff">
+                                        {{'Config.Diff.TableDiff' | translate }}
+                                    </label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label >
+                                        <input type="radio" name="tableDiff" ng-click="isTableDiff = false" ng-checked="!isTableDiff">
+                                        {{'Config.Diff.TextDiff' | translate }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <hr>
                 </div>
@@ -91,8 +109,13 @@
                 <div class="row" ng-show="syncItemStep == 2">
                     <div class="row" style="margin-top: 10px;">
                         <div class="form-horizontal">
-                            <div class="col-sm-12">
+                            <div class="col-sm-12" ng-show="isTableDiff">
                                 <label class="control-label">
+                                    <input type="text" class="comment-toggle"
+                                           ng-model="searchKey"
+                                           placeholder="{{'Config.Diff.SearchKey' | translate }}">
+                                </label>
+                                <label class="control-label" ng-show="isPropertiesFormat">
                                     <input type="checkbox" class="comment-toggle" ng-checked="showCommentDiff"
                                         ng-click="showCommentDiff=!showCommentDiff">
                                     {{'Config.Diff.HasDiffComment' | translate }}
@@ -104,7 +127,7 @@
                                 </label>
                             </div>
                             <div class="col-sm-12 diff-content">
-                                <table class="table table-bordered table-striped table-hover">
+                                <table class="table table-bordered table-striped table-hover" ng-show="isTableDiff">
                                     <thead>
                                         <tr>
                                             <td>Key</td>
@@ -117,7 +140,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr ng-repeat="(key, itemsKeyedByCluster) in itemsKeyedByKey" ng-if="!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key])">
+                                        <tr ng-repeat="(key, itemsKeyedByCluster) in itemsKeyedByKey" ng-if="(searchKey === '' || key.indexOf(searchKey) !== -1 ) && (!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key]))">
                                             <td width="15%" ng-bind="key"></td>
                                             <td ng-repeat="cluster in syncData.syncToNamespaces"
                                                 ng-bind="(itemsKeyedByCluster[cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName] || {}).value">
@@ -129,6 +152,9 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                                <apollodiff  ng-show="!isTableDiff" old-str="syncData.syncToNamespaces[0].originTextInfo"
+                                             new-str="syncData.syncToNamespaces[1].originTextInfo" apollo-id="'releaseStrDiff'">
+                                </apollodiff>
                             </div>
                         </div>
                     </div>
@@ -158,6 +184,10 @@
     <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
     <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
+    <script type="text/javascript" src="../vendor/yaml.min.js"></script>
+    <script type="text/javascript" src="../vendor/xml2json.min.js"></script>
+    <script type="text/javascript" src="../vendor/diff.min.js"></script>
+
     <!-- bootstrap.js -->
     <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
@@ -177,6 +207,9 @@
     <script type="application/javascript" src="../scripts/PageCommon.js"></script>
     <script type="application/javascript" src="../scripts/directive/directive.js"></script>
     <script type="application/javascript" src="../scripts/directive/show-text-modal-directive.js"></script>
+    <script type="application/javascript" src="../scripts/directive/diff-directive.js"></script>
+
+
 </body>
 
 </html>

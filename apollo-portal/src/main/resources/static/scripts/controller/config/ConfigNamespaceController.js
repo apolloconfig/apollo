@@ -250,7 +250,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         }
 
         $scope.item = _.clone(toEditItem);
-
+        $scope.item.type = String($scope.item.type || 0)
         if (namespace.isBranch || namespace.isLinkedNamespace) {
             var existedItem = false;
             namespace.items.forEach(function (item) {
@@ -283,6 +283,9 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         $scope.item = {
             tableViewOperType: 'create'
         };
+        $scope.item.type = '0';
+        $scope.showNumberError = false;
+        $scope.showJsonError = false;
 
         $scope.toOperationNamespace = namespace;
         AppUtil.showModal('#itemModal');
@@ -403,33 +406,6 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         }
 
     }
-
-    EventManager.subscribe(EventManager.EventType.DELETE_NAMESPACE_FAILED, function (context) {
-        $scope.deleteNamespaceContext = context;
-
-        if (context.reason == 'master_instance') {
-            AppUtil.showModal('#deleteNamespaceDenyForMasterInstanceDialog');
-        } else if (context.reason == 'branch_instance') {
-            AppUtil.showModal('#deleteNamespaceDenyForBranchInstanceDialog');
-        } else if (context.reason == 'public_namespace') {
-            var otherAppAssociatedNamespaces = context.otherAppAssociatedNamespaces;
-            var namespaceTips = [];
-            otherAppAssociatedNamespaces.forEach(function (namespace) {
-                var appId = namespace.appId;
-                var clusterName = namespace.clusterName;
-                var url = AppUtil.prefixPath() + '/config.html?#/appid=' + appId + '&env=' + $scope.pageContext.env + '&cluster='
-                    + clusterName;
-
-                namespaceTips.push("<a target='_blank' href=\'" + url + "\'>AppId = " + appId + ", Cluster = " + clusterName
-                    + ", Namespace = " + namespace.namespaceName + "</a>");
-            });
-
-            $scope.deleteNamespaceContext.detailReason = $translate.instant('Config.DeleteNamespaceFailedTips') + "<br>" + namespaceTips.join("<br>");
-
-            AppUtil.showModal('#deleteNamespaceDenyForPublicNamespaceDialog');
-        }
-
-    });
 
     EventManager.subscribe(EventManager.EventType.SYNTAX_CHECK_TEXT_FAILED, function (context) {
         $scope.syntaxCheckContext = context;

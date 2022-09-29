@@ -13,21 +13,30 @@ Apollo提供了一套的Http REST接口，使第三方应用能够自己管理�
 * 第三方应用的AppId、应用名、部门
 * 第三方应用负责人
 
-Apollo管理员在 `http://{portal_address}/open/manage.html` 创建第三方应用，创建之前最好先查询此AppId是否已经创建。创建成功之后会生成一个token，如下图所示：
+Apollo管理员在 `http://{portal_address}/open/add-consumer.html` 创建第三方应用，创建之前最好先查询此AppId是否已经创建。创建成功之后会生成一个token，如下图所示：
 
 ![开放平台管理](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage.png)
 
-#### 2.2 给已注册的第三方应用授权
-第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 `http://{portal_address}/open/manage.html` 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
+#### 2.2 查看第三方应用
+Apollo管理员在 `http://{portal_address}/open/manage.html` 页面可以查看第三方应用列表。并提供了【查看Token并赋权】、【删除】等管理操作，如下图所示：
 
-#### 2.3 第三方应用调用Apollo Open API
+![第三方应用列表](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage-list.png)
 
-##### 2.3.1 调用Http REST接口
+【查看Token并赋权】的模态框页面如下图所示：
+
+![查看Token并赋权](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage-token.png)
+
+#### 2.3 给已注册的第三方应用授权
+第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 `http://{portal_address}/open/add-consumer.html` 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
+
+#### 2.4 第三方应用调用Apollo Open API
+
+##### 2.4.1 调用Http REST接口
 任何语言的第三方应用都可以调用Apollo的Open API，在调用接口时，需要设置注意以下两点：
  * Http Header中增加一个Authorization字段，字段值为申请的token
  * Http Header的Content-Type字段需要设置成application/json;charset=UTF-8
 
-##### 2.3.2 Java应用通过apollo-openapi调用Apollo Open API
+##### 2.4.2 Java应用通过apollo-openapi调用Apollo Open API
 从1.1.0版本开始，Apollo提供了[apollo-openapi](https://github.com/apolloconfig/apollo/tree/master/apollo-openapi)客户端，所以Java语言的第三方应用可以更方便地调用Apollo Open API。
 
 首先引入`apollo-openapi`依赖：
@@ -51,11 +60,11 @@ ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
 
 后续就可以通过`ApolloOpenApiClient`的接口直接操作Apollo Open API了，接口说明参见下面的Rest接口文档。
 
-##### 2.3.3 .Net core应用调用Apollo Open API
+##### 2.4.3 .Net core应用调用Apollo Open API
 
 .Net core也提供了open api的客户端，详见https://github.com/ctripcorp/apollo.net/pull/77
 
-##### 2.3.4 Shell Scripts调用Apollo Open API
+##### 2.4.4 Shell Scripts调用Apollo Open API
 
 封装了bash的function，底层使用curl来发送HTTP请求
 
@@ -92,6 +101,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.13 发布 Namespace](#_3213-发布配置接口)
 - [3.2.14 获取 Namespace 最后一次发布的内容](#_3214-获取某个namespace当前生效的已发布配置接口)
 - [3.2.15 回滚 Namespace](#_3215-回滚已发布配置接口)
+- [3.2.16 分页获取配置项](#_3216-分页获取配置项接口) 
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -556,6 +566,48 @@ releasedBy | true | String | 发布人，域账号，注意：如果`ApolloConfi
 operator | true | String | 删除配置的操作者，域账号
 
 * **返回值** ： 无
+
+##### 3.2.16 分页获取配置项接口
+
+* **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items
+* **Method** ： GET
+* **Version** ： >= 2.1.0
+* **Request Params** ：
+
+参数名 | 必选    | 类型  | 说明
+--- |-------|-----| ---
+page | false | int | 页码，从 0 开始，默认为 0
+size | false | int | 页大小，默认为 50
+
+* **返回值Sample** ：
+
+``` json
+{
+    "content": [
+        {
+            "key": "timeout",
+            "value": "3000",
+            "comment": "超时时间",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        },
+        {
+            "key": "page.size",
+            "value": "200",
+            "comment": "页大小",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        }
+    ],
+    "page": 0,
+    "size": 50,
+    "total": 2
+}
+```
 
 ### 四、错误码说明
 

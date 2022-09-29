@@ -27,16 +27,20 @@ import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -69,20 +73,18 @@ public class ItemController {
                         @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
     Item entity = BeanUtils.transform(Item.class, dto);
 
-    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {
       throw new BadRequestException("item already exists");
     }
     entity = itemService.save(entity);
-    builder.createItem(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
 
     Commit commit = new Commit();
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
     commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(builder.build());
+    commit.setChangeSets(new ConfigChangeContentBuilder().createItem(entity).build());
     commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
     commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
     commitService.save(commit);
@@ -141,7 +143,8 @@ public class ItemController {
 
     Item beforeUpdateItem = BeanUtils.transform(Item.class, managedEntity);
 
-    //protect. only value,comment,lastModifiedBy can be modified
+    //protect. only value,type,comment,lastModifiedBy can be modified
+    managedEntity.setType(entity.getType());
     managedEntity.setValue(entity.getValue());
     managedEntity.setComment(entity.getComment());
     managedEntity.setDataChangeLastModifiedBy(entity.getDataChangeLastModifiedBy());
@@ -234,6 +237,25 @@ public class ItemController {
           namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
+  }
+
+  @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public ItemDTO getByEncodedKey(@PathVariable("appId") String appId,
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
+    return this.get(appId, clusterName, namespaceName,
+        new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")
+  public PageDTO<ItemDTO> findItemsByNamespace(@PathVariable("appId") String appId,
+                                               @PathVariable("clusterName") String clusterName,
+                                               @PathVariable("namespaceName") String namespaceName,
+                                               Pageable pageable) {
+    Page<Item> itemPage = itemService.findItemsByNamespace(appId, clusterName, namespaceName, pageable);
+
+    List<ItemDTO> itemDTOS = BeanUtils.batchTransform(ItemDTO.class, itemPage.getContent());
+    return new PageDTO<>(itemDTOS, pageable, itemPage.getTotalElements());
   }
 
 }

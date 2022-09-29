@@ -70,7 +70,7 @@ public class InstanceConfigController {
                                            Pageable pageable) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException(String.format("release not found for %s", releaseId));
+      throw new NotFoundException("release not found for %s", releaseId);
     }
     Page<InstanceConfig> instanceConfigsPage = instanceService.findActiveInstanceConfigsByReleaseKey
         (release.getReleaseKey(), pageable);

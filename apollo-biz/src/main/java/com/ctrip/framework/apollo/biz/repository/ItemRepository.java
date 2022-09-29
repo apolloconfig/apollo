@@ -38,6 +38,8 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   List<Item> findByNamespaceIdAndDataChangeLastModifiedTimeGreaterThan(Long namespaceId, Date date);
 
   Page<Item> findByKey(String key, Pageable pageable);
+
+  Page<Item> findByNamespaceId(Long namespaceId, Pageable pageable);
   
   Item findFirst1ByNamespaceIdOrderByLineNumDesc(Long namespaceId);
 

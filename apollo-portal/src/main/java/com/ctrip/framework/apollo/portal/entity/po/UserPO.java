@@ -100,6 +100,7 @@ public class UserPO {
     userInfo.setUserId(this.getUsername());
     userInfo.setName(this.getUserDisplayName());
     userInfo.setEmail(this.getEmail());
+    userInfo.setEnabled(this.getEnabled());
     return userInfo;
   }
 }

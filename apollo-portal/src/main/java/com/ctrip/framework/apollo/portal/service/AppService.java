@@ -130,7 +130,7 @@ public class AppService {
     App managedApp = appRepository.findByAppId(appId);
 
     if (managedApp != null) {
-      throw new BadRequestException(String.format("App already exists. AppId = %s", appId));
+      throw new BadRequestException("App already exists. AppId = %s", appId);
     }
 
     UserInfo owner = userService.findByUserId(app.getOwnerName());
@@ -178,7 +178,7 @@ public class AppService {
 
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
-      throw new BadRequestException(String.format("App not exists. AppId = %s", appId));
+      throw new BadRequestException("App not exists. AppId = %s", appId);
     }
 
     managedApp.setName(app.getName());
@@ -188,7 +188,7 @@ public class AppService {
     String ownerName = app.getOwnerName();
     UserInfo owner = userService.findByUserId(ownerName);
     if (owner == null) {
-      throw new BadRequestException(String.format("App's owner not exists. owner = %s", ownerName));
+      throw new BadRequestException("App's owner not exists. owner = %s", ownerName);
     }
     managedApp.setOwnerName(owner.getUserId());
     managedApp.setOwnerEmail(owner.getEmail());
@@ -209,7 +209,7 @@ public class AppService {
   public App deleteAppInLocal(String appId) {
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
-      throw new BadRequestException(String.format("App not exists. AppId = %s", appId));
+      throw new BadRequestException("App not exists. AppId = %s", appId);
     }
     String operator = userInfoHolder.getUser().getUserId();
 

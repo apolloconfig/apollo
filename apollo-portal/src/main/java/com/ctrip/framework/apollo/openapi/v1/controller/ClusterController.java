@@ -60,8 +60,8 @@ public class ClusterController {
       @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
-      throw new BadRequestException(String.format(
-          "AppId not equal. AppId in path = %s, AppId in payload = %s", appId, cluster.getAppId()));
+      throw new BadRequestException(
+          "AppId not equal. AppId in path = %s, AppId in payload = %s", appId, cluster.getAppId());
     }
 
     String clusterName = cluster.getName();

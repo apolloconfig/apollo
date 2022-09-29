@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.api;
 
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 
 /**
  * @author wxq
@@ -37,4 +38,8 @@ public interface ItemOpenApiService {
 
   void removeItem(String appId, String env, String clusterName, String namespaceName, String key,
       String operator);
+
+  OpenPageDTO<OpenItemDTO> findItemsByNamespace(String appId, String env, String clusterName,
+                                                String namespaceName, int page, int size);
+
 }

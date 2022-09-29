@@ -13,24 +13,32 @@ The basic information is as follows.
 * AppId, app name, department of the third-party application
 * The person in charge of the third-party app
 
-Apollo administrator creates the third-party application at `http://{portal_address}/open/manage.html`. It is better to check whether this AppId has been created before creating it. After successful creation, a token will be generated as follows.
+Apollo administrator creates the third-party application at `http://{portal_address}/open/add-consumer.html`. It is better to check whether this AppId has been created before creating it. After successful creation, a token will be generated as follows.
 
 ![Open Platform Management](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage.png)
 
-#### 2.2 Authorization for registered third-party apps
+#### 2.2 View third-party apps
+Apollo administrator in `http://{portal_address}/open/manage.html` The HTML page allows you to view the list of third-party applications. It also provides management operations such as [View token and empower] and [delete], as shown in the following figure:
+![第三方应用列表](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage-list.png)
 
-Third-party applications should not be able to manipulate any Namespace configuration, so you need to bind the token to a Namespace that can be manipulated. Apollo administrators assign rights to the token in the `http://{portal_address}/open/manage.html` page. After the assignment, the third-party application can manage the configuration of the authorized Namespace through the Http REST interface provided by Apollo.
+The modal box page of [View token and empower] is shown in the following figure:
+![查看Token并赋权](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-open-manage-token.png)
 
-#### 2.3 Third-party application calls Apollo Open API
 
-##### 2.3.1 Calling the Http REST Interface
+#### 2.3 Authorization for registered third-party apps
+
+Third-party applications should not be able to manipulate any Namespace configuration, so you need to bind the token to a Namespace that can be manipulated. Apollo administrators assign rights to the token in the `http://{portal_address}/open/add-consumer.html` page. After the assignment, the third-party application can manage the configuration of the authorized Namespace through the Http REST interface provided by Apollo.
+
+#### 2.4 Third-party application calls Apollo Open API
+
+##### 2.4.1 Calling the Http REST Interface
 
 Third-party applications in any language can call Apollo's Open API. When calling the interface, you need to set attention to the following two points.
 
  * Add an Authorization field to the Http Header, with the field value of the applied token
  * Http Header Content-Type field needs to be set to application/json;charset=UTF-8
 
-##### 2.3.2 Java application calls Apollo Open API via apollo-openapi
+##### 2.4.2 Java application calls Apollo Open API via apollo-openapi
 
 Starting from version 1.1.0, Apollo provides the [apollo-openapi](https://github.com/apolloconfig/apollo/tree/master/apollo-openapi) client, so third-party applications in the Java language can more easily invoke the Apollo Open API.
 
@@ -57,11 +65,11 @@ ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
 
 You can then operate the Apollo Open API directly through the `ApolloOpenApiClient` interface, see the Rest interface documentation below for a description of the interface.
 
-##### 2.3.3 .Net core application calls Apollo Open API
+##### 2.4.3 .Net core application calls Apollo Open API
 
 Net core also provides a client for the open api, see https://github.com/ctripcorp/apollo.net/pull/77 for details
 
-##### 2.3.4 Shell Scripts calls Apollo Open API
+##### 2.4.4 Shell Scripts calls Apollo Open API
 
 Encapsulated bash functions, the underlying use of curl to send HTTP requests
 
@@ -156,8 +164,6 @@ Encapsulated bash functions, the underlying use of curl to send HTTP requests
     }
 ]
 ```
-
-##### 3.2.3 Getting the cluster interface 
 
 ##### 3.2.3 Getting the cluster interface 
 
@@ -556,6 +562,48 @@ This interface is the interface used to get whether the current namespace is loc
 | operator       | true     | String | Deletes the configured operator, domain account |
 
 * **Response Value** : None
+
+##### 3.2.16 Get configuration items with pagination
+
+* **URL** ：  `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items`
+* **Method** ： GET
+* **Version** ： >= 2.1.0
+* **Request Params** ：
+
+| Parameter Name | Required | Type | Description                                |
+|----------------|----------|------|--------------------------------------------|
+| page           | false    | int  | page number, starting from 0, default is 0 |
+| size           | false    | int  | records in each page, default is 50        |
+
+* **Response Sample** ：
+
+``` json
+{
+    "content": [
+        {
+            "key": "timeout",
+            "value": "3000",
+            "comment": "timeout",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        },
+        {
+            "key": "page.size",
+            "value": "200",
+            "comment": "page size",
+            "dataChangeCreatedBy": "mghio",
+            "dataChangeLastModifiedBy": "mghio",
+            "dataChangeCreatedTime": "2022-07-17T21:37:41.818+0800",
+            "dataChangeLastModifiedTime": "2022-07-17T21:37:41.818+0800"
+        }
+    ],
+    "page": 0,
+    "size": 50,
+    "total": 2
+}
+```
 
 ### IV. Error code description
 

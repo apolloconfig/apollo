@@ -50,7 +50,6 @@ public class BeanRegistrationUtilTest {
         getClass(), null));
     assertFalse(BeanRegistrationUtil.registerBeanDefinitionIfNotExists(someRegistry, someBeanName,
         getClass()));
-
   }
 
   @Test
@@ -58,7 +57,6 @@ public class BeanRegistrationUtilTest {
     someRegistry.registerBeanDefinition("someAnotherBean", Mockito.mock(BeanDefinition.class));
     assertTrue(BeanRegistrationUtil.registerBeanDefinitionIfNotExists(someRegistry, someBeanName,
         getClass(), null));
-
   }
 
   @Test
@@ -68,7 +66,21 @@ public class BeanRegistrationUtilTest {
     extraPropertyValues.put(someBeanName, "someProperty");
     assertTrue(BeanRegistrationUtil.registerBeanDefinitionIfNotExists(someRegistry, someBeanName,
         getClass(), extraPropertyValues));
+  }
 
+  @Test
+  public void registerBeanDefinitionIfNotExistsWithoutBeanNameTest() {
+    someRegistry.registerBeanDefinition(BeanDefinition.class.getName(), Mockito.mock(BeanDefinition.class));
+    assertFalse(BeanRegistrationUtil.registerBeanDefinitionIfNotExists(someRegistry, BeanDefinition.class));
+  }
+
+  @Test
+  public void registerBeanDefinitionIfNotExistsWithoutBeanNameWithExtPropTest() {
+    Map<String, Object> extraPropertyValues = new ConcurrentHashMap<>();
+    extraPropertyValues.put(someBeanName, "someProperty");
+    someRegistry.registerBeanDefinition(BeanDefinition.class.getName(), Mockito.mock(BeanDefinition.class));
+    assertFalse(BeanRegistrationUtil.registerBeanDefinitionIfNotExists(someRegistry, BeanDefinition.class,
+      extraPropertyValues));
   }
 
 }
