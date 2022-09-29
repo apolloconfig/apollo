@@ -15,159 +15,154 @@
  *
  */
 user_module.controller('ConfigController',
-    ['$scope', '$window', '$translate', 'toastr', 'AppUtil',
-      'ServerConfigService', 'PermissionService',
-      ConfigController]);
+    ['$scope', '$window', '$translate', 'toastr', 'AppUtil', 'ServerConfigService', 'PermissionService',
+        ConfigController]);
 
-function ConfigController($scope, $window, $translate, toastr, AppUtil,
-    ServerConfigService, PermissionService) {
-
-  $scope.serverConfig = {};
-  $scope.filterConfig = [];
-  $scope.status = '1';
-  $scope.previous = previous;
-  $scope.previousConfigService = previousConfigService;
-  $scope.nextConfigService = nextConfigService;
-  $scope.next = next;
-  $scope.configEdit = configEdit;
-  $scope.create = create;
-  $scope.createConfigService = createConfigService;
-  $scope.goback = goback;
-  $scope.gobackConfigService = gobackConfigService;
-  $scope.portalDB = portalDB;
-  $scope.configService = configService;
-
-  var pageIndex = 1;
-
-  var pageSize = 5;
-
-  initPermission();
-
-  getPortalDBConfig();
-
-  function initPermission() {
-    PermissionService.has_root_permission()
-    .then(function (result) {
-      $scope.isRootUser = result.hasPermission;
-    })
-  }
-
-  function getPortalDBConfig() {
-    ServerConfigService.find_portalDBConfig(pageIndex, pageSize)
-    .then(function (result) {
-      if (!result || result.length === 0) {
-        AppUtil.showWarningMsg("已经是最后一页了");
-        pageIndex = pageIndex - 1;
-        return;
-      }
-      $scope.filterConfig = [];
-      result.forEach(function (user) {
-        $scope.filterConfig.push(user);
-      });
-    })
-  }
-
-  function getConfigService() {
-    ServerConfigService.find_configService(pageIndex, pageSize)
-    .then(function (result) {
-      if (!result || result.length === 0) {
-        AppUtil.showWarningMsg("已经是最后一页了");
-        pageIndex = pageIndex - 1;
-        return;
-      }
-      $scope.filterConfig = [];
-      result.forEach(function (user) {
-        $scope.filterConfig.push(user);
-      });
-    })
-  }
-
-  function previous() {
-    if (pageIndex == 1) {
-      AppUtil.showWarningMsg("已经是第一页了");
-    } else {
-      pageIndex = pageIndex - 1;
-      getPortalDBConfig();
-    }
-  }
-
-  function previousConfigService() {
-    if (pageIndex == 1) {
-      AppUtil.showWarningMsg("已经是第一页了");
-    } else {
-      pageIndex = pageIndex - 1;
-      getConfigService();
-    }
-  }
-
-  function next() {
-    pageIndex = pageIndex + 1;
-
-    getPortalDBConfig();
-  }
-
-  function nextConfigService() {
-    pageIndex = pageIndex + 1;
-
-    getConfigService();
-  }
-
-  function configEdit(status, config) {
-    $scope.status = status;
+function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerConfigService, PermissionService) {
 
     $scope.serverConfig = {};
-    if (config != null) {
-      $scope.serverConfig = {
-        key: config.key,
-        value: config.value,
-        comment: config.comment
-      }
+    $scope.filterConfig = [];
+    $scope.status = '1';
+    $scope.previous = previous;
+    $scope.previousConfigService = previousConfigService;
+    $scope.nextConfigService = nextConfigService;
+    $scope.next = next;
+    $scope.configEdit = configEdit;
+    $scope.create = create;
+    $scope.createConfigService = createConfigService;
+    $scope.goback = goback;
+    $scope.gobackConfigService = gobackConfigService;
+    $scope.portalDB = portalDB;
+    $scope.configService = configService;
+
+    var pageIndex = 1;
+
+    var pageSize = 5;
+
+    initPermission();
+
+    getPortalDBConfig();
+
+    function initPermission() {
+        PermissionService.has_root_permission()
+        .then(function (result) {
+            $scope.isRootUser = result.hasPermission;
+        })
     }
-  }
 
-  function create() {
-    ServerConfigService.create($scope.serverConfig).then(function (result) {
-      toastr.success($translate.instant('ServiceConfig.Saved'));
-      $scope.serverConfig = result;
-    }, function (result) {
-      toastr.error(AppUtil.errorMsg(result),
-          $translate.instant('ServiceConfig.SaveFailed'));
-    });
-  };
+    function getPortalDBConfig() {
+        ServerConfigService.find_portalDBConfig(pageIndex, pageSize)
+        .then(function (result) {
+            if (!result || result.length === 0) {
+                AppUtil.showWarningMsg("已经是最后一页了");
+                pageIndex = pageIndex - 1;
+                return;
+            }
+            $scope.filterConfig = [];
+            result.forEach(function (user) {
+                $scope.filterConfig.push(user);
+            });
+        })
+    }
 
-  function createConfigService() {
+    function getConfigService(){
+        ServerConfigService.find_configService(pageIndex, pageSize)
+            .then(function (result) {
+                if (!result || result.length === 0) {
+                    AppUtil.showWarningMsg("已经是最后一页了");
+                    pageIndex = pageIndex - 1;
+                    return;
+                }
+                $scope.filterConfig = [];
+                result.forEach(function (user) {
+                    $scope.filterConfig.push(user);
+                });
+            })
+    }
 
-    ServerConfigService.createConfigService($scope.serverConfig).then(
-        function (result) {
-          toastr.success($translate.instant('ServiceConfig.Saved'));
-          $scope.serverConfig = result;
+    function previous(){
+        if(pageIndex == 1){
+            AppUtil.showWarningMsg("已经是第一页了");
+        }else{
+            pageIndex = pageIndex - 1;
+            getPortalDBConfig();
+        }
+    }
+
+    function previousConfigService(){
+        if(pageIndex == 1){
+            AppUtil.showWarningMsg("已经是第一页了");
+        }else{
+            pageIndex = pageIndex - 1;
+            getConfigService();
+        }
+    }
+
+    function next(){
+        pageIndex = pageIndex + 1;
+
+        getPortalDBConfig();
+    }
+
+    function nextConfigService(){
+        pageIndex = pageIndex + 1;
+
+        getConfigService();
+    }
+
+    function configEdit (status,config) {
+        $scope.status = status;
+
+        $scope.serverConfig = {};
+        if (config != null) {
+            $scope.serverConfig = {
+                key: config.key,
+                value: config.value,
+                comment: config.comment
+            }
+        }
+    }
+
+    function create() {
+        ServerConfigService.create($scope.serverConfig).then(function (result) {
+            toastr.success($translate.instant('ServiceConfig.Saved'));
+            $scope.serverConfig = result;
         }, function (result) {
-          toastr.error(AppUtil.errorMsg(result),
-              $translate.instant('ServiceConfig.SaveFailed'));
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
         });
-  }
+    };
 
-  function goback() {
-    $scope.status = '1';
+    function createConfigService(){
 
-    getPortalDBConfig();
-  }
+        ServerConfigService.createConfigService($scope.serverConfig).then(function (result) {
+            toastr.success($translate.instant('ServiceConfig.Saved'));
+            $scope.serverConfig = result;
+        }, function (result) {
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
+        });
+    }
 
-  function gobackConfigService() {
-    $scope.status = '3';
+    function goback(){
+        $scope.status = '1';
 
-    getConfigService();
-  }
+        getPortalDBConfig();
+    }
 
-  function portalDB() {
-    $scope.status = '1';
-    pageIndex = 1;
-    getPortalDBConfig();
-  }
+    function gobackConfigService(){
+        $scope.status = '3';
 
-  function configService() {
-    $scope.status = '3';
-    pageIndex = 1;
-    getConfigService();
-  }
+        getConfigService();
+    }
+
+    function portalDB(){
+        $scope.status = '1';
+        pageIndex = 1;
+        getPortalDBConfig();
+    }
+
+    function configService(){
+        $scope.status = '3';
+        pageIndex = 1;
+        getConfigService();
+    }
 }

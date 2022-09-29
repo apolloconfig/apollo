@@ -18,261 +18,253 @@
 <html ng-app="user">
 
 <head>
-  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
-  <link href="./img/config.png" rel="icon">
-  <!-- styles -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/angular/angular-toastr-1.4.1.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/select2/select2.min.css" rel="stylesheet" type="text/css">
-  <link href="vendor/angular/loading-bar.min.css" media='all' rel="stylesheet" type="text/css">
-  <link href="styles/common-style.css" rel="stylesheet" type="text/css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="./img/config.png">
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
 
-  <title>{{'ConfigMange.Title' | translate }}</title>
+    <title>{{'ConfigMange.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
-<div class="container-fluid apollo-container" id="user-list" ng-controller="ConfigController">
-  <div class="col-md-8 col-md-offset-2 panel">
-    <section class="panel-body" ng-show="isRootUser">
-      <div class="main-table"></div>
-      <div class="row">
+    <apollonav></apollonav>
+    <div id ="user-list" class="container-fluid apollo-container" ng-controller="ConfigController">
+        <div class="col-md-8 col-md-offset-2 panel">
+            <section class="panel-body" ng-show="isRootUser">
+                <div class="main-table"></div>
+                <div class="row">
 
-        <div class="table-responsive" ng-show="status==='1'">
-          <div>
-            <div style="height: 15px"></div>
-            <div>
-              <button class="btn btn-primary" ng-click="portalDB()"
-                      type="button">
-                PortalDB
-              </button>
-              <button class="btn btn-primary" ng-click="configService()"
-                      type="button">
-                ConfigService
-              </button>
-              (维护ApolloPortalDB.ServerConfig表数据，配置更新后，一分钟后自动生效)
-            </div>
-            <div style="height: 15px"></div>
-          </div>
-          <table class="table table-bordered table-striped table-hover">
-            <tr>
-              <th style="text-align: left">{{'config.key' | translate }}</th>
-              <th style="text-align: left">{{'config.value' | translate }}</th>
-              <th style="text-align: left">{{'config.comment' | translate }}</th>
-              <th style="text-align: left">{{'config.operation' | translate }}</th>
-            </tr>
-            <tr class="hover cursor-pointer" href="#" ng-repeat="config in filterConfig">
-              <td>{{ config.key }}</td>
-              <td>{{ config.value }}</td>
-              <td>{{ config.comment }}</td>
-              <td>
-                                    <span class="btn btn-primary"
-                                          ng-click="configEdit('2', config)">
+                    <div class="table-responsive"  ng-show="status==='1'" >
+                        <div>
+                            <div style="height: 15px"></div>
+                            <div>
+                                <button type="button" ng-click="portalDB()"
+                                        class="btn btn-primary">
+                                    PortalDB
+                                </button>
+                                <button type="button" ng-click="configService()"
+                                        class="btn btn-primary">
+                                    ConfigService
+                                </button>
+                                (维护ApolloPortalDB.ServerConfig表数据，配置更新后，一分钟后自动生效)
+                            </div>
+                            <div style="height: 15px"></div>
+                        </div>
+                        <table class="table table-bordered table-striped table-hover">
+                            <tr>
+                                <th style="text-align: left">{{'config.key' | translate }}</th>
+                                <th style="text-align: left">{{'config.value' | translate }}</th>
+                                <th style="text-align: left">{{'config.comment' | translate }}</th>
+                                <th style="text-align: left">{{'config.operation' | translate }}</th>
+                            </tr>
+                            <tr ng-repeat="config in filterConfig" href="#" class="hover cursor-pointer">
+                                <td>{{ config.key }}</td>
+                                <td>{{ config.value }}</td>
+                                <td>{{ config.comment }}</td>
+                                <td>
+                                    <span class="btn btn-primary" ng-click="configEdit('2', config)">
                                         {{'UserMange.Edit' | translate }}
                                     </span>
-              </td>
-            </tr>
-          </table>
+                                </td>
+                            </tr>
+                        </table>
 
-          <div style="text-align: end;">
-            <button class="btn btn-primary" ng-click="previous()"
-                    type="button">
-              {{'Common.Previous' | translate }}
-            </button>
-            <button class="btn btn-primary" ng-click="next()"
-                    type="button">
-              {{'Common.Next' | translate }}
-            </button>
-          </div>
-        </div>
+                        <div style="text-align: end;">
+                            <button type="button" ng-click="previous()"
+                                    class="btn btn-primary">
+                                {{'Common.Previous' | translate }}
+                            </button>
+                            <button type="button" ng-click="next()"
+                                    class="btn btn-primary">
+                                {{'Common.Next' | translate }}
+                            </button>
+                        </div>
+                    </div>
 
-        <div ng-show="status==='2'">
-          <div class="panel-body">
-            <form class="form-horizontal">
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  <apollorequiredfield></apollorequiredfield>
-                  {{'ServiceConfig.Key' | translate }}
-                </label>
-                <div class="col-sm-9">
-                  <input class="form-control" name="key" ng-model="serverConfig.key" required
-                         type="text">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  <apollorequiredfield></apollorequiredfield>
-                  {{'ServiceConfig.Value' | translate }}
-                </label>
-                <div class="col-sm-9">
-                                    <textarea class="form-control" name="value" ng-model="serverConfig.value"
-                                              rows="4"></textarea>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  {{'ServiceConfig.Comment' | translate }}</label>
-                <div class="col-sm-9">
-                                    <textarea class="form-control" name="comment" ng-model="serverConfig.comment"
-                                              rows="4"></textarea>
-                </div>
-              </div>
+                    <div ng-show="status==='2'">
+                        <div class="panel-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
+                                        {{'ServiceConfig.Key' | translate }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
+                                        {{'ServiceConfig.Value' | translate }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        {{'ServiceConfig.Comment' | translate }}</label>
+                                    <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                    </div>
+                                </div>
 
-              <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                  <button class="btn btn-primary" ng-click="create()" ng-disabled="saveBtnDisabled"
-                          type="submit">
-                    {{'Common.Save' | translate }}
-                  </button>
-                  <button class="btn" ng-click="goback()" type="button">{{('UserMange.Back'
-                      | translate) }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-primary" ng-disabled="saveBtnDisabled"
+                                                ng-click="create()">
+                                            {{'Common.Save' | translate }}
+                                        </button>
+                                        <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
 
-        <div class="table-responsive" ng-show="status==='3'">
-          <div>
-            <div style="height: 15px"></div>
-            <div>
-              <button class="btn btn-primary" ng-click="portalDB()"
-                      type="button">
-                PortalDB
-              </button>
-              <button class="btn btn-primary" ng-click="configService()"
-                      type="button">
-                ConfigService
-              </button>
-              (ApolloConfigDB.ServerConfig表数据，配置更新后，一分钟后自动生效)
-            </div>
-            <div style="height: 15px"></div>
-          </div>
-          <table class="table table-bordered table-striped table-hover">
-            <tr>
-              <th style="text-align: left">{{'config.key' | translate }}</th>
-              <th style="text-align: left">{{'config.value' | translate }}</th>
-              <th style="text-align: left">{{'config.comment' | translate }}</th>
-              <th style="text-align: left">{{'config.operation' | translate }}</th>
-            </tr>
-            <tr class="hover cursor-pointer" href="#" ng-repeat="config in filterConfig">
-              <td>{{ config.key }}</td>
-              <td>{{ config.value }}</td>
-              <td>{{ config.comment }}</td>
-              <td>
-                                    <span class="btn btn-primary"
-                                          ng-click="configEdit('4', config)">
+                    <div class="table-responsive"  ng-show="status==='3'" >
+                        <div>
+                            <div style="height: 15px"></div>
+                            <div>
+                                <button type="button" ng-click="portalDB()"
+                                        class="btn btn-primary">
+                                    PortalDB
+                                </button>
+                                <button type="button" ng-click="configService()"
+                                        class="btn btn-primary">
+                                    ConfigService
+                                </button>
+                                (ApolloConfigDB.ServerConfig表数据，配置更新后，一分钟后自动生效)
+                            </div>
+                            <div style="height: 15px"></div>
+                        </div>
+                        <table class="table table-bordered table-striped table-hover">
+                            <tr>
+                                <th style="text-align: left">{{'config.key' | translate }}</th>
+                                <th style="text-align: left">{{'config.value' | translate }}</th>
+                                <th style="text-align: left">{{'config.comment' | translate }}</th>
+                                <th style="text-align: left">{{'config.operation' | translate }}</th>
+                            </tr>
+                            <tr ng-repeat="config in filterConfig" href="#" class="hover cursor-pointer">
+                                <td>{{ config.key }}</td>
+                                <td>{{ config.value }}</td>
+                                <td>{{ config.comment }}</td>
+                                <td>
+                                    <span class="btn btn-primary" ng-click="configEdit('4', config)">
                                         {{'UserMange.Edit' | translate }}
                                     </span>
-              </td>
-            </tr>
-          </table>
+                                </td>
+                            </tr>
+                        </table>
 
-          <div style="text-align: end;">
-            <button class="btn btn-primary" ng-click="previousConfigService()"
-                    type="button">
-              {{'Common.Previous' | translate }}
-            </button>
-            <button class="btn btn-primary" ng-click="nextConfigService()"
-                    type="button">
-              {{'Common.Next' | translate }}
-            </button>
-          </div>
+                        <div style="text-align: end;">
+                            <button type="button" ng-click="previousConfigService()"
+                                    class="btn btn-primary">
+                                {{'Common.Previous' | translate }}
+                            </button>
+                            <button type="button" ng-click="nextConfigService()"
+                                    class="btn btn-primary">
+                                {{'Common.Next' | translate }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div ng-show="status==='4'">
+                        <div class="panel-body">
+                            <form class="form-horizontal">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
+                                        {{'ServiceConfig.Key' | translate }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
+                                        {{'ServiceConfig.Value' | translate }}
+                                    </label>
+                                    <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">
+                                        {{'ServiceConfig.Comment' | translate }}</label>
+                                    <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-primary"
+                                                ng-click="createConfigService()">
+                                            {{'Common.Save' | translate }}
+                                        </button>
+                                        <button type="button" ng-click="gobackConfigService()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </div>
+    </div>
 
-        <div ng-show="status==='4'">
-          <div class="panel-body">
-            <form class="form-horizontal">
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  <apollorequiredfield></apollorequiredfield>
-                  {{'ServiceConfig.Key' | translate }}
-                </label>
-                <div class="col-sm-9">
-                  <input class="form-control" name="key" ng-model="serverConfig.key" required
-                         type="text">
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  <apollorequiredfield></apollorequiredfield>
-                  {{'ServiceConfig.Value' | translate }}
-                </label>
-                <div class="col-sm-9">
-                                    <textarea class="form-control" name="value" ng-model="serverConfig.value"
-                                              rows="4"></textarea>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-sm-2 control-label">
-                  {{'ServiceConfig.Comment' | translate }}</label>
-                <div class="col-sm-9">
-                                    <textarea class="form-control" name="comment" ng-model="serverConfig.comment"
-                                              rows="4"></textarea>
-                </div>
-              </div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-              <div class="form-group">
-                <div class="col-sm-offset-2 col-sm-10">
-                  <button class="btn btn-primary" ng-click="createConfigService()"
-                          type="submit">
-                    {{'Common.Save' | translate }}
-                  </button>
-                  <button class="btn" ng-click="gobackConfigService()" type="button">
-                    {{('UserMange.Back' | translate) }}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-</div>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<div ng-include="'views/common/footer.html'"></div>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!--angular-->
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-resource.min.js"></script>
-<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="vendor/angular/loading-bar.min.js"></script>
-<script src="vendor/angular/angular-cookies.min.js"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
 
-<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
-<script
-    src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
-<script
-    src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<!-- jquery.js -->
-<script src="vendor/jquery.min.js" type="text/javascript"></script>
-<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<!-- bootstrap.js -->
-<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/ServerConfigService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
 
-<!--valdr-->
-<script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <script type="application/javascript" src="scripts/controller/ConfigController.js"></script>
 
-<script src="scripts/app.js" type="application/javascript"></script>
-<script src="scripts/services/AppService.js" type="application/javascript"></script>
-<script src="scripts/services/EnvService.js" type="application/javascript"></script>
-<script src="scripts/services/ServerConfigService.js" type="application/javascript"></script>
-<script src="scripts/services/UserService.js" type="application/javascript"></script>
-<script src="scripts/services/CommonService.js" type="application/javascript"></script>
-<script src="scripts/AppUtils.js" type="application/javascript"></script>
-<script src="scripts/services/OrganizationService.js" type="application/javascript"></script>
-<script src="scripts/directive/directive.js" type="application/javascript"></script>
-<script src="scripts/services/PermissionService.js" type="application/javascript"></script>
-
-<script src="scripts/controller/ConfigController.js" type="application/javascript"></script>
-
-<script src="scripts/valdr.js" type="text/javascript"></script>
+    <script src="scripts/valdr.js" type="text/javascript"></script>
 </body>
 
 </html>
