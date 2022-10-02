@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.api;
 
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
 import java.nio.charset.StandardCharsets;
@@ -236,6 +237,29 @@ public class AdminServiceAPI {
               "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page?page={page}&size={size}",
                       openItemPageDTO, appId, clusterName, namespaceName, page, size);
       return entity.getBody();
+    }
+  }
+
+  @Service
+  public static class ConfigServiceAPI extends API{
+    /**
+     * 获取所有的配置信息
+     * @param env
+     * @return
+     */
+    public List<ServerConfigDTO> findAllConfigService(Env env) {
+      ServerConfigDTO serverConfigDTO = new ServerConfigDTO();
+      ServerConfigDTO[] serverConfigDTOS = restTemplate.get(env, "/apps/serverConfig/findAllConfigService", ServerConfigDTO[].class);
+
+      return Arrays.asList(serverConfigDTOS);
+    }
+
+    public ServerConfig create(Env env, ServerConfig serverConfig) {
+      return restTemplate.post(env, "/apps/serverConfig/create", serverConfig, ServerConfig.class);
+    }
+
+    public ServerConfig update(Env env, ServerConfig serverConfig) {
+      return restTemplate.post(env, "/apps/serverConfig/update", serverConfig, ServerConfig.class);
     }
   }
 

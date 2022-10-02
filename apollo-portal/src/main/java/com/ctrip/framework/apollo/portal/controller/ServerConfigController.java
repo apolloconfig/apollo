@@ -17,14 +17,14 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 
+import com.ctrip.framework.apollo.common.dto.ServerConfigDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
+import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +46,17 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
+  private final AdminServiceAPI.ConfigServiceAPI configServiceAPI;
+  private PortalSettings portalSettings;
 
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository,
-      final UserInfoHolder userInfoHolder) {
+  public ServerConfigController(final ServerConfigRepository serverConfigRepository
+      , final AdminServiceAPI.ConfigServiceAPI configServiceAPI
+      , final UserInfoHolder userInfoHolder
+      , final PortalSettings portalSettings) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
+    this.portalSettings = portalSettings;
+    this.configServiceAPI = configServiceAPI;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
@@ -76,25 +82,28 @@ public class ServerConfigController {
   public void addConfigService(@Valid @RequestBody ServerConfig serverConfig) throws SQLException {
     String modifiedBy = userInfoHolder.getUser().getUserId();
 
-    Connection conn = getConn();
-    PreparedStatement pst = (PreparedStatement) conn.prepareStatement(
-        "select * from serverconfig where serverconfig.Key='" + serverConfig.getKey() + "'");
-    ResultSet rs = pst.executeQuery();
+    List<Env> activeEnvs = portalSettings.getActiveEnvs();
+    List<ServerConfigDTO> serverConfigDTOS = configServiceAPI.findAllConfigService(
+        activeEnvs.get(0));
 
-    if (rs.next()) {
-      pst = (PreparedStatement) conn.prepareStatement(
-          "update serverconfig set Value='" + serverConfig.getValue() + "',Comment='"
-              + serverConfig.getComment() + "' where serverconfig.Key='" + serverConfig.getKey()
-              + "'");
+    boolean isExist = false;
 
-      pst.executeUpdate();
+    for (ServerConfigDTO item : serverConfigDTOS) {
+      if (item.getKey().equals(serverConfig.getKey())) {
+        isExist = true;
+        serverConfig.setId(item.getId());
+        break;
+      }
+    }
+
+    serverConfig.setDataChangeCreatedBy(modifiedBy);
+    serverConfig.setDataChangeLastModifiedBy(modifiedBy);
+    if (isExist) {
+      // 修改
+      configServiceAPI.update(activeEnvs.get(0), serverConfig);
     } else {
-      pst = (PreparedStatement) conn.prepareStatement(
-          "insert into serverconfig(Id,serverconfig.Key,Value,Comment,DataChange_CreatedBy,DataChange_LastModifiedBy) values (null,'"
-              + serverConfig.getKey() +
-              "','" + serverConfig.getValue() + "','" + serverConfig.getComment() + "','"
-              + modifiedBy + "','')");
-      pst.executeUpdate();
+      // 新增
+      configServiceAPI.create(activeEnvs.get(0), serverConfig);
     }
   }
 
@@ -126,69 +135,26 @@ public class ServerConfigController {
   }
 
   @GetMapping("/server/config/findAllConfigService")
-  public List<ServerConfig> findAllConfigService(
+  public List<ServerConfigDTO> findAllConfigService(
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
-    Connection conn = getConn();
-    List<ServerConfig> serverConfigs = new ArrayList<>();
-    String sql = "select * FROM serverconfig where 1=1 limit " + (offset - 1) * limit + "," + limit;
+
+    List<Env> activeEnvs = portalSettings.getActiveEnvs();
+    List<ServerConfigDTO> serverConfigDTOS = configServiceAPI.findAllConfigService(
+        activeEnvs.get(0));
+
     try {
-      PreparedStatement pst = (PreparedStatement) conn.prepareStatement(sql);
-
-      ResultSet rs = pst.executeQuery();
-
-      while (rs.next()) {
-        String key = rs.getString("Key");
-        String value = rs.getString("Value");
-        String comment = rs.getString("Comment");
-
-        ServerConfig config = new ServerConfig();
-        config.setKey(key);
-        config.setValue(value);
-        config.setComment(comment);
-
-        serverConfigs.add(config);
-      }
-    } catch (SQLException e) {
-      return null;
+      return serverConfigDTOS.subList((offset - 1) * limit,
+          offset * limit > serverConfigDTOS.size() ? serverConfigDTOS.size() : offset * limit);
+    } catch (Exception ex) {
+      return new ArrayList<>();
     }
-
-    return serverConfigs;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/{key:.+}")
   public ServerConfig loadServerConfig(@PathVariable String key) {
     return serverConfigRepository.findByKey(key);
-  }
-
-  public Connection getConn() {
-    // 数据库连接对象
-    Connection conn = null;
-
-    // 数据库链接地址
-    String dbUrl = "jdbc:mysql://localhost:3306/apolloconfigdb?characterEncoding=utf-8";
-
-    // 用户名
-    String dbUserName = "root";
-
-    // 密码
-    String dbPassword = "123456";
-
-    // 数据库驱动类
-    String jdbcName = "com.mysql.jdbc.Driver";
-
-    try {
-      // 加载数据库驱动类
-      Class.forName(jdbcName);
-      conn = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-
-    return conn;
   }
 
 }
