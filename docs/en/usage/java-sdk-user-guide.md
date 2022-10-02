@@ -57,7 +57,7 @@ Make sure that the classpath:/META-INF/app.properties file exists and that its c
 
 The file location reference is as follows.
 
-![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-id-location.png)
 
 > Note: app.id is a unique id used to identify the application identity in the format string.
 
@@ -119,7 +119,7 @@ One thing to note is that apollo will iterate through all MetaServerProviders in
 
 **If your company has many applications that need to access Apollo, it is recommended to package a jar package and then provide a custom Apollo Meta Server positioning logic so that the applications that access Apollo can be used with zero configuration. For example, write your own `xx-company-apollo-client`, the jar package depends on `apollo-client`, define a custom MetaServerProvider implementation in the jar package by spi, and then the application directly depends on `xx-company-apollo-client`.**
 
-The implementation of MetaServerProvider can be found in [LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java) and [DefaultMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java).
+The implementation of MetaServerProvider can be found in [LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java) and [DefaultMetaServerProvider](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java).
 
 #### 1.2.2.2 Skip Apollo Meta Server service discovery
 
@@ -163,7 +163,7 @@ The local configuration file will be placed under the local cache path in the fo
 * AppId is the application's own appId, e.g. 100004458
 * Cluster is the cluster used by the application, generally in local mode without configuration, it is default
 * Namespace is the configuration `namespace` used by the application, usually `application`
-  ![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
+  ![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-local-cache.png)
 
 The content of the file is stored in properties format, for example, if there are two keys, one is request.timeout, and the other is batch, then the content of the file is in the following format.
 
@@ -392,7 +392,7 @@ Make sure that the `classpath:/META-INF/app.properties` file exists and that its
 
 The file location reference is as follows.
 
-![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-id-location.png)
 
 > Note: apollo.label is a label used to identify the application identity in the format string.
 
@@ -1181,7 +1181,7 @@ Local configuration files need to be placed in the local configuration directory
 * AppId is the application's own appId, such as 100004458
 * Cluster is the cluster used by the application, generally in local mode without configuration, it is default
 * Namespace is the configuration `namespace` used by the `application`, usually `application`
-  ![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
+  ![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-local-cache.png)
 
 The content of the file is stored in properties format, for example, if there are two keys, one is request.timeout and the other is batch, then the content of the file is in the following format.
 
