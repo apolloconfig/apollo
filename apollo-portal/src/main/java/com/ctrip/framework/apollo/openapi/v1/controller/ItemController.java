@@ -26,6 +26,8 @@ import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -67,6 +69,14 @@ public class ItemController {
     return this.itemOpenApiService.getItem(appId, env, clusterName, namespaceName, key);
   }
 
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public OpenItemDTO getItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName,
+      @PathVariable String namespaceName, @PathVariable String key) {
+    return this.getItem(appId, env, clusterName, namespaceName,
+        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
+  }
+
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
@@ -82,7 +92,7 @@ public class ItemController {
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException(String.format("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH));
+      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
     }
 
     return this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
@@ -108,7 +118,7 @@ public class ItemController {
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException(String.format("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH));
+      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
     }
 
     if (createIfNotExists) {
@@ -116,6 +126,17 @@ public class ItemController {
     } else {
       this.itemOpenApiService.updateItem(appId, env, clusterName, namespaceName, item);
     }
+  }
+
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public void updateItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key, @RequestBody OpenItemDTO item,
+      @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
+    this.updateItem(appId, env, clusterName, namespaceName,
+        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
+        createIfNotExists, request);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -135,6 +156,17 @@ public class ItemController {
     }
 
     this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);
+  }
+
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public void deleteItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key, @RequestParam String operator,
+      HttpServletRequest request) {
+    this.deleteItem(appId, env, clusterName, namespaceName,
+        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator,
+        request);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")

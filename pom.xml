@@ -63,8 +63,10 @@
 		<revision>2.1.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<apollo-java.version>2.1.0-SNAPSHOT</apollo-java.version>
 		<spring-boot.version>2.6.8</spring-boot.version>
 		<spring-cloud.version>2021.0.2</spring-cloud.version>
+		<spring-security.version>5.7.3</spring-security.version>
 		<jaxb.version>2.3.1</jaxb.version>
 		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
@@ -88,17 +90,12 @@
 
 	<modules>
 		<module>apollo-buildtools</module>
-		<module>apollo-core</module>
-		<module>apollo-client</module>
-		<module>apollo-client-config-data</module>
 		<module>apollo-common</module>
 		<module>apollo-biz</module>
 		<module>apollo-configservice</module>
 		<module>apollo-adminservice</module>
 		<module>apollo-portal</module>
 		<module>apollo-assembly</module>
-		<module>apollo-mockserver</module>
-		<module>apollo-openapi</module>
 	</modules>
 
 	<dependencyManagement>
@@ -106,12 +103,12 @@
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-core</artifactId>
-				<version>${project.version}</version>
+				<version>${apollo-java.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-client</artifactId>
-				<version>${project.version}</version>
+				<version>${apollo-java.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
@@ -146,7 +143,7 @@
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-openapi</artifactId>
-				<version>${project.version}</version>
+				<version>${apollo-java.version}</version>
 			</dependency>
 			<!--third party -->
 			<dependency>
@@ -214,6 +211,14 @@
 				<artifactId>system-lambda</artifactId>
 				<version>1.2.0</version>
 				<scope>test</scope>
+			</dependency>
+			<!-- Spring-security BOMs -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-bom</artifactId>
+				<version>${spring-security.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
 			</dependency>
 			<!-- declare Spring BOMs in order -->
 			<dependency>
@@ -657,7 +662,7 @@
 			<id>nacos-discovery</id>
 			<properties>
 				<nacos.discovery.version>0.2.7</nacos.discovery.version>
-				<fastjson.version>1.2.75</fastjson.version>
+				<fastjson.version>1.2.83</fastjson.version>
 			</properties>
 			<dependencyManagement>
 				<dependencies>
@@ -674,84 +679,19 @@
 				</dependencies>
 			</dependencyManagement>
 		</profile>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 	</profiles>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.9</version>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>index</report>
-							<report>summary</report>
-							<report>dependency-info</report>
-							<report>project-team</report>
-							<report>scm</report>
-							<report>issue-tracking</report>
-							<report>mailing-list</report>
-							<!-- <report>dependency-management</report> -->
-							<!-- <report>dependencies</report> -->
-							<!-- <report>dependency-convergence</report> -->
-							<report>cim</report>
-							<report>plugin-management</report>
-							<report>plugins</report>
-							<report>distribution-management</report>
-							<report>license</report>
-							<report>modules</report>
-						</reports>
-					</reportSet>
-				</reportSets>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.17</version>
-				<configuration>
-					<configLocation>google_checks.xml</configLocation>
-					<headerLocation>LICENSE-2.0.txt</headerLocation>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.6</version>
-				<configuration>
-					<aggregate>true</aggregate>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.3</version>
-			</plugin>
-		</plugins>
-	</reporting>
-	<distributionManagement>
+	<repositories>
+		<!-- for apollo-core and apollo-openapi snapshot versions -->
 		<repository>
-			<id>releases</id>
-			<url>${releases.repo}</url>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>${snapshots.repo}</url>
-		</snapshotRepository>
-	</distributionManagement>
+	</repositories>
 </project>

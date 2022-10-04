@@ -44,7 +44,7 @@ public class ClusterService {
 
   public ClusterDTO createCluster(Env env, ClusterDTO cluster) {
     if (!clusterAPI.isClusterUnique(cluster.getAppId(), env, cluster.getName())) {
-      throw new BadRequestException(String.format("cluster %s already exists.", cluster.getName()));
+      throw new BadRequestException("cluster %s already exists.", cluster.getName());
     }
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
 

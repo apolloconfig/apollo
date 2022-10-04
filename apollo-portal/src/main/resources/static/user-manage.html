@@ -53,23 +53,21 @@
                                         class="btn btn-primary">
                                     {{'UserMange.Add' | translate }}
                                 </button>
-                                <button type="button" class="btn btn-default" data-tooltip="tooltip" data-placement="bottom"
-                                        title="{{'UserMange.SortByUserLoginName' | translate }}"  ng-click="toggleUsernameSearchInput()">
-                                    <span class="glyphicon glyphicon-filter"></span>
-                                    {{'UserMange.FilterUser' | translate }}
-                                </button>
+                                <form class="form-inline" style="display:inline">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="searchUserInput"
+                                               placeholder="{{'UserMange.SortByUserLoginName' | translate }}"
+                                               ng-model="searchKey">
+                                    </div>
+                                    <button type="button" class="btn btn-default" ng-click="searchUsers()">
+                                        <span class="glyphicon glyphicon-filter"></span>
+                                        {{'UserMange.FilterUser' | translate }}
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-click="resetSearchUser()">
+                                        {{'UserMange.Reset' | translate }}
+                                    </button>
+                                </form>
                             </div>
-                            <div style="height: 15px"></div>
-                        </div>
-                        <div class="search-input" ng-show="showSearchUsernameInput">
-                            <form class="form-inline">
-                                <div class="form-group">
-                                    <input type="text" class="form-control" id="searchUserInput"
-                                           placeholder="{{'UserMange.SortByUserLoginName' | translate }}"
-                                           ng-model="searchKey" ng-change="searchUsers()">
-                                </div>
-                                <button type="button" class="btn btn-default" ng-click="resetSearchUser()">{{'UserMange.Reset' | translate }}</button>
-                            </form>
                             <div style="height: 15px"></div>
                         </div>
                         <table class="table table-bordered table-striped table-hover">

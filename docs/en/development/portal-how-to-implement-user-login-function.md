@@ -336,6 +336,64 @@ spring:
           issuer-uri: https://host:port/auth/realms/apollo
 ```
 
+#### 1.3 Configure user display name
+
+you can also configure a custom user display name in the `application-oidc.yml`
+
+* see https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims for standard oidc claim name,
+  and see your OpenID Connect service manager or ISP for nonstandard claim name.
+* the configuration property name for oidc (interactive) user display name is `spring.security.oidc.user-display-name-claim-name`,
+  default `preferred_username`, and fallback to `name` if the claim value of `preferred_username` is blank
+* the configuration property name for oidc jwt user display name is `spring.security.oidc.jwt-user-display-name-claim-name`,
+  has no default.
+
+##### 1.3.1 Example of user display name configure
+
+* for example, using `name` as the claim of oidc (interactive) user display name.
+
+```yml
+spring:
+  security:
+    oidc:
+      user-display-name-claim-name: "name"
+
+```
+
+* for example, using `email` as the claim of oidc (interactive) user display name.
+
+```yml
+spring:
+  security:
+    oidc:
+      user-display-name-claim-name: "email"
+
+```
+
+* There is no claim name suitable for user display name in jwt standard claim name (https://tools.ietf.org/html/rfc7519#section-4),
+  see your OpenID Connect service manager or ISP for a nonstandard claim name for display.
+* for example, using `user_display_name` as the claim of oidc jwt user display name.
+
+```yml
+spring:
+  security:
+    oidc:
+      jwt-user-display-name-claim-name: "user_display_name"
+
+```
+
+* it's ok to configure oidc (interactive) user display name and oidc jwt user display name at the same time.
+* for example, using `name` as the claim of oidc (interactive) user display name
+  and using `user_display_name` as the claim of oidc jwt user display name.
+
+```yml
+spring:
+  security:
+    oidc:
+      user-display-name-claim-name: "name"
+      jwt-user-display-name-claim-name: "user_display_name"
+
+```
+
 ### 2. Configure `startup.sh`
 
 Modify ``scripts/startup.sh`` to specify ``spring.profiles.active`` as ``github,oidc``.
@@ -383,7 +441,7 @@ server {
         proxy_set_header host $http_host;
         proxy_set_header x-forwarded-proto $scheme;
         proxy_http_version 1.1;
-    proxy_set_header}
+    }
 }
 
 ```
