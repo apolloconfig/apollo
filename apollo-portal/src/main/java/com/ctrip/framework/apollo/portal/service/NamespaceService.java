@@ -246,12 +246,17 @@ public class NamespaceService {
   }
 
   public NamespaceBO loadNamespaceBO(String appId, Env env, String clusterName,
-      String namespaceName) {
+          String namespaceName, boolean includeDeletedItems) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
       throw new BadRequestException("namespaces not exist");
     }
-    return transformNamespace2BO(env, namespace);
+    return transformNamespace2BO(env, namespace, includeDeletedItems);
+  }
+
+  public NamespaceBO loadNamespaceBO(String appId, Env env, String clusterName,
+      String namespaceName) {
+    return loadNamespaceBO(appId, env, clusterName, namespaceName, true);
   }
 
   public boolean publicAppNamespaceHasAssociatedNamespace(String publicNamespaceName, Env env) {
@@ -284,7 +289,7 @@ public class NamespaceService {
     return result;
   }
 
-  private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace) {
+  private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace, boolean includeDeletedItems) {
     NamespaceBO namespaceBO = new NamespaceBO();
     namespaceBO.setBaseInfo(namespace);
 
@@ -322,18 +327,24 @@ public class NamespaceService {
       itemBOs.add(itemBO);
     }
 
-    //deleted items
-    itemService.findDeletedItems(appId, env, clusterName, namespaceName).forEach(item -> {
-      deletedItemDTOs.put(item.getKey(),item);
-    });
+    if (includeDeletedItems) {
+      //deleted items
+      itemService.findDeletedItems(appId, env, clusterName, namespaceName).forEach(item -> {
+        deletedItemDTOs.put(item.getKey(), item);
+      });
 
-    List<ItemBO> deletedItems = parseDeletedItems(items, releaseItems, deletedItemDTOs);
-    itemBOs.addAll(deletedItems);
-    modifiedItemCnt += deletedItems.size();
+      List<ItemBO> deletedItems = parseDeletedItems(items, releaseItems, deletedItemDTOs);
+      itemBOs.addAll(deletedItems);
+      modifiedItemCnt += deletedItems.size();
+    }
 
     namespaceBO.setItemModifiedCnt(modifiedItemCnt);
 
     return namespaceBO;
+  }
+
+  private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace) {
+    return transformNamespace2BO(env, namespace, true);
   }
 
   private void fillAppNamespaceProperties(NamespaceBO namespace) {
