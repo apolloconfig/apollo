@@ -45,6 +45,7 @@ import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -223,6 +224,43 @@ public class NamespaceServiceTest extends AbstractUnitTest {
 
   }
 
+  @Test
+  public void testLoadNamespaceBO() {
+    String branchName = "branch";
+    NamespaceDTO namespaceDTO = createNamespace(testAppId, branchName, testNamespaceName);
+    when(namespaceAPI.loadNamespace(any(), any(), any(), any())).thenReturn(namespaceDTO);
+
+    ReleaseDTO releaseDTO = new ReleaseDTO();
+    releaseDTO.setConfigurations("{\"k1\":\"k1\",\"k2\":\"k2\", \"k3\":\"\"}");
+    when(releaseService.loadLatestRelease(any(), any(), any(), any())).thenReturn(releaseDTO);
+
+    List<ItemDTO> itemDTOList = Lists.newArrayList();
+    ItemDTO itemDTO1 = new ItemDTO();
+    itemDTO1.setId(1);
+    itemDTO1.setNamespaceId(1);
+    itemDTO1.setKey("k1");
+    itemDTO1.setValue(String.valueOf(1));
+    itemDTOList.add(itemDTO1);
+
+    ItemDTO itemDTO2 = new ItemDTO();
+    itemDTO2.setId(1);
+    itemDTO2.setNamespaceId(2);
+    itemDTO2.setKey("k2");
+    itemDTO2.setValue(String.valueOf(2));
+    itemDTOList.add(itemDTO2);
+    when(itemService.findItems(any(), any(), any(), any())).thenReturn(itemDTOList);
+
+    List<ItemDTO> deletedItemDTOList = Lists.newArrayList();
+    ItemDTO deletedItemDTO = new ItemDTO();
+    deletedItemDTO.setId(3);
+    deletedItemDTO.setNamespaceId(3);
+    deletedItemDTO.setKey("k3");
+    deletedItemDTOList.add(deletedItemDTO);
+    when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(deletedItemDTOList);
+
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
+    assertThat(namespaceBO.getItemModifiedCnt()).isEqualTo(3);
+  }
 
   private AppNamespace createAppNamespace(String appId, String name, boolean isPublic) {
     AppNamespace instance = new AppNamespace();

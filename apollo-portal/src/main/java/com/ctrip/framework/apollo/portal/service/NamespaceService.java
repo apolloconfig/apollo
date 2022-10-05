@@ -250,7 +250,7 @@ public class NamespaceService {
   }
 
   public NamespaceBO loadNamespaceBO(String appId, Env env, String clusterName,
-          String namespaceName, boolean includeDeletedItems) {
+      String namespaceName, boolean includeDeletedItems) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
       throw new BadRequestException("namespaces not exist");
