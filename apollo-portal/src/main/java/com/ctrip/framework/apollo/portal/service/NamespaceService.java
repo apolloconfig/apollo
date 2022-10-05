@@ -186,7 +186,7 @@ public class NamespaceService {
   /**
    * load cluster all namespace info with items
    */
-  public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName) {
+  public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName, boolean includeDeletedItems) {
 
     List<NamespaceDTO> namespaces = namespaceAPI.findNamespaceByCluster(appId, env, clusterName);
     if (namespaces == null || namespaces.size() == 0) {
@@ -200,7 +200,7 @@ public class NamespaceService {
       executorService.submit(() -> {
         NamespaceBO namespaceBO;
         try {
-          namespaceBO = transformNamespace2BO(env, namespace);
+          namespaceBO = transformNamespace2BO(env, namespace, includeDeletedItems);
           namespaceBOs.add(namespaceBO);
         } catch (Exception e) {
           LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
@@ -226,6 +226,10 @@ public class NamespaceService {
     return namespaceBOs.stream()
         .sorted(Comparator.comparing(o -> o.getBaseInfo().getId()))
         .collect(Collectors.toList());
+  }
+
+  public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName) {
+    return findNamespaceBOs(appId, env, clusterName, true);
   }
 
   public List<NamespaceDTO> findNamespaces(String appId, Env env, String clusterName) {
