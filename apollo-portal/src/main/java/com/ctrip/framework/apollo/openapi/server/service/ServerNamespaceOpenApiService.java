@@ -71,7 +71,7 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName) {
     return OpenApiBeanUtils
         .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
-            .valueOf(env), clusterName));
+            .valueOf(env), clusterName, false));
   }
 
   @Override

@@ -243,7 +243,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     itemDTOList.add(itemDTO1);
 
     ItemDTO itemDTO2 = new ItemDTO();
-    itemDTO2.setId(1);
+    itemDTO2.setId(2);
     itemDTO2.setNamespaceId(2);
     itemDTO2.setKey("k2");
     itemDTO2.setValue(String.valueOf(2));
