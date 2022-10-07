@@ -41,6 +41,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -258,8 +259,17 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     deletedItemDTOList.add(deletedItemDTO);
     when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(deletedItemDTOList);
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
-    assertThat(namespaceBO.getItemModifiedCnt()).isEqualTo(3);
+    NamespaceBO namespaceBO1 = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
+    List<String> namespaceKey1 = namespaceBO1.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
+    assertThat(namespaceBO1.getItemModifiedCnt()).isEqualTo(3);
+    assertThat(namespaceBO1.getItems().size()).isEqualTo(3);
+    assertThat(namespaceKey1).isEqualTo(Arrays.asList("k1", "k2", "k3"));
+
+    NamespaceBO namespaceBO2 = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, false);
+    List<String> namespaceKey2 = namespaceBO2.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
+    assertThat(namespaceBO2.getItemModifiedCnt()).isEqualTo(2);
+    assertThat(namespaceBO2.getItems().size()).isEqualTo(2);
+    assertThat(namespaceKey2).isEqualTo(Arrays.asList("k1", "k2"));
   }
 
   private AppNamespace createAppNamespace(String appId, String name, boolean isPublic) {
