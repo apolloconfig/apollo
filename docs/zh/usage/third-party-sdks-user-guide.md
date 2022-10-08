@@ -94,6 +94,12 @@
 
 > 非常感谢[@zhangxh1023](https://github.com/zhangxh1023)提供NodeJS Apollo客户端的支持
 
+### Apollo NodeJS 客户端 8
+
+项目地址：[@vodyani/apollo-client](https://github.com/vodyani/apollo-client)
+
+> 非常感谢[@ChoGathK](https://github.com/ChoGathK)提供NodeJS Apollo客户端的支持
+
 ## 4. PHP
 
 ### Apollo PHP 客户端 1
