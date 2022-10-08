@@ -5,10 +5,6 @@ Release Notes.
 Apollo 2.1.0
 
 ------------------
-* [Add a config adjust the property source overriden behavior](https://github.com/apolloconfig/apollo/pull/4409)
-* [feat(apollo-client): the spi of config service load balancer client](https://github.com/apolloconfig/apollo/pull/4394)
-* [add cat-client as optional dependency](https://github.com/apolloconfig/apollo/pull/4414)
-* [refactor Functions class with lambda](https://github.com/apolloconfig/apollo/pull/4419)
 * [fix:occur a 400 error request when openapi key's parameter contain "a[0]"](https://github.com/apolloconfig/apollo/pull/4424)
 * [Upgrade mysql-connector-java version to fix possible transaction rollback failure issue](https://github.com/apolloconfig/apollo/pull/4425)
 * [Remove database migration tool Flyway](https://github.com/apolloconfig/apollo/pull/4361)
@@ -21,7 +17,7 @@ Apollo 2.1.0
 * [Optimize performance of '/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces' interface queries](https://github.com/apolloconfig/apollo/pull/4473)
 * [Add a new API to load items with pagination](https://github.com/apolloconfig/apollo/pull/4468)
 * [fix(#4474):'openjdk:8-jre-alpine' potentially causing wrong number of cpu cores](https://github.com/apolloconfig/apollo/pull/4475)
-* [Switching spring-session serialization mode to json for compatibility with spring-security version updates]()
+* [Switching spring-session serialization mode to json for compatibility with spring-security version updates](https://github.com/apolloconfig/apollo/pull/4484)
 * [fix(#4483):Fixed overwrite JSON type configuration being empty](https://github.com/apolloconfig/apollo/pull/4486)
 * [Allow users to delete AppNamespace](https://github.com/apolloconfig/apollo/pull/4499)
 * [fix the deleted at timestamp issue](https://github.com/apolloconfig/apollo/pull/4493)
@@ -33,7 +29,8 @@ Apollo 2.1.0
 * [fix openapi item with url illegalKey 400 error](https://github.com/apolloconfig/apollo/pull/4549)
 * [fix the exception occurred when publish/rollback namespaces with grayrelease](https://github.com/apolloconfig/apollo/pull/4564)
 * [fix create namespace with single dot 500 error](https://github.com/apolloconfig/apollo/pull/4568)
-* [Add overloaded shortcut method to register BeanDefinition](https://github.com/apolloconfig/apollo/pull/4574)
+* [Add nodejs client sdk and fix doc](https://github.com/apolloconfig/apollo/pull/4590)
+* [Move apollo-core, apollo-client, apollo-mockserver, apollo-openapi and apollo-client-config-data to apollo-java repo](https://github.com/apolloconfig/apollo/pull/4594)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
