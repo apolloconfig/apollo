@@ -53,7 +53,7 @@ app.id=YOUR-APP-ID
 
 文件位置参考如下：
 
-![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-id-location.png)
 
 > 注：app.id是用来标识应用身份的唯一id，格式为string。
 
@@ -113,7 +113,7 @@ pro.meta=http://apollo.xxx.com
 
 **如果你的公司有很多应用需要接入Apollo，建议封装一个jar包，然后提供自定义的Apollo Meta Server定位逻辑，从而可以让接入Apollo的应用零配置使用。比如自己写一个`xx-company-apollo-client`，该jar包依赖`apollo-client`，在该jar包中通过spi方式定义自定义的MetaServerProvider实现，然后应用直接依赖`xx-company-apollo-client`即可。**
 
-MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
+MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
 
 #### 1.2.2.2 跳过Apollo Meta Server服务发现
 
@@ -155,7 +155,7 @@ Apollo客户端会把从服务端获取到的配置在本地文件系统缓存�
 * appId就是应用自己的appId，如100004458
 * cluster就是应用使用的集群，一般在本地模式下没有做过配置的话，就是default
 * namespace就是应用使用的配置namespace，一般是application
-![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
+![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-local-cache.png)
 
 文件内容以properties格式存储，比如如果有两个key，一个是request.timeout，另一个是batch，那么文件内容就是如下格式：
 ```properties
@@ -377,7 +377,7 @@ apollo.label=YOUR-APOLLO-LABEL
 
 文件位置参考如下：
 
-![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/app-id-location.png)
+![app-id-location](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/app-id-location.png)
 
 > 注：apollo.label是用来标识应用身份的标签，格式为string。
 
@@ -1120,7 +1120,7 @@ appId就是应用的appId，如100004458。
 * appId就是应用自己的appId，如100004458
 * cluster就是应用使用的集群，一般在本地模式下没有做过配置的话，就是default
 * namespace就是应用使用的配置namespace，一般是application
-![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/apollo-client/doc/pic/client-local-cache.png)
+![client-local-cache](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/client-local-cache.png)
 
 文件内容以properties格式存储，比如如果有两个key，一个是request.timeout，另一个是batch，那么文件内容就是如下格式：
 ```properties

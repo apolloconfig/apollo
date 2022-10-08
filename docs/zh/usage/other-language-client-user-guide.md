@@ -97,7 +97,7 @@ Apollo提供了基于Http long polling的配置更新推送通知，第三方客
 
 ### 1.4.1 配置更新推送实现思路
 
-这里建议大家可以参考Apollo的Java实现：[RemoteConfigLongPollService.java](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)，代码量200多行，总体上还是比较简单的。
+这里建议大家可以参考Apollo的Java实现：[RemoteConfigLongPollService.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)，代码量200多行，总体上还是比较简单的。
 
 #### 1.4.1.1 初始化
 首先需要确定哪些namespace需要配置更新推送，Apollo的实现方式是程序第一次获取某个namespace的配置时就会来注册一下，我们就知道有哪些namespace需要配置更新推送了。

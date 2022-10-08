@@ -96,7 +96,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.8 获取 Namespace 当前编辑人](#_328-获取某个namespace当前编辑人接口)
 - [3.2.9 获取具体配置项](#_329-读取配置接口)
 - [3.2.10 新增配置项](#_3210-新增配置接口)
-- [3.2.11 需改配置项](#_3211-修改配置接口)
+- [3.2.11 修改配置项](#_3211-修改配置接口)
 - [3.2.12 删除配置项](#_3212-删除配置接口)
 - [3.2.13 发布 Namespace](#_3213-发布配置接口)
 - [3.2.14 获取 Namespace 最后一次发布的内容](#_3214-获取某个namespace当前生效的已发布配置接口)
@@ -571,6 +571,7 @@ operator | true | String | 删除配置的操作者，域账号
 
 * **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items
 * **Method** ： GET
+* **Version** ： >= 2.1.0
 * **Request Params** ：
 
 参数名 | 必选    | 类型  | 说明

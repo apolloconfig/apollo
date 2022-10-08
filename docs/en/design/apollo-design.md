@@ -248,7 +248,7 @@ The previous section briefly described how NotificationControllerV2 learns that 
 
 The implementation is as follows.
 
-1. the client initiates an Http request to the `notifications/v2` interface of the Config Service, which is [NotificationControllerV2](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java), see [ RemoteConfigLongPollService](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)
+1. the client initiates an Http request to the `notifications/v2` interface of the Config Service, which is [NotificationControllerV2](https://github.com/apolloconfig/apollo/blob/master/apollo-configservice/src/main/java/com/ctrip/framework/apollo/configservice/controller/NotificationControllerV2.java), see [ RemoteConfigLongPollService](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java)
 2. NotificationControllerV2 does not return the result immediately, but via [Spring DeferredResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html) to put the request on hold
 3. if no configuration of interest to the client is published within 60 seconds, then the Http status code 304 is returned to the client
 4. If there is a configuration published that the client cares about, NotificationControllerV2 will call [setResult](http://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/context/request/async/DeferredResult.html#setResult-T-) method of DeferredResult, passing in the namespace information with configuration changes, while the request is returned immediately. After the client gets the namespace with configuration changes from the returned result, it will immediately request the Config Service to get the latest configuration of the namespace.
@@ -297,7 +297,7 @@ With the above principles understood, the means of integrating Apollo with Sprin
 
 ![Overview](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/environment-remote-source.png)
 
-The related code can be found in [PropertySourcesProcessor](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/spring/config/PropertySourcesProcessor.java)
+The related code can be found in [PropertySourcesProcessor](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/spring/config/PropertySourcesProcessor.java)
 
 # IV. Usability considerations
 

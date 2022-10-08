@@ -86,7 +86,7 @@ github 创建 pre-release
 
 通过 github workflow 来发布。
 
-[https://github.com/apolloconfig/apollo/actions/workflows/release.yml](https://github.com/apolloconfig/apollo/actions/workflows/release.yml)
+[https://github.com/apolloconfig/apollo-java/actions/workflows/release.yml](https://github.com/apolloconfig/apollo-java/actions/workflows/release.yml)
 
 ![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/publish-sdk.png)
 
