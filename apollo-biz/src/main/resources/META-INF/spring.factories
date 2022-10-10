@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.ctrip.framework.apollo.biz.registry.configuration.ApolloRegistryAutoConfiguration
