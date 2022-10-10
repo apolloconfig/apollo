@@ -18,7 +18,8 @@ package com.ctrip.framework.apollo.biz.registry.configuration;
 
 import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistry;
 import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistryImpl;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryApplicationRunner;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryDeregisterApplicationListener;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryHeartbeatApplicationRunner;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
 import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
@@ -49,10 +50,20 @@ public class ApolloServiceRegistryAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public ApolloServiceRegistryApplicationRunner apolloServiceRegistryApplicationRunner(
+  public ApolloServiceRegistryHeartbeatApplicationRunner apolloServiceRegistryHeartbeatApplicationRunner(
       ApolloServiceRegistryProperties registration,
       DatabaseServiceRegistry serviceRegistry
   ) {
-    return new ApolloServiceRegistryApplicationRunner(registration, serviceRegistry);
+    return new ApolloServiceRegistryHeartbeatApplicationRunner(registration, serviceRegistry);
   }
+
+  @Bean
+  @ConditionalOnMissingBean
+  public ApolloServiceRegistryDeregisterApplicationListener apolloServiceRegistryDeregisterApplicationListener(
+      ApolloServiceRegistryProperties registration,
+      DatabaseServiceRegistry serviceRegistry
+  ) {
+    return new ApolloServiceRegistryDeregisterApplicationListener(registration, serviceRegistry);
+  }
+
 }

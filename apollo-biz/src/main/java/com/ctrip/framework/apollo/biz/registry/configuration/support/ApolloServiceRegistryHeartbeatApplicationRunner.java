@@ -17,22 +17,23 @@
 package com.ctrip.framework.apollo.biz.registry.configuration.support;
 
 import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistry;
-import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
-public class ApolloServiceRegistryApplicationRunner
+/**
+ * send heartbeat on runtime.
+ */
+public class ApolloServiceRegistryHeartbeatApplicationRunner
     implements ApplicationRunner {
 
   private static final Logger log = LoggerFactory
-      .getLogger(ApolloServiceRegistryApplicationRunner.class);
+      .getLogger(ApolloServiceRegistryHeartbeatApplicationRunner.class);
 
   private final ApolloServiceRegistryProperties registration;
 
@@ -43,7 +44,7 @@ public class ApolloServiceRegistryApplicationRunner
    */
   private final ScheduledExecutorService heartbeatScheduledExecutorService;
 
-  public ApolloServiceRegistryApplicationRunner(
+  public ApolloServiceRegistryHeartbeatApplicationRunner(
       ApolloServiceRegistryProperties registration,
       DatabaseServiceRegistry serviceRegistry
   ) {
@@ -67,27 +68,6 @@ public class ApolloServiceRegistryApplicationRunner
     this.heartbeatScheduledExecutorService
         .scheduleAtFixedRate(this::heartbeat, 0, this.registration.getHeartbeatIntervalInSecond(),
             TimeUnit.SECONDS);
-  }
-
-  @PreDestroy
-  private void deregister() {
-    try {
-      this.serviceRegistry.deregister(this.registration);
-      log.info(
-          "deregister success, '{}' uri '{}', label '{}'",
-          this.registration.getServiceName(),
-          this.registration.getUri(),
-          this.registration.getCluster()
-      );
-    } catch (Exception e) {
-      log.error(
-          "deregister fail, '{}' uri '{}',  label '{}'",
-          this.registration.getServiceName(),
-          this.registration.getUri(),
-          this.registration.getCluster(),
-          e
-      );
-    }
   }
 
   private void heartbeat() {
