@@ -33,12 +33,16 @@ public class ServiceRegistryService {
 
   public ServiceRegistry saveIfNotExistByServiceNameAndUri(ServiceRegistry serviceRegistry) {
     ServiceRegistry serviceRegistrySaved = this.repository.findByServiceNameAndUri(serviceRegistry.getServiceName(), serviceRegistry.getUri());
+    final LocalDateTime now = LocalDateTime.now();
     if (null == serviceRegistrySaved) {
       serviceRegistrySaved = serviceRegistry;
+      serviceRegistrySaved.setDataChangeCreatedTime(now);
+      serviceRegistrySaved.setDataChangeLastModifiedTime(now);
     } else {
-      // update
+      // update cluster
       serviceRegistrySaved.setCluster(serviceRegistry.getCluster());
-      serviceRegistrySaved.setDataChangeLastModifiedTime(LocalDateTime.now());
+
+      serviceRegistrySaved.setDataChangeLastModifiedTime(now);
     }
     return this.repository.save(serviceRegistrySaved);
   }
@@ -50,17 +54,16 @@ public class ServiceRegistryService {
     );
   }
 
-  public List<ServiceRegistry> findByServiceName(String serviceName) {
-    return this.repository.findByServiceName(serviceName);
-  }
-
-  public LocalDateTime getTimeBeforeSeconds(long seconds) {
-    return this.repository.currentTimestamp().minusSeconds(seconds);
+  public List<ServiceRegistry> findByServiceNameDataChangeLastModifiedTimeGreaterThan(
+      String serviceName,
+      LocalDateTime localDateTime
+  ) {
+    return this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(serviceName, localDateTime);
   }
 
   @Transactional
   public List<ServiceRegistry> deleteTimeBefore(Duration duration) {
-    LocalDateTime time = this.repository.currentTimestamp().minus(duration);
+    LocalDateTime time = LocalDateTime.now().minus(duration);
     return this.repository.deleteByDataChangeLastModifiedTimeLessThan(time);
   }
 }

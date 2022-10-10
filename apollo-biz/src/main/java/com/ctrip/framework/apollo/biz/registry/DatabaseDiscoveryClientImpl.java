@@ -25,13 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
-
-  private static final Logger log = LoggerFactory.getLogger(DatabaseDiscoveryClientImpl.class);
-
   private final ServiceRegistryService serviceRegistryService;
 
   private final ApolloServiceDiscoveryProperties discoveryProperties;
@@ -54,17 +49,18 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
   public List<ServiceInstance> getInstances(String serviceName) {
     final List<ServiceRegistry> serviceRegistryListFiltered;
     {
-      List<ServiceRegistry> all = this.serviceRegistryService.findByServiceName(serviceName);
-      serviceRegistryListFiltered = filterByCluster(all, this.self.getCluster());
+      LocalDateTime healthTime = LocalDateTime.now()
+          .minusSeconds(this.discoveryProperties.getHealthCheckIntervalInSecond());
+      List<ServiceRegistry> filterByHealthCheck =
+          this.serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
+              serviceName, healthTime
+          );
+      serviceRegistryListFiltered = filterByCluster(filterByHealthCheck, this.self.getCluster());
     }
-    LocalDateTime healthCheckTime = this.serviceRegistryService.getTimeBeforeSeconds(
-        this.discoveryProperties.getHealthCheckIntervalInSecond()
-    );
-    final List<ServiceRegistry> filterByHealthCheck = filterByHealthCheck(serviceRegistryListFiltered, healthCheckTime, serviceName);
 
     // convert
-    List<ServiceInstance> registrationList = new ArrayList<>(filterByHealthCheck.size());
-    for (ServiceRegistry serviceRegistry : filterByHealthCheck) {
+    List<ServiceInstance> registrationList = new ArrayList<>(serviceRegistryListFiltered.size());
+    for (ServiceRegistry serviceRegistry : serviceRegistryListFiltered) {
       ApolloServiceRegistryProperties registration = convert(serviceRegistry);
       registrationList.add(registration);
     }
@@ -89,33 +85,6 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
         listAfterFilter.add(serviceRegistry);
       }
     }
-    return listAfterFilter;
-  }
-
-  static List<ServiceRegistry> filterByHealthCheck(
-      List<ServiceRegistry> list,
-      LocalDateTime healthCheckTime,
-      String serviceName
-  ) {
-    if (list.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ServiceRegistry> listAfterFilter = new ArrayList<>(8);
-    for (ServiceRegistry serviceRegistry : list) {
-      LocalDateTime lastModifiedTime = serviceRegistry.getDataChangeLastModifiedTime();
-      if (lastModifiedTime.isAfter(healthCheckTime)) {
-        listAfterFilter.add(serviceRegistry);
-      }
-    }
-
-    if (listAfterFilter.isEmpty()) {
-      log.error(
-          "there is no healthy instance of '{}'. And there are {} unhealthy instances",
-          serviceName,
-          list.size()
-      );
-    }
-
     return listAfterFilter;
   }
 

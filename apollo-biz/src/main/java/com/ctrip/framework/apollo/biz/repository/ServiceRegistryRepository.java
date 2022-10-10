@@ -19,22 +19,17 @@ package com.ctrip.framework.apollo.biz.repository;
 import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface ServiceRegistryRepository extends PagingAndSortingRepository<ServiceRegistry, Long> {
 
-  List<ServiceRegistry> findByServiceName(String serviceName);
+  List<ServiceRegistry> findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(
+      String serviceName, LocalDateTime localDateTime
+  );
 
   ServiceRegistry findByServiceNameAndUri(String serviceName, String uri);
 
   List<ServiceRegistry> deleteByDataChangeLastModifiedTimeLessThan(LocalDateTime localDateTime);
 
   int deleteByServiceNameAndUri(String serviceName, String uri);
-
-  /**
-   * use time in database instead of JVM
-   */
-  @Query(value = "SELECT CURRENT_TIMESTAMP", nativeQuery = true)
-  LocalDateTime currentTimestamp();
 }

@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.biz.registry;
 
 import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
+import java.time.LocalDateTime;
 
 public class DatabaseServiceRegistryImpl implements DatabaseServiceRegistry {
 

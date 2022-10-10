@@ -17,7 +17,8 @@
 package com.ctrip.framework.apollo.biz.registry;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
@@ -30,66 +31,34 @@ import org.mockito.Mockito;
 
 class DatabaseDiscoveryClientImplTest {
 
-  static ServiceRegistry newRegistry(String serviceName, String uri, String label) {
+  static ServiceRegistry newRegistry(String serviceName, String uri, String cluster) {
     ServiceRegistry serviceRegistry = new ServiceRegistry();
     serviceRegistry.setServiceName(serviceName);
     serviceRegistry.setUri(uri);
-    serviceRegistry.setCluster(label);
+    serviceRegistry.setCluster(cluster);
     serviceRegistry.setDataChangeCreatedTime(LocalDateTime.now());
     serviceRegistry.setDataChangeLastModifiedTime(LocalDateTime.now());
     return serviceRegistry;
   }
 
   @Test
-  void getInstancesWithoutLabel() {
+  void getInstances() {
     final String serviceName = "a-service";
     ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
     {
       List<ServiceRegistry> serviceRegistryList = Arrays.asList(
-          newRegistry(serviceName, "http://localhost:8081/", "label1"),
-          newRegistry(serviceName, "http://localhost:8082/", "label2")
+          newRegistry(serviceName, "http://localhost:8081/", "1"),
+          newRegistry("b-service", "http://localhost:8082/", "2"),
+          newRegistry("c-service", "http://localhost:8082/", "3")
       );
-      Mockito.when(serviceRegistryService.findByServiceName(serviceName))
+      Mockito.when(
+              serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(eq(serviceName),
+                  any(LocalDateTime.class)))
           .thenReturn(serviceRegistryList);
-      Mockito.when(serviceRegistryService.getTimeBeforeSeconds(anyLong()))
-          .thenReturn(LocalDateTime.now().minusMinutes(1));
-    }
-
-    ApolloServiceDiscoveryProperties properties = new ApolloServiceDiscoveryProperties();
-    properties.setFilterByLabel(false);
-
-    DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        serviceRegistryService,
-        properties,
-        null
-    );
-
-    List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
-    assertEquals(2, serviceInstances.size());
-    serviceInstances.forEach(
-        serviceInstance -> assertEquals(serviceName, serviceInstance.getServiceName())
-    );
-  }
-
-
-  @Test
-  void getInstancesWithLabel() {
-    final String serviceName = "a-service";
-    ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
-    {
-      List<ServiceRegistry> serviceRegistryList = Arrays.asList(
-          newRegistry(serviceName, "http://localhost:8081/", "label1"),
-          newRegistry("b-service", "http://localhost:8082/", "label2"),
-          newRegistry("c-service", "http://localhost:8082/", "label3")
-      );
-      Mockito.when(serviceRegistryService.findByServiceName(serviceName))
-          .thenReturn(serviceRegistryList);
-      Mockito.when(serviceRegistryService.getTimeBeforeSeconds(anyLong()))
-          .thenReturn(LocalDateTime.now().minusMinutes(1));
     }
 
     ServiceInstance serviceInstance = Mockito.mock(ServiceInstance.class);
-    Mockito.when(serviceInstance.getCluster()).thenReturn("label1");
+    Mockito.when(serviceInstance.getCluster()).thenReturn("1");
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
         serviceRegistryService,
         new ApolloServiceDiscoveryProperties(),
@@ -99,6 +68,6 @@ class DatabaseDiscoveryClientImplTest {
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
     assertEquals(1, serviceInstances.size());
     assertEquals(serviceName, serviceInstances.get(0).getServiceName());
-    assertEquals("label1", serviceInstances.get(0).getCluster());
+    assertEquals("1", serviceInstances.get(0).getCluster());
   }
 }
