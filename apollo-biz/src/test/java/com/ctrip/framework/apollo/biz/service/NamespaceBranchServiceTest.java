@@ -64,17 +64,16 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
 
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, rule);
 
-    GrayReleaseRule
-        activeRule =
-        namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace, testBranchName);
+    GrayReleaseRule activeRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace,
+        testBranchName);
 
     Assert.assertNotNull(activeRule);
     Assert.assertEquals(rule.getAppId(), activeRule.getAppId());
     Assert.assertEquals(rule.getRules(), activeRule.getRules());
     Assert.assertEquals(Long.valueOf(0), activeRule.getReleaseId());
 
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, testCluster, testNamespace, pageable);
+    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace(testApp, testCluster,
+        testNamespace, pageable);
 
     ReleaseHistory releaseHistory = releaseHistories.getContent().get(0);
 
@@ -82,7 +81,15 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, releaseHistory.getOperation());
     Assert.assertEquals(0, releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(releaseHistory.getOperationContext().contains(rule.getRules()));
+    Assert.assertTrue(containRule(releaseHistory.getOperationContext(), rule.getRules()));
+  }
+
+  private boolean containRule(String context, String rule) {
+    String[] rules = rule.substring(2, rule.length() - 2).split(",");
+    for (int i = 0; i < rules.length; i++)
+      if (!context.contains(rules[i]))
+        return false;
+    return true;
   }
 
   @Test
@@ -94,20 +101,20 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, firstRule);
 
     GrayReleaseRule secondRule = instanceGrayReleaseRule();
-    secondRule.setRules("[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"],\"clientLabelList\":[\"branch-test\"]}]");
+    secondRule.setRules(
+        "[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"],\"clientLabelList\":[\"branch-test\"]}]");
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, secondRule);
 
-    GrayReleaseRule
-        activeRule =
-        namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace, testBranchName);
+    GrayReleaseRule activeRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace,
+        testBranchName);
 
     Assert.assertNotNull(secondRule);
     Assert.assertEquals(secondRule.getAppId(), activeRule.getAppId());
     Assert.assertEquals(secondRule.getRules(), activeRule.getRules());
     Assert.assertEquals(Long.valueOf(0), activeRule.getReleaseId());
 
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, testCluster, testNamespace, pageable);
+    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace(testApp, testCluster,
+        testNamespace, pageable);
 
     ReleaseHistory firstReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory secondReleaseHistory = releaseHistories.getContent().get(0);
@@ -130,9 +137,8 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     namespaceBranchService
         .updateRulesReleaseId(testApp, testCluster, testNamespace, testBranchName, latestReleaseId, operator);
 
-    GrayReleaseRule
-        activeRule =
-        namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace, testBranchName);
+    GrayReleaseRule activeRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace,
+        testBranchName);
 
     Assert.assertNull(activeRule);
   }
@@ -150,16 +156,14 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     namespaceBranchService
         .updateRulesReleaseId(testApp, testCluster, testNamespace, testBranchName, latestReleaseId, operator);
 
-    GrayReleaseRule
-        activeRule =
-        namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace, testBranchName);
+    GrayReleaseRule activeRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace,
+        testBranchName);
 
     Assert.assertNotNull(activeRule);
     Assert.assertEquals(Long.valueOf(latestReleaseId), activeRule.getReleaseId());
     Assert.assertEquals(rule.getRules(), activeRule.getRules());
     Assert.assertEquals(NamespaceBranchStatus.ACTIVE, activeRule.getBranchStatus());
   }
-
 
   @Test
   @Sql(scripts = "/sql/namespace-branch-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
@@ -169,19 +173,21 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     GrayReleaseRule rule = instanceGrayReleaseRule();
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, rule);
 
-    namespaceBranchService.deleteBranch(testApp, testCluster, testNamespace, testBranchName, NamespaceBranchStatus.DELETED, operator);
+    namespaceBranchService.deleteBranch(testApp, testCluster, testNamespace, testBranchName,
+        NamespaceBranchStatus.DELETED, operator);
 
     Namespace branch = namespaceBranchService.findBranch(testApp, testCluster, testNamespace);
     Assert.assertNull(branch);
 
-    GrayReleaseRule latestRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace, testBranchName);
+    GrayReleaseRule latestRule = namespaceBranchService.findBranchGrayRules(testApp, testCluster, testNamespace,
+        testBranchName);
 
     Assert.assertNotNull(latestRule);
     Assert.assertEquals(NamespaceBranchStatus.DELETED, latestRule.getBranchStatus());
     Assert.assertEquals("[]", latestRule.getRules());
 
-    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace
-        (testApp, testCluster, testNamespace, pageable);
+    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace(testApp, testCluster,
+        testNamespace, pageable);
 
     ReleaseHistory firstReleaseHistory = releaseHistories.getContent().get(1);
     ReleaseHistory secondReleaseHistory = releaseHistories.getContent().get(0);
@@ -191,7 +197,6 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.ABANDON_GRAY_RELEASE, secondReleaseHistory.getOperation());
 
   }
-
 
   private GrayReleaseRule instanceGrayReleaseRule() {
     GrayReleaseRule rule = new GrayReleaseRule();
@@ -203,6 +208,5 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     rule.setRules("[{\"clientAppId\":\"test\",\"clientIpList\":[\"1.0.0.4\"],\"clientLabelList\":[]}]");
     return rule;
   }
-
 
 }
