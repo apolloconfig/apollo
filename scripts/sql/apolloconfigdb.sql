@@ -411,10 +411,10 @@ CREATE TABLE `AccessKey` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='访问密钥';
 
 
-# Dump of table registry
+# Dump of table serviceregistry
 # ------------------------------------------------------------
 
-DROP TABLE IF EXISTS `Registry`;
+DROP TABLE IF EXISTS `ServiceRegistry`;
 
 CREATE TABLE `ServiceRegistry` (
 	`Id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增Id',
