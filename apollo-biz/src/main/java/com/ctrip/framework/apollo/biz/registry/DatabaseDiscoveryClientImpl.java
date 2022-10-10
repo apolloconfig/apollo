@@ -16,10 +16,10 @@
  */
 package com.ctrip.framework.apollo.biz.registry;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryDiscoveryProperties;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryClientProperties;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,84 +32,79 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
 
   private static final Logger log = LoggerFactory.getLogger(DatabaseDiscoveryClientImpl.class);
 
-  private final RegistryService registryService;
+  private final ServiceRegistryService serviceRegistryService;
 
-  private final ApolloRegistryDiscoveryProperties discoveryProperties;
+  private final ApolloServiceDiscoveryProperties discoveryProperties;
 
   private final ServiceInstance self;
 
   public DatabaseDiscoveryClientImpl(
-      RegistryService registryService,
-      ApolloRegistryDiscoveryProperties discoveryProperties,
+      ServiceRegistryService serviceRegistryService,
+      ApolloServiceDiscoveryProperties discoveryProperties,
       ServiceInstance self) {
-    this.registryService = registryService;
+    this.serviceRegistryService = serviceRegistryService;
     this.discoveryProperties = discoveryProperties;
     this.self = self;
   }
 
   /**
-   * find by {@link ApolloRegistryClientProperties#getServiceName()}
+   * find by {@link ApolloServiceRegistryProperties#getServiceName()}
    */
   @Override
   public List<ServiceInstance> getInstances(String serviceName) {
-    final List<Registry> filterByLabel;
+    final List<ServiceRegistry> serviceRegistryListFiltered;
     {
-      List<Registry> all = this.registryService.findByServiceName(serviceName);
-      if (this.discoveryProperties.isFilterByLabel()) {
-        filterByLabel = filterByLabel(all, this.self.getLabel());
-      } else {
-        // get all
-        filterByLabel = all;
-      }
+      List<ServiceRegistry> all = this.serviceRegistryService.findByServiceName(serviceName);
+      serviceRegistryListFiltered = filterByCluster(all, this.self.getCluster());
     }
-    LocalDateTime healthCheckTime = this.registryService.getTimeBeforeSeconds(
+    LocalDateTime healthCheckTime = this.serviceRegistryService.getTimeBeforeSeconds(
         this.discoveryProperties.getHealthCheckIntervalInSecond()
     );
-    final List<Registry> filterByHealthCheck = filterByHealthCheck(filterByLabel, healthCheckTime, serviceName);
+    final List<ServiceRegistry> filterByHealthCheck = filterByHealthCheck(serviceRegistryListFiltered, healthCheckTime, serviceName);
 
     // convert
     List<ServiceInstance> registrationList = new ArrayList<>(filterByHealthCheck.size());
-    for (Registry registry : filterByHealthCheck) {
-      ApolloRegistryClientProperties registration = convert(registry);
+    for (ServiceRegistry serviceRegistry : filterByHealthCheck) {
+      ApolloServiceRegistryProperties registration = convert(serviceRegistry);
       registrationList.add(registration);
     }
     return registrationList;
   }
 
-  static ApolloRegistryClientProperties convert(Registry registry) {
-    ApolloRegistryClientProperties registration = new ApolloRegistryClientProperties();
-    registration.setServiceName(registry.getServiceName());
-    registration.setUri(registry.getUri());
-    registration.setLabel(registry.getLabel());
+  static ApolloServiceRegistryProperties convert(ServiceRegistry serviceRegistry) {
+    ApolloServiceRegistryProperties registration = new ApolloServiceRegistryProperties();
+    registration.setServiceName(serviceRegistry.getServiceName());
+    registration.setUri(serviceRegistry.getUri());
+    registration.setCluster(serviceRegistry.getCluster());
     return registration;
   }
 
-  static List<Registry> filterByLabel(List<Registry> list, String label) {
+  static List<ServiceRegistry> filterByCluster(List<ServiceRegistry> list, String cluster) {
     if (list.isEmpty()) {
       return Collections.emptyList();
     }
-    List<Registry> listAfterFilter = new ArrayList<>(8);
-    for (Registry registry : list) {
-      if (Objects.equals(label, registry.getLabel())) {
-        listAfterFilter.add(registry);
+    List<ServiceRegistry> listAfterFilter = new ArrayList<>(8);
+    for (ServiceRegistry serviceRegistry : list) {
+      if (Objects.equals(cluster, serviceRegistry.getCluster())) {
+        listAfterFilter.add(serviceRegistry);
       }
     }
     return listAfterFilter;
   }
 
-  static List<Registry> filterByHealthCheck(
-      List<Registry> list,
+  static List<ServiceRegistry> filterByHealthCheck(
+      List<ServiceRegistry> list,
       LocalDateTime healthCheckTime,
       String serviceName
   ) {
     if (list.isEmpty()) {
       return Collections.emptyList();
     }
-    List<Registry> listAfterFilter = new ArrayList<>(8);
-    for (Registry registry : list) {
-      LocalDateTime lastModifiedTime = registry.getDataChangeLastModifiedTime();
+    List<ServiceRegistry> listAfterFilter = new ArrayList<>(8);
+    for (ServiceRegistry serviceRegistry : list) {
+      LocalDateTime lastModifiedTime = serviceRegistry.getDataChangeLastModifiedTime();
       if (lastModifiedTime.isAfter(healthCheckTime)) {
-        listAfterFilter.add(registry);
+        listAfterFilter.add(serviceRegistry);
       }
     }
 

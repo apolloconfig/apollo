@@ -31,10 +31,10 @@ import org.springframework.core.env.PropertyResolver;
  * @see org.springframework.cloud.netflix.eureka.EurekaClientConfigBean
  * @see org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean
  */
-@ConfigurationProperties(prefix = ApolloRegistryClientProperties.PREFIX)
-public class ApolloRegistryClientProperties implements ServiceInstance {
+@ConfigurationProperties(prefix = ApolloServiceRegistryProperties.PREFIX)
+public class ApolloServiceRegistryProperties implements ServiceInstance {
 
-  public static final String PREFIX = "apollo.registry.client";
+  public static final String PREFIX = "apollo.service.registry";
 
   /**
    * register self to registry or not
@@ -53,9 +53,9 @@ public class ApolloRegistryClientProperties implements ServiceInstance {
   private URI uri;
 
   /**
-   * @see ServiceInstance#getLabel()
+   * @see ServiceInstance#getCluster()
    */
-  private String label;
+  private String cluster;
 
   @Autowired
   private PropertyResolver propertyResolver;
@@ -110,11 +110,11 @@ public class ApolloRegistryClientProperties implements ServiceInstance {
   }
 
   @Override
-  public String getLabel() {
-    return label;
+  public String getCluster() {
+    return cluster;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  public void setCluster(String cluster) {
+    this.cluster = cluster;
   }
 }

@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 
-public class ApolloRegistryClientApplicationRunner
+public class ApolloServiceRegistryApplicationRunner
     implements ApplicationRunner {
 
   private static final Logger log = LoggerFactory
-      .getLogger(ApolloRegistryClientApplicationRunner.class);
+      .getLogger(ApolloServiceRegistryApplicationRunner.class);
 
   private final ServiceInstance registration;
 
@@ -43,7 +43,7 @@ public class ApolloRegistryClientApplicationRunner
    */
   private final ScheduledExecutorService heartbeatScheduledExecutorService;
 
-  public ApolloRegistryClientApplicationRunner(
+  public ApolloServiceRegistryApplicationRunner(
       ServiceInstance registration,
       DatabaseServiceRegistry serviceRegistry
   ) {
@@ -61,7 +61,7 @@ public class ApolloRegistryClientApplicationRunner
         "register to database. '{}': uri '{}', label '{}' ",
         this.registration.getServiceName(),
         this.registration.getUri(),
-        this.registration.getLabel()
+        this.registration.getCluster()
     );
     // heartbeat as same as register
     this.heartbeatScheduledExecutorService
@@ -76,14 +76,14 @@ public class ApolloRegistryClientApplicationRunner
           "deregister success, '{}' uri '{}', label '{}'",
           this.registration.getServiceName(),
           this.registration.getUri(),
-          this.registration.getLabel()
+          this.registration.getCluster()
       );
     } catch (Exception e) {
       log.error(
           "deregister fail, '{}' uri '{}',  label '{}'",
           this.registration.getServiceName(),
           this.registration.getUri(),
-          this.registration.getLabel(),
+          this.registration.getCluster(),
           e
       );
     }

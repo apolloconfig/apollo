@@ -19,9 +19,9 @@ package com.ctrip.framework.apollo.biz.registry;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryDiscoveryProperties;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -30,36 +30,36 @@ import org.mockito.Mockito;
 
 class DatabaseDiscoveryClientImplTest {
 
-  static Registry newRegistry(String serviceName, String uri, String label) {
-    Registry registry = new Registry();
-    registry.setServiceName(serviceName);
-    registry.setUri(uri);
-    registry.setLabel(label);
-    registry.setDataChangeCreatedTime(LocalDateTime.now());
-    registry.setDataChangeLastModifiedTime(LocalDateTime.now());
-    return registry;
+  static ServiceRegistry newRegistry(String serviceName, String uri, String label) {
+    ServiceRegistry serviceRegistry = new ServiceRegistry();
+    serviceRegistry.setServiceName(serviceName);
+    serviceRegistry.setUri(uri);
+    serviceRegistry.setCluster(label);
+    serviceRegistry.setDataChangeCreatedTime(LocalDateTime.now());
+    serviceRegistry.setDataChangeLastModifiedTime(LocalDateTime.now());
+    return serviceRegistry;
   }
 
   @Test
   void getInstancesWithoutLabel() {
     final String serviceName = "a-service";
-    RegistryService registryService = Mockito.mock(RegistryService.class);
+    ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
     {
-      List<Registry> registryList = Arrays.asList(
+      List<ServiceRegistry> serviceRegistryList = Arrays.asList(
           newRegistry(serviceName, "http://localhost:8081/", "label1"),
           newRegistry(serviceName, "http://localhost:8082/", "label2")
       );
-      Mockito.when(registryService.findByServiceName(serviceName))
-          .thenReturn(registryList);
-      Mockito.when(registryService.getTimeBeforeSeconds(anyLong()))
+      Mockito.when(serviceRegistryService.findByServiceName(serviceName))
+          .thenReturn(serviceRegistryList);
+      Mockito.when(serviceRegistryService.getTimeBeforeSeconds(anyLong()))
           .thenReturn(LocalDateTime.now().minusMinutes(1));
     }
 
-    ApolloRegistryDiscoveryProperties properties = new ApolloRegistryDiscoveryProperties();
+    ApolloServiceDiscoveryProperties properties = new ApolloServiceDiscoveryProperties();
     properties.setFilterByLabel(false);
 
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        registryService,
+        serviceRegistryService,
         properties,
         null
     );
@@ -75,30 +75,30 @@ class DatabaseDiscoveryClientImplTest {
   @Test
   void getInstancesWithLabel() {
     final String serviceName = "a-service";
-    RegistryService registryService = Mockito.mock(RegistryService.class);
+    ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
     {
-      List<Registry> registryList = Arrays.asList(
+      List<ServiceRegistry> serviceRegistryList = Arrays.asList(
           newRegistry(serviceName, "http://localhost:8081/", "label1"),
           newRegistry("b-service", "http://localhost:8082/", "label2"),
           newRegistry("c-service", "http://localhost:8082/", "label3")
       );
-      Mockito.when(registryService.findByServiceName(serviceName))
-          .thenReturn(registryList);
-      Mockito.when(registryService.getTimeBeforeSeconds(anyLong()))
+      Mockito.when(serviceRegistryService.findByServiceName(serviceName))
+          .thenReturn(serviceRegistryList);
+      Mockito.when(serviceRegistryService.getTimeBeforeSeconds(anyLong()))
           .thenReturn(LocalDateTime.now().minusMinutes(1));
     }
 
     ServiceInstance serviceInstance = Mockito.mock(ServiceInstance.class);
-    Mockito.when(serviceInstance.getLabel()).thenReturn("label1");
+    Mockito.when(serviceInstance.getCluster()).thenReturn("label1");
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        registryService,
-        new ApolloRegistryDiscoveryProperties(),
+        serviceRegistryService,
+        new ApolloServiceDiscoveryProperties(),
         serviceInstance
     );
 
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
     assertEquals(1, serviceInstances.size());
     assertEquals(serviceName, serviceInstances.get(0).getServiceName());
-    assertEquals("label1", serviceInstances.get(0).getLabel());
+    assertEquals("label1", serviceInstances.get(0).getCluster());
   }
 }

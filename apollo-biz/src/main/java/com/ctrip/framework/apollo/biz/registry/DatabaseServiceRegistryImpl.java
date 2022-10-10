@@ -16,31 +16,31 @@
  */
 package com.ctrip.framework.apollo.biz.registry;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 
 public class DatabaseServiceRegistryImpl implements DatabaseServiceRegistry {
 
-  private final RegistryService registryService;
+  private final ServiceRegistryService serviceRegistryService;
 
   public DatabaseServiceRegistryImpl(
-      RegistryService registryService) {
-    this.registryService = registryService;
+      ServiceRegistryService serviceRegistryService) {
+    this.serviceRegistryService = serviceRegistryService;
   }
 
   public void register(ServiceInstance instance) {
-    Registry registry = new Registry();
-    registry.setServiceName(instance.getServiceName());
-    registry.setUri(instance.getUri().toString());
-    registry.setLabel(instance.getLabel());
-    this.registryService.saveIfNotExistByServiceNameAndUri(registry);
+    ServiceRegistry serviceRegistry = new ServiceRegistry();
+    serviceRegistry.setServiceName(instance.getServiceName());
+    serviceRegistry.setUri(instance.getUri().toString());
+    serviceRegistry.setCluster(instance.getCluster());
+    this.serviceRegistryService.saveIfNotExistByServiceNameAndUri(serviceRegistry);
   }
 
   public void deregister(ServiceInstance instance) {
-    Registry registry = new Registry();
-    registry.setServiceName(instance.getServiceName());
-    registry.setUri(instance.getUri().toString());
-    registry.setLabel(instance.getLabel());
-    this.registryService.delete(registry);
+    ServiceRegistry serviceRegistry = new ServiceRegistry();
+    serviceRegistry.setServiceName(instance.getServiceName());
+    serviceRegistry.setUri(instance.getUri().toString());
+    serviceRegistry.setCluster(instance.getCluster());
+    this.serviceRegistryService.delete(serviceRegistry);
   }
 }

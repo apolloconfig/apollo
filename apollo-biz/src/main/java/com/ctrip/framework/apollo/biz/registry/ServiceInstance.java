@@ -31,9 +31,9 @@ public interface ServiceInstance {
   /**
    * get the uri of a service instance, for example:
    * <ul>
-   *   <li>http://localhost:8080/</li>
-   *   <li>http://10.240.12.34:8080/</li>
-   *   <li>http://47.56.23.34:8080/</li>
+   *   <li><a href="http://localhost:8080/">http://localhost:8080/</a></li>
+   *   <li><a href="http://10.240.12.34:8080/">http://10.240.12.34:8080/</a></li>
+   *   <li><a href="http://47.56.23.34:8080/">http://47.56.23.34:8080/</a></li>
    * </ul>
    * @return The service URI address.
    */
@@ -43,10 +43,10 @@ public interface ServiceInstance {
    * Tag a service instance for service discovery.
    * <p/>
    * It's a little hard to persist the key / value pair metadata to database,
-   * so use a string 'label' instead of metadata.
+   * so use cluster instead of metadata for service discovery.
    *
    * @see org.springframework.cloud.client.ServiceInstance#getMetadata()
-   * @return The label of the service instance.
+   * @return The cluster of the service instance.
    */
-  String getLabel();
+  String getCluster();
 }

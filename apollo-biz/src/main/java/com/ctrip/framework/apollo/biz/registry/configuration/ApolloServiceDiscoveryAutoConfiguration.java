@@ -19,9 +19,9 @@ package com.ctrip.framework.apollo.biz.registry.configuration;
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClient;
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientImpl;
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryClearApplicationRunner;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryDiscoveryProperties;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryClearApplicationRunner;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -30,31 +30,31 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @ConditionalOnProperty(
-    prefix = ApolloRegistryDiscoveryProperties.PREFIX,
+    prefix = ApolloServiceDiscoveryProperties.PREFIX,
     value = "enabled"
 )
 @EnableConfigurationProperties({
-    ApolloRegistryDiscoveryProperties.class,
+    ApolloServiceDiscoveryProperties.class,
 })
-public class ApolloRegistryDiscoveryAutoConfiguration {
+public class ApolloServiceDiscoveryAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
   public DatabaseDiscoveryClient databaseDiscoveryClient(
-      ApolloRegistryDiscoveryProperties discoveryProperties,
+      ApolloServiceDiscoveryProperties discoveryProperties,
       ServiceInstance selfServiceInstance,
-      RegistryService registryService
+      ServiceRegistryService serviceRegistryService
   ) {
     return new DatabaseDiscoveryClientImpl(
-        registryService, discoveryProperties, selfServiceInstance
+        serviceRegistryService, discoveryProperties, selfServiceInstance
     );
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public ApolloRegistryClearApplicationRunner apolloRegistryClearApplicationRunner(
-      RegistryService registryService
+  public ApolloServiceRegistryClearApplicationRunner apolloServiceRegistryClearApplicationRunner(
+      ServiceRegistryService serviceRegistryService
   ) {
-    return new ApolloRegistryClearApplicationRunner(registryService);
+    return new ApolloServiceRegistryClearApplicationRunner(serviceRegistryService);
   }
 }

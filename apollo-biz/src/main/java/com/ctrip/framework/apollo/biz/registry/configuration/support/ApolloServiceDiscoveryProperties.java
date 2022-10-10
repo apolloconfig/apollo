@@ -23,21 +23,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @see org.springframework.cloud.consul.ConsulProperties
  * @see org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean
  */
-@ConfigurationProperties(prefix = ApolloRegistryDiscoveryProperties.PREFIX)
-public class ApolloRegistryDiscoveryProperties {
+@ConfigurationProperties(prefix = ApolloServiceDiscoveryProperties.PREFIX)
+public class ApolloServiceDiscoveryProperties {
 
-  public static final String PREFIX = "apollo.registry.discovery";
+  public static final String PREFIX = "apollo.service.discovery";
 
   /**
    * enable discovery of registry or not
    */
   private boolean enabled = false;
-
-  /**
-   * true mean only return instances which have same label as self.
-   * false mean return all instances without filter by label.
-   */
-  private boolean filterByLabel = true;
 
   /**
    * health check interval.
@@ -47,14 +41,6 @@ public class ApolloRegistryDiscoveryProperties {
    * then this instance is healthy.
    */
   private long healthCheckIntervalInSecond = 61;
-
-  public boolean isFilterByLabel() {
-    return filterByLabel;
-  }
-
-  public void setFilterByLabel(boolean filterByLabel) {
-    this.filterByLabel = filterByLabel;
-  }
 
   public long getHealthCheckIntervalInSecond() {
     return healthCheckIntervalInSecond;

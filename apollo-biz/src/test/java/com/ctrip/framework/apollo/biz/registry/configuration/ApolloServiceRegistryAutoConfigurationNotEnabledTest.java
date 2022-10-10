@@ -21,8 +21,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
-@ContextConfiguration(classes = ApolloRegistryAutoConfiguration.class)
-class ApolloRegistryAutoConfigurationNotEnabledTest {
+@ContextConfiguration(classes = {
+    ApolloServiceRegistryAutoConfiguration.class,
+    ApolloServiceDiscoveryAutoConfiguration.class
+})
+class ApolloServiceRegistryAutoConfigurationNotEnabledTest {
 
   @Test
   void load() {

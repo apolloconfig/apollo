@@ -16,24 +16,23 @@
  */
 package com.ctrip.framework.apollo.biz.repository;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface RegistryRepository extends PagingAndSortingRepository<Registry, Long> {
+public interface ServiceRegistryRepository extends PagingAndSortingRepository<ServiceRegistry, Long> {
 
-  List<Registry> findByServiceName(String serviceName);
+  List<ServiceRegistry> findByServiceName(String serviceName);
 
-  Registry findByServiceNameAndUri(String serviceName, String uri);
+  ServiceRegistry findByServiceNameAndUri(String serviceName, String uri);
 
   @Modifying
   @Transactional
-  List<Registry> deleteByDataChangeLastModifiedTimeLessThan(LocalDateTime localDateTime);
+  List<ServiceRegistry> deleteByDataChangeLastModifiedTimeLessThan(LocalDateTime localDateTime);
 
   @Modifying
   @Transactional

@@ -32,8 +32,8 @@ import javax.persistence.Table;
  * persist {@link ServiceInstance}
  */
 @Entity
-@Table(name = "Registry")
-public class Registry {
+@Table(name = "ServiceRegistry")
+public class ServiceRegistry {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,10 +50,10 @@ public class Registry {
   private String uri;
 
   /**
-   * @see ServiceInstance#getLabel()
+   * @see ServiceInstance#getCluster()
    */
-  @Column(name = "Label", nullable = false)
-  private String label;
+  @Column(name = "Cluster", nullable = false)
+  private String cluster;
 
   @Column(name = "DataChange_CreatedTime", nullable = false)
   private LocalDateTime dataChangeCreatedTime;
@@ -80,7 +80,7 @@ public class Registry {
         "id=" + id +
         ", serviceName='" + serviceName + '\'' +
         ", uri='" + uri + '\'' +
-        ", label='" + label + '\'' +
+        ", cluster='" + cluster + '\'' +
         ", dataChangeCreatedTime=" + dataChangeCreatedTime +
         ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
         '}';
@@ -110,12 +110,12 @@ public class Registry {
     this.uri = uri;
   }
 
-  public String getLabel() {
-    return label;
+  public String getCluster() {
+    return cluster;
   }
 
-  public void setLabel(String label) {
-    this.label = label;
+  public void setCluster(String cluster) {
+    this.cluster = cluster;
   }
 
   public LocalDateTime getDataChangeCreatedTime() {

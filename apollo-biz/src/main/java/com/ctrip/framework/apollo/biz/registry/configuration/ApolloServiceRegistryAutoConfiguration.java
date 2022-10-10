@@ -18,10 +18,10 @@ package com.ctrip.framework.apollo.biz.registry.configuration;
 
 import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistry;
 import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistryImpl;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryClientApplicationRunner;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryClientProperties;
-import com.ctrip.framework.apollo.biz.repository.RegistryRepository;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryApplicationRunner;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
+import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,30 +29,30 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(prefix = ApolloRegistryClientProperties.PREFIX, value = "enabled")
-@EnableConfigurationProperties(ApolloRegistryClientProperties.class)
-public class ApolloRegistryClientAutoConfiguration {
+@ConditionalOnProperty(prefix = ApolloServiceRegistryProperties.PREFIX, value = "enabled")
+@EnableConfigurationProperties(ApolloServiceRegistryProperties.class)
+public class ApolloServiceRegistryAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean
-  public RegistryService registryService(RegistryRepository repository) {
-    return new RegistryService(repository);
+  public ServiceRegistryService registryService(ServiceRegistryRepository repository) {
+    return new ServiceRegistryService(repository);
   }
 
   @Bean
   @ConditionalOnMissingBean
   public DatabaseServiceRegistry databaseServiceRegistry(
-      RegistryService registryService
+      ServiceRegistryService serviceRegistryService
   ) {
-    return new DatabaseServiceRegistryImpl(registryService);
+    return new DatabaseServiceRegistryImpl(serviceRegistryService);
   }
 
   @Bean
   @ConditionalOnMissingBean
-  public ApolloRegistryClientApplicationRunner apolloRegistryClientApplicationRunner(
-      ApolloRegistryClientProperties registration,
+  public ApolloServiceRegistryApplicationRunner apolloServiceRegistryApplicationRunner(
+      ApolloServiceRegistryProperties registration,
       DatabaseServiceRegistry serviceRegistry
   ) {
-    return new ApolloRegistryClientApplicationRunner(registration, serviceRegistry);
+    return new ApolloServiceRegistryApplicationRunner(registration, serviceRegistry);
   }
 }

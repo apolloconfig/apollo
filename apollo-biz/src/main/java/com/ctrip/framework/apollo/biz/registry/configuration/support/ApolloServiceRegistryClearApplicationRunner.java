@@ -16,8 +16,8 @@
  */
 package com.ctrip.framework.apollo.biz.registry.configuration.support;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
-import com.ctrip.framework.apollo.biz.service.RegistryService;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import java.time.Duration;
 import java.util.List;
@@ -32,10 +32,11 @@ import org.springframework.boot.ApplicationRunner;
 /**
  * clear the unhealthy instances.
  */
-public class ApolloRegistryClearApplicationRunner
+public class ApolloServiceRegistryClearApplicationRunner
   implements ApplicationRunner {
 
-  private static final Logger log = LoggerFactory.getLogger(ApolloRegistryClearApplicationRunner.class);
+  private static final Logger log = LoggerFactory.getLogger(
+      ApolloServiceRegistryClearApplicationRunner.class);
 
   /**
    * for {@link #clearUnhealthyInstances()}
@@ -43,11 +44,11 @@ public class ApolloRegistryClearApplicationRunner
   private final ScheduledExecutorService instanceClearScheduledExecutorService;
 
 
-  private final RegistryService registryService;
+  private final ServiceRegistryService serviceRegistryService;
 
-  public ApolloRegistryClearApplicationRunner(
-      RegistryService registryService) {
-    this.registryService = registryService;
+  public ApolloServiceRegistryClearApplicationRunner(
+      ServiceRegistryService serviceRegistryService) {
+    this.serviceRegistryService = serviceRegistryService;
     this.instanceClearScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
         ApolloThreadFactory.create("ApolloRegistryServerClearInstances", true)
     );
@@ -58,10 +59,10 @@ public class ApolloRegistryClearApplicationRunner
    */
   private void clearUnhealthyInstances() {
     try {
-      List<Registry> registryListDeleted =
-          this.registryService.deleteTimeBefore(Duration.ofMinutes(10));
-      if (registryListDeleted != null && !registryListDeleted.isEmpty()) {
-        log.info("clear {} unhealthy instances by scheduled task", registryListDeleted.size());
+      List<ServiceRegistry> serviceRegistryListDeleted =
+          this.serviceRegistryService.deleteTimeBefore(Duration.ofMinutes(10));
+      if (serviceRegistryListDeleted != null && !serviceRegistryListDeleted.isEmpty()) {
+        log.info("clear {} unhealthy instances by scheduled task", serviceRegistryListDeleted.size());
       }
     } catch (Exception e) {
       log.error("fail to clear unhealthy instances by scheduled task", e);

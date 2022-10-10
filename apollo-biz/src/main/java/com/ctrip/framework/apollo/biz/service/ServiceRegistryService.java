@@ -16,39 +16,39 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-import com.ctrip.framework.apollo.biz.entity.Registry;
-import com.ctrip.framework.apollo.biz.repository.RegistryRepository;
+import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
+import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class RegistryService {
+public class ServiceRegistryService {
 
-  private final RegistryRepository repository;
+  private final ServiceRegistryRepository repository;
 
-  public RegistryService(RegistryRepository repository) {
+  public ServiceRegistryService(ServiceRegistryRepository repository) {
     this.repository = repository;
   }
 
-  public Registry saveIfNotExistByServiceNameAndUri(Registry registry) {
-    Registry registrySaved = this.repository.findByServiceNameAndUri(registry.getServiceName(), registry.getUri());
-    if (null == registrySaved) {
-      registrySaved = registry;
+  public ServiceRegistry saveIfNotExistByServiceNameAndUri(ServiceRegistry serviceRegistry) {
+    ServiceRegistry serviceRegistrySaved = this.repository.findByServiceNameAndUri(serviceRegistry.getServiceName(), serviceRegistry.getUri());
+    if (null == serviceRegistrySaved) {
+      serviceRegistrySaved = serviceRegistry;
     } else {
       // update
-      registrySaved.setLabel(registry.getLabel());
-      registrySaved.setDataChangeLastModifiedTime(LocalDateTime.now());
+      serviceRegistrySaved.setCluster(serviceRegistry.getCluster());
+      serviceRegistrySaved.setDataChangeLastModifiedTime(LocalDateTime.now());
     }
-    return this.repository.save(registrySaved);
+    return this.repository.save(serviceRegistrySaved);
   }
 
-  public void delete(Registry registry) {
+  public void delete(ServiceRegistry serviceRegistry) {
     this.repository.deleteByServiceNameAndUri(
-        registry.getServiceName(), registry.getUri()
+        serviceRegistry.getServiceName(), serviceRegistry.getUri()
     );
   }
 
-  public List<Registry> findByServiceName(String serviceName) {
+  public List<ServiceRegistry> findByServiceName(String serviceName) {
     return this.repository.findByServiceName(serviceName);
   }
 
@@ -56,7 +56,7 @@ public class RegistryService {
     return this.repository.currentTimestamp().minusSeconds(seconds);
   }
 
-  public List<Registry> deleteTimeBefore(Duration duration) {
+  public List<ServiceRegistry> deleteTimeBefore(Duration duration) {
     LocalDateTime time = this.repository.currentTimestamp().minus(duration);
     return this.repository.deleteByDataChangeLastModifiedTimeLessThan(time);
   }

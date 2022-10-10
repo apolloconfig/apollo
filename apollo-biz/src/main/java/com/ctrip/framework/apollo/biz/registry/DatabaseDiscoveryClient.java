@@ -16,15 +16,17 @@
  */
 package com.ctrip.framework.apollo.biz.registry;
 
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryDiscoveryProperties;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloRegistryClientProperties;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
 import java.util.List;
 
+/**
+ * @see org.springframework.cloud.client.discovery.DiscoveryClient
+ */
 public interface DatabaseDiscoveryClient {
 
   /**
-   * find by {@link ApolloRegistryClientProperties#getServiceName()},
-   * then filter by label if {@link ApolloRegistryDiscoveryProperties#isFilterByLabel()} is true.
+   * find by {@link ApolloServiceRegistryProperties#getServiceName()},
+   * then filter by {@link ApolloServiceRegistryProperties#getCluster()}
    */
   List<ServiceInstance> getInstances(String serviceName);
 }
