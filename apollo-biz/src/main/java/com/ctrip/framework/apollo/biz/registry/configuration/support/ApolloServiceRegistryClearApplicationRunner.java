@@ -60,7 +60,7 @@ public class ApolloServiceRegistryClearApplicationRunner
   private void clearUnhealthyInstances() {
     try {
       List<ServiceRegistry> serviceRegistryListDeleted =
-          this.serviceRegistryService.deleteTimeBefore(Duration.ofMinutes(10));
+          this.serviceRegistryService.deleteTimeBefore(Duration.ofDays(1));
       if (serviceRegistryListDeleted != null && !serviceRegistryListDeleted.isEmpty()) {
         log.info("clear {} unhealthy instances by scheduled task", serviceRegistryListDeleted.size());
       }
@@ -71,6 +71,6 @@ public class ApolloServiceRegistryClearApplicationRunner
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-    this.instanceClearScheduledExecutorService.scheduleAtFixedRate(this::clearUnhealthyInstances, 0, 60, TimeUnit.SECONDS);
+    this.instanceClearScheduledExecutorService.scheduleAtFixedRate(this::clearUnhealthyInstances, 0, 1, TimeUnit.DAYS);
   }
 }
