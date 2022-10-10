@@ -57,6 +57,11 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
    */
   private String cluster;
 
+  /**
+   * heartbeat to registry in second.
+   */
+  private long heartbeatIntervalInSecond = 10;
+
   @Autowired
   private PropertyResolver propertyResolver;
 
@@ -116,5 +121,13 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
 
   public void setCluster(String cluster) {
     this.cluster = cluster;
+  }
+
+  public long getHeartbeatIntervalInSecond() {
+    return heartbeatIntervalInSecond;
+  }
+
+  public void setHeartbeatIntervalInSecond(long heartbeatIntervalInSecond) {
+    this.heartbeatIntervalInSecond = heartbeatIntervalInSecond;
   }
 }

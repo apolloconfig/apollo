@@ -34,7 +34,7 @@ public class ApolloServiceRegistryApplicationRunner
   private static final Logger log = LoggerFactory
       .getLogger(ApolloServiceRegistryApplicationRunner.class);
 
-  private final ServiceInstance registration;
+  private final ApolloServiceRegistryProperties registration;
 
   private final DatabaseServiceRegistry serviceRegistry;
 
@@ -44,13 +44,13 @@ public class ApolloServiceRegistryApplicationRunner
   private final ScheduledExecutorService heartbeatScheduledExecutorService;
 
   public ApolloServiceRegistryApplicationRunner(
-      ServiceInstance registration,
+      ApolloServiceRegistryProperties registration,
       DatabaseServiceRegistry serviceRegistry
   ) {
     this.registration = registration;
     this.serviceRegistry = serviceRegistry;
     this.heartbeatScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-        ApolloThreadFactory.create("ApolloRegistryClientHeartBeat", true)
+        ApolloThreadFactory.create("ApolloServiceRegistryHeartBeat", true)
     );
   }
 
@@ -65,7 +65,8 @@ public class ApolloServiceRegistryApplicationRunner
     );
     // heartbeat as same as register
     this.heartbeatScheduledExecutorService
-        .scheduleAtFixedRate(this::heartbeat, 0, 10, TimeUnit.SECONDS);
+        .scheduleAtFixedRate(this::heartbeat, 0, this.registration.getHeartbeatIntervalInSecond(),
+            TimeUnit.SECONDS);
   }
 
   @PreDestroy
