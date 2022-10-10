@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 public class ServiceRegistryService {
 
@@ -42,6 +43,7 @@ public class ServiceRegistryService {
     return this.repository.save(serviceRegistrySaved);
   }
 
+  @Transactional
   public void delete(ServiceRegistry serviceRegistry) {
     this.repository.deleteByServiceNameAndUri(
         serviceRegistry.getServiceName(), serviceRegistry.getUri()
@@ -56,6 +58,7 @@ public class ServiceRegistryService {
     return this.repository.currentTimestamp().minusSeconds(seconds);
   }
 
+  @Transactional
   public List<ServiceRegistry> deleteTimeBefore(Duration duration) {
     LocalDateTime time = this.repository.currentTimestamp().minus(duration);
     return this.repository.deleteByDataChangeLastModifiedTimeLessThan(time);

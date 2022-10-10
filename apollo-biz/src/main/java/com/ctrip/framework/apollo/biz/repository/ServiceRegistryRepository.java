@@ -19,8 +19,6 @@ package com.ctrip.framework.apollo.biz.repository;
 import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import java.time.LocalDateTime;
 import java.util.List;
-import javax.transaction.Transactional;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -30,12 +28,8 @@ public interface ServiceRegistryRepository extends PagingAndSortingRepository<Se
 
   ServiceRegistry findByServiceNameAndUri(String serviceName, String uri);
 
-  @Modifying
-  @Transactional
   List<ServiceRegistry> deleteByDataChangeLastModifiedTimeLessThan(LocalDateTime localDateTime);
 
-  @Modifying
-  @Transactional
   int deleteByServiceNameAndUri(String serviceName, String uri);
 
   /**
