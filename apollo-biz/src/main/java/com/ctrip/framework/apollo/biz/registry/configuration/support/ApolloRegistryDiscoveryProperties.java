@@ -46,7 +46,7 @@ public class ApolloRegistryDiscoveryProperties {
    * <p>
    * then this instance is healthy.
    */
-  private long healthCheckInterval = 61;
+  private long healthCheckIntervalInSecond = 61;
 
   public boolean isFilterByLabel() {
     return filterByLabel;
@@ -56,12 +56,12 @@ public class ApolloRegistryDiscoveryProperties {
     this.filterByLabel = filterByLabel;
   }
 
-  public long getHealthCheckInterval() {
-    return healthCheckInterval;
+  public long getHealthCheckIntervalInSecond() {
+    return healthCheckIntervalInSecond;
   }
 
-  public void setHealthCheckInterval(long healthCheckInterval) {
-    this.healthCheckInterval = healthCheckInterval;
+  public void setHealthCheckIntervalInSecond(long healthCheckIntervalInSecond) {
+    this.healthCheckIntervalInSecond = healthCheckIntervalInSecond;
   }
 
   public boolean isEnabled() {

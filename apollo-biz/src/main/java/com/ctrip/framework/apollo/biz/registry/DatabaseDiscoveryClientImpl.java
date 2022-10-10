@@ -63,7 +63,7 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
       }
     }
     LocalDateTime healthCheckTime = this.registryService.getTimeBeforeSeconds(
-        this.discoveryProperties.getHealthCheckInterval()
+        this.discoveryProperties.getHealthCheckIntervalInSecond()
     );
     final List<Registry> filterByHealthCheck = filterByHealthCheck(filterByLabel, healthCheckTime, serviceName);
 
