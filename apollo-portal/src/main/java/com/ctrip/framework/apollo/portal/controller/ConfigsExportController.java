@@ -93,7 +93,7 @@ public class ConfigsExportController {
     }
 
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
-        (env), clusterName, namespaceName);
+        (env), clusterName, namespaceName, false);
 
     //generate a file.
     res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName);
