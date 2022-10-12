@@ -24,6 +24,8 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +43,7 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
-
+  private final static Logger logger = LoggerFactory.getLogger(ServerConfigController.class);
   public ServerConfigController(final ServerConfigRepository serverConfigRepository
       , final UserInfoHolder userInfoHolder) {
     this.serverConfigRepository = serverConfigRepository;
@@ -90,6 +92,7 @@ public class ServerConfigController {
     return serverConfigs.subList((offset - 1) * limit,
             offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
     } catch (Exception ex) {
+      logger.error(ex.getMessage(),ex);
       return new ArrayList<>();
     }
   }
