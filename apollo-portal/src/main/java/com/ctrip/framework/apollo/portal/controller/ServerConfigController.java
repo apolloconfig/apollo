@@ -44,8 +44,8 @@ public class ServerConfigController {
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
   private final static Logger logger = LoggerFactory.getLogger(ServerConfigController.class);
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository
-      , final UserInfoHolder userInfoHolder) {
+
+  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
   }
@@ -69,11 +69,6 @@ public class ServerConfigController {
     return serverConfigRepository.save(storedConfig);
   }
 
-  /**
-   * 获取所有PortalDB的配置信息
-   *
-   * @return
-   */
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/findAll")
   public List<ServerConfig> findAllServerConfig(
@@ -81,7 +76,6 @@ public class ServerConfigController {
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
     Iterable<ServerConfig> all = serverConfigRepository.findAll();
-
     List<ServerConfig> serverConfigs = new ArrayList<>();
 
     for (ServerConfig item : all) {
@@ -89,8 +83,7 @@ public class ServerConfigController {
     }
 
     try {
-    return serverConfigs.subList((offset - 1) * limit,
-            offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
+    return serverConfigs.subList((offset - 1) * limit, offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
     } catch (Exception ex) {
       logger.error(ex.getMessage(),ex);
       return new ArrayList<>();
