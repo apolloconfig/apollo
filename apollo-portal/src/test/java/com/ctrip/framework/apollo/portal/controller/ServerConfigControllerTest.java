@@ -108,7 +108,11 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
   @Test
   public void testFindEmpty() {
     when(serverConfigRepository.findAll()).thenReturn(new ArrayList<>());
-    List<ServerConfig> serverConfigs = serverConfigController.findAllServerConfig(0,10);
+    List<ServerConfig> serverConfigs = new ArrayList<>();
+    Iterable<ServerConfig> all = serverConfigController.findAllServerConfig(0,10);
+    for (ServerConfig item : all) {
+      serverConfigs.add(item);
+    }
     Assert.assertNotNull(serverConfigs);
     Assert.assertEquals(0,serverConfigs.size());
   }
