@@ -86,12 +86,12 @@ public class ServerConfigController {
       serverConfigs.add(item);
     }
 
-    //try {
+    try {
     return serverConfigs.subList((offset - 1) * limit,
             offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
-    /*} catch (Exception ex) {
+    } catch (Exception ex) {
       return new ArrayList<>();
-    }*/
+    }
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
