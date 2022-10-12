@@ -21,7 +21,6 @@ import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -68,7 +67,6 @@ public class ServerConfigController {
     return serverConfigRepository.save(storedConfig);
   }
 
-
   /**
    * 获取所有PortalDB的配置信息
    *
@@ -88,14 +86,13 @@ public class ServerConfigController {
       serverConfigs.add(item);
     }
 
-    try {
-      return serverConfigs.subList((offset - 1) * limit,
-          offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
-    } catch (Exception ex) {
+    //try {
+    return serverConfigs.subList((offset - 1) * limit,
+            offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
+    /*} catch (Exception ex) {
       return new ArrayList<>();
-    }
+    }*/
   }
-
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/{key:.+}")
