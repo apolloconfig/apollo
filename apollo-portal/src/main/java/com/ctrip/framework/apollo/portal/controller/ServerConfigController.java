@@ -17,15 +17,11 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 
-import com.ctrip.framework.apollo.common.dto.ServerConfigDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
-import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -46,17 +42,11 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
-  private final AdminServiceAPI.ConfigServiceAPI configServiceAPI;
-  private PortalSettings portalSettings;
 
   public ServerConfigController(final ServerConfigRepository serverConfigRepository
-      , final AdminServiceAPI.ConfigServiceAPI configServiceAPI
-      , final UserInfoHolder userInfoHolder
-      , final PortalSettings portalSettings) {
+      , final UserInfoHolder userInfoHolder) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
-    this.portalSettings = portalSettings;
-    this.configServiceAPI = configServiceAPI;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
@@ -78,34 +68,6 @@ public class ServerConfigController {
     return serverConfigRepository.save(storedConfig);
   }
 
-  @PostMapping("/server/config/addConfigService")
-  public void addConfigService(@Valid @RequestBody ServerConfig serverConfig) throws SQLException {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
-
-    List<Env> activeEnvs = portalSettings.getActiveEnvs();
-    List<ServerConfigDTO> serverConfigDTOS = configServiceAPI.findAllConfigService(
-        activeEnvs.get(0));
-
-    boolean isExist = false;
-
-    for (ServerConfigDTO item : serverConfigDTOS) {
-      if (item.getKey().equals(serverConfig.getKey())) {
-        isExist = true;
-        serverConfig.setId(item.getId());
-        break;
-      }
-    }
-
-    serverConfig.setDataChangeCreatedBy(modifiedBy);
-    serverConfig.setDataChangeLastModifiedBy(modifiedBy);
-    if (isExist) {
-      // 修改
-      configServiceAPI.update(activeEnvs.get(0), serverConfig);
-    } else {
-      // 新增
-      configServiceAPI.create(activeEnvs.get(0), serverConfig);
-    }
-  }
 
   /**
    * 获取所有PortalDB的配置信息
@@ -134,22 +96,6 @@ public class ServerConfigController {
     }
   }
 
-  @GetMapping("/server/config/findAllConfigService")
-  public List<ServerConfigDTO> findAllConfigService(
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit) {
-
-    List<Env> activeEnvs = portalSettings.getActiveEnvs();
-    List<ServerConfigDTO> serverConfigDTOS = configServiceAPI.findAllConfigService(
-        activeEnvs.get(0));
-
-    try {
-      return serverConfigDTOS.subList((offset - 1) * limit,
-          offset * limit > serverConfigDTOS.size() ? serverConfigDTOS.size() : offset * limit);
-    } catch (Exception ex) {
-      return new ArrayList<>();
-    }
-  }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/{key:.+}")

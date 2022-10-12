@@ -43,15 +43,10 @@
                         <div>
                             <div style="height: 15px"></div>
                             <div>
-                                <button type="button" ng-click="portalDB()"
-                                        class="btn btn-primary">
-                                    PortalDB
-                                </button>
-                                <button type="button" ng-click="configService()"
-                                        class="btn btn-primary">
-                                    ConfigService
-                                </button>
-                                {{'ServiceConfig.Tips.1' | translate }}
+                                <header class="panel-heading">
+                                    {{'ServiceConfig.Title' | translate }}
+                                    <small>{{'ServiceConfig.Tips.1' | translate }}</small>
+                                </header>
                             </div>
                             <div style="height: 15px"></div>
                         </div>
@@ -125,98 +120,6 @@
                                             {{'Common.Save' | translate }}
                                         </button>
                                         <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="table-responsive"  ng-show="status==='3'" >
-                        <div>
-                            <div style="height: 15px"></div>
-                            <div>
-                                <button type="button" ng-click="portalDB()"
-                                        class="btn btn-primary">
-                                    PortalDB
-                                </button>
-                                <button type="button" ng-click="configService()"
-                                        class="btn btn-primary">
-                                    ConfigService
-                                </button>
-                                {{'ServiceConfig.Tips.2' | translate }}
-                            </div>
-                            <div style="height: 15px"></div>
-                        </div>
-                        <table class="table table-bordered table-striped table-hover">
-                            <tr>
-                                <th style="text-align: left">{{'Config.Key' | translate }}</th>
-                                <th style="text-align: left">{{'Config.Value' | translate }}</th>
-                                <th style="text-align: left">{{'Config.Comment' | translate }}</th>
-                                <th style="text-align: left">{{'Config.Operation' | translate }}</th>
-                            </tr>
-                            <tr ng-repeat="config in filterConfig" href="#" class="hover cursor-pointer">
-                                <td>{{ config.key }}</td>
-                                <td>{{ config.value }}</td>
-                                <td>{{ config.comment }}</td>
-                                <td>
-                                    <span class="btn btn-primary" ng-click="configEdit('4', config)">
-                                        {{'UserMange.Edit' | translate }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-
-                        <div style="text-align: end;">
-                            <button type="button" ng-click="previousConfigService()"
-                                    class="btn btn-primary">
-                                {{'Common.Previous' | translate }}
-                            </button>
-                            <button type="button" ng-click="nextConfigService()"
-                                    class="btn btn-primary">
-                                {{'Common.Next' | translate }}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div ng-show="status==='4'">
-                        <div class="panel-body">
-                            <form class="form-horizontal">
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">
-                                        <apollorequiredfield></apollorequiredfield>
-                                        {{'ServiceConfig.Key' | translate }}
-                                    </label>
-                                    <div class="col-sm-9">
-                                        <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
-                                               required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">
-                                        <apollorequiredfield></apollorequiredfield>
-                                        {{'ServiceConfig.Value' | translate }}
-                                    </label>
-                                    <div class="col-sm-9">
-                                    <textarea class="form-control" rows="4" name="value"
-                                              ng-model="serverConfig.value"></textarea>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-label">
-                                        {{'ServiceConfig.Comment' | translate }}</label>
-                                    <div class="col-sm-9">
-                                    <textarea class="form-control" rows="4" name="comment"
-                                              ng-model="serverConfig.comment"></textarea>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="btn btn-primary"
-                                                ng-click="createConfigService()">
-                                            {{'Common.Save' | translate }}
-                                        </button>
-                                        <button type="button" ng-click="gobackConfigService()" class="btn">{{'UserMange.Back' | translate }}</button>
                                     </div>
                                 </div>
                             </form>

@@ -24,16 +24,11 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     $scope.filterConfig = [];
     $scope.status = '1';
     $scope.previous = previous;
-    $scope.previousConfigService = previousConfigService;
-    $scope.nextConfigService = nextConfigService;
     $scope.next = next;
     $scope.configEdit = configEdit;
     $scope.create = create;
-    $scope.createConfigService = createConfigService;
     $scope.goback = goback;
-    $scope.gobackConfigService = gobackConfigService;
     $scope.portalDB = portalDB;
-    $scope.configService = configService;
 
     var pageIndex = 1;
 
@@ -54,7 +49,7 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         ServerConfigService.find_portalDBConfig(pageIndex, pageSize)
         .then(function (result) {
             if (!result || result.length === 0) {
-                AppUtil.showWarningMsg("已经是最后一页了");
+                AppUtil.showWarningMsg("It's already the last page");
                 pageIndex = pageIndex - 1;
                 return;
             }
@@ -65,38 +60,16 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         })
     }
 
-    function getConfigService(){
-        ServerConfigService.find_configService(pageIndex, pageSize)
-            .then(function (result) {
-                if (!result || result.length === 0) {
-                    AppUtil.showWarningMsg("已经是最后一页了");
-                    pageIndex = pageIndex - 1;
-                    return;
-                }
-                $scope.filterConfig = [];
-                result.forEach(function (user) {
-                    $scope.filterConfig.push(user);
-                });
-            })
-    }
 
     function previous(){
         if(pageIndex == 1){
-            AppUtil.showWarningMsg("已经是第一页了");
+            AppUtil.showWarningMsg("It's already the first page");
         }else{
             pageIndex = pageIndex - 1;
             getPortalDBConfig();
         }
     }
 
-    function previousConfigService(){
-        if(pageIndex == 1){
-            AppUtil.showWarningMsg("已经是第一页了");
-        }else{
-            pageIndex = pageIndex - 1;
-            getConfigService();
-        }
-    }
 
     function next(){
         pageIndex = pageIndex + 1;
@@ -104,11 +77,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         getPortalDBConfig();
     }
 
-    function nextConfigService(){
-        pageIndex = pageIndex + 1;
-
-        getConfigService();
-    }
 
     function configEdit (status,config) {
         $scope.status = status;
@@ -130,17 +98,8 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
         });
-    };
-
-    function createConfigService(){
-
-        ServerConfigService.createConfigService($scope.serverConfig).then(function (result) {
-            toastr.success($translate.instant('ServiceConfig.Saved'));
-            $scope.serverConfig = result;
-        }, function (result) {
-            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
-        });
     }
+
 
     function goback(){
         $scope.status = '1';
@@ -148,11 +107,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         getPortalDBConfig();
     }
 
-    function gobackConfigService(){
-        $scope.status = '3';
-
-        getConfigService();
-    }
 
     function portalDB(){
         $scope.status = '1';
@@ -160,9 +114,4 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         getPortalDBConfig();
     }
 
-    function configService(){
-        $scope.status = '3';
-        pageIndex = 1;
-        getConfigService();
-    }
 }

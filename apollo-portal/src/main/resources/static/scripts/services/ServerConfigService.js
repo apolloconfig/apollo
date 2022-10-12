@@ -20,10 +20,6 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             method: 'POST',
             url: AppUtil.prefixPath() + '/server/config'
         },
-        create_config_service: {
-            method: 'POST',
-            url: AppUtil.prefixPath() + '/server/config/addConfigService'
-        },
         get_server_config_info: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/server/config/:key'
@@ -32,26 +28,12 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             method: 'GET',
             isArray: true,
             url: AppUtil.prefixPath() + '/server/config/findAll?offset=:offset&limit=:limit'
-        },
-        find_configService: {
-            method: 'GET',
-            isArray: true,
-            url: AppUtil.prefixPath() + '/server/config/findAllConfigService?offset=:offset&limit=:limit'
         }
     });
     return {
         create: function (serverConfig) {
             var d = $q.defer();
             server_config_resource.create_server_config({}, serverConfig, function (result) {
-                d.resolve(result);
-            }, function (result) {
-                d.reject(result);
-            });
-            return d.promise;
-        },
-        createConfigService: function (serverConfig){
-            var d = $q.defer();
-            server_config_resource.create_config_service({}, serverConfig, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
@@ -72,18 +54,6 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         find_portalDBConfig:function (offset, limit){
             var d = $q.defer();
             server_config_resource.find_portalDBConfig({
-                offset: offset,
-                limit: limit
-            }, function (result) {
-                d.resolve(result);
-            }, function (result) {
-                d.reject(result);
-            });
-            return d.promise;
-        },
-        find_configService: function (offset, limit){
-            var d = $q.defer();
-            server_config_resource.find_configService({
                 offset: offset,
                 limit: limit
             }, function (result) {
