@@ -77,8 +77,8 @@ public class ServerConfigController {
     Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
     List<ServerConfig> serverConfigList = Lists.newArrayList(serverConfigs);
 
-    int toIndex = offset * limit > serverConfigList.size() ? serverConfigList.size() : offset * limit;
-    int fromIndex = (offset - 1) * limit;
+    int toIndex = (offset+1) * limit > serverConfigList.size() ? serverConfigList.size() : (offset+1) * limit;
+    int fromIndex = offset * limit;
     if (fromIndex < toIndex) {
       return serverConfigList.subList(fromIndex, toIndex);
     }
