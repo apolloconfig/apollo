@@ -21,10 +21,8 @@ import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +44,6 @@ import static org.mockito.Mockito.*;
  * @author kezhenxu (kezhenxu at lizhi dot fm)
  */
 @ActiveProfiles("skipAuthorization")
-@RunWith(MockitoJUnitRunner.class)
 public class ServerConfigControllerTest extends AbstractIntegrationTest {
   @Mock
   private ServerConfigService serverConfigService;
