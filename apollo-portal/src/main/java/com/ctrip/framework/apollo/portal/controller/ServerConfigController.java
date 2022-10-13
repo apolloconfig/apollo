@@ -24,8 +24,8 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +43,6 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
-  private final static Logger logger = LoggerFactory.getLogger(ServerConfigController.class);
 
   public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
     this.serverConfigRepository = serverConfigRepository;
@@ -70,24 +69,20 @@ public class ServerConfigController {
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
-  @GetMapping("/server/config/findAll")
+  @GetMapping("/server/config/find-all-config")
   public List<ServerConfig> findAllServerConfig(
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
-    Iterable<ServerConfig> all = serverConfigRepository.findAll();
-    List<ServerConfig> serverConfigs = new ArrayList<>();
+    Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
+    List<ServerConfig> serverConfigList = Lists.newArrayList(serverConfigs);
 
-    for (ServerConfig item : all) {
-      serverConfigs.add(item);
+    int toIndex = offset * limit > serverConfigList.size() ? serverConfigList.size() : offset * limit;
+    int fromIndex = (offset - 1) * limit;
+    if (fromIndex < toIndex) {
+      return serverConfigList.subList(fromIndex, toIndex);
     }
-
-    try {
-    return serverConfigs.subList((offset - 1) * limit, offset * limit > serverConfigs.size() ? serverConfigs.size() : offset * limit);
-    } catch (Exception ex) {
-      logger.error(ex.getMessage(),ex);
-      return new ArrayList<>();
-    }
+    return new ArrayList<>();
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")

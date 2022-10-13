@@ -27,7 +27,7 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         find_portalDBConfig: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/server/config/findAll?offset=:offset&limit=:limit'
+            url: AppUtil.prefixPath() + '/server/config/find-all-config?offset=:offset&limit=:limit'
         }
     });
     return {

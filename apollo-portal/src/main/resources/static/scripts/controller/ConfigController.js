@@ -32,7 +32,7 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
 
     var pageIndex = 1;
 
-    var pageSize = 5;
+    var pageSize = 10;
 
     initPermission();
 

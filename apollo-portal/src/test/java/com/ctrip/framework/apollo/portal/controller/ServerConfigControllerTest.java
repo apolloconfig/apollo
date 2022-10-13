@@ -17,27 +17,33 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
+import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
+import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -48,13 +54,11 @@ import static org.mockito.Mockito.*;
  */
 @ActiveProfiles("skipAuthorization")
 public class ServerConfigControllerTest extends AbstractIntegrationTest {
-  @Mock
+  @Autowired
   private ServerConfigRepository serverConfigRepository;
-  @Mock
-  private ServerConfigController serverConfigController;
 
-  private static final Gson GSON = new Gson();
   @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void shouldSuccessWhenParameterValid() {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("validKey");
@@ -98,23 +102,23 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void testCreateOrUpdateConfig() {
-    ServerConfig serverConfig = new ServerConfig();
-    serverConfig.setKey("someKey");
-    serverConfig.setValue("someValue");
-
-    serverConfigController.createOrUpdate(serverConfig);
-  }
-  @Test
   public void testFindEmpty() {
-    when(serverConfigRepository.findAll()).thenReturn(new ArrayList<>());
-    List<ServerConfig> serverConfigs = new ArrayList<>();
-    Iterable<ServerConfig> all = serverConfigController.findAllServerConfig(0,10);
-    for (ServerConfig item : all) {
-      serverConfigs.add(item);
-    }
-    Assert.assertNotNull(serverConfigs);
-    Assert.assertEquals(0,serverConfigs.size());
+    Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
+    List<ServerConfig> serverConfigList = Lists.newArrayList(serverConfigs);
+
+    Assert.assertNotNull(serverConfigList);
+    Assert.assertEquals(0, serverConfigList.size());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/permission/insert-test-config.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testFindConfig() {
+    Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
+    List<ServerConfig> serverConfigList = Lists.newArrayList(serverConfigs);
+
+    Assert.assertNotNull(serverConfigList);
+    Assert.assertEquals(6, serverConfigList.size());
   }
 
 }
