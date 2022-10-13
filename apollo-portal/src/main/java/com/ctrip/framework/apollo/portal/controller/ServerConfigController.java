@@ -22,11 +22,8 @@ import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import com.google.common.collect.Lists;
 import javax.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +31,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -75,7 +71,6 @@ public class ServerConfigController {
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/find-all-config")
   public List<ServerConfig> findAllServerConfig(Pageable pageable) {
-
     List<ServerConfig> serverConfigs = serverConfigService.findAll(pageable);
     return serverConfigs;
   }

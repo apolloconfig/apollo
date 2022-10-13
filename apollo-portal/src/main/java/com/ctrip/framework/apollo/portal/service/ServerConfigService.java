@@ -16,12 +16,11 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
-import com.google.common.collect.Lists;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 import org.springframework.stereotype.Service;
 
