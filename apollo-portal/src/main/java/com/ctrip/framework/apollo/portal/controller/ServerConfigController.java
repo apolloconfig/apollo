@@ -20,6 +20,7 @@ package com.ctrip.framework.apollo.portal.controller;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
+import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.Objects;
 
 import com.google.common.collect.Lists;
 import javax.validation.Valid;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,10 +45,12 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
+  private final ServerConfigService serverConfigService;
 
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
+  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder, final ServerConfigService serverConfigService) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
+    this.serverConfigService = serverConfigService;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
@@ -70,19 +74,10 @@ public class ServerConfigController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/server/config/find-all-config")
-  public List<ServerConfig> findAllServerConfig(
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit) {
+  public List<ServerConfig> findAllServerConfig(Pageable pageable) {
 
-    Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
-    List<ServerConfig> serverConfigList = Lists.newArrayList(serverConfigs);
-
-    int toIndex = (offset+1) * limit > serverConfigList.size() ? serverConfigList.size() : (offset+1) * limit;
-    int fromIndex = offset * limit;
-    if (fromIndex < toIndex) {
-      return serverConfigList.subList(fromIndex, toIndex);
-    }
-    return new ArrayList<>();
+    List<ServerConfig> serverConfigs = serverConfigService.findAll(pageable);
+    return serverConfigs;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")

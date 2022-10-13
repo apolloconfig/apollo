@@ -27,7 +27,7 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         find_portalDBConfig: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/server/config/find-all-config?offset=:offset&limit=:limit'
+            url: AppUtil.prefixPath() + '/server/config/find-all-config'
         }
     });
     return {
@@ -51,11 +51,11 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             });
             return d.promise;
         },
-        find_portalDBConfig:function (offset, limit){
+        find_portalDBConfig:function (page, size){
             var d = $q.defer();
             server_config_resource.find_portalDBConfig({
-                offset: offset,
-                limit: limit
+                page: page,
+                size: size
             }, function (result) {
                 d.resolve(result);
             }, function (result) {
