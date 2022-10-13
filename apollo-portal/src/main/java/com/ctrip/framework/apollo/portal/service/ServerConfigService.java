@@ -34,14 +34,8 @@ public class ServerConfigService {
     this.serverConfigRepository = serverConfigRepository;
   }
 
-  public List<ServerConfig> findAll() {
-    Iterable<ServerConfig> ServerConfigs = serverConfigRepository.findAll();
-
-    return Lists.newArrayList(ServerConfigs);
-  }
-
   public List<ServerConfig> findAll(Pageable pageable) {
     Page<ServerConfig> page = serverConfigRepository.findAll(pageable);
-      return page.getContent();
+    return page.getContent();
   }
 }
