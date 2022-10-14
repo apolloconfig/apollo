@@ -47,9 +47,28 @@
                                     {{'ServiceConfig.Title' | translate }}
                                     <small>{{'ServiceConfig.Tips' | translate }}</small>
                                 </header>
+                                <button type="button" ng-click="configEdit('3')"
+                                        class="btn btn-primary">
+                                    {{'Config.Add' | translate }}
+                                </button>
+                                <form class="form-inline" style="display:inline">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="searchUserInput"
+                                               placeholder="{{'Config.SortByKey' | translate }}"
+                                               ng-model="searchKey">
+                                    </div>
+                                    <button type="button" class="btn btn-default" ng-click="searchKeys()">
+                                        <span class="glyphicon glyphicon-filter"></span>
+                                        {{'Config.FilterConfig' | translate }}
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-click="resetSearchKey()">
+                                        {{'Config.Reset' | translate }}
+                                    </button>
+                                </form>
                             </div>
                             <div style="height: 15px"></div>
                         </div>
+
                         <table class="table table-bordered table-striped table-hover">
                             <tr>
                                 <th style="text-align: left">{{'Config.Key' | translate }}</th>
@@ -83,7 +102,8 @@
 
                     <div ng-show="status==='2'">
                         <div class="panel-body">
-                            <form class="form-horizontal">
+                            <form class="form-horizontal panel-body" name="appForm"
+                                  valdr-type="App" ng-submit="create()">
                                 <div class="form-group">
                                     <label class="col-sm-2 control-label">
                                         <apollorequiredfield></apollorequiredfield>
@@ -115,8 +135,7 @@
 
                                 <div class="form-group">
                                     <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="btn btn-primary" ng-disabled="saveBtnDisabled"
-                                                ng-click="create()">
+                                        <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
                                             {{'Common.Save' | translate }}
                                         </button>
                                         <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
@@ -125,6 +144,52 @@
                             </form>
                         </div>
                     </div>
+
+                    <div ng-show="status==='3'">
+                    <div class="panel-body">
+                        <form class="form-horizontal panel-body" name="appForm"
+                              valdr-type="App" ng-submit="create()">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'ServiceConfig.Key' | translate }}
+                                </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                           required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'ServiceConfig.Value' | translate }}
+                                </label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">
+                                    {{'ServiceConfig.Comment' | translate }}</label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                        {{'Common.Save' | translate }}
+                                    </button>
+                                    <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    </div>
+
                 </div>
             </section>
         </div>

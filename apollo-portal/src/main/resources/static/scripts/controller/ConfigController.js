@@ -21,14 +21,18 @@ user_module.controller('ConfigController',
 function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerConfigService, PermissionService) {
 
     $scope.serverConfig = {};
+    $scope.createdConfigs = [];
     $scope.filterConfig = [];
     $scope.status = '1';
+    $scope.searchKey = '';
     $scope.previous = previous;
     $scope.next = next;
     $scope.configEdit = configEdit;
     $scope.create = create;
     $scope.goback = goback;
     $scope.portalDB = portalDB;
+    $scope.searchKeys = searchKeys;
+    $scope.resetSearchKey = resetSearchKey;
     $scope.ConfigPage = 0;
 
     var pageSize = 10;
@@ -52,8 +56,10 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
                 $scope.ConfigPage = $scope.ConfigPage - 1;
                 return;
             }
+            $scope.createdConfigs = [];
             $scope.filterConfig = [];
             result.forEach(function (user) {
+                $scope.createdConfigs.push(user);
                 $scope.filterConfig.push(user);
             });
         })
@@ -94,6 +100,8 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         ServerConfigService.create($scope.serverConfig).then(function (result) {
             toastr.success($translate.instant('ServiceConfig.Saved'));
             $scope.serverConfig = result;
+            getPortalDBConfig();
+            $scope.status = '1';
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
         });
@@ -112,5 +120,23 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         $scope.ConfigPage = 0;
         getPortalDBConfig();
     }
+
+    function searchKeys() {
+        $scope.searchKey = $scope.searchKey.toLowerCase();
+        var filterConfig = []
+        $scope.createdConfigs.forEach(function (item) {
+            var keyName = item.key;
+            if (keyName && keyName.toLowerCase().indexOf( $scope.searchKey) >= 0) {
+                filterConfig.push(item);
+            }
+        });
+        $scope.filterConfig = filterConfig
+    }
+
+    function resetSearchKey() {
+        $scope.searchKey = ''
+        searchKeys()
+    }
+
 
 }
