@@ -73,8 +73,8 @@ public class ApolloServiceRegistryHeartbeatApplicationRunner
   private void heartbeat() {
     try {
       this.serviceRegistry.register(this.registration);
-    } catch (Exception e) {
-      log.error("fail to send heartbeat by scheduled task", e);
+    } catch (Throwable t) {
+      log.error("fail to send heartbeat by scheduled task", t);
     }
   }
 

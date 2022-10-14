@@ -54,13 +54,13 @@ public class ApolloServiceRegistryDeregisterApplicationListener
           this.registration.getUri(),
           this.registration.getCluster()
       );
-    } catch (Exception e) {
+    } catch (Throwable t) {
       log.error(
           "deregister fail, '{}' uri '{}',  label '{}'",
           this.registration.getServiceName(),
           this.registration.getUri(),
           this.registration.getCluster(),
-          e
+          t
       );
     }
   }

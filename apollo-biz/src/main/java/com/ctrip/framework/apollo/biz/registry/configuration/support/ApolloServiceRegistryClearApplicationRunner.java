@@ -64,8 +64,8 @@ public class ApolloServiceRegistryClearApplicationRunner
       if (serviceRegistryListDeleted != null && !serviceRegistryListDeleted.isEmpty()) {
         log.info("clear {} unhealthy instances by scheduled task", serviceRegistryListDeleted.size());
       }
-    } catch (Exception e) {
-      log.error("fail to clear unhealthy instances by scheduled task", e);
+    } catch (Throwable t) {
+      log.error("fail to clear unhealthy instances by scheduled task", t);
     }
   }
 
