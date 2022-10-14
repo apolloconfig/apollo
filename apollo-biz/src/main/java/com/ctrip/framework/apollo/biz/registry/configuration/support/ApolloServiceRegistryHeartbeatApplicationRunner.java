@@ -59,7 +59,7 @@ public class ApolloServiceRegistryHeartbeatApplicationRunner
   public void run(ApplicationArguments args) throws Exception {
     // register
     log.info(
-        "register to database. '{}': uri '{}', label '{}' ",
+        "register to database. '{}': uri '{}', cluster '{}' ",
         this.registration.getServiceName(),
         this.registration.getUri(),
         this.registration.getCluster()

@@ -49,14 +49,14 @@ public class ApolloServiceRegistryDeregisterApplicationListener
     try {
       this.serviceRegistry.deregister(this.registration);
       log.info(
-          "deregister success, '{}' uri '{}', label '{}'",
+          "deregister success, '{}' uri '{}', cluster '{}'",
           this.registration.getServiceName(),
           this.registration.getUri(),
           this.registration.getCluster()
       );
     } catch (Throwable t) {
       log.error(
-          "deregister fail, '{}' uri '{}',  label '{}'",
+          "deregister fail, '{}' uri '{}',  cluster '{}'",
           this.registration.getServiceName(),
           this.registration.getUri(),
           this.registration.getCluster(),
