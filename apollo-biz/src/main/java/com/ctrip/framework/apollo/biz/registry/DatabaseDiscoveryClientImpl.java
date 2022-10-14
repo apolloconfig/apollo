@@ -21,10 +21,9 @@ import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServi
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
   private final ServiceRegistryService serviceRegistryService;
@@ -58,13 +57,9 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
       serviceRegistryListFiltered = filterByCluster(filterByHealthCheck, this.self.getCluster());
     }
 
-    // convert
-    List<ServiceInstance> registrationList = new ArrayList<>(serviceRegistryListFiltered.size());
-    for (ServiceRegistry serviceRegistry : serviceRegistryListFiltered) {
-      ApolloServiceRegistryProperties registration = convert(serviceRegistry);
-      registrationList.add(registration);
-    }
-    return registrationList;
+    return serviceRegistryListFiltered.stream()
+        .map(DatabaseDiscoveryClientImpl::convert)
+        .collect(Collectors.toList());
   }
 
   static ApolloServiceRegistryProperties convert(ServiceRegistry serviceRegistry) {
@@ -76,16 +71,9 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
   }
 
   static List<ServiceRegistry> filterByCluster(List<ServiceRegistry> list, String cluster) {
-    if (list.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<ServiceRegistry> listAfterFilter = new ArrayList<>(8);
-    for (ServiceRegistry serviceRegistry : list) {
-      if (Objects.equals(cluster, serviceRegistry.getCluster())) {
-        listAfterFilter.add(serviceRegistry);
-      }
-    }
-    return listAfterFilter;
+    return list.stream()
+        .filter(serviceRegistry -> Objects.equals(cluster, serviceRegistry.getCluster()))
+        .collect(Collectors.toList());
   }
 
 }
