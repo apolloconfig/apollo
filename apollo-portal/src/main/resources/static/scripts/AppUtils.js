@@ -68,9 +68,6 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
         showErrorMsg: function (response, title) {
             toastr.error(parseErrorMsg(response), title);
         },
-        showWarningMsg: function (message) {
-            toastr.warning(message);
-        },
         parseParams: function (query, notJumpToHomePage) {
             if (!query) {
                 //如果不传这个参数或者false则返回到首页(参数出错)

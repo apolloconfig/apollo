@@ -19,8 +19,7 @@ package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.google.common.collect.Lists;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +32,8 @@ public class ServerConfigService {
     this.serverConfigRepository = serverConfigRepository;
   }
 
-  public List<ServerConfig> findAll(Pageable pageable) {
-    Page<ServerConfig> page = serverConfigRepository.findAll(pageable);
-    return page.getContent();
+  public List<ServerConfig> findAll() {
+    Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
+    return Lists.newArrayList(serverConfigs);
   }
 }

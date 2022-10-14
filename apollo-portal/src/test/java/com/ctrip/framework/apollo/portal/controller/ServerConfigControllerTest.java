@@ -23,8 +23,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -35,7 +33,6 @@ import java.util.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -96,9 +93,8 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
 
   @Test
   public void testFindEmpty() {
-    when(serverConfigService.findAll(any(Pageable.class))).thenReturn(new ArrayList<>());
-    Pageable pageable = PageRequest.of(0, 10);
-    List<ServerConfig> serverConfigList = serverConfigController.findAllServerConfig(pageable);
+    when(serverConfigService.findAll()).thenReturn(new ArrayList<>());
+    List<ServerConfig> serverConfigList = serverConfigController.findAllServerConfig();
     Assert.assertNotNull(serverConfigList);
     Assert.assertEquals(0, serverConfigList.size());
   }

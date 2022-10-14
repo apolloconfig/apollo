@@ -88,16 +88,6 @@
                             </tr>
                         </table>
 
-                        <div style="text-align: end;">
-                            <button type="button" ng-click="previous()"
-                                    class="btn btn-primary">
-                                {{'Common.Previous' | translate }}
-                            </button>
-                            <button type="button" ng-click="next()"
-                                    class="btn btn-primary">
-                                {{'Common.Next' | translate }}
-                            </button>
-                        </div>
                     </div>
 
                     <div ng-show="status==='2'">
@@ -146,19 +136,19 @@
                     </div>
 
                     <div ng-show="status==='3'">
-                    <div class="panel-body">
-                        <form class="form-horizontal panel-body" name="appForm"
-                              valdr-type="App" ng-submit="create()">
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label">
-                                    <apollorequiredfield></apollorequiredfield>
+                        <div class="panel-body">
+                            <form class="form-horizontal panel-body" name="appForm"
+                                valdr-type="App" ng-submit="create()">
+                                <div class="form-group">
+                                 <label class="col-sm-2 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
                                     {{'ServiceConfig.Key' | translate }}
-                                </label>
-                                <div class="col-sm-8">
-                                    <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
                                            required>
+                                    </div>
                                 </div>
-                            </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">
                                     <apollorequiredfield></apollorequiredfield>
@@ -178,19 +168,21 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
-                                        {{'Common.Save' | translate }}
-                                    </button>
-                                    <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                            {{'Common.Save' | translate }}
+                                        </button>
+                                        <button type="button" ng-click="goback()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                    </div>
-
                 </div>
+            </section>
+            <section class="panel-body text-center" ng-if="!isRootUser">
+                <h4>{{'Common.IsRootUser' | translate }}</h4>
             </section>
         </div>
     </div>

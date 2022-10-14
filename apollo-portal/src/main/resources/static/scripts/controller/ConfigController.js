@@ -30,12 +30,9 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     $scope.configEdit = configEdit;
     $scope.create = create;
     $scope.goback = goback;
-    $scope.portalDB = portalDB;
     $scope.searchKeys = searchKeys;
     $scope.resetSearchKey = resetSearchKey;
-    $scope.ConfigPage = 0;
 
-    var pageSize = 10;
 
     initPermission();
 
@@ -49,11 +46,9 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     }
 
     function getPortalDBConfig() {
-        ServerConfigService.find_portalDBConfig($scope.ConfigPage, pageSize)
+        ServerConfigService.find_portalDBConfig()
         .then(function (result) {
             if (!result || result.length === 0) {
-                AppUtil.showWarningMsg("It's already the last page");
-                $scope.ConfigPage = $scope.ConfigPage - 1;
                 return;
             }
             $scope.createdConfigs = [];
@@ -63,23 +58,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
                 $scope.filterConfig.push(user);
             });
         })
-    }
-
-
-    function previous(){
-        if($scope.ConfigPage == 0){
-            AppUtil.showWarningMsg("It's already the first page");
-        }else{
-            $scope.ConfigPage = $scope.ConfigPage - 1;
-            getPortalDBConfig();
-        }
-    }
-
-
-    function next(){
-        $scope.ConfigPage = $scope.ConfigPage + 1;
-
-        getPortalDBConfig();
     }
 
 
@@ -114,12 +92,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         getPortalDBConfig();
     }
 
-
-    function portalDB(){
-        $scope.status = '1';
-        $scope.ConfigPage = 0;
-        getPortalDBConfig();
-    }
 
     function searchKeys() {
         $scope.searchKey = $scope.searchKey.toLowerCase();

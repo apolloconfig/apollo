@@ -51,11 +51,9 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             });
             return d.promise;
         },
-        find_portalDBConfig:function (page, size){
+        find_portalDBConfig:function (){
             var d = $q.defer();
             server_config_resource.find_portalDBConfig({
-                page: page,
-                size: size
             }, function (result) {
                 d.resolve(result);
             }, function (result) {
