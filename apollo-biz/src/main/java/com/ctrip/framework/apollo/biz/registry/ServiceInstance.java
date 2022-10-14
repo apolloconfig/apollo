@@ -42,10 +42,8 @@ public interface ServiceInstance {
   /**
    * Tag a service instance for service discovery.
    * <p/>
-   * It's a little hard to persist the key / value pair metadata to database,
-   * so use cluster instead of metadata for service discovery.
+   * so use cluster for service discovery.
    *
-   * @see org.springframework.cloud.client.ServiceInstance#getMetadata()
    * @return The cluster of the service instance.
    */
   String getCluster();
