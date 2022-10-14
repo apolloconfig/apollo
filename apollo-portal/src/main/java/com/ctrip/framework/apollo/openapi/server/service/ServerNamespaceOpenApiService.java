@@ -60,7 +60,7 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   public OpenNamespaceDTO getNamespace(String appId, String env, String clusterName,
       String namespaceName) {
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
-        (env), clusterName, namespaceName);
+        (env), clusterName, namespaceName, false);
     if (namespaceBO == null) {
       return null;
     }
@@ -71,7 +71,7 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName) {
     return OpenApiBeanUtils
         .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
-            .valueOf(env), clusterName));
+            .valueOf(env), clusterName, false));
   }
 
   @Override

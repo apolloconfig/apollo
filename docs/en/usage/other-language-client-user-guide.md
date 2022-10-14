@@ -107,7 +107,7 @@ If you need to be aware of configuration updates in real time (1 second), you ca
 
 ### 1.4.1 Configuration update push idea
 
-Here we suggest you to refer to Apollo's Java implementation: [RemoteConfigLongPollService.java](https://github.com/apolloconfig/apollo/blob/master/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java), which has more than 200 lines of code and is relatively simple in general.
+Here we suggest you to refer to Apollo's Java implementation: [RemoteConfigLongPollService.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/RemoteConfigLongPollService.java), which has more than 200 lines of code and is relatively simple in general.
 
 #### 1.4.1.1 Initialization
 
