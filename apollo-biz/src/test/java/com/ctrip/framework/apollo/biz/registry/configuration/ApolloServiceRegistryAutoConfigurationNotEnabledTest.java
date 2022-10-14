@@ -16,10 +16,25 @@
  */
 package com.ctrip.framework.apollo.biz.registry.configuration;
 
+import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClient;
+import com.ctrip.framework.apollo.biz.registry.DatabaseServiceRegistry;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryClearApplicationRunner;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryDeregisterApplicationListener;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryHeartbeatApplicationRunner;
+import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
+import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
+/**
+ * ensure that this feature, i.e. database discovery won't cause configservice or adminservice
+ * startup fail when it doesn't enable.
+ */
 @SpringBootTest
 @ContextConfiguration(classes = {
     ApolloServiceRegistryAutoConfiguration.class,
@@ -27,8 +42,26 @@ import org.springframework.test.context.ContextConfiguration;
 })
 class ApolloServiceRegistryAutoConfigurationNotEnabledTest {
 
+  @Autowired
+  private ApplicationContext context;
+
+
+  private void assertNoSuchBean(Class<?> requiredType) {
+    Assertions.assertThrows(
+        NoSuchBeanDefinitionException.class,
+        () -> context.getBean(requiredType)
+    );
+  }
+
   @Test
-  void load() {
-    // do nothing
+  void ensureNoSuchBeans() {
+    assertNoSuchBean(ServiceRegistryRepository.class);
+    assertNoSuchBean(ServiceRegistryService.class);
+    assertNoSuchBean(DatabaseServiceRegistry.class);
+    assertNoSuchBean(ApolloServiceRegistryHeartbeatApplicationRunner.class);
+    assertNoSuchBean(ApolloServiceRegistryDeregisterApplicationListener.class);
+
+    assertNoSuchBean(DatabaseDiscoveryClient.class);
+    assertNoSuchBean(ApolloServiceRegistryClearApplicationRunner.class);
   }
 }
