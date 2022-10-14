@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.biz.registry.configuration.support;
 
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -56,6 +58,8 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
    * @see ServiceInstance#getCluster()
    */
   private String cluster;
+
+  private Map<String, String> metadata = new HashMap<>(8);
 
   /**
    * heartbeat to registry in second.
@@ -121,6 +125,15 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
 
   public void setCluster(String cluster) {
     this.cluster = cluster;
+  }
+
+  @Override
+  public Map<String, String> getMetadata() {
+    return this.metadata;
+  }
+
+  public void setMetadata(Map<String, String> metadata) {
+    this.metadata = metadata;
   }
 
   public long getHeartbeatIntervalInSecond() {

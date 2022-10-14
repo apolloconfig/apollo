@@ -39,9 +39,9 @@ public class ServiceRegistryService {
       serviceRegistrySaved.setDataChangeCreatedTime(now);
       serviceRegistrySaved.setDataChangeLastModifiedTime(now);
     } else {
-      // update cluster
+      // update
       serviceRegistrySaved.setCluster(serviceRegistry.getCluster());
-
+      serviceRegistrySaved.setMetadata(serviceRegistry.getMetadata());
       serviceRegistrySaved.setDataChangeLastModifiedTime(now);
     }
     return this.repository.save(serviceRegistrySaved);

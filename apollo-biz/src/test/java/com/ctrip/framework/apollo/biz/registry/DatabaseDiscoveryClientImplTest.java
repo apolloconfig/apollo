@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServi
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -36,6 +37,7 @@ class DatabaseDiscoveryClientImplTest {
     serviceRegistry.setServiceName(serviceName);
     serviceRegistry.setUri(uri);
     serviceRegistry.setCluster(cluster);
+    serviceRegistry.setMetadata(new HashMap<>());
     serviceRegistry.setDataChangeCreatedTime(LocalDateTime.now());
     serviceRegistry.setDataChangeLastModifiedTime(LocalDateTime.now());
     return serviceRegistry;

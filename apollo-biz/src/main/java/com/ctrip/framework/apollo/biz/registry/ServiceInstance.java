@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.biz.registry;
 
 import java.net.URI;
+import java.util.Map;
 
 /**
  * @see org.springframework.cloud.client.ServiceInstance
@@ -35,6 +36,7 @@ public interface ServiceInstance {
    *   <li><a href="http://10.240.12.34:8080/">http://10.240.12.34:8080/</a></li>
    *   <li><a href="http://47.56.23.34:8080/">http://47.56.23.34:8080/</a></li>
    * </ul>
+   *
    * @return The service URI address.
    */
   URI getUri();
@@ -47,4 +49,10 @@ public interface ServiceInstance {
    * @return The cluster of the service instance.
    */
   String getCluster();
+
+  /**
+   * @return The key / value pair metadata associated with the service instance.
+   * @see org.springframework.cloud.client.ServiceInstance#getMetadata()
+   */
+  Map<String, String> getMetadata();
 }

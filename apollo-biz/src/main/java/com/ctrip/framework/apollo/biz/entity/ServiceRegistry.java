@@ -18,7 +18,10 @@ package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -55,6 +58,10 @@ public class ServiceRegistry {
   @Column(name = "Cluster", nullable = false)
   private String cluster;
 
+  @Column(name = "Metadata", nullable = false)
+  @Convert(converter = JpaMapFieldJsonConverter.class)
+  private Map<String, String> metadata;
+
   @Column(name = "DataChange_CreatedTime", nullable = false)
   private LocalDateTime dataChangeCreatedTime;
 
@@ -81,6 +88,7 @@ public class ServiceRegistry {
         ", serviceName='" + serviceName + '\'' +
         ", uri='" + uri + '\'' +
         ", cluster='" + cluster + '\'' +
+        ", metadata='" + metadata + '\'' +
         ", dataChangeCreatedTime=" + dataChangeCreatedTime +
         ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
         '}';
@@ -116,6 +124,14 @@ public class ServiceRegistry {
 
   public void setCluster(String cluster) {
     this.cluster = cluster;
+  }
+
+  public Map<String, String> getMetadata() {
+    return metadata;
+  }
+
+  public void setMetadata(Map<String, String> metadata) {
+    this.metadata = metadata;
   }
 
   public LocalDateTime getDataChangeCreatedTime() {

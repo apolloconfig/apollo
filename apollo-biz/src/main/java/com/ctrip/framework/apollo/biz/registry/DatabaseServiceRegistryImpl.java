@@ -29,19 +29,22 @@ public class DatabaseServiceRegistryImpl implements DatabaseServiceRegistry {
     this.serviceRegistryService = serviceRegistryService;
   }
 
-  public void register(ServiceInstance instance) {
+  static ServiceRegistry convert(ServiceInstance instance) {
     ServiceRegistry serviceRegistry = new ServiceRegistry();
     serviceRegistry.setServiceName(instance.getServiceName());
     serviceRegistry.setUri(instance.getUri().toString());
     serviceRegistry.setCluster(instance.getCluster());
+    serviceRegistry.setMetadata(instance.getMetadata());
+    return serviceRegistry;
+  }
+
+  public void register(ServiceInstance instance) {
+    ServiceRegistry serviceRegistry = convert(instance);
     this.serviceRegistryService.saveIfNotExistByServiceNameAndUri(serviceRegistry);
   }
 
   public void deregister(ServiceInstance instance) {
-    ServiceRegistry serviceRegistry = new ServiceRegistry();
-    serviceRegistry.setServiceName(instance.getServiceName());
-    serviceRegistry.setUri(instance.getUri().toString());
-    serviceRegistry.setCluster(instance.getCluster());
+    ServiceRegistry serviceRegistry = convert(instance);
     this.serviceRegistryService.delete(serviceRegistry);
   }
 }
