@@ -57,12 +57,10 @@ class DatabaseDiscoveryClientImplTest {
           .thenReturn(serviceRegistryList);
     }
 
-    ServiceInstance serviceInstance = Mockito.mock(ServiceInstance.class);
-    Mockito.when(serviceInstance.getCluster()).thenReturn("1");
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
         serviceRegistryService,
         new ApolloServiceDiscoveryProperties(),
-        serviceInstance
+        "1"
     );
 
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);

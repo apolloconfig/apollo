@@ -30,15 +30,15 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
 
   private final ApolloServiceDiscoveryProperties discoveryProperties;
 
-  private final ServiceInstance self;
+  private final String cluster;
 
   public DatabaseDiscoveryClientImpl(
       ServiceRegistryService serviceRegistryService,
       ApolloServiceDiscoveryProperties discoveryProperties,
-      ServiceInstance self) {
+      String cluster) {
     this.serviceRegistryService = serviceRegistryService;
     this.discoveryProperties = discoveryProperties;
-    this.self = self;
+    this.cluster = cluster;
   }
 
   /**
@@ -54,7 +54,7 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
           this.serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
               serviceName, healthTime
           );
-      serviceRegistryListFiltered = filterByCluster(filterByHealthCheck, this.self.getCluster());
+      serviceRegistryListFiltered = filterByCluster(filterByHealthCheck, this.cluster);
     }
 
     return serviceRegistryListFiltered.stream()

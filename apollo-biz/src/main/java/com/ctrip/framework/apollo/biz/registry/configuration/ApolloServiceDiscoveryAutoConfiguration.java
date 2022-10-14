@@ -46,7 +46,7 @@ public class ApolloServiceDiscoveryAutoConfiguration {
       ServiceRegistryService serviceRegistryService
   ) {
     return new DatabaseDiscoveryClientImpl(
-        serviceRegistryService, discoveryProperties, selfServiceInstance
+        serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster()
     );
   }
 
