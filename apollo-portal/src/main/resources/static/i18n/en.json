@@ -434,7 +434,6 @@
   "Config.DeleteNamespaceFailedTips": "The following projects are associated with this public namespace and they must all be deleted deleting the public Namespace",
   "Config.DeleteNamespaceNoPermissionFailedTitle": "Failed to delete",
   "Config.DeleteNamespaceNoPermissionFailedTips": "You do not have Project Administrator permission. Only Administrators can delete namespace. Please ask Project Administrators [{{users}}] to delete namespace.",
-  "ConfigMange.Title": "Config Management",
   "Config.Key": "Key",
   "Config.Value": "Value",
   "Config.Comment": "Comment",

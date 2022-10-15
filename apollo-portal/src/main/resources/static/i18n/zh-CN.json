@@ -434,7 +434,6 @@
   "Config.DeleteNamespaceFailedTips": "以下应用已关联此公共 Namespace，必须先删除全部已关联的 Namespace 才能删除公共 Namespace",
   "Config.DeleteNamespaceNoPermissionFailedTitle": "删除失败",
   "Config.DeleteNamespaceNoPermissionFailedTips": "您没有应用管理员权限，只有管理员才能删除 Namespace，请找应用管理员 [{{users}}] 删除 Namespace",
-  "ConfigMange.Title": "配置管理",
   "Config.Key": "Key",
   "Config.Value": "Value",
   "Config.Comment": "Comment",

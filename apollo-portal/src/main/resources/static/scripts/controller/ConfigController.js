@@ -30,8 +30,10 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     $scope.configEdit = configEdit;
     $scope.create = create;
     $scope.goback = goback;
+    $scope.portalDB = portalDB;
     $scope.searchKeys = searchKeys;
     $scope.resetSearchKey = resetSearchKey;
+    $scope.ConfigPage = 0;
 
 
     initPermission();
@@ -49,6 +51,7 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         ServerConfigService.find_portalDBConfig()
         .then(function (result) {
             if (!result || result.length === 0) {
+                $scope.ConfigPage = $scope.ConfigPage - 1;
                 return;
             }
             $scope.createdConfigs = [];
@@ -60,6 +63,20 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         })
     }
 
+    function previous(){
+        if($scope.ConfigPage == 0){
+        }else{
+            $scope.ConfigPage = $scope.ConfigPage - 1;
+            getPortalDBConfig();
+        }
+    }
+
+
+    function next(){
+        $scope.ConfigPage = $scope.ConfigPage + 1;
+
+        getPortalDBConfig();
+    }
 
     function configEdit (status,config) {
         $scope.status = status;
@@ -92,6 +109,12 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         getPortalDBConfig();
     }
 
+
+    function portalDB(){
+        $scope.status = '1';
+        $scope.ConfigPage = 0;
+        getPortalDBConfig();
+    }
 
     function searchKeys() {
         $scope.searchKey = $scope.searchKey.toLowerCase();
