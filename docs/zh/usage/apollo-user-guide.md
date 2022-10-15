@@ -431,7 +431,9 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 配置方式很简单，用超级管理员账号登录后，进入`管理员工具 - 系统参数`页面新增或修改`configView.memberOnly.envs`配置项即可。
 
-![configView.memberOnly.envs](https://user-images.githubusercontent.com/837658/46456519-c155e100-c7e1-11e8-969b-8f332379fa29.png)
+![show-all-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/show-all-config.png)
+
+![configView.memberOnly.envs](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/configure-view-permissions.png)
 
 ## 6.2 配置访问密钥
 
