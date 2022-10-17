@@ -57,7 +57,7 @@ public class ApolloServiceRegistryClearApplicationRunner
   /**
    * clear instance
    */
-  private void clearUnhealthyInstances() {
+  void clearUnhealthyInstances() {
     try {
       List<ServiceRegistry> serviceRegistryListDeleted =
           this.serviceRegistryService.deleteTimeBefore(Duration.ofDays(1));
