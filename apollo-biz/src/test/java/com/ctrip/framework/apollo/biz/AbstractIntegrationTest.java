@@ -26,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RunWith(SpringJUnit4ClassRunner.class)
 @Rollback
 @Transactional
-@SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT
+        , properties = {"spring.cloud.discovery.enabled=false"})
 public abstract class AbstractIntegrationTest {
 
 }
