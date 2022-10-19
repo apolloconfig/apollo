@@ -25,8 +25,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     $scope.filterConfig = [];
     $scope.status = '1';
     $scope.searchKey = '';
-    $scope.previous = previous;
-    $scope.next = next;
     $scope.configEdit = configEdit;
     $scope.create = create;
     $scope.goback = goback;
@@ -48,7 +46,7 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
     }
 
     function getPortalDBConfig() {
-        ServerConfigService.find_portalDBConfig()
+        ServerConfigService.findPortalDBConfig()
         .then(function (result) {
             if (!result || result.length === 0) {
                 $scope.ConfigPage = $scope.ConfigPage - 1;
@@ -63,20 +61,6 @@ function ConfigController($scope, $window, $translate, toastr, AppUtil, ServerCo
         })
     }
 
-    function previous(){
-        if($scope.ConfigPage == 0){
-        }else{
-            $scope.ConfigPage = $scope.ConfigPage - 1;
-            getPortalDBConfig();
-        }
-    }
-
-
-    function next(){
-        $scope.ConfigPage = $scope.ConfigPage + 1;
-
-        getPortalDBConfig();
-    }
 
     function configEdit (status,config) {
         $scope.status = status;

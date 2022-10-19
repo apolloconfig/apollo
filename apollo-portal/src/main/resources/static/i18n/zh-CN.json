@@ -41,8 +41,6 @@
   "Common.PleaseChooseDepartment": "请选择部门",
   "Common.PleaseChooseOwner": "请选择应用负责人",
   "Common.LoginExpiredTips": "您的登录信息已过期,请刷新页面后重试",
-  "Common.Previous": "上一页",
-  "Common.Next": "下一页",
   "Common.Operation": "操作",
   "Common.Delete": "删除",
   "Common.ForceDelete": "强制删除",
