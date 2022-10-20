@@ -544,6 +544,25 @@ INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES (
 apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
+
+##### 2.2.1.2.11 启用database-discovery替换内置eureka
+
+> For version 2.1.0 and above
+> 
+> Apollo支持使用内部的数据库表作为注册中心，不依赖第三方的注册中心
+
+1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,database-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. 在多机房部署时，
+如果你需要apollo客户端只读取同机房内的Config Service，
+你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
+```properties
+apollo.service.registry.cluster=与apollo的Cluster同名
+```
+
 ### 2.2.2 部署Apollo服务端
 
 #### 2.2.2.1 部署apollo-configservice

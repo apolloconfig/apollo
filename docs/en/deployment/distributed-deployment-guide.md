@@ -583,6 +583,24 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ````
 
+##### 2.2.1.2.11 Enable database-discovery to replace built-in eureka
+
+> For version 2.1.0 and above
+> 
+> Apollo supports the use of internal database table as registry, without relying on third-party registry.
+
+1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,database-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. In multi-room deployments, if you want apollo client only read Config Service in the same room,
+you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+```properties
+apollo.service.registry.cluster=same name with apollo Cluster
+```
+
+
 ### 2.2.2 Deploy Apollo server
 
 #### 2.2.2.1 Deploy apollo-configservice
