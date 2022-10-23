@@ -32,6 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -39,7 +42,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 /**
- * test when {@link DatabaseDiscoveryClient} is warped by decorator.
+ * test when {@link DatabaseDiscoveryClient} doesn't warp by decorator.
  */
 @TestPropertySource(
     properties = {
@@ -48,14 +51,19 @@ import org.springframework.test.context.TestPropertySource;
         "apollo.service.discovery.enabled=true",
         "spring.application.name=for-test-service",
         "server.port=10000",
+        // close decorator
+        "ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration.enabled=true",
     }
 )
 @ContextConfiguration(classes = {
     ApolloServiceRegistryAutoConfiguration.class,
+    // notice that the order of classes is import
+    // @AutoConfigureBefore(ApolloServiceDiscoveryAutoConfiguration.class) won't work when run test
+    ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration.class,
     ApolloServiceDiscoveryAutoConfiguration.class,
 })
 @EnableJpaRepositories(basePackageClasses = ServiceRegistryRepository.class)
-public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
+public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIntegrationTest {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -90,8 +98,8 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
 
     // delete it
     this.serviceRegistry.deregister(instance);
-    // because it save in memory, so we can still find it
-    assertEquals(1, this.discoveryClient.getInstances(serviceName).size());
+    // find none
+    assertEquals(0, this.discoveryClient.getInstances(serviceName).size());
   }
 
   /**
@@ -160,7 +168,31 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
         )
     );
 
-    // because it save in memory, so we can still find it
-    assertEquals(2, this.discoveryClient.getInstances(serviceName).size());
+    assertEquals(1, this.discoveryClient.getInstances(serviceName).size());
+    assertEquals("http://192.168.1.20:8080/",
+        this.discoveryClient.getInstances(serviceName).get(0).getUri().toString());
+  }
+
+  /**
+   * only use in {@link DatabaseDiscoveryWithoutDecoratorIntegrationTest}
+   */
+  @Configuration
+  @ConditionalOnProperty(prefix = "ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration", value = "enabled")
+  @ConditionalOnBean(ApolloServiceDiscoveryAutoConfiguration.class)
+  @AutoConfigureBefore(ApolloServiceDiscoveryAutoConfiguration.class)
+  @EnableConfigurationProperties({
+      ApolloServiceDiscoveryProperties.class,
+  })
+  static class ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration {
+    @Bean
+    public DatabaseDiscoveryClient databaseDiscoveryClient(
+        ApolloServiceDiscoveryProperties discoveryProperties,
+        ServiceInstance selfServiceInstance,
+        ServiceRegistryService serviceRegistryService
+    ) {
+      return new DatabaseDiscoveryClientImpl(
+          serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster()
+      );
+    }
   }
 }
