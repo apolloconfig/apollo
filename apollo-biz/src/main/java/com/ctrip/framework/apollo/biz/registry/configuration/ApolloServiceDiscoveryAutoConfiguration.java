@@ -17,7 +17,9 @@
 package com.ctrip.framework.apollo.biz.registry.configuration;
 
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClient;
+import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl;
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientImpl;
+import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientMemoryCacheDecoratorImpl;
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryClearApplicationRunner;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
@@ -38,6 +40,23 @@ import org.springframework.context.annotation.Configuration;
 })
 public class ApolloServiceDiscoveryAutoConfiguration {
 
+
+  private static DatabaseDiscoveryClient wrapMemoryCache(DatabaseDiscoveryClient discoveryClient) {
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
+        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(discoveryClient);
+    decorator.init();
+    return decorator;
+  }
+
+  private static DatabaseDiscoveryClient wrapAlwaysAddSelfInstance(
+      DatabaseDiscoveryClient discoveryClient,
+      ServiceInstance selfInstance
+  ) {
+    return new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
+            discoveryClient, selfInstance
+    );
+  }
+
   @Bean
   @ConditionalOnMissingBean
   public DatabaseDiscoveryClient databaseDiscoveryClient(
@@ -45,8 +64,11 @@ public class ApolloServiceDiscoveryAutoConfiguration {
       ServiceInstance selfServiceInstance,
       ServiceRegistryService serviceRegistryService
   ) {
-    return new DatabaseDiscoveryClientImpl(
+    DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
         serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster()
+    );
+    return wrapMemoryCache(
+        wrapAlwaysAddSelfInstance(discoveryClient, selfServiceInstance)
     );
   }
 

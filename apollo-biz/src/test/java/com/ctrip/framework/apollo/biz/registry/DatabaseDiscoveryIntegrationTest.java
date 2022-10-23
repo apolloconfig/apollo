@@ -16,12 +16,12 @@
  */
 package com.ctrip.framework.apollo.biz.registry;
 
+import static com.ctrip.framework.apollo.biz.registry.ServiceInstanceFactory.newServiceInstance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceDiscoveryAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceRegistryAutoConfiguration;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
 import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
 import java.util.List;
 import org.junit.Test;
@@ -65,10 +65,9 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
     String serviceName = "a-service";
     String uri = "http://192.168.1.20:8080/";
     String cluster = "default";
-    ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-    instance.setServiceName(serviceName);
-    instance.setUri(uri);
-    instance.setCluster(cluster);
+    ServiceInstance instance = newServiceInstance(
+        serviceName, uri, cluster
+    );
     this.serviceRegistry.register(instance);
 
     // find it
@@ -93,12 +92,9 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
   public void registerThenDiscoveryNone() {
     // register it
     String serviceName = "b-service";
-    String uri = "http://192.168.1.20:8080/";
-    String cluster = "cannot-be-discovery";
-    ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-    instance.setServiceName(serviceName);
-    instance.setUri(uri);
-    instance.setCluster(cluster);
+    ServiceInstance instance = newServiceInstance(
+        serviceName, "http://192.168.1.20:8080/", "cannot-be-discovery"
+    );
     this.serviceRegistry.register(instance);
 
     // find none
@@ -108,14 +104,10 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
 
   @Test
   public void registerTwice() {
-
     String serviceName = "c-service";
-    String uri = "http://192.168.1.20:8080/";
-    String cluster = "default";
-    ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-    instance.setServiceName(serviceName);
-    instance.setUri(uri);
-    instance.setCluster(cluster);
+    ServiceInstance instance = newServiceInstance(
+        serviceName, "http://192.168.1.20:8080/", "default"
+    );
 
     // register it
     this.serviceRegistry.register(instance);
@@ -131,22 +123,17 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
   public void registerTwoInstancesThenDeleteOne() {
     final String serviceName = "d-service";
     final String cluster = "default";
-    {
-      String uri = "http://192.168.1.20:8080/";
-      ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-      instance.setServiceName(serviceName);
-      instance.setUri(uri);
-      instance.setCluster(cluster);
-      this.serviceRegistry.register(instance);
-    }
-    {
-      String uri = "http://192.168.1.20:10000/";
-      ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-      instance.setServiceName(serviceName);
-      instance.setUri(uri);
-      instance.setCluster(cluster);
-      this.serviceRegistry.register(instance);
-    }
+
+    this.serviceRegistry.register(
+        newServiceInstance(
+            serviceName, "http://192.168.1.20:8080/", cluster
+        )
+    );
+    this.serviceRegistry.register(
+        newServiceInstance(
+            serviceName, "http://192.168.1.20:10000/", cluster
+        )
+    );
 
     final List<ServiceInstance> serviceInstances = this.discoveryClient.getInstances(serviceName);
     assertEquals(2, serviceInstances.size());
@@ -158,14 +145,11 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
     }
 
     // delete one
-    {
-      String uri = "http://192.168.1.20:10000/";
-      ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
-      instance.setServiceName(serviceName);
-      instance.setUri(uri);
-      instance.setCluster(cluster);
-      this.serviceRegistry.deregister(instance);
-    }
+    this.serviceRegistry.deregister(
+        newServiceInstance(
+            serviceName, "http://192.168.1.20:10000/", cluster
+        )
+    );
 
     assertEquals(1, this.discoveryClient.getInstances(serviceName).size());
     assertEquals("http://192.168.1.20:8080/",

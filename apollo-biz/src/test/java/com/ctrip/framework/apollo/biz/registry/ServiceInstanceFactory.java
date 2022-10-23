@@ -17,18 +17,13 @@
 package com.ctrip.framework.apollo.biz.registry;
 
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryProperties;
-import java.util.List;
 
-/**
- * @see org.springframework.cloud.client.discovery.DiscoveryClient
- */
-public interface DatabaseDiscoveryClient {
-
-  /**
-   * find by {@link ApolloServiceRegistryProperties#getServiceName()},
-   * then filter by {@link ApolloServiceRegistryProperties#getCluster()}
-   *
-   * @return empty list if there is no instance
-   */
-  List<ServiceInstance> getInstances(String serviceName);
+public class ServiceInstanceFactory {
+  static ServiceInstance newServiceInstance(String serviceName, String uri, String cluster) {
+    ApolloServiceRegistryProperties instance = new ApolloServiceRegistryProperties();
+    instance.setServiceName(serviceName);
+    instance.setUri(uri);
+    instance.setCluster(cluster);
+    return instance;
+  }
 }
