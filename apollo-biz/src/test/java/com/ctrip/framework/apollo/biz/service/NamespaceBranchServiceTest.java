@@ -24,7 +24,9 @@ import com.ctrip.framework.apollo.common.constants.NamespaceBranchStatus;
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
+import java.lang.reflect.Type;
 import java.util.Set;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -33,6 +35,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
 
@@ -85,7 +89,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, releaseHistory.getOperation());
     Assert.assertEquals(0, releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(containRule(releaseHistory.getOperationContext(),rule.getRules()));
+    Assert.assertTrue(containRule(releaseHistory.getOperationContext(), rule.getRules()));
   }
 
   @Test
@@ -118,16 +122,24 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(2, releaseHistories.getTotalElements());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, firstReleaseHistory.getOperation());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, secondReleaseHistory.getOperation());
-    Assert.assertTrue(containRule(firstReleaseHistory.getOperationContext(),firstRule.getRules()));
-    Assert.assertFalse(containRule(firstReleaseHistory.getOperationContext(),secondRule.getRules()));
-    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(),firstRule.getRules()));
-    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(),secondRule.getRules()));
+    Assert.assertTrue(containRule(firstReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertFalse(containRule(firstReleaseHistory.getOperationContext(), secondRule.getRules()));
+    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(), secondRule.getRules()));
   }
 
-  private boolean containRule(String context, String rule){
-    Set<GrayReleaseRuleItemDTO> contextRules = GrayReleaseRuleItemTransformer.batchTransformFromJSON(context.substring(context.indexOf("["),context.lastIndexOf("]")+1));
+  private boolean containRule(String context, String rule) {
+    Type grayReleaseRuleItemsType = new TypeToken<Map<String, Set<GrayReleaseRuleItemDTO>>>() {
+    }.getType();
+    Map<String, Set<GrayReleaseRuleItemDTO>> contextRules = new Gson().fromJson(context, grayReleaseRuleItemsType);
+
     Set<GrayReleaseRuleItemDTO> rules = GrayReleaseRuleItemTransformer.batchTransformFromJSON(rule);
-    return contextRules.iterator().next().toString().equals(rules.iterator().next().toString());
+
+    for (Set<GrayReleaseRuleItemDTO> ruleSet : contextRules.values()) {
+      if (rules.toString().equals(ruleSet.toString()))
+        return true;
+    }
+    return false;
   }
 
   @Test
