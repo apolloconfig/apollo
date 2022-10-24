@@ -1307,12 +1307,6 @@ If set to true, only super administrators and accounts with project administrato
 
 ### 3.1.12 admin-services.access.tokens - set the access token required by apollo-portal to access the apollo-adminservice for each environment
 
-### 3.1.13 searchByItem.switch - whether the console search box supports searching by configuration item
-
-The default is true, which makes it easy to quickly search for configurations by configuration item
-
-If set to false, this feature is disabled 
-
 > for version 1.7.1 and above
 
 If the corresponding environment apollo-adminservice has [access control enabled](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled), then you need to configure apollo-portal access here access token required for this environment apollo-adminservice, otherwise access will fail .
@@ -1325,6 +1319,12 @@ The format is json, as follows.
     "pro" : "ad0234829205b9033196ba818f7a872b"
 }
 ```
+
+### 3.1.13 searchByItem.switch - whether the console search box supports searching by configuration item
+
+The default is true, which makes it easy to quickly search for configurations by configuration item
+
+If set to false, this feature is disabled
 
 ## 3.2 Adjusting ApolloConfigDB configuration
 
