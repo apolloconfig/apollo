@@ -89,7 +89,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, releaseHistory.getOperation());
     Assert.assertEquals(0, releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(containRule(releaseHistory.getOperationContext(), rule.getRules()));
+    Assert.assertTrue(containRules(releaseHistory.getOperationContext(), rule.getRules()));
   }
 
   @Test
@@ -122,24 +122,34 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(2, releaseHistories.getTotalElements());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, firstReleaseHistory.getOperation());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, secondReleaseHistory.getOperation());
-    Assert.assertTrue(containRule(firstReleaseHistory.getOperationContext(), firstRule.getRules()));
-    Assert.assertFalse(containRule(firstReleaseHistory.getOperationContext(), secondRule.getRules()));
-    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(), firstRule.getRules()));
-    Assert.assertTrue(containRule(secondReleaseHistory.getOperationContext(), secondRule.getRules()));
+    Assert.assertTrue(containRules(firstReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertFalse(containRules(firstReleaseHistory.getOperationContext(), secondRule.getRules()));
+    Assert.assertTrue(containRules(secondReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertTrue(containRules(secondReleaseHistory.getOperationContext(), secondRule.getRules()));
   }
 
-  private boolean containRule(String context, String rule) {
+  private boolean containRules(String context, String rules) {
     Type grayReleaseRuleItemsType = new TypeToken<Map<String, Set<GrayReleaseRuleItemDTO>>>() {
     }.getType();
-    Map<String, Set<GrayReleaseRuleItemDTO>> contextRules = new Gson().fromJson(context, grayReleaseRuleItemsType);
+    Map<String, Set<GrayReleaseRuleItemDTO>> contextRulesMap = new Gson().fromJson(context, grayReleaseRuleItemsType);
+    Set<GrayReleaseRuleItemDTO> ruleSet = GrayReleaseRuleItemTransformer.batchTransformFromJSON(rules);
 
-    Set<GrayReleaseRuleItemDTO> rules = GrayReleaseRuleItemTransformer.batchTransformFromJSON(rule);
-
-    for (Set<GrayReleaseRuleItemDTO> ruleSet : contextRules.values()) {
-      if (rules.toString().equals(ruleSet.toString()))
-        return true;
+    for (GrayReleaseRuleItemDTO rule : ruleSet) {
+      boolean found = false;
+      loop: for (Set<GrayReleaseRuleItemDTO> contextRules : contextRulesMap.values()) {
+        for (GrayReleaseRuleItemDTO contextRule : contextRules) {
+          if (contextRule.toString().equals(rule.toString())) {
+            found = true;
+            break loop;
+          }
+        }
+      }
+      if (!found) {
+        return false;
+      }
     }
-    return false;
+
+    return true;
   }
 
   @Test
