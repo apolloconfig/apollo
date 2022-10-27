@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
@@ -58,7 +59,7 @@ class JpaMapFieldJsonConverterTest {
 
   @Test
   void convertToDatabaseColumn_twoElement() throws IOException {
-    Map<String, String> map = new HashMap<>(8);
+    Map<String, String> map = new LinkedHashMap<>(8);
     map.put("a", "1");
     map.put("disableCheck", "true");
 
