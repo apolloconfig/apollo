@@ -56,6 +56,7 @@
 			<outputDirectory>/config</outputDirectory>
 			<includes>
 				<include>application-github.properties</include>
+				<include>application.properties</include>
 			</includes>
 		</fileSet>
 		<!--artifact -->
