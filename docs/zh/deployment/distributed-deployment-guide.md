@@ -1252,12 +1252,6 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 ### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
 
-### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
-
-默认为 true，可以方便的按配置项快速搜索配置
-
-如果设置为 false，则关闭此功能 
-
 > 适用于1.7.1及以上版本
 
 如果对应环境的apollo-adminservice开启了[访问控制](#_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
@@ -1270,6 +1264,13 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
     "pro" : "ad0234829205b9033196ba818f7a872b"
 }
 ```
+
+### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
+
+默认为 true，可以方便的按配置项快速搜索配置
+
+如果设置为 false，则关闭此功能
+
 
 ## 3.2 调整ApolloConfigDB配置
 配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。
