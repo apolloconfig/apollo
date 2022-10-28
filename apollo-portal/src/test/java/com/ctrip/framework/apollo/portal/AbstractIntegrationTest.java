@@ -35,7 +35,7 @@ import javax.annotation.PostConstruct;
     PortalApplication.class,
     SkipAuthorizationConfiguration.class
 }, webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:" + "integration.test.properties")
+@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractIntegrationTest {
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();

@@ -35,7 +35,7 @@ import org.springframework.web.client.RestTemplate;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:" + "integration.test.properties")
+@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractControllerTest {
   @Autowired
   private HttpMessageConverters httpMessageConverters;

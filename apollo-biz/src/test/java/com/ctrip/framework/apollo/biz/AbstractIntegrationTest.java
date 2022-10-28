@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
     classes = BizTestConfiguration.class,
     webEnvironment = WebEnvironment.RANDOM_PORT
 )
-@TestPropertySource("classpath:" + "integration.test.properties")
+@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractIntegrationTest {
 
 }

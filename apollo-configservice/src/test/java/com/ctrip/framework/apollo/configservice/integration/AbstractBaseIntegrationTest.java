@@ -57,7 +57,7 @@ import javax.annotation.PostConstruct;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AbstractBaseIntegrationTest.TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:" + "integration.test.properties")
+@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractBaseIntegrationTest {
   @Autowired
   private ReleaseMessageRepository releaseMessageRepository;
