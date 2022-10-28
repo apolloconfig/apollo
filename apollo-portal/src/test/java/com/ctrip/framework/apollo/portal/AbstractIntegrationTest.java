@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -35,7 +34,6 @@ import javax.annotation.PostConstruct;
     PortalApplication.class,
     SkipAuthorizationConfiguration.class
 }, webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractIntegrationTest {
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();

@@ -38,7 +38,6 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -57,7 +56,6 @@ import javax.annotation.PostConstruct;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AbstractBaseIntegrationTest.TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource("classpath:" + "application.properties")
 public abstract class AbstractBaseIntegrationTest {
   @Autowired
   private ReleaseMessageRepository releaseMessageRepository;
