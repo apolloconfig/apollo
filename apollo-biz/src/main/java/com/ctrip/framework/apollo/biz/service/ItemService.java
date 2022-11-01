@@ -37,9 +37,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ItemService {
+
+  private static Pattern clusterPattern = Pattern.compile("[0-9]{14}-[a-zA-Z0-9]{16}");
 
   private final ItemRepository itemRepository;
   private final NamespaceService namespaceService;
@@ -200,10 +204,29 @@ public class ItemService {
 
   private boolean checkItemValueLength(long namespaceId, String value) {
     int limit = getItemValueLengthLimit(namespaceId);
+    Namespace currentNamespace = namespaceService.findOne(namespaceId);
+    if(currentNamespace != null) {
+      Matcher m = clusterPattern.matcher(currentNamespace.getClusterName());
+      boolean isGray = m.matches();
+      if (isGray) {
+        limit = getGrayNamespaceItemValueLengthLimit(currentNamespace, limit);
+      }
+    }
     if (!StringUtils.isEmpty(value) && value.length() > limit) {
       throw new BadRequestException("value too long. length limit:" + limit);
     }
     return true;
+  }
+
+  private int getGrayNamespaceItemValueLengthLimit(Namespace grayNamespace, int grayNamespaceLimit) {
+    Namespace parentNamespace = namespaceService.findParentNamespace(grayNamespace);
+    if (parentNamespace != null) {
+      int parentLimit = getItemValueLengthLimit(parentNamespace.getId());
+      if (parentLimit > grayNamespaceLimit) {
+        return parentLimit;
+      }
+    }
+    return grayNamespaceLimit;
   }
 
   private boolean checkItemKeyLength(String key) {

@@ -35,6 +35,7 @@ Apollo 2.1.0
 * [A user-friendly config management page for apollo portal](https://github.com/apolloconfig/apollo/pull/4592)
 * [feat: support use database as a registry](https://github.com/apolloconfig/apollo/pull/4595)
 * [fix doc bug](https://github.com/apolloconfig/apollo/pull/4579)
+* [fix Grayscale release Item Value length limit can not be synchronized with its main version](https://github.com/apolloconfig/apollo/pull/4622)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
