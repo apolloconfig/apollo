@@ -555,7 +555,7 @@ nacos.discovery.context-path=
 
 #### 2.2.3.2 consul-discovery
 
-##### 2.2.3.2.1 For version 2.1.0 and above
+##### 2.2.3.2.1 2.1.0 及以上版本
 
 启用外部Consul服务注册中心替换内置eureka
 
