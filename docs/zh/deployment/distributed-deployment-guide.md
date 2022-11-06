@@ -559,7 +559,7 @@ nacos.discovery.context-path=
 
 启用外部Consul服务注册中心替换内置eureka
 
-1. 修改在`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`中的`config/application.properties`，取消注释，把
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
     #spring.profiles.active=github,consul-discovery
     ```
@@ -576,7 +576,7 @@ spring.cloud.consul.host=127.0.0.1
 spring.cloud.consul.port=8500
 ```
 
-##### 2.2.3.2.2 For version 2.0.0 and below
+##### 2.2.3.2.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
@@ -593,11 +593,11 @@ spring.cloud.consul.port=8500
 
 #### 2.2.3.3 zookeeper-discovery
 
-##### 2.2.3.3.1 For version 2.1.0 and above
+##### 2.2.3.3.1 2.1.0 及以上版本
 
 启用外部Zookeeper服务注册中心替换内置eureka
 
-1. 修改在`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`中的`config/application.properties`，取消注释，把
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
     #spring.profiles.active=github,zookeeper-discovery
     ```
@@ -621,7 +621,7 @@ admin.enableServer
 admin.serverPort
 ```
 
-##### 2.2.3.3.2 For version 2.0.0 and below
+##### 2.2.3.3.2 2.1.0 之前的版本
 
 1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
 ```shell
@@ -642,11 +642,11 @@ admin.serverPort
 
 #### 2.2.3.4 custom-defined-discovery
 
-##### 2.2.3.4.1 For version 2.1.0 and above
+##### 2.2.3.4.1 2.1.0 及以上版本
 
 启用custom-defined-discovery替换内置eureka
 
-1. 修改在`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`中的`config/application.properties`，取消注释，把
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
     #spring.profiles.active=github,custom-defined-discovery
     ```
@@ -668,7 +668,7 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-##### 2.2.3.5.2 For version 2.0.0 and below
+##### 2.2.3.5.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
@@ -690,13 +690,13 @@ apollo.admin-service.url=http://apollo-admin-service
 
 #### 2.2.3.5 database-discovery
 
-> For version 2.1.0 and above
+> 仅支持 2.1.0 及以上版本
 
 启用database-discovery替换内置eureka
 
 Apollo支持使用内部的数据库表作为注册中心，不依赖第三方的注册中心
 
-1. 修改在`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`中的`config/application.properties`，取消注释，把
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
     #spring.profiles.active=github,database-discovery
     ```
