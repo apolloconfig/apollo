@@ -479,6 +479,7 @@ META_SERVERS_OPTS="-Ddev_meta=$dev_meta -Dfat_meta=$fat_meta -Duat_meta=$uat_met
 ##### 2.2.1.2.6 获取apollo-portal安装包
 
 位于`apollo-portal/target/`目录下的`apollo-portal-x.x.x-github.zip`
+
 ### 2.2.2 部署Apollo服务端
 
 #### 2.2.2.1 部署apollo-configservice
