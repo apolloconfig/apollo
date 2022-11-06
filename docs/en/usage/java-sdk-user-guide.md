@@ -601,7 +601,7 @@ If <apollo:config> does not specify an order, then the default is the lowest pri
         <property name="batch" value="${batch:200}"/>
     </bean>
 </beans>
-````
+```
 
 #### 3.2.1.2 Java-based configuration (recommended)
 
@@ -621,7 +621,7 @@ public class AppConfig {
     return new TestJavaConfigBean();
   }
 }
-````
+```
 
 2. Inject multiple namespace configuration into Spring
 
@@ -768,7 +768,7 @@ WebClient can be based on multiple implementations (reactor netty httpclient, je
 
 ###### Reactor netty httpclient
 
-````xml
+```xml
 <dependencies>
    <dependency>
       <groupId>com.ctrip.framework.apollo</groupId>
@@ -786,11 +786,11 @@ WebClient can be based on multiple implementations (reactor netty httpclient, je
       <artifactId>reactor-netty-http</artifactId>
    </dependency>
 </dependencies>
-````
+```
 
 ###### Jetty reactive httpclient
 
-````xml
+```xml
 <dependencies>
     <dependency>
         <groupId>com.ctrip.framework.apollo</groupId>
@@ -808,13 +808,13 @@ WebClient can be based on multiple implementations (reactor netty httpclient, je
        <artifactId>jetty-reactive-httpclient</artifactId>
     </dependency>
 </dependencies>
-````
+```
 
 ###### Apache httpclient5
 
 Spring boot does not specify the version of apache httpclient5, so you need to manually specify the version here
 
-````xml
+```xml
 <dependencies>
     <dependency>
         <groupId>com.ctrip.framework.apollo</groupId>
@@ -838,7 +838,7 @@ Spring boot does not specify the version of apache httpclient5, so you need to m
        <version>5.1</version>
     </dependency>
 </dependencies>
-````
+```
 
 ##### 3.2.1.5.2 Configure `app.id`, `env`, `apollo.meta` (or `apollo.config-service`), `apollo.cluster` as described above
 
@@ -846,10 +846,10 @@ Spring boot does not specify the version of apache httpclient5, so you need to m
 
 The default namespace is used here as an example. Please refer to 3.2.1.4.3 for the configuration of namespace.
 
-````properties
+```properties
 spring.config.import=apollo://application
 apollo.client.extension.enabled=true
-````
+```
 
 ##### 3.2.1.5.4 Provide implementation of spi
 
@@ -870,16 +870,16 @@ If you need to turn off the automatic update function of placeholder at runtime,
 
 2. By setting the `apollo.autoUpdateInjectedSpringProperties` property in META-INF/app.properties, such as
 
-````properties
+```properties
 app.id=SampleApp
 apollo.autoUpdateInjectedSpringProperties=false
-````
+```
 
 #### 3.2.2.1 XML usage
 
 Suppose I have a TestXmlBean with two configuration items that need to be injected:
 
-````java
+```java
 public class TestXmlBean {
   private int timeout;
   private int batch;
@@ -900,11 +900,11 @@ public class TestXmlBean {
     return batch;
   }
 }
-````
+```
 
 Then, I will use the following way to define in XML (assuming that the default application namespace of the application has timeout and batch configuration items):
 
-````xml
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -917,13 +917,13 @@ Then, I will use the following way to define in XML (assuming that the default a
         <property name="batch" value="${batch:200}"/>
     </bean>
 </beans>
-````
+```
 
 #### 3.2.2.2 How to use Java Config
 
 Suppose I have a TestJavaConfigBean, which can also be injected using @Value through Java Config:
 
-````java
+```java
 public class TestJavaConfigBean {
   @Value("${timeout:100}")
   private int timeout;
@@ -942,11 +942,11 @@ public class TestJavaConfigBean {
     return batch;
   }
 }
-````
+```
 
 In the Configuration class, use it in the following way (assuming the default application namespace of the application has `timeout` and `batch` configuration items):
 
-````java
+```java
 @Configuration
 @EnableApolloConfig
 public class AppConfig {
@@ -955,7 +955,7 @@ public class AppConfig {
     return new TestJavaConfigBean();
   }
 }
-````
+```
 
 #### 3.2.2.3 How to use ConfigurationProperties
 
@@ -963,7 +963,7 @@ Spring Boot provides [@ConfigurationProperties](http://docs.spring.io/spring-boo
 
 Apollo also supports this method. The following example will inject `redis.cache.expireSeconds` and `redis.cache.commandTimeout` into the `expireSeconds` and `commandTimeout` fields of SampleRedisConfig respectively.
 
-````java
+```java
 @ConfigurationProperties(prefix = "redis.cache")
 public class SampleRedisConfig {
   private int expireSeconds;
@@ -977,11 +977,11 @@ public class SampleRedisConfig {
     this.commandTimeout = commandTimeout;
   }
 }
-````
+```
 
 In the Configuration class, use it in the following way (assuming the default application namespace of the application has `redis.cache.expireSeconds` and `redis.cache.commandTimeout` configuration items):
 
-````java
+```java
 @Configuration
 @EnableApolloConfig
 public class AppConfig {
@@ -990,7 +990,7 @@ public class AppConfig {
     return new SampleRedisConfig();
   }
 }
-````
+```
 
 It should be noted that if `@ConfigurationProperties` needs to automatically update the injected value when the Apollo configuration changes, you need to use [EnvironmentChangeEvent](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_environment_changes) or [RefreshScope](https://cloud.spring.io/spring-cloud-static/spring-cloud.html#_refresh_scope). For related code implementation, please refer to [ZuulPropertiesRefresher.java](https://github.com/ctripcorp/apollo-use-cases/blob/master/spring-cloud-zuul/src/main/java/com/ctrip/framework/apollo/use/cases/spring/cloud/zuul/ZuulPropertiesRefresher.java#L48) and [SampleRedisConfig.java](https://github.com/apolloconfig/apollo-demo-java/blob/main/spring-boot-demo/src/main/java/com/apolloconfig/apollo/demo/springboot/config/SampleRedisConfig.java) and [SpringBootApolloRefreshConfig.java](https://github.com/apolloconfig/apollo-demo-java/blob/main/spring-boot-demo/src/main/java/com/apolloconfig/apollo/demo/springboot/refresh/SpringBootApolloRefreshConfig.java)
 
@@ -1007,7 +1007,7 @@ Apollo also adds several new Annotations to simplify usage in the Spring environ
 
 Example of usage is as follows:
 
-````java
+```java
 public class TestApolloAnnotationBean {
   @ApolloConfig
   private Config config; //inject config for namespace application
@@ -1067,11 +1067,11 @@ public class TestApolloAnnotationBean {
     private int someInt;
   }
 }
-````
+```
 
 Use it in the Configuration class as follows:
 
-````java
+```java
 @Configuration
 @EnableApolloConfig
 public class AppConfig {
@@ -1080,7 +1080,7 @@ public class AppConfig {
     return new TestApolloAnnotationBean();
   }
 }
-````
+```
 
 ### 3.2.4 Existing configuration migration
 
@@ -1099,7 +1099,7 @@ After the application is connected to Apollo, these configurations can be easily
 
 Such as:
 
-````properties
+```properties
 spring.application.name=reservation-service
 server.port = 8080
 
@@ -1112,7 +1112,7 @@ eureka.client.fetchRegistry = true
 eureka.client.eurekaServiceUrlPollIntervalSeconds = 60
 
 eureka.instance.preferIpAddress = true
-````
+```
 
 ![text-mode-spring-boot-config-sample](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-spring-boot-config-sample.png )
 

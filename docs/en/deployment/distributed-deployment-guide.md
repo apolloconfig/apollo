@@ -509,7 +509,7 @@ Remember to set a JVM memory according to the actual environment in scripts/star
 
 ```bash
 export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=4096m -XX:MaxNewSize=4096m -XX:SurvivorRatio=18"
-````
+```
 
 > Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
 
@@ -529,7 +529,7 @@ Remember to set a JVM memory according to the actual environment in scripts/star
 
 ```bash
 export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:SurvivorRatio=22"
-````
+```
 
 > Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
 
@@ -545,7 +545,7 @@ Remember to set a JVM memory according to the actual environment in startup.sh. 
 
 ```bash
 export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=22"
-````
+```
 
 > Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
 
@@ -1000,7 +1000,7 @@ The following table lists the configurable parameters of the apollo-service-char
 
 ###### 2.4.1.3.4.1 The host of ConfigDB is the IP outside the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: 1.2.3.4
   dbName: ApolloConfigDBName
@@ -1009,11 +1009,11 @@ configdb:
   connectionStringProperties: characterEncoding=utf8&useSSL=false
   service:
     enabled: true
-````
+```
 
 ###### 2.4.1.3.4.2 The host of ConfigDB is the domain name outside the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: xxx.mysql.rds.aliyuncs.com
   dbName: ApolloConfigDBName
@@ -1023,42 +1023,42 @@ configdb:
   service:
     enabled: true
     type: ExternalName
-````
+```
 
 ###### 2.4.1.3.4.3 The host of ConfigDB is a service in the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: apollodb-mysql.mysql
   dbName: ApolloConfigDBName
   userName: someUserName
   password: somePassword
   connectionStringProperties: characterEncoding=utf8&useSSL=false
-````
+```
 
 ###### 2.4.1.3.4.4 Specify the apollo-configservice address returned by Meta Server
 
 If apollo-client cannot directly access the service of apollo-configservice (for example, it is not in the same k8s cluster), you can refer to the following example to specify the address returned by Meta Server to apollo-client (for example, it can be accessed through nodeport)
 
-````yaml
+```yaml
 configService:
   config:
     configServiceUrlOverride: http://1.2.3.4:12345
-````
+```
 
 ###### 2.4.1.3.4.5 Specify the apollo-adminservice address returned by Meta Server
 
 If apollo-portal cannot directly access the service of apollo-adminservice (for example, it is not in the same k8s cluster), you can refer to the following example to specify the address returned by Meta Server to apollo-portal (for example, it can be accessed through nodeport)
 
-````yaml
+```yaml
 configService:
   config:
     adminServiceUrlOverride: http://1.2.3.4:23456
-````
+```
 
 ###### 2.4.1.3.4.6 Expose apollo-configservice service in the form of Ingress configuration custom path `/config`
 
-````yaml
+```yaml
 # use /config as root, should specify configService.config.contextPath as /config
 configService:
   config:
@@ -1068,11 +1068,11 @@ configService:
     hosts:
       - paths:
           - /config
-````
+```
 
 ###### 2.4.1.3.4.7 Expose apollo-adminservice service in the form of Ingress configuration custom path `/admin`
 
-````yaml
+```yaml
 # use /admin as root, should specify adminService.config.contextPath as /admin
 adminService:
   config:
@@ -1082,7 +1082,7 @@ adminService:
     hosts:
       - paths:
           - /admin
-````
+```
 
 #### 2.4.1.4 Deploy apollo-portal
 
@@ -1102,13 +1102,13 @@ $ helm install apollo-portal \
     --set replicaCount=1 \
     -n your-namespace \
     apollo/apollo-portal
-````
+```
 
 General deployment recommendations are configured through values.yaml:
 
 ```bash
 $ helm install apollo-portal -f values.yaml -n your-namespace apollo/apollo-portal
-````
+```
 
 > For more configuration item descriptions, please refer to [2.4.1.4.3 Configuration item description](
 
@@ -1173,7 +1173,7 @@ The following table lists the configurable parameters of the apollo-portal chart
 
 ###### 2.4.1.4.4.1 The host of PortalDB is the IP outside the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: 1.2.3.4
   dbName: ApolloPortalDBName
@@ -1182,11 +1182,11 @@ portaldb:
   connectionStringProperties: characterEncoding=utf8&useSSL=false
   service:
     enabled: true
-````
+```
 
 ###### 2.4.1.4.4.2 The host of PortalDB is the domain name outside the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: xxx.mysql.rds.aliyuncs.com
   dbName: ApolloPortalDBName
@@ -1196,49 +1196,49 @@ portaldb:
   service:
     enabled: true
     type: ExternalName
-````
+```
 
 ###### 2.4.1.4.4.3 The host of PortalDB is a service in the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: apollodb-mysql.mysql
   dbName: ApolloPortalDBName
   userName: someUserName
   password: somePassword
   connectionStringProperties: characterEncoding=utf8&useSSL=false
-````
+```
 
 ###### 2.4.1.4.4.4 Configure environment information
 
-````yaml
+```yaml
 config:
   envs: dev, pro
   metaServers:
     dev: http://apollo-service-dev-apollo-configservice:8080
     pro: http://apollo-service-pro-apollo-configservice:8080
-````
+```
 
 ###### 2.4.1.4.4.5 Expose services as Load Balancer
 
-````yaml
+```yaml
 service:
   type: LoadBalancer
-````
+```
 
 ###### 2.4.1.4.4.6 Expose services as Ingress
 
-````yaml
+```yaml
 ingress:
   enabled: true
   hosts:
     - paths:
         - /
-````
+```
 
 ###### 2.4.1.4.4.7 Expose services in the form of Ingress configuration custom path `/apollo`
 
-````yaml
+```yaml
 # use /apollo as root, should specify config.contextPath as /apollo
 ingress:
   enabled: true
@@ -1250,11 +1250,11 @@ config:
   ...
   contextPath: /apollo
   ...
-````
+```
 
 ###### 2.4.1.4.4.8 Expose services in the form of Ingress configuration session affinity
 
-````yaml
+```yaml
 ingress:
   enabled: true
   annotations:
@@ -1268,11 +1268,11 @@ ingress:
     - host: xxx.somedomain.com # host is required to make session affinity work
       paths:
         - /
-````
+```
 
 ###### 2.4.1.4.4.9 Enable LDAP support
 
-````yaml
+```yaml
 config:
   ...
   profiles: github,ldap
@@ -1293,7 +1293,7 @@ config:
           loginId: "uid"
           userDisplayName: "cn"
           email: "mail"
-````
+```
 
 #### 2.4.1.5 Building a Docker image from source
 
