@@ -528,7 +528,7 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
 
-### 2.2.3 替换内置eureka
+### 2.2.3 使用其它服务注册中心替换内置eureka
 
 #### 2.2.3.1 nacos-discovery
 
