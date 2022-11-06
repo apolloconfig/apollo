@@ -499,108 +499,6 @@ Note that since ApolloConfigDB is deployed in each environment, the admin-servic
 
 `apollo-portal-x.x.x-github.zip` located in the `apollo-portal/target/` directory
 
-##### 2.2.1.2.7 Enable external nacos service registry to replace built-in eureka
-
-1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
-
-```shell
-mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,nacos-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_ password=$apollo_config_db_username password=$apollo_config_db_password
-```
-
-2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the nacos server address
-
-```properties
-nacos.discovery.server-addr=127.0.0.1:8848
-# More nacos configurations
-nacos.discovery.access-key=
-nacos.discovery.username=
-nacos.discovery.password=
-nacos.discovery.secret-key=
-nacos.discovery.namespace=
-nacos.discovery.context-path=
-```
-
-##### 2.2.1.2.8 Enable external Consul service registry to replace built-in eureka
-
-1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
-
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-
-2. Modify the application-github.properties in the config directory of the apollo-configservice and apollo-adminservice installation packages, respectively, to configure the consul server address
-
-```properties
-spring.cloud.consul.host=127.0.0.1
-spring.cloud.consul.port=8500
-```
-
-##### 2.2.1.2.9 Enable external Zookeeper service registry to replace built-in eureka
-
-1. Modify build.sh/build.bat to change the maven build command for ``config-service`` and ``admin-service`` to
-
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,zookeeper-discovery - Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-
-2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the zookeeper server address
-
-```properties
-spring.cloud.zookeeper.connect-string=127.0.0.1:2181
-```
-
-3. Zookeeper version description
-
-* Support Zookeeper 3.5.x or higher;
-* If apollo-configservice application starts reporting port occupation, please check the following configuration of Zookeeper;
-
-> Note: Zookeeper 3.5.0 added a built-in [AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
-
-```properties
-admin.enableServer
-admin.serverPort
-```
-
-##### 2.2.1.2.10 Enable custom-defined-discovery to replace built-in eureka
-
-1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
-
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-````
-
-2. There are two ways to configure the access addresses of the custom config-service and admin-service: one is to write two pieces of data in the mysql database ApolloConfigDB and the table ServerConfig.
-
-```sql
-INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService access address ');
-INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService access address ');
-````
-
-Another way to modify application-github.properties in the config directory of the apollo-configservice installation package
-
-````properties
-apollo.config-service.url=http://apollo-config-service
-apollo.admin-service.url=http://apollo-admin-service
-````
-
-##### 2.2.1.2.11 Enable database-discovery to replace built-in eureka
-
-> For version 2.1.0 and above
-> 
-> Apollo supports the use of internal database table as registry, without relying on third-party registry.
-
-1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,database-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-
-2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
-you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
-```properties
-apollo.service.registry.cluster=same name with apollo Cluster
-```
-
-
 ### 2.2.2 Deploy Apollo server
 
 #### 2.2.2.1 Deploy apollo-configservice
@@ -654,6 +552,211 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 > Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-portal.conf.
 
 > Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
+
+### 2.2.3 Replace built-in eureka with another service registry
+
+#### 2.2.3.1 nacos-discovery
+
+Enable external nacos service registry to replace built-in eureka
+
+> Note: need repackage
+
+1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
+
+```shell
+mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,nacos-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_ password=$apollo_config_db_username password=$apollo_config_db_password
+```
+
+2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the nacos server address
+
+```properties
+nacos.discovery.server-addr=127.0.0.1:8848
+# More nacos configurations
+nacos.discovery.access-key=
+nacos.discovery.username=
+nacos.discovery.password=
+nacos.discovery.secret-key=
+nacos.discovery.namespace=
+nacos.discovery.context-path=
+```
+
+#### 2.2.3.2 consul-discovery
+
+Enable external Consul service registry to replace built-in eureka
+
+##### 2.2.3.2.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,consul-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,consul-discovery
+    ```
+
+2. Modify the application-github.properties in the config directory of the apollo-configservice and apollo-adminservice installation packages, respectively, to configure the consul server address
+
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
+
+##### 2.2.3.2.2 For version 2.1.0 below
+
+1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
+
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. Modify the application-github.properties in the config directory of the apollo-configservice and apollo-adminservice installation packages, respectively, to configure the consul server address
+
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
+
+#### 2.2.3.3 zookeeper-discovery
+
+Enable external Zookeeper service registry to replace built-in eureka
+
+##### 2.2.3.3.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,zookeeper-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,zookeeper-discovery
+    ```
+
+2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the zookeeper server address
+
+```properties
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
+```
+
+3. Zookeeper version description
+
+* Support Zookeeper 3.5.x or higher;
+* If apollo-configservice application starts reporting port occupation, please check the following configuration of Zookeeper;
+
+> Note: Zookeeper 3.5.0 added a built-in [AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
+
+```properties
+admin.enableServer
+admin.serverPort
+```
+
+##### 2.2.3.3.2 For version 2.1.0 below
+
+1. Modify build.sh/build.bat to change the maven build command for ``config-service`` and ``admin-service`` to
+
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,zookeeper-discovery - Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the zookeeper server address
+
+```properties
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
+```
+
+3. Zookeeper version description
+
+* Support Zookeeper 3.5.x or higher;
+* If apollo-configservice application starts reporting port occupation, please check the following configuration of Zookeeper;
+
+> Note: Zookeeper 3.5.0 added a built-in [AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
+
+```properties
+admin.enableServer
+admin.serverPort
+```
+
+#### 2.2.3.4 custom-defined-discovery
+
+Enable custom-defined-discovery to replace built-in eureka
+
+##### 2.2.3.4.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,custom-defined-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,custom-defined-discovery
+    ```
+
+2. There are two ways to configure the access addresses of the custom config-service and admin-service: one is to write two pieces of data in the mysql database ApolloConfigDB and the table ServerConfig.
+
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService access address ');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService access address ');
+```
+
+Another way to modify application-github.properties in the config directory of the apollo-configservice installation package
+
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
+
+##### 2.2.3.4.2 For version 2.1.0 below
+
+1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
+
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. There are two ways to configure the access addresses of the custom config-service and admin-service: one is to write two pieces of data in the mysql database ApolloConfigDB and the table ServerConfig.
+
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService access address ');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService access address ');
+```
+
+Another way to modify application-github.properties in the config directory of the apollo-configservice installation package
+
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
+
+#### 2.2.3.5 database-discovery
+
+> For version 2.1.0 and above
+
+Enable database-discovery to replace built-in eureka
+
+Apollo supports the use of internal database table as registry, without relying on third-party registry.
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,database-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,database-discovery
+    ```
+
+2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+```properties
+apollo.service.registry.cluster=same name with apollo Cluster
+```
 
 ## 2.3 Docker Deployment
 
