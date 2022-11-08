@@ -40,7 +40,7 @@ Starting from version 1.2.0, Apollo supports ldap protocol login, which can be c
 
 #### 1.1 Configure `application-ldap.yml`
 
-After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-openldap-sample.yml)) , the relevant content needs to be adjusted according to the specific situation: 
+After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-openldap-sample.yml)) , the relevant content needs to be adjusted according to the specific situation: 
 
 ```yml
 spring:
@@ -130,7 +130,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 2.1 Configure `application-ldap.yml`
 
-After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-activedirectory-sample.yml)) , the relevant content needs to be adapted to the specific case: 
+After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-activedirectory-sample.yml)) , the relevant content needs to be adapted to the specific case: 
 
 ```yml
 spring:
@@ -170,7 +170,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 3.1 Configure `application-ldap.yml`
 
-After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-apacheds-sample.yml)) , the relevant content needs to be adjusted according to the specific situation: 
+After unpacking `apollo-portal-x.x.x-github.zip`, create `application-ldap.yml` in the `config` directory with the following reference ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-apacheds-sample.yml)) , the relevant content needs to be adjusted according to the specific situation: 
 
 ```yml
 spring:
@@ -242,7 +242,7 @@ Before configuration, you need to prepare:
 
 ### 1. Configure `application-oidc.yml`
 
-After unpacking `apollo-portal-x.x.x-github.zip`, create `application-oidc.yml` in the `config` directory with the following contents ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-oidc-sample.yml)) , the relevant content needs to be adapted to the specific case:
+After unpacking `apollo-portal-x.x.x-github.zip`, create `application-oidc.yml` in the `config` directory with the following contents ([sample](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-oidc-sample.yml)) , the relevant content needs to be adapted to the specific case:
 
 #### 1.1 Minimum configuration
 
