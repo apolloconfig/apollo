@@ -901,7 +901,7 @@ flowchart LR
 	
 	idc2-JVM8070 --> idc2-c1-jvm-8090
 	idc2-JVM8070 --> idc2-c2-jvm-8090
-````
+```
 
 Each server room has its own set of Portal, Config Service, Admin Service
 

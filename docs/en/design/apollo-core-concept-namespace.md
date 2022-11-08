@@ -173,33 +173,33 @@ As you can see in the above code example, the Client Namespace is mapped to a Co
 
 So the Namespace code that monitors the application in application A is as follows:
 
-````java
+```java
 Config appConfig = ConfigService.getAppConfig();
 appConfig.addChangeListener(new ConfigChangeListener() {
   public void onChange(ConfigChangeEvent changeEvent) {
     //do something
   }
 })
-````
+```
 
 The Namespace code for monitoring NS-Private in application A is as follows:
 
-````java
+```java
 Config privateConfig = ConfigService.getConfig("NS-Private");
 privateConfig.addChangeListener(new ConfigChangeListener() {
   public void onChange(ConfigChangeEvent changeEvent) {
     //do something
   }
 })
-````
+```
 
 The Namespace code for monitoring NS-Public in application A, application B, and application C is as follows:
 
-````java
+```java
 Config publicConfig = ConfigService.getConfig("NS-Public");
 publicConfig.addChangeListener(new ConfigChangeListener() {
   public void onChange(ConfigChangeEvent changeEvent) {
     //do something
   }
 })
-````
+```

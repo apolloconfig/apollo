@@ -61,7 +61,7 @@ The following are the template content styles for publishing emails and rolling 
 
 ```html
 <html><head><style type="text/css">.table{width:100%;max-width:100%;margin-bottom:20px;border-collapse:collapse;background-color:transparent}td {padding:8px;line-height:1.42857143;vertical-align:top;border:1px solid #ddd;border-top:1px solid #ddd}.table-bordered{border:1px solid #ddd}</style>< /head><body><h3>Post basic information</h3><table class="table table-bordered"><tr><td width="10%"><b>AppId</b></td ><td width="15%">#{appId}</td><td width="10%"><b>Environment</b></td><td width="15%">#{ env}</td><td width="10%"><b>cluster</b></td><td width="15%">#{clusterName}</td><td width="10 %"><b>Namespace</b></td><td width="15%">#{namespaceName}</td></tr><tr><td><b>Publisher</b ></td><td>#{operator}</td><td><b>release time</b></td><td>#{releaseTime}</td><td><b>release Title</b></td><td>#{releaseTitle}</td><td><b>Comment</b></td><td>#{releaseComment}</td></tr> </table>#{diffModule}#{rulesModule}<br><a href="#{apollo.portal.address}/config/history.html?#/appid=#{appId}&env=#{env}&clusterName =#{clusterName}&namespaceName=#{namespaceName}&releaseHistoryId=#{ releaseHistoryId}">Click to view detailed release information</a><br><br>If you have any questions about using Apollo, please check <a href="http://conf.ctripcorp.com/display/FRAM/Apollo"> document</a>, or reply directly to this email inquiry. </body></html>
-````
+```
 
 > Note: To use this template, you need to configure apollo.portal.address in the system parameters of the portal to point to the address of the apollo portal
 

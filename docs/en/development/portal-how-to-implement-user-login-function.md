@@ -124,7 +124,7 @@ LOG_DIR=/opt/logs/100003173
 SERVER_PORT=8070
 
 export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
-````
+```
 
 ### 2. Active Directory access method
 
@@ -164,7 +164,7 @@ LOG_DIR=/opt/logs/100003173
 SERVER_PORT=8070
 
 export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
-````
+```
 
 ### 3. ApacheDS access method
 
@@ -230,7 +230,7 @@ LOG_DIR=/opt/logs/100003173
 SERVER_PORT=8070
 
 export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
-````
+```
 
 ## Implementation 3: Access to OIDC
 
@@ -406,7 +406,7 @@ LOG_DIR=/opt/logs/100003173
 SERVER_PORT=8070
 
 export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,oidc"
-````
+```
 
 ### 3. Configure apollo-portal to enable https
 
