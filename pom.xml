@@ -581,20 +581,6 @@
 					<exclude>**/*.xml</exclude>
 				</excludes>
 			</resource>
-			<resource>
-				<directory>src/main/config</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>application-github.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/config</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>application-github.properties</exclude>
-				</excludes>
-			</resource>
 		</resources>
 	</build>
 	<profiles>
