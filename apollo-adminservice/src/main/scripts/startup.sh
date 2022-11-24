@@ -45,6 +45,10 @@ export APP_NAME=$SERVICE_NAME
 PATH_TO_JAR=$SERVICE_NAME".jar"
 SERVER_URL="http://localhost:$SERVER_PORT"
 
+function getPid() {
+    pgrep -f $SERVICE_NAME
+}
+
 function checkPidAlive {
     for i in `ls -t $APP_NAME/$APP_NAME.pid 2>/dev/null`
     do
@@ -61,6 +65,22 @@ function checkPidAlive {
 
     printf "\nNo pid file found, startup may failed. Please check logs under $LOG_DIR and /tmp for more information!\n"
     exit 1;
+}
+
+function existProcessUsePort() {
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head $SERVER_URL | grep "HTTP")" != "" ]; then
+        true
+    else
+        false
+    fi
+}
+
+function isServiceRunning() {
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 $SERVER_URL/apollo/version | grep "java")" != "" ]; then
+        true
+    else
+        false
+    fi
 }
 
 if [ "$(uname)" == "Darwin" ]; then
@@ -137,10 +157,25 @@ if [[ -n "$APOLLO_RUN_MODE" ]] && [[ "$APOLLO_RUN_MODE" == "Docker" ]]; then
     exec $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR
 else
     if [[ -f $SERVICE_NAME".jar" ]]; then
-      rm -rf $SERVICE_NAME".jar"
+        rm -rf $SERVICE_NAME".jar"
     fi
 
-    printf "$(date) ==== Starting ==== \n"
+    # before running check there is another process use port or not
+    if existProcessUsePort; then
+        if isServiceRunning; then
+            echo "$(date) ==== $SERVICE_NAME is running already with port $SERVER_PORT, pid $(getPid)"
+            exit 0
+        else
+            echo "$(date) ==== $SERVICE_NAME failed to start. The port $SERVER_PORT already be in use by another process"
+            echo "maybe you can figure out which process use port $SERVER_PORT by following ways:"
+            echo "1. access http://change-to-this-machine-ip:$SERVER_PORT by browser"
+            echo "2. run command 'sudo netstat -tunlp | grep :$SERVER_PORT'"
+            echo "3. run command 'sudo lsof -nP -iTCP:$SERVER_PORT -sTCP:LISTEN'"
+            exit 1
+        fi
+    fi
+
+    printf "$(date) ==== $SERVICE_NAME Starting ==== \n"
 
     ln $PATH_TO_JAR $SERVICE_NAME".jar"
     chmod a+x $SERVICE_NAME".jar"
@@ -159,24 +194,19 @@ else
     declare -i total_time=0
 
     printf "Waiting for server startup"
-    until [[ (( counter -ge max_counter )) || "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head $SERVER_URL | grep "HTTP")" != "" ]];
+    until [[ (( counter -ge max_counter )) ]];
     do
         printf "."
-        counter+=1
         sleep 5
+        counter+=1
+        total_time=$((counter*5))
 
         checkPidAlive
+        if isServiceRunning; then
+            printf "\n$(date) Server started in $total_time seconds!\n"
+            exit 0;
+        fi
     done
-
-    total_time=counter*5
-
-    if [[ (( counter -ge max_counter )) ]];
-    then
-        printf "\n$(date) Server failed to start in $total_time seconds!\n"
-        exit 1;
-    fi
-
-    printf "\n$(date) Server started in $total_time seconds!\n"
-
-    exit 0;
+    printf "\n$(date) Server failed to start in $total_time seconds!\n"
+    exit 1;
 fi
