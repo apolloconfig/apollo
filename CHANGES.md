@@ -38,6 +38,7 @@ Apollo 2.1.0
 * [fix Grayscale release Item Value length limit can not be synchronized with its main version](https://github.com/apolloconfig/apollo/pull/4622)
 * [feat: use can change spring.profiles.active's value without rebuild project](https://github.com/apolloconfig/apollo/pull/4616)
 * [refactor: remove app.properties and move some config file's location](https://github.com/apolloconfig/apollo/pull/4637)
+* [feat: check port use by another process or not when startup](https://github.com/apolloconfig/apollo/pull/4656)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
