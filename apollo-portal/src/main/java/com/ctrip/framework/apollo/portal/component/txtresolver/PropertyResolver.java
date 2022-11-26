@@ -192,10 +192,11 @@ public class PropertyResolver implements ConfigTextResolver {
       ItemDTO oldItem = entry.getValue();
       String newItem = newLineNumMapItem.get(lineNum);
 
-      //1. old is blank by now is not
+      //1.old is blank by now is not
       //2.old is comment by now is not exist or modified
+      //3.old is blank by now is not exist or modified
       if ((isBlankItem(oldItem) && !isBlankItem(newItem))
-          || isCommentItem(oldItem) && (newItem == null || !newItem.equals(oldItem.getComment()))) {
+              || (isCommentItem(oldItem) || isBlankItem(oldItem)) && (newItem == null || !newItem.equals(oldItem.getComment()))) {
         changeSets.addDeleteItem(oldItem);
       }
     }
