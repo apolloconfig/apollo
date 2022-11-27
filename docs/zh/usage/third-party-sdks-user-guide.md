@@ -39,7 +39,7 @@
 
 > 非常感谢[@xhrg](https://github.com/xhrg)提供Go Apollo客户端的支持
 
-### Apollo Go 客户端9
+### Apollo Go 客户端 9
 项目地址：[xnzone/apollo-go](https://github.com/xnzone/apollo-go)
 
 > 非常感谢[@xnzone](https://github.com/xnzone)提供Go Apollo客户端的支持
