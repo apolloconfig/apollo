@@ -68,7 +68,7 @@ function checkPidAlive {
 }
 
 function existProcessUsePort() {
-    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head $SERVER_URL | grep "HTTP")" != "" ]; then
+    if [ "$(lsof -i:$SERVER_PORT -sTCP:LISTEN -t)" != "" ]; then
         true
     else
         false
