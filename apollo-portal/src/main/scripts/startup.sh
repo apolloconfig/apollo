@@ -76,7 +76,7 @@ function existProcessUsePort() {
 }
 
 function isServiceRunning() {
-    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 $SERVER_URL/signin | grep "config.png")" != "" ]; then
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 $SERVER_URL/health | grep "UP")" != "" ]; then
         true
     else
         false
