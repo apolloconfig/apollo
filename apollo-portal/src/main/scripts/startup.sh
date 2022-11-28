@@ -170,7 +170,7 @@ else
             echo "maybe you can figure out which process use port $SERVER_PORT by following ways:"
             echo "1. access http://change-to-this-machine-ip:$SERVER_PORT by browser"
             echo "2. run command 'sudo netstat -tunlp | grep :$SERVER_PORT'"
-            echo "3. run command 'sudo lsof -i:$SERVER_PORT -sTCP:LISTEN -t'"
+            echo "3. run command 'sudo lsof -nP -iTCP:$SERVER_PORT -sTCP:LISTEN'"
             exit 1
         fi
     fi
