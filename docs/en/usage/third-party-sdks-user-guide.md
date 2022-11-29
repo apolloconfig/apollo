@@ -48,6 +48,12 @@ Project address: [xhrg-product/apollo-client-golang](https://github.com/xhrg-pro
 
 > Thanks [@xhrg](https://github.com/xhrg) for providing support for the Go Apollo client
 
+### Apollo Go client 9
+
+Project address: [xnzone/apollo-go](https://github.com/xnzone/apollo-go)
+
+> Thanks [@xnzone](https://github.com/xnzone) for providing support for the Go Apollo client
+
 ## 2. Python
 
 ### Apollo Python client 1
