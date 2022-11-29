@@ -38,6 +38,11 @@ server:
     enabled: true
   tomcat:
     use-relative-redirects: true
+  servlet:
+    session:
+      cookie:
+        # prevent csrf
+        same-site: Lax
 
 logging:
   file:
