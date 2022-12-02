@@ -45,6 +45,10 @@ app.id=YOUR-APP-ID
 ```
 
 > 该配置方式不适用于多个war包部署在同一个tomcat的使用场景
+> 或者通过命令行指定spring boot配置，与配置文件中的配置等价: 
+```
+java -jar yourSpringBootApp.java --app.id=YOUR-APP-ID
+```
 
 4. app.properties
 
