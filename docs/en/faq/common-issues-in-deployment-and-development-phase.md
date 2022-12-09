@@ -253,3 +253,51 @@ location /apollo/ {
     proxy_pass http://127.0.0.1:8070/;
 }
 ```
+
+### 17. How to configure https after Portal is mounted to nginx/slb?
+
+1. configure https access configuration on nginx/slb, taking nginx as an example:
+
+```
+    server {
+        listen 80 default_server;
+
+        location / {
+            # redirect all requests on port 80 to https
+            return 301 https://$http_host$request_uri;
+        }
+    }
+
+     server {
+         # If the nginx version is lower and does not support http2, configure listen 443 ssl;
+         listen 443 ssl http2;
+         server_name your-domain-name;
+         # ssl certificate, nginx needs to use a certificate with a complete certificate chain
+         ssl_certificate /etc/nginx/ssl/xxx.crt;
+         ssl_certificate_key /etc/nginx/ssl/xxx.key;
+
+         location / {
+             proxy_pass http://apollo-portal-address:8070;
+             proxy_set_header x-real-ip $remote_addr;
+             proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;
+             #! ! ! This must be $http_host, if it is configured as $host, the port will be wrong when redirecting
+             proxy_set_header host $http_host;
+             proxy_set_header x-forwarded-proto $scheme;
+             proxy_http_version 1.1;
+         }
+     }
+```
+
+2. Configure apollo-portal to parse the header information from the reverse proxy
+
+Modify application-github.properties under the config directory in the apollo-portal installation package and add the following configuration:
+
+```properties
+server.forward-headers-strategy=framework
+```
+
+It can also be configured through environment variables:
+
+```
+SERVER_FORWARD_HEADERS_STRATEGY=framework
+```
