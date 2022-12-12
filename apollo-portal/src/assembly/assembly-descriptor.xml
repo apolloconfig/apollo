@@ -35,15 +35,7 @@
 			<lineEnding>unix</lineEnding>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/config</directory>
-			<outputDirectory>config</outputDirectory>
-			<includes>
-				<include>app.properties</include>
-			</includes>
-			<lineEnding>unix</lineEnding>
-		</fileSet>
-		<fileSet>
-			<directory>src/main/config</directory>
+			<directory>target/classes</directory>
 			<outputDirectory>/</outputDirectory>
 			<includes>
 				<include>apollo-portal.conf</include>

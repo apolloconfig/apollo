@@ -26,11 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/apollo")
 public class ApolloInfoController {
 
-  @RequestMapping("app")
-  public String getApp() {
-    return Foundation.app().toString();
-  }
-
   @RequestMapping("net")
   public String getNet() {
     return Foundation.net().toString();

@@ -480,70 +480,6 @@ META_SERVERS_OPTS="-Ddev_meta=$dev_meta -Dfat_meta=$fat_meta -Duat_meta=$uat_met
 
 位于`apollo-portal/target/`目录下的`apollo-portal-x.x.x-github.zip`
 
-##### 2.2.1.2.7 启用外部nacos服务注册中心替换内置eureka
-
-1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
-```shell
-mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,nacos-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-
-2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置nacos服务器地址
-```properties
-nacos.discovery.server-addr=127.0.0.1:8848
-# 更多 nacos 配置
-nacos.discovery.access-key=
-nacos.discovery.username=
-nacos.discovery.password=
-nacos.discovery.secret-key=
-nacos.discovery.namespace=
-nacos.discovery.context-path=
-```
-
-##### 2.2.1.2.8 启用外部Consul服务注册中心替换内置eureka
-
-1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-
-2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置consul服务器地址
-```properties
-spring.cloud.consul.host=127.0.0.1
-spring.cloud.consul.port=8500
-```
-
-##### 2.2.1.2.9 启用外部Zookeeper服务注册中心替换内置eureka
-1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,zookeeper-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置zookeeper服务器地址
-```properties
-spring.cloud.zookeeper.connect-string=127.0.0.1:2181
-```
-3.Zookeeper版本说明
-* 支持Zookeeper3.5.x以上的版本;
-* 如果apollo-configservice应用启动报端口占用,请检查Zookeeper的如下配置;
-> 注：Zookeeper3.5.0新增了内置的[AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
-```properties
-admin.enableServer
-admin.serverPort
-```
-##### 2.2.1.2.10 启用custom-defined-discovery替换内置eureka
-1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-```
-2. 配置自定义的 config-service 与 admin-service 的访问地址有两种方式：一种在mysql数据库ApolloConfigDB，表ServerConfig当中写入两条数据。
-```sql
-INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService 访问地址');
-INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService 访问地址');
-```
-另外一种修改apollo-configservice安装包中config目录下的application-github.properties
-```properties
-apollo.config-service.url=http://apollo-config-service
-apollo.admin-service.url=http://apollo-admin-service
-```
 ### 2.2.2 部署Apollo服务端
 
 #### 2.2.2.1 部署apollo-configservice
@@ -591,6 +527,195 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 > 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-portal.conf中的`LOG_DIR`。
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
+
+### 2.2.3 使用其它服务注册中心替换内置eureka
+
+#### 2.2.3.1 nacos-discovery
+
+启用外部nacos服务注册中心替换内置eureka
+
+> 注意：需要重新打包
+
+1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
+```shell
+mvn clean package -Pgithub,nacos-discovery -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,nacos-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置nacos服务器地址
+```properties
+nacos.discovery.server-addr=127.0.0.1:8848
+# 更多 nacos 配置
+nacos.discovery.access-key=
+nacos.discovery.username=
+nacos.discovery.password=
+nacos.discovery.secret-key=
+nacos.discovery.namespace=
+nacos.discovery.context-path=
+```
+
+#### 2.2.3.2 consul-discovery
+
+启用外部Consul服务注册中心替换内置eureka
+
+##### 2.2.3.2.1 2.1.0 及以上版本
+
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
+    ```properties
+    #spring.profiles.active=github,consul-discovery
+    ```
+
+    变成
+
+    ```properties
+    spring.profiles.active=github,consul-discovery
+    ```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置consul服务器地址
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
+
+##### 2.2.3.2.2 2.1.0 之前的版本
+
+> 注意：需要重新打包
+
+1. 修改build.sh/build.bat，将config-service和admin-service的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,consul-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置consul服务器地址
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
+
+#### 2.2.3.3 zookeeper-discovery
+
+启用外部Zookeeper服务注册中心替换内置eureka
+
+##### 2.2.3.3.1 2.1.0 及以上版本
+
+
+
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
+    ```properties
+    #spring.profiles.active=github,zookeeper-discovery
+    ```
+
+    变成
+
+    ```properties
+    spring.profiles.active=github,zookeeper-discovery
+    ```
+
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置zookeeper服务器地址
+```properties
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
+```
+3.Zookeeper版本说明
+* 支持Zookeeper3.5.x以上的版本;
+* 如果apollo-configservice应用启动报端口占用,请检查Zookeeper的如下配置;
+> 注：Zookeeper3.5.0新增了内置的[AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
+```properties
+admin.enableServer
+admin.serverPort
+```
+
+##### 2.2.3.3.2 2.1.0 之前的版本
+
+1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,zookeeper-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+2. 分别修改apollo-configservice和apollo-adminservice安装包中config目录下的application-github.properties，配置zookeeper服务器地址
+```properties
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
+```
+3.Zookeeper版本说明
+* 支持Zookeeper3.5.x以上的版本;
+* 如果apollo-configservice应用启动报端口占用,请检查Zookeeper的如下配置;
+> 注：Zookeeper3.5.0新增了内置的[AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
+```properties
+admin.enableServer
+admin.serverPort
+```
+
+#### 2.2.3.4 custom-defined-discovery
+
+启用custom-defined-discovery替换内置eureka
+
+##### 2.2.3.4.1 2.1.0 及以上版本
+
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
+    ```properties
+    #spring.profiles.active=github,custom-defined-discovery
+    ```
+
+    变成
+
+    ```properties
+    spring.profiles.active=github,custom-defined-discovery
+    ```
+
+2. 配置自定义的 config-service 与 admin-service 的访问地址有两种方式：一种在mysql数据库ApolloConfigDB，表ServerConfig当中写入两条数据。
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService 访问地址');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService 访问地址');
+```
+另外一种修改apollo-configservice安装包中config目录下的application-github.properties
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
+
+##### 2.2.3.5.2 2.1.0 之前的版本
+
+> 注意：需要重新打包
+
+1. 修改build.sh/build.bat，将`config-service`和`admin-service`的maven编译命令更改为
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
+2. 配置自定义的 config-service 与 admin-service 的访问地址有两种方式：一种在mysql数据库ApolloConfigDB，表ServerConfig当中写入两条数据。
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService 访问地址');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService 访问地址');
+```
+另外一种修改apollo-configservice安装包中config目录下的application-github.properties
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
+
+
+#### 2.2.3.5 database-discovery
+
+> 仅支持 2.1.0 及以上版本
+
+启用database-discovery替换内置eureka
+
+Apollo支持使用内部的数据库表作为注册中心，不依赖第三方的注册中心
+
+1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
+    ```properties
+    #spring.profiles.active=github,database-discovery
+    ```
+
+    变成
+
+    ```properties
+    spring.profiles.active=github,database-discovery
+    ```
+
+2. 在多机房部署时，
+   如果你需要apollo客户端只读取同机房内的Config Service，
+   你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
+    ```properties
+    apollo.service.registry.cluster=与apollo的Cluster同名
+    ```
+
 
 ## 2.3 Docker部署
 ### 2.3.1 1.7.0及以上版本
@@ -1233,12 +1358,6 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 ### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
 
-### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
-
-默认为 true，可以方便的按配置项快速搜索配置
-
-如果设置为 false，则关闭此功能 
-
 > 适用于1.7.1及以上版本
 
 如果对应环境的apollo-adminservice开启了[访问控制](#_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，那么需要在此配置apollo-portal访问该环境apollo-adminservice所需的access token，否则会访问失败
@@ -1251,6 +1370,13 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
     "pro" : "ad0234829205b9033196ba818f7a872b"
 }
 ```
+
+### 3.1.13 searchByItem.switch - 控制台搜索框是否支持按配置项搜索
+
+默认为 true，可以方便的按配置项快速搜索配置
+
+如果设置为 false，则关闭此功能
+
 
 ## 3.2 调整ApolloConfigDB配置
 配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。

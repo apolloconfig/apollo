@@ -499,7 +499,67 @@ Note that since ApolloConfigDB is deployed in each environment, the admin-servic
 
 `apollo-portal-x.x.x-github.zip` located in the `apollo-portal/target/` directory
 
-##### 2.2.1.2.7 Enable external nacos service registry to replace built-in eureka
+### 2.2.2 Deploy Apollo server
+
+#### 2.2.2.1 Deploy apollo-configservice
+
+Upload the `apollo-configservice-x.x.x-github.zip` of the corresponding environment to the server, decompress it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
+
+Remember to set a JVM memory according to the actual environment in scripts/startup.sh. The following are our default settings for reference:
+
+```bash
+export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=4096m -XX:MaxNewSize=4096m -XX:SurvivorRatio=18"
+```
+
+> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
+
+> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-configservice.conf.
+
+> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
+
+> Note 4: If the eureka.service.url of ApolloConfigDB.ServerConfig is only configured with the currently starting machine, the eureka registration failure information will be output in the log during the process of starting apollo-configservice, such as `com.sun.jersey .api.client.ClientHandlerException: java.net.ConnectException: Connection refused`. It should be noted that this is the expected situation, because apollo-configservice needs to register the service with the Meta Server (itself), but because it has not yet woken up during the startup process, it will report this error. The retry action will be performed later, so the registration will be normal after the service is up.
+
+> Note 5: If you read this, I believe that you must be someone who reads the documentation carefully, and you are a little bit closer to success. Keep going, you should be able to complete the distributed deployment of Apollo soon! But do you feel that Apollo's distributed deployment steps are a bit cumbersome? Do you have any advice you would like to share with the author? If the answer is yes, please move to [#1424](https://github.com/apolloconfig/apollo/issues/1424) and look forward to your suggestions!
+
+#### 2.2.2.2 Deploy apollo-adminservice
+
+Upload the `apollo-adminservice-x.x.x-github.zip` of the corresponding environment to the server, decompress it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
+
+Remember to set a JVM memory according to the actual environment in scripts/startup.sh. The following are our default settings for reference:
+
+```bash
+export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:SurvivorRatio=22"
+```
+
+> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
+
+> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-adminservice.conf.
+
+> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
+
+#### 2.2.2.3 Deploy apollo-portal
+
+Upload `apollo-portal-x.x.x-github.zip` to the server, unzip it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
+
+Remember to set a JVM memory according to the actual environment in startup.sh. The following are our default settings for reference:
+
+```bash
+export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=22"
+```
+
+> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
+
+> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-portal.conf.
+
+> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
+
+### 2.2.3 Replace built-in eureka with another service registry
+
+#### 2.2.3.1 nacos-discovery
+
+Enable external nacos service registry to replace built-in eureka
+
+> Note: need repackage
 
 1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
 
@@ -520,7 +580,31 @@ nacos.discovery.namespace=
 nacos.discovery.context-path=
 ```
 
-##### 2.2.1.2.8 Enable external Consul service registry to replace built-in eureka
+#### 2.2.3.2 consul-discovery
+
+Enable external Consul service registry to replace built-in eureka
+
+##### 2.2.3.2.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,consul-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,consul-discovery
+    ```
+
+2. Modify the application-github.properties in the config directory of the apollo-configservice and apollo-adminservice installation packages, respectively, to configure the consul server address
+
+```properties
+spring.cloud.consul.host=127.0.0.1
+spring.cloud.consul.port=8500
+```
+
+##### 2.2.3.2.2 For version 2.1.0 below
 
 1. Modify build.sh/build.bat to change the maven build command for config-service and admin-service to
 
@@ -535,7 +619,42 @@ spring.cloud.consul.host=127.0.0.1
 spring.cloud.consul.port=8500
 ```
 
-##### 2.2.1.2.9 Enable external Zookeeper service registry to replace built-in eureka
+#### 2.2.3.3 zookeeper-discovery
+
+Enable external Zookeeper service registry to replace built-in eureka
+
+##### 2.2.3.3.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,zookeeper-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,zookeeper-discovery
+    ```
+
+2. Modify the application-github.properties in the config directory of the apollo-config service and apollo-adminservice installation packages, respectively, to configure the zookeeper server address
+
+```properties
+spring.cloud.zookeeper.connect-string=127.0.0.1:2181
+```
+
+3. Zookeeper version description
+
+* Support Zookeeper 3.5.x or higher;
+* If apollo-configservice application starts reporting port occupation, please check the following configuration of Zookeeper;
+
+> Note: Zookeeper 3.5.0 added a built-in [AdminServer](https://zookeeper.apache.org/doc/r3.5.0-alpha/zookeeperAdmin.html#sc_adminserver_config)
+
+```properties
+admin.enableServer
+admin.serverPort
+```
+
+##### 2.2.3.3.2 For version 2.1.0 below
 
 1. Modify build.sh/build.bat to change the maven build command for ``config-service`` and ``admin-service`` to
 
@@ -561,81 +680,83 @@ admin.enableServer
 admin.serverPort
 ```
 
-##### 2.2.1.2.10 Enable custom-defined-discovery to replace built-in eureka
+#### 2.2.3.4 custom-defined-discovery
 
-1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
+Enable custom-defined-discovery to replace built-in eureka
 
-```shell
-mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
-````
+##### 2.2.3.4.1 For version 2.1.0 and above
+
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,custom-defined-discovery
+    ```
+
+    to
+
+    ```properties
+    spring.profiles.active=github,custom-defined-discovery
+    ```
 
 2. There are two ways to configure the access addresses of the custom config-service and admin-service: one is to write two pieces of data in the mysql database ApolloConfigDB and the table ServerConfig.
 
 ```sql
 INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService access address ');
 INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService access address ');
-````
+```
 
 Another way to modify application-github.properties in the config directory of the apollo-configservice installation package
 
-````properties
+```properties
 apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
-````
+```
 
-### 2.2.2 Deploy Apollo server
+##### 2.2.3.4.2 For version 2.1.0 below
 
-#### 2.2.2.1 Deploy apollo-configservice
+1. Modify build.sh/build.bat and change the maven compilation commands of `config-service` and `admin-service` to
 
-Upload the `apollo-configservice-x.x.x-github.zip` of the corresponding environment to the server, decompress it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
+```shell
+mvn clean package -Pgithub -DskipTests -pl apollo-configservice,apollo-adminservice -am -Dapollo_profile=github,custom-defined-discovery -Dspring_datasource_url=$apollo_config_db_url -Dspring_datasource_username=$apollo_config_db_username -Dspring_datasource_password=$apollo_config_db_password
+```
 
-Remember to set a JVM memory according to the actual environment in scripts/startup.sh. The following are our default settings for reference:
+2. There are two ways to configure the access addresses of the custom config-service and admin-service: one is to write two pieces of data in the mysql database ApolloConfigDB and the table ServerConfig.
 
-```bash
-export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=4096m -XX:MaxNewSize=4096m -XX:SurvivorRatio=18"
-````
+```sql
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.config-service.url', 'http://apollo-config-service', 'ConfigService access address ');
+INSERT INTO `ApolloConfigDB`.`ServerConfig` (`Key`, `Value`, `Comment`) VALUES ('apollo.admin-service.url', 'http://apollo-admin-service', 'AdminService access address ');
+```
 
-> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
+Another way to modify application-github.properties in the config directory of the apollo-configservice installation package
 
-> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-configservice.conf.
+```properties
+apollo.config-service.url=http://apollo-config-service
+apollo.admin-service.url=http://apollo-admin-service
+```
 
-> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
+#### 2.2.3.5 database-discovery
 
-> Note 4: If the eureka.service.url of ApolloConfigDB.ServerConfig is only configured with the currently starting machine, the eureka registration failure information will be output in the log during the process of starting apollo-configservice, such as `com.sun.jersey .api.client.ClientHandlerException: java.net.ConnectException: Connection refused`. It should be noted that this is the expected situation, because apollo-configservice needs to register the service with the Meta Server (itself), but because it has not yet woken up during the startup process, it will report this error. The retry action will be performed later, so the registration will be normal after the service is up.
+> For version 2.1.0 and above
 
-> Note 5: If you read this, I believe that you must be someone who reads the documentation carefully, and you are a little bit closer to success. Keep going, you should be able to complete the distributed deployment of Apollo soon! But do you feel that Apollo's distributed deployment steps are a bit cumbersome? Do you have any advice you would like to share with the author? If the answer is yes, please move to [#1424](https://github.com/apolloconfig/apollo/issues/1424) and look forward to your suggestions!
+Enable database-discovery to replace built-in eureka
 
-#### 2.2.2.2 Deploy apollo-adminservice
+Apollo supports the use of internal database table as registry, without relying on third-party registry.
 
-Upload the `apollo-adminservice-x.x.x-github.zip` of the corresponding environment to the server, decompress it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
+1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
+    ```properties
+    #spring.profiles.active=github,database-discovery
+    ```
 
-Remember to set a JVM memory according to the actual environment in scripts/startup.sh. The following are our default settings for reference:
+    to
 
-```bash
-export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1024m -XX:MaxNewSize=1024m -XX:SurvivorRatio=22"
-````
+    ```properties
+    spring.profiles.active=github,database-discovery
+    ```
 
-> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
-
-> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-adminservice.conf.
-
-> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
-
-#### 2.2.2.3 Deploy apollo-portal
-
-Upload `apollo-portal-x.x.x-github.zip` to the server, unzip it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
-
-Remember to set a JVM memory according to the actual environment in startup.sh. The following are our default settings for reference:
-
-```bash
-export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=22"
-````
-
-> Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
-
-> Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-portal.conf.
-
-> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
+2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+```properties
+apollo.service.registry.cluster=same name with apollo Cluster
+```
 
 ## 2.3 Docker Deployment
 
@@ -879,7 +1000,7 @@ The following table lists the configurable parameters of the apollo-service-char
 
 ###### 2.4.1.3.4.1 The host of ConfigDB is the IP outside the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: 1.2.3.4
   dbName: ApolloConfigDBName
@@ -888,11 +1009,11 @@ configdb:
   connectionStringProperties: characterEncoding=utf8&useSSL=false
   service:
     enabled: true
-````
+```
 
 ###### 2.4.1.3.4.2 The host of ConfigDB is the domain name outside the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: xxx.mysql.rds.aliyuncs.com
   dbName: ApolloConfigDBName
@@ -902,42 +1023,42 @@ configdb:
   service:
     enabled: true
     type: ExternalName
-````
+```
 
 ###### 2.4.1.3.4.3 The host of ConfigDB is a service in the k8s cluster
 
-````yaml
+```yaml
 configdb:
   host: apollodb-mysql.mysql
   dbName: ApolloConfigDBName
   userName: someUserName
   password: somePassword
   connectionStringProperties: characterEncoding=utf8&useSSL=false
-````
+```
 
 ###### 2.4.1.3.4.4 Specify the apollo-configservice address returned by Meta Server
 
 If apollo-client cannot directly access the service of apollo-configservice (for example, it is not in the same k8s cluster), you can refer to the following example to specify the address returned by Meta Server to apollo-client (for example, it can be accessed through nodeport)
 
-````yaml
+```yaml
 configService:
   config:
     configServiceUrlOverride: http://1.2.3.4:12345
-````
+```
 
 ###### 2.4.1.3.4.5 Specify the apollo-adminservice address returned by Meta Server
 
 If apollo-portal cannot directly access the service of apollo-adminservice (for example, it is not in the same k8s cluster), you can refer to the following example to specify the address returned by Meta Server to apollo-portal (for example, it can be accessed through nodeport)
 
-````yaml
+```yaml
 configService:
   config:
     adminServiceUrlOverride: http://1.2.3.4:23456
-````
+```
 
 ###### 2.4.1.3.4.6 Expose apollo-configservice service in the form of Ingress configuration custom path `/config`
 
-````yaml
+```yaml
 # use /config as root, should specify configService.config.contextPath as /config
 configService:
   config:
@@ -947,11 +1068,11 @@ configService:
     hosts:
       - paths:
           - /config
-````
+```
 
 ###### 2.4.1.3.4.7 Expose apollo-adminservice service in the form of Ingress configuration custom path `/admin`
 
-````yaml
+```yaml
 # use /admin as root, should specify adminService.config.contextPath as /admin
 adminService:
   config:
@@ -961,7 +1082,7 @@ adminService:
     hosts:
       - paths:
           - /admin
-````
+```
 
 #### 2.4.1.4 Deploy apollo-portal
 
@@ -981,13 +1102,13 @@ $ helm install apollo-portal \
     --set replicaCount=1 \
     -n your-namespace \
     apollo/apollo-portal
-````
+```
 
 General deployment recommendations are configured through values.yaml:
 
 ```bash
 $ helm install apollo-portal -f values.yaml -n your-namespace apollo/apollo-portal
-````
+```
 
 > For more configuration item descriptions, please refer to [2.4.1.4.3 Configuration item description](
 
@@ -1052,7 +1173,7 @@ The following table lists the configurable parameters of the apollo-portal chart
 
 ###### 2.4.1.4.4.1 The host of PortalDB is the IP outside the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: 1.2.3.4
   dbName: ApolloPortalDBName
@@ -1061,11 +1182,11 @@ portaldb:
   connectionStringProperties: characterEncoding=utf8&useSSL=false
   service:
     enabled: true
-````
+```
 
 ###### 2.4.1.4.4.2 The host of PortalDB is the domain name outside the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: xxx.mysql.rds.aliyuncs.com
   dbName: ApolloPortalDBName
@@ -1075,49 +1196,49 @@ portaldb:
   service:
     enabled: true
     type: ExternalName
-````
+```
 
 ###### 2.4.1.4.4.3 The host of PortalDB is a service in the k8s cluster
 
-````yaml
+```yaml
 portaldb:
   host: apollodb-mysql.mysql
   dbName: ApolloPortalDBName
   userName: someUserName
   password: somePassword
   connectionStringProperties: characterEncoding=utf8&useSSL=false
-````
+```
 
 ###### 2.4.1.4.4.4 Configure environment information
 
-````yaml
+```yaml
 config:
   envs: dev, pro
   metaServers:
     dev: http://apollo-service-dev-apollo-configservice:8080
     pro: http://apollo-service-pro-apollo-configservice:8080
-````
+```
 
 ###### 2.4.1.4.4.5 Expose services as Load Balancer
 
-````yaml
+```yaml
 service:
   type: LoadBalancer
-````
+```
 
 ###### 2.4.1.4.4.6 Expose services as Ingress
 
-````yaml
+```yaml
 ingress:
   enabled: true
   hosts:
     - paths:
         - /
-````
+```
 
 ###### 2.4.1.4.4.7 Expose services in the form of Ingress configuration custom path `/apollo`
 
-````yaml
+```yaml
 # use /apollo as root, should specify config.contextPath as /apollo
 ingress:
   enabled: true
@@ -1129,11 +1250,11 @@ config:
   ...
   contextPath: /apollo
   ...
-````
+```
 
 ###### 2.4.1.4.4.8 Expose services in the form of Ingress configuration session affinity
 
-````yaml
+```yaml
 ingress:
   enabled: true
   annotations:
@@ -1147,11 +1268,11 @@ ingress:
     - host: xxx.somedomain.com # host is required to make session affinity work
       paths:
         - /
-````
+```
 
 ###### 2.4.1.4.4.9 Enable LDAP support
 
-````yaml
+```yaml
 config:
   ...
   profiles: github,ldap
@@ -1172,7 +1293,7 @@ config:
           loginId: "uid"
           userDisplayName: "cn"
           email: "mail"
-````
+```
 
 #### 2.4.1.5 Building a Docker image from source
 
@@ -1289,12 +1410,6 @@ If set to true, only super administrators and accounts with project administrato
 
 ### 3.1.12 admin-services.access.tokens - set the access token required by apollo-portal to access the apollo-adminservice for each environment
 
-### 3.1.13 searchByItem.switch - whether the console search box supports searching by configuration item
-
-The default is true, which makes it easy to quickly search for configurations by configuration item
-
-If set to false, this feature is disabled 
-
 > for version 1.7.1 and above
 
 If the corresponding environment apollo-adminservice has [access control enabled](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled), then you need to configure apollo-portal access here access token required for this environment apollo-adminservice, otherwise access will fail .
@@ -1307,6 +1422,12 @@ The format is json, as follows.
     "pro" : "ad0234829205b9033196ba818f7a872b"
 }
 ```
+
+### 3.1.13 searchByItem.switch - whether the console search box supports searching by configuration item
+
+The default is true, which makes it easy to quickly search for configurations by configuration item
+
+If set to false, this feature is disabled
 
 ## 3.2 Adjusting ApolloConfigDB configuration
 
@@ -1343,7 +1464,7 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 >Note 2: If you want to register Config Service and Admin Service to the company's unified Eureka, you can refer to [Deployment & Development FAQ - Registering Config Service and Admin Service to a separate Eureka Server](en/faq/common-issues-in-deployment-and-development-phase?id=_8-register-config-service-and-admin-service-to-a-separate-eureka-server) section
 
->Note 3: In multi-room deployments, you often want the config service and admin service to register only with the eureka in the same room. To achieve this, you need to use the cluster field in the `ServerConfig` table, and the config service and admin service will read the `/opt/settings/server.properties` (Mac/Linux) or `C:\opt\settings\server.properties` (Windows), and if the idc has a corresponding eureka.service.url configuration, then will only register with eureka for that server room. For example, if the config service and admin service are deployed to two IDCs, `SHAOY` and `SHAJQ`, then in order to register the services in these two server rooms only with that server room, you can add two new records in the `ServerConfig` table and fill in the `SHAOY` and `SHAJQ` server room eureka addresses respectively. If there are config service and admin service that are not deployed in `SHAOY` and `SHAJQ`, this default configuration will be used.
+>Note 3: In multi-cluster deployments, you often want the config service and admin service to register only with the eureka in the same room. To achieve this, you need to use the cluster field in the `ServerConfig` table, and the config service and admin service will read the `/opt/settings/server.properties` (Mac/Linux) or `C:\opt\settings\server.properties` (Windows), and if the idc has a corresponding eureka.service.url configuration, then will only register with eureka for that server room. For example, if the config service and admin service are deployed to two IDCs, `SHAOY` and `SHAJQ`, then in order to register the services in these two server rooms only with that server room, you can add two new records in the `ServerConfig` table and fill in the `SHAOY` and `SHAJQ` server room eureka addresses respectively. If there are config service and admin service that are not deployed in `SHAOY` and `SHAJQ`, this default configuration will be used.
 
 | Key                | Cluster | Value                       | Comment                      |
 | ------------------ | ------- | --------------------------- | ---------------------------- |
