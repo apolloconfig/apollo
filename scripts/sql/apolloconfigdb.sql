@@ -410,6 +410,26 @@ CREATE TABLE `AccessKey` (
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='访问密钥';
 
+
+# Dump of table serviceregistry
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `ServiceRegistry`;
+
+CREATE TABLE `ServiceRegistry` (
+  `Id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增Id',
+  `ServiceName` VARCHAR(64) NOT NULL COMMENT '服务名',
+  `Uri` VARCHAR(64) NOT NULL COMMENT '服务地址',
+  `Cluster` VARCHAR(64) NOT NULL COMMENT '集群，可以用来标识apollo.cluster或者网络分区',
+  `Metadata` VARCHAR(1024) NOT NULL DEFAULT '{}' COMMENT '元数据，key value结构的json object，为了方面后面扩展功能而不需要修改表结构',
+  `DataChange_CreatedTime` TIMESTAMP NOT NULL COMMENT '创建时间',
+  `DataChange_LastTime` TIMESTAMP NOT NULL COMMENT '最后修改时间',
+  PRIMARY KEY (`Id`),
+  UNIQUE INDEX `IX_UNIQUE_KEY` (`ServiceName`, `Uri`),
+  INDEX `IX_DataChange_LastTime` (`DataChange_LastTime`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='注册中心';
+
+
 # Config
 # ------------------------------------------------------------
 INSERT INTO `ServerConfig` (`Key`, `Cluster`, `Value`, `Comment`)

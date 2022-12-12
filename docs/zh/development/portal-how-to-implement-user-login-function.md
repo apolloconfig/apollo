@@ -36,7 +36,7 @@ Apollo是配置管理系统，会提供权限管理（Authorization），理论�
 
 #### 1.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-openldap-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-openldap-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -126,7 +126,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 2.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-activedirectory-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-activedirectory-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -166,7 +166,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 #### 3.1 配置`application-ldap.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-ldap-apacheds-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-ldap.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-ldap-apacheds-sample.yml)），相关的内容需要按照具体情况调整：
 
 ```yml
 spring:
@@ -236,7 +236,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=github,ldap"
 
 ### 1. 配置 `application-oidc.yml`
 
-解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-oidc.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/config/application-oidc-sample.yml)），相关的内容需要按照具体情况调整：
+解压`apollo-portal-x.x.x-github.zip`后，在`config`目录下创建`application-oidc.yml`，内容参考如下（[样例](https://github.com/apolloconfig/apollo/blob/master/apollo-portal/src/main/resources/application-oidc-sample.yml)），相关的内容需要按照具体情况调整：
 
 #### 1.1 最小配置
 

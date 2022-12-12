@@ -15,7 +15,7 @@ For more details of the product introduction, please refer [Introduction to Apol
 For local demo purpose, please refer [Quick Start](en/deployment/quick-start).
 
 Demo Environment:
-- [http://106.54.227.205](http://106.54.227.205/)
+- [http://81.68.181.139](http://81.68.181.139/)
 - User/Password: apollo/admin
 
 # Screenshots

@@ -23,6 +23,11 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         get_server_config_info: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/server/config/:key'
+        },
+        find_portal_db_config: {
+            method: 'GET',
+            isArray: true,
+            url: AppUtil.prefixPath() + '/server/config/find-all-config'
         }
     });
     return {
@@ -39,6 +44,16 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             var d = $q.defer();
             server_config_resource.get_server_config_info({
                 key: key
+            }, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        findPortalDBConfig:function (){
+            var d = $q.defer();
+            server_config_resource.find_portal_db_config({
             }, function (result) {
                 d.resolve(result);
             }, function (result) {

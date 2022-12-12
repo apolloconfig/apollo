@@ -20,7 +20,9 @@ package com.ctrip.framework.apollo.portal.controller;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
+import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import java.util.List;
 import java.util.Objects;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,10 +40,12 @@ public class ServerConfigController {
 
   private final ServerConfigRepository serverConfigRepository;
   private final UserInfoHolder userInfoHolder;
+  private final ServerConfigService serverConfigService;
 
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
+  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder, final ServerConfigService serverConfigService) {
     this.serverConfigRepository = serverConfigRepository;
     this.userInfoHolder = userInfoHolder;
+    this.serverConfigService = serverConfigService;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
@@ -61,6 +65,12 @@ public class ServerConfigController {
     BeanUtils.copyEntityProperties(serverConfig, storedConfig);
     storedConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigRepository.save(storedConfig);
+  }
+
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @GetMapping("/server/config/find-all-config")
+  public List<ServerConfig> findAllServerConfig() {
+    return serverConfigService.findAll();
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")

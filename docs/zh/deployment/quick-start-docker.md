@@ -18,6 +18,8 @@ docker -v
 
 下载[docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml)和[sql 文件夹](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql)到本地目录，如 docker-quick-start。
 
+> 如果使用的是 arm 架构的机器，例如 mac m1，需要下载[docker-compose-arm64.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose-arm64.yml)
+
 ```bash
 - docker-quick-start
   - docker-compose.yml
@@ -29,6 +31,8 @@ docker -v
 ## 二、启动Apollo配置中心
 
 在docker-quick-start目录下执行`docker-compose up`，第一次执行会触发下载镜像等操作，需要耐心等待一些时间。
+
+> 如果使用的是 arm 架构的机器，例如 mac m1，执行 `docker-compose -f docker-compose-arm64.yml up`
 
 搜索所有`apollo-quick-start`开头的日志，看到以下日志说明启动成功：
 ```log

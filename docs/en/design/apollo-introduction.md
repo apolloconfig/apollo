@@ -138,11 +138,11 @@ Fill in the release information:
 
 After the configuration is released, it can be obtained on the client side. Taking Java as an example, the sample code for obtaining the configuration is as follows. Apollo client also supports integration with Spring. For more client usage instructions, please refer to [Java Client Usage Guide](en/usage/java-sdk-user-guide) and [.Net Client Usage Guide](en/usage/dotnet-sdk-user-guide).
 
-````java
+```java
 Config config = ConfigService.getAppConfig();
 Integer defaultRequestTimeout = 200;
 Integer requestTimeout = config.getIntProperty("requestTimeout", defaultRequestTimeout);
-````
+```
 
 ## 3.6 Client monitoring configuration changes
 
@@ -150,7 +150,7 @@ By obtaining the configuration code above, the application can obtain the latest
 
 However, in some scenarios, the application also needs to be notified when the configuration changes, such as the switching of database connections, so Apollo also provides the function of monitoring configuration changes. The Java example is as follows:
 
-````java
+```java
 Config config = ConfigService.getAppConfig();
 config.addChangeListener(new ConfigChangeListener() {
   @Override
@@ -164,26 +164,26 @@ config.addChangeListener(new ConfigChangeListener() {
      }
   }
 });
-````
+```
 
 ## 3.7 Spring integration example
 
 Apollo and Spring can also be easily integrated. You only need to mark `@EnableApolloConfig` to get configuration information through `@Value`:
 
-````java
+```java
 @Configuration
 @EnableApolloConfig
 public class AppConfig {}
-````
+```
 
-````java
+```java
 @Component
 public class SomeBean {
     //The value of timeout will be updated automatically
     @Value("${request.timeout:200}")
     private int timeout;
 }
-````
+```
 
 # 4. Apollo in depth
 
