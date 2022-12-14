@@ -16,9 +16,16 @@
  */
 package com.ctrip.framework.apollo.configservice;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.provisioning.InMemoryUserDetailsManagerConfigurer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
  * Start Eureka Server annotations according to configuration
@@ -29,4 +36,43 @@ import org.springframework.context.annotation.Configuration;
 @EnableEurekaServer
 @ConditionalOnProperty(name = "apollo.eureka.server.enabled", havingValue = "true", matchIfMissing = true)
 public class ConfigServerEurekaServerConfigure {
+
+  @Order(99)
+  @Configuration
+  static class EurekaServerSecurityConfigurer extends WebSecurityConfigurerAdapter {
+
+    private static final String EUREKA_ROLE = "EUREKA";
+
+    @Value("${apollo.eureka.server.security.enabled:false}")
+    private boolean eurekaSecurityEnabled;
+    @Value("${apollo.eureka.server.security.username:}")
+    private String username;
+    @Value("${apollo.eureka.server.security.password:}")
+    private String password;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+      http.csrf().disable();
+      http.httpBasic();
+      if (eurekaSecurityEnabled) {
+        http.authorizeRequests()
+            .antMatchers("/eureka/apps/**", "/eureka/instances/**", "/eureka/peerreplication/**")
+            .hasRole(EUREKA_ROLE)
+            .antMatchers("/**").permitAll();
+      }
+    }
+
+    @Autowired
+    public void configureEurekaUser(AuthenticationManagerBuilder auth) throws Exception {
+      if (!eurekaSecurityEnabled) {
+        return;
+      }
+      InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth
+          .getConfigurer(InMemoryUserDetailsManagerConfigurer.class);
+      if (configurer == null) {
+        configurer = auth.inMemoryAuthentication();
+      }
+      configurer.withUser(username).password(password).roles(EUREKA_ROLE);
+    }
+  }
 }

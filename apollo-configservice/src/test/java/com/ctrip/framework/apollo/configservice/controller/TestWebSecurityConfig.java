@@ -22,7 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-@Order(99)
+@Order(98)
 public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
   @Override

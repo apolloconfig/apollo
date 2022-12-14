@@ -1528,3 +1528,31 @@ admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b90331
 > For version 2.0.0 and above
 
 The default value is 60, in seconds. Since the key authentication needs to verify the time, there may be time deviation between the time of the client and the time of the server, if the deviation is too large, the authentication will fail, this configuration can configure the tolerated time deviation size, the default is 60 seconds.
+
+### 3.2.9 apollo.eureka.server.security.enabled - Configure whether to enable Eureka login authentication
+
+> For version 2.1.0 and above
+
+The default value is false, if you want to improve security (such as when apollo is exposed to the public network), you can enable login authentication for eureka by setting this configuration to true.
+
+Note that if eureka login authentication is enabled, the addresses in [eureka.service.url](#_321-eurekaserviceurl-eureka-service-url) needs to be configured with a user name and password, such as:
+
+```
+http://some-user-name:some-password@1.1.1.1:8080/eureka/, http://some-user-name:some-password@2.2.2.2:8080/eureka/
+```
+
+Among them, `some-user-name` and `some-password` need to be consistent with the configuration items of `apollo.eureka.server.security.username` and `apollo.eureka.server.security.password`.
+
+### 3.2.10 apollo.eureka.server.security.username - Configure the username of Eureka server
+
+> For version 2.1.0 and above
+
+Configure the login username of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
+
+> Note that the username cannot be configured as apollo.
+
+### 3.2.11 apollo.eureka.server.security.password - Configure the password of Eureka server
+
+> For version 2.1.0 and above
+
+Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
