@@ -60,7 +60,7 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
         PermissionService.has_root_permission()
         .then(function (result) {
             $scope.isRootUser = result.hasPermission;
-        })
+        });
     }
 
     function getPortalDBConfig() {
@@ -76,7 +76,7 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
             $scope.portalDBConfigs = [];
             $scope.portalDBFilterConfigs = [];
             toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.SystemError'));
-        })
+        });
     }
 
     function getConfigDBConfig() {
@@ -105,7 +105,7 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
                 key: config.key,
                 value: config.value,
                 comment: config.comment
-            }
+            };
         }
     }
 
@@ -151,35 +151,35 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
 
     function portalDBConfigFilter() {
         $scope.portalDBConfigSearchKey = $scope.portalDBConfigSearchKey.toLowerCase();
-        let filterConfig = []
+        let filterConfig = [];
         $scope.portalDBConfigs.forEach(function (item) {
             let keyName = item.key;
             if (keyName && keyName.toLowerCase().indexOf( $scope.portalDBConfigSearchKey) >= 0) {
                 filterConfig.push(item);
             }
         });
-        $scope.portalDBFilterConfigs = filterConfig
+        $scope.portalDBFilterConfigs = filterConfig;
     }
 
     function resetPortalDBConfigSearchKey() {
-        $scope.portalDBConfigSearchKey = ''
-        portalDBConfigFilter()
+        $scope.portalDBConfigSearchKey = '';
+        portalDBConfigFilter();
     }
 
     function configDBConfigFilter() {
         $scope.configDBConfigSearchKey = $scope.configDBConfigSearchKey.toLowerCase();
-        let filterConfig = []
+        let filterConfig = [];
         $scope.configDBConfigs.forEach(function (item) {
             let keyName = item.key;
             if (keyName && keyName.toLowerCase().indexOf( $scope.configDBConfigSearchKey) >= 0) {
                 filterConfig.push(item);
             }
         });
-        $scope.configDBFilterConfigs = filterConfig
+        $scope.configDBFilterConfigs = filterConfig;
     }
 
     function resetConfigDBConfigSearchKey() {
-        $scope.configDBConfigSearchKey = ''
-        configDBConfigFilter()
+        $scope.configDBConfigSearchKey = '';
+        configDBConfigFilter();
     }
 }
