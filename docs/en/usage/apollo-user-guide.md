@@ -458,8 +458,6 @@ The project members here are :
 
 The configuration is very simple. After logging in with your super administrator account, go to the `Administrator Tools - System Parameters` page and add or modify the `configView.memberOnly.envs` configuration item.
 
-![show-all-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/show-all-config.png)
-
 ![configView.memberOnly.envs](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/configure-view-permissions.png)
 
 ## 6.2 Configuring access keys

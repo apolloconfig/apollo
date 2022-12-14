@@ -15,36 +15,41 @@
  *
  */
 appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
-    var server_config_resource = $resource('', {}, {
-        create_server_config: {
+    let server_config_resource = $resource('', {}, {
+        create_portal_db_config: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/server/config'
+            url: AppUtil.prefixPath() + '/server/portal-db/config'
         },
-        get_server_config_info: {
-            method: 'GET',
-            url: AppUtil.prefixPath() + '/server/config/:key'
+        create_config_db_config: {
+            method: 'POST',
+            url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config'
         },
         find_portal_db_config: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/server/config/find-all-config'
+            url: AppUtil.prefixPath()
+                + '/server/portal-db/config/find-all-config'
+        },
+        find_config_db_config: {
+            method: 'GET',
+            isArray: true,
+            url: AppUtil.prefixPath()
+                + '/server/envs/:env/config-db/config/find-all-config'
         }
     });
     return {
-        create: function (serverConfig) {
-            var d = $q.defer();
-            server_config_resource.create_server_config({}, serverConfig, function (result) {
+        createPortalDBConfig: function (serverConfig) {
+            let d = $q.defer();
+            server_config_resource.create_portal_db_config({}, serverConfig, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
             });
             return d.promise;
         },
-        getServerConfigInfo: function (key) {
-            var d = $q.defer();
-            server_config_resource.get_server_config_info({
-                key: key
-            }, function (result) {
+        createConfigDBConfig: function (env, serverConfig) {
+            let d = $q.defer();
+            server_config_resource.create_config_db_config({env:env}, serverConfig, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
@@ -52,9 +57,18 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             return d.promise;
         },
         findPortalDBConfig:function (){
-            var d = $q.defer();
+            let d = $q.defer();
             server_config_resource.find_portal_db_config({
             }, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        findConfigDBConfig:function (env){
+            let d = $q.defer();
+            server_config_resource.find_config_db_config({env: env}, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
