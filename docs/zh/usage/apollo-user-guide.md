@@ -431,8 +431,6 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 配置方式很简单，用超级管理员账号登录后，进入`管理员工具 - 系统参数`页面新增或修改`configView.memberOnly.envs`配置项即可。
 
-![show-all-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/show-all-config.png)
-
 ![configView.memberOnly.envs](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/configure-view-permissions.png)
 
 ## 6.2 配置访问密钥
@@ -477,3 +475,4 @@ Apollo 支持细粒度的权限控制，请务必根据实际情况做好权限�
 1. `apollo-configservice`和`apollo-adminservice`是基于内网可信网络设计的，所以出于安全考虑，禁止`apollo-configservice`和`apollo-adminservice`直接暴露在公网
 2. 对敏感配置可以考虑开启[访问秘钥](#_62-%e9%85%8d%e7%bd%ae%e8%ae%bf%e9%97%ae%e5%af%86%e9%92%a5)，从而只有经过身份验证的客户端才能访问敏感配置
 3. 1.7.1及以上版本可以考虑为`apollo-adminservice`开启[访问控制](zh/deployment/distributed-deployment-guide?id=_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制)，从而只有[受控的](zh/deployment/distributed-deployment-guide?id=_3112-admin-serviceaccesstokens-设置apollo-portal访问各环境apollo-adminservice所需的access-token)`apollo-portal`才能访问对应接口，增强安全性
+4. 2.1.0及以上版本可以考虑为`eureka`开启[访问控制](zh/deployment/distributed-deployment-guide?id=_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)，从而只有受控的`apollo-configservice`和`apollo-adminservice`可以注册到`eureka`，增强安全性

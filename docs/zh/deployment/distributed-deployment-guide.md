@@ -1470,3 +1470,30 @@ admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b903319
 > 适用于2.0.0及以上版本
 
 默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。
+
+### 3.2.9 apollo.eureka.server.security.enabled - 配置是否开启eureka server的登录认证
+
+> 适用于2.1.0及以上版本
+
+默认为false，如果希望提升安全性（比如公网可访问的场景），可以设置该配置项为true启用登录认证。
+
+需要注意的是，开启登录认证后，[eureka.service.url](#_321-eurekaserviceurl-eureka服务url)中的地址需要配置用户名和密码，如：
+
+```
+http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:some-password@2.2.2.2:8080/eureka/
+```
+其中`some-user-name`和`some-password`需要和`apollo.eureka.server.security.username`以及`apollo.eureka.server.security.password`的配置项一致。
+
+### 3.2.10 apollo.eureka.server.security.username - 配置eureka server的登录用户名
+
+> 适用于2.1.0及以上版本
+
+配置eureka server的登录用户名，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+> 注意用户名不能配置为apollo
+
+### 3.2.11 apollo.eureka.server.security.password - 配置eureka server的登录密码
+
+> 适用于2.1.0及以上版本
+
+配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。

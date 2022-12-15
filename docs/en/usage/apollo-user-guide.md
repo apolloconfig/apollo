@@ -458,8 +458,6 @@ The project members here are :
 
 The configuration is very simple. After logging in with your super administrator account, go to the `Administrator Tools - System Parameters` page and add or modify the `configView.memberOnly.envs` configuration item.
 
-![show-all-config](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/show-all-config.png)
-
 ![configView.memberOnly.envs](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/configure-view-permissions.png)
 
 ## 6.2 Configuring access keys
@@ -504,4 +502,5 @@ In addition to user permissions, system access also needs to be considered in te
 
 1. `apollo-configservice` and `apollo-adminservice` are designed based on the intranet trusted network, so for security reasons, `apollo-configservice` and `apollo-adminservice` are prohibited from being exposed directly to the public network
 2. For sensitive configurations, consider enabling [access secret key](en/usage/apollo-user-guide?id=_62-configuring-access-keys) so that only authenticated clients can access sensitive configurations
-3. 1.7.1 and above can consider enabling [access control](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled) for `apollo-adminservice`, so that only [controlled](en/deployment/distributed-deployment-guide?id=_3112-admin-servicesaccesstokens-set-the-access-token-required-by-apollo-portal-to-access-the-apollo-adminservice-for-each-environment) `apollo-portal` can access the corresponding interface to enhance security
+3. version 1.7.1 and above can consider enabling [access control](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled) for `apollo-adminservice`, so that only [controlled](en/deployment/distributed-deployment-guide?id=_3112-admin-servicesaccesstokens-set-the-access-token-required-by-apollo-portal-to-access-the-apollo-adminservice-for-each-environment) `apollo-portal` can access the corresponding interface to enhance security
+4. version 2.1.0 and above can consider enabling [access control](en/deployment/distributed-deployment-guide?id=_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication) for `eureka`, so that only controlled `apollo-configservice` and `apollo-adminservice` can be registered to `eureka` to enhance security

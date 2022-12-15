@@ -25,4 +25,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  */
 public interface ServerConfigRepository extends PagingAndSortingRepository<ServerConfig, Long> {
   ServerConfig findTopByKeyAndCluster(String key, String cluster);
+
+  ServerConfig findByKey(String key);
 }
