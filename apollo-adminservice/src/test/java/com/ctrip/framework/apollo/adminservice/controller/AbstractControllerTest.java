@@ -52,4 +52,20 @@ public abstract class AbstractControllerTest {
   protected String url(String path) {
     return "http://localhost:" + port + path;
   }
+
+  protected String namespaceBaseUrl() {
+    return url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}");
+  }
+
+  protected String appBaseUrl() {
+    return url("/apps/{appId}");
+  }
+
+  protected String clusterBaseUrl() {
+    return url("/apps/{appId}/clusters/{clusterName}");
+  }
+
+  protected String itemBaseUrl(){
+    return url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items");
+  }
 }

@@ -37,7 +37,7 @@ public class AppControllerTest extends AbstractControllerTest {
   AppRepository appRepository;
 
   private String getBaseAppUrl() {
-    return "http://localhost:" + port + "/apps/";
+    return url("/apps/");
   }
 
   @Test
@@ -123,7 +123,7 @@ public class AppControllerTest extends AbstractControllerTest {
     App app = BeanUtils.transform(App.class, dto);
     app = appRepository.save(app);
 
-    restTemplate.delete("http://localhost:{port}/apps/{appId}?operator={operator}", port, app.getAppId(), "test");
+    restTemplate.delete(url("/apps/{appId}?operator={operator}"), app.getAppId(), "test");
 
     App deletedApp = appRepository.findById(app.getId()).orElse(null);
     Assert.assertNull(deletedApp);
