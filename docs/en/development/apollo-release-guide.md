@@ -101,7 +101,7 @@ The polling takes the form of a thread in Discussions, available at [https://git
 
 ## 4.7 Release Docker image
 
-## 4.7.1 Building the image
+## 4.7.1 Build the image locally and test it
 
 With the package packed in step 4.2, execute in the apollo root directory
 
@@ -111,9 +111,11 @@ Note: If you get an error, you may need to restart the local docker
 
 ### 4.7.2 Push image to repository
 
-Repository address: [https://hub.docker.com/u/apolloconfig](https://hub.docker.com/u/apolloconfig)
-Push configservice/adminservice/portal in order, and remember to push the latest version as well.
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/push-images-to-hub.png)
+Publish via github workflow.
+
+[https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml](https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml)
+
+![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/publish-docker.jpg)
 
 ## 4.8 Update helm chart
 

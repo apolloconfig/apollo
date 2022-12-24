@@ -41,7 +41,7 @@ Apollo 2.1.0
 * [Fix the problem of deleting blank items appear at the end](https://github.com/apolloconfig/apollo/pull/4662)
 * [Portal-UI adds serverConfig configuration management of ApolloConfigDB](https://github.com/apolloconfig/apollo/pull/4680)
 * [Enable login authentication for eureka](https://github.com/apolloconfig/apollo/pull/4663)
-
+* [Add github action to publish docker image](https://github.com/apolloconfig/apollo/pull/4685)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
