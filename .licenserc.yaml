@@ -20,8 +20,7 @@ header:
     copyright-owner: Apollo Authors
 
   paths-ignore:
-    - '.github/ISSUE_TEMPLATE'
-    - '.github/PULL_REQUEST_TEMPLATE'
+    - '.github/**'
     - '**/.gitignore'
     - '**/.helmignore'
     - '.gitmodules'

@@ -101,7 +101,7 @@ github 创建 pre-release
 
 ## 4.7 发布 Docker 镜像
 
-### 4.7.1 构建镜像
+### 4.7.1 本地构建镜像并测试
 
 在 4.2 步骤打完包的前提下，在 apollo 根目录下执行
 
@@ -111,9 +111,13 @@ github 创建 pre-release
 
 ### 4.7.2 Push 镜像到仓库
 
-仓库地址：[https://hub.docker.com/u/apolloconfig](https://hub.docker.com/u/apolloconfig)
-依次 Push configservice/adminservice/portal，切记 latest 版本也要 push。
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/push-images-to-hub.png)
+通过 github workflow 来发布。
+
+[https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml](https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml)
+
+在文本框中填写发布的版本号即可
+
+![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/publish-docker.jpg)
 
 ## 4.8 更新 helm chart
 
