@@ -43,7 +43,6 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,26 +59,23 @@ public class ReleaseControllerTest extends AbstractControllerTest {
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testReleaseBuild() {
     String appId = "someAppId";
-    AppDTO app =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + appId, AppDTO.class);
+    AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
 
-    ClusterDTO cluster = restTemplate.getForObject(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/default",
-        ClusterDTO.class);
+    Assert.assertNotNull(app);
+    ClusterDTO cluster = restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
 
+    Assert.assertNotNull(cluster);
     NamespaceDTO namespace =
-        restTemplate.getForObject("http://localhost:" + port + "/apps/" + app.getAppId()
-            + "/clusters/" + cluster.getName() + "/namespaces/application", NamespaceDTO.class);
+        restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
 
+    Assert.assertNotNull(namespace);
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
     Assert.assertEquals("application", namespace.getNamespaceName());
 
-    ItemDTO[] items =
-        restTemplate.getForObject(
-            "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/"
-                + cluster.getName() + "/namespaces/" + namespace.getNamespaceName() + "/items",
-            ItemDTO[].class);
+    ItemDTO[] items = restTemplate.getForObject(itemBaseUrl(),
+            ItemDTO[].class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    Assert.assertNotNull(items);
     Assert.assertEquals(3, items.length);
 
     HttpHeaders headers = new HttpHeaders();
@@ -88,14 +84,12 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     parameters.add("name", "someReleaseName");
     parameters.add("comment", "someComment");
     parameters.add("operator", "test");
-    HttpEntity<MultiValueMap<String, String>> entity =
-        new HttpEntity<>(parameters, headers);
-    ResponseEntity<ReleaseDTO> response = restTemplate.postForEntity(
-        "http://localhost:" + port + "/apps/" + app.getAppId() + "/clusters/" + cluster.getName()
-            + "/namespaces/" + namespace.getNamespaceName() + "/releases",
-        entity, ReleaseDTO.class);
+    HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(parameters, headers);
+    ResponseEntity<ReleaseDTO> response = restTemplate.postForEntity(url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases"),
+        entity, ReleaseDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     ReleaseDTO release = response.getBody();
+    Assert.assertNotNull(release);
     Assert.assertEquals("someReleaseName", release.getName());
     Assert.assertEquals("someComment", release.getComment());
     Assert.assertEquals("someAppId", release.getAppId());
@@ -117,7 +111,6 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     String someCluster = "someCluster";
     String someName = "someName";
     String someComment = "someComment";
-    String someUserName = "someUser";
 
     NamespaceService someNamespaceService = mock(NamespaceService.class);
     ReleaseService someReleaseService = mock(ReleaseService.class);
