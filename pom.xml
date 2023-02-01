@@ -60,10 +60,10 @@
 	</developers>
 
 	<properties>
-		<revision>2.1.0-SNAPSHOT</revision>
+		<revision>2.1.0</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<apollo-java.version>2.1.0-SNAPSHOT</apollo-java.version>
+		<apollo-java.version>2.1.0</apollo-java.version>
 		<spring-boot.version>2.6.8</spring-boot.version>
 		<spring-cloud.version>2021.0.2</spring-cloud.version>
 		<spring-security.version>5.7.3</spring-security.version>
@@ -662,7 +662,7 @@
 			<id>sonatype-nexus-snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
 			<releases>
-				<enabled>true</enabled>
+				<enabled>false</enabled>
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
