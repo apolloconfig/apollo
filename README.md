@@ -6,7 +6,7 @@ English | [中文](https://www.apolloconfig.com/#/zh/README)
 
 [![Build Status](https://github.com/apolloconfig/apollo/workflows/build/badge.svg)](https://github.com/apolloconfig/apollo/actions)
 [![GitHub Release](https://img.shields.io/github/release/apolloconfig/apollo.svg)](https://github.com/apolloconfig/apollo/releases)
-[![Maven Central Repo](https://img.shields.io/maven-central/v/com.ctrip.framework.apollo/apollo.svg)](https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client)
+[![Maven Central Repo](https://img.shields.io/maven-central/v/com.ctrip.framework.apollo/apollo-client.svg)](https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client)
 [![codecov.io](https://codecov.io/github/apolloconfig/apollo/coverage.svg?branch=master)](https://codecov.io/github/apolloconfig/apollo?branch=master)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
