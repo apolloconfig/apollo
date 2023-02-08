@@ -42,6 +42,7 @@ Apollo 2.1.0
 * [Portal-UI adds serverConfig configuration management of ApolloConfigDB](https://github.com/apolloconfig/apollo/pull/4680)
 * [Enable login authentication for eureka](https://github.com/apolloconfig/apollo/pull/4663)
 * [Add github action to publish docker image](https://github.com/apolloconfig/apollo/pull/4685)
+* [Fix apolloconfigdb.sql apolloportaldb.sql AppId length settings are inconsistent](https://github.com/apolloconfig/apollo/pull/4725)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/11?closed=1)
