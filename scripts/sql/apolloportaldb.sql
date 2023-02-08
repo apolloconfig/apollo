@@ -34,7 +34,7 @@ DROP TABLE IF EXISTS `App`;
 
 CREATE TABLE `App` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Name` varchar(500) NOT NULL DEFAULT 'default' COMMENT '应用名',
   `OrgId` varchar(32) NOT NULL DEFAULT 'default' COMMENT '部门Id',
   `OrgName` varchar(64) NOT NULL DEFAULT 'default' COMMENT '部门名字',
@@ -87,7 +87,7 @@ DROP TABLE IF EXISTS `Consumer`;
 
 CREATE TABLE `Consumer` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Name` varchar(500) NOT NULL DEFAULT 'default' COMMENT '应用名',
   `OrgId` varchar(32) NOT NULL DEFAULT 'default' COMMENT '部门Id',
   `OrgName` varchar(64) NOT NULL DEFAULT 'default' COMMENT '部门名字',
@@ -177,7 +177,7 @@ DROP TABLE IF EXISTS `Favorite`;
 CREATE TABLE `Favorite` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `UserId` varchar(32) NOT NULL DEFAULT 'default' COMMENT '收藏的用户',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Position` int(32) NOT NULL DEFAULT '10000' COMMENT '收藏顺序',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
@@ -187,7 +187,7 @@ CREATE TABLE `Favorite` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UK_UserId_AppId_DeletedAt` (`UserId`,`AppId`,`DeletedAt`),
-  KEY `AppId` (`AppId`(191)),
+  KEY `AppId` (`AppId`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COMMENT='应用收藏表';
 

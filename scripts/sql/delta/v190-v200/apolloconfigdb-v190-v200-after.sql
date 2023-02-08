@@ -62,7 +62,7 @@ ALTER TABLE `Cluster`
 -- Ignore TABLE `Item`, add unique index in future
 
 ALTER TABLE `Namespace`
-    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`(191),`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
+    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
     DROP INDEX `AppId_ClusterName_NamespaceName`;
 
 ALTER TABLE `NamespaceLock`

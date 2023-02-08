@@ -34,7 +34,7 @@ DROP TABLE IF EXISTS `App`;
 
 CREATE TABLE `App` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Name` varchar(500) NOT NULL DEFAULT 'default' COMMENT '应用名',
   `OrgId` varchar(32) NOT NULL DEFAULT 'default' COMMENT '部门Id',
   `OrgName` varchar(64) NOT NULL DEFAULT 'default' COMMENT '部门名字',
@@ -135,7 +135,7 @@ DROP TABLE IF EXISTS `Commit`;
 CREATE TABLE `Commit` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ChangeSets` longtext NOT NULL COMMENT '修改变更集',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
   `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
   `Comment` varchar(500) DEFAULT NULL COMMENT '备注',
@@ -147,7 +147,7 @@ CREATE TABLE `Commit` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
-  KEY `AppId` (`AppId`(191)),
+  KEY `AppId` (`AppId`),
   KEY `ClusterName` (`ClusterName`(191)),
   KEY `NamespaceName` (`NamespaceName`(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='commit 历史表';
@@ -256,7 +256,7 @@ DROP TABLE IF EXISTS `Namespace`;
 
 CREATE TABLE `Namespace` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name',
   `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
@@ -266,7 +266,7 @@ CREATE TABLE `Namespace` (
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`(191),`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
+  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
   KEY `IX_NamespaceName` (`NamespaceName`(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='命名空间';
@@ -304,7 +304,7 @@ CREATE TABLE `Release` (
   `ReleaseKey` varchar(64) NOT NULL DEFAULT '' COMMENT '发布的Key',
   `Name` varchar(64) NOT NULL DEFAULT 'default' COMMENT '发布名字',
   `Comment` varchar(256) DEFAULT NULL COMMENT '发布说明',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
   `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
   `Configurations` longtext NOT NULL COMMENT '发布配置',
@@ -317,7 +317,7 @@ CREATE TABLE `Release` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UK_ReleaseKey_DeletedAt` (`ReleaseKey`,`DeletedAt`),
-  KEY `AppId_ClusterName_GroupName` (`AppId`(191),`ClusterName`(191),`NamespaceName`(191)),
+  KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191)),
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='发布';
 
@@ -396,7 +396,7 @@ DROP TABLE IF EXISTS `AccessKey`;
 
 CREATE TABLE `AccessKey` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
-  `AppId` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'AppID',
+  `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Secret` varchar(128) NOT NULL DEFAULT '' COMMENT 'Secret',
   `IsEnabled` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: enabled, 0: disabled',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
