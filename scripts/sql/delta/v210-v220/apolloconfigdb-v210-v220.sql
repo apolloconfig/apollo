@@ -18,5 +18,5 @@
 Use ApolloConfigDB;
 
 ALTER TABLE `Namespace`
-    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
-    DROP INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt`;
+    DROP INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt`,
+    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`);
