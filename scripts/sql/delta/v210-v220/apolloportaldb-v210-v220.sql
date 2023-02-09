@@ -13,33 +13,19 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-# delta schema to upgrade apollo config db from v1.9.0 to v2.0.0
+# delta schema to upgrade apollo portal db from v1.9.0 to v2.0.0
 
-Use ApolloConfigDB;
+Use ApolloPortalDB;
 
 ALTER TABLE `App`
     MODIFY COLUMN `AppId` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT 'AppID';
 
-ALTER TABLE `Commit`
+ALTER TABLE `Consumer`
     MODIFY COLUMN `AppId` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT 'AppID';
 
-ALTER TABLE `Namespace`
+ALTER TABLE `Favorite`
     MODIFY COLUMN `AppId` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT 'AppID';
 
-ALTER TABLE `Release`
-    MODIFY COLUMN `AppId` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT 'AppID';
-
-ALTER TABLE `AccessKey`
-    MODIFY COLUMN `AppId` VARCHAR(64) NOT NULL DEFAULT 'default' COMMENT 'AppID';
-
-ALTER TABLE `Commit`
+ALTER TABLE `Favorite`
     DROP INDEX `AppId`,
     ADD INDEX `AppId` (`AppId`);
-
-ALTER TABLE `Namespace`
-    DROP INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt`,
-    ADD UNIQUE INDEX `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`);
-
-ALTER TABLE `Release`
-    DROP INDEX `AppId_ClusterName_GroupName`,
-    ADD  INDEX `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`);
