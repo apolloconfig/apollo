@@ -64,9 +64,8 @@
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<apollo-java.version>2.1.0</apollo-java.version>
-		<spring-boot.version>2.6.8</spring-boot.version>
-		<spring-cloud.version>2021.0.2</spring-cloud.version>
-		<spring-security.version>5.7.3</spring-security.version>
+		<spring-boot.version>2.7.8</spring-boot.version>
+		<spring-cloud.version>2021.0.5</spring-cloud.version>
 		<jaxb.version>2.3.1</jaxb.version>
 		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
@@ -200,14 +199,6 @@
 				<artifactId>system-lambda</artifactId>
 				<version>1.2.0</version>
 				<scope>test</scope>
-			</dependency>
-			<!-- Spring-security BOMs -->
-			<dependency>
-				<groupId>org.springframework.security</groupId>
-				<artifactId>spring-security-bom</artifactId>
-				<version>${spring-security.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
 			</dependency>
 			<!-- declare Spring BOMs in order -->
 			<dependency>
