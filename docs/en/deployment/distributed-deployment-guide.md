@@ -1543,11 +1543,15 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/, http://some-user-name:
 
 Among them, `some-user-name` and `some-password` need to be consistent with the configuration items of `apollo.eureka.server.security.username` and `apollo.eureka.server.security.password`.
 
+A reboot is required to take effect after the modification.
+
 ### 3.2.10 apollo.eureka.server.security.username - Configure the username of Eureka server
 
 > For version 2.1.0 and above
 
 Configure the login username of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
+
+A reboot is required to take effect after the modification.
 
 > Note that the username cannot be configured as apollo.
 
@@ -1556,3 +1560,5 @@ Configure the login username of eureka server, which needs to be used together w
 > For version 2.1.0 and above
 
 Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
+
+A reboot is required to take effect after the modification.

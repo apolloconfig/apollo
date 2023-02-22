@@ -1484,11 +1484,15 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 ```
 其中`some-user-name`和`some-password`需要和`apollo.eureka.server.security.username`以及`apollo.eureka.server.security.password`的配置项一致。
 
+修改完需要重启生效。
+
 ### 3.2.10 apollo.eureka.server.security.username - 配置eureka server的登录用户名
 
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录用户名，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。
 
 > 注意用户名不能配置为apollo
 
@@ -1497,3 +1501,5 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。
