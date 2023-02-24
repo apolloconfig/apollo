@@ -752,11 +752,19 @@ Apollo supports the use of internal database table as registry, without relying 
     spring.profiles.active=github,database-discovery
     ```
 
-2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+2. (optional) In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
 ```properties
 apollo.service.registry.cluster=same name with apollo Cluster
 ```
+
+2. (optional) If you want to custom Config Service and Admin Service's uri for Client, 
+for example when deploying on the intranet, 
+if you don't want to expose the intranet ip, 
+you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+    ```properties
+    apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/;
+    ```
 
 ## 2.3 Docker Deployment
 

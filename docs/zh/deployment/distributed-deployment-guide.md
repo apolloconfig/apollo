@@ -670,7 +670,7 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-##### 2.2.3.5.2 2.1.0 之前的版本
+##### 2.2.3.4.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
@@ -709,13 +709,20 @@ Apollo支持使用内部的数据库表作为注册中心，不依赖第三方�
     spring.profiles.active=github,database-discovery
     ```
 
-2. 在多机房部署时，
+2. （可选）在多机房部署时，
    如果你需要apollo客户端只读取同机房内的Config Service，
    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
     ```properties
     apollo.service.registry.cluster=与apollo的Cluster同名
     ```
 
+3. （可选）如果你希望自定义Config Service和Admin Service给Client使用的uri，
+    例如在内网部署时，
+    如果不希望暴露内网ip，
+    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
+    ```properties
+    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/;
+    ```
 
 ## 2.3 Docker部署
 ### 2.3.1 1.7.0及以上版本
