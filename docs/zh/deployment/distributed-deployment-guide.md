@@ -721,7 +721,7 @@ Apollo支持使用内部的数据库表作为注册中心，不依赖第三方�
     如果不希望暴露内网ip，
     你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
     ```properties
-    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/;
+    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/
     ```
 
 ## 2.3 Docker部署
