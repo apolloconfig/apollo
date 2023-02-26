@@ -763,7 +763,7 @@ for example when deploying on the intranet,
 if you don't want to expose the intranet ip, 
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
     ```properties
-    apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/;
+    apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/
     ```
 
 ## 2.3 Docker Deployment
