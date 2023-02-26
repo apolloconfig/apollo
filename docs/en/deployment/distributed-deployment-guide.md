@@ -758,7 +758,7 @@ you can add a property in `config/application-github.properties` of the Config S
 apollo.service.registry.cluster=same name with apollo Cluster
 ```
 
-2. (optional) If you want to custom Config Service and Admin Service's uri for Client, 
+2. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
 for example when deploying on the intranet, 
 if you don't want to expose the intranet ip, 
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
