@@ -21,6 +21,6 @@ INSERT INTO AppNamespace (AppId, Name) VALUES ('someAppId', 'application');
 
 INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (100, 'someAppId', 'default', 'application');
 
-INSERT INTO Item (NamespaceId, `Key`, `Type`, Value, Comment) VALUES (100, 'k1', '0', 'v1', 'comment1');
-INSERT INTO Item (NamespaceId, `Key`, `Type`, Value, Comment) VALUES (100, 'k2', '0', 'v2', 'comment1');
-INSERT INTO Item (NamespaceId, `Key`, `Type`, Value, Comment) VALUES (100, 'k3', '0', 'v3', 'comment1');
+INSERT INTO Item (NamespaceId, "Key", "Type", "Value", Comment) VALUES (100, 'k1', '0', 'v1', 'comment1');
+INSERT INTO Item (NamespaceId, "Key", "Type", "Value", Comment) VALUES (100, 'k2', '0', 'v2', 'comment1');
+INSERT INTO Item (NamespaceId, "Key", "Type", "Value", Comment) VALUES (100, 'k3', '0', 'v3', 'comment1');

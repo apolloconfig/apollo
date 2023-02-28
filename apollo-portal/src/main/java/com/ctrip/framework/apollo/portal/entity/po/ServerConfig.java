@@ -35,11 +35,11 @@ import javax.persistence.Table;
 @Where(clause = "isDeleted = 0")
 public class ServerConfig extends BaseEntity {
   @NotBlank(message = "ServerConfig.Key cannot be blank")
-  @Column(name = "Key", nullable = false)
+  @Column(name = "`Key`", nullable = false)
   private String key;
 
   @NotBlank(message = "ServerConfig.Value cannot be blank")
-  @Column(name = "Value", nullable = false)
+  @Column(name = "`Value`", nullable = false)
   private String value;
 
   @Column(name = "Comment", nullable = false)

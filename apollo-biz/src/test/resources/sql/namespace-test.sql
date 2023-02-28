@@ -26,7 +26,7 @@ INSERT INTO `namespace` (`AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `
 INSERT INTO `commit` (`ChangeSets`, `AppId`, `ClusterName`, `NamespaceName`)VALUES('{}', 'testApp', 'default', 'application');
 INSERT INTO `commit` (`ChangeSets`, `AppId`, `ClusterName`, `NamespaceName`, `DataChange_LastTime`)VALUES('{}', 'commitTestApp', 'default', 'application', '2020-08-22 10:00:00');
 
-INSERT INTO `item` (`NamespaceId`, `Key`, `Value`, `Comment`, `LineNum`)VALUES(1, 'k1', 'v1', '', 1);
+INSERT INTO `item` (`NamespaceId`, "Key", "Value", `Comment`, `LineNum`)VALUES(1, 'k1', 'v1', '', 1);
 
 INSERT INTO `namespacelock` (`NamespaceId`)VALUES(1);
 

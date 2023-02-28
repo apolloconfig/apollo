@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `ServerConfig` (`Key`, `Cluster`, `Value`)
+INSERT INTO `ServerConfig` ("Key",  "Cluster",  "Value")
 VALUES
 	('admin-service.access.tokens', 'default', 'someToken,anotherToken'),
 	('admin-service.access.control.enabled', 'default', 'false');

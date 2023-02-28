@@ -33,13 +33,13 @@ import javax.persistence.Table;
 @SQLDelete(sql = "Update ServerConfig set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class ServerConfig extends BaseEntity {
-  @Column(name = "Key", nullable = false)
+  @Column(name = "`Key`", nullable = false)
   private String key;
 
-  @Column(name = "Cluster", nullable = false)
+  @Column(name = "`Cluster`", nullable = false)
   private String cluster;
 
-  @Column(name = "Value", nullable = false)
+  @Column(name = "`Value`", nullable = false)
   private String value;
 
   @Column(name = "Comment", nullable = false)

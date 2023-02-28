@@ -35,13 +35,13 @@ public class Item extends BaseEntity {
   @Column(name = "NamespaceId", nullable = false)
   private long namespaceId;
 
-  @Column(name = "key", nullable = false)
+  @Column(name = "`Key`", nullable = false)
   private String key;
 
-  @Column(name = "type")
+  @Column(name = "`Type`")
   private int type;
 
-  @Column(name = "value")
+  @Column(name = "`Value`")
   @Lob
   private String value;
 

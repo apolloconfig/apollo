@@ -177,12 +177,6 @@
 			</dependency>
 			<!--for test -->
 			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.191</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
 				<version>4.0.3</version>
