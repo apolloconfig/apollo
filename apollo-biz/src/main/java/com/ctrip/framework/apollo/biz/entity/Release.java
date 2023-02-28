@@ -30,7 +30,7 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "Release")
+@Table(name = "`Release`")
 @SQLDelete(sql = "Update Release set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "isDeleted = 0")
 public class Release extends BaseEntity {
