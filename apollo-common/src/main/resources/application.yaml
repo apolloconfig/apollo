@@ -18,9 +18,9 @@ spring:
   jpa:
     properties:
       hibernate:
-        globally_quoted_identifiers: 'true'
+        globally_quoted_identifiers: 'false'
     hibernate:
-      globally_quoted_identifiers: 'true'
+      globally_quoted_identifiers: 'false'
       # Naming strategy
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
