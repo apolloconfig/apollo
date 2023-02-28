@@ -72,7 +72,7 @@
 		<javassist.version>3.23.1-GA</javassist.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
 		<common-lang3.version>3.12.0</common-lang3.version>
-		<mysql-connector-java.version>8.0.29</mysql-connector-java.version>
+		<mysql-connector-j.version>8.0.32</mysql-connector-j.version>
 		<!-- Plugins Version -->
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -155,9 +155,9 @@
 				<version>2.8.9</version>
 			</dependency>
 			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>${mysql-connector-java.version}</version>
+				<groupId>com.mysql</groupId>
+				<artifactId>mysql-connector-j</artifactId>
+				<version>${mysql-connector-j.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject</groupId>
