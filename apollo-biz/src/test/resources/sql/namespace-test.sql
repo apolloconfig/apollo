@@ -30,8 +30,8 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Value", `Comment`, `LineNum`)VALUES(1
 
 INSERT INTO `namespacelock` (`NamespaceId`)VALUES(1);
 
-INSERT INTO `release` (`AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES('branch-test', 'default', 'application', '{}', 0);
-INSERT INTO `release` (`AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES('branch-test', 'child-cluster', 'application', '{}', 0);
+INSERT INTO "Release" (`AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES('branch-test', 'default', 'application', '{}', 0);
+INSERT INTO "Release" (`AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES('branch-test', 'child-cluster', 'application', '{}', 0);
 
 INSERT INTO `releasehistory` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `ReleaseId`, `PreviousReleaseId`, `Operation`, `OperationContext`)VALUES('branch-test', 'default', 'application', 'default', 0, 0, 7, '{}');
 

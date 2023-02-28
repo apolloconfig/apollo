@@ -63,8 +63,8 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(105, 'k2', '0', 'v2-2', '', 'apollo', 'apollo');
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(106, 'k1', '0', 'v1-2', '', 'apollo', 'apollo');
 
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(1, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default3', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(2, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster3', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(1, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default3', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(2, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster3', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3"}', 0);
 
 INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default3', 'application', 'child-cluster3', '[]', 1155, 1);
 
@@ -80,7 +80,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(108, 'k1', '0', 'v1-2', '', 'apollo', 'apollo');
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(108, 'k4', '0', 'v4', '', 'apollo', 'apollo');
 
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(3, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default4', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(3, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default4', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
 
 INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default4', 'application', 'child-cluster4', '[]', 1155, 1);
 
@@ -97,8 +97,8 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1010, 'k4', '0', 'v4', '', 'apollo', 'apollo');
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1010, 'k6', '0', 'v6', '', 'apollo', 'apollo');
 
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(4, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default5', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(5, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster5', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3","k4":"v4","k5":"v5"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(4, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default5', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(5, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster5', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3","k4":"v4","k5":"v5"}', 0);
 
 INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default5', 'application', 'child-cluster5', '[]', 1155, 1);
 
@@ -109,6 +109,6 @@ INSERT INTO `cluster` (ID, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `Dat
 INSERT INTO `namespace` (ID, `AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1011, 'test', 'default6', 'application', 0, 'apollo', 'apollo');
 INSERT INTO `namespace` (ID, `AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1012, 'test', 'child-cluster6', 'application', 0, 'apollo', 'apollo');
 
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(6, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default6', 'application', '{"k1":"v1-1","k2":"v2-1","k3":"v3"}', 0);
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(7, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default6', 'application', '{"k1":"v1","k2":"v2"}', 0);
-INSERT INTO `release` (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(8, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster6', 'application', '{"k1":"v1-2","k2":"v2","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(6, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default6', 'application', '{"k1":"v1-1","k2":"v2-1","k3":"v3"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(7, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default6', 'application', '{"k1":"v1","k2":"v2"}', 0);
+INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(8, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster6', 'application', '{"k1":"v1-2","k2":"v2","k3":"v3"}', 0);
