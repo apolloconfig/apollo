@@ -38,21 +38,21 @@ INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('somePublicApp
 INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'somePublicNamespace');
 INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'default', 'anotherNamespace');
 
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (990, 'TEST-RELEASE-KEY1', 'INTEGRATION-TEST-DEFAULT','First Release','someAppId', 'default', 'application', '{"k1":"v1"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (991, 'TEST-RELEASE-KEY2', 'INTEGRATION-TEST-NAMESPACE','First Release','someAppId', 'someCluster', 'someNamespace', '{"k2":"v2"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (992, 'TEST-RELEASE-KEY3', 'INTEGRATION-TEST-PUBLIC-DEFAULT','First Release','somePublicAppId', 'default', 'somePublicNamespace', '{"k1":"default-v1", "k2":"default-v2"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
  VALUES (993, 'TEST-RELEASE-KEY4', 'INTEGRATION-TEST-PUBLIC-NAMESPACE','First Release','somePublicAppId', 'someDC', 'somePublicNamespace', '{"k1":"someDC-v1", "k2":"someDC-v2"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
  VALUES (989, 'TEST-RELEASE-KEY5', 'INTEGRATION-TEST-PRIVATE-CONFIG-FILE','First Release','someAppId', 'default', 'someNamespace.xml', '{"k1":"v1-file", "k2":"v2-file"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
  VALUES (988, 'TEST-RELEASE-KEY6', 'INTEGRATION-TEST-PRIVATE-CONFIG-FILE','First Release','someAppId', 'default', 'anotherNamespace', '{"k1":"v1-file"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
  VALUES (987, 'TEST-RELEASE-KEY7', 'INTEGRATION-TEST-PUBLIC-CONFIG-FILE','First Release','somePublicAppId', 'default', 'anotherNamespace', '{"k2":"v2-file"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (986, 'TEST-GRAY-RELEASE-KEY1', 'INTEGRATION-TEST-DEFAULT','Gray Release','someAppId', 'gray-branch-1', 'application', '{"k1":"v1-gray"}');
-INSERT INTO RELEASE (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
+INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (985, 'TEST-GRAY-RELEASE-KEY2', 'INTEGRATION-TEST-NAMESPACE','Gray Release','somePublicAppId', 'gray-branch-2', 'somePublicNamespace', '{"k1":"gray-v1", "k2":"gray-v2"}');
