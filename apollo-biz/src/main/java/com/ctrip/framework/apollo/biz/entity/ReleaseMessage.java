@@ -32,7 +32,7 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "ReleaseMessage")
+@Table(name = "`ReleaseMessage`")
 public class ReleaseMessage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

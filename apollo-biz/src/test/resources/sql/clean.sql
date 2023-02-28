@@ -21,7 +21,7 @@ DELETE FROM namespace;
 DELETE FROM grayreleaserule;
 DELETE FROM "Release";
 DELETE FROM item;
-DELETE FROM releasemessage;
+DELETE FROM "ReleaseMessage";
 DELETE FROM releasehistory;
 DELETE FROM namespacelock;
 DELETE FROM `commit`;

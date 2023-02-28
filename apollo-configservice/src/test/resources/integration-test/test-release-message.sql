@@ -13,9 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `releasemessage` (`Id`, `Message`)
+INSERT INTO "ReleaseMessage" (`Id`, `Message`)
 VALUES
 	(10, 'someAppId+default+application');
-INSERT INTO `releasemessage` (`Id`, `Message`)
+INSERT INTO "ReleaseMessage" (`Id`, `Message`)
 VALUES
 	(20, 'somePublicAppId+default+somePublicNamespace');
