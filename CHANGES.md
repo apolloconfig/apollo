@@ -10,6 +10,7 @@ Apollo 2.2.0
 * [rename mysql-connector-java to mysql-connector-j](https://github.com/apolloconfig/apollo/pull/4748)
 * [Bump springboot version from 2.7.8 to 2.7.9](https://github.com/apolloconfig/apollo/pull/4750)
 * [[Multi-Database Support] Without Reliance on globally_quoted_identifiers Variable](https://github.com/apolloconfig/apollo/pull/4749)
+* [[Multi-Database Support] Without Reliance on boolean integer compare](https://github.com/apolloconfig/apollo/pull/4752)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
