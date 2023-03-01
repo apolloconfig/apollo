@@ -29,9 +29,9 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "ServerConfig")
+@Table(name = "`ServerConfig`")
 @SQLDelete(sql = "Update ServerConfig set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = false")
+@Where(clause = "IsDeleted = false")
 public class ServerConfig extends BaseEntity {
   @Column(name = "`Key`", nullable = false)
   private String key;

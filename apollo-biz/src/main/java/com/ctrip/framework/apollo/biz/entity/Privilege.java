@@ -26,9 +26,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Privilege")
+@Table(name = "`Privilege`")
 @SQLDelete(sql = "Update Privilege set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = false")
+@Where(clause = "IsDeleted = false")
 public class Privilege extends BaseEntity {
 
   @Column(name = "Name", nullable = false)

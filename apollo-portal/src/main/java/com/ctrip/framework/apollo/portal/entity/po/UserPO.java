@@ -29,7 +29,7 @@ import javax.persistence.Table;
  * @author lepdou 2017-04-08
  */
 @Entity
-@Table(name = "Users")
+@Table(name = "`Users`")
 public class UserPO {
 
   @Id

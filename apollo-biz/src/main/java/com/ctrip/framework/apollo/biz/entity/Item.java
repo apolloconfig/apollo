@@ -27,9 +27,9 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Item")
+@Table(name = "`Item`")
 @SQLDelete(sql = "Update Item set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = false")
+@Where(clause = "IsDeleted = false")
 public class Item extends BaseEntity {
 
   @Column(name = "NamespaceId", nullable = false)

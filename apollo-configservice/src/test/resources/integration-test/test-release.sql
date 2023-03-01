@@ -13,13 +13,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO App (AppId, Name, OwnerName, OwnerEmail) VALUES ('someAppId','someAppName','someOwnerName','someOwnerName@ctrip.com');
-INSERT INTO App (AppId, Name, OwnerName, OwnerEmail) VALUES ('somePublicAppId','somePublicAppName','someOwnerName','someOwnerName@ctrip.com');
+INSERT INTO "App" (AppId, Name, OwnerName, OwnerEmail) VALUES ('someAppId','someAppName','someOwnerName','someOwnerName@ctrip.com');
+INSERT INTO "App" (AppId, Name, OwnerName, OwnerEmail) VALUES ('somePublicAppId','somePublicAppName','someOwnerName','someOwnerName@ctrip.com');
 
-INSERT INTO Cluster (AppId, Name) VALUES ('someAppId', 'default');
-INSERT INTO Cluster (AppId, Name) VALUES ('someAppId', 'someCluster');
-INSERT INTO Cluster (AppId, Name) VALUES ('somePublicAppId', 'default');
-INSERT INTO Cluster (AppId, Name) VALUES ('somePublicAppId', 'someDC');
+INSERT INTO "Cluster" (AppId, Name) VALUES ('someAppId', 'default');
+INSERT INTO "Cluster" (AppId, Name) VALUES ('someAppId', 'someCluster');
+INSERT INTO "Cluster" (AppId, Name) VALUES ('somePublicAppId', 'default');
+INSERT INTO "Cluster" (AppId, Name) VALUES ('somePublicAppId', 'someDC');
 
 INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'application', false);
 INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'someNamespace', true);

@@ -35,7 +35,7 @@ import javax.persistence.Table;
  * persist {@link ServiceInstance}
  */
 @Entity
-@Table(name = "ServiceRegistry")
+@Table(name = "`ServiceRegistry`")
 public class ServiceRegistry {
 
   @Id

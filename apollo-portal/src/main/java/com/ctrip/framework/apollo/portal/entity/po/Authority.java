@@ -30,7 +30,7 @@ import javax.persistence.Table;
  * @author lepdou 2022-01-20
  */
 @Entity
-@Table(name = "Authorities")
+@Table(name = "`Authorities`")
 public class Authority {
 
   @Id

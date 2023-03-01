@@ -13,5 +13,5 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `rolepermission` (`Id`, `RoleId`, `PermissionId`) VALUES (990, 990, 990);
-INSERT INTO `rolepermission` (`Id`, `RoleId`, `PermissionId`) VALUES (991, 990, 991);
+INSERT INTO "RolePermission" (`Id`, `RoleId`, `PermissionId`) VALUES (990, 990, 990);
+INSERT INTO "RolePermission" (`Id`, `RoleId`, `PermissionId`) VALUES (991, 990, 991);
