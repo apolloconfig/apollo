@@ -35,6 +35,13 @@
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-biz</artifactId>
 		</dependency>
+		
+		<dependency>
+    			<groupId>org.yaml</groupId>
+    			<artifactId>snakeyaml</artifactId>
+    			<version>1.31</version>
+		</dependency>
+		
 		<!-- end of apollo -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
