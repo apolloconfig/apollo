@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `AccessKey` (`Id`, `AppId`, `Secret`, `IsEnabled`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
+INSERT INTO "AccessKey" (`Id`, `AppId`, `Secret`, `IsEnabled`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
 VALUES
 	(1, 'someAppId', 'someSecret', 0, 0, 'apollo', '2019-12-19 10:28:40', 'apollo', '2019-12-19 10:28:40'),
 	(2, '100004458', 'c715cbc80fc44171b43732c3119c9456', 0, 0, 'apollo', '2019-12-19 10:39:54', 'apollo', '2019-12-19 14:46:35'),

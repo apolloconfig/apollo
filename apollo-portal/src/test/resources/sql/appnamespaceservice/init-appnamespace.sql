@@ -25,7 +25,7 @@ VALUES
 	(146, 'FX.private-01', '100003173', 'properties', 0, '', 0, 'apollo', '2016-07-11 12:09:30', 'apollo', '2016-07-11 12:09:30'),
 	(147, 'datasource', '100003173', 'properties', 0, '', 0, 'apollo', '2016-07-11 12:09:30', 'apollo', '2016-07-11 12:09:30');
 
-INSERT INTO `app` (`AppId`, `Name`, `OrgId`, `OrgName`, `OwnerName`, `OwnerEmail`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+INSERT INTO "App" (`AppId`, `Name`, `OrgId`, `OrgName`, `OwnerName`, `OwnerEmail`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
 VALUES
 	('1000', 'apollo-test', 'FX', '框架', 'song_s', 'song_s@ctrip.com', 0, 'song_s', 'song_s'),
 	('song0711-01', 'song0711-01', 'SCC', '框架', 'song_s', 'song_s@ctrip.com', 0, 'song_s', 'song_s'),

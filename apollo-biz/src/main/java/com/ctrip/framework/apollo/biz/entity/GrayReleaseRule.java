@@ -26,12 +26,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "GrayReleaseRule")
+@Table(name = "`GrayReleaseRule`")
 @SQLDelete(sql = "Update GrayReleaseRule set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = false")
+@Where(clause = "IsDeleted = false")
 public class GrayReleaseRule extends BaseEntity{
 
-  @Column(name = "appId", nullable = false)
+  @Column(name = "AppId", nullable = false)
   private String appId;
 
   @Column(name = "ClusterName", nullable = false)
@@ -46,7 +46,7 @@ public class GrayReleaseRule extends BaseEntity{
   @Column(name = "Rules")
   private String rules;
 
-  @Column(name = "releaseId", nullable = false)
+  @Column(name = "ReleaseId", nullable = false)
   private Long releaseId;
 
   @Column(name = "BranchStatus", nullable = false)

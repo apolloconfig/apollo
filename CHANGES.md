@@ -12,6 +12,7 @@ Apollo 2.2.0
 * [[Multi-Database Support] Without Reliance on globally_quoted_identifiers Variable](https://github.com/apolloconfig/apollo/pull/4749)
 * [[Multi-Database Support] Without Reliance on boolean integer compare](https://github.com/apolloconfig/apollo/pull/4757)
 * [[Multi-Database Support] package postgre h2 dependency](https://github.com/apolloconfig/apollo/pull/4757)
+* [[Multi-Database Support] Optimize table case](https://github.com/apolloconfig/apollo/pull/4768)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)

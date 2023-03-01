@@ -48,11 +48,11 @@ public interface InstanceConfigRepository extends PagingAndSortingRepository<Ins
   int batchDelete(String appId, String clusterName, String namespaceName);
 
   @Query(
-      value = "select b.Id from `InstanceConfig` a inner join `Instance` b on b.Id =" +
+      value = "select b.Id from InstanceConfig a inner join Instance b on b.Id =" +
           " a.`InstanceId` where a.`ConfigAppId` = :configAppId and a.`ConfigClusterName` = " +
           ":clusterName and a.`ConfigNamespaceName` = :namespaceName and a.`DataChange_LastTime` " +
           "> :validDate and b.`AppId` = :instanceAppId",
-      countQuery = "select count(1) from `InstanceConfig` a inner join `Instance` b on b.id =" +
+      countQuery = "select count(1) from InstanceConfig a inner join Instance b on b.Id =" +
           " a.`InstanceId` where a.`ConfigAppId` = :configAppId and a.`ConfigClusterName` = " +
           ":clusterName and a.`ConfigNamespaceName` = :namespaceName and a.`DataChange_LastTime` " +
           "> :validDate and b.`AppId` = :instanceAppId",

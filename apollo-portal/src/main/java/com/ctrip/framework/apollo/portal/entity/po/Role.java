@@ -29,9 +29,9 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "Role")
+@Table(name = "`Role`")
 @SQLDelete(sql = "Update Role set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = false")
+@Where(clause = "IsDeleted = false")
 public class Role extends BaseEntity {
   @Column(name = "RoleName", nullable = false)
   private String roleName;

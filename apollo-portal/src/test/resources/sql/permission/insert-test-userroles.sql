@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `userrole` (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+INSERT INTO "UserRole" (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
   VALUES (990, 'someUser', 990, 'someOperator', 'someOperator');
-INSERT INTO `userrole` (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+INSERT INTO "UserRole" (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
   VALUES (991, 'anotherUser', 990, 'someOperator', 'someOperator');

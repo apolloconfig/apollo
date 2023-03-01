@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `favorite` (`Id`, `UserId`, `AppId`, `Position`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
+INSERT INTO "Favorite" (`Id`, `UserId`, `AppId`, `Position`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
 VALUES
 	(18, 'apollo', 'test0621-03', 10000, 0, 'apollo', '2016-10-10 17:45:30', 'apollo', '2016-10-10 17:45:30'),
 	(19, 'apollo', '100003173', 9999, 0, 'apollo', '2016-10-10 17:45:42', 'apollo', '2016-10-10 17:51:12'),

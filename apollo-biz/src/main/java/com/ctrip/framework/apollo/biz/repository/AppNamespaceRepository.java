@@ -43,10 +43,10 @@ public interface AppNamespaceRepository extends PagingAndSortingRepository<AppNa
   List<AppNamespace> findFirst500ByIdGreaterThanOrderByIdAsc(long id);
 
   @Modifying
-  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE AppId=?1 and isDeleted = false")
+  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE AppId=?1 and IsDeleted = false")
   int batchDeleteByAppId(String appId, String operator);
 
   @Modifying
-  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?3 WHERE AppId=?1 and Name = ?2 and isDeleted = false")
+  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?3 WHERE AppId=?1 and Name = ?2 and IsDeleted = false")
   int delete(String appId, String namespaceName, String operator);
 }
