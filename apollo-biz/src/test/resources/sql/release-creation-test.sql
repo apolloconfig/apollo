@@ -34,7 +34,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(101, 'k2', '0', 'v2', '', 'apollo', 'apollo');
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(101, 'k3', '0', 'v3', '', 'apollo', 'apollo');
 
-INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default1', 'application', 'child-cluster1', '[]', 1155, 1);
+INSERT INTO "GrayReleaseRule" (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default1', 'application', 'child-cluster1', '[]', 1155, 1);
 
 
 
@@ -50,7 +50,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(103, 'k3', '0', 'v3', '', 'apollo', 'apollo');
 INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(104, 'k1', '0', 'v1-1', '', 'apollo', 'apollo');
 
-INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default2', 'application', 'child-cluster2', '[]', 1155, 1);
+INSERT INTO "GrayReleaseRule" (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default2', 'application', 'child-cluster2', '[]', 1155, 1);
 
 /* namespace has branch. master has items and branch has cover item */
 INSERT INTO `cluster` (ID, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES (105, 'default3', 'test', 0, 0, 'default', 'default');
@@ -66,7 +66,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(1, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default3', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
 INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(2, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster3', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3"}', 0);
 
-INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default3', 'application', 'child-cluster3', '[]', 1155, 1);
+INSERT INTO "GrayReleaseRule" (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default3', 'application', 'child-cluster3', '[]', 1155, 1);
 
 /*publish branch at first time */
 INSERT INTO `cluster` (ID, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES (107, 'default4', 'test', 0, 0, 'default', 'default');
@@ -82,7 +82,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 
 INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(3, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default4', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
 
-INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default4', 'application', 'child-cluster4', '[]', 1155, 1);
+INSERT INTO "GrayReleaseRule" (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default4', 'application', 'child-cluster4', '[]', 1155, 1);
 
 /*publish branch*/
 INSERT INTO `cluster` (ID, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES (109, 'default5', 'test', 0, 0, 'default', 'default');
@@ -100,7 +100,7 @@ INSERT INTO `item` (`NamespaceId`, "Key", "Type", "Value", `Comment`, `DataChang
 INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(4, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'default5', 'application', '{"k1":"v1","k2":"v2","k3":"v3"}', 0);
 INSERT INTO "Release" (`Id`, `ReleaseKey`, `Name`, `Comment`, `AppId`, `ClusterName`, `NamespaceName`, `Configurations`, `IsAbandoned`)VALUES(5, '20160823102253-fc0071ddf9fd3260', '20160823101703-release', '', 'test', 'child-cluster5', 'application', '{"k1":"v1-1","k2":"v2","k3":"v3","k4":"v4","k5":"v5"}', 0);
 
-INSERT INTO `grayreleaserule` (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default5', 'application', 'child-cluster5', '[]', 1155, 1);
+INSERT INTO "GrayReleaseRule" (`AppId`, `ClusterName`, `NamespaceName`, `BranchName`, `Rules`, `ReleaseId`, `BranchStatus`)VALUES ('test', 'default5', 'application', 'child-cluster5', '[]', 1155, 1);
 
 /* rollback */
 INSERT INTO `cluster` (ID, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES (1011, 'default6', 'test', 0, 0, 'default', 'default');
