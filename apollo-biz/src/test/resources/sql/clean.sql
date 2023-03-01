@@ -18,7 +18,7 @@ DELETE FROM App;
 DELETE FROM "AppNamespace";
 DELETE FROM Cluster;
 DELETE FROM "Namespace";
-DELETE FROM grayreleaserule;
+DELETE FROM "GrayReleaseRule" ;
 DELETE FROM "Release";
 DELETE FROM item;
 DELETE FROM "ReleaseMessage";
