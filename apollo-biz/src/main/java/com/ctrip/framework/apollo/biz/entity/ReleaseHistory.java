@@ -30,8 +30,8 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ReleaseHistory")
-@SQLDelete(sql = "Update ReleaseHistory set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@SQLDelete(sql = "Update ReleaseHistory set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "isDeleted = false")
 public class ReleaseHistory extends BaseEntity {
   @Column(name = "AppId", nullable = false)
   private String appId;
