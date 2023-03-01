@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 DELETE FROM `App`;
-DELETE FROM `AppNamespace`;
+DELETE FROM "AppNamespace";
 -- DELETE FROM `Authorities`;
 DELETE FROM `Consumer`;
 DELETE FROM `ConsumerAudit`;
