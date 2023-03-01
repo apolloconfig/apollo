@@ -15,9 +15,9 @@
 --
 DELETE FROM AccessKey;
 DELETE FROM App;
-DELETE FROM AppNamespace;
+DELETE FROM "AppNamespace";
 DELETE FROM Cluster;
-DELETE FROM namespace;
+DELETE FROM "Namespace";
 DELETE FROM grayreleaserule;
 DELETE FROM "Release";
 DELETE FROM item;

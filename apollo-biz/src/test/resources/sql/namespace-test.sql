@@ -18,10 +18,10 @@ INSERT INTO `app` ( `AppId`, `Name`, `OrgId`, `OrgName`, `OwnerName`, `OwnerEmai
 INSERT INTO `cluster` (`ID`, `Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES (1, 'default', 'testApp', 0, 0, 'default', 'default');
 INSERT INTO `cluster` (`Name`, `AppId`, `ParentClusterId`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES('child-cluster', 'testApp', 1, 0, 'default', 'default');
 
-INSERT INTO `appnamespace` (`Name`, `AppId`, `Format`, `IsPublic`) VALUES ( 'application', 'testApp', 'properties', 0);
+INSERT INTO "AppNamespace" (`Name`, `AppId`, `Format`, `IsPublic`) VALUES ( 'application', 'testApp', 'properties', 0);
 
-INSERT INTO `namespace` (`ID`, `AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1,'testApp', 'default', 'application', 0, 'apollo', 'apollo');
-INSERT INTO `namespace` (`AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES('testApp', 'child-cluster', 'application', 0, 'apollo', 'apollo');
+INSERT INTO "Namespace" (`ID`, `AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES(1,'testApp', 'default', 'application', 0, 'apollo', 'apollo');
+INSERT INTO "Namespace" (`AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)VALUES('testApp', 'child-cluster', 'application', 0, 'apollo', 'apollo');
 
 INSERT INTO `commit` (`ChangeSets`, `AppId`, `ClusterName`, `NamespaceName`)VALUES('{}', 'testApp', 'default', 'application');
 INSERT INTO `commit` (`ChangeSets`, `AppId`, `ClusterName`, `NamespaceName`, `DataChange_LastTime`)VALUES('{}', 'commitTestApp', 'default', 'application', '2020-08-22 10:00:00');

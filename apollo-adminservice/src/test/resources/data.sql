@@ -26,19 +26,19 @@ INSERT INTO Cluster (AppId, Name) VALUES ('100003173', 'default');
 INSERT INTO Cluster (AppId, Name) VALUES ('100003173', 'cluster3');
 INSERT INTO Cluster (AppId, Name) VALUES ('fxhermesproducer', 'default');
 
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003171', 'application');
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003171', 'fx.apollo.config');
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003172', 'application');
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003172', 'fx.apollo.admin');
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003173', 'application');
-INSERT INTO AppNamespace (AppId, Name) VALUES ('100003173', 'fx.apollo.portal');
-INSERT INTO AppNamespace (AppID, Name) VALUES ('fxhermesproducer', 'fx.hermes.producer');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003171', 'application');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003171', 'fx.apollo.config');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003172', 'application');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003172', 'fx.apollo.admin');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003173', 'application');
+INSERT INTO "AppNamespace" (AppId, Name) VALUES ('100003173', 'fx.apollo.portal');
+INSERT INTO "AppNamespace" (AppID, Name) VALUES ('fxhermesproducer', 'fx.hermes.producer');
 
-INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (1, '100003171', 'default', 'application');
-INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (5, '100003171', 'cluster1', 'application');
-INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (2, 'fxhermesproducer', 'default', 'fx.hermes.producer');
-INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (3, '100003172', 'default', 'application');
-INSERT INTO Namespace (Id, AppId, ClusterName, NamespaceName) VALUES (4, '100003173', 'default', 'application');
+INSERT INTO "Namespace" (Id, AppId, ClusterName, NamespaceName) VALUES (1, '100003171', 'default', 'application');
+INSERT INTO "Namespace" (Id, AppId, ClusterName, NamespaceName) VALUES (5, '100003171', 'cluster1', 'application');
+INSERT INTO "Namespace" (Id, AppId, ClusterName, NamespaceName) VALUES (2, 'fxhermesproducer', 'default', 'fx.hermes.producer');
+INSERT INTO "Namespace" (Id, AppId, ClusterName, NamespaceName) VALUES (3, '100003172', 'default', 'application');
+INSERT INTO "Namespace" (Id, AppId, ClusterName, NamespaceName) VALUES (4, '100003173', 'default', 'application');
 
 INSERT INTO Item (NamespaceId, "Key", "Value", Comment) VALUES (1, 'k1', 'v1', 'comment1');
 INSERT INTO Item (NamespaceId, "Key", "Value", Comment) VALUES (1, 'k2', 'v2', 'comment2');

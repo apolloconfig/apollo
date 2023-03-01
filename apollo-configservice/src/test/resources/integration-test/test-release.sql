@@ -21,22 +21,22 @@ INSERT INTO Cluster (AppId, Name) VALUES ('someAppId', 'someCluster');
 INSERT INTO Cluster (AppId, Name) VALUES ('somePublicAppId', 'default');
 INSERT INTO Cluster (AppId, Name) VALUES ('somePublicAppId', 'someDC');
 
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('someAppId', 'application', false);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('someAppId', 'someNamespace', true);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('someAppId', 'someNamespace.xml', false);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('someAppId', 'anotherNamespace', false);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'application', false);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'somePublicNamespace', true);
-INSERT INTO AppNamespace (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'anotherNamespace', true);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'application', false);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'someNamespace', true);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'someNamespace.xml', false);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('someAppId', 'anotherNamespace', false);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'application', false);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'somePublicNamespace', true);
+INSERT INTO "AppNamespace" (AppId, Name, IsPublic) VALUES ('somePublicAppId', 'anotherNamespace', true);
 
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'application');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'someNamespace.xml');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'anotherNamespace');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'someCluster', 'someNamespace');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'default', 'application');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'someDC', 'somePublicNamespace');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'somePublicNamespace');
-INSERT INTO Namespace (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'default', 'anotherNamespace');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'application');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'someNamespace.xml');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'anotherNamespace');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'someCluster', 'someNamespace');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'default', 'application');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'someDC', 'somePublicNamespace');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('someAppId', 'default', 'somePublicNamespace');
+INSERT INTO "Namespace" (AppId, ClusterName, NamespaceName) VALUES ('somePublicAppId', 'default', 'anotherNamespace');
 
 INSERT INTO "Release" (id, ReleaseKey, Name, Comment, AppId, ClusterName, NamespaceName, Configurations)
   VALUES (990, 'TEST-RELEASE-KEY1', 'INTEGRATION-TEST-DEFAULT','First Release','someAppId', 'default', 'application', '{"k1":"v1"}');

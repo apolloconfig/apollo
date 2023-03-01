@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `appnamespace` (`Id`, `Name`, `AppId`, `Format`, `IsPublic`, `Comment`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
+INSERT INTO "AppNamespace" (`Id`, `Name`, `AppId`, `Format`, `IsPublic`, `Comment`, `IsDeleted`, `DataChange_CreatedBy`, `DataChange_CreatedTime`, `DataChange_LastModifiedBy`, `DataChange_LastTime`)
 VALUES
 	(139, 'FX.old', '100003173', 'properties', 1, '', 0, 'zhanglea', '2016-07-11 10:00:58', 'zhanglea', '2016-07-11 10:00:58'),
 	(140, 'SCC.song0711-03', 'song0711-01', 'properties', 1, '', 0, 'song_s', '2016-07-11 10:04:09', 'song_s', '2016-07-11 10:04:09'),

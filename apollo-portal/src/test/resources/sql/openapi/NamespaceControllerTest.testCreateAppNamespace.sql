@@ -49,9 +49,9 @@ INSERT INTO `App` (`Id`, `AppId`, `Name`, `OrgId`, `OrgName`, `OwnerName`, `Owne
 /*!40000 ALTER TABLE `App` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `AppNamespace` DISABLE KEYS */;
-INSERT INTO `AppNamespace` (`Id`, `Name`, `AppId`, `Format`, `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES
+INSERT INTO "AppNamespace" (`Id`, `Name`, `AppId`, `Format`, `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES
 (1000, 'application', 'consumer-test-app-id-0', 'properties', 'default app namespace', 'apollo', 'apollo');
-INSERT INTO `AppNamespace` (`Id`, `Name`, `AppId`, `Format`, `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES
+INSERT INTO "AppNamespace" (`Id`, `Name`, `AppId`, `Format`, `Comment`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`) VALUES
 (2000, 'application', 'consumer-test-app-id-1', 'properties', 'default app namespace', 'apollo', 'apollo');
 /*!40000 ALTER TABLE `AppNamespace` ENABLE KEYS */;
 
