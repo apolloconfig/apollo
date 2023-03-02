@@ -90,11 +90,6 @@
 			<artifactId>nacos-api</artifactId>
 			<version>${nacos-discovery-api.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
 		<!-- JDK 1.8+ -->
 		<dependency>
 			<groupId>javax.xml.bind</groupId>

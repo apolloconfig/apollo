@@ -43,11 +43,6 @@
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-portal</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
