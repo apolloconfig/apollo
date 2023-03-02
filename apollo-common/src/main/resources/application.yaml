@@ -31,10 +31,6 @@ spring:
   mvc:
     converters:
       preferred-json-mapper: gson
-  # DataSource
-  datasource:
-    hikari:
-      connectionInitSql: set names utf8mb4
 
 # Tomcat configuration
 server:
