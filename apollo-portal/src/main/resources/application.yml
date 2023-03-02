@@ -18,6 +18,10 @@ spring:
     name: apollo-portal
   profiles:
     active: ${apollo_profile}
+  datasource:
+    url: ${spring_datasource_url}
+    username: ${spring_datasource_username}
+    password: ${spring_datasource_password}
   jpa:
     properties:
       hibernate:

@@ -23,6 +23,10 @@ spring:
       enabled: false
     zookeeper:
       enabled: false
+  datasource:
+    url: ${spring_datasource_url}
+    username: ${spring_datasource_username}
+    password: ${spring_datasource_password}
   jpa:
     properties:
       hibernate:

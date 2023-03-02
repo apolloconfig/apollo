@@ -11,6 +11,7 @@ Apollo 2.2.0
 * [Bump springboot version from 2.7.8 to 2.7.9](https://github.com/apolloconfig/apollo/pull/4750)
 * [[Multi-Database Support] Without Reliance on globally_quoted_identifiers Variable](https://github.com/apolloconfig/apollo/pull/4749)
 * [[Multi-Database Support] Without Reliance on boolean integer compare](https://github.com/apolloconfig/apollo/pull/4757)
+* [[Multi-Database Support] Move common datasource config to application.properties](https://github.com/apolloconfig/apollo/pull/4761)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
