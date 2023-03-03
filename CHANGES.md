@@ -4,6 +4,11 @@ Release Notes.
 
 Apollo 2.2.0
 
+# Changes
+
+## Important changes
+- To support multiple databases, it is now necessary to add a **mysql** profile to the startup parameters in Spring if you previously used MySQL.
+
 ------------------
 * [Fix the problem of inconsistent length of appId column](https://github.com/apolloconfig/apollo/pull/4725)
 * [Bump springcloud springboot version to solve cve problems](https://github.com/apolloconfig/apollo/pull/4712)
@@ -13,6 +18,7 @@ Apollo 2.2.0
 * [[Multi-Database Support] Without Reliance on boolean integer compare](https://github.com/apolloconfig/apollo/pull/4757)
 * [[Multi-Database Support] package postgre h2 dependency](https://github.com/apolloconfig/apollo/pull/4757)
 * [[Multi-Database Support] Optimize table case](https://github.com/apolloconfig/apollo/pull/4768)
+* [[Multi-Database Support] Introduce h2 postgre profile properties to let user config database config](https://github.com/apolloconfig/apollo/pull/4767)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
