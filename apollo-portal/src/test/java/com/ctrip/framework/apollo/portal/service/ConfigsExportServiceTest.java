@@ -170,7 +170,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     HttpStatusCodeException itemNotFoundException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
     when(itemService.loadItem(any(), any(), any(), any(), anyString())).thenThrow(itemNotFoundException);
 
-    FileInputStream fileInputStream = new FileInputStream("/tmp/apollo.zip");
+    FileInputStream fileInputStream = new FileInputStream(filePath);
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
 
     try {
