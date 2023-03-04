@@ -27,6 +27,7 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -268,12 +269,8 @@ public class LdapUserService implements UserService {
       List<UserInfo> userListByGroup = searchUserInfoByGroup(groupBase, groupSearch, keyword,
           null);
       users.addAll(userListByGroup);
-      return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>((o1, o2) -> {
-        if (o1.getUserId().equals(o2.getUserId())) {
-          return 0;
-        }
-        return -1;
-      })), ArrayList::new));
+      return users.stream().collect(collectingAndThen(toCollection(() ->
+              new TreeSet<>(Comparator.comparing(UserInfo::getUserId))), ArrayList::new));
     }
     ContainerCriteria criteria = ldapQueryCriteria();
     if (!Strings.isNullOrEmpty(keyword)) {
