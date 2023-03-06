@@ -34,13 +34,13 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Cluster extends BaseEntity implements Comparable<Cluster> {
 
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "ParentClusterId", nullable = false)
+  @Column(name = "`ParentClusterId`", nullable = false)
   private long parentClusterId;
 
   public String getAppId() {

@@ -31,13 +31,13 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Namespace extends BaseEntity {
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "ClusterName", nullable = false)
+  @Column(name = "`ClusterName`", nullable = false)
   private String clusterName;
 
-  @Column(name = "NamespaceName", nullable = false)
+  @Column(name = "`NamespaceName`", nullable = false)
   private String namespaceName;
 
   public Namespace(){

@@ -35,13 +35,13 @@ import javax.persistence.Table;
 @SQLDelete(sql = "Update ConsumerToken set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "IsDeleted = false")
 public class ConsumerToken extends BaseEntity {
-  @Column(name = "ConsumerId", nullable = false)
+  @Column(name = "`ConsumerId`", nullable = false)
   private long consumerId;
 
-  @Column(name = "Token", nullable = false)
+  @Column(name = "`Token`", nullable = false)
   private String token;
 
-  @Column(name = "Expires", nullable = false)
+  @Column(name = "`Expires`", nullable = false)
   private Date expires;
 
   public long getConsumerId() {

@@ -33,10 +33,10 @@ import javax.persistence.Table;
 @SQLDelete(sql = "Update ConsumerRole set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "IsDeleted = false")
 public class ConsumerRole extends BaseEntity {
-  @Column(name = "ConsumerId", nullable = false)
+  @Column(name = "`ConsumerId`", nullable = false)
   private long consumerId;
 
-  @Column(name = "RoleId", nullable = false)
+  @Column(name = "`RoleId`", nullable = false)
   private long roleId;
 
   public long getConsumerId() {

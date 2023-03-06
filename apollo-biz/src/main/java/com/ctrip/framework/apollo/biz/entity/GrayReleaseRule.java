@@ -31,25 +31,25 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class GrayReleaseRule extends BaseEntity{
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "ClusterName", nullable = false)
+  @Column(name = "`ClusterName`", nullable = false)
   private String clusterName;
 
-  @Column(name = "NamespaceName", nullable = false)
+  @Column(name = "`NamespaceName`", nullable = false)
   private String namespaceName;
 
-  @Column(name = "BranchName", nullable = false)
+  @Column(name = "`BranchName`", nullable = false)
   private String branchName;
 
-  @Column(name = "Rules")
+  @Column(name = "`Rules`")
   private String rules;
 
-  @Column(name = "ReleaseId", nullable = false)
+  @Column(name = "`ReleaseId`", nullable = false)
   private Long releaseId;
 
-  @Column(name = "BranchStatus", nullable = false)
+  @Column(name = "`BranchStatus`", nullable = false)
   private int branchStatus;
 
   public String getAppId() {

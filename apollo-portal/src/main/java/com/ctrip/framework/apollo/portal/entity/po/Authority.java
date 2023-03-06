@@ -35,11 +35,11 @@ public class Authority {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long   id;
-  @Column(name = "Username", nullable = false)
+  @Column(name = "`Username`", nullable = false)
   private String username;
-  @Column(name = "Authority", nullable = false)
+  @Column(name = "`Authority`", nullable = false)
   private String authority;
 
   public long getId() {

@@ -36,13 +36,13 @@ import javax.persistence.Table;
 public class ReleaseMessage {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "Message", nullable = false)
+  @Column(name = "`Message`", nullable = false)
   private String message;
 
-  @Column(name = "DataChange_LastTime")
+  @Column(name = "`DataChange_LastTime`")
   private Date dataChangeLastModifiedTime;
 
   @PrePersist

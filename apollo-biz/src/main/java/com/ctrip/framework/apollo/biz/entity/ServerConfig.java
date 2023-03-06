@@ -42,7 +42,7 @@ public class ServerConfig extends BaseEntity {
   @Column(name = "`Value`", nullable = false)
   private String value;
 
-  @Column(name = "Comment", nullable = false)
+  @Column(name = "`Comment`", nullable = false)
   private String comment;
 
   public String getKey() {

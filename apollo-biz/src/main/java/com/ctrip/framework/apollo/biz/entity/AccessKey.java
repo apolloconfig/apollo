@@ -30,13 +30,13 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class AccessKey extends BaseEntity {
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "Secret", nullable = false)
+  @Column(name = "`Secret`", nullable = false)
   private String secret;
 
-  @Column(name = "IsEnabled", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsEnabled`", columnDefinition = "Bit default '0'")
   private boolean enabled;
 
   public String getAppId() {

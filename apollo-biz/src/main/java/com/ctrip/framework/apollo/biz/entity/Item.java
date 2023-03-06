@@ -32,7 +32,7 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Item extends BaseEntity {
 
-  @Column(name = "NamespaceId", nullable = false)
+  @Column(name = "`NamespaceId`", nullable = false)
   private long namespaceId;
 
   @Column(name = "`Key`", nullable = false)
@@ -45,10 +45,10 @@ public class Item extends BaseEntity {
   @Lob
   private String value;
 
-  @Column(name = "Comment")
+  @Column(name = "`Comment`")
   private String comment;
 
-  @Column(name = "LineNum")
+  @Column(name = "`LineNum`")
   private Integer lineNum;
 
   public String getComment() {

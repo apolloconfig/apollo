@@ -34,17 +34,17 @@ public class UserPO {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
-  @Column(name = "Username", nullable = false)
+  @Column(name = "`Username`", nullable = false)
   private String username;
-  @Column(name = "UserDisplayName", nullable = false)
+  @Column(name = "`UserDisplayName`", nullable = false)
   private String userDisplayName;
-  @Column(name = "Password", nullable = false)
+  @Column(name = "`Password`", nullable = false)
   private String password;
-  @Column(name = "Email", nullable = false)
+  @Column(name = "`Email`", nullable = false)
   private String email;
-  @Column(name = "Enabled", nullable = false)
+  @Column(name = "`Enabled`", nullable = false)
   private int enabled;
 
   public long getId() {

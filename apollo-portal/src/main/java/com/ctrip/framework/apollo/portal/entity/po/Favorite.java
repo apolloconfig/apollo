@@ -31,13 +31,13 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Favorite extends BaseEntity {
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "UserId", nullable = false)
+  @Column(name = "`UserId`", nullable = false)
   private String userId;
 
-  @Column(name = "Position")
+  @Column(name = "`Position`")
   private long position;
 
   public String getAppId() {

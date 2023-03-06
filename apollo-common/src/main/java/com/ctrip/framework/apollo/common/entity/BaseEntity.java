@@ -38,25 +38,25 @@ public abstract class BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "IsDeleted", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsDeleted`", columnDefinition = "Bit default '0'")
   protected boolean isDeleted = false;
 
-  @Column(name = "DeletedAt", columnDefinition = "Bigint default '0'")
+  @Column(name = "`DeletedAt`", columnDefinition = "Bigint default '0'")
   protected long deletedAt;
 
-  @Column(name = "DataChange_CreatedBy", nullable = false)
+  @Column(name = "`DataChange_CreatedBy`", nullable = false)
   private String dataChangeCreatedBy;
 
-  @Column(name = "DataChange_CreatedTime", nullable = false)
+  @Column(name = "`DataChange_CreatedTime`", nullable = false)
   private Date dataChangeCreatedTime;
 
-  @Column(name = "DataChange_LastModifiedBy")
+  @Column(name = "`DataChange_LastModifiedBy`")
   private String dataChangeLastModifiedBy;
 
-  @Column(name = "DataChange_LastTime")
+  @Column(name = "`DataChange_LastTime`")
   private Date dataChangeLastModifiedTime;
 
   public long getId() {

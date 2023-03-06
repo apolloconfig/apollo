@@ -31,22 +31,22 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Consumer extends BaseEntity {
 
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "OrgId", nullable = false)
+  @Column(name = "`OrgId`", nullable = false)
   private String orgId;
 
-  @Column(name = "OrgName", nullable = false)
+  @Column(name = "`OrgName`", nullable = false)
   private String orgName;
 
-  @Column(name = "OwnerName", nullable = false)
+  @Column(name = "`OwnerName`", nullable = false)
   private String ownerName;
 
-  @Column(name = "OwnerEmail", nullable = false)
+  @Column(name = "`OwnerEmail`", nullable = false)
   private String ownerEmail;
 
   public String getAppId() {

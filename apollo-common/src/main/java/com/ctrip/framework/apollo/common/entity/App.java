@@ -33,7 +33,7 @@ import javax.persistence.Table;
 public class App extends BaseEntity {
 
   @NotBlank(message = "Name cannot be blank")
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
   @NotBlank(message = "AppId cannot be blank")
@@ -41,21 +41,21 @@ public class App extends BaseEntity {
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "OrgId", nullable = false)
+  @Column(name = "`OrgId`", nullable = false)
   private String orgId;
 
-  @Column(name = "OrgName", nullable = false)
+  @Column(name = "`OrgName`", nullable = false)
   private String orgName;
 
   @NotBlank(message = "OwnerName cannot be blank")
-  @Column(name = "OwnerName", nullable = false)
+  @Column(name = "`OwnerName`", nullable = false)
   private String ownerName;
 
   @NotBlank(message = "OwnerEmail cannot be blank")
-  @Column(name = "OwnerEmail", nullable = false)
+  @Column(name = "`OwnerEmail`", nullable = false)
   private String ownerEmail;
 
   public String getAppId() {

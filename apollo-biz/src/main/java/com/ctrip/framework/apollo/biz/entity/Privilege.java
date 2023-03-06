@@ -31,13 +31,13 @@ import javax.persistence.Table;
 @Where(clause = "IsDeleted = false")
 public class Privilege extends BaseEntity {
 
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
-  @Column(name = "PrivilType", nullable = false)
+  @Column(name = "`PrivilType`", nullable = false)
   private String privilType;
 
-  @Column(name = "NamespaceId")
+  @Column(name = "`NamespaceId`")
   private long namespaceId;
 
   public String getName() {

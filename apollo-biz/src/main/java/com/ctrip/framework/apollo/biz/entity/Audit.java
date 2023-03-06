@@ -35,16 +35,16 @@ public class Audit extends BaseEntity {
     INSERT, UPDATE, DELETE
   }
 
-  @Column(name = "EntityName", nullable = false)
+  @Column(name = "`EntityName`", nullable = false)
   private String entityName;
 
-  @Column(name = "EntityId")
+  @Column(name = "`EntityId`")
   private Long entityId;
 
-  @Column(name = "OpName", nullable = false)
+  @Column(name = "`OpName`", nullable = false)
   private String opName;
 
-  @Column(name = "Comment")
+  @Column(name = "`Comment`")
   private String comment;
 
   public String getComment() {

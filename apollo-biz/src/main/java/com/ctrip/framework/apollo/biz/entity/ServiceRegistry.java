@@ -40,35 +40,35 @@ public class ServiceRegistry {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "ServiceName", nullable = false)
+  @Column(name = "`ServiceName`", nullable = false)
   private String serviceName;
 
   /**
    * @see ServiceInstance#getUri()
    */
-  @Column(name = "Uri", nullable = false)
+  @Column(name = "`Uri`", nullable = false)
   private String uri;
 
   /**
    * @see ServiceInstance#getCluster()
    */
-  @Column(name = "Cluster", nullable = false)
+  @Column(name = "`Cluster`", nullable = false)
   private String cluster;
 
-  @Column(name = "Metadata", nullable = false)
+  @Column(name = "`Metadata`", nullable = false)
   @Convert(converter = JpaMapFieldJsonConverter.class)
   private Map<String, String> metadata;
 
-  @Column(name = "DataChange_CreatedTime", nullable = false)
+  @Column(name = "`DataChange_CreatedTime`", nullable = false)
   private LocalDateTime dataChangeCreatedTime;
 
   /**
    * modify by heartbeat
    */
-  @Column(name = "DataChange_LastTime", nullable = false)
+  @Column(name = "`DataChange_LastTime`", nullable = false)
   private LocalDateTime dataChangeLastModifiedTime;
 
   @PrePersist

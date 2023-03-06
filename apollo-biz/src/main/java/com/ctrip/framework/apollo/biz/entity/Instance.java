@@ -36,25 +36,25 @@ import javax.persistence.Table;
 public class Instance {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "ClusterName", nullable = false)
+  @Column(name = "`ClusterName`", nullable = false)
   private String clusterName;
 
-  @Column(name = "DataCenter", nullable = false)
+  @Column(name = "`DataCenter`", nullable = false)
   private String dataCenter;
 
-  @Column(name = "Ip", nullable = false)
+  @Column(name = "`Ip`", nullable = false)
   private String ip;
 
-  @Column(name = "DataChange_CreatedTime", nullable = false)
+  @Column(name = "`DataChange_CreatedTime`", nullable = false)
   private Date dataChangeCreatedTime;
 
-  @Column(name = "DataChange_LastTime")
+  @Column(name = "`DataChange_LastTime`")
   private Date dataChangeLastModifiedTime;
 
   @PrePersist

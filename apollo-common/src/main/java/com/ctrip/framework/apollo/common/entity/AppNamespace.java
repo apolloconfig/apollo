@@ -40,20 +40,20 @@ public class AppNamespace extends BaseEntity {
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
       message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & " + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE
   )
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
   @NotBlank(message = "AppId cannot be blank")
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "Format", nullable = false)
+  @Column(name = "`Format`", nullable = false)
   private String format;
 
-  @Column(name = "IsPublic", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsPublic`", columnDefinition = "Bit default '0'")
   private boolean isPublic = false;
 
-  @Column(name = "Comment")
+  @Column(name = "`Comment`")
   private String comment;
 
   public String getAppId() {
