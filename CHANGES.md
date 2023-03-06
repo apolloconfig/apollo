@@ -15,6 +15,7 @@ Apollo 2.2.0
 * [[Multi-Database Support] Optimize table case](https://github.com/apolloconfig/apollo/pull/4768)
 * [Fix OIDC logout unnecessary redirect](https://github.com/apolloconfig/apollo/pull/4773)
 * [[Multi-Database Support] Introduce h2 postgre profile properties to let user config database config](https://github.com/apolloconfig/apollo/pull/4766)
+* [[Multi-Database Support] Optimize column define case sensitivity](https://github.com/apolloconfig/apollo/pull/4776)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
