@@ -50,7 +50,7 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
   }
 
   @Override
-  protected void refresh() {
+  public void refresh() {
     Iterable<ServerConfig> dbConfigs = serverConfigRepository.findAll();
 
     for (ServerConfig config: dbConfigs) {

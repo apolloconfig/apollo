@@ -35,6 +35,6 @@ public abstract class RefreshablePropertySource extends MapPropertySource {
   /**
    * refresh property
    */
-  protected abstract void refresh();
+  public abstract void refresh();
 
 }

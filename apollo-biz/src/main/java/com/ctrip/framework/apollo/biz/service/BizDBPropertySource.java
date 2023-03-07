@@ -57,7 +57,7 @@ public class BizDBPropertySource extends RefreshablePropertySource {
   }
 
   @Override
-  protected void refresh() {
+  public void refresh() {
     Iterable<ServerConfig> dbConfigs = serverConfigRepository.findAll();
 
     Map<String, Object> newConfigs = Maps.newHashMap();
