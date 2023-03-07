@@ -28,7 +28,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "`Audit`")
 @SQLDelete(sql = "Update Audit set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "IsDeleted = false")
+@Where(clause = "`IsDeleted` = false")
 public class Audit extends BaseEntity {
 
   public enum OP {

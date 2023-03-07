@@ -32,7 +32,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "`AppNamespace`")
 @SQLDelete(sql = "Update AppNamespace set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "IsDeleted = false")
+@Where(clause = "`IsDeleted` = false")
 public class AppNamespace extends BaseEntity {
 
   @NotBlank(message = "AppNamespace Name cannot be blank")
