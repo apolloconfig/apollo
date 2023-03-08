@@ -831,7 +831,7 @@ table th {
 
 .left-bar .app-list-show {
     height: 60px;
-    color: #409EFF;
+    color: #337AB7;
     display: flex;
     align-items: center;
     justify-content: left;
@@ -855,7 +855,7 @@ table th {
 
 .left-bar .favorite-list-show {
     height: 60px;
-    color: #409EFF;
+    color: #337AB7;
     display: flex;
     align-items: center;
     justify-content: left;
@@ -878,7 +878,7 @@ table th {
 
 .left-bar .public-namespace-list-show {
     height: 60px;
-    color: #409EFF;
+    color: #337AB7;
     display: flex;
     align-items: center;
     justify-content: left;
@@ -901,7 +901,7 @@ table th {
 
 .left-bar .visited-list-show {
     height: 60px;
-    color: #409EFF;
+    color: #337AB7;
     display: flex;
     align-items: center;
     justify-content: left;
