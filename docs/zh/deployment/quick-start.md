@@ -248,3 +248,121 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 app.id=你的appId
 ```
 运行`./demo.sh client`启动Demo客户端即可。
+
+# 五、其他数据库配置
+
+## 5.1 初始化pg数据库
+
+### 5.1.1 初始化ApolloPortalDB和ApolloConfigDB数据库。
+
+方式一: 通过各种pg客户端导入sql/postgre/apollo_init_user.sql即可。
+
+方式二: 下面以postgresql原生客户端为例:
+
+```\i /your_local_path/sql/postgre/apollo_init_user.sql```
+
+### 5.1.2 初始化ApolloPortalDB数据库表
+
+方式一: 通过各种pg客户端导入sql/postgre/apolloportaldb.sql即可。
+
+方式二: 下面以postresql原生客户端为例
+
+```\i /your_local_path/sql/postgre/apolloportaldb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```\c ApolloPortalDB```
+
+```select "Id", "AppId", "Name" from apolloportal."App";```
+
+
+| Id | AppId     | Name       |
+|----|-----------|------------|
+
+### 5.1.3 初始化ApolloConfigDB数据库表
+
+方式一: 通过各种pg客户端导入sql/postgre/apolloconfigdb.sql即可。
+
+方式二: 下面以postresql原生客户端为例
+
+```\i /your_local_path/sql/postgre/apolloconfigdb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```\c ApolloConfigDB```
+
+```select "Id", "Key", "Cluster" from apolloconfig."ServerConfig";```
+
+
+| Id | Key     | Cluster       |
+|----|-----------|------------|
+
+## 5.2 初始化Mysql数据库
+
+### 5.2.1 初始化ApolloPortalDB数据库及表结构。
+
+方式一: 通过各种MySQL客户端导入sql/apolloportaldb.sql即可。
+
+方式二: 下面以MySQL原生客户端为例：
+
+```source /your_local_path/sql/apolloportaldb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```select `Id`, `AppId`, `Name` from ApolloPortalDB.App;```
+
+
+| Id | AppId     | Name       |
+|----|-----------|------------|
+| 1  | SampleApp | Sample App |
+
+#### 5.2.2 初始化ApolloConfigDB数据库及表结构
+
+方式一: 通过各种MySQL客户端导入sql/apolloconfigdb.sql即可。
+
+方式二: 下面以MySQL原生客户端为例：
+
+```source /your_local_path/sql/apolloconfigdb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;```
+
+| NamespaceId | Key     | Value | Comment            |
+|-------------|---------|-------|--------------------|
+| 1           | timeout | 100   | sample timeout配置 |
+
+## 5.3 配置其他数据库连接信息
+
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+
+```
+# database platform
+spring_profiles_group_github=postgre
+
+# apollo portal db info
+apollo_portal_db_url="jdbc:postgresql://localhost:5432/ApolloPortalDB?currentSchema=apolloportal&characterEncoding=utf8"
+apollo_portal_db_username=用户名
+apollo_portal_db_password=密码（如果没有密码，留空即可）
+
+#apollo config db info
+apollo_config_db_url="jdbc:postgresql://localhost:5432/ApolloConfigDB?currentSchema=apolloconfig&characterEncoding=utf8"
+apollo_config_db_username=用户名
+apollo_config_db_password=密码（如果没有密码，留空即可）
+
+```
+
+## 5.4 配置mysql数据库连接信息
+
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+``` 
+#apollo config db info
+apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_config_db_username=用户名
+apollo_config_db_password=密码（如果没有密码，留空即可）
+
+# apollo portal db info
+apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_portal_db_username=用户名
+apollo_portal_db_password=密码（如果没有密码，留空即可） 
+```
