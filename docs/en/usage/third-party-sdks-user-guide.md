@@ -141,3 +141,11 @@ Project address: [apollo-sdk-clientd](https://github.com/fengzhibin/apollo-sdk-c
 Project address: [apollo-c-client](https://github.com/lzeqian/apollo)
 
 > Thanks [@lzeqian](https://github.com/lzeqian) for providing support for the C Apollo client
+
+## 6. Rust
+
+### Apollo Rust client
+
+Project address: [apollo-rust-sdk](https://github.com/liushv0/apollo-rust-sdk)
+
+> Thanks [@liushv0](https://github.com/liushv0) for providing support for the Rust Apollo client

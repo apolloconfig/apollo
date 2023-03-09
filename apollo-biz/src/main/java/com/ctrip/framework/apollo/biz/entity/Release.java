@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,33 +30,33 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "Release")
-@SQLDelete(sql = "Update Release set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`Release`")
+@SQLDelete(sql = "Update Release set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class Release extends BaseEntity {
-  @Column(name = "ReleaseKey", nullable = false)
+  @Column(name = "`ReleaseKey`", nullable = false)
   private String releaseKey;
 
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "ClusterName", nullable = false)
+  @Column(name = "`ClusterName`", nullable = false)
   private String clusterName;
 
-  @Column(name = "NamespaceName", nullable = false)
+  @Column(name = "`NamespaceName`", nullable = false)
   private String namespaceName;
 
-  @Column(name = "Configurations", nullable = false)
+  @Column(name = "`Configurations`", nullable = false)
   @Lob
   private String configurations;
 
-  @Column(name = "Comment", nullable = false)
+  @Column(name = "`Comment`", nullable = false)
   private String comment;
 
-  @Column(name = "IsAbandoned", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsAbandoned`", columnDefinition = "Bit default '0'")
   private boolean isAbandoned;
 
   public String getReleaseKey() {

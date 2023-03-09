@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `consumerrole` (`Id`, `ConsumerId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+INSERT INTO "ConsumerRole" (`Id`, `ConsumerId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
   VALUES (890, 1, 990, 'someOperator', 'someOperator');
-INSERT INTO `consumerrole` (`Id`, `ConsumerId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+INSERT INTO "ConsumerRole" (`Id`, `ConsumerId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
   VALUES (891, 2, 990, 'someOperator', 'someOperator');

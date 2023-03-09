@@ -670,7 +670,7 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-##### 2.2.3.5.2 2.1.0 之前的版本
+##### 2.2.3.4.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
@@ -709,13 +709,20 @@ Apollo支持使用内部的数据库表作为注册中心，不依赖第三方�
     spring.profiles.active=github,database-discovery
     ```
 
-2. 在多机房部署时，
+2. （可选）在多机房部署时，
    如果你需要apollo客户端只读取同机房内的Config Service，
    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
     ```properties
     apollo.service.registry.cluster=与apollo的Cluster同名
     ```
 
+3. （可选）如果你希望自定义Config Service和Admin Service给Client使用的uri，
+    例如在内网部署时，
+    如果不希望暴露内网ip，
+    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
+    ```properties
+    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/
+    ```
 
 ## 2.3 Docker部署
 ### 2.3.1 1.7.0及以上版本
@@ -1484,11 +1491,15 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 ```
 其中`some-user-name`和`some-password`需要和`apollo.eureka.server.security.username`以及`apollo.eureka.server.security.password`的配置项一致。
 
+修改完需要重启生效。
+
 ### 3.2.10 apollo.eureka.server.security.username - 配置eureka server的登录用户名
 
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录用户名，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。
 
 > 注意用户名不能配置为apollo
 
@@ -1497,3 +1508,5 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。

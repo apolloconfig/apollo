@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.portal.spi.oidc;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.configuration.OidcExtendProperties;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.slf4j.Logger;
@@ -35,6 +37,12 @@ public class OidcAuthenticationSuccessEventListener implements
 
   private static final Logger log = LoggerFactory
       .getLogger(OidcAuthenticationSuccessEventListener.class);
+
+  private static final Logger oidcLog = LoggerFactory.getLogger(
+      OidcAuthenticationSuccessEventListener.class.getName() + ".oidc");
+
+  private static final Logger jwtLog = LoggerFactory.getLogger(
+      OidcAuthenticationSuccessEventListener.class.getName() + ".jwt");
 
   private final OidcLocalUserService oidcLocalUserService;
 
@@ -63,16 +71,34 @@ public class OidcAuthenticationSuccessEventListener implements
   }
 
   private void oidcUserLogin(OidcUser oidcUser) {
+    String subject = oidcUser.getSubject();
+    String userDisplayName = OidcUserInfoUtil.getOidcUserDisplayName(oidcUser,
+        this.oidcExtendProperties);
+    String email = oidcUser.getEmail();
+
+    this.logOidc(oidcUser, subject, userDisplayName, email);
+
     UserInfo newUserInfo = new UserInfo();
-    newUserInfo.setUserId(oidcUser.getSubject());
-    newUserInfo.setName(
-        OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties));
-    newUserInfo.setEmail(oidcUser.getEmail());
-    if (this.contains(oidcUser.getSubject())) {
+    newUserInfo.setUserId(subject);
+    newUserInfo.setName(userDisplayName);
+    newUserInfo.setEmail(email);
+    if (this.contains(subject)) {
       this.oidcLocalUserService.updateUserInfo(newUserInfo);
       return;
     }
     this.oidcLocalUserService.createLocalUser(newUserInfo);
+  }
+
+  private void logOidc(OidcUser oidcUser, String subject, String userDisplayName,
+      String email) {
+    oidcLog.debug("oidc authentication success, sub=[{}] userDisplayName=[{}] email=[{}]", subject,
+        userDisplayName, email);
+    if (oidcLog.isTraceEnabled()) {
+      Map<String, Object> claims = oidcUser.getClaims();
+      for (Entry<String, Object> entry : claims.entrySet()) {
+        oidcLog.trace("oidc authentication claims [{}={}]", entry.getKey(), entry.getValue());
+      }
+    }
   }
 
   private boolean contains(String userId) {
@@ -88,12 +114,29 @@ public class OidcAuthenticationSuccessEventListener implements
   }
 
   private void jwtLogin(Jwt jwt) {
-    if (this.contains(jwt.getSubject())) {
+    String subject = jwt.getSubject();
+    String userDisplayName = OidcUserInfoUtil.getJwtUserDisplayName(jwt,
+        this.oidcExtendProperties);
+
+    this.logJwt(jwt, subject, userDisplayName);
+
+    if (this.contains(subject)) {
       return;
     }
     UserInfo newUserInfo = new UserInfo();
-    newUserInfo.setUserId(jwt.getSubject());
-    newUserInfo.setName(OidcUserInfoUtil.getJwtUserDisplayName(jwt, this.oidcExtendProperties));
+    newUserInfo.setUserId(subject);
+    newUserInfo.setName(userDisplayName);
     this.oidcLocalUserService.createLocalUser(newUserInfo);
+  }
+
+  private void logJwt(Jwt jwt, String subject, String userDisplayName) {
+    jwtLog.debug("jwt authentication success, sub=[{}] userDisplayName=[{}]", subject,
+        userDisplayName);
+    if (jwtLog.isTraceEnabled()) {
+      Map<String, Object> claims = jwt.getClaims();
+      for (Entry<String, Object> entry : claims.entrySet()) {
+        jwtLog.trace("jwt authentication claims [{}={}]", entry.getKey(), entry.getValue());
+      }
+    }
   }
 }
