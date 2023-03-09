@@ -66,12 +66,17 @@
 		<apollo-java.version>2.1.0</apollo-java.version>
 		<spring-boot.version>2.7.9</spring-boot.version>
 		<spring-cloud.version>2021.0.5</spring-cloud.version>
-		<jaxb.version>2.3.1</jaxb.version>
+		<!-- sort by alphabet -->
+		<awaitility.version>4.2.0</awaitility.version>
+		<common-lang3.version>3.12.0</common-lang3.version>
+		<gson.version>2.10.1</gson.version>
+		<guava.version>31.1-jre</guava.version>
+		<javassist.version>3.23.1-GA</javassist.version>
 		<javax.activation.version>1.1.1</javax.activation.version>
 		<javax.mail.version>1.6.2</javax.mail.version>
-		<javassist.version>3.23.1-GA</javassist.version>
+		<jaxb.version>2.3.1</jaxb.version>
+		<junit.version>5.9.2</junit.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
-		<common-lang3.version>3.12.0</common-lang3.version>
 		<!-- database driver -->
 		<mysql-connector-j.version>8.0.32</mysql-connector-j.version>
 		<postgre.version>42.5.3</postgre.version>
@@ -149,12 +154,12 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>31.0.1-jre</version>
+				<version>${guava.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.9</version>
+				<version>${gson.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mysql</groupId>
@@ -186,13 +191,13 @@
 			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
-				<version>4.0.3</version>
+				<version>${awaitility.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.junit.vintage</groupId>
 				<artifactId>junit-vintage-engine</artifactId>
-				<version>5.7.0</version>
+				<version>${junit.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -597,7 +602,7 @@
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.3</version>
+						<version>0.8.8</version>
 						<executions>
 							<execution>
 								<id>prepare-agent</id>
@@ -610,7 +615,7 @@
 					<plugin>
 						<groupId>org.eluder.coveralls</groupId>
 						<artifactId>coveralls-maven-plugin</artifactId>
-						<version>4.2.0</version>
+						<version>4.3.0</version>
 					</plugin>
 				</plugins>
 			</build>
@@ -628,7 +633,7 @@
 		<profile>
 			<id>nacos-discovery</id>
 			<properties>
-				<nacos.discovery.version>0.2.7</nacos.discovery.version>
+				<nacos.discovery.version>0.2.12</nacos.discovery.version>
 				<fastjson.version>1.2.83</fastjson.version>
 			</properties>
 			<dependencyManagement>
