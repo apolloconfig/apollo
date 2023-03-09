@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "App")
-@SQLDelete(sql = "Update App set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`App`")
+@SQLDelete(sql = "Update App set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class App extends BaseEntity {
 
   @NotBlank(message = "Name cannot be blank")
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
   @NotBlank(message = "AppId cannot be blank")
@@ -41,21 +41,21 @@ public class App extends BaseEntity {
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "OrgId", nullable = false)
+  @Column(name = "`OrgId`", nullable = false)
   private String orgId;
 
-  @Column(name = "OrgName", nullable = false)
+  @Column(name = "`OrgName`", nullable = false)
   private String orgName;
 
   @NotBlank(message = "OwnerName cannot be blank")
-  @Column(name = "OwnerName", nullable = false)
+  @Column(name = "`OwnerName`", nullable = false)
   private String ownerName;
 
   @NotBlank(message = "OwnerEmail cannot be blank")
-  @Column(name = "OwnerEmail", nullable = false)
+  @Column(name = "`OwnerEmail`", nullable = false)
   private String ownerEmail;
 
   public String getAppId() {

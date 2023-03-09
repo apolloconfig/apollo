@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Audit")
-@SQLDelete(sql = "Update Audit set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`Audit`")
+@SQLDelete(sql = "Update Audit set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class Audit extends BaseEntity {
 
   public enum OP {
     INSERT, UPDATE, DELETE
   }
 
-  @Column(name = "EntityName", nullable = false)
+  @Column(name = "`EntityName`", nullable = false)
   private String entityName;
 
-  @Column(name = "EntityId")
+  @Column(name = "`EntityId`")
   private Long entityId;
 
-  @Column(name = "OpName", nullable = false)
+  @Column(name = "`OpName`", nullable = false)
   private String opName;
 
-  @Column(name = "Comment")
+  @Column(name = "`Comment`")
   private String comment;
 
   public String getComment() {

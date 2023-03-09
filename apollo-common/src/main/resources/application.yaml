@@ -1,5 +1,5 @@
 #
-# Copyright 2022 Apollo Authors
+# Copyright 2023 Apollo Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ spring:
   jpa:
     properties:
       hibernate:
-        globally_quoted_identifiers: 'true'
+        globally_quoted_identifiers: 'false'
     hibernate:
-      globally_quoted_identifiers: 'true'
+      globally_quoted_identifiers: 'false'
       # Naming strategy
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
@@ -31,10 +31,6 @@ spring:
   mvc:
     converters:
       preferred-json-mapper: gson
-  # DataSource
-  datasource:
-    hikari:
-      connectionInitSql: set names utf8mb4
 
 # Tomcat configuration
 server:

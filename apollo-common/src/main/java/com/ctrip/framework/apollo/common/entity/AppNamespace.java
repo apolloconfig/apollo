@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "AppNamespace")
-@SQLDelete(sql = "Update AppNamespace set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`AppNamespace`")
+@SQLDelete(sql = "Update AppNamespace set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class AppNamespace extends BaseEntity {
 
   @NotBlank(message = "AppNamespace Name cannot be blank")
@@ -40,20 +40,20 @@ public class AppNamespace extends BaseEntity {
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
       message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & " + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE
   )
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
   @NotBlank(message = "AppId cannot be blank")
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "Format", nullable = false)
+  @Column(name = "`Format`", nullable = false)
   private String format;
 
-  @Column(name = "IsPublic", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsPublic`", columnDefinition = "Bit default '0'")
   private boolean isPublic = false;
 
-  @Column(name = "Comment")
+  @Column(name = "`Comment`")
   private String comment;
 
   public String getAppId() {

@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,5 +13,5 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `permission` (`Id`, `PermissionType`, `TargetId`) VALUES (990, 'somePermissionType', 'someTargetId');
-INSERT INTO `permission` (`Id`, `PermissionType`, `TargetId`) VALUES (991, 'anotherPermissionType', 'anotherTargetId');
+INSERT INTO "Permission" (`Id`, `PermissionType`, `TargetId`) VALUES (990, 'somePermissionType', 'someTargetId');
+INSERT INTO "Permission" (`Id`, `PermissionType`, `TargetId`) VALUES (991, 'anotherPermissionType', 'anotherTargetId');

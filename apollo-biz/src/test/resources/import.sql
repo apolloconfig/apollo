@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,4 +13,43 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
+ALTER TABLE "App" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "App" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "App" ALTER COLUMN OrgName VARCHAR(255) NULL;
+ALTER TABLE "App" ALTER COLUMN OrgId VARCHAR(255) NULL;
+ALTER TABLE "AppNamespace" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "AppNamespace" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "AppNamespace" ALTER COLUMN Format VARCHAR(255) NULL;
+ALTER TABLE "AccessKey" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "AccessKey" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Instance" ALTER COLUMN ClusterName VARCHAR(255) NULL;
+ALTER TABLE "Instance" ALTER COLUMN DataCenter VARCHAR(255) NULL;
+ALTER TABLE "Instance" ALTER COLUMN Ip VARCHAR(255) NULL;
+ALTER TABLE "InstanceConfig" ALTER COLUMN ReleaseDeliveryTime VARCHAR(255) NULL;
+ALTER TABLE "InstanceConfig" ALTER COLUMN ReleaseKey VARCHAR(255) NULL;
+ALTER TABLE "ServerConfig" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "ServerConfig" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "ServerConfig" ALTER COLUMN Comment VARCHAR(255) NULL;
+ALTER TABLE "Audit" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Audit" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Cluster" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Cluster" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Cluster" ALTER COLUMN ParentClusterId BIGINT DEFAULT 0;
+ALTER TABLE "Namespace" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Namespace" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Item" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Item" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "GrayReleaseRule" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "GrayReleaseRule" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Release" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Release" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Release" ALTER COLUMN Comment VARCHAR(255) NULL;
+ALTER TABLE "Release" ALTER COLUMN Name VARCHAR(255) NULL;
+ALTER TABLE "Release" ALTER COLUMN ReleaseKey VARCHAR(255) NULL;
+ALTER TABLE "ReleaseHistory" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "ReleaseHistory" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "Commit" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "Commit" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
+ALTER TABLE "NamespaceLock" ALTER COLUMN DataChange_CreatedBy VARCHAR(255) NULL;
+ALTER TABLE "NamespaceLock" ALTER COLUMN DataChange_CreatedTime TIMESTAMP NULL;
 CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR "com.ctrip.framework.apollo.common.jpa.H2Function.unixTimestamp";

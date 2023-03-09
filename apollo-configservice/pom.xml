@@ -1,6 +1,6 @@
 <?xml version="1.0"  encoding="UTF-8"?>
 <!--
-  ~ Copyright 2022 Apollo Authors
+  ~ Copyright 2023 Apollo Authors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -89,11 +89,6 @@
 			<groupId>com.alibaba.nacos</groupId>
 			<artifactId>nacos-api</artifactId>
 			<version>${nacos-discovery-api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>test</scope>
 		</dependency>
 		<!-- JDK 1.8+ -->
 		<dependency>

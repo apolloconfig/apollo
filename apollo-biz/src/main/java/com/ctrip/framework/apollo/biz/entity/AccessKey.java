@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,18 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "AccessKey")
-@SQLDelete(sql = "Update AccessKey set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`AccessKey`")
+@SQLDelete(sql = "Update AccessKey set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class AccessKey extends BaseEntity {
 
-  @Column(name = "appId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "Secret", nullable = false)
+  @Column(name = "`Secret`", nullable = false)
   private String secret;
 
-  @Column(name = "isEnabled", columnDefinition = "Bit default '0'")
+  @Column(name = "`IsEnabled`", columnDefinition = "Bit default '0'")
   private boolean enabled;
 
   public String getAppId() {

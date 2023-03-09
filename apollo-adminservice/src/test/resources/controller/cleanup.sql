@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,11 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-DELETE FROM Item;
-DELETE FROM Namespace;
-DELETE FROM AppNamespace;
-DELETE FROM Cluster;
-DELETE FROM App;
-DELETE FROM NamespaceLock;
-DELETE FROM ServerConfig;
+DELETE FROM "Item";
+DELETE FROM "Namespace";
+DELETE FROM "AppNamespace";
+DELETE FROM "Cluster";
+DELETE FROM "App";
+DELETE FROM "NamespaceLock";
+DELETE FROM "ServerConfig";
 

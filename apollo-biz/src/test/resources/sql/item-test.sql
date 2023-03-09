@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `item` (`Id`, `NamespaceId`, `Key`, `Type`, `Value`, `Comment`, `LineNum`)
+INSERT INTO "Item" (`Id`, `NamespaceId`, "Key", "Type", "Value", `Comment`, `LineNum`)
     VALUES
         (9901, 1, 'k1', 0, 'v1', '', 1),
         (9902, 2, 'k2', 2, 'v2', '', 2);

@@ -1,5 +1,5 @@
 #
-# Copyright 2022 Apollo Authors
+# Copyright 2023 Apollo Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ spring:
               - openid
             # client-secret 是在 oidc 提供者处配置的客户端密码, 用于登录 provider
             # 从安全角度考虑更推荐使用环境变量来配置, 环境变量的命名规则为: 将配置项的 key 当中的 点(.)、横杠(-)替换为下划线(_), 然后将所有字母改为大写, spring boot 会自动处理符合此规则的环境变量
-            # 例如 spring.security.oauth2.client.registration.registration-name.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAME_VDISK_CLIENT_SECRET (REGISTRATION_NAME 可以替换为自定义的 oidc 客户端的名称)
+            # 例如 spring.security.oauth2.client.registration.<fill-in-the-registration-name-here>.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_<FILL_IN_THE_REGISTRATION_NAME_HERE>_CLIENT_SECRET (<FILL_IN_THE_REGISTRATION_NAME_HERE> 可以替换为自定义的 oidc 客户端的名称)
             client-secret: d43c91c0-xxxx-xxxx-xxxx-xxxxxxxxxxxx
           # registration-name-client 是 oidc 客户端的名称, 任意字符均可, client_credentials 类型的 registration 为选填项, 可以不配置
           registration-name-client:
