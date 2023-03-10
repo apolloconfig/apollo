@@ -49,9 +49,9 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 安装包共50M，如果访问github网速不给力的话，可以从百度网盘下载。
 
 1. 从GitHub下载
-    * checkout或下载[apollo-build-scripts项目](https://github.com/nobodyiam/apollo-build-scripts)
+    * checkout或下载[apollo-build-scripts项目](https://github.com/apolloconfig/apollo-build-scripts)
     * **由于Quick Start项目比较大，所以放在了另外的repository，请注意项目地址**
-        * https://github.com/nobodyiam/apollo-build-scripts
+        * https://github.com/apolloconfig/apollo-build-scripts
 2. 从百度网盘下载
     * 通过[网盘链接](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg)下载，提取码: 9wwe
     * 下载到本地后，在本地解压apollo-quick-start.zip
@@ -73,7 +73,7 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 > 注意：如果你本地已经创建过Apollo数据库，请注意备份数据。我们准备的sql文件会清空Apollo相关的表。
 
 ### 2.1.1 创建ApolloPortalDB
-通过各种MySQL客户端导入[sql/apolloportaldb.sql](https://github.com/nobodyiam/apollo-build-scripts/blob/master/sql/apolloportaldb.sql)即可。
+通过各种MySQL客户端导入[sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-build-scripts/blob/master/sql/apolloportaldb.sql)即可。
 
 下面以MySQL原生客户端为例：
 ```sql
@@ -90,7 +90,7 @@ select `Id`, `AppId`, `Name` from ApolloPortalDB.App;
 | 1  | SampleApp | Sample App |
 
 ### 2.1.2 创建ApolloConfigDB
-通过各种MySQL客户端导入[sql/apolloconfigdb.sql](https://github.com/nobodyiam/apollo-build-scripts/blob/master/sql/apolloconfigdb.sql)即可。
+通过各种MySQL客户端导入[sql/apolloconfigdb.sql](https://github.com/apolloconfig/apollo-build-scripts/blob/master/sql/apolloconfigdb.sql)即可。
 
 下面以MySQL原生客户端为例：
 ```sql
@@ -106,7 +106,7 @@ select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;
 | 1           | timeout | 100   | sample timeout配置 |
 
 ## 2.2 配置数据库连接信息
-Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/apolloconfig/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
 
 > 注意：填入的用户需要具备对ApolloPortalDB和ApolloConfigDB数据的读写权限。
 
@@ -172,7 +172,7 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 
 > Quick Start集成了[Spring Security简单认证](zh/development/portal-how-to-implement-user-login-function#实现方式一：使用apollo提供的spring-security简单认证)，更多信息可以参考[Portal 实现用户登录功能](zh/development/portal-how-to-implement-user-login-function)
 
-<img src="https://github.com/nobodyiam/apollo-build-scripts/raw/master/images/apollo-login.png" alt="登录" width="640px">
+<img src="https://github.com/apolloconfig/apollo-build-scripts/raw/master/images/apollo-login.png" alt="登录" width="640px">
 
 2. 输入用户名apollo，密码admin后登录
 
@@ -334,7 +334,7 @@ app.id=你的appId
 
 ## 5.3 配置其他数据库连接信息
 
-Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/apolloconfig/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
 
 ```
 # database platform
@@ -354,7 +354,7 @@ apollo_config_db_password=密码（如果没有密码，留空即可）
 
 ## 5.4 配置mysql数据库连接信息
 
-Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/apolloconfig/apollo-build-scripts/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
 ``` 
 #apollo config db info
 apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
