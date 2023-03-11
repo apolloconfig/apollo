@@ -42,7 +42,11 @@ import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncode
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
 import java.util.Collections;
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+
+import org.hibernate.dialect.Dialect;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
@@ -111,27 +115,42 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public static JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
+    public static JdbcUserDetailsManager jdbcUserDetailsManager(
+            PasswordEncoder passwordEncoder,
+            AuthenticationManagerBuilder auth,
+            DataSource datasource,
+            EntityManagerFactory entityManagerFactory) throws Exception {
+      char openQuote = '`';
+      char closeQuote = '`';
+      try {
+        SessionFactoryImplementor sessionFactory = entityManagerFactory.unwrap(
+                SessionFactoryImplementor.class);
+        Dialect dialect = sessionFactory.getJdbcServices().getDialect();
+        openQuote = dialect.openQuote();
+        closeQuote = dialect.closeQuote();
+      } catch (Throwable ex) {
+        //ignore
+      }
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
-          .passwordEncoder(passwordEncoder).dataSource(datasource)
-          .usersByUsernameQuery("select Username,Password,Enabled from `Users` where Username = ?")
-          .authoritiesByUsernameQuery(
-              "select Username,Authority from `Authorities` where Username = ?")
-          .getUserDetailsService();
+              .passwordEncoder(passwordEncoder).dataSource(datasource)
+              .usersByUsernameQuery("SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?")
+              .authoritiesByUsernameQuery(
+                      "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?")
+              .getUserDetailsService();
 
-      jdbcUserDetailsManager.setUserExistsSql("select Username from `Users` where Username = ?");
+      jdbcUserDetailsManager.setUserExistsSql("SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?");
       jdbcUserDetailsManager
-          .setCreateUserSql("insert into `Users` (Username, Password, Enabled) values (?,?,?)");
+              .setCreateUserSql("INSERT into " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)");
       jdbcUserDetailsManager
-          .setUpdateUserSql("update `Users` set Password = ?, Enabled = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
-      jdbcUserDetailsManager.setDeleteUserSql("delete from `Users` where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+              .setUpdateUserSql("UPDATE " + openQuote + "Users" + closeQuote + " set " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
+      jdbcUserDetailsManager.setDeleteUserSql("DELETE FROM " + openQuote + "Users" + closeQuote + " where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
       jdbcUserDetailsManager
-          .setCreateAuthoritySql("insert into `Authorities` (Username, Authority) values (?,?)");
+              .setCreateAuthoritySql("INSERT into " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)");
       jdbcUserDetailsManager
-          .setDeleteUserAuthoritiesSql("delete from `Authorities` where id in (select a.id from (select id from `Authorities` where Username = ?) as a)");
+              .setDeleteUserAuthoritiesSql("DELETE FROM " + openQuote + "Authorities" + closeQuote + " where id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS a)");
       jdbcUserDetailsManager
-          .setChangePasswordSql("update `Users` set Password = ? where id = (select u.id from (select id from `Users` where Username = ?) as u)");
+              .setChangePasswordSql("UPDATE " + openQuote + "Users" + closeQuote + " set " + openQuote + "Password" + closeQuote + " = ? where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
+
 
       return jdbcUserDetailsManager;
     }
@@ -342,10 +361,13 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(JdbcUserDetailsManager.class)
-    public JdbcUserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder,
-        AuthenticationManagerBuilder auth, DataSource datasource) throws Exception {
+    public JdbcUserDetailsManager jdbcUserDetailsManager(
+            PasswordEncoder passwordEncoder,
+            AuthenticationManagerBuilder auth,
+            DataSource datasource,
+            EntityManagerFactory entityManagerFactory) throws Exception {
       return SpringSecurityAuthAutoConfiguration
-          .jdbcUserDetailsManager(passwordEncoder, auth, datasource);
+          .jdbcUserDetailsManager(passwordEncoder, auth, datasource, entityManagerFactory);
     }
 
     @Bean
