@@ -73,7 +73,7 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 > 注意：如果你本地已经创建过Apollo数据库，请注意备份数据。我们准备的sql文件会清空Apollo相关的表。
 
 ### 2.1.1 创建ApolloPortalDB
-通过各种MySQL客户端导入[sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-build-scripts/blob/master/sql/apolloportaldb.sql)即可。
+通过各种MySQL客户端导入[sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloportaldb.sql)即可。
 
 下面以MySQL原生客户端为例：
 ```sql
