@@ -17,6 +17,7 @@ Apollo 2.2.0
 * [[Multi-Database Support] Introduce h2 postgre profile properties to let user config database config](https://github.com/apolloconfig/apollo/pull/4766)
 * [[Multi-Database Support] Optimize column define case sensitivity](https://github.com/apolloconfig/apollo/pull/4776)
 * [[Multi-Database Support][pg] Where clause need escape, otherwise will request postgre use lowwer case](https://github.com/apolloconfig/apollo/pull/4780)
+* [Misc dependency updates](https://github.com/apolloconfig/apollo/pull/4784)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
