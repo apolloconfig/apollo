@@ -1494,6 +1494,8 @@ The default is false. Please evaluate the total configuration size and adjust th
 
 > Ensure that the app.id of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
 
+> `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
+
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 
 The default configuration is 128.
