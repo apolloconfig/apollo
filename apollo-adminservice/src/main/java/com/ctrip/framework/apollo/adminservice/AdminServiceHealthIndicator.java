@@ -17,13 +17,13 @@
 package com.ctrip.framework.apollo.adminservice;
 
 import com.ctrip.framework.apollo.biz.service.AppService;
+import org.springframework.boot.actuate.health.AbstractHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AdminServiceHealthIndicator implements HealthIndicator {
+public class AdminServiceHealthIndicator extends AbstractHealthIndicator {
 
   private final AppService appService;
 
@@ -32,9 +32,9 @@ public class AdminServiceHealthIndicator implements HealthIndicator {
   }
 
   @Override
-  public Health health() {
+  protected void doHealthCheck(Health.Builder builder) {
     check();
-    return Health.up().build();
+    builder.up();
   }
 
   private void check() {
