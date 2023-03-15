@@ -18,6 +18,7 @@ Apollo 2.2.0
 * [[Multi-Database Support] Optimize column define case sensitivity](https://github.com/apolloconfig/apollo/pull/4776)
 * [[Multi-Database Support][pg] Where clause need escape, otherwise will request postgre use lowwer case](https://github.com/apolloconfig/apollo/pull/4780)
 * [Misc dependency updates](https://github.com/apolloconfig/apollo/pull/4784)
+* [Fix the problem that the deletion failure of the system rights management page does not prompt](https://github.com/apolloconfig/apollo/pull/4803)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
