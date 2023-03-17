@@ -28,11 +28,14 @@ import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +64,8 @@ public class DefaultRolePermissionService implements RolePermissionService {
     private PortalConfig portalConfig;
     @Autowired
     private ConsumerRoleRepository consumerRoleRepository;
+    @Autowired
+    private UserService userService;
 
     /**
      * Create role with permissions, note that role name should be unique
@@ -149,12 +154,15 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
 
         List<UserRole> userRoles = userRoleRepository.findByRoleId(role.getId());
+        List<UserInfo> userInfos = userService.findByUserIds(userRoles.stream().map(UserRole::getUserId).collect(Collectors.toList()));
 
-        return userRoles.stream().map(userRole -> {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setUserId(userRole.getUserId());
-            return userInfo;
-        }).collect(Collectors.toSet());
+        if(userInfos == null){
+            return Collections.emptySet();
+        }
+
+        return userInfos.stream()
+            .sorted(Comparator.comparing(UserInfo::getUserId))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**
