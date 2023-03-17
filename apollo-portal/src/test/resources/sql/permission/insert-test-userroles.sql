@@ -17,3 +17,5 @@ INSERT INTO "UserRole" (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataC
   VALUES (990, 'someUser', 990, 'someOperator', 'someOperator');
 INSERT INTO "UserRole" (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
   VALUES (991, 'anotherUser', 990, 'someOperator', 'someOperator');
+INSERT INTO "UserRole" (`Id`, `UserId`, `RoleId`, `DataChange_CreatedBy`, `DataChange_LastModifiedBy`)
+VALUES (992, 'apollo', 992, 'someOperator', 'someOperator');
