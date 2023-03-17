@@ -39,7 +39,7 @@ role_module.controller('NamespaceRoleController',
                 .then(function (result) {
 
                 }, function (result) {
-                    toastr.warn(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.InitNamespacePermissionError'));
+                    toastr.warning(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.InitNamespacePermissionError'));
                 });
 
             PermissionService.has_assign_user_permission($scope.pageContext.appId)
