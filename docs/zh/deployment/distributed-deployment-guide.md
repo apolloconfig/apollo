@@ -532,6 +532,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> 适用于1.8.0及以上版本
+
 启用外部nacos服务注册中心替换内置eureka
 
 > 注意：需要重新打包
@@ -554,6 +556,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> 适用于1.9.0及以上版本
 
 启用外部Consul服务注册中心替换内置eureka
 
@@ -593,11 +597,11 @@ spring.cloud.consul.port=8500
 
 #### 2.2.3.3 zookeeper-discovery
 
+> 适用于2.0.0及以上版本
+
 启用外部Zookeeper服务注册中心替换内置eureka
 
 ##### 2.2.3.3.1 2.1.0 及以上版本
-
-
 
 1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
@@ -643,6 +647,8 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
+
+> 适用于2.0.0及以上版本
 
 启用custom-defined-discovery替换内置eureka
 
