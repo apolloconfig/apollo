@@ -55,7 +55,7 @@ This interface will get the configuration directly from the database and can be 
 
 ### 1.3.1 Http interface description
 
-**URL**: {config_server_url}/configs/{appId}/{clusterName}/{namespaceName}?releaseKey={releaseKey}&messages={messages}&label={label}&ip={clientIp}
+**URL**: `{config_server_url}/configs/{appId}/{clusterName}/{namespaceName}?releaseKey={releaseKey}&messages={messages}&label={label}&ip={clientIp}`
 
 **Method**: GET
 
