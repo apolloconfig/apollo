@@ -133,23 +133,17 @@ public class AuthConfiguration {
       }
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
               .passwordEncoder(passwordEncoder).dataSource(datasource)
-              .usersByUsernameQuery("SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?")
-              .authoritiesByUsernameQuery(
-                      "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?")
+              .usersByUsernameQuery(usersQuerySql(openQuote, closeQuote))
+              .authoritiesByUsernameQuery(authoritiesQuerySql(openQuote, closeQuote))
               .getUserDetailsService();
 
-      jdbcUserDetailsManager.setUserExistsSql("SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?");
-      jdbcUserDetailsManager
-              .setCreateUserSql("INSERT INTO " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)");
-      jdbcUserDetailsManager
-              .setUpdateUserSql("UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
-      jdbcUserDetailsManager.setDeleteUserSql("DELETE FROM " + openQuote + "Users" + closeQuote + " WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
-      jdbcUserDetailsManager
-              .setCreateAuthoritySql("INSERT INTO " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)");
-      jdbcUserDetailsManager
-              .setDeleteUserAuthoritiesSql("DELETE FROM " + openQuote + "Authorities" + closeQuote + " WHERE id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS a)");
-      jdbcUserDetailsManager
-              .setChangePasswordSql("UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
+      jdbcUserDetailsManager.setUserExistsSql(usersExistsSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setCreateUserSql(usersCreateSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setUpdateUserSql(usersUpdateSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setDeleteUserSql(usersDeleteSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setCreateAuthoritySql(authoritiesCreateSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setDeleteUserAuthoritiesSql(authoritiesDeleteSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setChangePasswordSql(changePasswordSql(openQuote, closeQuote));
 
       return jdbcUserDetailsManager;
     }
@@ -162,6 +156,42 @@ public class AuthConfiguration {
       return new SpringSecurityUserService(passwordEncoder, userRepository, authorityRepository);
     }
 
+  }
+
+  private static String usersCreateSql(char openQuote, char closeQuote) {
+    return "INSERT INTO " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)";
+  }
+
+  private static String usersDeleteSql(char openQuote, char closeQuote) {
+    return "DELETE FROM " + openQuote + "Users" + closeQuote + " WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+  }
+
+  private static String usersUpdateSql(char openQuote, char closeQuote) {
+    return "UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+  }
+
+  private static String usersExistsSql(char openQuote, char closeQuote) {
+    return "SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
+  }
+
+  private static String usersQuerySql(char openQuote, char closeQuote) {
+    return "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
+  }
+
+  private static String authoritiesCreateSql(char openQuote, char closeQuote) {
+    return "INSERT INTO " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)";
+  }
+
+  private static String authoritiesDeleteSql(char openQuote, char closeQuote) {
+    return "DELETE FROM " + openQuote + "Authorities" + closeQuote + " WHERE id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS a)";
+  }
+
+  private static String changePasswordSql(char openQuote, char closeQuote) {
+    return "UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+  }
+
+  private static String authoritiesQuerySql(char openQuote, char closeQuote) {
+    return "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
   }
 
   @Order(99)
