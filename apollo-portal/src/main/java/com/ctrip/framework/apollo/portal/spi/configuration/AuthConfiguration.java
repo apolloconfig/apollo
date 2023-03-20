@@ -133,24 +133,23 @@ public class AuthConfiguration {
       }
       JdbcUserDetailsManager jdbcUserDetailsManager = auth.jdbcAuthentication()
               .passwordEncoder(passwordEncoder).dataSource(datasource)
-              .usersByUsernameQuery("SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?")
+              .usersByUsernameQuery("SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?")
               .authoritiesByUsernameQuery(
-                      "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?")
+                      "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?")
               .getUserDetailsService();
 
-      jdbcUserDetailsManager.setUserExistsSql("SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?");
+      jdbcUserDetailsManager.setUserExistsSql("SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?");
       jdbcUserDetailsManager
-              .setCreateUserSql("INSERT into " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)");
+              .setCreateUserSql("INSERT INTO " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)");
       jdbcUserDetailsManager
-              .setUpdateUserSql("UPDATE " + openQuote + "Users" + closeQuote + " set " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
-      jdbcUserDetailsManager.setDeleteUserSql("DELETE FROM " + openQuote + "Users" + closeQuote + " where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
+              .setUpdateUserSql("UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
+      jdbcUserDetailsManager.setDeleteUserSql("DELETE FROM " + openQuote + "Users" + closeQuote + " WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
       jdbcUserDetailsManager
-              .setCreateAuthoritySql("INSERT into " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)");
+              .setCreateAuthoritySql("INSERT INTO " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)");
       jdbcUserDetailsManager
-              .setDeleteUserAuthoritiesSql("DELETE FROM " + openQuote + "Authorities" + closeQuote + " where id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS a)");
+              .setDeleteUserAuthoritiesSql("DELETE FROM " + openQuote + "Authorities" + closeQuote + " WHERE id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS a)");
       jdbcUserDetailsManager
-              .setChangePasswordSql("UPDATE " + openQuote + "Users" + closeQuote + " set " + openQuote + "Password" + closeQuote + " = ? where id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " where " + openQuote + "Username" + closeQuote + " = ?) AS u)");
-
+              .setChangePasswordSql("UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)");
 
       return jdbcUserDetailsManager;
     }
