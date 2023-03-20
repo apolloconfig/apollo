@@ -28,9 +28,6 @@ spring:
       hibernate:
         metadata_builder_contributor: com.ctrip.framework.apollo.common.jpa.SqlFunctionsMetadataBuilderContributor
 
-ctrip:
-  appid: 100003172
-  
 server:
   port: 8090
 

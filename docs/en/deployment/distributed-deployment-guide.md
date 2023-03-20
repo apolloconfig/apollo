@@ -557,6 +557,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> For version 1.8.0 and above
+
 Enable external nacos service registry to replace built-in eureka
 
 > Note: need repackage
@@ -581,6 +583,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> For version 1.9.0 and above
 
 Enable external Consul service registry to replace built-in eureka
 
@@ -620,6 +624,8 @@ spring.cloud.consul.port=8500
 ```
 
 #### 2.2.3.3 zookeeper-discovery
+
+> For version 2.0.0 and above
 
 Enable external Zookeeper service registry to replace built-in eureka
 
@@ -681,6 +687,8 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
+
+> For version 2.0.0 and above
 
 Enable custom-defined-discovery to replace built-in eureka
 
