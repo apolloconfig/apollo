@@ -1500,7 +1500,7 @@ This is a function switch, if configured to true, config service will cache the 
 
 The default is false. Please evaluate the total configuration size and adjust the config service memory configuration before turning it on.
 
-> Ensure that the app.id of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
+> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
 
 > `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
 
