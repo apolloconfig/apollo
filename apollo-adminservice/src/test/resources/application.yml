@@ -20,9 +20,6 @@ spring:
 server:
   port: ${port:8090}
 
-ctrip:
-  appid: 100003172
-
 eureka:
   instance:
     hostname: ${hostname:localhost}

@@ -49,21 +49,23 @@
 该接口会直接从数据库中获取配置，可以配合配置推送通知实现实时更新配置。
 
 ### 1.3.1 Http接口说明
-**URL**: {config_server_url}/configs/{appId}/{clusterName}/{namespaceName}?releaseKey={releaseKey}&ip={clientIp}
+**URL**: {config_server_url}/configs/{appId}/{clusterName}/{namespaceName}?releaseKey={releaseKey}&messages={messages}&label={label}&ip={clientIp}
 
 **Method**: GET
 
 **参数说明**：
 
-| 参数名            | 是否必须 | 参数值               | 备注                                                                                                                                                                                                                                                                                                        |
-|-------------------|----------|----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| config_server_url | 是       | Apollo配置服务的地址 |                                                                                                                                                                                                                                                                                                             |
-| appId             | 是       | 应用的appId          |                                                                                                                                                                                                                                                                                                             |
-| clusterName       | 是       | 集群名               | 一般情况下传入 default 即可。 如果希望配置按集群划分，可以参考[集群独立配置说明](zh/usage/apollo-user-guide?id=三、集群独立配置说明)做相关配置，然后在这里填入对应的集群名。 |
-| namespaceName     | 是       | Namespace的名字      | 如果没有新建过Namespace的话，传入application即可。 如果创建了Namespace，并且需要使用该Namespace的配置，则传入对应的Namespace名字。**需要注意的是对于properties类型的namespace，只需要传入namespace的名字即可，如application。对于其它类型的namespace，需要传入namespace的名字加上后缀名，如datasources.json**  |
-| releaseKey       | 否        | 上一次的releaseKey       | 将上一次返回对象中的releaseKey传入即可，用来给服务端比较版本，如果版本比下来没有变化，则服务端直接返回304以节省流量和运算 |
-| ip                | 否       | 应用部署的机器ip     | 这个参数是可选的，用来实现灰度发布。                                                                                                                                                                                              |
-
+| 参数名               | 是否必须 | 参数值                 | 备注                                                                                                                                                                                                                                                                                                                                                        |
+|-------------------|---------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| config_server_url | 是       | Apollo配置服务的地址       |                                                                                                                                                                                                                                                                                                                                                           |
+| appId             | 是       | 应用的appId            |                                                                                                                                                                                                                                                                                                                                                           |
+| clusterName       | 是       | 集群名                 | 一般情况下传入 default 即可。 如果希望配置按集群划分，可以参考[集群独立配置说明](zh/usage/apollo-user-guide?id=三、集群独立配置说明)做相关配置，然后在这里填入对应的集群名。                                                                                                                                                                                                                                              |
+| namespaceName     | 是       | Namespace的名字        | 如果没有新建过Namespace的话，传入application即可。 如果创建了Namespace，并且需要使用该Namespace的配置，则传入对应的Namespace名字。**需要注意的是对于properties类型的namespace，只需要传入namespace的名字即可，如application。对于其它类型的namespace，需要传入namespace的名字加上后缀名，如datasources.json**                                                                                                                                     |
+| releaseKey        | 否       | 上一次的releaseKey      | 将上一次返回对象中的releaseKey传入即可，用来给服务端比较版本，如果版本比下来没有变化，则服务端直接返回304以节省流量和运算                                                                                                                                                                                                                                                                                       |
+| messages          | 否       | 最新的 notificationId  | 用于给服务端即时更新内存缓存，如果传递了 releaseKey，而不传递 messages参数，在服务端多实例、且开启内存缓存时、有概率会获取不到最新的配置。这个参数是json结构的字符串 {"details":{"key":notificationId}}，需要将 `appId`、`clusterName`、`namespaceName`使用 `+` 号拼接为 key,假设现在 `appId=app`、`clusterName=default`、`namespaceName=test`、`notificationId=11`，则 messages 参数为 {"details":{"app+default+test":11}}，使用 messages 参数时，需要进行 URL编码。 |
+| label             | 否       | 灰度配置的标签             | 这个参数是可选的，用于灰度发布的标签规则匹配。                                                                                                                                                                                                                                                                                                                                   |
+| ip                | 否       | 应用部署的机器ip           | 这个参数是可选的，用于灰度发布的 ip 规则匹配。                                                                                                                                                                                                                                                                                                                                 |
+   
 ### 1.3.2 Http接口返回格式
 该Http接口返回的是JSON格式、UTF-8编码。
 
