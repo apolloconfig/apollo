@@ -79,15 +79,9 @@ public class ItemController {
     }
     entity = itemService.save(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
-
-    Commit commit = new Commit();
-    commit.setAppId(appId);
-    commit.setClusterName(clusterName);
-    commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(new ConfigChangeContentBuilder().createItem(entity).build());
-    commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
-    commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
-    commitService.save(commit);
+    commitService.createCommit(appId, clusterName, namespaceName, new ConfigChangeContentBuilder().createItem(entity).build(),
+        dto.getDataChangeLastModifiedBy()
+    );
 
     return dto;
   }
@@ -154,14 +148,7 @@ public class ItemController {
     itemDTO = BeanUtils.transform(ItemDTO.class, entity);
 
     if (builder.hasContent()) {
-      Commit commit = new Commit();
-      commit.setAppId(appId);
-      commit.setClusterName(clusterName);
-      commit.setNamespaceName(namespaceName);
-      commit.setChangeSets(builder.build());
-      commit.setDataChangeCreatedBy(itemDTO.getDataChangeLastModifiedBy());
-      commit.setDataChangeLastModifiedBy(itemDTO.getDataChangeLastModifiedBy());
-      commitService.save(commit);
+      commitService.createCommit(appId, clusterName, namespaceName, builder.build(), itemDTO.getDataChangeLastModifiedBy());
     }
 
     return itemDTO;
@@ -178,14 +165,10 @@ public class ItemController {
 
     Namespace namespace = namespaceService.findOne(entity.getNamespaceId());
 
-    Commit commit = new Commit();
-    commit.setAppId(namespace.getAppId());
-    commit.setClusterName(namespace.getClusterName());
-    commit.setNamespaceName(namespace.getNamespaceName());
-    commit.setChangeSets(new ConfigChangeContentBuilder().deleteItem(entity).build());
-    commit.setDataChangeCreatedBy(operator);
-    commit.setDataChangeLastModifiedBy(operator);
-    commitService.save(commit);
+    commitService.createCommit(namespace.getAppId(), namespace.getClusterName(), namespace.getNamespaceName(),
+        new ConfigChangeContentBuilder().deleteItem(entity).build(), operator
+    );
+
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")

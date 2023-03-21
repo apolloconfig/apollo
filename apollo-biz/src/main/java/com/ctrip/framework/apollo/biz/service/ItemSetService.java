@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
-import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
@@ -84,7 +83,7 @@ public class ItemSetService {
     }
 
     if (configChangeContentBuilder.hasContent()){
-      createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
+      commitService.createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
                    changeSet.getDataChangeLastModifiedBy());
     }
 
@@ -145,19 +144,6 @@ public class ItemSetService {
       Item createdItem = itemService.save(entity);
       configChangeContentBuilder.createItem(createdItem);
     }
-  }
-
-  private void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
-                            String operator) {
-
-    Commit commit = new Commit();
-    commit.setAppId(appId);
-    commit.setClusterName(clusterName);
-    commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(configChangeContent);
-    commit.setDataChangeCreatedBy(operator);
-    commit.setDataChangeLastModifiedBy(operator);
-    commitService.save(commit);
   }
 
 }
