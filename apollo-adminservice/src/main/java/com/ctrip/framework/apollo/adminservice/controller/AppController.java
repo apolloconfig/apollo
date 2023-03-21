@@ -20,8 +20,8 @@ import com.ctrip.framework.apollo.biz.service.AdminService;
 import com.ctrip.framework.apollo.biz.service.AppService;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.entity.App;
+import com.ctrip.framework.apollo.common.exception.AppNotFountException;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -66,7 +66,7 @@ public class AppController {
   public void delete(@PathVariable("appId") String appId, @RequestParam String operator) {
     App entity = appService.findOne(appId);
     if (entity == null) {
-      throw new NotFoundException("app not found for appId " + appId);
+      throw new AppNotFountException(appId);
     }
     adminService.deleteApp(entity, operator);
   }
@@ -96,7 +96,7 @@ public class AppController {
   public AppDTO get(@PathVariable("appId") String appId) {
     App app = appService.findOne(appId);
     if (app == null) {
-      throw new NotFoundException("app not found for appId " + appId);
+      throw new AppNotFountException(appId);
     }
     return BeanUtils.transform(AppDTO.class, app);
   }

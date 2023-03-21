@@ -25,7 +25,7 @@ import com.ctrip.framework.apollo.common.dto.InstanceConfigDTO;
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
-import com.ctrip.framework.apollo.common.exception.NotFoundException;
+import com.ctrip.framework.apollo.common.exception.ReleaseNotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -70,7 +70,7 @@ public class InstanceConfigController {
                                            Pageable pageable) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found for %s", releaseId);
+      throw new ReleaseNotFoundException(releaseId);
     }
     Page<InstanceConfig> instanceConfigsPage = instanceService.findActiveInstanceConfigsByReleaseKey
         (release.getReleaseKey(), pageable);
@@ -123,7 +123,7 @@ public class InstanceConfigController {
     List<Release> releases = releaseService.findByReleaseIds(releaseIdSet);
 
     if (CollectionUtils.isEmpty(releases)) {
-      throw new NotFoundException("releases not found for %s", releaseIds);
+      throw new ReleaseNotFoundException(releaseIds);
     }
 
     Set<String> releaseKeys = releases.stream().map(Release::getReleaseKey).collect(Collectors

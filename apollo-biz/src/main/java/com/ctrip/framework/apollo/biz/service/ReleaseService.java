@@ -31,6 +31,7 @@ import com.ctrip.framework.apollo.common.constants.ReleaseOperationContext;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
+import com.ctrip.framework.apollo.common.exception.ReleaseNotFoundException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.google.common.base.Strings;
@@ -460,7 +461,7 @@ public class ReleaseService {
   public Release rollback(long releaseId, String operator) {
     Release release = findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw new ReleaseNotFoundException(releaseId);
     }
     if (release.isAbandoned()) {
       throw new BadRequestException("release is not active");
@@ -503,8 +504,12 @@ public class ReleaseService {
 
     Release release = findOne(releaseId);
     Release toRelease = findOne(toReleaseId);
-    if (release == null || toRelease == null) {
-      throw new NotFoundException("release not found");
+
+    if (release == null) {
+      throw new ReleaseNotFoundException(releaseId);
+    }
+    if (toRelease == null) {
+      throw new ReleaseNotFoundException(toReleaseId);
     }
     if (release.isAbandoned() || toRelease.isAbandoned()) {
       throw new BadRequestException("release is not active");

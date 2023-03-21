@@ -21,11 +21,12 @@ import org.junit.Test;
 
 public class NotFoundExceptionTest {
 
+  private static final String appId = "app-1001";
+  private static final String clusterName = "test";
+  private static final String namespaceName = "application";
+
   @Test
   public void testConstructor() {
-    String appId = "app-1001";
-    String clusterName = "test";
-    String namespaceName = "application";
     String key = "test.key";
     NotFoundException e1, e2;
     e1 = new NotFoundException("item not found for %s %s %s %s", appId,
@@ -33,6 +34,33 @@ public class NotFoundExceptionTest {
     e2 = new NotFoundException(
         String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
     Assert.assertEquals(e1.getMessage(), e2.getMessage());
+  }
+
+  @Test
+  public void testAppNotFountException() {
+    AppNotFountException exception = new AppNotFountException(appId);
+    Assert.assertEquals(exception.getMessage(), "app not found for appId:app-1001");
+  }
+
+  @Test
+  public void testClusterNotFountException() {
+    ClusterNotFoundException exception = new ClusterNotFoundException(appId, clusterName);
+    Assert.assertEquals(exception.getMessage(), "cluster not found for appId:app-1001 clusterName:test");
+  }
+
+  @Test
+  public void testNamespaceNotFountException() {
+    NamespaceNotFoundException exception = new NamespaceNotFoundException(appId, clusterName, namespaceName);
+    Assert.assertEquals(exception.getMessage(), "namespace not found for appId:app-1001 clusterName:test namespaceName:application");
+
+    exception = new NamespaceNotFoundException(66);
+    Assert.assertEquals(exception.getMessage(), "namespace not found for namespaceId:66");
+  }
+
+  @Test
+  public void testReleaseNotFountException() {
+    ReleaseNotFoundException exception = new ReleaseNotFoundException(66);
+    Assert.assertEquals(exception.getMessage(), "release not found for releaseId:66");
   }
 
 }

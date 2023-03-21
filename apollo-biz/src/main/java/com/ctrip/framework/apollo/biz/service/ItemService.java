@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.repository.ItemRepository;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.NotFoundException;
+import com.ctrip.framework.apollo.common.exception.NamespaceNotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 
@@ -256,8 +256,7 @@ public class ItemService {
                                                                        String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("namespace not found for appId:%s clusterName:%s namespaceName:%s",
-              appId, clusterName, namespaceName);
+      throw new NamespaceNotFoundException(appId, clusterName, namespaceName);
     }
     return namespace;
   }
