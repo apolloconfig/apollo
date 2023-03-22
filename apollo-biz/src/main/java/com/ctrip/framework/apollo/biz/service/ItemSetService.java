@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.exception.NamespaceNotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
@@ -98,7 +99,7 @@ public class ItemSetService {
     for (ItemDTO item : toDeleteItems) {
       Item deletedItem = itemService.delete(item.getId(), operator);
       if (deletedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       configChangeContentBuilder.deleteItem(deletedItem);
@@ -113,10 +114,10 @@ public class ItemSetService {
 
       Item managedItem = itemService.findOne(entity.getId());
       if (managedItem == null) {
-        throw new NotFoundException("item not found.(key=%s)", entity.getKey());
+        throw new ItemNotFoundException(entity.getKey());
       }
       if (managedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
       Item beforeUpdateItem = BeanUtils.transform(Item.class, managedItem);
 
@@ -137,7 +138,7 @@ public class ItemSetService {
 
     for (ItemDTO item : toCreateItems) {
       if (item.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       Item entity = BeanUtils.transform(Item.class, item);

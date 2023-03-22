@@ -52,7 +52,7 @@ public class FavoriteService {
   public Favorite addFavorite(Favorite favorite) {
     UserInfo user = userService.findByUserId(favorite.getUserId());
     if (user == null) {
-      throw new BadRequestException("user not exist");
+      throw BadRequestException.userNotExists(favorite.getUserId());
     }
 
     UserInfo loginUser = userInfoHolder.getUser();

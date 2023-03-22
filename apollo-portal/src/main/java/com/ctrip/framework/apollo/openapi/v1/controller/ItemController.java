@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
@@ -88,7 +89,7 @@ public class ItemController {
         "key and dataChangeCreatedBy should not be null or empty");
 
     if (userService.findByUserId(item.getDataChangeCreatedBy()) == null) {
-      throw new BadRequestException("User " + item.getDataChangeCreatedBy() + " doesn't exist!");
+      throw BadRequestException.userNotExists(item.getDataChangeCreatedBy());
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
@@ -114,7 +115,7 @@ public class ItemController {
     RequestPrecondition.checkArguments(item.getKey().equals(key), "Key in path and payload is not consistent");
 
     if (userService.findByUserId(item.getDataChangeLastModifiedBy()) == null) {
-      throw new BadRequestException("user(dataChangeLastModifiedBy) not exists");
+      throw BadRequestException.userNotExists(item.getDataChangeLastModifiedBy());
     }
 
     if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
@@ -147,12 +148,12 @@ public class ItemController {
                          HttpServletRequest request) {
 
     if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("user(operator) not exists");
+      throw BadRequestException.userNotExists(operator);
     }
 
     ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null) {
-      throw new BadRequestException("item not exists");
+      throw new ItemNotFoundException(appId, clusterName, namespaceName, key);
     }
 
     this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);

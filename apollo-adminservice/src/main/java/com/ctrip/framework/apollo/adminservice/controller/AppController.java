@@ -54,7 +54,7 @@ public class AppController {
     App entity = BeanUtils.transform(App.class, dto);
     App managedEntity = appService.findOne(entity.getAppId());
     if (managedEntity != null) {
-      throw new BadRequestException("app already exist.");
+      throw BadRequestException.appAlreadyExists(entity.getAppId());
     }
 
     entity = adminService.createNewApp(entity);

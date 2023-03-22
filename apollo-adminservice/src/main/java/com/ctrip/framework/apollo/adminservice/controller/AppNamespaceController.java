@@ -69,7 +69,7 @@ public class AppNamespaceController {
 
       entity = managedEntity;
     } else {
-      throw new BadRequestException("app namespaces already exist.");
+      throw BadRequestException.appNamespaceAlreadyExists(entity.getAppId(), entity.getName());
     }
 
     return BeanUtils.transform(AppNamespaceDTO.class, entity);
@@ -80,7 +80,7 @@ public class AppNamespaceController {
       @RequestParam String operator) {
     AppNamespace entity = appNamespaceService.findOne(appId, namespaceName);
     if (entity == null) {
-      throw new BadRequestException("app namespace not found for appId: " + appId + " namespace: " + namespaceName);
+      throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
     appNamespaceService.deleteAppNamespace(entity, operator);
   }

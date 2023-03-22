@@ -55,7 +55,7 @@ public class NamespaceController {
     Namespace entity = BeanUtils.transform(Namespace.class, dto);
     Namespace managedEntity = namespaceService.findOne(appId, clusterName, entity.getNamespaceName());
     if (managedEntity != null) {
-      throw new BadRequestException("namespace already exist.");
+      throw BadRequestException.namespaceAlreadyExists(entity.getNamespaceName());
     }
 
     entity = namespaceService.save(entity);

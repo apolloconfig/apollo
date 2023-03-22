@@ -50,7 +50,7 @@ public class ClusterController {
     Cluster entity = BeanUtils.transform(Cluster.class, dto);
     Cluster managedEntity = clusterService.findOne(appId, entity.getName());
     if (managedEntity != null) {
-      throw new BadRequestException("cluster already exist.");
+      throw BadRequestException.clusterAlreadyExists(entity.getName());
     }
 
     if (autoCreatePrivateNamespace) {
