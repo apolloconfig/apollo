@@ -34,7 +34,6 @@ public class CommitService {
     this.commitRepository = commitRepository;
   }
 
-  @Transactional
   public void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
       String operator) {
 
