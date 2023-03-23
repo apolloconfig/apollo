@@ -1442,7 +1442,7 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认为false，开启前请先评估总配置大小并调整config service内存配置。
 
-> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置
 
 > `config-service.cache.enabled` 配置调整必须重启 config service 才能生效
 
