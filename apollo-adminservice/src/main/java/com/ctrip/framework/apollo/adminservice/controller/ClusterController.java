@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.biz.service.ClusterService;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ClusterNotFoundException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -69,7 +69,7 @@ public class ClusterController {
     Cluster entity = clusterService.findOne(appId, clusterName);
 
     if (entity == null) {
-      throw new ClusterNotFoundException(appId, clusterName);
+      throw NotFoundException.clusterNotFound(appId, clusterName);
     }
 
     if(ConfigConsts.CLUSTER_NAME_DEFAULT.equals(entity.getName())){
@@ -90,7 +90,7 @@ public class ClusterController {
                         @PathVariable("clusterName") String clusterName) {
     Cluster cluster = clusterService.findOne(appId, clusterName);
     if (cluster == null) {
-      throw new ClusterNotFoundException(appId, clusterName);
+      throw NotFoundException.clusterNotFound(appId, clusterName);
     }
     return BeanUtils.transform(ClusterDTO.class, cluster);
   }

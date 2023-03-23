@@ -20,7 +20,7 @@ package com.ctrip.framework.apollo.portal.service;
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
@@ -177,7 +177,7 @@ public class ItemService {
   public ItemDTO loadItemById(Env env, long itemId) {
     ItemDTO item = itemAPI.loadItemById(env, itemId);
     if (item == null) {
-      throw new ItemNotFoundException(itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     return item;
   }

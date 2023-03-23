@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
@@ -153,7 +153,7 @@ public class ItemController {
 
     ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null) {
-      throw new ItemNotFoundException(appId, clusterName, namespaceName, key);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
 
     this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);

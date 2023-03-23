@@ -29,7 +29,6 @@ import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
@@ -129,7 +128,7 @@ public class ItemController {
                         @RequestBody ItemDTO itemDTO) {
     Item managedEntity = itemService.findOne(itemId);
     if (managedEntity == null) {
-      throw new ItemNotFoundException(appId, clusterName, namespaceName, itemId);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, itemId);
     }
 
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
@@ -173,7 +172,7 @@ public class ItemController {
   public void delete(@PathVariable("itemId") long itemId, @RequestParam String operator) {
     Item entity = itemService.findOne(itemId);
     if (entity == null) {
-      throw new ItemNotFoundException(itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     itemService.delete(entity.getId(), operator);
 
@@ -223,7 +222,7 @@ public class ItemController {
   public ItemDTO get(@PathVariable("itemId") long itemId) {
     Item item = itemService.findOne(itemId);
     if (item == null) {
-      throw new ItemNotFoundException(itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }
@@ -234,7 +233,7 @@ public class ItemController {
       @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
     Item item = itemService.findOne(appId, clusterName, namespaceName, key);
     if (item == null) {
-      throw new ItemNotFoundException(appId, clusterName, namespaceName, key);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }

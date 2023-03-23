@@ -24,9 +24,7 @@ import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ItemNotFoundException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
-import com.ctrip.framework.apollo.common.exception.NamespaceNotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -64,7 +62,7 @@ public class ItemSetService {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
 
     if (namespace == null) {
-      throw new NamespaceNotFoundException(appId, clusterName, namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
@@ -114,7 +112,7 @@ public class ItemSetService {
 
       Item managedItem = itemService.findOne(entity.getId());
       if (managedItem == null) {
-        throw new ItemNotFoundException(entity.getKey());
+        throw NotFoundException.itemNotFound(entity.getKey());
       }
       if (managedItem.getNamespaceId() != namespace.getId()) {
         throw BadRequestException.namespaceNotMatch();

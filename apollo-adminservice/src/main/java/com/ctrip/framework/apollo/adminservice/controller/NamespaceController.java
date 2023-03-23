@@ -22,7 +22,6 @@ import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
-import com.ctrip.framework.apollo.common.exception.NamespaceNotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 
 import org.springframework.data.domain.Page;
@@ -69,7 +68,7 @@ public class NamespaceController {
                      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator) {
     Namespace entity = namespaceService.findOne(appId, clusterName, namespaceName);
     if (entity == null) {
-      throw new NamespaceNotFoundException(appId, clusterName, namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     namespaceService.deleteNamespace(entity, operator);
@@ -86,7 +85,7 @@ public class NamespaceController {
   public NamespaceDTO get(@PathVariable("namespaceId") Long namespaceId) {
     Namespace namespace = namespaceService.findOne(namespaceId);
     if (namespace == null) {
-        throw new NamespaceNotFoundException(namespaceId);
+        throw NotFoundException.itemNotFound(namespaceId);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
   }
@@ -109,7 +108,7 @@ public class NamespaceController {
                           @PathVariable("namespaceName") String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NamespaceNotFoundException(appId, clusterName, namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
   }

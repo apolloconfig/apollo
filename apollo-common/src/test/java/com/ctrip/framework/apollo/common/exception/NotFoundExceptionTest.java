@@ -37,30 +37,45 @@ public class NotFoundExceptionTest {
   }
 
   @Test
-  public void testAppNotFountException() {
-    AppNotFountException exception = new AppNotFountException(appId);
+  public void testAppNotFoundException() {
+    NotFoundException exception = NotFoundException.appNotFound(appId);
     Assert.assertEquals(exception.getMessage(), "app not found for appId:app-1001");
   }
 
   @Test
-  public void testClusterNotFountException() {
-    ClusterNotFoundException exception = new ClusterNotFoundException(appId, clusterName);
+  public void testClusterNotFoundException() {
+    NotFoundException exception = NotFoundException.clusterNotFound(appId, clusterName);
     Assert.assertEquals(exception.getMessage(), "cluster not found for appId:app-1001 clusterName:test");
   }
 
   @Test
-  public void testNamespaceNotFountException() {
-    NamespaceNotFoundException exception = new NamespaceNotFoundException(appId, clusterName, namespaceName);
+  public void testNamespaceNotFoundException() {
+    NotFoundException exception = NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     Assert.assertEquals(exception.getMessage(), "namespace not found for appId:app-1001 clusterName:test namespaceName:application");
 
-    exception = new NamespaceNotFoundException(66);
+    exception = NotFoundException.namespaceNotFound(66);
     Assert.assertEquals(exception.getMessage(), "namespace not found for namespaceId:66");
   }
 
   @Test
-  public void testReleaseNotFountException() {
-    ReleaseNotFoundException exception = new ReleaseNotFoundException(66);
+  public void testReleaseNotFoundException() {
+    NotFoundException exception = NotFoundException.releaseNotFound(66);
     Assert.assertEquals(exception.getMessage(), "release not found for releaseId:66");
+  }
+
+  @Test
+  public void testItemNotFoundException(){
+    NotFoundException exception = NotFoundException.itemNotFound(66);
+    Assert.assertEquals(exception.getMessage(), "item not found for itemId:66");
+
+    exception = NotFoundException.itemNotFound("test.key");
+    Assert.assertEquals(exception.getMessage(), "item not found for itemKey:test.key");
+
+    exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, "test.key");
+    Assert.assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemKey:test.key");
+
+    exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, 66);
+    Assert.assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemId:66");
   }
 
 }
