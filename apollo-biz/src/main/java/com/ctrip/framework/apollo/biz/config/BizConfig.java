@@ -46,6 +46,7 @@ public class BizConfig extends RefreshableConfig {
   private static final int DEFAULT_RELEASE_MESSAGE_NOTIFICATION_BATCH = 100;
   private static final int DEFAULT_RELEASE_MESSAGE_NOTIFICATION_BATCH_INTERVAL_IN_MILLI = 100;//100ms
   private static final int DEFAULT_LONG_POLLING_TIMEOUT = 60; //60s
+  public static final int DEFAULT_RELEASE_HISTORY_RETENTION_SIZE = -1;
 
   private static final Gson GSON = new Gson();
 
@@ -152,6 +153,22 @@ public class BizConfig extends RefreshableConfig {
         DEFAULT_ACCESS_KEY_AUTH_TIME_DIFF_TOLERANCE);
     return checkInt(authTimeDiffTolerance, 1, Integer.MAX_VALUE,
         DEFAULT_ACCESS_KEY_AUTH_TIME_DIFF_TOLERANCE);
+  }
+
+  public int releaseHistoryRetentionSize(){
+    int count = getIntProperty("apollo.release-history.retention.size", DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
+    return checkInt(count, 1, Integer.MAX_VALUE, DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
+  }
+
+  public Map<String, Integer> releaseHistoryRetentionSizeOverride() {
+    String overrideString = getValue("apollo.release-history.retention.size.override");
+    Map<String, Integer> releaseHistoryRetentionSizeOverride = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(overrideString)) {
+      releaseHistoryRetentionSizeOverride =
+          GSON.fromJson(overrideString, new TypeToken<Map<String, Integer>>() {
+          }.getType());
+    }
+    return releaseHistoryRetentionSizeOverride;
   }
 
   public int releaseMessageCacheScanInterval() {

@@ -1580,3 +1580,23 @@ A reboot is required to take effect after the modification.
 Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
 
 A reboot is required to take effect after the modification.
+
+### 3.2.12 apollo.release-history.retention.size - Number of retained configurations release history
+
+> For version 2.2.0 and above
+
+The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer, only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
+
+### 3.2.13 apollo.release-history.retention.size.override - Number of retained configurations release history at a granular level
+
+> For version 2.2.0 and above
+
+This configuration is used to override the `apollo.release-history.retention.size` configuration and achieve granular control over the number of retained release histories for appId+clusterName+namespaceName+branchName. The value of this configuration is in JSON format, with the JSON key being the concatenated value of appId, clusterName, namespaceName, and branchName using a `+` sign. The format is as follows:
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+nj+namespace2+bj": 20
+}
+```
+The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.

@@ -70,6 +70,24 @@ public class BizConfigTest {
   }
 
   @Test
+  public void testReleaseHistoryRetentionLimit() {
+    int someLimit = 20;
+    when(environment.getProperty("apollo.release-history.retention.size")).thenReturn(String.valueOf(someLimit));
+
+    assertEquals(someLimit, bizConfig.releaseHistoryRetentionSize());
+  }
+
+  @Test
+  public void testReleaseHistoryRetentionLimitOverride() {
+    int someOverrideLimit = 10;
+    String overrideValueString = "{'a+b+c+b':10}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    int  overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+c+b");
+
+    assertEquals(someOverrideLimit, overrideValue);
+  }
+
+  @Test
   public void testReleaseMessageNotificationBatchWithNAN() throws Exception {
     String someNAN = "someNAN";
     int defaultBatch = 100;

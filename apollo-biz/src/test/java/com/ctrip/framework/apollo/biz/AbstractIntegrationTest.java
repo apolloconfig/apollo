@@ -32,4 +32,9 @@ import org.springframework.transaction.annotation.Transactional;
 )
 public abstract class AbstractIntegrationTest {
 
+  protected static final String APP_ID = "kl-app";
+  protected static final String CLUSTER_NAME = "default";
+  protected static final String NAMESPACE_NAME = "application";
+  protected static final String BRANCH_NAME = "default";
+
 }

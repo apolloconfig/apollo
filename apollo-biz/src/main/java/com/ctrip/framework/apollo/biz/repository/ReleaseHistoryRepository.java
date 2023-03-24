@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,5 +43,10 @@ public interface ReleaseHistoryRepository extends PagingAndSortingRepository<Rel
   @Modifying
   @Query("update ReleaseHistory set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?4 where AppId=?1 and ClusterName=?2 and NamespaceName = ?3 and IsDeleted = false")
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
+
+  @Query(value = "select Id from ReleaseHistory where AppId=?1 and ClusterName=?2 and NamespaceName = ?3 and BranchName = ?4 and IsDeleted = false order by Id desc Limit 1 offset ?5", nativeQuery = true)
+  Optional<Long> findReleaseHistoryRetentionMaxId(String appId, String clusterName, String namespaceName, String branchName, int releaseHistoryLimit);
+
+  List<ReleaseHistory> findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(String appId, String clusterName, String namespaceName, String branchName, long maxId);
 
 }

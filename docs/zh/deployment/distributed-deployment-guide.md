@@ -1518,3 +1518,23 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
 
 修改完需要重启生效。
+
+### 3.2.12 apollo.release-history.retention.size - 配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+默认为 -1，表示不限制保留数量。如果配置为正整数，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
+
+### 3.2.13 apollo.release-history.retention.size.override - 细粒度配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+此配置用来覆盖 `apollo.release-history.retention.size` 的配置，做到细粒度控制 appId+clusterName+namespaceName+branchName 的发布历史保留数量，配置的值是一个 JSON 格式，JSON 的 key 为 appId、clusterName、namespaceName、branchName 使用 + 号的拼接值，格式如下：
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+nj+namespace2+bj": 20
+}
+```
+以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
