@@ -155,7 +155,7 @@ public class BizConfig extends RefreshableConfig {
         DEFAULT_ACCESS_KEY_AUTH_TIME_DIFF_TOLERANCE);
   }
 
-  public int releaseHistoryRetentionSize(){
+  public int releaseHistoryRetentionSize() {
     int count = getIntProperty("apollo.release-history.retention.size", DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
     return checkInt(count, 1, Integer.MAX_VALUE, DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
   }
