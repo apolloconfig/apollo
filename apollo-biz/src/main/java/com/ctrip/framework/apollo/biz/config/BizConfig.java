@@ -53,6 +53,9 @@ public class BizConfig extends RefreshableConfig {
   private static final Type namespaceValueLengthOverrideTypeReference =
       new TypeToken<Map<Long, Integer>>() {
       }.getType();
+  private static final Type releaseHistoryRetentionSizeOverrideTypeReference =
+      new TypeToken<Map<String, Integer>>() {
+      }.getType();
 
   private final BizDBPropertySource propertySource;
 
@@ -165,8 +168,7 @@ public class BizConfig extends RefreshableConfig {
     Map<String, Integer> releaseHistoryRetentionSizeOverride = Maps.newHashMap();
     if (!Strings.isNullOrEmpty(overrideString)) {
       releaseHistoryRetentionSizeOverride =
-          GSON.fromJson(overrideString, new TypeToken<Map<String, Integer>>() {
-          }.getType());
+          GSON.fromJson(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
     }
     return releaseHistoryRetentionSizeOverride;
   }

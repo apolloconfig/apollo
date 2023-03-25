@@ -1596,7 +1596,7 @@ This configuration is used to override the `apollo.release-history.retention.siz
 json
 {
   "kl+bj+namespace1+bj": 10,
-  "kl+nj+namespace2+bj": 20
+  "kl+bj+namespace2+bj": 20
 }
 ```
 The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.

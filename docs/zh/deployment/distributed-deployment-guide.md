@@ -1534,7 +1534,7 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 json
 {
   "kl+bj+namespace1+bj": 10,
-  "kl+nj+namespace2+bj": 20
+  "kl+bj+namespace2+bj": 20
 }
 ```
 以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
