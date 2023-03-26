@@ -139,13 +139,13 @@ public class AuthConfiguration {
               .authoritiesByUsernameQuery(authoritiesQuerySql(openQuote, closeQuote))
               .getUserDetailsService();
 
-      jdbcUserDetailsManager.setUserExistsSql(usersExistsSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setCreateUserSql(usersCreateSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setUpdateUserSql(usersUpdateSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setDeleteUserSql(usersDeleteSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setCreateAuthoritySql(authoritiesCreateSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setDeleteUserAuthoritiesSql(authoritiesDeleteSql(openQuote, closeQuote));
-      jdbcUserDetailsManager.setChangePasswordSql(changePasswordSql(openQuote, closeQuote));
+      jdbcUserDetailsManager.setUserExistsSql(MessageFormat.format("SELECT {0}Username{1} FROM {0}Users{1} WHERE {0}Username{1} = ?", openQuote, closeQuote));
+      jdbcUserDetailsManager.setCreateUserSql(MessageFormat.format("INSERT INTO {0}Users{1} ({0}Username{1}, {0}Password{1}, {0}Enabled{1}) values (?,?,?)", openQuote, closeQuote));
+      jdbcUserDetailsManager.setUpdateUserSql(MessageFormat.format("UPDATE {0}Users{1} SET {0}Password{1} = ?, {0}Enabled{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)", openQuote, closeQuote));
+      jdbcUserDetailsManager.setDeleteUserSql(MessageFormat.format("DELETE FROM {0}Users{1} WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)", openQuote, closeQuote));
+      jdbcUserDetailsManager.setCreateAuthoritySql(MessageFormat.format("INSERT INTO {0}Authorities{1} ({0}Username{1}, {0}Authority{1}) values (?,?)", openQuote, closeQuote));
+      jdbcUserDetailsManager.setDeleteUserAuthoritiesSql(MessageFormat.format("DELETE FROM {0}Authorities{1} WHERE id in (SELECT a.id FROM (SELECT id FROM {0}Authorities{1} WHERE {0}Username{1} = ?) AS a)", openQuote, closeQuote));
+      jdbcUserDetailsManager.setChangePasswordSql(MessageFormat.format("UPDATE {0}Users{1} SET {0}Password{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)", openQuote, closeQuote));
 
       return jdbcUserDetailsManager;
     }
@@ -160,49 +160,12 @@ public class AuthConfiguration {
 
   }
 
-  private static String usersCreateSql(char openQuote, char closeQuote) {
-    String template = "INSERT INTO {0}Users{1} ({0}Username{1}, {0}Password{1}, {0}Enabled{1}) values (?,?,?)";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String usersDeleteSql(char openQuote, char closeQuote) {
-    String template = "DELETE FROM {0}Users{1} WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String usersUpdateSql(char openQuote, char closeQuote) {
-    String template = "UPDATE {0}Users{1} SET {0}Password{1} = ?, {0}Enabled{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String usersExistsSql(char openQuote, char closeQuote) {
-    String template = "SELECT {0}Username{1} FROM {0}Users{1} WHERE {0}Username{1} = ?";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
   private static String usersQuerySql(char openQuote, char closeQuote) {
-    String template = "SELECT {0}Username{1}, {0}Password{1}, {0}Enabled{1} FROM {0}Users{1} WHERE {0}Username{1} = ?";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String authoritiesCreateSql(char openQuote, char closeQuote) {
-    String template = "INSERT INTO {0}Authorities{1} ({0}Username{1}, {0}Authority{1}) values (?,?)";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String authoritiesDeleteSql(char openQuote, char closeQuote) {
-    String template = "DELETE FROM {0}Authorities{1} WHERE id in (SELECT a.id FROM (SELECT id FROM {0}Authorities{1} WHERE {0}Username{1} = ?) AS a)";
-    return MessageFormat.format(template, openQuote, closeQuote);
-  }
-
-  private static String changePasswordSql(char openQuote, char closeQuote) {
-    String template = "UPDATE {0}Users{1} SET {0}Password{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
-    return MessageFormat.format(template, openQuote, closeQuote);
+    return MessageFormat.format("SELECT {0}Username{1}, {0}Password{1}, {0}Enabled{1} FROM {0}Users{1} WHERE {0}Username{1} = ?", openQuote, closeQuote);
   }
 
   private static String authoritiesQuerySql(char openQuote, char closeQuote) {
-    String template = "SELECT {0}Username{1}, {0}Authority{1} FROM {0}Authorities{1} WHERE {0}Username{1} = ?";
-    return MessageFormat.format(template, openQuote, closeQuote);
+    return MessageFormat.format("SELECT {0}Username{1}, {0}Authority{1} FROM {0}Authorities{1} WHERE {0}Username{1} = ?", openQuote, closeQuote);
   }
 
 
