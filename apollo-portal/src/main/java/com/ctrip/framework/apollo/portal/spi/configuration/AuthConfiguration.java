@@ -41,6 +41,8 @@ import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncoderFactory;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
+
+import java.text.MessageFormat;
 import java.util.Collections;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -159,40 +161,50 @@ public class AuthConfiguration {
   }
 
   private static String usersCreateSql(char openQuote, char closeQuote) {
-    return "INSERT INTO " + openQuote + "Users" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Password" + closeQuote + ", " + openQuote + "Enabled" + closeQuote + ") values (?,?,?)";
+    String template = "INSERT INTO {0}Users{1} ({0}Username{1}, {0}Password{1}, {0}Enabled{1}) values (?,?,?)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String usersDeleteSql(char openQuote, char closeQuote) {
-    return "DELETE FROM " + openQuote + "Users" + closeQuote + " WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+    String template = "DELETE FROM {0}Users{1} WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String usersUpdateSql(char openQuote, char closeQuote) {
-    return "UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ?, " + openQuote + "Enabled" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+    String template = "UPDATE {0}Users{1} SET {0}Password{1} = ?, {0}Enabled{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String usersExistsSql(char openQuote, char closeQuote) {
-    return "SELECT " + openQuote + "Username" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
+    String template = "SELECT {0}Username{1} FROM {0}Users{1} WHERE {0}Username{1} = ?";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String usersQuerySql(char openQuote, char closeQuote) {
-    return "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Password" + closeQuote + "," + openQuote + "Enabled" + closeQuote + " FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
+    String template = "SELECT {0}Username{1}, {0}Password{1}, {0}Enabled{1} FROM {0}Users{1} WHERE {0}Username{1} = ?";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String authoritiesCreateSql(char openQuote, char closeQuote) {
-    return "INSERT INTO " + openQuote + "Authorities" + closeQuote + " (" + openQuote + "Username" + closeQuote + ", " + openQuote + "Authority" + closeQuote + ") values (?,?)";
+    String template = "INSERT INTO {0}Authorities{1} ({0}Username{1}, {0}Authority{1}) values (?,?)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String authoritiesDeleteSql(char openQuote, char closeQuote) {
-    return "DELETE FROM " + openQuote + "Authorities" + closeQuote + " WHERE id in (SELECT a.id FROM (SELECT id FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS a)";
+    String template = "DELETE FROM {0}Authorities{1} WHERE id in (SELECT a.id FROM (SELECT id FROM {0}Authorities{1} WHERE {0}Username{1} = ?) AS a)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String changePasswordSql(char openQuote, char closeQuote) {
-    return "UPDATE " + openQuote + "Users" + closeQuote + " SET " + openQuote + "Password" + closeQuote + " = ? WHERE id = (SELECT u.id FROM (SELECT id FROM " + openQuote + "Users" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?) AS u)";
+    String template = "UPDATE {0}Users{1} SET {0}Password{1} = ? WHERE id = (SELECT u.id FROM (SELECT id FROM {0}Users{1} WHERE {0}Username{1} = ?) AS u)";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
 
   private static String authoritiesQuerySql(char openQuote, char closeQuote) {
-    return "SELECT " + openQuote + "Username" + closeQuote + "," + openQuote + "Authority" + closeQuote + " FROM " + openQuote + "Authorities" + closeQuote + " WHERE " + openQuote + "Username" + closeQuote + " = ?";
+    String template = "SELECT {0}Username{1}, {0}Authority{1} FROM {0}Authorities{1} WHERE {0}Username{1} = ?";
+    return MessageFormat.format(template, openQuote, closeQuote);
   }
+
 
   @Order(99)
   @Profile("auth")
