@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -170,7 +171,10 @@ public class BizConfig extends RefreshableConfig {
       releaseHistoryRetentionSizeOverride =
           GSON.fromJson(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
     }
-    return releaseHistoryRetentionSizeOverride;
+    return releaseHistoryRetentionSizeOverride.entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() >= 1)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   public int releaseMessageCacheScanInterval() {

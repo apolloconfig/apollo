@@ -70,7 +70,7 @@ public class BizConfigTest {
   }
 
   @Test
-  public void testReleaseHistoryRetentionLimit() {
+  public void testReleaseHistoryRetentionSize() {
     int someLimit = 20;
     when(environment.getProperty("apollo.release-history.retention.size")).thenReturn(String.valueOf(someLimit));
 
@@ -78,13 +78,22 @@ public class BizConfigTest {
   }
 
   @Test
-  public void testReleaseHistoryRetentionLimitOverride() {
+  public void testReleaseHistoryRetentionSizeOverride() {
     int someOverrideLimit = 10;
     String overrideValueString = "{'a+b+c+b':10}";
     when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
     int  overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+c+b");
-
     assertEquals(someOverrideLimit, overrideValue);
+
+    overrideValueString = "{'a+b+c+b':0,'a+b+d+b':2}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    assertEquals(1, bizConfig.releaseHistoryRetentionSizeOverride().size());
+    overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+d+b");
+    assertEquals(2, overrideValue);
+
+    overrideValueString = "{}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    assertEquals(0, bizConfig.releaseHistoryRetentionSizeOverride().size());
   }
 
   @Test
