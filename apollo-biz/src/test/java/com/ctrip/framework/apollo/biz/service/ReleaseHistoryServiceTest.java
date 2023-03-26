@@ -27,10 +27,11 @@ import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.biz.repository.ReleaseHistoryRepository;
 import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
-import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.lang.reflect.Method;
+import java.sql.SQLException;
+import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -137,8 +138,8 @@ public class ReleaseHistoryServiceTest {
     when(bizConfig.releaseHistoryRetentionSize()).thenReturn(1);
     when(bizConfig.releaseHistoryRetentionSizeOverride()).thenReturn(Maps.newHashMap());
     ReflectionTestUtils.setField(releaseHistoryService, "releaseRepository", mockReleaseRepository);
-    doThrow(new NotFoundException("error")).when(mockReleaseRepository).deleteAllById(any());
-    Assert.assertThrows(NotFoundException.class, () ->
+    doThrow(new JDBCConnectionException("error", new SQLException("sql"))).when(mockReleaseRepository).deleteAllById(any());
+    Assert.assertThrows(JDBCConnectionException.class, () ->
         ReflectionUtils.invokeMethod(method, service, mockReleaseHistory));
 
     Assert.assertEquals(6, releaseHistoryRepository.count());

@@ -40,6 +40,7 @@ import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
@@ -162,6 +163,25 @@ public class ReleaseHistoryService {
     return releaseHistoryRepository.batchDelete(appId, clusterName, namespaceName, operator);
   }
 
+  private Optional<Long> releaseHistoryRetentionMaxId(ReleaseHistory releaseHistory, int releaseHistoryRetentionSize) {
+    Page<ReleaseHistory> releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+        releaseHistory.getAppId(),
+        releaseHistory.getClusterName(),
+        releaseHistory.getNamespaceName(),
+        releaseHistory.getBranchName(),
+        PageRequest.of(releaseHistoryRetentionSize, 1)
+    );
+    if (releaseHistoryPage.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        releaseHistoryPage
+        .getContent()
+        .get(0)
+        .getId()
+    );
+  }
+
   private void cleanReleaseHistory(ReleaseHistory cleanRelease) {
     String appId = cleanRelease.getAppId();
     String clusterName = cleanRelease.getClusterName();
@@ -174,7 +194,7 @@ public class ReleaseHistoryService {
       return;
     }
 
-    Optional<Long> maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(appId, clusterName, namespaceName, branchName, retentionLimit);
+    Optional<Long> maxId = this.releaseHistoryRetentionMaxId(cleanRelease, retentionLimit);
     if (!maxId.isPresent()) {
       return;
     }

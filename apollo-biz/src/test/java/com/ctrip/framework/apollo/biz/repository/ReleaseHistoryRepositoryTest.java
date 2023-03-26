@@ -17,13 +17,15 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import java.util.List;
-import java.util.Optional;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -40,18 +42,18 @@ public class ReleaseHistoryRepositoryTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/release-history-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindReleaseHistoryRetentionMaxId() {
-    Optional<Long> maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, 1);
-    assertEquals(5, maxId.orElse(0L).longValue());
+    Page<ReleaseHistory> releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(1, 1));
+    assertEquals(5, releaseHistoryPage.getContent().get(0).getId());
 
-    maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, 2);
-    assertEquals(4, maxId.orElse(0L).longValue());
+    releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(2, 1));
+    assertEquals(4, releaseHistoryPage.getContent().get(0).getId());
 
-    maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, 5);
-    assertEquals(1, maxId.orElse(0L).longValue());
+    releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(5, 1));
+    assertEquals(1, releaseHistoryPage.getContent().get(0).getId());
 
     releaseHistoryRepository.deleteAll();
-    maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, 1);
-    assertFalse(maxId.isPresent());
+    releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(1, 1));
+    assertTrue(releaseHistoryPage.isEmpty());
   }
 
   @Test
@@ -60,15 +62,17 @@ public class ReleaseHistoryRepositoryTest extends AbstractIntegrationTest {
   public void testFindFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc() {
 
     int releaseHistoryRetentionSize = 2;
-    Optional<Long> maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, releaseHistoryRetentionSize);
+    Page<ReleaseHistory> releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(releaseHistoryRetentionSize, 1));
+    long releaseMaxId = releaseHistoryPage.getContent().get(0).getId();
     List<ReleaseHistory> releaseHistories = releaseHistoryRepository.findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
-        APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, maxId.orElse(0L));
+        APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, releaseMaxId);
     assertEquals(4, releaseHistories.size());
 
     releaseHistoryRetentionSize = 1;
-    maxId = releaseHistoryRepository.findReleaseHistoryRetentionMaxId(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, releaseHistoryRetentionSize);
+    releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, PageRequest.of(releaseHistoryRetentionSize, 1));
+    releaseMaxId = releaseHistoryPage.getContent().get(0).getId();
     releaseHistories = releaseHistoryRepository.findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
-        APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, maxId.orElse(0L));
+        APP_ID, CLUSTER_NAME, NAMESPACE_NAME, BRANCH_NAME, releaseMaxId);
     assertEquals(5, releaseHistories.size());
   }
 }
