@@ -1523,7 +1523,7 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 
 > 适用于2.2.0及以上版本
 
-默认为 -1，表示不限制保留数量。如果配置为正整数，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
+默认为 -1，表示不限制保留数量。如果配置为正整数(最小值为 1，必须保留一条历史记录，保障基本的配置功能)，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
 
 ### 3.2.13 apollo.release-history.retention.size.override - 细粒度配置发布历史的保留数量
 

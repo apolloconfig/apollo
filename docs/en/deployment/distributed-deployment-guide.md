@@ -1585,7 +1585,7 @@ A reboot is required to take effect after the modification.
 
 > For version 2.2.0 and above
 
-The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer, only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
+The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer(The minimum value is 1, which means at least one record of history must be kept to ensure the basic configuration functionality), only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
 
 ### 3.2.13 apollo.release-history.retention.size.override - Number of retained configurations release history at a granular level
 
