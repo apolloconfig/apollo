@@ -49,7 +49,7 @@ public class NamespaceLockController {
                                                 @PathVariable String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException("namespace not exist.");
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
 
     if (bizConfig.isNamespaceLockSwitchOff()) {

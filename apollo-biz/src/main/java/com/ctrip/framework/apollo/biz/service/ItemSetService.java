@@ -61,7 +61,7 @@ public class ItemSetService {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
 
     if (namespace == null) {
-      throw new NotFoundException("Namespace %s not found", namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
@@ -96,7 +96,7 @@ public class ItemSetService {
     for (ItemDTO item : toDeleteItems) {
       Item deletedItem = itemService.delete(item.getId(), operator);
       if (deletedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       configChangeContentBuilder.deleteItem(deletedItem);
@@ -111,10 +111,10 @@ public class ItemSetService {
 
       Item managedItem = itemService.findOne(entity.getId());
       if (managedItem == null) {
-        throw new NotFoundException("item not found.(key=%s)", entity.getKey());
+        throw NotFoundException.itemNotFound(entity.getKey());
       }
       if (managedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
       Item beforeUpdateItem = BeanUtils.transform(Item.class, managedItem);
 
@@ -135,7 +135,7 @@ public class ItemSetService {
 
     for (ItemDTO item : toCreateItems) {
       if (item.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       Item entity = BeanUtils.transform(Item.class, item);

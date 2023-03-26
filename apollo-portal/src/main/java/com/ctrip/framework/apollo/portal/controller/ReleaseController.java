@@ -134,7 +134,7 @@ public class ReleaseController {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     return release;
   }
@@ -184,7 +184,7 @@ public class ReleaseController {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
 
     if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), release.getNamespaceName(), env)) {

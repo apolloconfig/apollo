@@ -75,7 +75,7 @@ public class ItemController {
 
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {
-      throw new BadRequestException("item already exists");
+      throw BadRequestException.itemAlreadyExists(entity.getKey());
     }
     entity = itemService.save(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
@@ -122,13 +122,13 @@ public class ItemController {
                         @RequestBody ItemDTO itemDTO) {
     Item managedEntity = itemService.findOne(itemId);
     if (managedEntity == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, itemId);
     }
 
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     // In case someone constructs an attack scenario
     if (namespace == null || namespace.getId() != managedEntity.getNamespaceId()) {
-      throw new BadRequestException("Invalid request, item and namespace do not match!");
+      throw BadRequestException.namespaceNotMatch();
     }
 
     Item entity = BeanUtils.transform(Item.class, itemDTO);
@@ -159,7 +159,7 @@ public class ItemController {
   public void delete(@PathVariable("itemId") long itemId, @RequestParam String operator) {
     Item entity = itemService.findOne(itemId);
     if (entity == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     itemService.delete(entity.getId(), operator);
 
@@ -205,7 +205,7 @@ public class ItemController {
   public ItemDTO get(@PathVariable("itemId") long itemId) {
     Item item = itemService.findOne(itemId);
     if (item == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }
@@ -216,8 +216,7 @@ public class ItemController {
       @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
     Item item = itemService.findOne(appId, clusterName, namespaceName, key);
     if (item == null) {
-      throw new NotFoundException("item not found for %s %s %s %s", appId, clusterName,
-          namespaceName, key);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }

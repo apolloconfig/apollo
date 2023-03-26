@@ -71,7 +71,7 @@ public class AccessKeyService {
 
     AccessKey accessKey = accessKeyRepository.findOneByAppIdAndId(appId, id);
     if (accessKey == null) {
-      throw new BadRequestException("AccessKey not exist");
+      throw BadRequestException.accessKeyNotExists();
     }
 
     accessKey.setEnabled(entity.isEnabled());
@@ -86,7 +86,7 @@ public class AccessKeyService {
   public void delete(String appId, long id, String operator) {
     AccessKey accessKey = accessKeyRepository.findOneByAppIdAndId(appId, id);
     if (accessKey == null) {
-      throw new BadRequestException("AccessKey not exist");
+      throw BadRequestException.accessKeyNotExists();
     }
 
     if (accessKey.isEnabled()) {

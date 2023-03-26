@@ -256,8 +256,7 @@ public class ItemService {
                                                                        String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("namespace not found for appId:%s clusterName:%s namespaceName:%s",
-              appId, clusterName, namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
     return namespace;
   }

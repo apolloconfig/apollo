@@ -130,7 +130,7 @@ public class ItemController {
 
     // In case someone constructs an attack scenario
     if (namespace == null || item.getNamespaceId() != namespace.getId()) {
-      throw new BadRequestException("Invalid request, item and namespace do not match!");
+      throw BadRequestException.namespaceNotMatch();
     }
 
     configService.deleteItem(Env.valueOf(env), itemId, userInfoHolder.getUser().getUserId());
