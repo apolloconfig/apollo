@@ -20,6 +20,7 @@ package com.ctrip.framework.apollo.portal.service;
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
@@ -90,14 +91,13 @@ public class ItemService {
 
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException(
-          "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     long namespaceId = namespace.getId();
 
     // In case someone constructs an attack scenario
     if (model.getNamespaceId() != namespaceId) {
-      throw new BadRequestException("Invalid request, item and namespace do not match!");
+      throw BadRequestException.namespaceNotExists();
     }
 
     String configText = model.getConfigText();
@@ -132,8 +132,7 @@ public class ItemService {
   public ItemDTO createItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException(
-          "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     item.setNamespaceId(namespace.getId());
 
@@ -145,8 +144,7 @@ public class ItemService {
   public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException(
-          "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     item.setNamespaceId(namespace.getId());
 
@@ -179,7 +177,7 @@ public class ItemService {
   public ItemDTO loadItemById(Env env, long itemId) {
     ItemDTO item = itemAPI.loadItemById(env, itemId);
     if (item == null) {
-      throw new BadRequestException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     return item;
   }
@@ -207,8 +205,7 @@ public class ItemService {
 
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException(
-          "namespace:" + namespaceName + " not exist in env:" + env + ", cluster:" + clusterName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     long namespaceId = namespace.getId();
 
@@ -285,9 +282,7 @@ public class ItemService {
       namespaceDTO = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     } catch (HttpClientErrorException e) {
       if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-        throw new BadRequestException(
-            "namespace not exist. appId:%s, env:%s, clusterName:%s, namespaceName:%s", appId, env, clusterName,
-            namespaceName);
+        throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
       }
       throw e;
     }

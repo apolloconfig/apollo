@@ -92,7 +92,7 @@ public class AppService {
 
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
-      throw new BadRequestException("App not exists. AppId = %s", appId);
+      throw BadRequestException.appNotExists(appId);
     }
 
     managedApp.setName(app.getName());

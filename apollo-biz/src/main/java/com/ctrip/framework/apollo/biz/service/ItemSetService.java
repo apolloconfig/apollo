@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
-import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
@@ -62,7 +61,7 @@ public class ItemSetService {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
 
     if (namespace == null) {
-      throw new NotFoundException("Namespace %s not found", namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
@@ -83,8 +82,8 @@ public class ItemSetService {
       auditService.audit("ItemSet", null, Audit.OP.DELETE, operator);
     }
 
-    if (configChangeContentBuilder.hasContent()){
-      createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
+    if (configChangeContentBuilder.hasContent()) {
+      commitService.createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
                    changeSet.getDataChangeLastModifiedBy());
     }
 
@@ -97,7 +96,7 @@ public class ItemSetService {
     for (ItemDTO item : toDeleteItems) {
       Item deletedItem = itemService.delete(item.getId(), operator);
       if (deletedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       configChangeContentBuilder.deleteItem(deletedItem);
@@ -112,10 +111,10 @@ public class ItemSetService {
 
       Item managedItem = itemService.findOne(entity.getId());
       if (managedItem == null) {
-        throw new NotFoundException("item not found.(key=%s)", entity.getKey());
+        throw NotFoundException.itemNotFound(entity.getKey());
       }
       if (managedItem.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
       Item beforeUpdateItem = BeanUtils.transform(Item.class, managedItem);
 
@@ -136,7 +135,7 @@ public class ItemSetService {
 
     for (ItemDTO item : toCreateItems) {
       if (item.getNamespaceId() != namespace.getId()) {
-        throw new BadRequestException("Invalid request, item and namespace do not match!");
+        throw BadRequestException.namespaceNotMatch();
       }
 
       Item entity = BeanUtils.transform(Item.class, item);
@@ -145,19 +144,6 @@ public class ItemSetService {
       Item createdItem = itemService.save(entity);
       configChangeContentBuilder.createItem(createdItem);
     }
-  }
-
-  private void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
-                            String operator) {
-
-    Commit commit = new Commit();
-    commit.setAppId(appId);
-    commit.setClusterName(clusterName);
-    commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(configChangeContent);
-    commit.setDataChangeCreatedBy(operator);
-    commit.setDataChangeLastModifiedBy(operator);
-    commitService.save(commit);
   }
 
 }

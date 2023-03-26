@@ -54,7 +54,7 @@ public class NamespaceController {
     Namespace entity = BeanUtils.transform(Namespace.class, dto);
     Namespace managedEntity = namespaceService.findOne(appId, clusterName, entity.getNamespaceName());
     if (managedEntity != null) {
-      throw new BadRequestException("namespace already exist.");
+      throw BadRequestException.namespaceAlreadyExists(entity.getNamespaceName());
     }
 
     entity = namespaceService.save(entity);
@@ -68,8 +68,7 @@ public class NamespaceController {
                      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator) {
     Namespace entity = namespaceService.findOne(appId, clusterName, namespaceName);
     if (entity == null) {
-      throw new NotFoundException("namespace not found for %s %s %s", appId, clusterName,
-          namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     namespaceService.deleteNamespace(entity, operator);
@@ -86,7 +85,7 @@ public class NamespaceController {
   public NamespaceDTO get(@PathVariable("namespaceId") Long namespaceId) {
     Namespace namespace = namespaceService.findOne(namespaceId);
     if (namespace == null) {
-        throw new NotFoundException("namespace not found for %s", namespaceId);
+        throw NotFoundException.itemNotFound(namespaceId);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
   }
@@ -109,8 +108,7 @@ public class NamespaceController {
                           @PathVariable("namespaceName") String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("namespace not found for %s %s %s", appId, clusterName,
-          namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
     return BeanUtils.transform(NamespaceDTO.class, namespace);
   }

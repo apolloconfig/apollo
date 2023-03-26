@@ -107,7 +107,7 @@ public class ClusterService {
   public void delete(long id, String operator) {
     Cluster cluster = clusterRepository.findById(id).orElse(null);
     if (cluster == null) {
-      throw new BadRequestException("cluster not exist");
+      throw BadRequestException.clusterNotExists("");
     }
 
     //delete linked namespaces
@@ -151,7 +151,7 @@ public class ClusterService {
   public List<Cluster> findChildClusters(String appId, String parentClusterName) {
     Cluster parentCluster = findOne(appId, parentClusterName);
     if (parentCluster == null) {
-      throw new BadRequestException("parent cluster not exist");
+      throw BadRequestException.clusterNotExists(parentClusterName);
     }
 
     return clusterRepository.findByParentClusterId(parentCluster.getId());

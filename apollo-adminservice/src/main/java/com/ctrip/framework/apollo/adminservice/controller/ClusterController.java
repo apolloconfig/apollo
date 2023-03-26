@@ -50,7 +50,7 @@ public class ClusterController {
     Cluster entity = BeanUtils.transform(Cluster.class, dto);
     Cluster managedEntity = clusterService.findOne(appId, entity.getName());
     if (managedEntity != null) {
-      throw new BadRequestException("cluster already exist.");
+      throw BadRequestException.clusterAlreadyExists(entity.getName());
     }
 
     if (autoCreatePrivateNamespace) {
@@ -69,7 +69,7 @@ public class ClusterController {
     Cluster entity = clusterService.findOne(appId, clusterName);
 
     if (entity == null) {
-      throw new NotFoundException("cluster not found for clusterName " + clusterName);
+      throw NotFoundException.clusterNotFound(appId, clusterName);
     }
 
     if(ConfigConsts.CLUSTER_NAME_DEFAULT.equals(entity.getName())){
@@ -90,7 +90,7 @@ public class ClusterController {
                         @PathVariable("clusterName") String clusterName) {
     Cluster cluster = clusterService.findOne(appId, clusterName);
     if (cluster == null) {
-      throw new NotFoundException("cluster not found for name " + clusterName);
+      throw NotFoundException.clusterNotFound(appId, clusterName);
     }
     return BeanUtils.transform(ClusterDTO.class, cluster);
   }

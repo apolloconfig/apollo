@@ -130,7 +130,7 @@ public class AppNamespaceService {
     //add app org id as prefix
     App app = appService.load(appId);
     if (app == null) {
-      throw new BadRequestException("App not exist. AppId = " + appId);
+      throw BadRequestException.appNotExists(appId);
     }
 
     StringBuilder appNamespaceName = new StringBuilder();
@@ -146,7 +146,7 @@ public class AppNamespaceService {
     }
 
     if (!ConfigFileFormat.isValidFormat(appNamespace.getFormat())) {
-     throw new BadRequestException("Invalid namespace format. format must be properties、json、yaml、yml、xml");
+     throw BadRequestException.invalidNamespaceFormat("format must be properties、json、yaml、yml、xml");
     }
 
     String operator = appNamespace.getDataChangeCreatedBy();
@@ -233,8 +233,7 @@ public class AppNamespaceService {
   public AppNamespace deleteAppNamespace(String appId, String namespaceName) {
     AppNamespace appNamespace = appNamespaceRepository.findByAppIdAndName(appId, namespaceName);
     if (appNamespace == null) {
-      throw new BadRequestException(
-          String.format("AppNamespace not exists. AppId = %s, NamespaceName = %s", appId, namespaceName));
+      throw BadRequestException.appNamespaceNotExists( appId, namespaceName);
     }
 
     String operator = userInfoHolder.getUser().getUserId();
