@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.google.common.collect.Lists;
 
@@ -55,6 +56,8 @@ public class ConfigServiceWithCacheTest {
   private Release someRelease;
   @Mock
   private ReleaseMessage someReleaseMessage;
+  @Mock
+  private BizConfig bizConfig;
 
   private String someAppId;
   private String someClusterName;
@@ -68,6 +71,7 @@ public class ConfigServiceWithCacheTest {
     configServiceWithCache = new ConfigServiceWithCache();
     ReflectionTestUtils.setField(configServiceWithCache, "releaseService", releaseService);
     ReflectionTestUtils.setField(configServiceWithCache, "releaseMessageService", releaseMessageService);
+    ReflectionTestUtils.setField(configServiceWithCache, "bizConfig", bizConfig);
 
     configServiceWithCache.initialize();
 

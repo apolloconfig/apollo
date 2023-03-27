@@ -26,6 +26,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -120,5 +122,12 @@ public class BizConfigTest {
         someDefaultValue));
     assertEquals(someValidValue, bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE,
         someDefaultValue));
+  }
+
+  @Test
+  public void testIsConfigServiceCacheKeyIgnoreCase() {
+    assertFalse(bizConfig.isConfigServiceCacheKeyIgnoreCase());
+    when(environment.getProperty("config-service.cache.key.ignore-case")).thenReturn("true");
+    assertTrue(bizConfig.isConfigServiceCacheKeyIgnoreCase());
   }
 }

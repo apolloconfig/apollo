@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
@@ -66,6 +67,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   @Autowired
   private ReleaseMessageService releaseMessageService;
+
+  @Autowired
+  private BizConfig bizConfig;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -148,6 +152,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   protected Release findLatestActiveRelease(String appId, String clusterName, String namespaceName,
                                             ApolloNotificationMessages clientMessages) {
     String key = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
+      key = key.toLowerCase();
+    }
 
     Tracer.logEvent(TRACER_EVENT_CACHE_GET, key);
 
@@ -177,10 +184,14 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     }
 
     try {
-      invalidate(message.getMessage());
+      String messageKey = message.getMessage();
+      if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
+        messageKey = messageKey.toLowerCase();
+      }
+      invalidate(messageKey);
 
       //warm up the cache
-      configCache.getUnchecked(message.getMessage());
+      configCache.getUnchecked(messageKey);
     } catch (Throwable ex) {
       //ignore
     }
