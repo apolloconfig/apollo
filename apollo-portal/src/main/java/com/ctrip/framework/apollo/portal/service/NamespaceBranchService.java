@@ -146,7 +146,7 @@ public class NamespaceBranchService {
     NamespaceBO parentNamespace = namespaceService.loadNamespaceBO(appId, env, clusterName, namespaceName);
 
     if (parentNamespace == null) {
-      throw new BadRequestException("base namespace not existed");
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
 
     if (parentNamespace.getItemModifiedCnt() > 0) {

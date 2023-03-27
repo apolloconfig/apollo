@@ -122,19 +122,19 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     }
 
     if (CollectionUtils.isEmpty(notifications)) {
-      throw new BadRequestException("Invalid format of notifications: " + notificationsAsString);
+      throw BadRequestException.invalidNotificationsFormat(notificationsAsString);
     }
-    
+
     Map<String, ApolloConfigNotification> filteredNotifications = filterNotifications(appId, notifications);
 
     if (CollectionUtils.isEmpty(filteredNotifications)) {
-      throw new BadRequestException("Invalid format of notifications: " + notificationsAsString);
+      throw BadRequestException.invalidNotificationsFormat(notificationsAsString);
     }
-    
+
     DeferredResultWrapper deferredResultWrapper = new DeferredResultWrapper(bizConfig.longPollingTimeoutInMilli());
     Set<String> namespaces = Sets.newHashSetWithExpectedSize(filteredNotifications.size());
     Map<String, Long> clientSideNotifications = Maps.newHashMapWithExpectedSize(filteredNotifications.size());
-    
+
     for (Map.Entry<String, ApolloConfigNotification> notificationEntry : filteredNotifications.entrySet()) {
       String normalizedNamespace = notificationEntry.getKey();
       ApolloConfigNotification notification = notificationEntry.getValue();
