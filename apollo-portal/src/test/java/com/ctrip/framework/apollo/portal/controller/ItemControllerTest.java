@@ -33,8 +33,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.yaml.snakeyaml.constructor.ConstructorException;
-import org.yaml.snakeyaml.constructor.DuplicateKeyException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ItemControllerTest {

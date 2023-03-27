@@ -54,7 +54,7 @@ public class AppController {
     App entity = BeanUtils.transform(App.class, dto);
     App managedEntity = appService.findOne(entity.getAppId());
     if (managedEntity != null) {
-      throw new BadRequestException("app already exist.");
+      throw BadRequestException.appAlreadyExists(entity.getAppId());
     }
 
     entity = adminService.createNewApp(entity);
@@ -66,7 +66,7 @@ public class AppController {
   public void delete(@PathVariable("appId") String appId, @RequestParam String operator) {
     App entity = appService.findOne(appId);
     if (entity == null) {
-      throw new NotFoundException("app not found for appId " + appId);
+      throw NotFoundException.appNotFound(appId);
     }
     adminService.deleteApp(entity, operator);
   }
@@ -96,7 +96,7 @@ public class AppController {
   public AppDTO get(@PathVariable("appId") String appId) {
     App app = appService.findOne(appId);
     if (app == null) {
-      throw new NotFoundException("app not found for appId " + appId);
+      throw NotFoundException.appNotFound(appId);
     }
     return BeanUtils.transform(AppDTO.class, app);
   }

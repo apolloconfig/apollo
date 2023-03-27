@@ -178,7 +178,7 @@ public class NamespaceService {
       String namespaceName) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException("Namespace: %s not exist.", namespaceName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     return namespace;
   }
@@ -190,7 +190,7 @@ public class NamespaceService {
 
     List<NamespaceDTO> namespaces = namespaceAPI.findNamespaceByCluster(appId, env, clusterName);
     if (namespaces == null || namespaces.size() == 0) {
-      throw new BadRequestException("namespaces not exist");
+      throw BadRequestException.namespaceNotExists();
     }
 
     List<NamespaceBO> namespaceBOs = Collections.synchronizedList(new LinkedList<>());
@@ -253,7 +253,7 @@ public class NamespaceService {
       String namespaceName, boolean includeDeletedItems) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException("namespaces not exist");
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
     return transformNamespace2BO(env, namespace, includeDeletedItems);
   }
