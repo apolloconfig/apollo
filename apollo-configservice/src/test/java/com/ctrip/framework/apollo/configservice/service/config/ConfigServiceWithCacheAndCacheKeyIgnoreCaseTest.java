@@ -64,7 +64,8 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   private String someAppId;
   private String someClusterName;
   private String someNamespaceName;
-  private String someKey;
+  private String lowerCaseSomeKey;
+  private String normalSomeKey;
   private long someNotificationId;
   private ApolloNotificationMessages someNotificationMessages;
 
@@ -85,13 +86,14 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     someNamespaceName = "someNamespaceName";
     someNotificationId = 1;
 
-    someKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName)
+    normalSomeKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
+    lowerCaseSomeKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName)
         .toLowerCase();
     someNotificationMessages = new ApolloNotificationMessages();
   }
 
   @Test
-  public void testFindActiveOne() throws Exception {
+  public void testFindActiveOne() {
     long someId = 1;
 
     when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
@@ -102,7 +104,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   }
 
   @Test
-  public void testFindActiveOneWithSameIdMultipleTimes() throws Exception {
+  public void testFindActiveOneWithSameIdMultipleTimes() {
     long someId = 1;
 
     when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
@@ -155,7 +157,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
 
   @Test
   public void testFindLatestActiveRelease() {
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(someKey)))
+    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
@@ -180,7 +182,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     assertEquals(someRelease, anotherRelease);
 
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey));
+        Lists.newArrayList(lowerCaseSomeKey));
     verify(releaseService, times(1)).findLatestActiveRelease(
         someAppId.toLowerCase(),
         someClusterName.toLowerCase(),
@@ -190,7 +192,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   @Test
   public void testFindLatestActiveReleaseWithReleaseNotFound() {
     when(releaseMessageService.findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey))).thenReturn(null);
+        Lists.newArrayList(lowerCaseSomeKey))).thenReturn(null);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
         matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
@@ -215,7 +217,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     assertNull(anotherRelease);
 
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey));
+        Lists.newArrayList(lowerCaseSomeKey));
     verify(releaseService, times(1)).findLatestActiveRelease(
         someAppId.toLowerCase(),
         someClusterName.toLowerCase(),
@@ -229,7 +231,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     Release anotherRelease = mock(Release.class);
 
     when(releaseMessageService.findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey))).thenReturn
+        Lists.newArrayList(lowerCaseSomeKey))).thenReturn
         (someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
@@ -243,8 +245,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
         someNotificationMessages);
 
     when(releaseMessageService.findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey))).thenReturn
-        (anotherReleaseMessage);
+        Lists.newArrayList(lowerCaseSomeKey))).thenReturn(anotherReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
         matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
@@ -269,7 +270,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     assertEquals(anotherRelease, shouldBeNewRelease);
 
     verify(releaseMessageService, times(2)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey));
+        Lists.newArrayList(lowerCaseSomeKey));
     verify(releaseService, times(2)).findLatestActiveRelease(
         someAppId.toLowerCase(),
         someClusterName.toLowerCase(),
@@ -282,7 +283,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     ReleaseMessage anotherReleaseMessage = mock(ReleaseMessage.class);
     Release anotherRelease = mock(Release.class);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(someKey)))
+    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
@@ -295,24 +296,23 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
         someNamespaceName,
         someNotificationMessages);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(someKey)))
+    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(anotherReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
         matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
         matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
     )).thenReturn(anotherRelease);
-    when(anotherReleaseMessage.getMessage()).thenReturn(someKey);
+
+    when(anotherReleaseMessage.getMessage()).thenReturn(lowerCaseSomeKey);
     when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
 
-    Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
+    Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
         someNamespaceName, someNotificationMessages);
 
     configServiceWithCache.handleMessage(anotherReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
 
-    Release shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
+    Release shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
         someNamespaceName, someNotificationMessages);
 
     assertEquals(someRelease, release);
@@ -320,11 +320,20 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     assertEquals(anotherRelease, shouldBeNewRelease);
 
     verify(releaseMessageService, times(2)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey));
+        Lists.newArrayList(lowerCaseSomeKey));
     verify(releaseService, times(2)).findLatestActiveRelease(
         someAppId.toLowerCase(),
         someClusterName.toLowerCase(),
         someNamespaceName.toLowerCase());
+
+    when(anotherReleaseMessage.getMessage()).thenReturn(normalSomeKey);
+    when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
+
+    configServiceWithCache.handleMessage(anotherReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
+
+    shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
+        someNamespaceName, someNotificationMessages);
+    assertEquals(anotherRelease, shouldBeNewRelease);
   }
 
   @Test
@@ -332,7 +341,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     long someNewNotificationId = someNotificationId + 1;
     String someIrrelevantKey = "someIrrelevantKey";
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(someKey)))
+    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
         matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
@@ -360,7 +369,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     assertEquals(someRelease, shouldStillBeOldRelease);
 
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(someKey));
+        Lists.newArrayList(lowerCaseSomeKey));
     verify(releaseService, times(1)).findLatestActiveRelease(
         someAppId.toLowerCase(),
         someClusterName.toLowerCase(),
