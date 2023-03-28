@@ -151,21 +151,22 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   @Override
   protected Release findLatestActiveRelease(String appId, String clusterName, String namespaceName,
                                             ApolloNotificationMessages clientMessages) {
-    String key = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    String cacheKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
     if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
-      key = key.toLowerCase();
+      cacheKey = cacheKey.toLowerCase();
     }
 
-    Tracer.logEvent(TRACER_EVENT_CACHE_GET, key);
+    Tracer.logEvent(TRACER_EVENT_CACHE_GET, cacheKey);
 
-    ConfigCacheEntry cacheEntry = configCache.getUnchecked(key);
+    ConfigCacheEntry cacheEntry = configCache.getUnchecked(cacheKey);
 
+    String messageKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
     //cache is out-dated
-    if (clientMessages != null && clientMessages.has(key) &&
-        clientMessages.get(key) > cacheEntry.getNotificationId()) {
+    if (clientMessages != null && clientMessages.has(messageKey) &&
+        clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
       //invalidate the cache and try to load from db again
-      invalidate(key);
-      cacheEntry = configCache.getUnchecked(key);
+      invalidate(cacheKey);
+      cacheEntry = configCache.getUnchecked(cacheKey);
     }
 
     return cacheEntry.getRelease();
