@@ -227,16 +227,6 @@ public class Env {
     return name;
   }
 
-  /**
-   * Backward compatibility with enum's name method
-   *
-   * @Deprecated please use {@link #getName()} instead of
-   */
-  @Deprecated
-  public String name() {
-    return name;
-  }
-
   public String getName() {
     return name;
   }
