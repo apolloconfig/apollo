@@ -1,5 +1,5 @@
 --
--- Copyright 2022 Apollo Authors
+-- Copyright 2023 Apollo Authors
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
 -- you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INSERT INTO `releasemessage` (`Id`, `Message`)
+INSERT INTO "ReleaseMessage" (`Id`, `Message`)
 VALUES
 	(10, 'someAppId+default+application');
-INSERT INTO `releasemessage` (`Id`, `Message`)
+INSERT INTO "ReleaseMessage" (`Id`, `Message`)
 VALUES
 	(20, 'somePublicAppId+default+somePublicNamespace');

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,12 +71,11 @@ public class ClusterController {
         "name and dataChangeCreatedBy should not be null or empty");
 
     if (!InputValidator.isValidClusterNamespace(clusterName)) {
-      throw new BadRequestException(
-          String.format("Invalid ClusterName format: %s", InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+      throw BadRequestException.invalidClusterNameFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE);
     }
 
     if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("User " + operator + " doesn't exist!");
+      throw BadRequestException.userNotExists(operator);
     }
 
     return this.clusterOpenApiService.createCluster(env, cluster);

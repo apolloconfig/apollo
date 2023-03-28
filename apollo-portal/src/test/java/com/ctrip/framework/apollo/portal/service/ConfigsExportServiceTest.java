@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 
+import org.assertj.core.util.Files;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -82,11 +83,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
 
   @Test
   public void testNamespaceExportImport() throws FileNotFoundException {
-    String filePath = "/tmp/apollo.zip";
-    File file = new File(filePath);
-    if (file.exists()) {
-      file.delete();
-    }
+    File temporaryFolder = Files.newTemporaryFolder();
+    temporaryFolder.deleteOnExit();
+    String filePath = temporaryFolder + File.separator + "export.zip";
 
     //export config
     UserInfo userInfo = genUser();
@@ -152,7 +151,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName1, false)).thenReturn(app2Cluster1Namespace);
     when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName2, false)).thenReturn(app2Cluster2Namespace);
 
-    FileOutputStream fileOutputStream = new FileOutputStream("/tmp/apollo.zip");
+    FileOutputStream fileOutputStream = new FileOutputStream(filePath);
 
     configsExportService.exportData(fileOutputStream, Lists.newArrayList(Env.DEV));
 
@@ -171,7 +170,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     HttpStatusCodeException itemNotFoundException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
     when(itemService.loadItem(any(), any(), any(), any(), anyString())).thenThrow(itemNotFoundException);
 
-    FileInputStream fileInputStream = new FileInputStream("/tmp/apollo.zip");
+    FileInputStream fileInputStream = new FileInputStream(filePath);
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
 
     try {

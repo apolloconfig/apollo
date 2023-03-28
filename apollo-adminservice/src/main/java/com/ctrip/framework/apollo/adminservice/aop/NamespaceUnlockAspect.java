@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class NamespaceUnlockAspect {
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
     if (item == null) {
-      throw new BadRequestException("item not exist.");
+      throw BadRequestException.itemNotExists(itemId);
     }
     tryUnlock(namespaceService.findOne(item.getNamespaceId()));
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class ReleaseController {
   public ReleaseDTO get(@PathVariable("releaseId") long releaseId) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found for %s", releaseId);
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
@@ -125,8 +125,7 @@ public class ReleaseController {
                             @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("Could not find namespace for %s %s %s", appId, clusterName,
-          namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
     Release release = releaseService.publish(namespace, releaseName, releaseComment, operator, isEmergencyPublish);
 
@@ -162,8 +161,7 @@ public class ReleaseController {
                                      @RequestBody ItemChangeSets changeSets) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("Could not find namespace for %s %s %s", appId, clusterName,
-          namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     Release release = releaseService.mergeBranchChangeSetsAndRelease(namespace, branchName, releaseName,
@@ -214,11 +212,10 @@ public class ReleaseController {
                             @RequestParam(name = "grayDelKeys") Set<String> grayDelKeys){
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException("Could not find namespace for %s %s %s", appId, clusterName, 
-          namespaceName);
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
-    Release release = releaseService.grayDeletionPublish(namespace, releaseName, releaseComment, 
+    Release release = releaseService.grayDeletionPublish(namespace, releaseName, releaseComment,
         operator, isEmergencyPublish, grayDelKeys);
 
     //send release message

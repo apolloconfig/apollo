@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,7 +134,7 @@ public class ReleaseController {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     return release;
   }
@@ -184,7 +184,7 @@ public class ReleaseController {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
 
     if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), release.getNamespaceName(), env)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
@@ -57,8 +56,6 @@ public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
 
   @Before
   public void setUp() {
-    MockitoAnnotations.initMocks(this);
-
     realAdminService = ReflectionTestUtils.getField(appController, "adminService");
 
     ReflectionTestUtils.setField(appController, "adminService", adminService);
@@ -69,10 +66,6 @@ public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
     ReflectionTestUtils.setField(appController, "adminService", realAdminService);
   }
 
-  private String getBaseAppUrl() {
-    return "http://localhost:" + port + "/apps/";
-  }
-
   @Test
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreateFailed() {
@@ -81,7 +74,7 @@ public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
     when(adminService.createNewApp(any(App.class))).thenThrow(new RuntimeException("save failed"));
 
     try {
-      restTemplate.postForEntity(getBaseAppUrl(), dto, AppDTO.class);
+      restTemplate.postForEntity(url("/apps/"), dto, AppDTO.class);
     } catch (HttpStatusCodeException e) {
       @SuppressWarnings("unchecked")
       Map<String, String> attr = GSON.fromJson(e.getResponseBodyAsString(), Map.class);

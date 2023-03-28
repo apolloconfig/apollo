@@ -557,6 +557,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> For version 1.8.0 and above
+
 Enable external nacos service registry to replace built-in eureka
 
 > Note: need repackage
@@ -581,6 +583,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> For version 1.9.0 and above
 
 Enable external Consul service registry to replace built-in eureka
 
@@ -620,6 +624,8 @@ spring.cloud.consul.port=8500
 ```
 
 #### 2.2.3.3 zookeeper-discovery
+
+> For version 2.0.0 and above
 
 Enable external Zookeeper service registry to replace built-in eureka
 
@@ -681,6 +687,8 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
+
+> For version 2.0.0 and above
 
 Enable custom-defined-discovery to replace built-in eureka
 
@@ -752,11 +760,19 @@ Apollo supports the use of internal database table as registry, without relying 
     spring.profiles.active=github,database-discovery
     ```
 
-2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+2. (optional) In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
 ```properties
 apollo.service.registry.cluster=same name with apollo Cluster
 ```
+
+2. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
+for example when deploying on the intranet, 
+if you don't want to expose the intranet ip, 
+you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+    ```properties
+    apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/
+    ```
 
 ## 2.3 Docker Deployment
 
@@ -1484,7 +1500,9 @@ This is a function switch, if configured to true, config service will cache the 
 
 The default is false. Please evaluate the total configuration size and adjust the config service memory configuration before turning it on.
 
-> Ensure that the app.id of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
+> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
+
+> `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
 
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 
@@ -1528,3 +1546,57 @@ admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b90331
 > For version 2.0.0 and above
 
 The default value is 60, in seconds. Since the key authentication needs to verify the time, there may be time deviation between the time of the client and the time of the server, if the deviation is too large, the authentication will fail, this configuration can configure the tolerated time deviation size, the default is 60 seconds.
+
+### 3.2.9 apollo.eureka.server.security.enabled - Configure whether to enable Eureka login authentication
+
+> For version 2.1.0 and above
+
+The default value is false, if you want to improve security (such as when apollo is exposed to the public network), you can enable login authentication for eureka by setting this configuration to true.
+
+Note that if eureka login authentication is enabled, the addresses in [eureka.service.url](#_321-eurekaserviceurl-eureka-service-url) needs to be configured with a user name and password, such as:
+
+```
+http://some-user-name:some-password@1.1.1.1:8080/eureka/, http://some-user-name:some-password@2.2.2.2:8080/eureka/
+```
+
+Among them, `some-user-name` and `some-password` need to be consistent with the configuration items of `apollo.eureka.server.security.username` and `apollo.eureka.server.security.password`.
+
+A reboot is required to take effect after the modification.
+
+### 3.2.10 apollo.eureka.server.security.username - Configure the username of Eureka server
+
+> For version 2.1.0 and above
+
+Configure the login username of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
+
+A reboot is required to take effect after the modification.
+
+> Note that the username cannot be configured as apollo.
+
+### 3.2.11 apollo.eureka.server.security.password - Configure the password of Eureka server
+
+> For version 2.1.0 and above
+
+Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
+
+A reboot is required to take effect after the modification.
+
+### 3.2.12 apollo.release-history.retention.size - Number of retained configurations release history
+
+> For version 2.2.0 and above
+
+The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer(The minimum value is 1, which means at least one record of history must be kept to ensure the basic configuration functionality), only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
+
+### 3.2.13 apollo.release-history.retention.size.override - Number of retained configurations release history at a granular level
+
+> For version 2.2.0 and above
+
+This configuration is used to override the `apollo.release-history.retention.size` configuration and achieve granular control over the number of retained release histories for appId+clusterName+namespaceName+branchName. The value of this configuration is in JSON format, with the JSON key being the concatenated value of appId, clusterName, namespaceName, and branchName using a `+` sign. The format is as follows:
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+bj+namespace2+bj": 20
+}
+```
+The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.

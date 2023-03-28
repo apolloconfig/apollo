@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.api;
 
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
 import java.nio.charset.StandardCharsets;
@@ -573,6 +574,17 @@ public class AdminServiceAPI {
           type, previousReleaseId, operation, page, size).getBody();
     }
 
+  }
+  @Service
+  public static class ServerConfigAPI extends API {
+    public List<ServerConfig> findAllConfigDBConfig(Env env){
+      return restTemplate.get(env, "/server/config/find-all-config", new ParameterizedTypeReference<List<ServerConfig>>() {
+      }).getBody();
+    }
+
+    public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig){
+      return restTemplate.post(env, "/server/config", serverConfig, ServerConfig.class);
+    }
   }
 
 }

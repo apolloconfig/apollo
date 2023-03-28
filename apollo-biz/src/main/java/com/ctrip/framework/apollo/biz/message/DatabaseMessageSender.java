@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.google.common.collect.Queues;
+import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DatabaseMessageSender implements MessageSender {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseMessageSender.class);
   private static final int CLEAN_QUEUE_MAX_SIZE = 100;
-  private BlockingQueue<Long> toClean = Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
+  private final BlockingQueue<Long> toClean = Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
   private final ExecutorService cleanExecutorService;
   private final AtomicBoolean cleanStopped;
 
@@ -68,7 +69,9 @@ public class DatabaseMessageSender implements MessageSender {
     Transaction transaction = Tracer.newTransaction("Apollo.AdminService", "sendMessage");
     try {
       ReleaseMessage newMessage = releaseMessageRepository.save(new ReleaseMessage(message));
-      toClean.offer(newMessage.getId());
+      if(!toClean.offer(newMessage.getId())){
+        logger.warn("Queue is full, Failed to add message {} to clean queue", newMessage.getId());
+      }
       transaction.setStatus(Transaction.SUCCESS);
     } catch (Throwable ex) {
       logger.error("Sending message to database failed", ex);
@@ -116,6 +119,7 @@ public class DatabaseMessageSender implements MessageSender {
     }
   }
 
+  @PreDestroy
   void stopClean() {
     cleanStopped.set(true);
   }

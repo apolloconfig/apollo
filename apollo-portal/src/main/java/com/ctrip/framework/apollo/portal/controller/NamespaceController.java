@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -207,8 +207,7 @@ public class NamespaceController {
     AppNamespace appNamespace = appNamespaceService.findByAppIdAndName(appId, namespaceName);
 
     if (appNamespace == null) {
-      throw new BadRequestException(
-          String.format("AppNamespace not exists. AppId = %s, NamespaceName = %s", appId, namespaceName));
+      throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
 
     return BeanUtils.transform(AppNamespaceDTO.class, appNamespace);
@@ -220,8 +219,8 @@ public class NamespaceController {
       @RequestParam(defaultValue = "true") boolean appendNamespacePrefix,
       @Valid @RequestBody AppNamespace appNamespace) {
     if (!InputValidator.isValidAppNamespace(appNamespace.getName())) {
-      throw new BadRequestException("Invalid Namespace format: %s",
-          InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & " + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
+      throw BadRequestException.invalidNamespaceFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
+          + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
     }
 
     AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, appendNamespacePrefix);

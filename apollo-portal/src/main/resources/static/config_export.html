@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2022 Apollo Authors
+  ~ Copyright 2023 Apollo Authors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@
 <body>
 <apollonav></apollonav>
 <div class="container-fluid" ng-controller="ConfigExportController">
-    <div class="col-md-8 col-md-offset-2 panel">
+    <div class="col-md-10 col-md-offset-1 panel">
         <section class="panel-body">
             <header class="panel-heading">
                 {{'ConfigExport.Title' | translate }}
@@ -40,7 +40,7 @@
             </header>
             <form class="form-horizontal" style="padding-top: 15px;">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">{{'ConfigExport.SelectExportEnv' | translate }}</label>
+                    <label class="col-sm-2 control-label">{{'ConfigExport.SelectExportEnv' | translate }}</label>
                     <div class="col-sm-2">
                         <table class="table table-hover">
                             <tbody>
@@ -55,7 +55,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
+                    <label class="col-sm-2 control-label"></label>
                     <div class="col-sm-9">
                         <a type="button" class="btn btn-primary" ng-click="export()">{{'ConfigExport.Export' | translate }}</a>
                         <p class="help-block">（{{'ConfigExport.ExportTips' | translate }}）</p>
@@ -67,7 +67,7 @@
 
             <form class="form-horizontal">
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">{{'ConfigExport.SelectImportEnv' | translate }}</label>
+                    <label class="col-sm-2 control-label">{{'ConfigExport.SelectImportEnv' | translate }}</label>
                     <div class="col-sm-2">
                         <table class="table table-hover">
                             <tbody>
@@ -82,7 +82,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
+                    <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
                     <div class="col-sm-9">
                         <div class="radio">
                             <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
@@ -95,13 +95,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label">{{'ConfigExport.UploadFile' | translate }}</label>
+                    <label class="col-sm-2 control-label">{{'ConfigExport.UploadFile' | translate }}</label>
                     <div class="col-sm-9">
                         <input type="file" id="fileUpload">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-3 control-label"></label>
+                    <label class="col-sm-2 control-label"></label>
                     <div class=" col-sm-9">
                         <a type="button" class="btn btn-primary" ng-click="import()">{{'ConfigExport.Import' | translate }}</a>
                         <br>

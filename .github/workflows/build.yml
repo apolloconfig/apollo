@@ -1,5 +1,5 @@
 #
-# Copyright 2022 Apollo Authors
+# Copyright 2023 Apollo Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
     - name: JDK 8
       if: matrix.jdk == '8'
-      run: mvn -B clean package -P travis jacoco:report -Dmaven.gitcommitid.skip=true
+      run: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
     - name: JDK 11 
       if: matrix.jdk == '11'
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,19 +75,13 @@ public class ItemController {
 
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {
-      throw new BadRequestException("item already exists");
+      throw BadRequestException.itemAlreadyExists(entity.getKey());
     }
     entity = itemService.save(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
-
-    Commit commit = new Commit();
-    commit.setAppId(appId);
-    commit.setClusterName(clusterName);
-    commit.setNamespaceName(namespaceName);
-    commit.setChangeSets(new ConfigChangeContentBuilder().createItem(entity).build());
-    commit.setDataChangeCreatedBy(dto.getDataChangeLastModifiedBy());
-    commit.setDataChangeLastModifiedBy(dto.getDataChangeLastModifiedBy());
-    commitService.save(commit);
+    commitService.createCommit(appId, clusterName, namespaceName, new ConfigChangeContentBuilder().createItem(entity).build(),
+        dto.getDataChangeLastModifiedBy()
+    );
 
     return dto;
   }
@@ -128,13 +122,13 @@ public class ItemController {
                         @RequestBody ItemDTO itemDTO) {
     Item managedEntity = itemService.findOne(itemId);
     if (managedEntity == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, itemId);
     }
 
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     // In case someone constructs an attack scenario
     if (namespace == null || namespace.getId() != managedEntity.getNamespaceId()) {
-      throw new BadRequestException("Invalid request, item and namespace do not match!");
+      throw BadRequestException.namespaceNotMatch();
     }
 
     Item entity = BeanUtils.transform(Item.class, itemDTO);
@@ -154,14 +148,7 @@ public class ItemController {
     itemDTO = BeanUtils.transform(ItemDTO.class, entity);
 
     if (builder.hasContent()) {
-      Commit commit = new Commit();
-      commit.setAppId(appId);
-      commit.setClusterName(clusterName);
-      commit.setNamespaceName(namespaceName);
-      commit.setChangeSets(builder.build());
-      commit.setDataChangeCreatedBy(itemDTO.getDataChangeLastModifiedBy());
-      commit.setDataChangeLastModifiedBy(itemDTO.getDataChangeLastModifiedBy());
-      commitService.save(commit);
+      commitService.createCommit(appId, clusterName, namespaceName, builder.build(), itemDTO.getDataChangeLastModifiedBy());
     }
 
     return itemDTO;
@@ -172,20 +159,16 @@ public class ItemController {
   public void delete(@PathVariable("itemId") long itemId, @RequestParam String operator) {
     Item entity = itemService.findOne(itemId);
     if (entity == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     itemService.delete(entity.getId(), operator);
 
     Namespace namespace = namespaceService.findOne(entity.getNamespaceId());
 
-    Commit commit = new Commit();
-    commit.setAppId(namespace.getAppId());
-    commit.setClusterName(namespace.getClusterName());
-    commit.setNamespaceName(namespace.getNamespaceName());
-    commit.setChangeSets(new ConfigChangeContentBuilder().deleteItem(entity).build());
-    commit.setDataChangeCreatedBy(operator);
-    commit.setDataChangeLastModifiedBy(operator);
-    commitService.save(commit);
+    commitService.createCommit(namespace.getAppId(), namespace.getClusterName(), namespace.getNamespaceName(),
+        new ConfigChangeContentBuilder().deleteItem(entity).build(), operator
+    );
+
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
@@ -222,7 +205,7 @@ public class ItemController {
   public ItemDTO get(@PathVariable("itemId") long itemId) {
     Item item = itemService.findOne(itemId);
     if (item == null) {
-      throw new NotFoundException("item not found for itemId " + itemId);
+      throw NotFoundException.itemNotFound(itemId);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }
@@ -233,8 +216,7 @@ public class ItemController {
       @PathVariable("namespaceName") String namespaceName, @PathVariable("key") String key) {
     Item item = itemService.findOne(appId, clusterName, namespaceName, key);
     if (item == null) {
-      throw new NotFoundException("item not found for %s %s %s %s", appId, clusterName,
-          namespaceName, key);
+      throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
     return BeanUtils.transform(ItemDTO.class, item);
   }

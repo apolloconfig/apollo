@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,18 @@ public class CommitService {
     this.commitRepository = commitRepository;
   }
 
-  @Transactional
-  public Commit save(Commit commit){
+  public void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
+      String operator) {
+
+    Commit commit = new Commit();
     commit.setId(0);//protection
-    return commitRepository.save(commit);
+    commit.setAppId(appId);
+    commit.setClusterName(clusterName);
+    commit.setNamespaceName(namespaceName);
+    commit.setChangeSets(configChangeContent);
+    commit.setDataChangeCreatedBy(operator);
+    commit.setDataChangeLastModifiedBy(operator);
+    commitRepository.save(commit);
   }
 
   public List<Commit> find(String appId, String clusterName, String namespaceName, Pageable page){

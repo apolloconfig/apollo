@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,8 +194,9 @@ public class PropertyResolver implements ConfigTextResolver {
 
       //1. old is blank by now is not
       //2.old is comment by now is not exist or modified
+      //3.old is blank by now is not exist or modified
       if ((isBlankItem(oldItem) && !isBlankItem(newItem))
-          || isCommentItem(oldItem) && (newItem == null || !newItem.equals(oldItem.getComment()))) {
+              || (isCommentItem(oldItem) || isBlankItem(oldItem)) && (newItem == null || !newItem.equals(oldItem.getComment()))) {
         changeSets.addDeleteItem(oldItem);
       }
     }

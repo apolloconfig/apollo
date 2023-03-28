@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,9 +157,7 @@ public class NamespaceBranchController {
   private void checkNamespace(String appId, String clusterName, String namespaceName) {
     Namespace parentNamespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (parentNamespace == null) {
-      throw new BadRequestException(
-          "Namespace not exist. AppId = %s, ClusterName = %s, NamespaceName = %s", appId,
-          clusterName, namespaceName);
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
   }
 

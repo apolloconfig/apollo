@@ -1,0 +1,92 @@
+#
+# Copyright 2023 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+name: Publish Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'version'
+        required: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      apollo-config-tags: ${{ steps.check-tags.outputs.apollo-config-tags }}
+      apollo-admin-tags: ${{ steps.check-tags.outputs.apollo-admin-tags }}
+      apollo-portal-tags: ${{ steps.check-tags.outputs.apollo-portal-tags }}
+    steps:
+      - id: check-tags
+        name: Check tags
+        run: |
+          if [[ ${{ github.event.inputs.version }} == *-SNAPSHOT ]]; then
+            echo "apollo-config-tags=apolloconfig/apollo-configservice:${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            echo "apollo-admin-tags=apolloconfig/apollo-adminservice:${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+            echo "apollo-portal-tags=apolloconfig/apollo-portal:${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "apollo-config-tags=apolloconfig/apollo-configservice:${{ github.event.inputs.version }},apolloconfig/apollo-configservice:latest" >> $GITHUB_OUTPUT
+            echo "apollo-admin-tags=apolloconfig/apollo-adminservice:${{ github.event.inputs.version }},apolloconfig/apollo-adminservice:latest" >> $GITHUB_OUTPUT
+            echo "apollo-portal-tags=apolloconfig/apollo-portal:${{ github.event.inputs.version }},apolloconfig/apollo-portal:latest" >> $GITHUB_OUTPUT
+          fi
+  publish:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 8
+      - name: Build package
+        run: ./scripts/build.sh
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build and push apollo-configservice
+        uses: docker/build-push-action@v3
+        with:
+          context: ./apollo-configservice/target
+          platforms: linux/amd64,linux/arm64
+          file: ./apollo-configservice/src/main/docker/Dockerfile
+          push: true
+          build-args: VERSION=${{ github.event.inputs.version }}
+          tags: ${{ needs.check.outputs.apollo-config-tags }}
+      - name: Build and push apollo-adminservice
+        uses: docker/build-push-action@v3
+        with:
+          context: ./apollo-adminservice/target
+          platforms: linux/amd64,linux/arm64
+          file: ./apollo-adminservice/src/main/docker/Dockerfile
+          push: true
+          build-args: VERSION=${{ github.event.inputs.version }}
+          tags: ${{ needs.check.outputs.apollo-admin-tags }}
+      - name: Build and push apollo-portal
+        uses: docker/build-push-action@v3
+        with:
+          context: ./apollo-portal/target
+          platforms: linux/amd64,linux/arm64
+          file: ./apollo-portal/src/main/docker/Dockerfile
+          push: true
+          build-args: VERSION=${{ github.event.inputs.version }}
+          tags: ${{ needs.check.outputs.apollo-portal-tags }}

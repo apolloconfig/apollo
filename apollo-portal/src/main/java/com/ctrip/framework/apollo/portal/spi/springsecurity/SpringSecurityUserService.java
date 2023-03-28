@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ public class SpringSecurityUserService implements UserService {
     String newPassword = passwordEncoder.encode(user.getPassword());
     UserPO managedUser = userRepository.findByUsername(username);
     if (managedUser != null) {
-      throw new BadRequestException("User %s already exists", username);
+      throw BadRequestException.userAlreadyExists(username);
     }
     //create
     user.setPassword(newPassword);
@@ -82,7 +82,7 @@ public class SpringSecurityUserService implements UserService {
     String newPassword = passwordEncoder.encode(user.getPassword());
     UserPO managedUser = userRepository.findByUsername(username);
     if (managedUser == null) {
-      throw new BadRequestException("User does not exist, please create a new user.");
+      throw BadRequestException.userNotExists(username);
     }
     managedUser.setPassword(newPassword);
     managedUser.setEmail(user.getEmail());

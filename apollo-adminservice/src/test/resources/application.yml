@@ -1,5 +1,5 @@
 #
-# Copyright 2022 Apollo Authors
+# Copyright 2023 Apollo Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,15 +19,6 @@ spring:
     
 server:
   port: ${port:8090}
-  
-logging:
-  level:
-    org.springframework.cloud: 'DEBUG'
-  file:
-    name: /opt/logs/${ctrip.appid}/apollo-adminservice.log
-
-ctrip:
-  appid: 100003172
 
 eureka:
   instance:

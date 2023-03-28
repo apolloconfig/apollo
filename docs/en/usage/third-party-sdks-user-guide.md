@@ -48,6 +48,12 @@ Project address: [xhrg-product/apollo-client-golang](https://github.com/xhrg-pro
 
 > Thanks [@xhrg](https://github.com/xhrg) for providing support for the Go Apollo client
 
+### Apollo Go client 9
+
+Project address: [xnzone/apollo-go](https://github.com/xnzone/apollo-go)
+
+> Thanks [@xnzone](https://github.com/xnzone) for providing support for the Go Apollo client
+
 ## 2. Python
 
 ### Apollo Python client 1
@@ -135,3 +141,11 @@ Project address: [apollo-sdk-clientd](https://github.com/fengzhibin/apollo-sdk-c
 Project address: [apollo-c-client](https://github.com/lzeqian/apollo)
 
 > Thanks [@lzeqian](https://github.com/lzeqian) for providing support for the C Apollo client
+
+## 6. Rust
+
+### Apollo Rust client
+
+Project address: [apollo-rust-sdk](https://github.com/liushv0/apollo-rust-sdk)
+
+> Thanks [@liushv0](https://github.com/liushv0) for providing support for the Rust Apollo client

@@ -275,7 +275,7 @@ spring:
               - openid
             # client-secret is the client password configured at the oidc provider, used to log in to the provider
             # From the security point of view, it is recommended to use environment variables, which should be named as follows: dot(.), crossbar(-) The naming rule for environment variables is: replace the dot (.) and the crossbar (-) in the key of the configuration item with an underscore (_), then change all letters to uppercase, spring boot will automatically process environment variables that match this rule
-            # For example, spring.security.oauth2.client.registration.registration-name.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAME_ VDISK_CLIENT_SECRET (REGISTRATION_NAME can be replaced with the name of a custom oidc client)
+            # For example, spring.security.oauth2.client.registration.<fill-in-the-registration-name-here>.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_<FILL_IN_THE_REGISTRATION_NAME_HERE>_CLIENT_SECRET (<FILL_IN_THE_REGISTRATION_NAME_HERE> can be replaced with the name of a custom oidc client)
             client-secret: d43c91c0-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 
 ```
@@ -313,7 +313,7 @@ spring:
               - openid
             # client-secret is the client password configured at the oidc provider, used to log in to the provider
             # From the security point of view, it is recommended to use environment variables, which should be named as follows: dot(.), crossbar(-) The naming rule for environment variables is: replace the dot (.) and the crossbar (-) in the key of the configuration item with an underscore (_), then change all letters to uppercase, spring boot will automatically process environment variables that match this rule
-            # For example, spring.security.oauth2.client.registration.registration-name.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_NAME_ VDISK_CLIENT_SECRET (REGISTRATION_NAME can be replaced with the name of a custom oidc client)
+            # For example, spring.security.oauth2.client.registration.<fill-in-the-registration-name-here>.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_<FILL_IN_THE_REGISTRATION_NAME_HERE>_CLIENT_SECRET (<FILL_IN_THE_REGISTRATION_NAME_HERE> can be replaced with the name of a custom oidc client)
             client-secret: d43c91c0-xxxx-xxxx-xxxx-xxxxxxxxxxxx
           # registration-name-client is the name of the oidc client, any character is allowed, registration of client_credentials type is optional, can not be configured
           registration-name-client:

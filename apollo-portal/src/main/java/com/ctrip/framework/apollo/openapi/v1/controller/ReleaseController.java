@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class ReleaseController {
         "Params(releaseTitle and releasedBy) can not be empty");
 
     if (userService.findByUserId(model.getReleasedBy()) == null) {
-      throw new BadRequestException("user(releaseBy) not exists");
+      throw BadRequestException.userNotExists(model.getReleasedBy());
     }
 
     return this.releaseOpenApiService.publishNamespace(appId, env, clusterName, namespaceName, model);
@@ -104,7 +104,7 @@ public class ReleaseController {
                 "Params(releaseTitle and releasedBy) can not be empty");
 
         if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
+            throw BadRequestException.userNotExists(model.getReleasedBy());
         }
 
         ReleaseDTO mergedRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName,
@@ -126,7 +126,7 @@ public class ReleaseController {
                 "Params(releaseTitle and releasedBy) can not be empty");
 
         if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
+            throw BadRequestException.userNotExists(model.getReleasedBy());
         }
 
         NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
@@ -153,7 +153,7 @@ public class ReleaseController {
                 "Params(grayDelKeys) can not be null");
 
         if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw new BadRequestException("user(releaseBy) not exists");
+            throw BadRequestException.userNotExists(model.getReleasedBy());
         }
 
         NamespaceGrayDelReleaseModel releaseModel = BeanUtils.transform(NamespaceGrayDelReleaseModel.class, model);
@@ -172,7 +172,7 @@ public class ReleaseController {
         "Param operator can not be empty");
 
     if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("user(operator) not exists");
+      throw BadRequestException.userNotExists(operator);
     }
 
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);

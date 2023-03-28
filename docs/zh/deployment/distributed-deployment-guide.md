@@ -532,6 +532,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> 适用于1.8.0及以上版本
+
 启用外部nacos服务注册中心替换内置eureka
 
 > 注意：需要重新打包
@@ -554,6 +556,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> 适用于1.9.0及以上版本
 
 启用外部Consul服务注册中心替换内置eureka
 
@@ -593,11 +597,11 @@ spring.cloud.consul.port=8500
 
 #### 2.2.3.3 zookeeper-discovery
 
+> 适用于2.0.0及以上版本
+
 启用外部Zookeeper服务注册中心替换内置eureka
 
 ##### 2.2.3.3.1 2.1.0 及以上版本
-
-
 
 1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
@@ -644,6 +648,8 @@ admin.serverPort
 
 #### 2.2.3.4 custom-defined-discovery
 
+> 适用于2.0.0及以上版本
+
 启用custom-defined-discovery替换内置eureka
 
 ##### 2.2.3.4.1 2.1.0 及以上版本
@@ -670,7 +676,7 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-##### 2.2.3.5.2 2.1.0 之前的版本
+##### 2.2.3.4.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
@@ -709,13 +715,20 @@ Apollo支持使用内部的数据库表作为注册中心，不依赖第三方�
     spring.profiles.active=github,database-discovery
     ```
 
-2. 在多机房部署时，
+2. （可选）在多机房部署时，
    如果你需要apollo客户端只读取同机房内的Config Service，
    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
     ```properties
     apollo.service.registry.cluster=与apollo的Cluster同名
     ```
 
+3. （可选）如果你希望自定义Config Service和Admin Service给Client使用的uri，
+    例如在内网部署时，
+    如果不希望暴露内网ip，
+    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
+    ```properties
+    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/
+    ```
 
 ## 2.3 Docker部署
 ### 2.3.1 1.7.0及以上版本
@@ -1429,7 +1442,9 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认为false，开启前请先评估总配置大小并调整config service内存配置。
 
-> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置
+
+> `config-service.cache.enabled` 配置调整必须重启 config service 才能生效
 
 ### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
 
@@ -1470,3 +1485,56 @@ admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b903319
 > 适用于2.0.0及以上版本
 
 默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。
+
+### 3.2.9 apollo.eureka.server.security.enabled - 配置是否开启eureka server的登录认证
+
+> 适用于2.1.0及以上版本
+
+默认为false，如果希望提升安全性（比如公网可访问的场景），可以设置该配置项为true启用登录认证。
+
+需要注意的是，开启登录认证后，[eureka.service.url](#_321-eurekaserviceurl-eureka服务url)中的地址需要配置用户名和密码，如：
+
+```
+http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:some-password@2.2.2.2:8080/eureka/
+```
+其中`some-user-name`和`some-password`需要和`apollo.eureka.server.security.username`以及`apollo.eureka.server.security.password`的配置项一致。
+
+修改完需要重启生效。
+
+### 3.2.10 apollo.eureka.server.security.username - 配置eureka server的登录用户名
+
+> 适用于2.1.0及以上版本
+
+配置eureka server的登录用户名，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。
+
+> 注意用户名不能配置为apollo
+
+### 3.2.11 apollo.eureka.server.security.password - 配置eureka server的登录密码
+
+> 适用于2.1.0及以上版本
+
+配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
+
+修改完需要重启生效。
+
+### 3.2.12 apollo.release-history.retention.size - 配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+默认为 -1，表示不限制保留数量。如果配置为正整数(最小值为 1，必须保留一条历史记录，保障基本的配置功能)，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
+
+### 3.2.13 apollo.release-history.retention.size.override - 细粒度配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+此配置用来覆盖 `apollo.release-history.retention.size` 的配置，做到细粒度控制 appId+clusterName+namespaceName+branchName 的发布历史保留数量，配置的值是一个 JSON 格式，JSON 的 key 为 appId、clusterName、namespaceName、branchName 使用 + 号的拼接值，格式如下：
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+bj+namespace2+bj": 20
+}
+```
+以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。

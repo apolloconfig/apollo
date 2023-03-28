@@ -252,3 +252,51 @@ location /apollo/ {
     proxy_pass http://127.0.0.1:8070/;
 }
 ```
+
+### 17. Portal挂载到nginx/slb后如何配置https？
+
+1. 在nginx/slb上配置https访问配置，以nginx为例：
+
+```
+    server {
+        listen 80 default_server;
+
+        location / {
+            # 把 80 端口的请求全部都重定向到 https
+            return 301 https://$http_host$request_uri;
+        }
+    }
+
+    server {
+        # nginx 版本较低不支持 http2 的, 则配置 listen 443 ssl;
+        listen 443 ssl http2;
+        server_name  your-domain-name;
+        # ssl 证书, nginx 需要使用完整证书链的证书
+        ssl_certificate /etc/nginx/ssl/xxx.crt;
+        ssl_certificate_key /etc/nginx/ssl/xxx.key;
+
+        location / {
+            proxy_pass http://apollo-portal-address:8070;
+            proxy_set_header x-real-ip $remote_addr;
+            proxy_set_header x-forwarded-for $proxy_add_x_forwarded_for;
+            # ！！！这里必须是 $http_host, 如果配置成 $host 会导致跳转的时候端口错误
+            proxy_set_header host $http_host;
+            proxy_set_header x-forwarded-proto $scheme;
+            proxy_http_version 1.1;
+        }
+    }
+```
+
+2. 配置apollo-portal解析反向代理的header信息
+
+修改apollo-portal安装包中config目录下的application-github.properties，增加以下配置：
+
+```properties
+server.forward-headers-strategy=framework
+```
+
+也可以通过环境变量配置：
+
+```
+SERVER_FORWARD_HEADERS_STRATEGY=framework
+```

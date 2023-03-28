@@ -18,6 +18,8 @@ To speed up Docker image download, it is recommended to [configure image gas ped
 
 Download [docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose.yml) and [sql folder](https://github.com/apolloconfig/apollo-quick-start/tree/master/sql) to a local directory, such as docker-quick-start.
 
+> If you are using a machine with an ARM architecture, such as a Mac M1, you will need to download [docker-compose-arm64.yml](https://github.com/apolloconfig/apollo-quick-start/blob/master/docker-compose-arm64.yml)
+
 ```bash
 - docker-quick-start
   - docker-compose.yml
@@ -29,6 +31,8 @@ Download [docker-compose.yml](https://github.com/apolloconfig/apollo-quick-start
 ## II. Starting Apollo Configuration Center
 
 Execute `docker-compose up` in the docker-quick-start directory, the first execution will trigger downloading images and other operations, you need to be patient and wait for some time.
+
+> If you are using a machine with an ARM architecture, such as a Mac M1, execute `docker-compose -f docker-compose-arm64.yml up`
 
 Search all the logs starting with `apollo-quick-start` and see the following logs indicating a successful start.
 ```log

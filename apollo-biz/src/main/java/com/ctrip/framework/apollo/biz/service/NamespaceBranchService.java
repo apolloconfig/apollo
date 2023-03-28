@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,12 +64,12 @@ public class NamespaceBranchService {
   public Namespace createBranch(String appId, String parentClusterName, String namespaceName, String operator){
     Namespace childNamespace = findBranch(appId, parentClusterName, namespaceName);
     if (childNamespace != null){
-      throw new BadRequestException("namespace already has branch");
+      throw BadRequestException.namespaceNotExists(appId, parentClusterName, namespaceName);
     }
 
     Cluster parentCluster = clusterService.findOne(appId, parentClusterName);
     if (parentCluster == null || parentCluster.getParentClusterId() != 0) {
-      throw new BadRequestException("cluster not exist or illegal cluster");
+      throw BadRequestException.clusterNotExists(parentClusterName);
     }
 
     //create child cluster

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class AppControllerTest extends AbstractControllerTest {
   AppRepository appRepository;
 
   private String getBaseAppUrl() {
-    return "http://localhost:" + port + "/apps/";
+    return url("/apps/");
   }
 
   @Test
@@ -123,7 +123,7 @@ public class AppControllerTest extends AbstractControllerTest {
     App app = BeanUtils.transform(App.class, dto);
     app = appRepository.save(app);
 
-    restTemplate.delete("http://localhost:{port}/apps/{appId}?operator={operator}", port, app.getAppId(), "test");
+    restTemplate.delete(url("/apps/{appId}?operator={operator}"), app.getAppId(), "test");
 
     App deletedApp = appRepository.findById(app.getId()).orElse(null);
     Assert.assertNull(deletedApp);

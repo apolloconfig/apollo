@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@ public class InstanceConfigController {
                                            Pageable pageable) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found for %s", releaseId);
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     Page<InstanceConfig> instanceConfigsPage = instanceService.findActiveInstanceConfigsByReleaseKey
         (release.getReleaseKey(), pageable);
@@ -123,7 +123,7 @@ public class InstanceConfigController {
     List<Release> releases = releaseService.findByReleaseIds(releaseIdSet);
 
     if (CollectionUtils.isEmpty(releases)) {
-      throw new NotFoundException("releases not found for %s", releaseIds);
+      throw NotFoundException.releaseNotFound(releaseIds);
     }
 
     Set<String> releaseKeys = releases.stream().map(Release::getReleaseKey).collect(Collectors

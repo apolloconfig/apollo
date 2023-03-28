@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,33 @@ public class BizConfigTest {
     when(environment.getProperty("apollo.release-message.notification.batch")).thenReturn(String.valueOf(someBatch));
 
     assertEquals(defaultBatch, bizConfig.releaseMessageNotificationBatch());
+  }
+
+  @Test
+  public void testReleaseHistoryRetentionSize() {
+    int someLimit = 20;
+    when(environment.getProperty("apollo.release-history.retention.size")).thenReturn(String.valueOf(someLimit));
+
+    assertEquals(someLimit, bizConfig.releaseHistoryRetentionSize());
+  }
+
+  @Test
+  public void testReleaseHistoryRetentionSizeOverride() {
+    int someOverrideLimit = 10;
+    String overrideValueString = "{'a+b+c+b':10}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    int  overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+c+b");
+    assertEquals(someOverrideLimit, overrideValue);
+
+    overrideValueString = "{'a+b+c+b':0,'a+b+d+b':2}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    assertEquals(1, bizConfig.releaseHistoryRetentionSizeOverride().size());
+    overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+d+b");
+    assertEquals(2, overrideValue);
+
+    overrideValueString = "{}";
+    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    assertEquals(0, bizConfig.releaseHistoryRetentionSizeOverride().size());
   }
 
   @Test

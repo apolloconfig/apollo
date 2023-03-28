@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,7 +180,7 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {
-    String targetEnv = env.name();
+    String targetEnv = env.getName();
 
     String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 

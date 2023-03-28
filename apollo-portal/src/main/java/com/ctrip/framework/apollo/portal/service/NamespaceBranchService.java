@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ public class NamespaceBranchService {
     NamespaceBO parentNamespace = namespaceService.loadNamespaceBO(appId, env, clusterName, namespaceName);
 
     if (parentNamespace == null) {
-      throw new BadRequestException("base namespace not existed");
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
 
     if (parentNamespace.getItemModifiedCnt() > 0) {

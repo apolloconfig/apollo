@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ angular.module('systemRole', ['app.service', 'apollo.directive', 'app.util', 'to
                                 getCreateApplicationRoleUsers();
                             },
                             function (reason) {
-                                toastr.warn(AppUtil.errorMsg(reason), $translate.instant('SystemRole.DeleteFailed'));
+                                toastr.warning(AppUtil.errorMsg(reason), $translate.instant('SystemRole.DeleteFailed'));
                             }
                         );
                 };

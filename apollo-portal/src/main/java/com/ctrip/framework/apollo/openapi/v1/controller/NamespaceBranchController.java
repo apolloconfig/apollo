@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public class NamespaceBranchController {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
+            throw BadRequestException.userNotExists(operator);
         }
 
         NamespaceDTO namespaceDTO = namespaceBranchService.createBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, operator);
@@ -110,7 +110,7 @@ public class NamespaceBranchController {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
+            throw BadRequestException.userNotExists(operator);
         }
 
         boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(request, appId, namespaceName, env) ||
@@ -149,7 +149,7 @@ public class NamespaceBranchController {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
-            throw new BadRequestException("operator " + operator + " not exists");
+            throw BadRequestException.userNotExists(operator);
         }
 
         rules.setAppId(appId);

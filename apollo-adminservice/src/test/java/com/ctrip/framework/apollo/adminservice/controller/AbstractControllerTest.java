@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,5 +51,21 @@ public abstract class AbstractControllerTest {
 
   protected String url(String path) {
     return "http://localhost:" + port + path;
+  }
+
+  protected String namespaceBaseUrl() {
+    return url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}");
+  }
+
+  protected String appBaseUrl() {
+    return url("/apps/{appId}");
+  }
+
+  protected String clusterBaseUrl() {
+    return url("/apps/{appId}/clusters/{clusterName}");
+  }
+
+  protected String itemBaseUrl(){
+    return url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items");
   }
 }

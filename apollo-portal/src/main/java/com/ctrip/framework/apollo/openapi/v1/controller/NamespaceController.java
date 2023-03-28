@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,18 +63,17 @@ public class NamespaceController {
                                                appNamespaceDTO.getFormat(), appNamespaceDTO.getDataChangeCreatedBy());
 
     if (!InputValidator.isValidAppNamespace(appNamespaceDTO.getName())) {
-      throw new BadRequestException("Invalid Namespace format: %s",
-                                                  InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
+      throw BadRequestException.invalidNamespaceFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
                                                   + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
     }
 
     if (!ConfigFileFormat.isValidFormat(appNamespaceDTO.getFormat())) {
-      throw new BadRequestException("Invalid namespace format. format = %s", appNamespaceDTO.getFormat());
+      throw BadRequestException.invalidNamespaceFormat(appNamespaceDTO.getFormat());
     }
 
     String operator = appNamespaceDTO.getDataChangeCreatedBy();
     if (userService.findByUserId(operator) == null) {
-      throw new BadRequestException("Illegal user. user = %s", operator);
+      throw BadRequestException.userNotExists(operator);
     }
 
     return this.namespaceOpenApiService.createAppNamespace(appNamespaceDTO);

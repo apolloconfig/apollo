@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
@@ -40,6 +40,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ControllerExceptionTest {
 
+  @InjectMocks
   private AppController appController;
 
   @Mock
@@ -47,11 +48,6 @@ public class ControllerExceptionTest {
 
   @Mock
   private AdminService adminService;
-
-  @Before
-  public void setUp() {
-    appController = new AppController(appService, adminService);
-  }
 
   @Test(expected = NotFoundException.class)
   public void testFindNotExists() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,12 @@ import org.junit.Test;
 
 public class NotFoundExceptionTest {
 
+  private static final String appId = "app-1001";
+  private static final String clusterName = "test";
+  private static final String namespaceName = "application";
+
   @Test
   public void testConstructor() {
-    String appId = "app-1001";
-    String clusterName = "test";
-    String namespaceName = "application";
     String key = "test.key";
     NotFoundException e1, e2;
     e1 = new NotFoundException("item not found for %s %s %s %s", appId,
@@ -33,6 +34,48 @@ public class NotFoundExceptionTest {
     e2 = new NotFoundException(
         String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
     Assert.assertEquals(e1.getMessage(), e2.getMessage());
+  }
+
+  @Test
+  public void testAppNotFoundException() {
+    NotFoundException exception = NotFoundException.appNotFound(appId);
+    Assert.assertEquals(exception.getMessage(), "app not found for appId:app-1001");
+  }
+
+  @Test
+  public void testClusterNotFoundException() {
+    NotFoundException exception = NotFoundException.clusterNotFound(appId, clusterName);
+    Assert.assertEquals(exception.getMessage(), "cluster not found for appId:app-1001 clusterName:test");
+  }
+
+  @Test
+  public void testNamespaceNotFoundException() {
+    NotFoundException exception = NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
+    Assert.assertEquals(exception.getMessage(), "namespace not found for appId:app-1001 clusterName:test namespaceName:application");
+
+    exception = NotFoundException.namespaceNotFound(66);
+    Assert.assertEquals(exception.getMessage(), "namespace not found for namespaceId:66");
+  }
+
+  @Test
+  public void testReleaseNotFoundException() {
+    NotFoundException exception = NotFoundException.releaseNotFound(66);
+    Assert.assertEquals(exception.getMessage(), "release not found for releaseId:66");
+  }
+
+  @Test
+  public void testItemNotFoundException(){
+    NotFoundException exception = NotFoundException.itemNotFound(66);
+    Assert.assertEquals(exception.getMessage(), "item not found for itemId:66");
+
+    exception = NotFoundException.itemNotFound("test.key");
+    Assert.assertEquals(exception.getMessage(), "item not found for itemKey:test.key");
+
+    exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, "test.key");
+    Assert.assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemKey:test.key");
+
+    exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, 66);
+    Assert.assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemId:66");
   }
 
 }

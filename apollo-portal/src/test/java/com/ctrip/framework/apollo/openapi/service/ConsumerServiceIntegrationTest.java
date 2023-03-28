@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,10 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
 import com.google.common.collect.Sets;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.assertj.core.api.Assertions;
-import org.junit.Assert;
 import org.junit.Test;
-import org.junit.function.ThrowingRunnable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;

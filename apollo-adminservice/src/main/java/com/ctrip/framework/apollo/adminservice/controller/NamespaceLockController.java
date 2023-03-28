@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class NamespaceLockController {
                                                 @PathVariable String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new BadRequestException("namespace not exist.");
+      throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
 
     if (bizConfig.isNamespaceLockSwitchOff()) {

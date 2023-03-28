@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,14 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "Permission")
-@SQLDelete(sql = "Update Permission set IsDeleted = 1, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`Permission`")
+@SQLDelete(sql = "Update Permission set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class Permission extends BaseEntity {
-  @Column(name = "PermissionType", nullable = false)
+  @Column(name = "`PermissionType`", nullable = false)
   private String permissionType;
 
-  @Column(name = "TargetId", nullable = false)
+  @Column(name = "`TargetId`", nullable = false)
   private String targetId;
 
   public String getPermissionType() {

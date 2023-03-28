@@ -39,6 +39,11 @@
 
 > 非常感谢[@xhrg](https://github.com/xhrg)提供Go Apollo客户端的支持
 
+### Apollo Go 客户端 9
+项目地址：[xnzone/apollo-go](https://github.com/xnzone/apollo-go)
+
+> 非常感谢[@xnzone](https://github.com/xnzone)提供Go Apollo客户端的支持
+
 ## 2. Python
 
 ### Apollo Python 客户端 1
@@ -120,3 +125,10 @@
 项目地址：[apollo-c-client](https://github.com/lzeqian/apollo)
 
 > 非常感谢[@lzeqian](https://github.com/lzeqian)提供C Apollo客户端的支持
+
+## 6. Rust
+
+### Apollo Rust 客户端
+项目地址：[apollo-rust-sdk](https://github.com/liushv0/apollo-rust-sdk)
+
+> 非常感谢[@liushv0](https://github.com/liushv0)提供Rust Apollo客户端的支持

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ public class NamespaceService {
   public Namespace findPublicNamespaceForAssociatedNamespace(String clusterName, String namespaceName) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespaceName);
     if (appNamespace == null) {
-      throw new BadRequestException("namespace not exist");
+      throw BadRequestException.namespaceNotExists("", clusterName, namespaceName);
     }
 
     String appId = appNamespace.getAppId();
@@ -392,7 +392,7 @@ public class NamespaceService {
   public Map<String, Boolean> namespacePublishInfo(String appId) {
     List<Cluster> clusters = clusterService.findParentClusters(appId);
     if (CollectionUtils.isEmpty(clusters)) {
-      throw new BadRequestException("app not exist");
+      throw BadRequestException.appNotExists(appId);
     }
 
     Map<String, Boolean> clusterHasNotPublishedItems = Maps.newHashMap();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2023 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -46,11 +47,15 @@ public class BizConfig extends RefreshableConfig {
   private static final int DEFAULT_RELEASE_MESSAGE_NOTIFICATION_BATCH = 100;
   private static final int DEFAULT_RELEASE_MESSAGE_NOTIFICATION_BATCH_INTERVAL_IN_MILLI = 100;//100ms
   private static final int DEFAULT_LONG_POLLING_TIMEOUT = 60; //60s
+  public static final int DEFAULT_RELEASE_HISTORY_RETENTION_SIZE = -1;
 
   private static final Gson GSON = new Gson();
 
   private static final Type namespaceValueLengthOverrideTypeReference =
       new TypeToken<Map<Long, Integer>>() {
+      }.getType();
+  private static final Type releaseHistoryRetentionSizeOverrideTypeReference =
+      new TypeToken<Map<String, Integer>>() {
       }.getType();
 
   private final BizDBPropertySource propertySource;
@@ -152,6 +157,24 @@ public class BizConfig extends RefreshableConfig {
         DEFAULT_ACCESS_KEY_AUTH_TIME_DIFF_TOLERANCE);
     return checkInt(authTimeDiffTolerance, 1, Integer.MAX_VALUE,
         DEFAULT_ACCESS_KEY_AUTH_TIME_DIFF_TOLERANCE);
+  }
+
+  public int releaseHistoryRetentionSize() {
+    int count = getIntProperty("apollo.release-history.retention.size", DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
+    return checkInt(count, 1, Integer.MAX_VALUE, DEFAULT_RELEASE_HISTORY_RETENTION_SIZE);
+  }
+
+  public Map<String, Integer> releaseHistoryRetentionSizeOverride() {
+    String overrideString = getValue("apollo.release-history.retention.size.override");
+    Map<String, Integer> releaseHistoryRetentionSizeOverride = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(overrideString)) {
+      releaseHistoryRetentionSizeOverride =
+          GSON.fromJson(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
+    }
+    return releaseHistoryRetentionSizeOverride.entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() >= 1)
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   public int releaseMessageCacheScanInterval() {
