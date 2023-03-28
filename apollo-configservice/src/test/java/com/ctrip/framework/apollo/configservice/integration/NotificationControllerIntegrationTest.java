@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.configservice.integration;
 
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
-import com.google.common.base.Joiner;
 
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -35,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator.generate;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -68,7 +68,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithDefaultNamespace() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace), stop);
+    periodicSendMessage(executorService, generate(someAppId, someCluster, defaultNamespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
@@ -87,7 +87,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithDefaultNamespaceAsFile() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace), stop);
+    periodicSendMessage(executorService, generate(someAppId, someCluster, defaultNamespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
@@ -108,7 +108,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   public void testPollNotificationWithPrivateNamespaceAsFile() throws Exception {
     String namespace = "someNamespace.xml";
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace), stop);
+    periodicSendMessage(executorService, generate(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate
         .getForEntity(
@@ -163,7 +163,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
     String publicAppId = "somePublicAppId";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
+    periodicSendMessage(executorService, generate(publicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate
         .getForEntity(
@@ -187,7 +187,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
     String someDC = "someDC";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace), stop);
+    periodicSendMessage(executorService, generate(publicAppId, someDC, somePublicNamespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate
         .getForEntity(
@@ -211,7 +211,7 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
     String someDC = "someDC";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace), stop);
+    periodicSendMessage(executorService, generate(publicAppId, someDC, somePublicNamespace), stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate
         .getForEntity(
@@ -244,7 +244,4 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
     assertEquals(20, notification.getNotificationId());
   }
 
-  private String assembleKey(String appId, String cluster, String namespace) {
-    return Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(appId, cluster, namespace);
-  }
 }

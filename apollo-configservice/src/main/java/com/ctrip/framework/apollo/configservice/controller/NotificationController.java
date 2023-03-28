@@ -20,13 +20,13 @@ import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.message.ReleaseMessageListener;
 import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.utils.EntityManagerUtil;
+import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.configservice.util.WatchKeysUtil;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,8 +59,6 @@ public class NotificationController implements ReleaseMessageListener {
       deferredResults = Multimaps.synchronizedSetMultimap(HashMultimap.create());
   private static final ResponseEntity<ApolloConfigNotification>
       NOT_MODIFIED_RESPONSE = new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-  private static final Splitter STRING_SPLITTER =
-      Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).omitEmptyStrings();
 
   private final WatchKeysUtil watchKeysUtil;
   private final ReleaseMessageServiceWithCache releaseMessageService;
@@ -152,10 +151,8 @@ public class NotificationController implements ReleaseMessageListener {
     if (!Topics.APOLLO_RELEASE_TOPIC.equals(channel) || Strings.isNullOrEmpty(content)) {
       return;
     }
-    List<String> keys = STRING_SPLITTER.splitToList(content);
-    //message should be appId+cluster+namespace
-    if (keys.size() != 3) {
-      logger.error("message format invalid - {}", content);
+    List<String> keys = ReleaseMessageKeyGenerator.messageToList(content);
+    if (CollectionUtils.isEmpty(keys)) {
       return;
     }
 
