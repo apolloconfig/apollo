@@ -39,13 +39,11 @@ public abstract class AbstractControllerTest {
   private HttpMessageConverters httpMessageConverters;
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();
-  protected RestTemplate noErrorHandlerRestTemplate = (new TestRestTemplate()).getRestTemplate();
 
   @PostConstruct
   private void postConstruct() {
     restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
     restTemplate.setMessageConverters(httpMessageConverters.getConverters());
-    noErrorHandlerRestTemplate.setMessageConverters(httpMessageConverters.getConverters());
   }
 
   @Value("${local.server.port}")

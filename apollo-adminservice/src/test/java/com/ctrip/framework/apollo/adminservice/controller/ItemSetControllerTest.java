@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,9 +95,14 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     ItemChangeSets itemSet = mockCreateItemChangeSets(namespace, createdSize);
     itemSet.getCreateItems().get(createdSize - 1).setNamespaceId(someNamespaceId);
 
-    ResponseEntity<Void> response =
-        noErrorHandlerRestTemplate.postForEntity(itemSetBaseUrl(), itemSet, Void.class, appId, clusterName, namespaceName);
-    Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    try {
+      ResponseEntity<Void> response =
+          restTemplate.postForEntity(itemSetBaseUrl(), itemSet, Void.class, appId, clusterName, namespaceName);
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    } catch (Exception e) {
+      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
+    }
     List<Item> items = itemRepository.findByNamespaceIdOrderByLineNumAsc(someNamespaceId);
     Assert.assertEquals(0, items.size());
   }
@@ -186,9 +192,15 @@ public class ItemSetControllerTest extends AbstractControllerTest {
       updateChangeSet.addUpdateItem(items[i]);
     }
 
-    response = noErrorHandlerRestTemplate.postForEntity(itemSetBaseUrl(),
-        updateChangeSet, Void.class, appId, clusterName, someNamespaceName);
-    Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    try {
+      response = restTemplate.postForEntity(itemSetBaseUrl(),
+          updateChangeSet, Void.class, appId, clusterName, someNamespaceName);
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    } catch (Exception e) {
+      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
+    }
+
     List<Item> savedItems = itemRepository.findByNamespaceIdOrderByLineNumAsc(someNamespace.getId());
     Assert.assertEquals(0, savedItems.size());
   }
@@ -289,9 +301,15 @@ public class ItemSetControllerTest extends AbstractControllerTest {
       deleteChangeSet.addDeleteItem(items[i]);
     }
 
-    response = noErrorHandlerRestTemplate.postForEntity(itemSetBaseUrl(),
-        deleteChangeSet, Void.class, appId, clusterName, someNamespaceName);
-    Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    try {
+      response = restTemplate.postForEntity(itemSetBaseUrl(),
+          deleteChangeSet, Void.class, appId, clusterName, someNamespaceName);
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    } catch (Exception e) {
+      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
+    }
+
     List<Item> savedItems = itemRepository.findByNamespaceIdOrderByLineNumAsc(namespace.getId());
     Assert.assertEquals(createdSize, savedItems.size());
   }
