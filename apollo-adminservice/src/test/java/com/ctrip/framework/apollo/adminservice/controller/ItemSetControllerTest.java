@@ -100,7 +100,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
           restTemplate.postForEntity(itemSetBaseUrl(), itemSet, Void.class, appId, clusterName, namespaceName);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
     List<Item> items = itemRepository.findByNamespaceIdOrderByLineNumAsc(someNamespaceId);
@@ -197,7 +197,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
           updateChangeSet, Void.class, appId, clusterName, someNamespaceName);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
 
@@ -306,7 +306,7 @@ public class ItemSetControllerTest extends AbstractControllerTest {
           deleteChangeSet, Void.class, appId, clusterName, someNamespaceName);
       Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains("invalid request, item and namespace do not match!"));
+      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
 
