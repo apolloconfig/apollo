@@ -179,7 +179,7 @@ public class ConsumerServiceTest extends AbstractUnitTest {
 
   @Test
   public void testAssignNamespaceRoleToConsumer() {
-    Long consumerId = 1L;
+    long consumerId = 1L;
     String token = "token";
 
     doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
