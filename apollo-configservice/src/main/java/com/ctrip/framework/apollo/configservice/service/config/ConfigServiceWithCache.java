@@ -151,7 +151,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   @Override
   protected Release findLatestActiveRelease(String appId, String clusterName, String namespaceName,
                                             ApolloNotificationMessages clientMessages) {
-    String cacheKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    String messageKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    String cacheKey = messageKey;
+
     if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
       cacheKey = cacheKey.toLowerCase();
     }
@@ -160,7 +162,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
     ConfigCacheEntry cacheEntry = configCache.getUnchecked(cacheKey);
 
-    String messageKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
     //cache is out-dated
     if (clientMessages != null && clientMessages.has(messageKey) &&
         clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
