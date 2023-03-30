@@ -20,20 +20,15 @@ import static com.ctrip.framework.apollo.biz.registry.ServiceInstanceFactory.new
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
-import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryWithoutDecoratorIntegrationTest.ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceDiscoveryAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceRegistryAutoConfiguration;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
 import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
-import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
+
 import java.util.List;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
