@@ -61,7 +61,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
-  private final GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -75,7 +74,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     super(grayReleaseRulesHolder);
     this.releaseService = releaseService;
     this.releaseMessageService = releaseMessageService;
-    this.grayReleaseRulesHolder = grayReleaseRulesHolder;
     nullConfigCacheEntry = new ConfigCacheEntry(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, null);
   }
 
