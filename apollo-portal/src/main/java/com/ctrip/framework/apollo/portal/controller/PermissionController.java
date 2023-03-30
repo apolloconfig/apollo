@@ -57,7 +57,6 @@ public class PermissionController {
   private final SystemRoleManagerService systemRoleManagerService;
   private final PermissionValidator permissionValidator;
 
-  @Autowired
   public PermissionController(
           final UserInfoHolder userInfoHolder,
           final RolePermissionService rolePermissionService,

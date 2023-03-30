@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
+import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
@@ -38,7 +39,6 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -61,11 +61,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final Splitter STRING_SPLITTER =
       Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).omitEmptyStrings();
 
-  @Autowired
-  private ReleaseService releaseService;
-
-  @Autowired
-  private ReleaseMessageService releaseMessageService;
+  private final ReleaseService releaseService;
+  private final ReleaseMessageService releaseMessageService;
+  private final GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -73,7 +71,13 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   private ConfigCacheEntry nullConfigCacheEntry;
 
-  public ConfigServiceWithCache() {
+  public ConfigServiceWithCache(final ReleaseService releaseService,
+      final ReleaseMessageService releaseMessageService,
+      final GrayReleaseRulesHolder grayReleaseRulesHolder) {
+    super(grayReleaseRulesHolder);
+    this.releaseService = releaseService;
+    this.releaseMessageService = releaseMessageService;
+    this.grayReleaseRulesHolder = grayReleaseRulesHolder;
     nullConfigCacheEntry = new ConfigCacheEntry(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, null);
   }
 

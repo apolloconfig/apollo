@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.biz.config;
 
+import com.ctrip.framework.apollo.biz.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.biz.service.BizDBPropertySource;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,12 +37,14 @@ public class BizConfigTest {
 
   @Mock
   private ConfigurableEnvironment environment;
+  @Mock
+  private ServerConfigRepository serverConfigRepository;
 
   private BizConfig bizConfig;
 
   @Before
   public void setUp() throws Exception {
-    bizConfig = new BizConfig(new BizDBPropertySource());
+    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository));
     ReflectionTestUtils.setField(bizConfig, "environment", environment);
   }
 

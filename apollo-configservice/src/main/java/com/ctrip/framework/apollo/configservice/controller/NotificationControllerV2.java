@@ -87,7 +87,6 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
   private final Gson gson;
   private final BizConfig bizConfig;
 
-  @Autowired
   public NotificationControllerV2(
       final WatchKeysUtil watchKeysUtil,
       final ReleaseMessageServiceWithCache releaseMessageService,

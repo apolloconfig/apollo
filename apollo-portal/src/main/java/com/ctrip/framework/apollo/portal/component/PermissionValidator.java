@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component("permissionValidator")
@@ -36,7 +35,6 @@ public class PermissionValidator {
   private final AppNamespaceService appNamespaceService;
   private final SystemRoleManagerService systemRoleManagerService;
 
-  @Autowired
   public PermissionValidator(
           final UserInfoHolder userInfoHolder,
           final RolePermissionService rolePermissionService,

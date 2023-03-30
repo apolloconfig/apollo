@@ -31,7 +31,6 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -45,12 +44,17 @@ import java.util.stream.Stream;
  */
 public class DefaultRoleInitializationService implements RoleInitializationService {
 
-  @Autowired
-  private RolePermissionService rolePermissionService;
-  @Autowired
-  private PortalConfig portalConfig;
-  @Autowired
-  private PermissionRepository permissionRepository;
+  private final RolePermissionService rolePermissionService;
+  private final PortalConfig portalConfig;
+  private final PermissionRepository permissionRepository;
+
+  public DefaultRoleInitializationService(final RolePermissionService rolePermissionService,
+      final PortalConfig portalConfig,
+      final PermissionRepository permissionRepository) {
+    this.rolePermissionService = rolePermissionService;
+    this.portalConfig = portalConfig;
+    this.permissionRepository = permissionRepository;
+  }
 
   @Transactional
   public void initAppRoles(App app) {
