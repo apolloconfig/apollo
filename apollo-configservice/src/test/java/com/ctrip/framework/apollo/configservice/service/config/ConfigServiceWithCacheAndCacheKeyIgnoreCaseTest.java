@@ -87,8 +87,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     someNotificationId = 1;
 
     normalSomeKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
-    lowerCaseSomeKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName)
-        .toLowerCase();
+    lowerCaseSomeKey = normalSomeKey.toLowerCase();
     someNotificationMessages = new ApolloNotificationMessages();
   }
 
@@ -160,9 +159,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
@@ -194,9 +193,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(
         Lists.newArrayList(lowerCaseSomeKey))).thenReturn(null);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(null);
 
     Release release = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
@@ -234,9 +233,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
         Lists.newArrayList(lowerCaseSomeKey))).thenReturn
         (someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
@@ -247,9 +246,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(
         Lists.newArrayList(lowerCaseSomeKey))).thenReturn(anotherReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(anotherRelease);
     when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
 
@@ -286,9 +285,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
@@ -299,9 +298,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(anotherReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(anotherRelease);
 
     when(anotherReleaseMessage.getMessage()).thenReturn(lowerCaseSomeKey);
@@ -344,9 +343,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
     when(releaseService.findLatestActiveRelease(
-        matches(Pattern.compile(someAppId, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someClusterName, Pattern.CASE_INSENSITIVE)),
-        matches(Pattern.compile(someNamespaceName, Pattern.CASE_INSENSITIVE))
+        matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName),
+        matchesCaseInsensitive(someNamespaceName)
     )).thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
@@ -375,4 +374,9 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
         someClusterName.toLowerCase(),
         someNamespaceName.toLowerCase());
   }
+
+  private String matchesCaseInsensitive(final String regex) {
+    return matches(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
+  }
+
 }
