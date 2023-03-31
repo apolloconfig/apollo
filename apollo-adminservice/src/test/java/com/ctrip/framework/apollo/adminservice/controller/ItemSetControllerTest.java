@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
 import java.util.List;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class ItemSetControllerTest extends AbstractControllerTest {
 
@@ -96,11 +98,11 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     itemSet.getCreateItems().get(createdSize - 1).setNamespaceId(someNamespaceId);
 
     try {
-      ResponseEntity<Void> response =
           restTemplate.postForEntity(itemSetBaseUrl(), itemSet, Void.class, appId, clusterName, namespaceName);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
+    } catch (HttpClientErrorException e) {
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+      Assert.assertTrue(
+          Objects.requireNonNull(e.getMessage()).contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
     List<Item> items = itemRepository.findByNamespaceIdOrderByLineNumAsc(someNamespaceId);
@@ -193,11 +195,11 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     }
 
     try {
-      response = restTemplate.postForEntity(itemSetBaseUrl(),
-          updateChangeSet, Void.class, appId, clusterName, someNamespaceName);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
+       restTemplate.postForEntity(itemSetBaseUrl(), updateChangeSet, Void.class, appId, clusterName, someNamespaceName);
+    } catch (HttpClientErrorException e) {
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+      Assert.assertTrue(
+          Objects.requireNonNull(e.getMessage()).contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
 
@@ -302,11 +304,11 @@ public class ItemSetControllerTest extends AbstractControllerTest {
     }
 
     try {
-      response = restTemplate.postForEntity(itemSetBaseUrl(),
-          deleteChangeSet, Void.class, appId, clusterName, someNamespaceName);
-      Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    } catch (Exception e) {
-      Assert.assertTrue(e.getMessage().contains(BadRequestException.namespaceNotMatch().getMessage()));
+      restTemplate.postForEntity(itemSetBaseUrl(), deleteChangeSet, Void.class, appId, clusterName, someNamespaceName);
+    } catch (HttpClientErrorException e) {
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+      Assert.assertTrue(
+          Objects.requireNonNull(e.getMessage()).contains(BadRequestException.namespaceNotMatch().getMessage()));
       Assert.assertTrue(e.getMessage().contains(BadRequestException.class.getName()));
     }
 
