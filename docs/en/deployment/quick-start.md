@@ -49,9 +49,9 @@ We have prepared a Quick Start installation package, you just need to download i
 The installation package is 50M, if you can't access github, you can download it from Baidu.com.
 
 1. Download from GitHub
-    * Checkout or download the [apollo-build-scripts project](https://github.com/nobodyiam/apollo-build-scripts)
+    * Checkout or download the [apollo-build-scripts project](https://github.com/apolloconfig/apollo-quick-start)
     * **Since the Quick Start project is relatively large, it is placed in a different repository, so please note the project address**
-        * https://github.com/nobodyiam/apollo-build-scripts
+        * https://github.com/apolloconfig/apollo-quick-start
 2. Download from Baidu.com
     * Downloaded via [weblink](https://pan.baidu.com/s/1Ieelw6y3adECgktO0ea0Gg), extraction code: 9wwe
     * After downloading to local, unzip apollo-quick-start.zip locally
@@ -73,7 +73,7 @@ Apollo server side needs a total of two databases: `ApolloPortalDB` and `ApolloC
 > Note: If you have already created Apollo database locally, please take care to backup the data. The sql file we prepared will clear the Apollo related tables.
 
 ### 2.1.1 Creating ApolloPortalDB
-Just import [sql/apolloportaldb.sql](https://github.com/nobodyiam/apollo-build-scripts/blob/master/sql/apolloportaldb.sql) through various MySQL clients.
+Just import [sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloportaldb.sql) through various MySQL clients.
 
 The following is an example of a native MySQL client.
 ```sql
@@ -90,7 +90,7 @@ select `Id`, `AppId`, `Name` from ApolloPortalDB.App;
 | 1    | SampleApp | Sample App |
 
 ### 2.1.2 Creating ApolloConfigDB
-You can import [sql/apolloconfigdb.sql](https://github.com/nobodyiam/apollo-build-scripts/blob/master/sql/apolloconfigdb.sql) through various MySQL clients.
+You can import [sql/apolloconfigdb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloconfigdb.sql) through various MySQL clients.
 
 The following is an example of a native MySQL client.
 ```sql
@@ -106,7 +106,7 @@ select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;
 | 1           | timeout | 100   | sample timeout configuration |
 
 ## 2.2 Configuring Database Connection Information
-The Apollo server needs to know how to connect to the database you created earlier, so you need to edit [demo.sh](https://github.com/nobodyiam/apollo-build-scripts/blob/master/demo.sh) and modify ApolloPortalDB and ApolloConfigDB related database connection string information.
+The Apollo server needs to know how to connect to the database you created earlier, so you need to edit [demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh) and modify ApolloPortalDB and ApolloConfigDB related database connection string information.
 
 > Note: The filled in user needs to have read and write access to ApolloPortalDB and ApolloConfigDB data.
 
@@ -176,7 +176,7 @@ It should be noted that Quick Start does not support adding environments, but on
 
 > Quick Start integrates with [Spring Security simple authentication](en/development/portal-how-to-implement-user-login-function?id=implementation-1-simple-authentication-using-spring-security-provided-by-apollo), for more information you can refer to [Portal implementing user login function](en/development/portal-how-to-implement-user-login-function)
 
-<img src="https://github.com/nobodyiam/apollo-build-scripts/raw/master/images/apollo-login.png" alt="login" width="640px">
+<img src="https://github.com/apolloconfig/apollo-quick-start/raw/master/images/apollo-login.png" alt="login" width="640px">
 
 2. Enter username apollo and password admin and log in
 
