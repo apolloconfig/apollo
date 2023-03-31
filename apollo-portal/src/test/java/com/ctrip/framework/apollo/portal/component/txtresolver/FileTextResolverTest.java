@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 public class FileTextResolverTest extends AbstractUnitTest {

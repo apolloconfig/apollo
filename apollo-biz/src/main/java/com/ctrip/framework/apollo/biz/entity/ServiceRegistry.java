@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Convert;

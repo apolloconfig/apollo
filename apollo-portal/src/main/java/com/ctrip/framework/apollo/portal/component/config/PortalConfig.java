@@ -180,7 +180,7 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {
-    String targetEnv = env.name();
+    String targetEnv = env.getName();
 
     String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
