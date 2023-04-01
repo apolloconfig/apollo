@@ -25,6 +25,7 @@ Apollo 2.2.0
 * [refactor(apollo logging): Simplify the default log path to `/opt/logs`](https://github.com/apolloconfig/apollo/pull/4833)
 * [Add a configuration config-service.cache.key.ignore-case to control whether the cache key is case-sensitive](https://github.com/apolloconfig/apollo/pull/4820)
 * [feat: check port use by another process or not when startup](https://github.com/apolloconfig/apollo/pull/4656)
+* [Bump springboot version from 2.7.9 to 2.7.11](https://github.com/apolloconfig/apollo/pull/4828)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
