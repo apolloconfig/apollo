@@ -139,7 +139,7 @@ public class NotificationControllerTest {
 
   @Test
   public void testPollNotificationWithSomeNamespaceAsFile() throws Exception {
-    String namespace = String.format("someNamespace.xml");
+    String namespace = "someNamespace.xml";
 
     when(namespaceUtil.filterNamespaceName(namespace)).thenReturn(namespace);
 
