@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.common.dto.CommitDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +40,7 @@ public class CommitController {
     this.commitService = commitService;
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/commit")
   public List<CommitDTO> find(@PathVariable String appId, @PathVariable String clusterName,
                               @PathVariable String namespaceName, @RequestParam(required = false) String key, Pageable pageable){

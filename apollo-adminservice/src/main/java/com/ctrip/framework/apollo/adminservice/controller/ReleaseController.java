@@ -68,6 +68,7 @@ public class ReleaseController {
   }
 
 
+  @Transactional
   @GetMapping("/releases/{releaseId}")
   public ReleaseDTO get(@PathVariable("releaseId") long releaseId) {
     Release release = releaseService.findOne(releaseId);
@@ -77,6 +78,7 @@ public class ReleaseController {
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
 
+  @Transactional
   @GetMapping("/releases")
   public List<ReleaseDTO> findReleaseByIds(@RequestParam("releaseIds") String releaseIds) {
     Set<Long> releaseIdSet = RELEASES_SPLITTER.splitToList(releaseIds).stream().map(Long::parseLong)
@@ -87,6 +89,7 @@ public class ReleaseController {
     return BeanUtils.batchTransform(ReleaseDTO.class, releases);
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
   public List<ReleaseDTO> findAllReleases(@PathVariable("appId") String appId,
                                           @PathVariable("clusterName") String clusterName,
@@ -97,6 +100,7 @@ public class ReleaseController {
   }
 
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active")
   public List<ReleaseDTO> findActiveReleases(@PathVariable("appId") String appId,
                                              @PathVariable("clusterName") String clusterName,
@@ -106,6 +110,7 @@ public class ReleaseController {
     return BeanUtils.batchTransform(ReleaseDTO.class, releases);
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest")
   public ReleaseDTO getLatest(@PathVariable("appId") String appId,
                               @PathVariable("clusterName") String clusterName,

@@ -22,6 +22,7 @@ Apollo 2.2.0
 * [Fix the issue of the system permission management page retrieving non-existent users](https://github.com/apolloconfig/apollo/pull/4802)
 * [Add release history cleaning function](https://github.com/apolloconfig/apollo/pull/4813)
 * [[Multi-Database Support][pg] Make JdbcUserDetailsManager compat with postgre](https://github.com/apolloconfig/apollo/pull/4790)
+* [[Multi-Database Support][pg] Add transaction annotation on tables with lob field](https://github.com/apolloconfig/apollo/pull/4829)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)

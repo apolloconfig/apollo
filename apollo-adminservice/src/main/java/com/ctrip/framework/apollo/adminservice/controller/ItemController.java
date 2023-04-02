@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -67,6 +68,7 @@ public class ItemController {
   }
 
   @PreAcquireNamespaceLock
+  @Transactional
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public ItemDTO create(@PathVariable("appId") String appId,
                         @PathVariable("clusterName") String clusterName,
@@ -86,6 +88,7 @@ public class ItemController {
     return dto;
   }
 
+  @Transactional
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items")
   public ItemDTO createComment(@PathVariable("appId") String appId,
                         @PathVariable("clusterName") String clusterName,
@@ -114,6 +117,7 @@ public class ItemController {
 
 
   @PreAcquireNamespaceLock
+  @Transactional
   @PutMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public ItemDTO update(@PathVariable("appId") String appId,
                         @PathVariable("clusterName") String clusterName,
@@ -155,6 +159,7 @@ public class ItemController {
   }
 
   @PreAcquireNamespaceLock
+  @Transactional
   @DeleteMapping("/items/{itemId}")
   public void delete(@PathVariable("itemId") long itemId, @RequestParam String operator) {
     Item entity = itemService.findOne(itemId);
@@ -171,6 +176,7 @@ public class ItemController {
 
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public List<ItemDTO> findItems(@PathVariable("appId") String appId,
                                  @PathVariable("clusterName") String clusterName,
@@ -178,6 +184,7 @@ public class ItemController {
     return BeanUtils.batchTransform(ItemDTO.class, itemService.findItemsWithOrdered(appId, clusterName, namespaceName));
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/deleted")
   public List<ItemDTO> findDeletedItems(@PathVariable("appId") String appId,
                                         @PathVariable("clusterName") String clusterName,
@@ -201,6 +208,7 @@ public class ItemController {
     return Collections.emptyList();
   }
 
+  @Transactional
   @GetMapping("/items/{itemId}")
   public ItemDTO get(@PathVariable("itemId") long itemId) {
     Item item = itemService.findOne(itemId);
@@ -210,6 +218,7 @@ public class ItemController {
     return BeanUtils.transform(ItemDTO.class, item);
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public ItemDTO get(@PathVariable("appId") String appId,
       @PathVariable("clusterName") String clusterName,
@@ -221,6 +230,7 @@ public class ItemController {
     return BeanUtils.transform(ItemDTO.class, item);
   }
 
+  @Transactional
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public ItemDTO getByEncodedKey(@PathVariable("appId") String appId,
       @PathVariable("clusterName") String clusterName,
@@ -229,6 +239,7 @@ public class ItemController {
         new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
+  @Transactional
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")
   public PageDTO<ItemDTO> findItemsByNamespace(@PathVariable("appId") String appId,
                                                @PathVariable("clusterName") String clusterName,
