@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -44,6 +43,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
+import org.springframework.util.CollectionUtils;
 
 /**
  * config service with guava cache
@@ -58,8 +58,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final String TRACER_EVENT_CACHE_LOAD_ID = "ConfigCache.LoadFromDBById";
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
-  private static final Splitter STRING_SPLITTER =
-      Splitter.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).omitEmptyStrings();
 
   @Autowired
   private ReleaseService releaseService;
@@ -84,8 +82,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
         .build(new CacheLoader<String, ConfigCacheEntry>() {
           @Override
           public ConfigCacheEntry load(String key) throws Exception {
-            List<String> namespaceInfo = STRING_SPLITTER.splitToList(key);
-            if (namespaceInfo.size() != 3) {
+            List<String> namespaceInfo = ReleaseMessageKeyGenerator.messageToList(key);
+            if (CollectionUtils.isEmpty(namespaceInfo)) {
               Tracer.logError(
                   new IllegalArgumentException(String.format("Invalid cache load key %s", key)));
               return nullConfigCacheEntry;
