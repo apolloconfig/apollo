@@ -47,7 +47,7 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
     this.serverConfigRepository = serverConfigRepository;
   }
   @Autowired
-  public PortalDBPropertySource( final ServerConfigRepository serverConfigRepository) {
+  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository) {
     super("DBConfig", Maps.newConcurrentMap());
     this.serverConfigRepository = serverConfigRepository;
   }
