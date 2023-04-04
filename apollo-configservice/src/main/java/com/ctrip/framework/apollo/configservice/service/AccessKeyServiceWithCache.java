@@ -66,8 +66,8 @@ public class AccessKeyServiceWithCache implements InitializingBean {
   private ListMultimap<String, AccessKey> accessKeyCache;
   private ConcurrentMap<Long, AccessKey> accessKeyIdCache;
 
-  @Autowired
-  public AccessKeyServiceWithCache(AccessKeyRepository accessKeyRepository, BizConfig bizConfig) {
+  public AccessKeyServiceWithCache(final AccessKeyRepository accessKeyRepository,
+      final BizConfig bizConfig) {
     this.accessKeyRepository = accessKeyRepository;
     this.bizConfig = bizConfig;
 

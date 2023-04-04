@@ -28,7 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 
@@ -55,8 +54,7 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
   @Before
   public void initTestData() {
-    propertySource = spy(new BizDBPropertySource());
-    ReflectionTestUtils.setField(propertySource, "serverConfigRepository", serverConfigRepository);
+    propertySource = spy(new BizDBPropertySource(serverConfigRepository));
 
     List<ServerConfig> configs = Lists.newLinkedList();
 

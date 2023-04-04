@@ -36,7 +36,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -52,20 +51,30 @@ import java.util.stream.StreamSupport;
  * Created by timothy on 2017/4/26.
  */
 public class DefaultRolePermissionService implements RolePermissionService {
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private RolePermissionRepository rolePermissionRepository;
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-    @Autowired
-    private PermissionRepository permissionRepository;
-    @Autowired
-    private PortalConfig portalConfig;
-    @Autowired
-    private ConsumerRoleRepository consumerRoleRepository;
-    @Autowired
-    private UserService userService;
+
+    private final RoleRepository roleRepository;
+    private final RolePermissionRepository rolePermissionRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final PermissionRepository permissionRepository;
+    private final PortalConfig portalConfig;
+    private final ConsumerRoleRepository consumerRoleRepository;
+    private final UserService userService;
+
+    public DefaultRolePermissionService(final RoleRepository roleRepository,
+        final RolePermissionRepository rolePermissionRepository,
+        final UserRoleRepository userRoleRepository,
+        final PermissionRepository permissionRepository,
+        final PortalConfig portalConfig,
+        final ConsumerRoleRepository consumerRoleRepository,
+        final UserService userService) {
+      this.roleRepository = roleRepository;
+      this.rolePermissionRepository = rolePermissionRepository;
+      this.userRoleRepository = userRoleRepository;
+      this.permissionRepository = permissionRepository;
+      this.portalConfig = portalConfig;
+      this.consumerRoleRepository = consumerRoleRepository;
+      this.userService = userService;
+    }
 
     /**
      * Create role with permissions, note that role name should be unique
