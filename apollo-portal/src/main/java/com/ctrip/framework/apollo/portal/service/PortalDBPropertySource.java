@@ -38,15 +38,18 @@ import java.util.Objects;
 public class PortalDBPropertySource extends RefreshablePropertySource {
   private static final Logger logger = LoggerFactory.getLogger(PortalDBPropertySource.class);
 
-  @Autowired
-  private ServerConfigRepository serverConfigRepository;
+  private final ServerConfigRepository serverConfigRepository;
 
-  public PortalDBPropertySource(String name, Map<String, Object> source) {
+  public PortalDBPropertySource(final String name,
+      final Map<String, Object> source,
+      final ServerConfigRepository serverConfigRepository) {
     super(name, source);
+    this.serverConfigRepository = serverConfigRepository;
   }
-
-  public PortalDBPropertySource() {
+  @Autowired
+  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository) {
     super("DBConfig", Maps.newConcurrentMap());
+    this.serverConfigRepository = serverConfigRepository;
   }
 
   @Override

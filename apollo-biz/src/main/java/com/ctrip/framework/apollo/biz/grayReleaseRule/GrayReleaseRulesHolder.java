@@ -43,7 +43,6 @@ import com.google.common.collect.TreeMultimap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -60,10 +59,8 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
   private static final Logger logger = LoggerFactory.getLogger(GrayReleaseRulesHolder.class);
   private static final Joiner STRING_JOINER = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR);
 
-  @Autowired
-  private GrayReleaseRuleRepository grayReleaseRuleRepository;
-  @Autowired
-  private BizConfig bizConfig;
+  private final GrayReleaseRuleRepository grayReleaseRuleRepository;
+  private final BizConfig bizConfig;
 
   private int databaseScanInterval;
   private ScheduledExecutorService executorService;
@@ -74,7 +71,10 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
   //an auto increment version to indicate the age of rules
   private AtomicLong loadVersion;
 
-  public GrayReleaseRulesHolder() {
+  public GrayReleaseRulesHolder(final GrayReleaseRuleRepository grayReleaseRuleRepository,
+      final BizConfig bizConfig) {
+    this.grayReleaseRuleRepository = grayReleaseRuleRepository;
+    this.bizConfig = bizConfig;
     loadVersion = new AtomicLong();
     grayReleaseRuleCache = Multimaps.synchronizedSetMultimap(
         TreeMultimap.create(String.CASE_INSENSITIVE_ORDER, Ordering.natural()));
