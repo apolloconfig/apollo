@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
+import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
@@ -60,6 +61,8 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   private ReleaseMessage someReleaseMessage;
   @Mock
   private BizConfig bizConfig;
+  @Mock
+  private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someAppId;
   private String someClusterName;
@@ -71,11 +74,8 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
 
   @Before
   public void setUp() throws Exception {
-    configServiceWithCache = new ConfigServiceWithCache();
-    ReflectionTestUtils.setField(configServiceWithCache, "releaseService", releaseService);
-    ReflectionTestUtils.setField(configServiceWithCache, "releaseMessageService",
-        releaseMessageService);
-    ReflectionTestUtils.setField(configServiceWithCache, "bizConfig", bizConfig);
+    configServiceWithCache = new ConfigServiceWithCache(releaseService, releaseMessageService,
+        grayReleaseRulesHolder, bizConfig);
 
     when(bizConfig.isConfigServiceCacheKeyIgnoreCase()).thenReturn(true);
 
