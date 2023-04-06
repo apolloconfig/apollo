@@ -23,6 +23,7 @@ Apollo 2.2.0
 * [Add release history cleaning function](https://github.com/apolloconfig/apollo/pull/4813)
 * [[Multi-Database Support][pg] Make JdbcUserDetailsManager compat with postgre](https://github.com/apolloconfig/apollo/pull/4790)
 * [refactor(apollo logging): Simplify the default log path to `/opt/logs`](https://github.com/apolloconfig/apollo/pull/4833)
+* [Add a configuration config-service.cache.key.ignore-case to control whether the cache key is case-sensitive](https://github.com/apolloconfig/apollo/pull/4820)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)

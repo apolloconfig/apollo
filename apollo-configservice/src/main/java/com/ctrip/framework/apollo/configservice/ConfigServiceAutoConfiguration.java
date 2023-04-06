@@ -67,7 +67,7 @@ public class ConfigServiceAutoConfiguration {
   public ConfigService configService() {
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
-          grayReleaseRulesHolder());
+          grayReleaseRulesHolder(), bizConfig);
     }
     return new DefaultConfigService(releaseService, grayReleaseRulesHolder());
   }
