@@ -97,14 +97,14 @@ if [[ "$javaexe" ]]; then
     version=$(echo "$version" | awk -F. '{printf("%03d%03d",$1,$2);}')
     # now version is of format 009003 (9.3.x)
     if [ $version -ge 011000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME-gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
     elif [ $version -ge 010000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME-gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
     elif [ $version -ge 009000 ]; then
-        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
+        JAVA_OPTS="$JAVA_OPTS -Xlog:gc*:$LOG_DIR/$SERVICE_NAME-gc.log:time,level,tags -Xlog:safepoint -Xlog:gc+heap=trace"
     else
         JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC"
-        JAVA_OPTS="$JAVA_OPTS -Xloggc:$LOG_DIR/gc.log -XX:+PrintGCDetails"
+        JAVA_OPTS="$JAVA_OPTS -Xloggc:$LOG_DIR/$SERVICE_NAME-gc.log -XX:+PrintGCDetails"
         JAVA_OPTS="$JAVA_OPTS -XX:+UseConcMarkSweepGC -XX:+UseCMSCompactAtFullCollection -XX:+UseCMSInitiatingOccupancyOnly -XX:CMSInitiatingOccupancyFraction=60 -XX:+CMSClassUnloadingEnabled -XX:+CMSParallelRemarkEnabled -XX:CMSFullGCsBeforeCompaction=9 -XX:+CMSClassUnloadingEnabled  -XX:+PrintGCDateStamps -XX:+PrintGCApplicationConcurrentTime -XX:+PrintHeapAtGC -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=5 -XX:GCLogFileSize=5M"
     fi
 fi
