@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -43,6 +44,10 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
   @Mock
   private ServerConfigRepository serverConfigRepository;
+
+  @Mock
+  private DataSource dataSource;
+
   private BizDBPropertySource propertySource;
 
   private String clusterConfigKey = "clusterKey";
@@ -54,7 +59,7 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
   @Before
   public void initTestData() {
-    propertySource = spy(new BizDBPropertySource(serverConfigRepository));
+    propertySource = spy(new BizDBPropertySource(serverConfigRepository, dataSource));
 
     List<ServerConfig> configs = Lists.newLinkedList();
 

@@ -25,8 +25,15 @@ import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Objects;
 
@@ -40,16 +47,29 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
 
   private final ServerConfigRepository serverConfigRepository;
 
+  private final DataSource dataSource;
+
   public PortalDBPropertySource(final String name,
       final Map<String, Object> source,
-      final ServerConfigRepository serverConfigRepository) {
+      final ServerConfigRepository serverConfigRepository, DataSource dataSource) {
     super(name, source);
     this.serverConfigRepository = serverConfigRepository;
+    this.dataSource = dataSource;
   }
   @Autowired
-  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository) {
+  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository, DataSource dataSource) {
     super("DBConfig", Maps.newConcurrentMap());
     this.serverConfigRepository = serverConfigRepository;
+    this.dataSource = dataSource;
+  }
+
+  @Profile("h2")
+  @PostConstruct
+  public void runSqlScript() throws Exception {
+    Resource resource = new ClassPathResource("jpa/init.h2.sql");
+    if (resource.exists()) {
+      DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
+    }
   }
 
   @Override
