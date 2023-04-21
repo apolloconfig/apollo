@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.configservice.integration;
 
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
-import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
@@ -354,7 +353,4 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
     assertTrue(result.contains("k2=v2-changed"));
   }
 
-  private String assembleKey(String appId, String cluster, String namespace) {
-    return Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(appId, cluster, namespace);
-  }
 }

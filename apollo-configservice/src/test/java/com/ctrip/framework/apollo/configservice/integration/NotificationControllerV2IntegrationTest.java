@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.configservice.integration;
 
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -647,10 +646,6 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
     );
   }
 
-  private String assembleKey(String appId, String cluster, String namespace) {
-    return Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(appId, cluster, namespace);
-  }
-
   private String transformApolloConfigNotificationsToString(
       String namespace, long notificationId) {
     List<ApolloConfigNotification> notifications =
@@ -659,8 +654,8 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private String transformApolloConfigNotificationsToString(String namespace, long notificationId,
-                                                            String anotherNamespace,
-                                                            long anotherNotificationId) {
+      String anotherNamespace,
+      long anotherNotificationId) {
     List<ApolloConfigNotification> notifications =
         Lists.newArrayList(assembleApolloConfigNotification(namespace, notificationId),
             assembleApolloConfigNotification(anotherNamespace, anotherNotificationId));
@@ -668,10 +663,10 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private String transformApolloConfigNotificationsToString(String namespace, long notificationId,
-                                                            String anotherNamespace,
-                                                            long anotherNotificationId,
-                                                            String yetAnotherNamespace,
-                                                            long yetAnotherNotificationId) {
+      String anotherNamespace,
+      long anotherNotificationId,
+      String yetAnotherNamespace,
+      long yetAnotherNotificationId) {
     List<ApolloConfigNotification> notifications =
         Lists.newArrayList(assembleApolloConfigNotification(namespace, notificationId),
             assembleApolloConfigNotification(anotherNamespace, anotherNotificationId),
@@ -680,7 +675,7 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private ApolloConfigNotification assembleApolloConfigNotification(String namespace,
-                                                                    long notificationId) {
+      long notificationId) {
     ApolloConfigNotification notification = new ApolloConfigNotification(namespace, notificationId);
     return notification;
   }

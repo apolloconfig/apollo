@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
@@ -46,17 +45,18 @@ import com.google.common.collect.Lists;
 public class ReleaseMessageScanner implements InitializingBean {
   private static final Logger logger = LoggerFactory.getLogger(ReleaseMessageScanner.class);
   private static final int missingReleaseMessageMaxAge = 10; // hardcoded to 10, could be configured via BizConfig if necessary
-  @Autowired
-  private BizConfig bizConfig;
-  @Autowired
-  private ReleaseMessageRepository releaseMessageRepository;
+  private final BizConfig bizConfig;
+  private final ReleaseMessageRepository releaseMessageRepository;
   private int databaseScanInterval;
   private final List<ReleaseMessageListener> listeners;
   private final ScheduledExecutorService executorService;
   private final Map<Long, Integer> missingReleaseMessages; // missing release message id => age counter
   private long maxIdScanned;
 
-  public ReleaseMessageScanner() {
+  public ReleaseMessageScanner(final BizConfig bizConfig,
+      final ReleaseMessageRepository releaseMessageRepository) {
+    this.bizConfig = bizConfig;
+    this.releaseMessageRepository = releaseMessageRepository;
     listeners = Lists.newCopyOnWriteArrayList();
     executorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory
         .create("ReleaseMessageScanner", true));

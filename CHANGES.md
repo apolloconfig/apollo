@@ -22,6 +22,8 @@ Apollo 2.2.0
 * [Fix the issue of the system permission management page retrieving non-existent users](https://github.com/apolloconfig/apollo/pull/4802)
 * [Add release history cleaning function](https://github.com/apolloconfig/apollo/pull/4813)
 * [[Multi-Database Support][pg] Make JdbcUserDetailsManager compat with postgre](https://github.com/apolloconfig/apollo/pull/4790)
+* [refactor(apollo logging): Simplify the default log path to `/opt/logs`](https://github.com/apolloconfig/apollo/pull/4833)
+* [Add a configuration config-service.cache.key.ignore-case to control whether the cache key is case-sensitive](https://github.com/apolloconfig/apollo/pull/4820)
 * [feat: check port use by another process or not when startup](https://github.com/apolloconfig/apollo/pull/4656)
 
 ------------------

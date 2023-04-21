@@ -1442,9 +1442,17 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认为false，开启前请先评估总配置大小并调整config service内存配置。
 
-> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
 
 > `config-service.cache.enabled` 配置调整必须重启 config service 才能生效
+
+#### 3.2.3.1 config-service.cache.key.ignore-case - 是否忽略配置缓存key的大小写
+> 适用于2.2.0及以上版本
+
+该配置作用于`config-service.cache.enabled`为 true 时，用于控制配置缓存key是否忽略大小写。
+默认为 false，即缓存键大小写严格匹配。此时需要确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置。可配置为 true, 则忽略大小写。
+
+> 这个配置用于兼容未开启缓存时的配置获取逻辑，因为 MySQL 数据库查询默认字符串匹配大小写不敏感。如果开启了缓存，且用了 MySQL，建议配置 true。如果你 Apollo 使用的数据库字符串匹配大小写敏感，那么必须保持默认配置 false，否则将获取不到配置。
 
 ### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
 
