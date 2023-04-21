@@ -49,7 +49,7 @@ function getPid() {
     pgrep -f $SERVICE_NAME
 }
 
-function checkPidAlive {
+function checkPidAlive() {
     for i in `ls -t $APP_NAME/$APP_NAME.pid 2>/dev/null`
     do
         read pid < $i
@@ -68,7 +68,7 @@ function checkPidAlive {
 }
 
 function existProcessUsePort() {
-    if [ "$(lsof -i:$SERVER_PORT -sTCP:LISTEN -t)" != "" ]; then
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head $SERVER_URL | grep "HTTP")" != "" ]; then
         true
     else
         false
@@ -169,8 +169,9 @@ else
             echo "$(date) ==== $SERVICE_NAME failed to start. The port $SERVER_PORT already be in use by another process"
             echo "maybe you can figure out which process use port $SERVER_PORT by following ways:"
             echo "1. access http://change-to-this-machine-ip:$SERVER_PORT by browser"
-            echo "2. run command 'sudo netstat -tunlp | grep :$SERVER_PORT'"
-            echo "3. run command 'sudo lsof -nP -iTCP:$SERVER_PORT -sTCP:LISTEN'"
+            echo "2. run command 'curl $SERVER_URL'"
+            echo "3. run command 'sudo netstat -tunlp | grep :$SERVER_PORT'"
+            echo "4. run command 'sudo lsof -nP -iTCP:$SERVER_PORT -sTCP:LISTEN'"
             exit 1
         fi
     fi
