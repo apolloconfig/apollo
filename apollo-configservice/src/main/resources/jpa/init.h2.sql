@@ -20,3 +20,4 @@ VALUES
     ('item.key.length.limit', 'default', '128', 'item key 最大长度限制', 'default', '1970-01-01 00:00:00'),
     ('item.value.length.limit', 'default', '20000', 'item value最大长度限制', 'default', '1970-01-01 00:00:00'),
     ('config-service.cache.enabled', 'default', 'false', 'ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！', 'default', '1970-01-01 00:00:00');
+CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR "com.ctrip.framework.apollo.common.jpa.H2Function.unixTimestamp";

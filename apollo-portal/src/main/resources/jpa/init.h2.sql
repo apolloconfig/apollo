@@ -56,3 +56,4 @@ VALUES
 INSERT INTO "Authorities" ("Username", "Authority")
 VALUES
     ('apollo', 'ROLE_user');
+CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR "com.ctrip.framework.apollo.common.jpa.H2Function.unixTimestamp";
