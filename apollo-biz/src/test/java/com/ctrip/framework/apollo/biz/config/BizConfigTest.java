@@ -24,6 +24,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import javax.sql.DataSource;
@@ -51,7 +52,7 @@ public class BizConfigTest {
 
   @Before
   public void setUp() throws Exception {
-    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository, dataSource));
+    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository, dataSource, environment));
     ReflectionTestUtils.setField(bizConfig, "environment", environment);
   }
 
