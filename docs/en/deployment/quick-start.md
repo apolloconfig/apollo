@@ -66,60 +66,26 @@ Quick Start is only for local testing, so generally users do not need to downloa
 2. Execute `mvn clean package -pl apollo-assembly -am -DskipTests=true` in the root directory.
 3. Copy the jar package under apollo-assembly/target and rename it to apollo-all-in-one.jar
 
-# II. Installation steps
-## 2.1 Create the database
-Apollo server side needs a total of two databases: `ApolloPortalDB` and `ApolloConfigDB`, we have prepared the database, table creation and sample data as sql files respectively, just import the database.
+# II. Database Initialization and Configuration
 
-> Note: If you have already created Apollo database locally, please take care to backup the data. The sql file we prepared will clear the Apollo related tables.
+This section uses the h2 database as an example (h2 database support started after version **2.2.0**), explaining how to initialize the database and configure the database connection information. As the h2 database is an in-memory database, data initialization and access are done in memory, so there is no need for installation and import. However, as the h2 database is an in-memory database, data will be lost after restarting the machine, so it is not recommended for use in production environments. If you need to use other databases, such as MySQL, refer to [Using Other Databases](#v-using-other-databases)
 
-### 2.1.1 Creating ApolloPortalDB
-Just import [sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloportaldb.sql) through various MySQL clients.
+The Apollo server needs to know how to connect to the database you created earlier, so you need to edit [demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh) and modify the database connection string information related to ApolloPortalDB and ApolloConfigDB.
 
-The following is an example of a native MySQL client.
-```sql
-source /your_local_path/sql/apolloportaldb.sql
-```
-
-After the successful import, you can verify it by executing the following sql statement.
-```sql
-select `Id`, `AppId`, `Name` from ApolloPortalDB.App;
-```
-
-| Id   | AppId     | Name       |
-| ---- | --------- | ---------- |
-| 1    | SampleApp | Sample App |
-
-### 2.1.2 Creating ApolloConfigDB
-You can import [sql/apolloconfigdb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloconfigdb.sql) through various MySQL clients.
-
-The following is an example of a native MySQL client.
-```sql
-source /your_local_path/sql/apolloconfigdb.sql
-```
-
-After the successful import, you can verify it by executing the following sql statement.
-```sql
-select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;
-```
-| NamespaceId | Key     | Value | Comment                      |
-| ----------- | ------- | ----- | ---------------------------- |
-| 1           | timeout | 100   | sample timeout configuration |
-
-## 2.2 Configuring Database Connection Information
-The Apollo server needs to know how to connect to the database you created earlier, so you need to edit [demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh) and modify ApolloPortalDB and ApolloConfigDB related database connection string information.
-
-> Note: The filled in user needs to have read and write access to ApolloPortalDB and ApolloConfigDB data.
+> Note: The user entered must have read and write permissions for ApolloPortalDB and ApolloConfigDB.
 
 ```sh
-#apollo config db info
-apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-apollo_config_db_username=username
-apollo_config_db_password=password (if you don't have a password, just leave it blank)
+# apollo config db info
+spring_profiles_group_github=h2
+apollo_config_db_url=jdbc:h2:mem:testdb;mode=mysql;DATABASE_TO_UPPER=FALSE;BUILTIN_ALIAS_OVERRIDE=TRUE;
+apollo_config_db_username=sa
+apollo_config_db_password=
 
 # apollo portal db info
-apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-apollo_portal_db_username=username
-apollo_portal_db_password=password (if you don't have a password, just leave it blank)
+spring_profiles_group_github=h2
+apollo_portal_db_url=jdbc:h2:mem:testdb;mode=mysql;DATABASE_TO_UPPER=FALSE;BUILTIN_ALIAS_OVERRIDE=TRUE;
+apollo_portal_db_username=sa
+apollo_portal_db_password=
 ```
 
 > Note: Do not modify other parts of demo.sh
@@ -256,4 +222,46 @@ app.id=your appId
 
 ```
 Run `./demo.sh client` to start the demo client.
+```
+
+# V. Using Other Databases
+
+## 5.1 MySQL
+
+### 5.1.1 Initializing ApolloPortalDB Database and Table Structure
+
+Method 1: Import sql/apolloportaldb.sql using various MySQL clients.
+
+Method 2: Using MySQL native client as an example:
+
+```bash
+source /your_local_path/sql/apolloportaldb.sql
+```
+
+After successful import, you can verify by executing the following SQL statement:
+
+```sql
+select `Id`, `AppId`, `Name` from ApolloPortalDB.App;
+```
+
+| NamespaceId | Key     | Value | Comment          |
+|-------------|---------|-------|------------------|
+| 1           | timeout | 100   | sample timeout配置 |
+
+#### 5.1.3 Configuring Database Connection Information
+
+The Apollo server needs to know how to connect to the database you created earlier, so you need to edit [demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh) and modify the database connection string information related to ApolloPortalDB and ApolloConfigDB.
+
+``` 
+# apollo config db info
+spring_profiles_group_github=mysql
+apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_config_db_username=用户名
+apollo_config_db_password=密码（如果没有密码，留空即可）
+
+# apollo portal db info
+spring_profiles_group_github=mysql
+apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_portal_db_username=用户名
+apollo_portal_db_password=密码（如果没有密码，留空即可） 
 ```
