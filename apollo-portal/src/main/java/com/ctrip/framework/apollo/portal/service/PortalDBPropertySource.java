@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
@@ -34,7 +35,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -62,7 +62,7 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
 
   @PostConstruct
   public void runSqlScript() throws Exception {
-    if (Arrays.asList(env.getActiveProfiles()).contains("h2")) {
+    if (env.acceptsProfiles(Profiles.of("h2"))) {
       Resource resource = new ClassPathResource("jpa/init.h2.sql");
       if (resource.exists()) {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
