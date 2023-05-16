@@ -301,7 +301,7 @@ flowchart LR
 	jvm8070 --> jvm8090
 ```
 
-Later, in order to flowchart more concise, the content in JVM8080 will be simplified, only the Config Service will be displayed, and the Meta Server and Config Service inside will no longer be displayed
+Later, in order to flowchart more concise, the content in JVM8080 will be simplified, only the Config Service will be displayed, and the Meta Server and Eureka inside will no longer be displayed
 
 ```mermaid
 flowchart LR

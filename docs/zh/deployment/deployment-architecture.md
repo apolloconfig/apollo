@@ -301,7 +301,7 @@ flowchart LR
 	JVM8070 --> JVM8090
 ```
 
-后续为了flowchart更简洁，将JVM8080里的内容进行简化，只显示Config Service，里面的Meta Server和Config Service不再显示
+后续为了flowchart更简洁，将JVM8080里的内容进行简化，只显示Config Service，里面的Meta Server和Eureka不再显示
 
 ```mermaid
 flowchart LR
