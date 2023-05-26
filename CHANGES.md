@@ -27,6 +27,7 @@ Apollo 2.2.0
 * [feat: check port use by another process or not when startup](https://github.com/apolloconfig/apollo/pull/4656)
 * [Bump springboot version from 2.7.9 to 2.7.11](https://github.com/apolloconfig/apollo/pull/4828)
 * [[Multi-Database Support][h2] Support run on h2](https://github.com/apolloconfig/apollo/pull/4851)
+* [Fix the issue that env special case handling is missing in some case](https://github.com/apolloconfig/apollo/pull/4887)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)

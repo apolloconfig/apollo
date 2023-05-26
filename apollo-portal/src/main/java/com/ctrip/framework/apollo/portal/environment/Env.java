@@ -41,10 +41,10 @@ public class Env {
       com.ctrip.framework.apollo.core.enums.Env.LOCAL.name());
   public static final Env DEV = addEnvironment(
       com.ctrip.framework.apollo.core.enums.Env.DEV.name());
-  public static final Env FWS = addEnvironment(
-      com.ctrip.framework.apollo.core.enums.Env.FWS.name());
   public static final Env FAT = addEnvironment(
       com.ctrip.framework.apollo.core.enums.Env.FAT.name());
+  public static final Env FWS = addEnvironment(
+      com.ctrip.framework.apollo.core.enums.Env.FWS.name());
   public static final Env UAT = addEnvironment(
       com.ctrip.framework.apollo.core.enums.Env.UAT.name());
   public static final Env LPT = addEnvironment(
@@ -77,7 +77,20 @@ public class Env {
     if (StringUtils.isBlank(envName)) {
       return "";
     }
-    return envName.trim().toUpperCase();
+
+    String envWellFormName = envName.trim().toUpperCase();
+
+    // special case for production in case of typo
+    if ("PROD".equals(envWellFormName)) {
+      return Env.PRO.name;
+    }
+
+    // special case that FAT & FWS should map to FAT
+    if ("FWS".equals(envWellFormName)) {
+      return Env.FAT.name;
+    }
+
+    return envWellFormName;
   }
 
   /**
@@ -88,15 +101,6 @@ public class Env {
    */
   public static Env transformEnv(String envName) {
     final String envWellFormName = getWellFormName(envName);
-    // special case for production in case of typo
-    if ("PROD".equalsIgnoreCase(envWellFormName)) {
-      return Env.PRO;
-    }
-
-    // special case that FAT & FWS should map to FAT
-    if ("FWS".equalsIgnoreCase(envWellFormName)) {
-      return Env.FAT;
-    }
 
     if (Env.exists(envWellFormName)) {
       return Env.valueOf(envWellFormName);
