@@ -40,7 +40,8 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
-			<exclusions>
+            <version>4.0.0</version>
+            <exclusions>
 				<exclusion>
 					<artifactId>spring-cloud-starter-netflix-archaius</artifactId>
 					<groupId>org.springframework.cloud</groupId>
@@ -94,15 +95,18 @@
 		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
-		</dependency>
+            <version>2.4.0-b180830.0359</version>
+        </dependency>
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
-		</dependency>
+            <version>4.0.2</version>
+        </dependency>
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
-		</dependency>
+            <version>4.0.2</version>
+        </dependency>
 		<dependency>
 			<groupId>javax.activation</groupId>
 			<artifactId>activation</artifactId>
@@ -112,7 +116,8 @@
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
-		</dependency>
+            <version>3.29.2-GA</version>
+        </dependency>
 		<!-- end of JDK 11+ -->
 	</dependencies>
 	<build>

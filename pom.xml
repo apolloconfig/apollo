@@ -263,7 +263,8 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
+            <version>3.1.0</version>
+            <scope>test</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>spring-boot-starter</artifactId>
