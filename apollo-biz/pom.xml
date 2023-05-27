@@ -38,16 +38,19 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-		</dependency>
+            <version>4.0.0</version>
+        </dependency>
 		<!-- end of eureka -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-consul-discovery</artifactId>
-		</dependency>
+            <version>4.0.1</version>
+        </dependency>
 		<!-- zookeeper discovery -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-zookeeper-discovery</artifactId>
-		</dependency>
+            <version>4.0.0</version>
+        </dependency>
 	</dependencies>
 </project>
