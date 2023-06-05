@@ -162,7 +162,7 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 | Header        | Value                                          | 备注                                                                                                                                                          |
 |---------------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Authorization | Apollo ${appId}:${signature}                   | appId: 应用的appId，signature：使用访问密钥对当前时间以及所访问的URL加签后的值，具体实现可以参考[Signature.signature](https://github.com/apolloconfig/apollo/blob/aa184a2e11d6e7e3f519d860d69f3cf30ccfcf9c/apollo-core/src/main/java/com/ctrip/framework/apollo/core/signature/Signature.java#L22)  |
+| Authorization | Apollo ${appId}:${signature}                   | appId: 应用的appId，signature：使用访问密钥对当前时间毫秒值以及所访问的URL里的的path和query部分加签后的值，具体实现可以参考[Signature.signature](https://github.com/apolloconfig/apollo/blob/aa184a2e11d6e7e3f519d860d69f3cf30ccfcf9c/apollo-core/src/main/java/com/ctrip/framework/apollo/core/signature/Signature.java#L22)  |
 | Timestamp     | 从`1970-1-1 00:00:00 UTC+0`到现在所经过的毫秒数 | 可以参考[System.currentTimeMillis](https://docs.oracle.com/javase/7/docs/api/java/lang/System.html#currentTimeMillis()) |
 
 ## 1.6 错误码说明
