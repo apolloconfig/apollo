@@ -182,6 +182,26 @@
 
 </body>
 
+<!-- add qa bot -->
+<script>
+  (function() {
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'http://81.68.181.139/ai/qa-bot.css';
+    document.head.appendChild(link);
+
+    var script = document.createElement('script');
+    script.src = 'http://81.68.181.139/ai/qa-bot.js';
+    script.onload = function () {
+      QABot.initialize({
+        "serverUrl": "http://81.68.181.139/ai/qa",
+        "documentSiteUrlPrefix": "https://www.apolloconfig.com/#"
+      });
+    };
+    document.body.appendChild(script);
+  })();
+</script>
+
 <!-- mermaid -->
 <script src="//unpkg.com/mermaid@8.14.0/dist/mermaid.min.js"></script>
 <script>
