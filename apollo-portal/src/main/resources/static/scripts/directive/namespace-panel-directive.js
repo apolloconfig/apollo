@@ -990,7 +990,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 },
                 onChange: function (e) {
                     if ((e[0].action === 'insert') && (scope.namespace.hasOwnProperty("editText"))) {
-                        scope.namespace.editText = e[1].session.getValue()
+                        scope.namespace.editText = e[1].session.getValue();
                     }
 
                 }
