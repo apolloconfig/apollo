@@ -28,7 +28,7 @@ Apollo 2.2.0
 * [Bump springboot version from 2.7.9 to 2.7.11](https://github.com/apolloconfig/apollo/pull/4828)
 * [[Multi-Database Support][h2] Support run on h2](https://github.com/apolloconfig/apollo/pull/4851)
 * [Fix the issue that env special case handling is missing in some case](https://github.com/apolloconfig/apollo/pull/4887)
-* [Fix the issue that clear content when paste the same content in namespace](https://github.com/apolloconfig/apollo/pull/4922)
+* [Fix the issue that namespace content being cleared when identical content is pasted into the namespace.](https://github.com/apolloconfig/apollo/pull/4922)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
