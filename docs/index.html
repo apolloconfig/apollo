@@ -187,14 +187,14 @@
   (function() {
     var link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = 'http://81.68.181.139/ai/qa-bot.css';
+    link.href = 'https://ai.apolloconfig.com/qa-bot.css';
     document.head.appendChild(link);
 
     var script = document.createElement('script');
-    script.src = 'http://81.68.181.139/ai/qa-bot.js';
+    script.src = 'https://ai.apolloconfig.com/qa-bot.js';
     script.onload = function () {
       QABot.initialize({
-        "serverUrl": "http://81.68.181.139/ai/qa",
+        "serverUrl": "https://ai.apolloconfig.com/qa",
         "documentSiteUrlPrefix": "https://www.apolloconfig.com/#"
       });
     };
