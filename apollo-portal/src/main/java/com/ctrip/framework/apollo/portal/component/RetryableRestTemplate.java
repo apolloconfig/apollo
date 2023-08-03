@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.audit.context.AuditTracer;
+import com.ctrip.framework.apollo.audit.constants.Carrier;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -74,17 +76,19 @@ public class RetryableRestTemplate {
   private final PortalConfig portalConfig;
   private volatile String lastAdminServiceAccessTokens;
   private volatile Map<Env, String> adminServiceAccessTokenMap;
+  private final AuditTracer tracer;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig
-  ) {
+      final PortalConfig portalConfig,
+      final AuditTracer tracer) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
     this.portalConfig = portalConfig;
+    this.tracer = tracer;
   }
 
 
@@ -131,6 +135,15 @@ public class RetryableRestTemplate {
 
     List<ServiceDTO> services = getAdminServices(env, ct);
     HttpHeaders extraHeaders = assembleExtraHeaders(env);
+
+    if(path.startsWith("apps") && tracer.scopeManager().activeSpanContext() != null){
+      String spanContextExtraction = tracer.extract();
+      if(CollectionUtils.isEmpty(extraHeaders)){
+        extraHeaders = new HttpHeaders();
+      }
+      extraHeaders.add(Carrier.HEADER_NAME, spanContextExtraction);
+      //System.out.println(spanContextExtraction);
+    }
 
     for (ServiceDTO serviceDTO : services) {
       try {

@@ -11,7 +11,6 @@
 
   <artifactId>apollo-audit</artifactId>
   <name>Apollo Audit</name>
-  <packaging>jar</packaging>
 
   <properties>
     <github.path>${project.artifactId}</github.path>

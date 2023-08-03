@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.LogReturnValue;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.repository.AppRepository;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -73,6 +76,8 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.CREATE, name = "app.create")
+  @LogReturnValue
   public App save(App entity) {
     if (!isAppIdUnique(entity.getAppId())) {
       throw new ServiceException("appId not unique");

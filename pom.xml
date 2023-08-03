@@ -613,17 +613,17 @@
 		</profile>
 	</profiles>
 
-	<repositories>
-		<!-- for apollo-core and apollo-openapi snapshot versions -->
-		<repository>
-			<id>sonatype-nexus-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+<!--	<repositories>-->
+<!--		&lt;!&ndash; for apollo-core and apollo-openapi snapshot versions &ndash;&gt;-->
+<!--		<repository>-->
+<!--			<id>sonatype-nexus-snapshots</id>-->
+<!--			<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--			<releases>-->
+<!--				<enabled>false</enabled>-->
+<!--			</releases>-->
+<!--			<snapshots>-->
+<!--				<enabled>true</enabled>-->
+<!--			</snapshots>-->
+<!--		</repository>-->
+<!--	</repositories>-->
 </project>

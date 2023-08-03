@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.api;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
@@ -58,6 +60,7 @@ public class AdminServiceAPI {
       return restTemplate.get(env, "apps/{appId}", AppDTO.class, appId);
     }
 
+    @ApolloAuditLog(type = OpType.CREATE, name = "rpc.app.create")
     public AppDTO createApp(Env env, AppDTO app) {
       return restTemplate.post(env, "apps", app, AppDTO.class);
     }

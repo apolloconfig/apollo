@@ -1,4 +1,4 @@
-package com.ctrip.framework.apollo.audit.anno;
+package com.ctrip.framework.apollo.audit.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DataInfluence {
-
+public @interface ApolloAuditLog {
+  OpType type();
+  String name();
+  String description() default "no description";
 }
