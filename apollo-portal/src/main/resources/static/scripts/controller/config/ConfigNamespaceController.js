@@ -251,7 +251,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
         $scope.item = _.clone(toEditItem);
         $scope.item.type = String($scope.item.type || 0)
-        if (namespace.isLinkedNamespace) {
+        if (namespace.isBranch||namespace.isLinkedNamespace) {
             var existedItem = false;
             namespace.items.forEach(function (item) {
                 if (!item.isDeleted && item.item.key == toEditItem.key) {
