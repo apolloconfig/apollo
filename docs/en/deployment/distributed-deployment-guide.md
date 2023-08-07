@@ -1500,9 +1500,16 @@ This is a function switch, if configured to true, config service will cache the 
 
 The default is false. Please evaluate the total configuration size and adjust the config service memory configuration before turning it on.
 
-> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
+> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
 
 > `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
+
+#### 3.2.3.1 config-service.cache.key.ignore-case - whether to ignore the case of the configuration cache key
+> For versions 2.2.0 and above
+
+This configuration takes effect when config-service.cache.enabled is set to true, and controls whether the configuration cache key ignores case. The default value is false, which means that cache keys are strictly case-sensitive. In this case, it is necessary to ensure that the capitalization of app.id and apollo.cluster configured in the application is correct, otherwise the correct configuration cannot be obtained. It can be configured as true to ignore case sensitivity.
+
+> This configuration is used to be compatible with the configuration acquisition logic when the cache is not enabled, because MySQL database queries are case-insensitive by default. If the cache is enabled and MySQL is used, it is recommended to configure it as true. If the database used by your Apollo is case-sensitive, you must keep the default configuration as false, otherwise the configuration cannot be obtained.
 
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 

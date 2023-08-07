@@ -24,9 +24,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.Environment;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import javax.sql.DataSource;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
@@ -40,11 +45,14 @@ public class BizConfigTest {
   @Mock
   private ServerConfigRepository serverConfigRepository;
 
+  @Mock
+  private DataSource dataSource;
+
   private BizConfig bizConfig;
 
   @Before
   public void setUp() throws Exception {
-    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository));
+    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository, dataSource, environment));
     ReflectionTestUtils.setField(bizConfig, "environment", environment);
   }
 
@@ -123,5 +131,12 @@ public class BizConfigTest {
         someDefaultValue));
     assertEquals(someValidValue, bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE,
         someDefaultValue));
+  }
+
+  @Test
+  public void testIsConfigServiceCacheKeyIgnoreCase() {
+    assertFalse(bizConfig.isConfigServiceCacheKeyIgnoreCase());
+    when(environment.getProperty("config-service.cache.key.ignore-case")).thenReturn("true");
+    assertTrue(bizConfig.isConfigServiceCacheKeyIgnoreCase());
   }
 }

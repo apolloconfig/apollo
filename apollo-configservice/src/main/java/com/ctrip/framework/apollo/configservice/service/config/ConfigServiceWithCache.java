@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.configservice.service.config;
 
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -61,6 +62,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
+  private final BizConfig bizConfig;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -70,10 +72,12 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   public ConfigServiceWithCache(final ReleaseService releaseService,
       final ReleaseMessageService releaseMessageService,
-      final GrayReleaseRulesHolder grayReleaseRulesHolder) {
+      final GrayReleaseRulesHolder grayReleaseRulesHolder,
+      final BizConfig bizConfig) {
     super(grayReleaseRulesHolder);
     this.releaseService = releaseService;
     this.releaseMessageService = releaseMessageService;
+    this.bizConfig = bizConfig;
     nullConfigCacheEntry = new ConfigCacheEntry(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, null);
   }
 
@@ -147,18 +151,23 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   @Override
   protected Release findLatestActiveRelease(String appId, String clusterName, String namespaceName,
                                             ApolloNotificationMessages clientMessages) {
-    String key = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    String messageKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
+    String cacheKey = messageKey;
 
-    Tracer.logEvent(TRACER_EVENT_CACHE_GET, key);
+    if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
+      cacheKey = cacheKey.toLowerCase();
+    }
 
-    ConfigCacheEntry cacheEntry = configCache.getUnchecked(key);
+    Tracer.logEvent(TRACER_EVENT_CACHE_GET, cacheKey);
+
+    ConfigCacheEntry cacheEntry = configCache.getUnchecked(cacheKey);
 
     //cache is out-dated
-    if (clientMessages != null && clientMessages.has(key) &&
-        clientMessages.get(key) > cacheEntry.getNotificationId()) {
+    if (clientMessages != null && clientMessages.has(messageKey) &&
+        clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
       //invalidate the cache and try to load from db again
-      invalidate(key);
-      cacheEntry = configCache.getUnchecked(key);
+      invalidate(cacheKey);
+      cacheEntry = configCache.getUnchecked(cacheKey);
     }
 
     return cacheEntry.getRelease();
@@ -177,10 +186,14 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     }
 
     try {
-      invalidate(message.getMessage());
+      String messageKey = message.getMessage();
+      if (bizConfig.isConfigServiceCacheKeyIgnoreCase()) {
+        messageKey = messageKey.toLowerCase();
+      }
+      invalidate(messageKey);
 
       //warm up the cache
-      configCache.getUnchecked(message.getMessage());
+      configCache.getUnchecked(messageKey);
     } catch (Throwable ex) {
       //ignore
     }

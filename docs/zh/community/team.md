@@ -33,6 +33,7 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 | nisiyong    | Stephen Ni    | Qihoo 360    |
 | nobodyiam   | Jason Song    | Ant Group    |
 | pengweiqhca | Wei Peng      | Tuhu         |
+| Shoothzj    | ZhangJian He  | Huawei       |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
 | zouyx       | Joe Zou       | Shein        |
 
