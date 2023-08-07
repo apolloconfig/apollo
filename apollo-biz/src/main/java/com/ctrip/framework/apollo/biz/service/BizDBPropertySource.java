@@ -28,8 +28,16 @@ import com.ctrip.framework.foundation.Foundation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.init.DatabasePopulatorUtils;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.util.Map;
 import java.util.Objects;
 
@@ -43,17 +51,27 @@ public class BizDBPropertySource extends RefreshablePropertySource {
 
   private final ServerConfigRepository serverConfigRepository;
 
-  public BizDBPropertySource(final String name,
-      final Map<String, Object> source,
-      final ServerConfigRepository serverConfigRepository) {
-    super(name, source);
-    this.serverConfigRepository = serverConfigRepository;
-  }
+  private final DataSource dataSource;
+
+  private final Environment env;
 
   @Autowired
-  public BizDBPropertySource(final ServerConfigRepository serverConfigRepository) {
+  public BizDBPropertySource(final ServerConfigRepository serverConfigRepository, DataSource dataSource,
+                             final Environment env) {
     super("DBConfig", Maps.newConcurrentMap());
     this.serverConfigRepository = serverConfigRepository;
+    this.dataSource = dataSource;
+    this.env = env;
+  }
+
+  @PostConstruct
+  public void runSqlScript() throws Exception {
+    if (env.acceptsProfiles(Profiles.of("h2"))) {
+      Resource resource = new ClassPathResource("jpa/init.h2.sql");
+      if (resource.exists()) {
+        DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
+      }
+    }
   }
 
   String getCurrentDataCenter() {

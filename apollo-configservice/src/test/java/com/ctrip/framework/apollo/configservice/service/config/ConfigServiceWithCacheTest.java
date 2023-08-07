@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.configservice.service.config;
 
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.google.common.collect.Lists;
 
@@ -56,6 +57,8 @@ public class ConfigServiceWithCacheTest {
   @Mock
   private ReleaseMessage someReleaseMessage;
   @Mock
+  private BizConfig bizConfig;
+  @Mock
   private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someAppId;
@@ -68,7 +71,8 @@ public class ConfigServiceWithCacheTest {
   @Before
   public void setUp() throws Exception {
     configServiceWithCache = new ConfigServiceWithCache(releaseService, releaseMessageService,
-        grayReleaseRulesHolder);
+        grayReleaseRulesHolder, bizConfig);
+
     configServiceWithCache.initialize();
 
     someAppId = "someAppId";
