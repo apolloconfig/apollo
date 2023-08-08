@@ -3,33 +3,27 @@ package com.ctrip.framework.apollo.audit;
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
-import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
 import com.ctrip.framework.apollo.audit.spi.defaultimpl.DefaultAuditSpanService;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.context.annotation.Import;
 
 @Configuration
 @EnableConfigurationProperties(ApolloAuditProperties.class)
-@AutoConfigureAfter({JpaRepositoriesAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-//@ComponentScan(basePackageClasses = ApolloAuditAutoConfiguration.class)
-//@EntityScan("com.ctrip.framework.apollo.audit.entity")
-@EnableJpaRepositories("com.ctrip.framework.apollo.audit.repository")
-
+@Import(ApolloAuditRegistrar.class)
+@ConditionalOnProperty(
+    prefix = "apollo.audit.log",
+    name = "enabled",
+    havingValue = "true",
+    matchIfMissing = false
+)
 public class ApolloAuditAutoConfiguration {
 
   private final ApolloAuditProperties auditProperties;
@@ -43,7 +37,6 @@ public class ApolloAuditAutoConfiguration {
   @ConditionalOnMissingBean(ApolloAuditLogService.class)
   public ApolloAuditLogService apolloAuditLogService(ApolloAuditLogRepository logRepository,
       ApolloAuditLogDataInfluenceRepository dataInfluenceRepository) {
-
     return new ApolloAuditLogService(logRepository, dataInfluenceRepository);
   }
 

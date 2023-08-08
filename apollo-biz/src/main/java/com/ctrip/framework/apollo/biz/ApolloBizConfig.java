@@ -26,7 +26,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableAutoConfiguration
 @Configuration
 @ComponentScan(basePackageClasses = ApolloBizConfig.class)
-@EntityScan({"com.ctrip.framework.apollo.biz", "com.ctrip.framework.apollo.audit", "com.ctrip.framework.apollo.common"})
 public class ApolloBizConfig {
 
 }

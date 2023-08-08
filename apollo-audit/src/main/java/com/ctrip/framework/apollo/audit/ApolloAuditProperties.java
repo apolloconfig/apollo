@@ -9,8 +9,6 @@ public class ApolloAuditProperties {
 
   private boolean enabled = false;
 
-
-
   public boolean isEnabled() {
     return enabled;
   }

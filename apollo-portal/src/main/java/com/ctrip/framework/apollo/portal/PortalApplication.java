@@ -36,7 +36,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @ComponentScan(basePackageClasses = {ApolloCommonConfig.class,
     PortalApplication.class, PortalOpenApiConfig.class})
-@EntityScan("com.ctrip.framework.apollo")
 public class PortalApplication {
 
   public static void main(String[] args) throws Exception {
