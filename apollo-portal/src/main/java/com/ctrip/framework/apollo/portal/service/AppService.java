@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.DataInfluence;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
@@ -130,7 +130,7 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "app.create")
-  public App createAppInLocal(@DataInfluence App app) {
+  public App createAppInLocal(@ApolloAuditLogDataInfluence App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 

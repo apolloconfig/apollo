@@ -5,10 +5,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE_PARAMETER)
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DataInfluenceTableFiled {
+public @interface ApolloAuditLogDataInfluenceTable {
 
-  String filedName();
+  String tableName();
 
 }

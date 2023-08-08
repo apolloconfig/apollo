@@ -1,6 +1,5 @@
 package com.ctrip.framework.apollo.audit.entity;
 
-import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,7 +10,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "`AuditLogDataInfluence`")
 @SQLDelete(sql = "Update AuditLogDataInfluence set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
-public class AuditLogDataInfluence extends BaseEntity {
+public class ApolloAuditLogDataInfluence extends BaseEntity {
 
   @Column(name = "SpanId", nullable = false)
   private String spanId;

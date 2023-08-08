@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.ctrip.framework.apollo.audit.ApolloAuditAutoConfigure
+  com.ctrip.framework.apollo.audit.ApolloAuditAutoConfiguration

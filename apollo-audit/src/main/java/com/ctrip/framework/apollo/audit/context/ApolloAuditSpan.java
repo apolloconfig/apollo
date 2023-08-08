@@ -2,7 +2,7 @@ package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 
-public class AuditSpan {
+public class ApolloAuditSpan {
 
   private String parentId;
   private String followsFromId;
@@ -11,9 +11,9 @@ public class AuditSpan {
   private String opName;
   private String description;
 
-  private AuditSpanContext spanContext;
+  private ApolloAuditSpanContext spanContext;
 
-  public AuditSpanContext context(){
+  public ApolloAuditSpanContext context(){
     return this.spanContext;
   }
 
@@ -77,11 +77,11 @@ public class AuditSpan {
     this.description = description;
   }
 
-  public AuditSpanContext getSpanContext() {
+  public ApolloAuditSpanContext getSpanContext() {
     return spanContext;
   }
 
-  public void setSpanContext(AuditSpanContext spanContext) {
+  public void setSpanContext(ApolloAuditSpanContext spanContext) {
     this.spanContext = spanContext;
   }
 }

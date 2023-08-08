@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.assembly;
 
 import com.ctrip.framework.apollo.adminservice.AdminServiceApplication;
+import com.ctrip.framework.apollo.audit.ApolloAuditAutoConfiguration;
 import com.ctrip.framework.apollo.configservice.ConfigServiceApplication;
 import com.ctrip.framework.apollo.portal.PortalApplication;
 
@@ -31,7 +32,7 @@ import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class})
+    HibernateJpaAutoConfiguration.class, ApolloAuditAutoConfiguration.class})
 public class ApolloApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplication.class);

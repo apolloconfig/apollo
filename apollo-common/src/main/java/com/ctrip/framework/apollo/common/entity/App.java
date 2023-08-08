@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.common.entity;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -30,10 +32,12 @@ import javax.persistence.Table;
 @Table(name = "`App`")
 @SQLDelete(sql = "Update App set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
+@ApolloAuditLogDataInfluenceTable(tableName = "App")
 public class App extends BaseEntity {
 
   @NotBlank(message = "Name cannot be blank")
   @Column(name = "`Name`", nullable = false)
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "Name")
   private String name;
 
   @NotBlank(message = "AppId cannot be blank")
@@ -42,6 +46,7 @@ public class App extends BaseEntity {
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
   @Column(name = "`AppId`", nullable = false)
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId")
   private String appId;
 
   @Column(name = "`OrgId`", nullable = false)

@@ -1,6 +1,6 @@
 package com.ctrip.framework.apollo.audit.context;
 
-public class AuditSpanContext {
+public class ApolloAuditSpanContext {
 
   private String traceId;
 
@@ -8,7 +8,7 @@ public class AuditSpanContext {
 
   private String operator;
 
-  public AuditSpanContext(String traceId, String spanId){
+  public ApolloAuditSpanContext(String traceId, String spanId){
     this.traceId = traceId;
     this.spanId = spanId;
   }

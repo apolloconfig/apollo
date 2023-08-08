@@ -1,6 +1,5 @@
 package com.ctrip.framework.apollo.audit.entity;
 
-import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -11,7 +10,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "`AuditLog`")
 @SQLDelete(sql = "Update AuditLog set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
-public class AuditLog extends BaseEntity {
+public class ApolloAuditLog extends BaseEntity {
 
   @Column(name = "TraceId", nullable = false)
   private String traceId;
@@ -36,12 +35,6 @@ public class AuditLog extends BaseEntity {
 
   @Column(name = "Description", nullable = true)
   private String description;
-
-  @Column(name = "SourceHost", nullable = false)
-  private String sourceHost;
-
-  @Column(name = "CurrentHost", nullable = false)
-  private String currentHost;
 
   @Override
   public String toString(){
@@ -114,19 +107,4 @@ public class AuditLog extends BaseEntity {
     this.description = description;
   }
 
-  public String getSourceHost() {
-    return sourceHost;
-  }
-
-  public void setSourceHost(String sourceHost) {
-    this.sourceHost = sourceHost;
-  }
-
-  public String getCurrentHost() {
-    return currentHost;
-  }
-
-  public void setCurrentHost(String currentHost) {
-    this.currentHost = currentHost;
-  }
 }

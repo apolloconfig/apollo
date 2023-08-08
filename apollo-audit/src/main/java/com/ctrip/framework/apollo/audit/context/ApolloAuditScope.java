@@ -3,21 +3,21 @@ package com.ctrip.framework.apollo.audit.context;
 import java.io.Closeable;
 import java.io.IOException;
 
-public class AuditScope implements Closeable {
+public class ApolloAuditScope implements Closeable {
 
-  private final AuditScopeManager manager;
-  private final AuditSpanContext activate;
-  private final AuditScope hangUp;
-  private AuditSpanContext lastSpanContext;
+  private final ApolloAuditScopeManager manager;
+  private final ApolloAuditSpanContext activate;
+  private final ApolloAuditScope hangUp;
+  private ApolloAuditSpanContext lastSpanContext;
 
-  public AuditScope(AuditSpanContext activate, AuditScopeManager manager) {
+  public ApolloAuditScope(ApolloAuditSpanContext activate, ApolloAuditScopeManager manager) {
     this.hangUp = manager.getScope();
     this.activate = activate;
     this.manager = manager;
     this.lastSpanContext = null;
   }
 
-  public AuditSpanContext activeContext(){
+  public ApolloAuditSpanContext activeContext(){
     return activate;
   }
 
@@ -30,11 +30,11 @@ public class AuditScope implements Closeable {
     this.manager.setScope(hangUp);
   }
 
-  public AuditSpanContext getLastSpanContext() {
+  public ApolloAuditSpanContext getLastSpanContext() {
     return lastSpanContext;
   }
 
-  public void setLastSpanContext(AuditSpanContext lastSpanContext) {
+  public void setLastSpanContext(ApolloAuditSpanContext lastSpanContext) {
     this.lastSpanContext = lastSpanContext;
   }
 }

@@ -1,41 +1,44 @@
 package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.context.AuditScopeManager;
-import com.ctrip.framework.apollo.audit.context.AuditSpan;
-import com.ctrip.framework.apollo.audit.context.AuditSpanContext;
+import com.ctrip.framework.apollo.audit.constants.ApolloAuditHttpHeader;
 import com.ctrip.framework.apollo.audit.util.IdGenerator;
-import com.ctrip.framework.apollo.audit.util.OperationUtil;
-import org.springframework.security.core.context.SecurityContextHolder;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 
-public class AuditTracer {
+public class ApolloAuditTracer {
 
-  private final AuditScopeManager manager;
+  private final ApolloAuditScopeManager manager;
 
-  public AuditTracer(AuditScopeManager manager) {
+  public ApolloAuditTracer(ApolloAuditScopeManager manager) {
     this.manager = manager;
   }
 
-  public AuditScopeManager scopeManager(){
+  public ApolloAuditScopeManager scopeManager(){
     return manager;
   }
 
-  public String extract(){
-
-    return String.format("%s,%s,%s",
-        manager.activeSpanContext().getTraceId(),
-        manager.activeSpanContext().getSpanId(),
-        manager.activeSpanContext().getOperator());
+  public Map<String, List<String>> extract(){
+    Map<String, List<String>> map = new HashMap<>();
+    map.put(ApolloAuditHttpHeader.TRACE_ID,
+        Collections.singletonList(manager.activeSpanContext().getTraceId()));
+    map.put(ApolloAuditHttpHeader.SPAN_ID,
+        Collections.singletonList(manager.activeSpanContext().getSpanId()));
+    map.put(ApolloAuditHttpHeader.OPERATOR,
+        Collections.singletonList(manager.activeSpanContext().getOperator()));
+    return map;
   }
 
-  public AuditSpanContext inject(String val){
-    if(val == null || val.equals("")){
+  public ApolloAuditSpanContext inject(Map<String, String> map){
+    if(map.isEmpty()){
       return null;
     }
-    String[] arr = val.split(",",3);
-    AuditSpanContext context = new AuditSpanContext(arr[0], arr[1]);
-    context.setOperator(arr[2]);
+    ApolloAuditSpanContext context = new ApolloAuditSpanContext(map.get(ApolloAuditHttpHeader.TRACE_ID),
+        ApolloAuditHttpHeader.SPAN_ID);
+    context.setOperator(ApolloAuditHttpHeader.OPERATOR);
     return context;
   }
 
@@ -59,17 +62,16 @@ public class AuditTracer {
       opName = name;
     }
 
-    public AuditSpanBuilder asChildOf(AuditSpanContext parentContext){
-      if(parentContext == null){
-        // initialize as a root span
-        traceId = IdGenerator.generate();
-        parentId = null;
-        operator = OperationUtil.getOperatorByFramework();
-        return this;
-      }
+    public AuditSpanBuilder asChildOf(ApolloAuditSpanContext parentContext){
       traceId = parentContext.getTraceId();
       operator = parentContext.getOperator();
       parentId = parentContext.getSpanId();
+      return this;
+    }
+
+    public AuditSpanBuilder asRootSpan(String operator) {
+      traceId = IdGenerator.generate();
+      this.operator = operator;
       return this;
     }
 
@@ -83,17 +85,18 @@ public class AuditTracer {
       return this;
     }
 
-    public AuditSpanBuilder context(AuditSpanContext val){
+    public AuditSpanBuilder context(ApolloAuditSpanContext val){
       this.traceId = val.getTraceId();
       this.operator = val.getOperator();
       return this;
     }
 
-    public AuditSpan build(){
+    public ApolloAuditSpan build(){
       spanId = IdGenerator.generate();
-      AuditSpanContext context = new AuditSpanContext(traceId,spanId);
+      ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId,spanId);
       context.setOperator(operator);
-      AuditSpan span = new AuditSpan();
+
+      ApolloAuditSpan span = new ApolloAuditSpan();
       span.setSpanContext(context);
       span.setDescription(description);
       span.setFollowsFromId(followsFromId);

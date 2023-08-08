@@ -16,8 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
-import com.ctrip.framework.apollo.audit.context.AuditTracer;
-import com.ctrip.framework.apollo.audit.constants.Carrier;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -34,6 +33,7 @@ import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
@@ -76,14 +76,14 @@ public class RetryableRestTemplate {
   private final PortalConfig portalConfig;
   private volatile String lastAdminServiceAccessTokens;
   private volatile Map<Env, String> adminServiceAccessTokenMap;
-  private final AuditTracer tracer;
+  private final ApolloAuditTracer tracer;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
       final PortalConfig portalConfig,
-      final AuditTracer tracer) {
+      final ApolloAuditTracer tracer) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
@@ -136,13 +136,12 @@ public class RetryableRestTemplate {
     List<ServiceDTO> services = getAdminServices(env, ct);
     HttpHeaders extraHeaders = assembleExtraHeaders(env);
 
-    if(path.startsWith("apps") && tracer.scopeManager().activeSpanContext() != null){
-      String spanContextExtraction = tracer.extract();
-      if(CollectionUtils.isEmpty(extraHeaders)){
+    if(tracer.scopeManager().activeSpanContext() != null){
+      Map map = tracer.extract();
+      if(Objects.isNull(extraHeaders)){
         extraHeaders = new HttpHeaders();
       }
-      extraHeaders.add(Carrier.HEADER_NAME, spanContextExtraction);
-      //System.out.println(spanContextExtraction);
+      extraHeaders.putAll(map);
     }
 
     for (ServiceDTO serviceDTO : services) {
