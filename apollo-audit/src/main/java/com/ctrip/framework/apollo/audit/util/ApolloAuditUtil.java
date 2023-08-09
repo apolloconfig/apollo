@@ -2,10 +2,12 @@ package com.ctrip.framework.apollo.audit.util;
 
 import java.util.UUID;
 
-public class IdGenerator {
+public class ApolloAuditUtil {
 
-  public static String generate(){
+  public static String generateId(){
     return UUID.randomUUID().toString();
   }
+
+
 
 }

@@ -1,8 +1,12 @@
 package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApolloAuditSpan {
+
+  private final static Logger logger = LoggerFactory.getLogger(ApolloAuditSpan.class);
 
   private String parentId;
   private String followsFromId;
@@ -20,21 +24,20 @@ public class ApolloAuditSpan {
   //just do nothing
   public void finish(){}
 
-  public void log(){
-    //TODO
-    System.out.println("LOG!!!\n"+this+"\n");
+  public String id() {
+    return spanContext.getSpanId();
   }
 
-  @Override
-  public String toString() {
-    return "AuditSpan{" +
-        "parentId='" + parentId + '\'' +
-        ", followsFromId='" + followsFromId + '\'' +
-        ", opType=" + opType +
-        ", opName='" + opName + '\'' +
-        ", description='" + description + '\'' +
-        ", spanContext=" + spanContext +
-        '}';
+  public String operator() {
+    return spanContext.getOperator();
+  }
+
+  public String traceId() {
+    return spanContext.getTraceId();
+  }
+
+  public void log(){
+    logger.info("Span of " + this.opName + " generated!");
   }
 
   public String getParentId() {

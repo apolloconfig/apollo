@@ -11,4 +11,5 @@ public @interface ApolloAuditLog {
   OpType type();
   String name();
   String description() default "no description";
+  boolean logData() default true;
 }

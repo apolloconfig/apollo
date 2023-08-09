@@ -123,7 +123,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateApplicationPermission()")
   @PostMapping
-  @ApolloAuditLog(type = OpType.CREATE, name = "user-command.app.create")
+  @ApolloAuditLog(type = OpType.CREATE, name = "user-command.app.create", logData = false)
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);

@@ -2,12 +2,11 @@ package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.constants.ApolloAuditHttpHeader;
-import com.ctrip.framework.apollo.audit.util.IdGenerator;
+import com.ctrip.framework.apollo.audit.util.ApolloAuditUtil;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Component;
 
 public class ApolloAuditTracer {
 
@@ -70,7 +69,7 @@ public class ApolloAuditTracer {
     }
 
     public AuditSpanBuilder asRootSpan(String operator) {
-      traceId = IdGenerator.generate();
+      traceId = ApolloAuditUtil.generateId();
       this.operator = operator;
       return this;
     }
@@ -92,7 +91,7 @@ public class ApolloAuditTracer {
     }
 
     public ApolloAuditSpan build(){
-      spanId = IdGenerator.generate();
+      spanId = ApolloAuditUtil.generateId();
       ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId,spanId);
       context.setOperator(operator);
 

@@ -1,5 +1,6 @@
 package com.ctrip.framework.apollo.audit.aop;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
@@ -7,11 +8,19 @@ import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-
+import org.aspectj.lang.reflect.MethodSignature;
 
 @Aspect
 public class ApolloAuditSpanAspect {
@@ -27,8 +36,8 @@ public class ApolloAuditSpanAspect {
     this.spanService = spanService;
   }
 
-  @Pointcut("@annotation(auditEvent)")
-  public void setAuditSpan(ApolloAuditLog auditEvent){}
+  @Pointcut("@annotation(auditLog)")
+  public void setAuditSpan(ApolloAuditLog auditLog){}
 
   @Around(value = "setAuditSpan(auditLog)")
   public Object around(ProceedingJoinPoint pjp, ApolloAuditLog auditLog) throws Throwable {
@@ -36,16 +45,30 @@ public class ApolloAuditSpanAspect {
     ApolloAuditSpanContext parentSpanContext = getParentContext();
     ApolloAuditSpan span = generateSpan(parentSpanContext, auditLog);
 
+    List<Object> dataInfluenceList = getDataInfluenceList(pjp);
     Object returnVal = null;
+
     try (ApolloAuditScope scope = tracer.scopeManager().activate(span.getSpanContext())) {
       span.log();
-      logService.logSpan(span);
-
       returnVal = pjp.proceed();
     } catch (Exception e) {
       e.printStackTrace();
     }
 
+    if(Objects.nonNull(returnVal) && auditLog.logData()){
+      logService.logSpan(span);
+      switch (auditLog.type()) {
+        case CREATE: // default record return value as the new changed data
+          logService.logCreateDataInfluence(span.id(), span.operator(), toRealList(returnVal));
+          break;
+        case DELETE: // default record marked(@AALDataInfluence) parameter as the new changed data
+          logService.logDeleteDataInfluence(span.id(), span.operator(), dataInfluenceList);
+          break;
+        case UPDATE: // param as olds, return value as news
+          logService.logUpdateDataInfluence(span.id(), span.operator(), dataInfluenceList, toRealList(returnVal));
+          break;
+      }
+    }
     return returnVal;
   }
 
@@ -80,6 +103,33 @@ public class ApolloAuditSpanAspect {
           .description(auditLog.description())
           .followsFrom(getFollowSFromId())
           .build();
+    }
+  }
+
+  static List<Object> getDataInfluenceList(ProceedingJoinPoint pjp) {
+    Object[] args = pjp.getArgs();
+    List<Object> dataInfluenceList = new ArrayList<>();
+    MethodSignature methodSignature = (MethodSignature) pjp.getSignature();
+    Method method = methodSignature.getMethod();
+    Parameter[] parameters = method.getParameters();
+
+    for (int i = 0; i < parameters.length; i++) {
+      Annotation[] parameterAnnotations = parameters[i].getAnnotations();
+      for (Annotation annotation : parameterAnnotations) {
+        if (annotation instanceof ApolloAuditLogDataInfluence) {
+          dataInfluenceList.addAll(toRealList(args[i]));
+        }
+      }
+    }
+    return dataInfluenceList;
+  }
+
+  static List<Object> toRealList(Object obj) {
+    if(obj instanceof Collection) {
+      Collection<?> collection = (Collection<?>) obj;
+      return new ArrayList<>(collection);
+    } else {
+      return Collections.singletonList(obj);
     }
   }
 

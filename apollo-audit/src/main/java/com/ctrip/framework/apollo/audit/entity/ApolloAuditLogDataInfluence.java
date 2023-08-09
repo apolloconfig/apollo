@@ -1,5 +1,6 @@
 package com.ctrip.framework.apollo.audit.entity;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -19,7 +20,7 @@ public class ApolloAuditLogDataInfluence extends BaseEntity {
   private String influenceEntityName;
 
   @Column(name = "InfluenceEntityId", nullable = false)
-  private String influenceEntityId;
+  private long influenceEntityId;
 
   @Column(name = "FieldName", nullable = false)
   private String fieldName;
@@ -35,6 +36,21 @@ public class ApolloAuditLogDataInfluence extends BaseEntity {
     return toStringHelper().add("InfluenceEntityName", influenceEntityName)
         .add("InfluenceEntityId", influenceEntityId).add("FieldName", fieldName)
         .add("FieldOldValue", fieldOldValue).add("FieldNewValue", fieldNewValue).toString();
+  }
+
+  public ApolloAuditLogDataInfluence(String spanId, String operator, Date time, String influenceEntityName,
+      long influenceEntityId, String fieldName, String fieldOldValue, String fieldNewValue) {
+    this.spanId = spanId;
+    this.influenceEntityName = influenceEntityName;
+    this.influenceEntityId = influenceEntityId;
+    this.fieldName = fieldName;
+    this.fieldOldValue = fieldOldValue;
+    this.fieldNewValue = fieldNewValue;
+    super.setDataChangeCreatedTime(time);
+    super.setDataChangeCreatedBy(operator);
+  }
+
+  public ApolloAuditLogDataInfluence() {
   }
 
   public String getSpanId() {
@@ -53,11 +69,11 @@ public class ApolloAuditLogDataInfluence extends BaseEntity {
     this.influenceEntityName = influenceEntityName;
   }
 
-  public String getInfluenceEntityId() {
+  public long getInfluenceEntityId() {
     return influenceEntityId;
   }
 
-  public void setInfluenceEntityId(String influenceEntityId) {
+  public void setInfluenceEntityId(long influenceEntityId) {
     this.influenceEntityId = influenceEntityId;
   }
 

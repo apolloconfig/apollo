@@ -13,13 +13,10 @@ public class ApolloAuditSpanContext {
     this.spanId = spanId;
   }
 
-  @Override
-  public String toString() {
-    return "AuditSpanContext{" +
-        "traceId='" + traceId + '\'' +
-        ", spanId='" + spanId + '\'' +
-        ", operator='" + operator + '\'' +
-        '}';
+  public ApolloAuditSpanContext(String traceId, String spanId, String operator){
+    this.traceId = traceId;
+    this.spanId = spanId;
+    this.operator = operator;
   }
 
   public String getTraceId() {

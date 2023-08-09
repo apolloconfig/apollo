@@ -590,4 +590,9 @@ public class AdminServiceAPI {
     }
   }
 
+  @Service
+  public static class AuditLogAPI extends API {
+
+  }
+
 }
