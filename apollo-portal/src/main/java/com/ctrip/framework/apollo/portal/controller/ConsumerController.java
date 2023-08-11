@@ -79,10 +79,18 @@ public class ConsumerController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping(value = "/consumers/{token}/assign-role")
-  public List<ConsumerRole> assignNamespaceRoleToConsumer(@PathVariable String token,
-                                                          @RequestParam String type,
-                                                          @RequestParam(required = false) String envs,
-                                                          @RequestBody NamespaceDTO namespace) {
+  public List<ConsumerRole> assignNamespaceRoleToConsumer(
+      @PathVariable String token,
+      @RequestParam(required = false, defaultValue = "false") boolean isAllowCreateApplication,
+      @RequestParam String type,
+      @RequestParam(required = false) String envs,
+      @RequestBody NamespaceDTO namespace
+  ) {
+    if (isAllowCreateApplication) {
+      // when openapi create an app, it will become AppRole of this app too.
+      consumerService.assignCreateApplicationRoleToConsumer(token);
+      // no return here because need add another role to this consumer
+    }
 
     String appId = namespace.getAppId();
     String namespaceName = namespace.getNamespaceName();

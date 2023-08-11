@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
+import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
+
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
@@ -184,6 +186,29 @@ public class ConsumerService {
     ConsumerRole createdReleaseConsumerRole = consumerRoleRepository.save(namespaceReleaseConsumerRole);
 
     return Arrays.asList(createdModifyConsumerRole, createdReleaseConsumerRole);
+  }
+
+  @Transactional
+  public ConsumerRole assignCreateApplicationRoleToConsumer(String token) {
+    Long consumerId = getConsumerIdByToken(token);
+    if (consumerId == null) {
+      throw new BadRequestException("Token is Illegal");
+    }
+    Role createAppRole = rolePermissionService.findRoleByRoleName(CREATE_APPLICATION_ROLE_NAME);
+    if (createAppRole == null) {
+      // todo
+      throw new BadRequestException("CreateApplication's role does not exist. Please ?.");
+    }
+
+    long roleId = createAppRole.getId();
+    ConsumerRole createAppConsumerRole = consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
+    if (createAppConsumerRole != null) {
+      return createAppConsumerRole;
+    }
+
+    String operator = userInfoHolder.getUser().getUserId();
+    ConsumerRole consumerRole = createConsumerRole(consumerId, roleId, operator);
+    return consumerRoleRepository.save(consumerRole);
   }
 
   @Transactional
