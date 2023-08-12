@@ -71,7 +71,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
     this.userInfoHolder = userInfoHolder;
   }
 
-  private static App convert(OpenAppDTO openAppDTO) {
+  private App convert(OpenAppDTO openAppDTO) {
     return App.builder()
         .appId(openAppDTO.getAppId())
         .name(openAppDTO.getName())
