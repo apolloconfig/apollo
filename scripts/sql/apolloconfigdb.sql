@@ -447,44 +447,32 @@ VALUES
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
+
 DROP TABLE IF EXISTS `AuditLog`;
 
 CREATE TABLE `AuditLog` (
-                            `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-                            `TraceId` varchar(128) NOT NULL DEFAULT '' COMMENT '链路全局唯一ID',
-                            `SpanId` varchar(128) NOT NULL DEFAULT '' COMMENT '跨度ID',
-                            `ParentSpanId` varchar(128) DEFAULT NULL COMMENT '父跨度ID',
-                            `FollowsFromSpanId` varchar(128) DEFAULT NULL COMMENT '上一个兄弟跨度ID',
-                            `Operator` varchar(64) NOT NULL DEFAULT 'anonymous' COMMENT '操作人',
-                            `OpType` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作类型',
-                            `OpName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作名称',
-                            `Description` varchar(200) DEFAULT NULL COMMENT '备注',
-                            `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
-                            `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
-                            `DataChange_CreatedBy` varchar(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
-                            `DataChange_CreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
-                            `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
-                            PRIMARY KEY (`Id`),
-                            KEY `DataChange_LastTime` (`DataChange_LastTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='日志审计表';
+  `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `TraceId` varchar(32) NOT NULL DEFAULT '' COMMENT '链路全局唯一ID',
+  `SpanId` varchar(32) NOT NULL DEFAULT '' COMMENT '跨度ID',
+  `ParentSpanId` varchar(32) DEFAULT NULL COMMENT '父跨度ID',
+  `FollowsFromSpanId` varchar(32) DEFAULT NULL COMMENT '上一个兄弟跨度ID',
+  `Operator` varchar(64) NOT NULL DEFAULT 'anonymous' COMMENT '操作人',
+  `OpType` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作类型',
+  `OpName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作名称',
+  `Description` varchar(200) DEFAULT NULL COMMENT '备注',
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
 
 DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 
 CREATE TABLE `AuditLogDataInfluence` (
-                                         `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-                                         `SpanId` char(128) NOT NULL DEFAULT '' COMMENT '跨度ID',
-                                         `InfluenceEntityId` int(10) unsigned DEFAULT NULL COMMENT '记录ID',
-                                         `InfluenceEntityName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '表名',
-                                         `FieldName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '字段名称',
-                                         `FieldOldValue` varchar(500) DEFAULT NULL COMMENT '字段旧值',
-                                         `FieldNewValue` varchar(500) DEFAULT NULL COMMENT '字段新值',
-                                         `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
-                                         `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
-                                         `DataChange_CreatedBy` varchar(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
-                                         `DataChange_CreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                         `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
-                                         `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
-                                         PRIMARY KEY (`Id`),
-                                         KEY `DataChange_LastTime` (`DataChange_LastTime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='日志审计表';
+  `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `SpanId` char(32) NOT NULL DEFAULT '' COMMENT '跨度ID',
+  `InfluenceEntityId` int(10) unsigned DEFAULT NULL COMMENT '记录ID',
+  `InfluenceEntityName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '表名',
+  `FieldName` varchar(50) DEFAULT NULL COMMENT '字段名称',
+  `FieldOldValue` varchar(500) DEFAULT NULL COMMENT '字段旧值',
+  `FieldNewValue` varchar(500) DEFAULT NULL COMMENT '字段新值',
+  PRIMARY KEY (`Id`),
+  INDEX `SpanIdIndex` (`SpanId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志数据变动表';

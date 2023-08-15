@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -46,18 +49,21 @@ public class AppNamespaceService {
   private final RoleInitializationService roleInitializationService;
   private final AppService appService;
   private final RolePermissionService rolePermissionService;
+  private final ApolloAuditLogDataInfluenceProducer dataInfluenceProducer;
 
   public AppNamespaceService(
       final UserInfoHolder userInfoHolder,
       final AppNamespaceRepository appNamespaceRepository,
       final RoleInitializationService roleInitializationService,
       final @Lazy AppService appService,
-      final RolePermissionService rolePermissionService) {
+      final RolePermissionService rolePermissionService,
+      ApolloAuditLogDataInfluenceProducer dataInfluenceProducer) {
     this.userInfoHolder = userInfoHolder;
     this.appNamespaceRepository = appNamespaceRepository;
     this.roleInitializationService = roleInitializationService;
     this.appService = appService;
     this.rolePermissionService = rolePermissionService;
+    this.dataInfluenceProducer = dataInfluenceProducer;
   }
 
   /**
@@ -124,6 +130,7 @@ public class AppNamespaceService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.CREATE, name = "appNamespace.create", attachReturnValue = true)
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
@@ -250,7 +257,12 @@ public class AppNamespaceService {
     return appNamespace;
   }
 
+  @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.batchDeleteByAppId")
   public void batchDeleteByAppId(String appId, String operator) {
+    // not very elegant
+    appNamespaceRepository.findByAppId(appId).stream().forEach(
+        appNs -> dataInfluenceProducer.appendDeleteDataInfluence(appNs.getId(), "AppNamespace")
+    );
     appNamespaceRepository.batchDeleteByAppId(appId, operator);
   }
 

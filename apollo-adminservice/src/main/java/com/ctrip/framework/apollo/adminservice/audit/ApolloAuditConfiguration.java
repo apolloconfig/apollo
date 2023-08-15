@@ -1,7 +1,6 @@
-package com.ctrip.framework.apollo.portal.audit;
+package com.ctrip.framework.apollo.adminservice.audit;
 
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 public class ApolloAuditConfiguration {
 
   @Bean
-  public ApolloAuditSpanService apolloAuditSpanService(UserInfoHolder userInfoHolder) {
-    return new PortalAuditSpanService(userInfoHolder);
+  public ApolloAuditSpanService apolloAuditSpanService() {
+    return new BizAuditSpanService();
   }
 
 }

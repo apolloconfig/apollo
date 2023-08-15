@@ -147,6 +147,26 @@
 				<artifactId>apollo-openapi</artifactId>
 				<version>${apollo-java.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<artifactId>apollo-audit-annotation</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<artifactId>apollo-audit-impl</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<artifactId>apollo-audit-api</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<artifactId>apollo-audit-spring-boot-starter</artifactId>
+				<version>${revision}</version>
+			</dependency>
 			<!--third party -->
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -613,17 +633,17 @@
 		</profile>
 	</profiles>
 
-<!--	<repositories>-->
-<!--		&lt;!&ndash; for apollo-core and apollo-openapi snapshot versions &ndash;&gt;-->
-<!--		<repository>-->
-<!--			<id>sonatype-nexus-snapshots</id>-->
-<!--			<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
-<!--			<releases>-->
-<!--				<enabled>false</enabled>-->
-<!--			</releases>-->
-<!--			<snapshots>-->
-<!--				<enabled>true</enabled>-->
-<!--			</snapshots>-->
-<!--		</repository>-->
-<!--	</repositories>-->
+	<repositories>
+		<!-- for apollo-core and apollo-openapi snapshot versions -->
+		<repository>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
 </project>

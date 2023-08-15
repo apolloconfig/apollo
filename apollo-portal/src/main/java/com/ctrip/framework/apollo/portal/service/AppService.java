@@ -17,14 +17,15 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AppAPI;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
@@ -55,17 +56,18 @@ public class AppService {
   private final RolePermissionService rolePermissionService;
   private final FavoriteService favoriteService;
   private final UserService userService;
+  private final ApolloAuditLogDataInfluenceProducer producer;
 
   public AppService(
       final UserInfoHolder userInfoHolder,
-      final AdminServiceAPI.AppAPI appAPI,
+      final AppAPI appAPI,
       final AppRepository appRepository,
       final ClusterService clusterService,
       final AppNamespaceService appNamespaceService,
       final RoleInitializationService roleInitializationService,
       final RolePermissionService rolePermissionService,
       final FavoriteService favoriteService,
-      final UserService userService) {
+      final UserService userService, ApolloAuditLogDataInfluenceProducer producer) {
     this.userInfoHolder = userInfoHolder;
     this.appAPI = appAPI;
     this.appRepository = appRepository;
@@ -75,6 +77,7 @@ public class AppService {
     this.rolePermissionService = rolePermissionService;
     this.favoriteService = favoriteService;
     this.userService = userService;
+    this.producer = producer;
   }
 
 
@@ -129,8 +132,8 @@ public class AppService {
 
 
   @Transactional
-  @ApolloAuditLog(type = OpType.CREATE, name = "app.create")
-  public App createAppInLocal(@ApolloAuditLogDataInfluence App app) {
+  @ApolloAuditLog(type = OpType.CREATE, name = "App.create", attachReturnValue = true)
+  public App createAppInLocal(App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 
@@ -178,6 +181,7 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.UPDATE, name = "App.update", autoCollectDataInfluence = false)
   public App updateAppInLocal(App app) {
     String appId = app.getAppId();
 
@@ -185,6 +189,8 @@ public class AppService {
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);
     }
+    App o = new App();
+    BeanUtils.copyProperties(managedApp, o);
 
     managedApp.setName(app.getName());
     managedApp.setOrgId(app.getOrgId());
@@ -201,6 +207,7 @@ public class AppService {
     String operator = userInfoHolder.getUser().getUserId();
     managedApp.setDataChangeLastModifiedBy(operator);
 
+    producer.appendUpdateDataInfluences(o, managedApp);
     return appRepository.save(managedApp);
   }
 
@@ -211,6 +218,7 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete", attachReturnValue = true)
   public App deleteAppInLocal(String appId) {
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {

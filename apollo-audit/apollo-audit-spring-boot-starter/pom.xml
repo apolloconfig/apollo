@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>apollo-audit</artifactId>
+    <groupId>com.ctrip.framework.apollo</groupId>
+    <version>${revision}</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+  <artifactId>apollo-audit-spring-boot-starter</artifactId>
+  <version>${revision}</version>
+
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+      <artifactId>apollo-audit-annotation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+      <artifactId>apollo-audit-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+      <artifactId>apollo-audit-api</artifactId>
+    </dependency>
+
+    <!-->third party<-->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>

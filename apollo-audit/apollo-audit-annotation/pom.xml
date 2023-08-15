@@ -3,24 +3,20 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <artifactId>apollo</artifactId>
+    <artifactId>apollo-audit</artifactId>
     <groupId>com.ctrip.framework.apollo</groupId>
     <version>${revision}</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>apollo-audit</artifactId>
-  <packaging>pom</packaging>
-  <name>Apollo Audit</name>
-  <modules>
-    <module>apollo-audit-annotation</module>
-    <module>apollo-audit-impl</module>
-    <module>apollo-audit-api</module>
-    <module>apollo-audit-spring-boot-starter</module>
-  </modules>
+  <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+  <artifactId>apollo-audit-annotation</artifactId>
+  <version>${revision}</version>
 
   <properties>
-    <github.path>${project.artifactId}</github.path>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
 </project>

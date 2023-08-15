@@ -18,11 +18,13 @@ package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.repository.AppRepository;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
+import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,10 +38,13 @@ public class AppService {
 
   private final AppRepository appRepository;
   private final AuditService auditService;
+  private final ApolloAuditLogDataInfluenceProducer dataInfluenceProducer;
 
-  public AppService(final AppRepository appRepository, final AuditService auditService) {
+  public AppService(final AppRepository appRepository, final AuditService auditService,
+      ApolloAuditLogDataInfluenceProducer dataInfluenceProducer) {
     this.appRepository = appRepository;
     this.auditService = auditService;
+    this.dataInfluenceProducer = dataInfluenceProducer;
   }
 
   public boolean isAppIdUnique(String appId) {
@@ -48,6 +53,7 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.DELETE, name = "app.delete", autoCollectDataInfluence = false)
   public void delete(long id, String operator) {
     App app = appRepository.findById(id).orElse(null);
     if (app == null) {
@@ -58,6 +64,7 @@ public class AppService {
     app.setDataChangeLastModifiedBy(operator);
     appRepository.save(app);
 
+    dataInfluenceProducer.appendDeleteDataInfluence(id, "App");
     auditService.audit(App.class.getSimpleName(), id, Audit.OP.DELETE, operator);
   }
 
@@ -75,7 +82,7 @@ public class AppService {
   }
 
   @Transactional
-  @ApolloAuditLog(type = OpType.CREATE, name = "app.create")
+  @ApolloAuditLog(type = OpType.CREATE, name = "app.create", attachReturnValue = true)
   public App save(App entity) {
     if (!isAppIdUnique(entity.getAppId())) {
       throw new ServiceException("appId not unique");
@@ -90,6 +97,7 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.UPDATE, name = "app.update", autoCollectDataInfluence = false)
   public void update(App app) {
     String appId = app.getAppId();
 
@@ -97,6 +105,8 @@ public class AppService {
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);
     }
+    App o = new App();
+    BeanUtils.copyEntityProperties(managedApp, o);
 
     managedApp.setName(app.getName());
     managedApp.setOrgId(app.getOrgId());
@@ -107,6 +117,7 @@ public class AppService {
 
     managedApp = appRepository.save(managedApp);
 
+    dataInfluenceProducer.appendUpdateDataInfluences(o, managedApp);
     auditService.audit(App.class.getSimpleName(), managedApp.getId(), Audit.OP.UPDATE,
         managedApp.getDataChangeLastModifiedBy());
 

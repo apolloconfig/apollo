@@ -123,7 +123,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateApplicationPermission()")
   @PostMapping
-  @ApolloAuditLog(type = OpType.CREATE, name = "user-command.app.create", logData = false)
+  @ApolloAuditLog(type = OpType.CREATE, name = "user-command.app.create", autoCollectDataInfluence = false)
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
@@ -144,6 +144,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @PutMapping("/{appId:.+}")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "user-command.app.update", autoCollectDataInfluence = false)
   public void update(@PathVariable String appId, @Valid @RequestBody AppModel appModel) {
     if (!Objects.equals(appId, appModel.getAppId())) {
       throw new BadRequestException("The App Id of path variable and request body is different");
@@ -195,6 +196,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping("/{appId:.+}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "user-command.app.delete", autoCollectDataInfluence = false)
   public void deleteApp(@PathVariable String appId) {
     App app = appService.deleteAppInLocal(appId);
 
