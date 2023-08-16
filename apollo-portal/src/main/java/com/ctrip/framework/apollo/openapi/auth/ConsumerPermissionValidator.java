@@ -75,7 +75,6 @@ public class ConsumerPermissionValidator {
 
   public boolean hasCreateApplicationPermission(HttpServletRequest request) {
     long consumerId = consumerAuthUtil.retrieveConsumerId(request);
-    // todo, use diff targetId?
     return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
   }
 }

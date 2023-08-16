@@ -16,24 +16,17 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.utils.InputValidator;
-import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
-import com.ctrip.framework.apollo.portal.listener.AppCreationEvent;
-import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,25 +63,6 @@ public class AppController {
       throw new BadRequestException("AppId is null");
     }
     this.appOpenApiService.createApp(openAppDTO);
-  }
-
-  /**
-   * @see com.ctrip.framework.apollo.portal.controller.AppController#create(String, App)
-   */
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission(#request)")
-  @PostMapping(value = "/env/{env}/apps/create")
-  public void createApp(
-      @PathVariable("env") String env,
-      @RequestBody OpenAppDTO openAppDTO,
-      HttpServletRequest request
-  ) {
-    if (null == env) {
-      throw new BadRequestException("env is null");
-    }
-    if (null == openAppDTO.getAppId()) {
-      throw new BadRequestException("AppId is null");
-    }
-    this.appOpenApiService.createApp(env, openAppDTO);
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")

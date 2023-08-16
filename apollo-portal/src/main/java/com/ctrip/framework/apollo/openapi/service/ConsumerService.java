@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.service;
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
@@ -196,8 +197,7 @@ public class ConsumerService {
     }
     Role createAppRole = rolePermissionService.findRoleByRoleName(CREATE_APPLICATION_ROLE_NAME);
     if (createAppRole == null) {
-      // todo
-      throw new BadRequestException("CreateApplication's role does not exist. Please ?.");
+      throw NotFoundException.roleNotFound(CREATE_APPLICATION_ROLE_NAME);
     }
 
     long roleId = createAppRole.getId();

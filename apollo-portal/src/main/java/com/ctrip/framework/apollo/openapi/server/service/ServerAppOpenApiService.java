@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
@@ -33,21 +32,19 @@ import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 /**
  * @author wxq
  */
 @Service
 public class ServerAppOpenApiService implements AppOpenApiService {
+
   private final PortalSettings portalSettings;
   private final ClusterService clusterService;
   private final AppService appService;
@@ -88,35 +85,13 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   @Override
   public void createApp(OpenAppDTO openAppDTO) {
     final String appId = openAppDTO.getAppId();
+
     List<OpenAppDTO> openAppDTOList = this.getAppsInfo(Collections.singletonList(appId));
     if (null != openAppDTOList && !openAppDTOList.isEmpty()) {
       throw new BadRequestException("AppId " + appId + " exists already, cannot create again");
     }
     App app = convert(openAppDTO);
-
-    App createdApp = appService.createAppInLocal(app);
-
-    publisher.publishEvent(new AppCreationEvent(createdApp));
-
-    // todo add admins
-//    Set<String> admins = appModel.getAdmins();
-//    if (!CollectionUtils.isEmpty(admins)) {
-//      rolePermissionService
-//          .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
-//              admins, userInfoHolder.getUser().getUserId());
-//    }
-  }
-
-  /**
-   * @see com.ctrip.framework.apollo.portal.controller.AppController#create(String, App)
-   */
-  @Override
-  public void createApp(String env, OpenAppDTO openAppDTO) {
-    App app = convert(openAppDTO);
-    appService.createAppInRemote(Env.valueOf(env), app);
-
-    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION,
-        env, userInfoHolder.getUser().getUserId());
+    appService.createAppAndAddRolePermission(app, openAppDTO.getAdmins());
   }
 
   @Override

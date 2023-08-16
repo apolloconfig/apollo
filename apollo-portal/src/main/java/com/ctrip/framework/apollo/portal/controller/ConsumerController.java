@@ -86,9 +86,11 @@ public class ConsumerController {
       @RequestParam(required = false) String envs,
       @RequestBody NamespaceDTO namespace
   ) {
+    List<ConsumerRole> consumerRoleList = new ArrayList<>(8);
     if (isAllowCreateApplication) {
       // when openapi create an app, it will become AppRole of this app too.
-      consumerService.assignCreateApplicationRoleToConsumer(token);
+      ConsumerRole consumerRole = consumerService.assignCreateApplicationRoleToConsumer(token);
+      consumerRoleList.add(consumerRole);
       // no return here because need add another role to this consumer
     }
 
@@ -125,7 +127,10 @@ public class ConsumerController {
       return consumeRoles;
     }
 
-    return consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName);
+    consumerRoleList.addAll(
+        consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName)
+    );
+    return consumerRoleList;
   }
 
   @GetMapping("/consumers")
