@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryWithoutDecorator
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceDiscoveryAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceRegistryAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
-import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import java.util.List;
 import org.junit.Test;
@@ -37,32 +36,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 /**
  * test when {@link DatabaseDiscoveryClient} doesn't warp by decorator.
  */
-@TestPropertySource(
-    properties = {
-        "apollo.service.registry.enabled=true",
-        "apollo.service.registry.cluster=default",
-        "apollo.service.discovery.enabled=true",
-        "spring.application.name=for-test-service",
-        "server.port=10000",
-        // close decorator
-        "ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration.enabled=true",
-    }
-)
-@ContextConfiguration(classes = {
-    ApolloServiceRegistryAutoConfiguration.class,
+@TestPropertySource(properties = {"apollo.service.registry.enabled=true",
+    "apollo.service.registry.cluster=default", "apollo.service.discovery.enabled=true",
+    "spring.application.name=for-test-service", "server.port=10000",
+    // close decorator
+    "ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration.enabled=true",})
+@ContextConfiguration(classes = {ApolloServiceRegistryAutoConfiguration.class,
     // notice that the order of classes is import
     // @AutoConfigureBefore(ApolloServiceDiscoveryAutoConfiguration.class) won't work when run test
     ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration.class,
-    ApolloServiceDiscoveryAutoConfiguration.class,
-})
-@EnableJpaRepositories(basePackageClasses = ServiceRegistryRepository.class)
+    ApolloServiceDiscoveryAutoConfiguration.class,})
 public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIntegrationTest {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -82,9 +71,7 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
     String serviceName = "a-service";
     String uri = "http://192.168.1.20:8080/";
     String cluster = "default";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, uri, cluster
-    );
+    ServiceInstance instance = newServiceInstance(serviceName, uri, cluster);
     this.serviceRegistry.register(instance);
 
     // find it
@@ -109,9 +96,8 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
   public void registerThenDiscoveryNone() {
     // register it
     String serviceName = "b-service";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, "http://192.168.1.20:8080/", "cannot-be-discovery"
-    );
+    ServiceInstance instance = newServiceInstance(serviceName, "http://192.168.1.20:8080/",
+        "cannot-be-discovery");
     this.serviceRegistry.register(instance);
 
     // find none
@@ -122,9 +108,8 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
   @Test
   public void registerTwice() {
     String serviceName = "c-service";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, "http://192.168.1.20:8080/", "default"
-    );
+    ServiceInstance instance = newServiceInstance(serviceName, "http://192.168.1.20:8080/",
+        "default");
 
     // register it
     this.serviceRegistry.register(instance);
@@ -142,15 +127,9 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
     final String cluster = "default";
 
     this.serviceRegistry.register(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:8080/", cluster
-        )
-    );
+        newServiceInstance(serviceName, "http://192.168.1.20:8080/", cluster));
     this.serviceRegistry.register(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:10000/", cluster
-        )
-    );
+        newServiceInstance(serviceName, "http://192.168.1.20:10000/", cluster));
 
     final List<ServiceInstance> serviceInstances = this.discoveryClient.getInstances(serviceName);
     assertEquals(2, serviceInstances.size());
@@ -163,10 +142,7 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
 
     // delete one
     this.serviceRegistry.deregister(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:10000/", cluster
-        )
-    );
+        newServiceInstance(serviceName, "http://192.168.1.20:10000/", cluster));
 
     assertEquals(1, this.discoveryClient.getInstances(serviceName).size());
     assertEquals("http://192.168.1.20:8080/",
@@ -180,19 +156,15 @@ public class DatabaseDiscoveryWithoutDecoratorIntegrationTest extends AbstractIn
   @ConditionalOnProperty(prefix = "ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration", value = "enabled")
   @ConditionalOnBean(ApolloServiceDiscoveryAutoConfiguration.class)
   @AutoConfigureBefore(ApolloServiceDiscoveryAutoConfiguration.class)
-  @EnableConfigurationProperties({
-      ApolloServiceDiscoveryProperties.class,
-  })
+  @EnableConfigurationProperties({ApolloServiceDiscoveryProperties.class,})
   static class ApolloServiceDiscoveryWithoutDecoratorAutoConfiguration {
+
     @Bean
     public DatabaseDiscoveryClient databaseDiscoveryClient(
-        ApolloServiceDiscoveryProperties discoveryProperties,
-        ServiceInstance selfServiceInstance,
-        ServiceRegistryService serviceRegistryService
-    ) {
-      return new DatabaseDiscoveryClientImpl(
-          serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster()
-      );
+        ApolloServiceDiscoveryProperties discoveryProperties, ServiceInstance selfServiceInstance,
+        ServiceRegistryService serviceRegistryService) {
+      return new DatabaseDiscoveryClientImpl(serviceRegistryService, discoveryProperties,
+          selfServiceInstance.getCluster());
     }
   }
 }

@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.audit;
 
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditLogDataInfluenceProducerImpl;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
@@ -34,6 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.annotation.Order;
 
 @Configuration
 @EnableConfigurationProperties(ApolloAuditProperties.class)
@@ -88,7 +90,7 @@ public class ApolloAuditAutoConfiguration {
       ApolloAuditLogService logService, ApolloAuditLogDataInfluenceService dataInfluenceService,
       ApolloAuditTracer tracer) {
     logger.info("registering ApolloAuditLogDataInfluenceProducer");
-    return new ApolloAuditLogDataInfluenceProducer(logService, dataInfluenceService, tracer);
+    return new ApolloAuditLogDataInfluenceProducerImpl(logService, dataInfluenceService, tracer);
   }
 
   @Bean

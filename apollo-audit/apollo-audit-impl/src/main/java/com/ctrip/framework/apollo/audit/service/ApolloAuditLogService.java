@@ -52,6 +52,7 @@ public class ApolloAuditLogService {
         .happenTime(new Date())
         .build();
 
+    auditLog.setId(0);
     logRepository.save(auditLog);
   }
 

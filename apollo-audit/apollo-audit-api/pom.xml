@@ -35,12 +35,4 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
-      <artifactId>apollo-audit-impl</artifactId>
-      <version>${revision}</version>
-    </dependency>
-  </dependencies>
-
 </project>

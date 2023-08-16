@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -44,7 +43,6 @@ import org.springframework.test.context.TestPropertySource;
     ApolloServiceRegistryAutoConfiguration.class,
     ApolloServiceDiscoveryAutoConfiguration.class,
 })
-@EnableJpaRepositories(basePackageClasses = ServiceRegistryRepository.class)
 public class ApolloServiceRegistryClearApplicationRunnerIntegrationTest
     extends AbstractIntegrationTest {
 

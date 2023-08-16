@@ -38,6 +38,11 @@
 			<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
 			<artifactId>apollo-audit-api</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+			<artifactId>apollo-audit-spring-boot-starter</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- eureka -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>

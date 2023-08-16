@@ -104,6 +104,7 @@ public class ApolloAuditSpanAspect {
       if (auditLog.attachReturnValue()) {
         dataInfluenceList.addAll(toRealList(returnVal));
       }
+
       logService.logSpan(span);
       if (auditLog.autoCollectDataInfluence()) {
         switch (auditLog.type()) {
@@ -121,8 +122,6 @@ public class ApolloAuditSpanAspect {
             break;
         }
       }
-    } catch (Exception e) {
-      e.printStackTrace();
     }
     return returnVal;
   }

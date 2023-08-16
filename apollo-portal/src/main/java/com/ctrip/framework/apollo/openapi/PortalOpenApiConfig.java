@@ -17,9 +17,7 @@
 package com.ctrip.framework.apollo.openapi;
 
 import com.ctrip.framework.apollo.common.controller.WebMvcConfig;
-
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -28,20 +26,20 @@ import org.springframework.stereotype.Component;
 @EnableAutoConfiguration
 @Configuration
 @ComponentScan(basePackageClasses = PortalOpenApiConfig.class)
-//@EntityScan("com.ctrip.framework.apollo.openapi.entity")
 public class PortalOpenApiConfig {
 
-	@Component
-	static class PortalWebMvcConfig extends WebMvcConfig {
-		@Override
-		public void customize(TomcatServletWebServerFactory factory) {
-			final String relaxedChars = "<>[\\]^`{|}";
-			final String tomcatRelaxedpathcharsProperty = "relaxedPathChars";
-			final String tomcatRelaxedquerycharsProperty = "relaxedQueryChars";
-			factory.addConnectorCustomizers(connector -> {
-				connector.setProperty(tomcatRelaxedpathcharsProperty, relaxedChars);
-				connector.setProperty(tomcatRelaxedquerycharsProperty, relaxedChars);
-			});
-		}
-	}
+  @Component
+  static class PortalWebMvcConfig extends WebMvcConfig {
+
+    @Override
+    public void customize(TomcatServletWebServerFactory factory) {
+      final String relaxedChars = "<>[\\]^`{|}";
+      final String tomcatRelaxedpathcharsProperty = "relaxedPathChars";
+      final String tomcatRelaxedquerycharsProperty = "relaxedQueryChars";
+      factory.addConnectorCustomizers(connector -> {
+        connector.setProperty(tomcatRelaxedpathcharsProperty, relaxedChars);
+        connector.setProperty(tomcatRelaxedquerycharsProperty, relaxedChars);
+      });
+    }
+  }
 }

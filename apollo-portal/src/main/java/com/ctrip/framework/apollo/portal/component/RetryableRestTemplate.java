@@ -136,12 +136,14 @@ public class RetryableRestTemplate {
     List<ServiceDTO> services = getAdminServices(env, ct);
     HttpHeaders extraHeaders = assembleExtraHeaders(env);
 
-    if(tracer.scopeManager().activeSpanContext() != null){
-      Map map = tracer.extract();
-      if(Objects.isNull(extraHeaders)){
-        extraHeaders = new HttpHeaders();
+    if(tracer!=null && tracer.scopeManager()!=null){
+      if(tracer.scopeManager().activeSpanContext() != null) {
+        Map map = tracer.extract();
+        if (Objects.isNull(extraHeaders)) {
+          extraHeaders = new HttpHeaders();
+        }
+        extraHeaders.putAll(map);
       }
-      extraHeaders.putAll(map);
     }
 
     for (ServiceDTO serviceDTO : services) {

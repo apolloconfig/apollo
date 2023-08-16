@@ -35,6 +35,10 @@
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-biz</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+			<artifactId>apollo-audit-spring-boot-starter</artifactId>
+		</dependency>
 		<!-- end of apollo -->
 		<!-- eureka -->
 		<dependency>

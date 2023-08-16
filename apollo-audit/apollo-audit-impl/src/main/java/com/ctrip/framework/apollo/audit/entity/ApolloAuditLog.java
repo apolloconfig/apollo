@@ -39,16 +39,16 @@ public class ApolloAuditLog {
   @Column(name = "SpanId", nullable = false)
   private String spanId;
 
-  @Column(name = "ParentSpanId", nullable = false)
+  @Column(name = "ParentSpanId", nullable = true)
   private String parentSpanId;
 
-  @Column(name = "FollowsFromSpanId", nullable = false)
+  @Column(name = "FollowsFromSpanId", nullable = true)
   private String followsFromSpanId;
 
-  @Column(name = "Operator", nullable = false)
+  @Column(name = "Operator", nullable = true)
   private String operator;
 
-  @Column(name = "OpType", nullable = false)
+  @Column(name = "OpType", nullable = true)
   private String opType;
 
   @Column(name = "OpName", nullable = true)
