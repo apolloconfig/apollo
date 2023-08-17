@@ -147,25 +147,26 @@
 				<artifactId>apollo-openapi</artifactId>
 				<version>${apollo-java.version}</version>
 			</dependency>
+			<!--audit log module -->
 			<dependency>
 				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
 				<artifactId>apollo-audit-annotation</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
 				<artifactId>apollo-audit-impl</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
 				<artifactId>apollo-audit-api</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
 				<artifactId>apollo-audit-spring-boot-starter</artifactId>
-				<version>${revision}</version>
+				<version>${project.version}</version>
 			</dependency>
 			<!--third party -->
 			<dependency>
