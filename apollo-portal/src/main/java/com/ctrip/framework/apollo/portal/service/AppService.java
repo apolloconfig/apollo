@@ -132,8 +132,7 @@ public class AppService {
     appAPI.createApp(env, appDTO);
   }
 
-  @Transactional
-  public App createAppInLocal(App app) {
+  private App createAppInLocal(App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 
@@ -165,7 +164,6 @@ public class AppService {
   public App createAppAndAddRolePermission(
       App app, Set<String> admins
   ) {
-    // the aop of @Transactional fail when invoke by internal class's method
     App createdApp = this.createAppInLocal(app);
 
     publisher.publishEvent(new AppCreationEvent(createdApp));
