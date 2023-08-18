@@ -27,7 +27,6 @@ import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.listener.AppCreationEvent;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
@@ -49,23 +48,13 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final ClusterService clusterService;
   private final AppService appService;
 
-  private final ApplicationEventPublisher publisher;
-
-  private final RoleInitializationService roleInitializationService;
-
-  private final UserInfoHolder userInfoHolder;
-
   public ServerAppOpenApiService(
       PortalSettings portalSettings,
       ClusterService clusterService,
-      AppService appService, ApplicationEventPublisher publisher,
-      RoleInitializationService roleInitializationService, UserInfoHolder userInfoHolder) {
+      AppService appService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
-    this.publisher = publisher;
-    this.roleInitializationService = roleInitializationService;
-    this.userInfoHolder = userInfoHolder;
   }
 
   private App convert(OpenAppDTO openAppDTO) {
