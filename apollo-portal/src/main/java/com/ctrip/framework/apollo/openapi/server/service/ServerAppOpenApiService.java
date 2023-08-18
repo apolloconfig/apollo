@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
@@ -29,13 +28,9 @@ import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
-import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 /**
@@ -73,12 +68,6 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    */
   @Override
   public void createApp(OpenAppDTO openAppDTO) {
-    final String appId = openAppDTO.getAppId();
-
-    List<OpenAppDTO> openAppDTOList = this.getAppsInfo(Collections.singletonList(appId));
-    if (null != openAppDTOList && !openAppDTOList.isEmpty()) {
-      throw new BadRequestException("AppId " + appId + " exists already, cannot create again");
-    }
     App app = convert(openAppDTO);
     appService.createAppAndAddRolePermission(app, openAppDTO.getAdmins());
   }
