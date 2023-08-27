@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -52,14 +53,14 @@ public class ServerAppOpenApiService implements AppOpenApiService {
     this.appService = appService;
   }
 
-  private App convert(OpenAppDTO openAppDTO) {
+  private App convert(OpenCreateAppDTO dto) {
     return App.builder()
-        .appId(openAppDTO.getAppId())
-        .name(openAppDTO.getName())
-        .ownerName(openAppDTO.getOwnerName())
-        .orgId(openAppDTO.getOrgId())
-        .orgName(openAppDTO.getOrgName())
-        .ownerEmail(openAppDTO.getOwnerEmail())
+        .appId(dto.getAppId())
+        .name(dto.getName())
+        .ownerName(dto.getOwnerName())
+        .orgId(dto.getOrgId())
+        .orgName(dto.getOrgName())
+        .ownerEmail(dto.getOwnerEmail())
         .build();
   }
 
@@ -67,9 +68,9 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
    */
   @Override
-  public void createApp(OpenAppDTO openAppDTO) {
-    App app = convert(openAppDTO);
-    appService.createAppAndAddRolePermission(app, openAppDTO.getAdmins());
+  public void createApp(OpenCreateAppDTO req) {
+    App app = convert(req);
+    appService.createAppAndAddRolePermission(app, req.getAdmins());
   }
 
   @Override

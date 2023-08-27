@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
+import com.ctrip.framework.apollo.openapi.dto.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
@@ -56,13 +57,13 @@ public class AppController {
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission(#request)")
   @PostMapping(value = "/apps")
   public void createApp(
-      @RequestBody OpenAppDTO openAppDTO,
+      @RequestBody OpenCreateAppDTO req,
       HttpServletRequest request
   ) {
-    if (null == openAppDTO.getAppId()) {
+    if (null == req.getAppId()) {
       throw new BadRequestException("AppId is null");
     }
-    this.appOpenApiService.createApp(openAppDTO);
+    this.appOpenApiService.createApp(req);
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")
