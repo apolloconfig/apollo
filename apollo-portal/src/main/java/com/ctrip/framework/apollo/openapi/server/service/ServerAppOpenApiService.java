@@ -17,18 +17,22 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.controller.ConsumerController;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,13 +48,16 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final ClusterService clusterService;
   private final AppService appService;
 
+  private final ConsumerService consumerService;
+
   public ServerAppOpenApiService(
       PortalSettings portalSettings,
       ClusterService clusterService,
-      AppService appService) {
+      AppService appService, ConsumerService consumerService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
+    this.consumerService = consumerService;
   }
 
   private App convert(OpenCreateAppDTO dto) {
@@ -71,6 +78,13 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   public void createApp(OpenCreateAppDTO req) {
     App app = convert(req);
     appService.createAppAndAddRolePermission(app, req.getAdmins());
+  }
+
+  /**
+   * @see ConsumerController#assignNamespaceRoleToConsumer(String, boolean, String, String, NamespaceDTO)
+   */
+  private void assignAppRoleToConsumer(String token, String appId) {
+    consumerService.assignAppRoleToConsumer(token, appId);
   }
 
   @Override

@@ -63,7 +63,16 @@ public class AppController {
     if (null == req.getAppId()) {
       throw new BadRequestException("AppId is null");
     }
-    this.appOpenApiService.createApp(req);
+    if (req.isAssignAppRoleToSelf()) {
+      // create app and assign app role to this consumer
+      this.appOpenApiService.createApp(req);
+      // todo @Transactional
+      long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
+      consumerService.assignAppRoleToConsumer(consumerId, req.getAppId());
+    } else {
+      // only create app
+      this.appOpenApiService.createApp(req);
+    }
   }
 
   @GetMapping(value = "/apps/{appId}/envclusters")

@@ -211,9 +211,15 @@ public class ConsumerService {
     return consumerRoleRepository.save(consumerRole);
   }
 
+
   @Transactional
   public ConsumerRole assignAppRoleToConsumer(String token, String appId) {
     Long consumerId = getConsumerIdByToken(token);
+    return assignAppRoleToConsumer(consumerId, appId);
+  }
+
+  @Transactional
+  public ConsumerRole assignAppRoleToConsumer(Long consumerId, String appId) {
     if (consumerId == null) {
       throw new BadRequestException("Token is Illegal");
     }
