@@ -55,9 +55,9 @@ public class AppController {
   /**
    * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
    */
+  @Transactional
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission(#request)")
   @PostMapping(value = "/apps")
-  @Transactional(rollbackOn = Exception.class)
   public void createApp(
       @RequestBody OpenCreateAppDTO req,
       HttpServletRequest request
