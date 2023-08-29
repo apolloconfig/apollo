@@ -27,6 +27,7 @@ import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import java.util.Arrays;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -56,19 +57,23 @@ public class AppController {
    */
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission(#request)")
   @PostMapping(value = "/apps")
+  @Transactional(rollbackOn = Exception.class)
   public void createApp(
       @RequestBody OpenCreateAppDTO req,
       HttpServletRequest request
   ) {
-    if (null == req.getAppId()) {
+    if (null == req.getApp()) {
+      throw new BadRequestException("App is null");
+    }
+    final OpenAppDTO app = req.getApp();
+    if (null == app.getAppId()) {
       throw new BadRequestException("AppId is null");
     }
     if (req.isAssignAppRoleToSelf()) {
       // create app and assign app role to this consumer
       this.appOpenApiService.createApp(req);
-      // todo @Transactional
       long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
-      consumerService.assignAppRoleToConsumer(consumerId, req.getAppId());
+      consumerService.assignAppRoleToConsumer(consumerId, app.getAppId());
     } else {
       // only create app
       this.appOpenApiService.createApp(req);

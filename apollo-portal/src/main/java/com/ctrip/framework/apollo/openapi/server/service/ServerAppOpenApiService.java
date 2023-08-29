@@ -23,7 +23,6 @@ import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
-import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
@@ -45,19 +44,16 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final ClusterService clusterService;
   private final AppService appService;
 
-  private final ConsumerService consumerService;
-
   public ServerAppOpenApiService(
       PortalSettings portalSettings,
       ClusterService clusterService,
-      AppService appService, ConsumerService consumerService) {
+      AppService appService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
-    this.consumerService = consumerService;
   }
 
-  private App convert(OpenCreateAppDTO dto) {
+  private App convert(OpenAppDTO dto) {
     return App.builder()
         .appId(dto.getAppId())
         .name(dto.getName())
@@ -73,7 +69,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    */
   @Override
   public void createApp(OpenCreateAppDTO req) {
-    App app = convert(req);
+    App app = convert(req.getApp());
     appService.createAppAndAddRolePermission(app, req.getAdmins());
   }
 
