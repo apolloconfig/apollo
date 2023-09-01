@@ -24,14 +24,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
+
 @Entity
 @Table(name = "`AuditLog`")
-public class ApolloAuditLog {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "`Id`")
-  private long id;
+@SQLDelete(sql = "Update AuditLog set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
+public class ApolloAuditLog extends BaseEntity{
 
   @Column(name = "TraceId", nullable = false)
   private String traceId;
@@ -54,22 +54,11 @@ public class ApolloAuditLog {
   @Column(name = "OpName", nullable = true)
   private String opName;
 
-  @Column(name = "HappenTime", nullable = true)
-  private Date happenTime;
-
   @Column(name = "Description", nullable = true)
   private String description;
 
   public static Builder builder() {
     return new Builder();
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
   }
 
   public String getTraceId() {
@@ -128,14 +117,6 @@ public class ApolloAuditLog {
     this.opName = opName;
   }
 
-  public Date getHappenTime() {
-    return happenTime;
-  }
-
-  public void setHappenTime(Date happenTime) {
-    this.happenTime = happenTime;
-  }
-
   public String getDescription() {
     return description;
   }
@@ -183,11 +164,6 @@ public class ApolloAuditLog {
 
     public Builder opName(String val) {
       auditLog.setOpName(val);
-      return this;
-    }
-
-    public Builder happenTime(Date val) {
-      auditLog.setHappenTime(val);
       return this;
     }
 

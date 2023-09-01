@@ -24,12 +24,12 @@ public class ApolloAuditSpanContext {
 
   private String operator;
 
-  public ApolloAuditSpanContext(String traceId, String spanId){
+  public ApolloAuditSpanContext(String traceId, String spanId) {
     this.traceId = traceId;
     this.spanId = spanId;
   }
 
-  public ApolloAuditSpanContext(String traceId, String spanId, String operator){
+  public ApolloAuditSpanContext(String traceId, String spanId, String operator) {
     this.traceId = traceId;
     this.spanId = spanId;
     this.operator = operator;

@@ -35,7 +35,7 @@
             <artifactId>apollo-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+            <groupId>com.ctrip.framework.apollo</groupId>
             <artifactId>apollo-audit-annotation</artifactId>
         </dependency>
         <dependency>

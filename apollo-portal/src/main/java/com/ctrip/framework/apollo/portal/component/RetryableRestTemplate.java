@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpTracerInterceptor;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -33,7 +33,6 @@ import java.lang.reflect.Type;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.HttpHostConnectException;
@@ -76,25 +75,27 @@ public class RetryableRestTemplate {
   private final PortalConfig portalConfig;
   private volatile String lastAdminServiceAccessTokens;
   private volatile Map<Env, String> adminServiceAccessTokenMap;
-  private final ApolloAuditTracer tracer;
+  private final ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig,
-      final ApolloAuditTracer tracer) {
+      final PortalConfig portalConfig, ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
     this.portalConfig = portalConfig;
-    this.tracer = tracer;
+    this.apolloAuditHttpTracerInterceptor = apolloAuditHttpTracerInterceptor;
   }
-
 
   @PostConstruct
   private void postConstruct() {
     restTemplate = restTemplateFactory.getObject();
+    //use
+    if (restTemplate != null) {
+      restTemplate.getInterceptors().add(apolloAuditHttpTracerInterceptor);
+    }
   }
 
   public <T> T get(Env env, String path, Class<T> responseType, Object... urlVariables)
@@ -135,16 +136,6 @@ public class RetryableRestTemplate {
 
     List<ServiceDTO> services = getAdminServices(env, ct);
     HttpHeaders extraHeaders = assembleExtraHeaders(env);
-
-    if(tracer!=null && tracer.scopeManager()!=null){
-      if(tracer.scopeManager().activeSpanContext() != null) {
-        Map map = tracer.extract();
-        if (Objects.isNull(extraHeaders)) {
-          extraHeaders = new HttpHeaders();
-        }
-        extraHeaders.putAll(map);
-      }
-    }
 
     for (ServiceDTO serviceDTO : services) {
       try {

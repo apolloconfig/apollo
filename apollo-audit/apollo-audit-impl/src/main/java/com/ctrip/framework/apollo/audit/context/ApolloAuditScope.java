@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.audit.context;
 
-import java.io.Closeable;
 import java.io.IOException;
 
-public class ApolloAuditScope implements Closeable {
+public class ApolloAuditScope implements AutoCloseable {
 
   private final ApolloAuditScopeManager manager;
   private final ApolloAuditSpanContext activate;
@@ -33,14 +32,14 @@ public class ApolloAuditScope implements Closeable {
     this.lastSpanContext = null;
   }
 
-  public ApolloAuditSpanContext activeContext(){
+  public ApolloAuditSpanContext activeContext() {
     return activate;
   }
 
   @Override
   public void close() throws IOException {
     // 将要关闭的span成为 父scope 中的"上一个span"
-    if(hangUp != null) {
+    if (hangUp != null) {
       hangUp.lastSpanContext = this.activate;
     }
     this.manager.setScope(hangUp);

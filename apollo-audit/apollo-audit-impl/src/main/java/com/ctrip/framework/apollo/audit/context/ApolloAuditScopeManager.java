@@ -22,17 +22,19 @@ public class ApolloAuditScopeManager {
 
   private ApolloAuditScope scope;
 
-  public ApolloAuditScopeManager(){}
+  public ApolloAuditScopeManager() {
+  }
 
-  public ApolloAuditScope activate(ApolloAuditSpanContext spanContext){
+  public ApolloAuditScope activate(ApolloAuditSpanContext spanContext) {
     scope = new ApolloAuditScope(spanContext, this);
     return scope;
   }
+
   public void deactivate() throws IOException {
     scope.close();
   }
 
-  public ApolloAuditSpanContext activeSpanContext(){
+  public ApolloAuditSpanContext activeSpanContext() {
     return scope == null ? null : scope.activeContext();
   }
 

@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class AppNamespaceService {
   private final RoleInitializationService roleInitializationService;
   private final AppService appService;
   private final RolePermissionService rolePermissionService;
-  private final ApolloAuditLogDataInfluenceProducer dataInfluenceProducer;
+  private final ApolloAuditLogApi apolloAuditLogApi;
 
   public AppNamespaceService(
       final UserInfoHolder userInfoHolder,
@@ -57,13 +58,13 @@ public class AppNamespaceService {
       final RoleInitializationService roleInitializationService,
       final @Lazy AppService appService,
       final RolePermissionService rolePermissionService,
-      ApolloAuditLogDataInfluenceProducer dataInfluenceProducer) {
+      final ApolloAuditLogApi apolloAuditLogApi) {
     this.userInfoHolder = userInfoHolder;
     this.appNamespaceRepository = appNamespaceRepository;
     this.roleInitializationService = roleInitializationService;
     this.appService = appService;
     this.rolePermissionService = rolePermissionService;
-    this.dataInfluenceProducer = dataInfluenceProducer;
+    this.apolloAuditLogApi = apolloAuditLogApi;
   }
 
   /**
@@ -130,7 +131,7 @@ public class AppNamespaceService {
   }
 
   @Transactional
-  @ApolloAuditLog(type = OpType.CREATE, name = "appNamespace.create", attachReturnValue = true)
+  @ApolloAuditLog(type = OpType.CREATE, name = "appNamespace.create", autoLog = true)
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
@@ -259,10 +260,10 @@ public class AppNamespaceService {
 
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.batchDeleteByAppId")
   public void batchDeleteByAppId(String appId, String operator) {
-    // not very elegant
-    appNamespaceRepository.findByAppId(appId).stream().forEach(
-        appNs -> dataInfluenceProducer.appendDeleteDataInfluence(appNs.getId(), "AppNamespace")
-    );
+    // not elegant, should manually query
+    apolloAuditLogApi.appendDataInfluencesByManagedClass(appNamespaceRepository.findByAppId(appId),
+        OpType.DELETE, AppNamespace.class);
+
     appNamespaceRepository.batchDeleteByAppId(appId, operator);
   }
 

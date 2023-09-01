@@ -18,13 +18,8 @@ package com.ctrip.framework.apollo.audit.aop;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
-import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
-import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -32,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -41,18 +37,10 @@ import org.aspectj.lang.reflect.MethodSignature;
 @Aspect
 public class ApolloAuditSpanAspect {
 
-  private final ApolloAuditTracer tracer;
-  private final ApolloAuditLogService logService;
-  private final ApolloAuditSpanService spanService;
-  private final ApolloAuditLogDataInfluenceProducer dataInfluenceProducer;
+  private final ApolloAuditLogApi api;
 
-  public ApolloAuditSpanAspect(ApolloAuditTracer tracer, ApolloAuditLogService logService,
-      ApolloAuditSpanService spanService,
-      ApolloAuditLogDataInfluenceProducer dataInfluenceProducer) {
-    this.tracer = tracer;
-    this.logService = logService;
-    this.spanService = spanService;
-    this.dataInfluenceProducer = dataInfluenceProducer;
+  public ApolloAuditSpanAspect(ApolloAuditLogApi api) {
+    this.api = api;
   }
 
   // get parameters with @ApolloAuditLogDataInfluence
@@ -76,6 +64,9 @@ public class ApolloAuditSpanAspect {
 
   // if obj is list, split to real list
   static List<Object> toRealList(Object obj) {
+    if (Objects.isNull(obj)) {
+      return Collections.emptyList();
+    }
     if (obj instanceof Collection) {
       Collection<?> collection = (Collection<?>) obj;
       return new ArrayList<>(collection);
@@ -91,69 +82,21 @@ public class ApolloAuditSpanAspect {
   @Around(value = "setAuditSpan(auditLog)")
   public Object around(ProceedingJoinPoint pjp, ApolloAuditLog auditLog) throws Throwable {
 
-    ApolloAuditSpanContext parentSpanContext = getParentContext();
-    ApolloAuditSpan span = generateSpan(parentSpanContext, auditLog);
-
     List<Object> dataInfluenceList = getDataInfluenceList(pjp);
     Object returnVal = null;
 
-    try (ApolloAuditScope scope = tracer.scopeManager().activate(span.getSpanContext())) {
-      span.log();
+    try (AutoCloseable scope = api.appendSpan(auditLog.type(), auditLog.name(),
+        auditLog.description())) {
       returnVal = pjp.proceed();
-      // process in the scope
-      if (auditLog.attachReturnValue()) {
+      if (dataInfluenceList.isEmpty()) {
         dataInfluenceList.addAll(toRealList(returnVal));
       }
-
-      logService.logSpan(span);
-      if (auditLog.autoCollectDataInfluence()) {
-        switch (auditLog.type()) {
-          case CREATE:
-          case UPDATE:// auto collect could only capture the newest entity status
-            // default record return value as the new changed data
-            for (Object o : dataInfluenceList) {
-              dataInfluenceProducer.appendCreateDataInfluences(o);
-            }
-            break;
-          case DELETE:
-            for (Object o : dataInfluenceList) {
-              dataInfluenceProducer.appendDeleteDataInfluences(o);
-            }
-            break;
-        }
+      if (!dataInfluenceList.isEmpty() && auditLog.autoLog()) {
+        api.appendDataInfluencesByManagedClass(dataInfluenceList, auditLog.type(),
+            dataInfluenceList.get(0).getClass());
       }
     }
     return returnVal;
-  }
-
-  String getFollowSFromId() {
-    if (tracer.scopeManager().getScope() == null) {
-      return null;
-    }
-    if (tracer.scopeManager().getScope().getLastSpanContext() == null) {
-      return null;
-    }
-    return tracer.scopeManager().getScope().getLastSpanContext().getSpanId();
-  }
-
-  ApolloAuditSpanContext getParentContext() {
-    ApolloAuditSpanContext parentContext = tracer.scopeManager().activeSpanContext();
-    if (parentContext == null) {
-      parentContext = spanService.tryToGetParentSpanContext();
-    }
-    return parentContext;
-  }
-
-  // depend on parentSpanContext
-  ApolloAuditSpan generateSpan(ApolloAuditSpanContext parentSpanContext, ApolloAuditLog auditLog) {
-    if (parentSpanContext == null) {
-      return tracer.buildSpan(auditLog.type(), auditLog.name())
-          .asRootSpan(spanService.getOperator()).description(auditLog.description())
-          .followsFrom(getFollowSFromId()).build();
-    } else {
-      return tracer.buildSpan(auditLog.type(), auditLog.name()).asChildOf(parentSpanContext)
-          .description(auditLog.description()).followsFrom(getFollowSFromId()).build();
-    }
   }
 
 }

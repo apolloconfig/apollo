@@ -32,11 +32,11 @@ public class ApolloAuditTracer {
     this.manager = manager;
   }
 
-  public ApolloAuditScopeManager scopeManager(){
+  public ApolloAuditScopeManager scopeManager() {
     return manager;
   }
 
-  public Map<String, List<String>> extract(){
+  public Map<String, List<String>> extract() {
     Map<String, List<String>> map = new HashMap<>();
     map.put(ApolloAuditHttpHeader.TRACE_ID,
         Collections.singletonList(manager.activeSpanContext().getTraceId()));
@@ -47,37 +47,38 @@ public class ApolloAuditTracer {
     return map;
   }
 
-  public ApolloAuditSpanContext inject(Map<String, String> map){
-    if(map.isEmpty()){
+  public ApolloAuditSpanContext inject(Map<String, String> map) {
+    if (map.isEmpty()) {
       return null;
     }
-    ApolloAuditSpanContext context = new ApolloAuditSpanContext(map.get(ApolloAuditHttpHeader.TRACE_ID),
-        ApolloAuditHttpHeader.SPAN_ID);
+    ApolloAuditSpanContext context = new ApolloAuditSpanContext(
+        map.get(ApolloAuditHttpHeader.TRACE_ID), ApolloAuditHttpHeader.SPAN_ID);
     context.setOperator(ApolloAuditHttpHeader.OPERATOR);
     return context;
   }
 
-  public AuditSpanBuilder buildSpan(OpType type, String name){
+  public AuditSpanBuilder buildSpan(OpType type, String name) {
     return new AuditSpanBuilder(type, name);
   }
 
-  public static class AuditSpanBuilder{
+  public static class AuditSpanBuilder {
+
     private String traceId;
     private String spanId;
     private String operator;
 
     private String parentId;
     private String followsFromId;
-    private OpType opType;
-    private String opName;
+    private final OpType opType;
+    private final String opName;
     private String description;
 
-    public AuditSpanBuilder(OpType type, String name){
+    public AuditSpanBuilder(OpType type, String name) {
       opType = type;
       opName = name;
     }
 
-    public AuditSpanBuilder asChildOf(ApolloAuditSpanContext parentContext){
+    public AuditSpanBuilder asChildOf(ApolloAuditSpanContext parentContext) {
       traceId = parentContext.getTraceId();
       operator = parentContext.getOperator();
       parentId = parentContext.getSpanId();
@@ -90,25 +91,25 @@ public class ApolloAuditTracer {
       return this;
     }
 
-    public AuditSpanBuilder followsFrom(String id){
+    public AuditSpanBuilder followsFrom(String id) {
       this.followsFromId = id;
       return this;
     }
 
-    public AuditSpanBuilder description(String val){
+    public AuditSpanBuilder description(String val) {
       this.description = val;
       return this;
     }
 
-    public AuditSpanBuilder context(ApolloAuditSpanContext val){
+    public AuditSpanBuilder context(ApolloAuditSpanContext val) {
       this.traceId = val.getTraceId();
       this.operator = val.getOperator();
       return this;
     }
 
-    public ApolloAuditSpan build(){
+    public ApolloAuditSpan build() {
       spanId = ApolloAuditUtil.generateId();
-      ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId,spanId);
+      ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId, spanId);
       context.setOperator(operator);
 
       ApolloAuditSpan span = new ApolloAuditSpan();

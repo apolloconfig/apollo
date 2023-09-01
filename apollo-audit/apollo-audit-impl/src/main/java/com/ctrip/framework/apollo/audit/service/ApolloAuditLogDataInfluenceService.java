@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.audit.service;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 
 public class ApolloAuditLogDataInfluenceService {
@@ -33,6 +35,7 @@ public class ApolloAuditLogDataInfluenceService {
   public ApolloAuditLogDataInfluence save(ApolloAuditLogDataInfluence dataInfluence) {
     // protect
     dataInfluence.setId(0);
+    dataInfluence.setDataChangeCreatedBy("");
     return dataInfluenceRepository.save(dataInfluence);
   }
 
@@ -40,8 +43,14 @@ public class ApolloAuditLogDataInfluenceService {
     dataInfluenceRepository.saveAll(dataInfluences);
   }
 
-  public List<ApolloAuditLogDataInfluence> findBySpanId(String spanId) {
-    return dataInfluenceRepository.findBySpanId(spanId);
+  public Page<ApolloAuditLogDataInfluence> findBySpanId(String spanId, Pageable page) {
+    return dataInfluenceRepository.findBySpanIdOrderByDataChangeCreatedTimeDesc(spanId, page);
+  }
+
+  public Page<ApolloAuditLogDataInfluence> findByEntity(String entityName, String entityId,
+      Pageable page) {
+    return dataInfluenceRepository.findByInfluenceEntityIdAndInfluenceEntityNameOrderByDataChangeCreatedTimeDesc(
+        entityName, entityId, page);
   }
 
 

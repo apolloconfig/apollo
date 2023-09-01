@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -56,7 +56,7 @@ public class AppService {
   private final RolePermissionService rolePermissionService;
   private final FavoriteService favoriteService;
   private final UserService userService;
-  private final ApolloAuditLogDataInfluenceProducer producer;
+  private final ApolloAuditLogApi apolloAuditLogApi;
 
   public AppService(
       final UserInfoHolder userInfoHolder,
@@ -67,7 +67,8 @@ public class AppService {
       final RoleInitializationService roleInitializationService,
       final RolePermissionService rolePermissionService,
       final FavoriteService favoriteService,
-      final UserService userService, ApolloAuditLogDataInfluenceProducer producer) {
+      final UserService userService,
+      final ApolloAuditLogApi apolloAuditLogApi) {
     this.userInfoHolder = userInfoHolder;
     this.appAPI = appAPI;
     this.appRepository = appRepository;
@@ -77,7 +78,7 @@ public class AppService {
     this.rolePermissionService = rolePermissionService;
     this.favoriteService = favoriteService;
     this.userService = userService;
-    this.producer = producer;
+    this.apolloAuditLogApi = apolloAuditLogApi;
   }
 
 
@@ -132,7 +133,7 @@ public class AppService {
 
 
   @Transactional
-  @ApolloAuditLog(type = OpType.CREATE, name = "App.create", attachReturnValue = true)
+  @ApolloAuditLog(type = OpType.CREATE, name = "App.create", autoLog = true)
   public App createAppInLocal(App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
@@ -181,7 +182,7 @@ public class AppService {
   }
 
   @Transactional
-  @ApolloAuditLog(type = OpType.UPDATE, name = "App.update", autoCollectDataInfluence = false)
+  @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
   public App updateAppInLocal(App app) {
     String appId = app.getAppId();
 
@@ -207,7 +208,6 @@ public class AppService {
     String operator = userInfoHolder.getUser().getUserId();
     managedApp.setDataChangeLastModifiedBy(operator);
 
-    producer.appendUpdateDataInfluences(o, managedApp);
     return appRepository.save(managedApp);
   }
 
@@ -218,7 +218,7 @@ public class AppService {
   }
 
   @Transactional
-  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete", attachReturnValue = true)
+  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete", autoLog = true)
   public App deleteAppInLocal(String appId) {
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {

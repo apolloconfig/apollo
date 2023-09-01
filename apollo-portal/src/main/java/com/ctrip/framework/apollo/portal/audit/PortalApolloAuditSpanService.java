@@ -25,11 +25,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class PortalAuditSpanService implements ApolloAuditSpanService {
+public class PortalApolloAuditSpanService implements ApolloAuditSpanService {
 
   private final UserInfoHolder userInfoHolder;
 
-  public PortalAuditSpanService(UserInfoHolder userInfoHolder) {
+  public PortalApolloAuditSpanService(UserInfoHolder userInfoHolder) {
     this.userInfoHolder = userInfoHolder;
   }
 

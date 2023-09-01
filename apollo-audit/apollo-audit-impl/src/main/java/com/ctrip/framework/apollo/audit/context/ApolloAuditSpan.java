@@ -33,12 +33,13 @@ public class ApolloAuditSpan {
 
   private ApolloAuditSpanContext spanContext;
 
-  public ApolloAuditSpanContext context(){
+  public ApolloAuditSpanContext context() {
     return this.spanContext;
   }
 
   //just do nothing
-  public void finish(){}
+  public void finish() {
+  }
 
   public String id() {
     return spanContext.getSpanId();
@@ -52,7 +53,7 @@ public class ApolloAuditSpan {
     return spanContext.getTraceId();
   }
 
-  public void log(){
+  public void log() {
     logger.info("Span of " + this.opName + " generated!");
   }
 

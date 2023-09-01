@@ -19,8 +19,9 @@ package com.ctrip.framework.apollo.audit.service;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
-import java.util.Date;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public class ApolloAuditLogService {
 
@@ -45,19 +46,20 @@ public class ApolloAuditLogService {
         .spanId(span.context().getSpanId())
         .parentSpanId(span.getParentId())
         .followsFromSpanId(span.getFollowsFromId())
-        .operator(span.context().getOperator())
+        .operator(span.context().getOperator() != null ? span.context().getOperator() : "unknown")
         .opName(span.getOpName())
         .opType(span.getOpType().toString())
         .description(span.getDescription())
-        .happenTime(new Date())
         .build();
 
     auditLog.setId(0);
+    auditLog.setDataChangeCreatedBy(
+        span.context().getOperator() != null ? span.context().getOperator() : "unknown");
     logRepository.save(auditLog);
   }
 
-  public List<ApolloAuditLog> findAuditLogByTraceId(String traceId) {
-    return logRepository.findByTraceId(traceId);
+  public List<ApolloAuditLog> findAuditLogByTraceId(String traceId, Pageable page) {
+    return logRepository.findByTraceIdOrderByDataChangeCreatedTimeDesc(traceId, page);
   }
 
 }

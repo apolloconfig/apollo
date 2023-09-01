@@ -14,18 +14,20 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.api;
+package com.ctrip.framework.apollo.audit.component;
 
-public interface ApolloAuditLogDataInfluenceProducer {
+import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
 
-  void appendUpdateDataInfluences(Object o, Object n);
+public class NoOpAuditSpanService implements ApolloAuditSpanService {
 
-  void appendCreateDataInfluences(Object n);
+  @Override
+  public ApolloAuditSpanContext tryToGetParentSpanContext() {
+    return null;
+  }
 
-  void appendDeleteDataInfluences(Object o);
-
-  void appendDeleteDataInfluence(long deleteId, String deleteEntityName);
-
-  void appendSingleDataInfluence(long entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue);
+  @Override
+  public String getOperator() {
+    return "unknown";
+  }
 }

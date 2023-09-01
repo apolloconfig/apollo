@@ -26,7 +26,7 @@ public class ApolloAuditConfiguration {
 
   @Bean
   public ApolloAuditSpanService apolloAuditSpanService(UserInfoHolder userInfoHolder) {
-    return new PortalAuditSpanService(userInfoHolder);
+    return new PortalApolloAuditSpanService(userInfoHolder);
   }
 
 }

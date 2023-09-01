@@ -27,9 +27,6 @@ public @interface ApolloAuditLog {
   OpType type();
   String name();
   String description() default "no description";
-  // decide on whether to log data influence
-  boolean autoCollectDataInfluence() default true;
-  // meaning annotate return value as 'ApolloAuditLogDataInfluence'
-  boolean attachReturnValue() default false;
+  boolean autoLog() default false;
 }
 

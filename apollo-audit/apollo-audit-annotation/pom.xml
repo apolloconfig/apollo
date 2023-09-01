@@ -25,14 +25,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
   <artifactId>apollo-audit-annotation</artifactId>
   <version>${revision}</version>
-
-  <properties>
-    <maven.compiler.source>8</maven.compiler.source>
-    <maven.compiler.target>8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
 
 </project>

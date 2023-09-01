@@ -22,15 +22,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "`AuditLogDataInfluence`")
-public class ApolloAuditLogDataInfluence {
-
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "`Id`")
-  private long id;
+@SQLDelete(sql = "Update ApolloAuditLogDataInfluence set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
+public class ApolloAuditLogDataInfluence extends BaseEntity{
 
   @Column(name = "SpanId", nullable = false)
   private String spanId;
@@ -39,7 +38,7 @@ public class ApolloAuditLogDataInfluence {
   private String influenceEntityName;
 
   @Column(name = "InfluenceEntityId", nullable = false)
-  private long influenceEntityId;
+  private String influenceEntityId;
 
   @Column(name = "FieldName", nullable = true)
   private String fieldName;
@@ -53,7 +52,7 @@ public class ApolloAuditLogDataInfluence {
   public ApolloAuditLogDataInfluence() {
   }
 
-  public ApolloAuditLogDataInfluence(String spanId, String entityName, long entityId,
+  public ApolloAuditLogDataInfluence(String spanId, String entityName, String entityId,
       String fieldName, String oldVal, String newVal) {
     this.spanId = spanId;
     this.influenceEntityName = entityName;
@@ -65,14 +64,6 @@ public class ApolloAuditLogDataInfluence {
 
   public static Builder builder() {
     return new Builder();
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public void setId(long id) {
-    this.id = id;
   }
 
   public String getSpanId() {
@@ -91,11 +82,11 @@ public class ApolloAuditLogDataInfluence {
     this.influenceEntityName = influenceEntityName;
   }
 
-  public long getInfluenceEntityId() {
+  public String getInfluenceEntityId() {
     return influenceEntityId;
   }
 
-  public void setInfluenceEntityId(long influenceEntityId) {
+  public void setInfluenceEntityId(String influenceEntityId) {
     this.influenceEntityId = influenceEntityId;
   }
 
@@ -135,7 +126,7 @@ public class ApolloAuditLogDataInfluence {
       return this;
     }
 
-    public Builder entityId(long val) {
+    public Builder entityId(String val) {
       influence.setInfluenceEntityId(val);
       return this;
     }

@@ -25,21 +25,18 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
   <artifactId>apollo-audit-impl</artifactId>
   <version>${revision}</version>
 
-  <properties>
-    <maven.compiler.source>8</maven.compiler.source>
-    <maven.compiler.target>8</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <dependencies>
     <dependency>
-      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+      <groupId>com.ctrip.framework.apollo</groupId>
       <artifactId>apollo-audit-annotation</artifactId>
-      <version>${revision}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.ctrip.framework.apollo</groupId>
+      <artifactId>apollo-audit-api</artifactId>
     </dependency>
 
     <dependency>
@@ -48,9 +45,10 @@
     </dependency>
 
     <dependency>
-      <groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
-      <artifactId>apollo-audit-api</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+
   </dependencies>
 
 </project>

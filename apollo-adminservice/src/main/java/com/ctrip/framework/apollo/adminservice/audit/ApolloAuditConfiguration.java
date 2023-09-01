@@ -25,7 +25,7 @@ public class ApolloAuditConfiguration {
 
   @Bean
   public ApolloAuditSpanService apolloAuditSpanService() {
-    return new BizAuditSpanService();
+    return new AdminApolloAuditSpanService();
   }
 
 }

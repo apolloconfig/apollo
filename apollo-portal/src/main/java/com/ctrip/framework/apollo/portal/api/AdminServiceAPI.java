@@ -60,17 +60,17 @@ public class AdminServiceAPI {
       return restTemplate.get(env, "apps/{appId}", AppDTO.class, appId);
     }
 
-    @ApolloAuditLog(type = OpType.CREATE, name = "rpc.App.create", autoCollectDataInfluence = false)
+    @ApolloAuditLog(type = OpType.CREATE, name = "rpc.App.create")
     public AppDTO createApp(Env env, AppDTO app) {
       return restTemplate.post(env, "apps", app, AppDTO.class);
     }
 
-    @ApolloAuditLog(type = OpType.UPDATE, name = "rpc.App.update", autoCollectDataInfluence = false)
+    @ApolloAuditLog(type = OpType.UPDATE, name = "rpc.App.update")
     public void updateApp(Env env, AppDTO app) {
       restTemplate.put(env, "apps/{appId}", app, app.getAppId());
     }
 
-    @ApolloAuditLog(type = OpType.DELETE, name = "rpc.App.delete", autoCollectDataInfluence = false)
+    @ApolloAuditLog(type = OpType.DELETE, name = "rpc.App.delete")
     public void deleteApp(Env env, String appId, String operator) {
       restTemplate.delete(env, "/apps/{appId}?operator={operator}", appId, operator);
     }

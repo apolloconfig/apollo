@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-public class BizAuditSpanService implements ApolloAuditSpanService {
+public class AdminApolloAuditSpanService implements ApolloAuditSpanService {
 
 
   @Override
@@ -50,7 +50,7 @@ public class BizAuditSpanService implements ApolloAuditSpanService {
   public String getOperator() {
     ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     if(servletRequestAttributes == null) {
-      return "anonymous";
+      return "unknown";
     }
     HttpServletRequest request = servletRequestAttributes.getRequest();
     return request.getHeader(ApolloAuditHttpHeader.OPERATOR);

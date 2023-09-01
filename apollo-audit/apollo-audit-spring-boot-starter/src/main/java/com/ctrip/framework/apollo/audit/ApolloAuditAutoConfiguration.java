@@ -17,16 +17,18 @@
 package com.ctrip.framework.apollo.audit;
 
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogDataInfluenceProducer;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditLogDataInfluenceProducerImpl;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpTracerInterceptor;
+import com.ctrip.framework.apollo.audit.component.DaoApolloAuditLogApi;
+import com.ctrip.framework.apollo.audit.component.NoOpAuditSpanService;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.controller.ApolloAuditController;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
-import com.ctrip.framework.apollo.audit.spi.defaultimpl.DefaultAuditSpanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,7 +37,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.annotation.Order;
 
 @Configuration
 @EnableConfigurationProperties(ApolloAuditProperties.class)
@@ -53,7 +54,7 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditLogDataInfluenceService dataInfluenceService(
+  public ApolloAuditLogDataInfluenceService apolloAuditLogDataInfluenceService(
       ApolloAuditLogDataInfluenceRepository dataInfluenceRepository) {
     logger.info("registering ApolloAuditLogDataInfluenceService");
     return new ApolloAuditLogDataInfluenceService(dataInfluenceRepository);
@@ -69,13 +70,13 @@ public class ApolloAuditAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean(ApolloAuditSpanService.class)
   public ApolloAuditSpanService apolloAuditSpanService() {
-    logger.info("ApolloAuditSpanService impl not found, register by default impl");
-    return new DefaultAuditSpanService();
+    logger.info("ApolloAuditSpanService impl not found, register by default implement");
+    return new NoOpAuditSpanService();
   }
 
   @Bean
   @ConditionalOnMissingBean(ApolloAuditScopeManager.class)
-  public ApolloAuditScopeManager auditScopeManager() {
+  public ApolloAuditScopeManager apolloAuditScopeManager() {
     return new ApolloAuditScopeManager();
   }
 
@@ -86,19 +87,30 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditLogDataInfluenceProducer apolloAuditLogDataInfluenceProducer(
-      ApolloAuditLogService logService, ApolloAuditLogDataInfluenceService dataInfluenceService,
+  public ApolloAuditLogApi apolloAuditLogApi(ApolloAuditLogService logService,
+      ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditSpanService spanService,
       ApolloAuditTracer tracer) {
-    logger.info("registering ApolloAuditLogDataInfluenceProducer");
-    return new ApolloAuditLogDataInfluenceProducerImpl(logService, dataInfluenceService, tracer);
+    logger.info("registering DaoApolloAuditLogAppender");
+
+    return new DaoApolloAuditLogApi(logService, dataInfluenceService, spanService, tracer);
   }
 
   @Bean
-  public ApolloAuditSpanAspect auditSpanAspect(ApolloAuditTracer tracer,
-      ApolloAuditLogService logService, ApolloAuditSpanService spanService,
-      ApolloAuditLogDataInfluenceProducer producer) {
+  public ApolloAuditSpanAspect apolloAuditSpanAspect(ApolloAuditLogApi apolloAuditLogApi) {
     logger.info("registering ApolloAuditSpanAspect");
-    return new ApolloAuditSpanAspect(tracer, logService, spanService, producer);
+    return new ApolloAuditSpanAspect(apolloAuditLogApi);
+  }
+
+  @Bean
+  public ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor(
+      ApolloAuditTracer tracer) {
+    return new ApolloAuditHttpTracerInterceptor(tracer);
+  }
+
+  @Bean
+  public ApolloAuditController apolloAuditController(ApolloAuditLogService logService,
+      ApolloAuditLogDataInfluenceService dataInfluenceService) {
+    return new ApolloAuditController(logService, dataInfluenceService);
   }
 
 }

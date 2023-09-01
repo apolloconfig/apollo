@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.util;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ import java.util.stream.Collectors;
 
 public class ApolloAuditUtil {
 
-  public static String generateId(){
-    return UUID.randomUUID().toString().replaceAll("-","");
+  public static String generateId() {
+    return UUID.randomUUID().toString().replaceAll("-", "");
   }
 
   public static long getIdByReflect(Object o) {
@@ -40,7 +41,8 @@ public class ApolloAuditUtil {
         idField = o.getClass().getDeclaredField("id");
         idField.setAccessible(true);
         return (long) idField.get(o);
-      } else if (Arrays.stream(clazz.getSuperclass().getDeclaredFields()).anyMatch(f -> f.getName().equals("id"))) {
+      } else if (Arrays.stream(clazz.getSuperclass().getDeclaredFields())
+          .anyMatch(f -> f.getName().equals("id"))) {
         idField = o.getClass().getSuperclass().getDeclaredField("id");
         idField.setAccessible(true);
         return (long) idField.get(o);
@@ -52,20 +54,55 @@ public class ApolloAuditUtil {
     }
   }
 
-  public static List<Field> getAnnotatedField(Class<? extends Annotation> annoClass, Object o) {
-    Class<?> oClass = o.getClass();
-    return Arrays.stream(oClass.getDeclaredFields()).filter(
-        field -> field.isAnnotationPresent(annoClass)
-    ).collect(Collectors.toList());
+  public static List<Field> getAnnotatedFields(Class<? extends Annotation> annoClass,
+      Class<?> clazz) {
+    return Arrays.stream(clazz.getDeclaredFields())
+        .filter(field -> field.isAnnotationPresent(annoClass)).collect(Collectors.toList());
+  }
+
+  public static Field getAnnotatedField(Class<? extends Annotation> annoClass, Class<?> clazz) {
+    for (Field f : clazz.getDeclaredFields()) {
+      if (f.isAnnotationPresent(annoClass)) {
+        return f;
+      }
+    }
+    return null;
   }
 
   public static List<Object> toList(Object obj) {
-    if(obj instanceof Collection) {
+    if (obj instanceof Collection) {
       Collection<?> collection = (Collection<?>) obj;
       return new ArrayList<>(collection);
     } else {
       return Collections.singletonList(obj);
     }
+  }
+
+  public static Field tryToGetIdField(Class<?> clazz) {
+    Field idField = null;
+    if (Arrays.stream(clazz.getDeclaredFields()).anyMatch(f -> f.getName().equals("id"))) {
+      try {
+        idField = clazz.getDeclaredField("id");
+      } catch (NoSuchFieldException e) {
+        throw new RuntimeException(e);
+      }
+      return idField;
+    } else if (Arrays.stream(clazz.getSuperclass().getDeclaredFields())
+        .anyMatch(f -> f.getName().equals("id"))) {
+      try {
+        idField = clazz.getSuperclass().getDeclaredField("id");
+      } catch (NoSuchFieldException e) {
+        throw new RuntimeException(e);
+      }
+      return idField;
+    }
+    return null;
+  }
+
+  public static String getApolloAuditLogTableName(Class<?> clazz) {
+    return clazz.isAnnotationPresent(ApolloAuditLogDataInfluenceTable.class)
+        ? clazz.getAnnotation(ApolloAuditLogDataInfluenceTable.class).tableName()
+        : null;
   }
 
 }
