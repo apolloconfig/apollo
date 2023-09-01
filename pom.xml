@@ -149,22 +149,22 @@
 			</dependency>
 			<!--audit log module -->
 			<dependency>
-				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-audit-annotation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-audit-impl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-audit-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.ctrip.framework.apollo.apollo-audit</groupId>
+				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-audit-spring-boot-starter</artifactId>
 				<version>${project.version}</version>
 			</dependency>
