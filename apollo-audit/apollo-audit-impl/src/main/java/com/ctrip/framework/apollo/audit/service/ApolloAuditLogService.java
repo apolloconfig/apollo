@@ -21,7 +21,11 @@ import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
 import java.util.List;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 public class ApolloAuditLogService {
 
@@ -61,5 +65,31 @@ public class ApolloAuditLogService {
   public List<ApolloAuditLog> findAuditLogByTraceId(String traceId, Pageable page) {
     return logRepository.findByTraceIdOrderByDataChangeCreatedTimeDesc(traceId, page);
   }
+
+  public List<ApolloAuditLog> findAll(Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return logRepository.findAll(pageable).getContent();
+  }
+
+  public List<ApolloAuditLog> findByOpType(String opType, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return logRepository.findByOpType(opType, pageable);
+  }
+
+  public List<ApolloAuditLog> findByOpName(String opName, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return logRepository.findByOpName(opName, pageable);
+  }
+
+  public List<ApolloAuditLog> findByOperator(String operator, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return logRepository.findByOperator(operator, pageable);
+  }
+
+  Pageable pageSortByTime(Pageable page) {
+    return PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(
+        new Order(Direction.DESC, "DataChangeCreatedTime")));
+  }
+
 
 }

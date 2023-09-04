@@ -19,8 +19,11 @@ package com.ctrip.framework.apollo.audit.service;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
 import java.util.List;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 
 public class ApolloAuditLogDataInfluenceService {
@@ -43,15 +46,35 @@ public class ApolloAuditLogDataInfluenceService {
     dataInfluenceRepository.saveAll(dataInfluences);
   }
 
-  public Page<ApolloAuditLogDataInfluence> findBySpanId(String spanId, Pageable page) {
-    return dataInfluenceRepository.findBySpanIdOrderByDataChangeCreatedTimeDesc(spanId, page);
+  public List<ApolloAuditLogDataInfluence> findBySpanId(String spanId, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return dataInfluenceRepository.findBySpanId(spanId, pageable);
   }
 
-  public Page<ApolloAuditLogDataInfluence> findByEntity(String entityName, String entityId,
+  public List<ApolloAuditLogDataInfluence> findByEntityName(String entityName, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return dataInfluenceRepository.findByInfluenceEntityName(entityName, pageable);
+  }
+
+  public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityId(String entityName,
+      String entityId,
       Pageable page) {
-    return dataInfluenceRepository.findByInfluenceEntityIdAndInfluenceEntityNameOrderByDataChangeCreatedTimeDesc(
-        entityName, entityId, page);
+    Pageable pageable = pageSortByTime(page);
+    return dataInfluenceRepository.findByInfluenceEntityNameAndInfluenceEntityId(entityName,
+        entityId, pageable);
   }
 
+  public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityIdAndFieldName(
+      String entityName, String entityId,
+      String fieldName, Pageable page) {
+    Pageable pageable = pageSortByTime(page);
+    return dataInfluenceRepository.findByInfluenceEntityNameAndInfluenceEntityIdAndFieldName(
+        entityName, entityId, fieldName, pageable);
+  }
+
+  Pageable pageSortByTime(Pageable page) {
+    return PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(
+        new Order(Direction.DESC, "DataChangeCreatedTime")));
+  }
 
 }

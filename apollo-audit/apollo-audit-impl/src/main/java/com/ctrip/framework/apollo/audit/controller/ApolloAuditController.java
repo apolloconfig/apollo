@@ -21,7 +21,6 @@ import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import java.util.List;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/audit/log")
+@RequestMapping("/apollo/audit")
 public class ApolloAuditController {
 
   private final ApolloAuditLogService logService;
@@ -41,30 +40,60 @@ public class ApolloAuditController {
     this.dataInfluenceService = dataInfluenceService;
   }
 
-  @GetMapping("/test")
-  public String test() {
-    return "hello world";
-  }
-
-  @GetMapping("/{traceId}")
-  public List<ApolloAuditLog> findAllApolloAuditLogs(@PathVariable String traceId, Pageable page) {
-    List<ApolloAuditLog> logs = logService.findAuditLogByTraceId(traceId, page);
+  @GetMapping("/logs")
+  public List<ApolloAuditLog> findAllAuditLogs(Pageable page) {
+    List<ApolloAuditLog> logs = logService.findAll(page);
     return logs;
   }
 
-  @GetMapping("/data_influence/{spanId}")
-  public Page<ApolloAuditLogDataInfluence> findDataInfluencesBySpanId(@PathVariable String spanId,
+  @GetMapping("/logs/op_type/{opType}")
+  public List<ApolloAuditLog> findAllAuditLogsByOpType(@PathVariable String opType, Pageable page) {
+    List<ApolloAuditLog> logs = logService.findByOpType(opType, page);
+    return logs;
+  }
+
+  @GetMapping("/logs/op_name/{opName}")
+  public List<ApolloAuditLog> findAllAuditLogsByOpName(@PathVariable String opName, Pageable page) {
+    List<ApolloAuditLog> logs = logService.findByOpName(opName, page);
+    return logs;
+  }
+
+  @GetMapping("/logs/operator/{operator}")
+  public List<ApolloAuditLog> findAllAuditLogsByOperator(@PathVariable String operator, Pageable page) {
+    List<ApolloAuditLog> logs = logService.findByOperator(operator, page);
+    return logs;
+  }
+
+  @GetMapping("/logs/data_influences/{spanId}")
+  public List<ApolloAuditLogDataInfluence> findDataInfluencesBySpanId(@PathVariable String spanId,
       Pageable page) {
-    Page<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findBySpanId(spanId,
+    List<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findBySpanId(spanId,
         page);
     return dataInfluences;
   }
 
-  @GetMapping("/data_influence/{entityName}/{entityId}")
-  public Page<ApolloAuditLogDataInfluence> findDataInfluencesByEntity(
-      @PathVariable("entityName") String entityName, @PathVariable String entityId, Pageable page) {
-    Page<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findByEntity(entityName,
-        entityId, page);
+  @GetMapping("/logs/data_influences/entity_name/{entityName}")
+  public List<ApolloAuditLogDataInfluence> findDataInfluencesByEntityName(
+      @PathVariable String entityName, Pageable page) {
+    List<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findByEntityName(entityName,
+        page);
+    return dataInfluences;
+  }
+
+  @GetMapping("/logs/data_influences/entity_name/{entityName}/entity_id/{entityId}")
+  public List<ApolloAuditLogDataInfluence> findDataInfluencesByEntity(
+      @PathVariable String entityName, @PathVariable String entityId, Pageable page) {
+    List<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findByEntityNameAndEntityId(
+        entityName, entityId, page);
+    return dataInfluences;
+  }
+
+  @GetMapping("/logs/data_influences/entity_name/{entityName}/entity_id/{entityId}/field/{fieldName}")
+  public List<ApolloAuditLogDataInfluence> findDataInfluencesByEntityField(
+      @PathVariable String entityName, @PathVariable String entityId,
+      @PathVariable String fieldName, Pageable page) {
+    List<ApolloAuditLogDataInfluence> dataInfluences = dataInfluenceService.findByEntityNameAndEntityIdAndFieldName(
+        entityName, entityId, fieldName, page);
     return dataInfluences;
   }
 

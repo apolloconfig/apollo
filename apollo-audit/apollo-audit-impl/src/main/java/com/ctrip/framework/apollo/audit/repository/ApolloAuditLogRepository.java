@@ -25,4 +25,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface ApolloAuditLogRepository extends PagingAndSortingRepository<ApolloAuditLog, Long> {
 
   List<ApolloAuditLog> findByTraceIdOrderByDataChangeCreatedTimeDesc(String traceId, Pageable page);
+
+  List<ApolloAuditLog> findByOpType(String opType, Pageable page);
+
+  List<ApolloAuditLog> findByOpName(String opName, Pageable page);
+
+  List<ApolloAuditLog> findByOperator(String operator, Pageable page);
 }

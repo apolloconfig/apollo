@@ -159,10 +159,10 @@ public class AdminServiceAPI {
       return Arrays.asList(namespaceDTOs);
     }
 
-    public int countPublicAppNamespaceAssociatedNamespaces(Env env, String publicNamesapceName) {
+    public int countPublicAppNamespaceAssociatedNamespaces(Env env, String publicNamespaceName) {
       Integer count =
           restTemplate.get(env, "/appnamespaces/{publicNamespaceName}/associated-namespaces/count", Integer.class,
-              publicNamesapceName);
+              publicNamespaceName);
 
       return count == null ? 0 : count;
     }
