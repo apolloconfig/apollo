@@ -22,6 +22,7 @@ application_module.controller("ConfigNamespaceController",
 function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManager, ConfigService,
     PermissionService, UserService, NamespaceBranchService, NamespaceService) {
 
+    $scope.diffItem = diffItem;
     $scope.rollback = rollback;
     $scope.preDeleteItem = preDeleteItem;
     $scope.deleteItem = deleteItem;
@@ -243,6 +244,9 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         );
     }
 
+    function diffItem(){
+        AppUtil.showModal('#diffModal');
+    }
     //修改配置
     function editItem(namespace, toEditItem) {
         if (!lockCheck(namespace)) {
