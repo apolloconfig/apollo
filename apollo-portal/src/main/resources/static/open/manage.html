@@ -61,17 +61,26 @@
                             <tr>
                                 <th style="width: 10%">{{'Common.AppId' | translate }}</th>
                                 <th style="width: 15%">{{'Common.AppName' | translate }}</th>
-                                <th style="width: 15%">{{'Common.AppOwner' | translate }}</th>
+                                <th style="width: 10%">{{'Open.Manage.Consumer.AllowCreateApplication' | translate }}</th>
                                 <th style="width: 20%">{{'Common.Department' | translate }}</th>
-                                <th style="width: 20%">{{'Common.Email' | translate }}</th>
+                                <th style="width: 20%">{{'Common.AppOwner' | translate }}/{{'Common.Email' | translate }}</th>
                                 <th style="width: 20%">{{'Common.Operation' | translate}}</th>
                             </tr>
-                            <tr ng-repeat="app in consumerList" href="#">
-                                <td style="width: 10%">{{ app.appId }}</td>
-                                <td style="width: 15%">{{ app.name }}</td>
-                                <td style="width: 15%">{{ app.ownerName }}</td>
-                                <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
-                                <td style="width: 20%">{{ app.ownerEmail }}</td>
+                            <tr ng-repeat="consumer in consumerList" href="#">
+                                <td style="width: 10%">{{ consumer.appId }}</td>
+                                <td style="width: 15%">{{ consumer.name }}</td>
+
+                                <td style="width: 15%" >
+                                    <div ng-if="consumer.allowCreateApplication">
+                                        <b style="color: red">{{'Open.Manage.Consumer.AllowCreateApplication.Yes' | translate}}</b>
+                                    </div>
+                                    <div ng-if="!consumer.allowCreateApplication">
+                                        {{'Open.Manage.Consumer.AllowCreateApplication.No' | translate}}
+                                    </div>
+                                </td>
+
+                                <td style="width: 20%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
+                                <td style="width: 20%"><b>{{ consumer.ownerName }}</b>/{{ consumer.ownerEmail }}</td>
                                 <td style="width: 20%;">
                                     <button class="btn btn-default btn-md" ng-click="preGrantPermission(app)">
                                         <img class="more-img" src="../img/edit.png" data-tooltip="tooltip"
