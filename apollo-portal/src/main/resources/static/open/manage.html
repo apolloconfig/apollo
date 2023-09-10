@@ -82,12 +82,12 @@
                                 <td style="width: 20%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
                                 <td style="width: 20%"><b>{{ consumer.ownerName }}</b>/{{ consumer.ownerEmail }}</td>
                                 <td style="width: 20%;">
-                                    <button class="btn btn-default btn-md" ng-click="preGrantPermission(app)">
+                                    <button class="btn btn-default btn-md" ng-click="preGrantPermission(consumer)">
                                         <img class="more-img" src="../img/edit.png" data-tooltip="tooltip"
                                              data-placement="bottom">{{'Open.Manage.ViewAndGrantPermission' | translate}}
                                     </button>
 
-                                    <button class="btn btn-default btn-md" ng-click="preDeleteConsumer(app)">
+                                    <button class="btn btn-default btn-md" ng-click="preDeleteConsumer(consumer)">
                                         <img class="more-img" style="margin-left: 5px;" src="../img/cancel.png" data-tooltip="tooltip"
                                              data-placement="bottom">{{'Common.Delete' | translate}}
                                     </button>
