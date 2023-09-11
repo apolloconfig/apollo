@@ -74,7 +74,7 @@ directive_module.directive('diffmodal',
                 }
 
             }
-        }
+        };
 
     });
 

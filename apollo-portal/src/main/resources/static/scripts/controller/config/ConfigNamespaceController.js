@@ -43,7 +43,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
     $scope.onlyShowDiffKeys = true;
     $scope.itemsKeyedByKey = {};
     $scope.allNamespaceValueEqualed = {};
-    $scope.versions=[];
+    $scope.versions = [];
     $scope.oldStr = '';
     $scope.newStr = '';
     init();
@@ -257,8 +257,8 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         $scope.allNamespaceValueEqualed = {};
         $scope.versions = [];
 
-        $scope.versions.push("master");
-        $scope.versions.push("branch");
+        $scope.versions.push('master');
+        $scope.versions.push('branch');
         $scope.oldStr = masterValue;
         $scope.newStr = branchValue;
         let suffix = '';
@@ -287,23 +287,23 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             //txt
             const masterItem = {};
             const branchItem = {};
-            masterItem["key"] = "content";
-            masterItem["value"] = masterValue;
-            branchItem["key"] = "content";
-            branchItem["value"] = branchValue;
+            masterItem['key'] = "content";
+            masterItem['value'] = masterValue;
+            branchItem['key'] = "content";
+            branchItem['value'] = branchValue;
             res1.push(masterItem);
             res2.push(branchItem);
         }
 
         res1.forEach(function (item) {
             const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
-            itemsKeyedByVersion["master"] = item;
+            itemsKeyedByVersion['master'] = item;
             $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
         });
 
         res2.forEach(function (item) {
             const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
-            itemsKeyedByVersion["branch"] = item;
+            itemsKeyedByVersion['branch'] = item;
             $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
         });
 
