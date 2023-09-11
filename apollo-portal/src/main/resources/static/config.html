@@ -225,7 +225,7 @@
                 env="pageContext.env" lock-check="lockCheck" cluster="pageContext.clusterName" user="currentUser"
                 pre-release-ns="prepareReleaseNamespace" create-item="createItem" edit-item="editItem"
                 pre-delete-item="preDeleteItem" pre-revoke-item="preRevokeItem"
-                show-text="showText"
+                show-text="showText" diff-item="diffItem"
                 show-no-modify-permission-dialog="showNoModifyPermissionDialog" show-body="namespaces.length < 3"
                 lazy-load="namespaces.length > 10" pre-create-branch="preCreateBranch"
                 pre-delete-branch="preDeleteBranch">
@@ -234,7 +234,10 @@
             <releasemodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
             </releasemodal>
 
-            <diffmodal></diffmodal>
+            <diffmodal old-str="oldStr" new-str="oldStr" apollo-id="'showDiff'" items-keyed-by-key="itemsKeyedByKey"
+                       versions="versions" search-key="searchKey" only-show-diff-keys="onlyShowDiffKeys"
+                       all-namespace-value-equaled="allNamespaceValueEqualed">
+            </diffmodal>
 
             <itemmodal to-operation-namespace="toOperationNamespace" app-id="pageContext.appId" env="pageContext.env"
                 cluster="pageContext.clusterName" item="item">
@@ -395,6 +398,10 @@
     <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
     <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
     <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+    <script type="text/javascript" src="../vendor/yaml.min.js"></script>
+    <script type="text/javascript" src="../vendor/xml2json.min.js"></script>
+    <script type="text/javascript" src="../vendor/diff.min.js"></script>
     <!-- bootstrap.js -->
     <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
     <script src="vendor/bootstrap/js/bootstrap-treeview.min.js" type="text/javascript"></script>

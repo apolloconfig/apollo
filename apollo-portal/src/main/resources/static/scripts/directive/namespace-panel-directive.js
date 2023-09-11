@@ -32,6 +32,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             lockCheck: '=',
             createItem: '=',
             editItem: '=',
+            diffItem: '=',
             preDeleteItem: '=',
             preRevokeItem: '=',
             showText: '=',

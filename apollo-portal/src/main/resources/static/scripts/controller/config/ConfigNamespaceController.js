@@ -39,7 +39,13 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
     $scope.showNoModifyPermissionDialog = showNoModifyPermissionDialog;
     $scope.lockCheck = lockCheck;
     $scope.emergencyPublish = emergencyPublish;
-
+    $scope.searchKey = '';
+    $scope.onlyShowDiffKeys = true;
+    $scope.itemsKeyedByKey = {};
+    $scope.allNamespaceValueEqualed = {};
+    $scope.versions=[];
+    $scope.oldStr = '';
+    $scope.newStr = '';
     init();
 
     function init() {
@@ -244,7 +250,85 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         );
     }
 
-    function diffItem(){
+    function diffItem(namespace,masterValue,branchValue){
+        $scope.searchKey = '';
+        $scope.onlyShowDiffKeys = true;
+        $scope.itemsKeyedByKey = {};
+        $scope.allNamespaceValueEqualed = {};
+        $scope.versions = [];
+
+        $scope.versions.push("master");
+        $scope.versions.push("branch");
+        $scope.oldStr = masterValue;
+        $scope.newStr = branchValue;
+        let suffix = '';
+        if (namespace.baseInfo.namespaceName.includes('.')) {
+            suffix = namespace.baseInfo.namespaceName.match(/[^.]+$/)[0];
+        }
+        let res1 = [];
+        let res2 = [];
+        if (suffix === 'yml' || suffix === 'yaml') {
+            res1 = Obj2Prop(
+                YAML.parse(masterValue));
+            res2 = Obj2Prop(
+                YAML.parse(branchValue))
+        } else if (suffix === 'json') {
+            res1 = Obj2Prop(
+                JSON.parse(masterValue));
+            res2 = Obj2Prop(
+                JSON.parse(branchValue))
+        } else if (suffix === 'xml') {
+            const x2js = new X2JS();
+            res1 = Obj2Prop(
+                x2js.xml_str2json(masterValue));
+            res2 = Obj2Prop(
+                x2js.xml_str2json(branchValue))
+        } else {
+            //txt
+            const masterItem = {};
+            const branchItem = {};
+            masterItem["key"] = "content";
+            masterItem["value"] = masterValue;
+            branchItem["key"] = "content";
+            branchItem["value"] = branchValue;
+            res1.push(masterItem);
+            res2.push(branchItem)
+        }
+
+        res1.forEach(function (item) {
+            const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
+            itemsKeyedByVersion["master"] = item;
+            $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
+        });
+
+        res2.forEach(function (item) {
+            const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
+            itemsKeyedByVersion["branch"] = item;
+            $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
+        });
+
+        Object.keys($scope.itemsKeyedByKey).forEach(
+            function (key) {
+                let lastValue = null;
+                let allEqualed = true;
+                // some namespace lack key,determined as not allEqual
+                if (Object.keys($scope.itemsKeyedByKey[key]).length !== 2) {
+                    allEqualed = false;
+                } else {
+                    // check key items allEqual
+                    Object.values($scope.itemsKeyedByKey[key]).forEach(
+                        function (item) {
+                            if (lastValue == null) {
+                                lastValue = item.value;
+                            }
+                            if (lastValue !== item.value) {
+                                allEqualed = false;
+                            }
+                        })
+                }
+                $scope.allNamespaceValueEqualed[key] = allEqualed;
+            })
+
         AppUtil.showModal('#diffModal');
     }
     //修改配置
@@ -421,5 +505,23 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
 
 }
+function Obj2Prop(obj,prefix){
+    let result = []
+    const keys = Object.keys(obj)
+    keys.forEach(function (key){
+        let keyPrefix;
+        if(obj[key] && typeof obj[key] == 'object'){
+            const currentPrefix = key.concat('.');
+            keyPrefix = prefix? prefix.concat(currentPrefix) : currentPrefix
+            result = result.concat(Obj2Prop(obj[key],keyPrefix))
+        }else{
+            keyPrefix = prefix? prefix.concat(key):key
+            result.push({
+                key:keyPrefix,
+                value:(obj[key] || '')
+            })
+        }
+    })
+    return result
 
-
+}

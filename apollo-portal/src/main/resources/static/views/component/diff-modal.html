@@ -21,8 +21,52 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
 
-                <h4 class="modal-title">{{'Component.ShowText.Title' | translate }}</h4>
+                <h4 class="modal-title">{{'Config.Diff.Title' | translate }}</h4>
+            </div>
+            <div class="modal-body form-horizontal" style="margin-left: 10px;margin-right: 10px;">
+                <div class="row">
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="form-horizontal">
+                            <div class="col-sm-12">
+                                <label class="control-label">
+                                    <input type="text" class="comment-toggle"
+                                           ng-model="searchKey"
+                                           placeholder="{{'Config.Diff.SearchKey' | translate }}">
+                                </label>
+                                <label class="control-label">
+                                    <input type="checkbox" class="comment-toggle" checked="true" ng-checked="onlyShowDiffKeys"
+                                           ng-click="onlyShowDiffKeys=!onlyShowDiffKeys">
+                                    {{'Config.Diff.OnlyShowDiffKeys' | translate }}
+                                </label>
+                            </div>
+                            <div class="col-sm-12 diff-content">
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <td>Key</td>
+                                        <td>
+                                            Value ({{'Config.Diff.MasterVersion' | translate }})
+                                        </td>
+                                        <td>
+                                            Value ({{'Config.Diff.GrayscaleVersion' | translate }})
+                                        </td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="(key, itemsKeyedByVersion) in itemsKeyedByKey" ng-if="(searchKey === '' || key.indexOf(searchKey) !== -1 ) && (!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key]))">
+                                        <td width="15%" ng-bind="key"></td>
+                                        <td ng-repeat="version in versions"
+                                            ng-bind="(itemsKeyedByVersion[version] || {}).value">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 </div>
