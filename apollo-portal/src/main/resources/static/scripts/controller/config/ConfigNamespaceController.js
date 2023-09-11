@@ -271,18 +271,18 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             res1 = Obj2Prop(
                 YAML.parse(masterValue));
             res2 = Obj2Prop(
-                YAML.parse(branchValue))
+                YAML.parse(branchValue));
         } else if (suffix === 'json') {
             res1 = Obj2Prop(
                 JSON.parse(masterValue));
             res2 = Obj2Prop(
-                JSON.parse(branchValue))
+                JSON.parse(branchValue));
         } else if (suffix === 'xml') {
             const x2js = new X2JS();
             res1 = Obj2Prop(
                 x2js.xml_str2json(masterValue));
             res2 = Obj2Prop(
-                x2js.xml_str2json(branchValue))
+                x2js.xml_str2json(branchValue));
         } else {
             //txt
             const masterItem = {};
@@ -292,7 +292,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             branchItem["key"] = "content";
             branchItem["value"] = branchValue;
             res1.push(masterItem);
-            res2.push(branchItem)
+            res2.push(branchItem);
         }
 
         res1.forEach(function (item) {
@@ -324,10 +324,10 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
                             if (lastValue !== item.value) {
                                 allEqualed = false;
                             }
-                        })
+                        });
                 }
                 $scope.allNamespaceValueEqualed[key] = allEqualed;
-            })
+            });
 
         AppUtil.showModal('#diffModal');
     }
@@ -506,22 +506,21 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
 }
 function Obj2Prop(obj,prefix){
-    let result = []
-    const keys = Object.keys(obj)
+    let result = [];
+    const keys = Object.keys(obj);
     keys.forEach(function (key){
         let keyPrefix;
         if(obj[key] && typeof obj[key] == 'object'){
             const currentPrefix = key.concat('.');
-            keyPrefix = prefix? prefix.concat(currentPrefix) : currentPrefix
-            result = result.concat(Obj2Prop(obj[key],keyPrefix))
+            keyPrefix = prefix? prefix.concat(currentPrefix) : currentPrefix;
+            result = result.concat(Obj2Prop(obj[key],keyPrefix));
         }else{
-            keyPrefix = prefix? prefix.concat(key):key
+            keyPrefix = prefix? prefix.concat(key):key;
             result.push({
                 key:keyPrefix,
                 value:(obj[key] || '')
-            })
+            });
         }
-    })
-    return result
-
+    });
+    return result;
 }
