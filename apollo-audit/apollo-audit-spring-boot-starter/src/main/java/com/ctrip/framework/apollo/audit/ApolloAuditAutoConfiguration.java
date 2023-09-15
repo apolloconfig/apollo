@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.audit;
 
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpTracerInterceptor;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.audit.component.JpaApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.component.NoOpAuditSpanService;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
@@ -97,9 +97,8 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor(
-      ApolloAuditTracer tracer) {
-    return new ApolloAuditHttpTracerInterceptor(tracer);
+  public ApolloAuditHttpInterceptor apolloAuditHttpInterceptor(ApolloAuditLogApi api) {
+    return new ApolloAuditHttpInterceptor(api);
   }
 
   @Bean

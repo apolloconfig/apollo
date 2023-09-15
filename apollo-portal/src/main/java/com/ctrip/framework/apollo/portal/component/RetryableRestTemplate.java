@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
-import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpTracerInterceptor;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -75,13 +75,13 @@ public class RetryableRestTemplate {
   private final PortalConfig portalConfig;
   private volatile String lastAdminServiceAccessTokens;
   private volatile Map<Env, String> adminServiceAccessTokenMap;
-  private final ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor;
+  private final ApolloAuditHttpInterceptor apolloAuditHttpTracerInterceptor;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig, ApolloAuditHttpTracerInterceptor apolloAuditHttpTracerInterceptor) {
+      final PortalConfig portalConfig, ApolloAuditHttpInterceptor apolloAuditHttpTracerInterceptor) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;

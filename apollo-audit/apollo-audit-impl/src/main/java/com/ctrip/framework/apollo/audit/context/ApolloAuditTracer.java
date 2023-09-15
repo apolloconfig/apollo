@@ -37,6 +37,10 @@ public class ApolloAuditTracer {
   }
 
   public Map<String, List<String>> extract() {
+
+    if(manager.activeSpanContext() == null) {
+      return null;
+    }
     Map<String, List<String>> map = new HashMap<>();
     map.put(ApolloAuditHttpHeader.TRACE_ID,
         Collections.singletonList(manager.activeSpanContext().getTraceId()));

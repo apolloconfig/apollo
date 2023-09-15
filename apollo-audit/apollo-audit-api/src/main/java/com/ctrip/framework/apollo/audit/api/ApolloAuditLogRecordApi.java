@@ -18,8 +18,11 @@ package com.ctrip.framework.apollo.audit.api;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import java.util.List;
+import java.util.Map;
 
 public interface ApolloAuditLogRecordApi {
+
+  Map extractSpan();
 
   AutoCloseable appendSpan(OpType type, String name);
 

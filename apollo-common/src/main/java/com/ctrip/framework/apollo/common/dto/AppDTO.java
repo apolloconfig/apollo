@@ -16,24 +16,19 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.Pattern;
 
-@ApolloAuditLogDataInfluenceTable(tableName = "App")
 public class AppDTO extends BaseDTO{
 
   private long id;
 
-  @ApolloAuditLogDataInfluenceTableField(fieldName = "Name")
   private String name;
 
   @Pattern(
       regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
       message = "Invalid AppId format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
-  @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId")
   private String appId;
 
   private String orgId;

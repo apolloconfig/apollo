@@ -22,11 +22,17 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Pageable;
 
 public class NoOpApolloAuditLogApi implements ApolloAuditLogApi {
 
   //do nothing, for default impl
+
+  @Override
+  public Map extractSpan() {
+    return null;
+  }
 
   @Override
   public AutoCloseable appendSpan(OpType type, String name) {
