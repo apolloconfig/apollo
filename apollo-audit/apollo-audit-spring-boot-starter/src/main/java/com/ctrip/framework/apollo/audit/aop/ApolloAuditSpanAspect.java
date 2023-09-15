@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.audit.aop;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -87,14 +86,8 @@ public class ApolloAuditSpanAspect {
 
     try (AutoCloseable scope = api.appendSpan(auditLog.type(), auditLog.name(),
         auditLog.description())) {
+      dataInfluenceList.forEach(e -> api.appendDataInfluenceWrapper(e.getClass()));
       returnVal = pjp.proceed();
-      if (dataInfluenceList.isEmpty()) {
-        dataInfluenceList.addAll(toRealList(returnVal));
-      }
-      if (!dataInfluenceList.isEmpty() && auditLog.autoLog()) {
-        api.appendDataInfluencesByManagedClass(dataInfluenceList, auditLog.type(),
-            dataInfluenceList.get(0).getClass());
-      }
     }
     return returnVal;
   }

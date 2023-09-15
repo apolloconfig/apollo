@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.audit.component;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableId;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityWrapper;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
@@ -25,6 +24,7 @@ import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
@@ -35,17 +35,18 @@ import java.util.List;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 
-public class DaoApolloAuditLogApi implements ApolloAuditLogApi {
+public class JpaApolloAuditLogApi implements ApolloAuditLogApi {
 
-  private static final Logger logger = LoggerFactory.getLogger(DaoApolloAuditLogApi.class);
+  private static final Logger logger = LoggerFactory.getLogger(JpaApolloAuditLogApi.class);
 
   private final ApolloAuditLogService logService;
   private final ApolloAuditLogDataInfluenceService dataInfluenceService;
   private final ApolloAuditSpanService spanService;
   private final ApolloAuditTracer tracer;
 
-  public DaoApolloAuditLogApi(ApolloAuditLogService logService,
+  public JpaApolloAuditLogApi(ApolloAuditLogService logService,
       ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditSpanService spanService,
       ApolloAuditTracer tracer) {
     this.logService = logService;
@@ -69,6 +70,39 @@ public class DaoApolloAuditLogApi implements ApolloAuditLogApi {
   }
 
   @Override
+  public void appendDataInfluenceWrapper(Class<?> clazz) {
+    ApolloAuditEntityWrapper wrapper = new ApolloAuditEntityWrapper();
+    String entityName = ApolloAuditUtil.getApolloAuditLogTableName(clazz);
+    Field idField = ApolloAuditUtil.getPersistenceIdFieldByAnnotation(clazz);
+    if (Objects.isNull(idField) || Objects.isNull(entityName)) {
+      logger.warn("managed class:{} is not managed by Apollo audit", clazz);
+      return;
+    }
+    List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
+        ApolloAuditLogDataInfluenceTableField.class, clazz);
+    wrapper.entityName(entityName).entityIdField(idField).dataInfluenceFields(dataInfluenceFields);
+    appendDataInfluenceWrapper(clazz, wrapper);
+  }
+
+  @Override
+  public void appendDataInfluenceWrapper(Class<?> clazz, ApolloAuditEntityWrapper wrapper) {
+    tracer.scopeManager().activeSpanContext().putWrapper(clazz, wrapper);
+  }
+
+  /**
+   * should have possibility to return null, for not creating unexpected wrapper
+   *
+   * @param clazz
+   * @return
+   */
+  public ApolloAuditEntityWrapper getEntityWrapper(Class<?> clazz) {
+    if (tracer.scopeManager().activeSpanContext() == null) {
+      return null;
+    }
+    return tracer.scopeManager().activeSpanContext().getWrapper(clazz);
+  }
+
+  @Override
   public void appendSingleDataInfluence(String tableId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue) {
     if (tracer.scopeManager().activeSpanContext() == null) {
@@ -83,37 +117,22 @@ public class DaoApolloAuditLogApi implements ApolloAuditLogApi {
   }
 
   @Override
-  public <T> void appendDataInfluencesByManagedClass(List<T> entities, OpType type,
-      Class<?> managedClass) {
-
-    String entityName = ApolloAuditUtil.getApolloAuditLogTableName(managedClass);
-    Field idField = ApolloAuditUtil.getAnnotatedField(ApolloAuditLogDataInfluenceTableId.class,
-        managedClass);
-    if (Objects.isNull(idField)) {
-      idField = ApolloAuditUtil.tryToGetIdField(managedClass);
-    }
-    List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
-        ApolloAuditLogDataInfluenceTableField.class, managedClass);
-
-    ApolloAuditEntityWrapper wrapper = new ApolloAuditEntityWrapper();
-    wrapper.entityName(entityName)
-        .entityIdField(idField)
-        .dataInfluenceFields(dataInfluenceFields);
-
-    appendDataInfluencesByWrapper(entities, type, wrapper);
+  public <T> void appendDataInfluences(List<T> entities, boolean isDeleted, Class<?> clazz) {
+    ApolloAuditEntityWrapper wrapper = getEntityWrapper(clazz);
+    appendDataInfluences(entities, isDeleted, wrapper);
   }
 
   @Override
-  public <T> void appendDataInfluencesByWrapper(List<T> entities, OpType type,
+  public <T> void appendDataInfluences(List<T> entities, boolean isDeleted,
       ApolloAuditEntityWrapper wrapper) {
-    switch (type) {
-      case CREATE:
-      case UPDATE:
-        appendCreateOrUpdateDataInfluencesByWrapper(entities, wrapper);
-        break;
-      case DELETE:
-        appendDeleteDataInfluencesByWrapper(entities, wrapper);
-        break;
+    if (Objects.isNull(wrapper)) {
+      return;
+    }
+    if (isDeleted) {
+      appendDeleteDataInfluencesByWrapper(entities, wrapper);
+    }
+    else {
+      appendCreateOrUpdateDataInfluencesByWrapper(entities, wrapper);
     }
   }
 
@@ -203,5 +222,43 @@ public class DaoApolloAuditLogApi implements ApolloAuditLogApi {
       return tracer.buildSpan(type, name).asChildOf(parentSpanContext).description(description)
           .followsFrom(getFollowSFromId()).build();
     }
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryAllLogs(Pageable page) {
+    return logService.findAll(page);
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryLogsByOpName(String opName, Pageable page) {
+    return logService.findByOpName(opName, page);
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryLogsByOperator(String operator, Pageable page) {
+    return logService.findByOperator(operator, page);
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryRelatedLogs(ApolloAuditLog log, Pageable page) {
+    return logService.findByTraceId(log.getTraceId(), page);
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryDataInfluencesByLog(ApolloAuditLog log,
+      Pageable page) {
+    return dataInfluenceService.findBySpanId(log.getSpanId(), page);
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryRelatedDataInfluences(
+      ApolloAuditLogDataInfluence dataInfluence, Pageable page) {
+    return dataInfluenceService.findBySpanId(dataInfluence.getSpanId(), page);
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryDataInfluencesByEntity(String entityName,
+      String entityId, Pageable page) {
+    return dataInfluenceService.findByEntityNameAndEntityId(entityName, entityId, page);
   }
 }

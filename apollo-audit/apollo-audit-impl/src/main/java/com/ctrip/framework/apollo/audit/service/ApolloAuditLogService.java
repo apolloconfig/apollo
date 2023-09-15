@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
 import java.util.List;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -62,7 +61,7 @@ public class ApolloAuditLogService {
     logRepository.save(auditLog);
   }
 
-  public List<ApolloAuditLog> findAuditLogByTraceId(String traceId, Pageable page) {
+  public List<ApolloAuditLog> findByTraceId(String traceId, Pageable page) {
     return logRepository.findByTraceIdOrderByDataChangeCreatedTimeDesc(traceId, page);
   }
 

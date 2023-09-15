@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.common.entity;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableId;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -47,8 +46,6 @@ public class App extends BaseEntity {
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
   @Column(name = "`AppId`", nullable = false)
-  @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId")
-  @ApolloAuditLogDataInfluenceTableId(name = "AppId")
   private String appId;
 
   @Column(name = "`OrgId`", nullable = false)

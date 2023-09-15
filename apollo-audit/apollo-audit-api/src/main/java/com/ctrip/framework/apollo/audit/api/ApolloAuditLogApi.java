@@ -16,21 +16,6 @@
  */
 package com.ctrip.framework.apollo.audit.api;
 
-import com.ctrip.framework.apollo.audit.annotation.OpType;
-import java.util.List;
-
-public interface ApolloAuditLogApi {
-
-  AutoCloseable appendSpan(OpType type, String name);
-
-  AutoCloseable appendSpan(OpType type, String name, String description);
-
-  void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue);
-
-  <T> void appendDataInfluencesByManagedClass(List<T> entities, OpType type, Class<?> managedClass);
-
-  <T> void appendDataInfluencesByWrapper(List<T> entities, OpType type,
-      ApolloAuditEntityWrapper wrapper);
+public interface ApolloAuditLogApi extends ApolloAuditLogRecordApi, ApolloAuditLogQueryApi{
 
 }

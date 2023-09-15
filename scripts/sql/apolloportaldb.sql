@@ -54,7 +54,6 @@ CREATE TABLE `App` (
 
 
 
-
 # Dump of table appnamespace
 # ------------------------------------------------------------
 

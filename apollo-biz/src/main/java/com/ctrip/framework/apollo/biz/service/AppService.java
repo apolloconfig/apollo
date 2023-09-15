@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityWrapper;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
@@ -26,7 +27,6 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import java.io.Closeable;
 import java.util.Collections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +44,7 @@ public class AppService {
   private final ApolloAuditLogApi apolloAuditLogApi;
 
   public AppService(final AppRepository appRepository, final AuditService auditService,
-      ApolloAuditLogApi apolloAuditLogApi) {
+      final ApolloAuditLogApi apolloAuditLogApi) {
     this.appRepository = appRepository;
     this.auditService = auditService;
     this.apolloAuditLogApi = apolloAuditLogApi;
@@ -56,25 +56,18 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
   public void delete(long id, String operator) {
 
     App app = appRepository.findById(id).orElse(null);
     if (app == null) {
       return;
     }
-    try(AutoCloseable auditScope = apolloAuditLogApi.appendSpan(OpType.DELETE, "app.delete")) {
-      app.setDeleted(true);
-      app.setDataChangeLastModifiedBy(operator);
-      appRepository.save(app);
-      ApolloAuditEntityWrapper wrapper = new ApolloAuditEntityWrapper();
-      wrapper.entityName("App")
-          .entityIdField(app.getClass().getDeclaredField("appId"))
-          .addDataInfluenceFields(app.getClass().getDeclaredField("name"));
-      apolloAuditLogApi.appendDataInfluencesByWrapper(Collections.singletonList(app),OpType.DELETE, wrapper);
-      auditService.audit(App.class.getSimpleName(), id, Audit.OP.DELETE, operator);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    app.setDeleted(true);
+    app.setDataChangeLastModifiedBy(operator);
+    apolloAuditLogApi.appendDataInfluenceWrapper(App.class);
+    appRepository.save(app);
+    auditService.audit(App.class.getSimpleName(), id, Audit.OP.DELETE, operator);
   }
 
   public List<App> findAll(Pageable pageable) {
@@ -92,7 +85,7 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "app.create")
-  public App save(App entity) {
+  public App save(@ApolloAuditLogDataInfluence App entity) {
     if (!isAppIdUnique(entity.getAppId())) {
       throw new ServiceException("appId not unique");
     }
@@ -107,15 +100,13 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.UPDATE, name = "app.update")
-  public void update(App app) {
+  public void update(@ApolloAuditLogDataInfluence App app) {
     String appId = app.getAppId();
 
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);
     }
-    App o = new App();
-    BeanUtils.copyEntityProperties(managedApp, o);
 
     managedApp.setName(app.getName());
     managedApp.setOrgId(app.getOrgId());

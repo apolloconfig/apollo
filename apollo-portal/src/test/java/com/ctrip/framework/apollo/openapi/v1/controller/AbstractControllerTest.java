@@ -35,18 +35,19 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractControllerTest {
-
-  protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();
-  @Value("${local.server.port}")
-  protected int port;
   @Autowired
   private HttpMessageConverters httpMessageConverters;
+
+  protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();
 
   @PostConstruct
   protected void postConstruct() {
     restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
     restTemplate.setMessageConverters(httpMessageConverters.getConverters());
   }
+
+  @Value("${local.server.port}")
+  protected int port;
 
   protected String url(String path) {
     return "http://localhost:" + port + path;

@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
@@ -36,6 +37,7 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -133,8 +135,8 @@ public class AppService {
 
 
   @Transactional
-  @ApolloAuditLog(type = OpType.CREATE, name = "App.create", autoLog = true)
-  public App createAppInLocal(App app) {
+  @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
+  public App createAppInLocal(@ApolloAuditLogDataInfluence App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 
@@ -183,15 +185,13 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
-  public App updateAppInLocal(App app) {
+  public App updateAppInLocal(@ApolloAuditLogDataInfluence App app) {
     String appId = app.getAppId();
 
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);
     }
-    App o = new App();
-    BeanUtils.copyProperties(managedApp, o);
 
     managedApp.setName(app.getName());
     managedApp.setOrgId(app.getOrgId());
@@ -218,7 +218,7 @@ public class AppService {
   }
 
   @Transactional
-  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete", autoLog = true)
+  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
   public App deleteAppInLocal(String appId) {
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
@@ -229,8 +229,12 @@ public class AppService {
     //this operator is passed to com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
     managedApp.setDataChangeLastModifiedBy(operator);
 
+    //same as add @DataInfluence to parameters
+    apolloAuditLogApi.appendDataInfluenceWrapper(App.class);
+
     //删除portal数据库中的app
     appRepository.deleteApp(appId, operator);
+    apolloAuditLogApi.appendDataInfluences(Collections.singletonList(managedApp), true, App.class);
 
     //删除portal数据库中的appNamespace
     appNamespaceService.batchDeleteByAppId(appId, operator);

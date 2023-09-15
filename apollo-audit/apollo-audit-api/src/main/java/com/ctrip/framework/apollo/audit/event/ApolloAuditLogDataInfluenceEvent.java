@@ -14,17 +14,31 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.annotation;
+package com.ctrip.framework.apollo.audit.event;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+public class ApolloAuditLogDataInfluenceEvent {
 
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ApolloAuditLogDataInfluenceTableId {
+  private boolean isDeleted;
+  private Object entity;
 
-  String name();
+  public ApolloAuditLogDataInfluenceEvent(boolean isDeleted, Object entity) {
+    this.isDeleted = isDeleted;
+    this.entity = entity;
+  }
 
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    isDeleted = deleted;
+  }
+
+  public Object getEntity() {
+    return entity;
+  }
+
+  public void setEntity(Object entity) {
+    this.entity = entity;
+  }
 }

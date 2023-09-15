@@ -102,6 +102,7 @@ CREATE TABLE `Audit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='日志审计表';
 
 
+
 # Dump of table cluster
 # ------------------------------------------------------------
 

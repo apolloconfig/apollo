@@ -19,7 +19,10 @@ package com.ctrip.framework.apollo.audit.component;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityWrapper;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
+import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public class NoOpApolloAuditLogApi implements ApolloAuditLogApi {
 
@@ -37,20 +40,67 @@ public class NoOpApolloAuditLogApi implements ApolloAuditLogApi {
   }
 
   @Override
+  public void appendDataInfluenceWrapper(Class<?> clazz) {
+
+  }
+
+  @Override
+  public void appendDataInfluenceWrapper(Class<?> clazz, ApolloAuditEntityWrapper wrapper) {
+
+  }
+
+  @Override
   public void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue) {
 
   }
 
   @Override
-  public <T> void appendDataInfluencesByManagedClass(List<T> entities, OpType type,
-      Class<?> managedClass) {
+  public <T> void appendDataInfluences(List<T> entities, boolean isDeleted, Class<?> clazz) {
 
   }
 
   @Override
-  public <T> void appendDataInfluencesByWrapper(List<T> entities, OpType type,
+  public <T> void appendDataInfluences(List<T> entities, boolean isDeleted,
       ApolloAuditEntityWrapper wrapper) {
 
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryAllLogs(Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryLogsByOpName(String opName, Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryLogsByOperator(String operator, Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLog> queryRelatedLogs(ApolloAuditLog log, Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryDataInfluencesByLog(ApolloAuditLog log,
+      Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryRelatedDataInfluences(
+      ApolloAuditLogDataInfluence dataInfluence, Pageable page) {
+    return null;
+  }
+
+  @Override
+  public List<ApolloAuditLogDataInfluence> queryDataInfluencesByEntity(String entityName,
+      String entityId, Pageable page) {
+    return null;
   }
 }

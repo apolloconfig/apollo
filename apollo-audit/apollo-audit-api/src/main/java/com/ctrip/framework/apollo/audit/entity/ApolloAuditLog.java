@@ -16,13 +16,8 @@
  */
 package com.ctrip.framework.apollo.audit.entity;
 
-import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -31,7 +26,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "`AuditLog`")
 @SQLDelete(sql = "Update AuditLog set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
-public class ApolloAuditLog extends BaseEntity{
+public class ApolloAuditLog extends BaseEntity {
 
   @Column(name = "TraceId", nullable = false)
   private String traceId;

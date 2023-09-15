@@ -26,32 +26,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import javax.persistence.Id;
 
 public class ApolloAuditUtil {
 
   public static String generateId() {
     return UUID.randomUUID().toString().replaceAll("-", "");
-  }
-
-  public static long getIdByReflect(Object o) {
-    Class<?> clazz = o.getClass();
-    try {
-      Field idField = null;
-      if (Arrays.stream(clazz.getDeclaredFields()).anyMatch(f -> f.getName().equals("id"))) {
-        idField = o.getClass().getDeclaredField("id");
-        idField.setAccessible(true);
-        return (long) idField.get(o);
-      } else if (Arrays.stream(clazz.getSuperclass().getDeclaredFields())
-          .anyMatch(f -> f.getName().equals("id"))) {
-        idField = o.getClass().getSuperclass().getDeclaredField("id");
-        idField.setAccessible(true);
-        return (long) idField.get(o);
-      }
-      return -1;
-    } catch (NoSuchFieldException | IllegalAccessException e) {
-      e.printStackTrace();
-      return -1; // Return a default value or handle the error
-    }
   }
 
   public static List<Field> getAnnotatedFields(Class<? extends Annotation> annoClass,
@@ -78,31 +58,36 @@ public class ApolloAuditUtil {
     }
   }
 
-  public static Field tryToGetIdField(Class<?> clazz) {
-    Field idField = null;
-    if (Arrays.stream(clazz.getDeclaredFields()).anyMatch(f -> f.getName().equals("id"))) {
-      try {
-        idField = clazz.getDeclaredField("id");
-      } catch (NoSuchFieldException e) {
-        throw new RuntimeException(e);
+  public static String getApolloAuditLogTableName(Class<?> clazz) {
+    return clazz.isAnnotationPresent(ApolloAuditLogDataInfluenceTable.class) ? clazz.getAnnotation(
+        ApolloAuditLogDataInfluenceTable.class).tableName() : null;
+  }
+
+  public static Field getPersistenceIdFieldByAnnotation(Class<?> clazz) {
+    while (clazz != null) {
+      Field[] fields = clazz.getDeclaredFields();
+      for (Field field : fields) {
+        if (field.isAnnotationPresent(Id.class)) {
+          field.setAccessible(true);
+          return field;
+        }
       }
-      return idField;
-    } else if (Arrays.stream(clazz.getSuperclass().getDeclaredFields())
-        .anyMatch(f -> f.getName().equals("id"))) {
-      try {
-        idField = clazz.getSuperclass().getDeclaredField("id");
-      } catch (NoSuchFieldException e) {
-        throw new RuntimeException(e);
-      }
-      return idField;
+      clazz = clazz.getSuperclass();
     }
     return null;
   }
 
-  public static String getApolloAuditLogTableName(Class<?> clazz) {
-    return clazz.isAnnotationPresent(ApolloAuditLogDataInfluenceTable.class)
-        ? clazz.getAnnotation(ApolloAuditLogDataInfluenceTable.class).tableName()
-        : null;
+  public static boolean isLogicDelete(Object o) {
+    Class<?> clazz = o.getClass();
+    try {
+      Field field = clazz.getDeclaredField("isDeleted");
+      field.setAccessible(true);
+      return ((boolean) field.get(o));
+    } catch (NoSuchFieldException e) {
+      throw new RuntimeException(e);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
   }
 
 }
