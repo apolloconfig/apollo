@@ -112,8 +112,7 @@ public class ConsumerController {
       @PathVariable String token,
       @RequestParam String type,
       @RequestParam(required = false) String envs,
-      @RequestBody NamespaceDTO namespace
-  ) {
+      @RequestBody NamespaceDTO namespace) {
     List<ConsumerRole> consumerRoleList = new ArrayList<>(8);
 
     String appId = namespace.getAppId();
