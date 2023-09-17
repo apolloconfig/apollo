@@ -69,14 +69,11 @@ public class AppController {
     if (null == app.getAppId()) {
       throw new BadRequestException("AppId is null");
     }
+    // create app
+    this.appOpenApiService.createApp(req);
     if (req.isAssignAppRoleToSelf()) {
-      // create app and assign app role to this consumer
-      this.appOpenApiService.createApp(req);
       long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId());
-    } else {
-      // only create app
-      this.appOpenApiService.createApp(req);
     }
   }
 
