@@ -640,7 +640,7 @@
   "Open.Manage.DeleteConsumer.Success": "Third-party app deleted successfully",
   "Open.Manage.DeleteConsumer.Error": "Third-party app deletion failed",
   "Open.Manage.CreateConsumer.Button": "Create Third-Party App",
-  "Open.Manage.Consumer.AllowCreateApplication": "Allow create app?",
+  "Open.Manage.Consumer.AllowCreateApplication": "Allow app creation?",
   "Open.Manage.Consumer.AllowCreateApplicationTips": "（Allow Third-party app create app, and own administrators of this app",
   "Open.Manage.Consumer.AllowCreateApplication.No": "no",
   "Open.Manage.Consumer.AllowCreateApplication.Yes": "yes",
