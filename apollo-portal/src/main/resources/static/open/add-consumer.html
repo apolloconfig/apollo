@@ -71,16 +71,10 @@
                                 {{'Open.Manage.Consumer.AllowCreateApplication' | translate }}
                             </label>
                             <div class="col-sm-3">
-                                <div>
-                                    <select
-                                        class="form-select"
-                                        name="allowCreateApplication"
-                                        ng-model="consumer.allowCreateApplication"
-                                    >
-                                        <option value="false" selected>{{'Open.Manage.Consumer.AllowCreateApplication.No' | translate }}</option>
-                                        <option value="true">{{'Open.Manage.Consumer.AllowCreateApplication.Yes' | translate }}</option>
-                                    </select>
-                                </div>
+                                <input type="checkbox"
+                                       ng-model="consumer.allowCreateApplication"
+                                       name="allowCreateApplication"
+                                />
                                 <small>{{'Open.Manage.Consumer.AllowCreateApplicationTips' | translate }}</small>
                             </div>
                         </div>
