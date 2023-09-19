@@ -24,7 +24,7 @@ directive_module.directive('apollodiff',
             scope: {
                 oldStr: '=',
                 newStr: '=',
-                apolloId: '=',
+                apolloId: '='
             },
             link: function (scope, element, attrs) {
 

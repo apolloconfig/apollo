@@ -753,8 +753,6 @@
   "Config.Diff.OnlyShowDiffKeys": "是否只显示值不一样的配置项",
   "Config.Diff.PleaseChooseTwoCluster": "请至少选择两个集群",
   "Config.Diff.TextDiffMostChooseTwoCluster": "文本比对至多选择两个集群",
-  "Config.Diff.MasterVersion": "主版本",
-  "Config.Diff.GrayscaleVersion": "灰度版本",
   "ConfigExport.Title": "配置导出导入",
   "ConfigExport.TitleTips" : "（通过导出导入配置，把一个集群的数据（应用、集群、Namespace）迁移到另外一个集群）",
   "ConfigExport.SelectExportEnv" : "选择导出的环境",

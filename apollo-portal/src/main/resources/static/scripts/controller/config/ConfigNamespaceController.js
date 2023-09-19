@@ -38,6 +38,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
     $scope.showNoModifyPermissionDialog = showNoModifyPermissionDialog;
     $scope.lockCheck = lockCheck;
     $scope.emergencyPublish = emergencyPublish;
+
     init();
 
     function init() {
@@ -416,22 +417,4 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
 
 }
-function Obj2Prop(obj,prefix){
-    let result = [];
-    const keys = Object.keys(obj);
-    keys.forEach(function (key){
-        let keyPrefix;
-        if(obj[key] && typeof obj[key] == 'object'){
-            const currentPrefix = key.concat('.');
-            keyPrefix = prefix? prefix.concat(currentPrefix) : currentPrefix;
-            result = result.concat(Obj2Prop(obj[key],keyPrefix));
-        }else{
-            keyPrefix = prefix? prefix.concat(key):key;
-            result.push({
-                key:keyPrefix,
-                value:(obj[key] || '')
-            });
-        }
-    });
-    return result;
-}
+
