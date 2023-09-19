@@ -22,7 +22,6 @@ application_module.controller("ConfigNamespaceController",
 function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManager, ConfigService,
     PermissionService, UserService, NamespaceBranchService, NamespaceService) {
 
-    $scope.diffItem = diffItem;
     $scope.rollback = rollback;
     $scope.preDeleteItem = preDeleteItem;
     $scope.deleteItem = deleteItem;
@@ -39,13 +38,6 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
     $scope.showNoModifyPermissionDialog = showNoModifyPermissionDialog;
     $scope.lockCheck = lockCheck;
     $scope.emergencyPublish = emergencyPublish;
-    $scope.searchKey = '';
-    $scope.onlyShowDiffKeys = true;
-    $scope.itemsKeyedByKey = {};
-    $scope.allNamespaceValueEqualed = {};
-    $scope.versions = [];
-    $scope.oldStr = '';
-    $scope.newStr = '';
     init();
 
     function init() {
@@ -250,87 +242,6 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         );
     }
 
-    function diffItem(namespace,masterValue,branchValue){
-        $scope.searchKey = '';
-        $scope.onlyShowDiffKeys = true;
-        $scope.itemsKeyedByKey = {};
-        $scope.allNamespaceValueEqualed = {};
-        $scope.versions = [];
-
-        $scope.versions.push('master');
-        $scope.versions.push('branch');
-        $scope.oldStr = masterValue;
-        $scope.newStr = branchValue;
-        let suffix = '';
-        if (namespace.baseInfo.namespaceName.includes('.')) {
-            suffix = namespace.baseInfo.namespaceName.match(/[^.]+$/)[0];
-        }
-        let res1 = [];
-        let res2 = [];
-        if (suffix === 'yml' || suffix === 'yaml') {
-            res1 = Obj2Prop(
-                YAML.parse(masterValue));
-            res2 = Obj2Prop(
-                YAML.parse(branchValue));
-        } else if (suffix === 'json') {
-            res1 = Obj2Prop(
-                JSON.parse(masterValue));
-            res2 = Obj2Prop(
-                JSON.parse(branchValue));
-        } else if (suffix === 'xml') {
-            const x2js = new X2JS();
-            res1 = Obj2Prop(
-                x2js.xml_str2json(masterValue));
-            res2 = Obj2Prop(
-                x2js.xml_str2json(branchValue));
-        } else {
-            //txt
-            const masterItem = {};
-            const branchItem = {};
-            masterItem['key'] = "content";
-            masterItem['value'] = masterValue;
-            branchItem['key'] = "content";
-            branchItem['value'] = branchValue;
-            res1.push(masterItem);
-            res2.push(branchItem);
-        }
-
-        res1.forEach(function (item) {
-            const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
-            itemsKeyedByVersion['master'] = item;
-            $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
-        });
-
-        res2.forEach(function (item) {
-            const itemsKeyedByVersion = $scope.itemsKeyedByKey[item.key] || {};
-            itemsKeyedByVersion['branch'] = item;
-            $scope.itemsKeyedByKey[item.key] = itemsKeyedByVersion;
-        });
-
-        Object.keys($scope.itemsKeyedByKey).forEach(
-            function (key) {
-                let lastValue = null;
-                let allEqualed = true;
-                // some namespace lack key,determined as not allEqual
-                if (Object.keys($scope.itemsKeyedByKey[key]).length !== 2) {
-                    allEqualed = false;
-                } else {
-                    // check key items allEqual
-                    Object.values($scope.itemsKeyedByKey[key]).forEach(
-                        function (item) {
-                            if (lastValue == null) {
-                                lastValue = item.value;
-                            }
-                            if (lastValue !== item.value) {
-                                allEqualed = false;
-                            }
-                        });
-                }
-                $scope.allNamespaceValueEqualed[key] = allEqualed;
-            });
-
-        AppUtil.showModal('#diffModal');
-    }
     //修改配置
     function editItem(namespace, toEditItem) {
         if (!lockCheck(namespace)) {

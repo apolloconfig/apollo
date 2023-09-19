@@ -221,11 +221,7 @@
                                 </td>
 
                                 <td width="9%" class="text-center">
-                                    <img src="img/compare.png" data-tooltip="tooltip" data-placement="bottom"
-                                         title="{{'Component.Namespace.Branch.Body.Op.Compare' | translate }}"
-                                         ng-if="!config.isDeleted" ng-click="diffItem(namespace,config.masterReleaseValue,config.item.value)"
-                                         ng-show="namespace.hasModifyPermission && !namespace.isPropertiesFormat">
-                                    <img style="margin-left: 5px;" src="img/edit.png" data-tooltip="tooltip" data-placement="bottom"
+                                    <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Branch.Body.Op.Modify' | translate }}"
                                         ng-if="!config.isDeleted" ng-click="editItem(namespace.branch, config.item)"
                                         ng-show="namespace.hasModifyPermission">

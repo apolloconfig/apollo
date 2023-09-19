@@ -33,7 +33,7 @@ function releaseModalDirective($translate, toastr, AppUtil, EventManager, Releas
             scope.release = release;
 
             scope.releaseBtnDisabled = false;
-            scope.releaseChangeViewType = 'change';
+            scope.releaseChangeViewType = 'change2';
             scope.releaseComment = '';
             scope.isEmergencyPublish = false;
 

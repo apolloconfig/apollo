@@ -918,7 +918,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             //normal release and gray release
             function publish(namespace) {
-
+                scope.releaseChangeViewType = 'change2';
                 if (!namespace.hasReleasePermission) {
                     AppUtil.showModal('#releaseNoPermissionDialog');
                     return;

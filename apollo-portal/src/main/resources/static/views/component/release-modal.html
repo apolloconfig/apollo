@@ -40,11 +40,15 @@
 
                 <div class="form-group pre-scrollable">
                     <div class="col-sm-2 control-label" ng-if="!toReleaseNamespace.isPropertiesFormat">
-                        <div class="row">
-                            <div class="btn-group btn-group-xs" style="padding-right: 10px" role="group">
+                        <div class="btn-group-vertical">
+                            <div class="btn-group btn-group-xs" role="group">
+                                <button type="button" class="btn btn-default" ng-if="toReleaseNamespace.isBranch"
+                                        ng-class="{active:releaseChangeViewType=='change1'}"
+                                        ng-click="switchReleaseChangeViewType('change1')">{{'Component.Publish.change1' | translate }}
+                                </button>
                                 <button type="button" class="btn btn-default"
-                                    ng-class="{active:releaseChangeViewType=='change'}"
-                                    ng-click="switchReleaseChangeViewType('change')">{{'Component.Publish.ToSeeChange' | translate }}
+                                    ng-class="{active:releaseChangeViewType=='change2'}"
+                                    ng-click="switchReleaseChangeViewType('change2')">{{'Component.Publish.change2' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
                                     ng-class="{active:releaseChangeViewType=='release'}"
@@ -216,9 +220,14 @@
                         </table>
 
                         <!--file format -->
+                        <div ng-repeat="config in toReleaseNamespace.branchItems" ng-if="!toReleaseNamespace.isPropertiesFormat&&toReleaseNamespace.isBranch"
+                             ng-show="releaseChangeViewType=='change1'">
+                            <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'releaseStrDiff1'">
+                            </apollodiff>
+                        </div>
                         <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
-                            ng-show="releaseChangeViewType=='change'">
-                            <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiff'">
+                            ng-show="releaseChangeViewType=='change2'">
+                            <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiff2'">
                             </apollodiff>
                         </div>
                         <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
