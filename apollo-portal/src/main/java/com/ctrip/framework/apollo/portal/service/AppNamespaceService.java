@@ -132,7 +132,7 @@ public class AppNamespaceService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "appNamespace.create")
-  public AppNamespace createAppNamespaceInLocal(@ApolloAuditLogDataInfluence AppNamespace appNamespace, boolean appendNamespacePrefix) {
+  public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
     //add app org id as prefix
@@ -260,9 +260,7 @@ public class AppNamespaceService {
 
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.batchDeleteByAppId")
   public void batchDeleteByAppId(String appId, String operator) {
-    apolloAuditLogApi.appendDataInfluenceWrapper(AppNamespace.class);
-    apolloAuditLogApi.appendDataInfluences(appNamespaceRepository.findByAppId(appId),
-        true, AppNamespace.class);
+    apolloAuditLogApi.appendDataInfluences(appNamespaceRepository.findByAppId(appId), AppNamespace.class);
     appNamespaceRepository.batchDeleteByAppId(appId, operator);
   }
 

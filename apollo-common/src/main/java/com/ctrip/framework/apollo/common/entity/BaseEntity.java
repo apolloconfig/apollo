@@ -34,7 +34,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
-import org.springframework.data.domain.AfterDomainEventPublication;
 import org.springframework.data.domain.DomainEvents;
 
 @MappedSuperclass
@@ -156,6 +155,6 @@ public abstract class BaseEntity {
 
   @DomainEvents
   public Collection<ApolloAuditLogDataInfluenceEvent> domainEvents() {
-    return Collections.singletonList(new ApolloAuditLogDataInfluenceEvent(isDeleted, this));
+    return Collections.singletonList(new ApolloAuditLogDataInfluenceEvent(this.getClass(), this));
   }
 }

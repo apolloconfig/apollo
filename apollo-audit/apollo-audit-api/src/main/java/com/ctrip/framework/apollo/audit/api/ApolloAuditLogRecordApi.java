@@ -28,15 +28,9 @@ public interface ApolloAuditLogRecordApi {
 
   AutoCloseable appendSpan(OpType type, String name, String description);
 
-  void appendDataInfluenceWrapper(Class<?> clazz);
-
-  void appendDataInfluenceWrapper(Class<?> clazz, ApolloAuditEntityWrapper wrapper);
-
   void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue);
 
-  <T> void appendDataInfluences(List<T> entities, boolean isDeleted, Class<?> clazz);
-
-  <T> void appendDataInfluences(List<T> entities, boolean isDeleted, ApolloAuditEntityWrapper wrapper);
+  void appendDataInfluences(List entities, Class<?> clazz);
 
 }

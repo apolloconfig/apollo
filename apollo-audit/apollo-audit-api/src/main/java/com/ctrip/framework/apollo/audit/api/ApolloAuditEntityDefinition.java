@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApolloAuditEntityWrapper {
+public class ApolloAuditEntityDefinition {
 
   private String entityName;
 
@@ -28,26 +28,26 @@ public class ApolloAuditEntityWrapper {
 
   private Field entityIdField;
 
-  public ApolloAuditEntityWrapper() {
+  public ApolloAuditEntityDefinition() {
     this.dataInfluenceFields = new ArrayList<>();
   }
 
-  public ApolloAuditEntityWrapper entityName(String val) {
+  public ApolloAuditEntityDefinition entityName(String val) {
     this.entityName = val;
     return this;
   }
 
-  public ApolloAuditEntityWrapper entityIdField(Field f) {
+  public ApolloAuditEntityDefinition entityIdField(Field f) {
     this.entityIdField = f;
     return this;
   }
 
-  public ApolloAuditEntityWrapper dataInfluenceFields(List<Field> val) {
+  public ApolloAuditEntityDefinition dataInfluenceFields(List<Field> val) {
     this.dataInfluenceFields = val;
     return this;
   }
 
-  public ApolloAuditEntityWrapper addDataInfluenceFields(Field f) {
+  public ApolloAuditEntityDefinition addDataInfluenceFields(Field f) {
     this.dataInfluenceFields.add(f);
     return this;
   }

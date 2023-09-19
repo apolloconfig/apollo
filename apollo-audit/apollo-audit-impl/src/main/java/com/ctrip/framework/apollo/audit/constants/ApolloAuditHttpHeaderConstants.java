@@ -14,13 +14,10 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.spi;
+package com.ctrip.framework.apollo.audit.constants;
 
-import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
-
-public interface ApolloAuditSpanService {
-
-  ApolloAuditSpanContext tryToGetParentSpanContext();
-
-  String getOperator();
+public interface ApolloAuditHttpHeaderConstants {
+  String TRACE_ID = "Apollo-Audit-TraceId";
+  String SPAN_ID = "Apollo-Audit-SpanId";
+  String OPERATOR = "Apollo-Audit-Operator";
 }

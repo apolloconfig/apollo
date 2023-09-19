@@ -14,20 +14,10 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.component;
+package com.ctrip.framework.apollo.audit.spi;
 
-import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
-import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
+public interface ApolloAuditOperatorSupplier {
 
-public class NoOpAuditSpanService implements ApolloAuditSpanService {
+  String getOperator();
 
-  @Override
-  public ApolloAuditSpanContext tryToGetParentSpanContext() {
-    return null;
-  }
-
-  @Override
-  public String getOperator() {
-    return "unknown";
-  }
 }

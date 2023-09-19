@@ -21,26 +21,26 @@ import java.io.IOException;
 public class ApolloAuditScope implements AutoCloseable {
 
   private final ApolloAuditScopeManager manager;
-  private final ApolloAuditSpanContext activate;
+  private final ApolloAuditSpanContext activeSpanContext;
   private final ApolloAuditScope hangUp;
   private ApolloAuditSpanContext lastSpanContext;
 
   public ApolloAuditScope(ApolloAuditSpanContext activate, ApolloAuditScopeManager manager) {
     this.hangUp = manager.getScope();
-    this.activate = activate;
+    this.activeSpanContext = activate;
     this.manager = manager;
     this.lastSpanContext = null;
   }
 
   public ApolloAuditSpanContext activeContext() {
-    return activate;
+    return activeSpanContext;
   }
 
   @Override
   public void close() throws IOException {
-    // 将要关闭的span成为 父scope 中的"上一个span"
+    // closing span become parent-scope's last span
     if (hangUp != null) {
-      hangUp.lastSpanContext = this.activate;
+      hangUp.lastSpanContext = this.activeSpanContext;
     }
     this.manager.setScope(hangUp);
   }

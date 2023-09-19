@@ -46,35 +46,31 @@ public class ApolloAuditLogDataInfluenceService {
     dataInfluenceRepository.saveAll(dataInfluences);
   }
 
-  public List<ApolloAuditLogDataInfluence> findBySpanId(String spanId, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
-    return dataInfluenceRepository.findBySpanId(spanId, pageable);
+  public List<ApolloAuditLogDataInfluence> findBySpanId(String spanId) {
+    return dataInfluenceRepository.findBySpanId(spanId);
   }
 
-  public List<ApolloAuditLogDataInfluence> findByEntityName(String entityName, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+  public List<ApolloAuditLogDataInfluence> findByEntityName(String entityName, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return dataInfluenceRepository.findByInfluenceEntityName(entityName, pageable);
   }
 
   public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityId(String entityName,
-      String entityId,
-      Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+      String entityId, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return dataInfluenceRepository.findByInfluenceEntityNameAndInfluenceEntityId(entityName,
         entityId, pageable);
   }
 
   public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityIdAndFieldName(
-      String entityName, String entityId,
-      String fieldName, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+      String entityName, String entityId, String fieldName, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return dataInfluenceRepository.findByInfluenceEntityNameAndInfluenceEntityIdAndFieldName(
         entityName, entityId, fieldName, pageable);
   }
 
-  Pageable pageSortByTime(Pageable page) {
-    return PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(
-        new Order(Direction.DESC, "DataChangeCreatedTime")));
+  Pageable pageSortByTime(int page, int size) {
+    return PageRequest.of(page, size, Sort.by(new Order(Direction.DESC, "DataChangeCreatedTime")));
   }
 
 }

@@ -14,19 +14,10 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.portal.audit;
+package com.ctrip.framework.apollo.audit.constants;
 
-import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+public interface ApolloAuditContextConstants {
 
-@Configuration
-public class ApolloAuditConfiguration {
-
-  @Bean
-  public ApolloAuditSpanService apolloAuditSpanService(UserInfoHolder userInfoHolder) {
-    return new PortalApolloAuditSpanService(userInfoHolder);
-  }
+  String TRACER = "Apollo-Audit-Tracer";
 
 }

@@ -24,7 +24,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 public interface ApolloAuditLogDataInfluenceRepository extends
     PagingAndSortingRepository<ApolloAuditLogDataInfluence, Long> {
 
-  List<ApolloAuditLogDataInfluence> findBySpanId(String spanId, Pageable page);
+  List<ApolloAuditLogDataInfluence> findBySpanId(String spanId);
 
   List<ApolloAuditLogDataInfluence> findByInfluenceEntityNameAndInfluenceEntityId(
       String influenceEntityName, String influenceEntityId, Pageable page);

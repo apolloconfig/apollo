@@ -16,28 +16,20 @@
  */
 package com.ctrip.framework.apollo.audit.api;
 
-import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import java.util.List;
-import org.springframework.data.domain.Pageable;
-import org.springframework.lang.NonNull;
 
 public interface ApolloAuditLogQueryApi {
 
-  List<ApolloAuditLog> queryAllLogs(Pageable page);
+  List<ApolloAuditLogDTO> queryLogs(int page, int size);
 
-  List<ApolloAuditLog> queryLogsByOpName(String opName, Pageable page);
+  List<ApolloAuditLogDTO> queryLogsByOpName(String opName, int page, int size);
 
-  List<ApolloAuditLog> queryLogsByOperator(String operator, Pageable page);
+  List<ApolloAuditLogDetailsDTO> queryTraceDetails(String traceId);
 
-  List<ApolloAuditLog> queryRelatedLogs(ApolloAuditLog log, Pageable page);
-
-  List<ApolloAuditLogDataInfluence> queryDataInfluencesByLog(ApolloAuditLog log, Pageable page);
-
-  List<ApolloAuditLogDataInfluence> queryRelatedDataInfluences(
-      ApolloAuditLogDataInfluence dataInfluence, Pageable page);
-
-  List<ApolloAuditLogDataInfluence> queryDataInfluencesByEntity(String entityName, String entityId,
-      Pageable page);
+  List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName, String entityId,
+      int page, int size);
 
 }

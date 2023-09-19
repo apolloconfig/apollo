@@ -18,11 +18,7 @@ package com.ctrip.framework.apollo.audit;
 
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
-import com.ctrip.framework.apollo.audit.component.NoOpApolloAuditLogApi;
-import com.ctrip.framework.apollo.audit.component.NoOpAuditSpanService;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
-import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
+import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -32,28 +28,10 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class ApolloAuditNoOpAutoConfiguration {
 
-//  @Bean
-//  @ConditionalOnMissingBean(ApolloAuditScopeManager.class)
-//  public ApolloAuditScopeManager auditScopeManager() {
-//    return new ApolloAuditScopeManager();
-//  }
-//
-//  @Bean
-//  @ConditionalOnMissingBean(ApolloAuditTracer.class)
-//  public ApolloAuditTracer auditTracer(ApolloAuditScopeManager manager) {
-//    return new ApolloAuditTracer(manager);
-//  }
-
-  @Bean
-  @ConditionalOnMissingBean(ApolloAuditSpanService.class)
-  public ApolloAuditSpanService apolloAuditSpanService() {
-    return new NoOpAuditSpanService();
-  }
-
   @Bean
   @ConditionalOnMissingBean(ApolloAuditLogApi.class)
   public ApolloAuditLogApi apolloAuditLogApi() {
-    return new NoOpApolloAuditLogApi();
+    return new ApolloAuditLogApiNoOpImpl();
   }
 
   @Bean

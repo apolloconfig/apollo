@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
-import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -75,27 +74,21 @@ public class RetryableRestTemplate {
   private final PortalConfig portalConfig;
   private volatile String lastAdminServiceAccessTokens;
   private volatile Map<Env, String> adminServiceAccessTokenMap;
-  private final ApolloAuditHttpInterceptor apolloAuditHttpTracerInterceptor;
 
   public RetryableRestTemplate(
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig, ApolloAuditHttpInterceptor apolloAuditHttpTracerInterceptor) {
+      final PortalConfig portalConfig) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
     this.portalConfig = portalConfig;
-    this.apolloAuditHttpTracerInterceptor = apolloAuditHttpTracerInterceptor;
   }
 
   @PostConstruct
   private void postConstruct() {
     restTemplate = restTemplateFactory.getObject();
-    //use
-    if (restTemplate != null) {
-      restTemplate.getInterceptors().add(apolloAuditHttpTracerInterceptor);
-    }
   }
 
   public <T> T get(Env env, String path, Class<T> responseType, Object... urlVariables)

@@ -18,20 +18,20 @@ package com.ctrip.framework.apollo.audit.event;
 
 public class ApolloAuditLogDataInfluenceEvent {
 
-  private boolean isDeleted;
+  private Class<?> clazz;
   private Object entity;
 
-  public ApolloAuditLogDataInfluenceEvent(boolean isDeleted, Object entity) {
-    this.isDeleted = isDeleted;
+  public ApolloAuditLogDataInfluenceEvent(Class<?> clazz, Object entity) {
+    this.clazz = clazz;
     this.entity = entity;
   }
 
-  public boolean isDeleted() {
-    return isDeleted;
+  public Class<?> getClazz() {
+    return clazz;
   }
 
-  public void setDeleted(boolean deleted) {
-    isDeleted = deleted;
+  public void setClazz(Class<?> clazz) {
+    this.clazz = clazz;
   }
 
   public Object getEntity() {

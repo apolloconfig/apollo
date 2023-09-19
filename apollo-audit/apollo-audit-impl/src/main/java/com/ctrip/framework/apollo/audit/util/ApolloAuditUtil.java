@@ -17,6 +17,10 @@
 package com.ctrip.framework.apollo.audit.util;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
+import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.Id;
@@ -77,17 +82,66 @@ public class ApolloAuditUtil {
     return null;
   }
 
-  public static boolean isLogicDelete(Object o) {
+  public static boolean isLogicDeleted(Object o) {
     Class<?> clazz = o.getClass();
-    try {
-      Field field = clazz.getDeclaredField("isDeleted");
-      field.setAccessible(true);
-      return ((boolean) field.get(o));
-    } catch (NoSuchFieldException e) {
-      throw new RuntimeException(e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
+    while (!clazz.equals(Objects.class)) {
+      try {
+        Field field = clazz.getDeclaredField("isDeleted");
+        field.setAccessible(true);
+        return ((boolean) field.get(o));
+      } catch (NoSuchFieldException e) {
+        clazz = clazz.getSuperclass();
+      } catch (IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
     }
+    return false;
+  }
+
+  public static ApolloAuditLogDTO logToDTO(ApolloAuditLog auditLog) {
+    ApolloAuditLogDTO dto = new ApolloAuditLogDTO();
+    dto.setId(auditLog.getId());
+    dto.setOpType(auditLog.getOpType());
+    dto.setOpName(auditLog.getOpName());
+    dto.setDescription(auditLog.getDescription());
+    dto.setOperator(auditLog.getOperator());
+    dto.setHappenedTime(auditLog.getDataChangeCreatedTime());
+    dto.setSpanId(auditLog.getSpanId());
+    dto.setTraceId(auditLog.getTraceId());
+    dto.setFollowsFromSpanId(auditLog.getFollowsFromSpanId());
+    dto.setParentSpanId(auditLog.getParentSpanId());
+    return dto;
+  }
+
+  public static ApolloAuditLogDataInfluenceDTO dataInfluenceToDTO(
+      ApolloAuditLogDataInfluence dataInfluence) {
+    ApolloAuditLogDataInfluenceDTO dto = new ApolloAuditLogDataInfluenceDTO();
+    dto.setId(dataInfluence.getId());
+    dto.setInfluenceEntityName(dataInfluence.getInfluenceEntityName());
+    dto.setInfluenceEntityId(dataInfluence.getInfluenceEntityId());
+    dto.setFieldName(dataInfluence.getFieldName());
+    dto.setFieldNewValue(dataInfluence.getFieldNewValue());
+    dto.setFieldNewValue(dataInfluence.getFieldNewValue());
+    dto.setHappenedTime(dataInfluence.getDataChangeCreatedTime());
+    dto.setSpanId(dataInfluence.getSpanId());
+    return dto;
+  }
+
+  public static List<ApolloAuditLogDTO> logListToDTOList(List<ApolloAuditLog> logList) {
+    List<ApolloAuditLogDTO> logDTOList = new ArrayList<>();
+    logList.forEach(log -> {
+      logDTOList.add(logToDTO(log));
+    });
+    return logDTOList;
+  }
+
+  public static List<ApolloAuditLogDataInfluenceDTO> dataInfluenceListToDTOList(
+      List<ApolloAuditLogDataInfluence> dataInfluenceList) {
+    List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList = new ArrayList<>();
+    dataInfluenceList.forEach(dataInfluence -> {
+      dataInfluenceDTOList.add(dataInfluenceToDTO(dataInfluence));
+    });
+    return dataInfluenceDTOList;
   }
 
 }

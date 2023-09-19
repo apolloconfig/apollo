@@ -136,7 +136,7 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
-  public App createAppInLocal(@ApolloAuditLogDataInfluence App app) {
+  public App createAppInLocal(App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 
@@ -185,7 +185,7 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
-  public App updateAppInLocal(@ApolloAuditLogDataInfluence App app) {
+  public App updateAppInLocal(App app) {
     String appId = app.getAppId();
 
     App managedApp = appRepository.findByAppId(appId);
@@ -229,12 +229,9 @@ public class AppService {
     //this operator is passed to com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
     managedApp.setDataChangeLastModifiedBy(operator);
 
-    //same as add @DataInfluence to parameters
-    apolloAuditLogApi.appendDataInfluenceWrapper(App.class);
-
     //删除portal数据库中的app
     appRepository.deleteApp(appId, operator);
-    apolloAuditLogApi.appendDataInfluences(Collections.singletonList(managedApp), true, App.class);
+    apolloAuditLogApi.appendDataInfluences(Collections.singletonList(managedApp), App.class);
 
     //删除portal数据库中的appNamespace
     appNamespaceService.batchDeleteByAppId(appId, operator);

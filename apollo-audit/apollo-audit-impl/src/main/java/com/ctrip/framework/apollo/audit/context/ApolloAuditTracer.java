@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.constants.ApolloAuditHttpHeader;
+import com.ctrip.framework.apollo.audit.constants.ApolloAuditHttpHeaderConstants;
 import com.ctrip.framework.apollo.audit.util.ApolloAuditUtil;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,11 +42,11 @@ public class ApolloAuditTracer {
       return null;
     }
     Map<String, List<String>> map = new HashMap<>();
-    map.put(ApolloAuditHttpHeader.TRACE_ID,
+    map.put(ApolloAuditHttpHeaderConstants.TRACE_ID,
         Collections.singletonList(manager.activeSpanContext().getTraceId()));
-    map.put(ApolloAuditHttpHeader.SPAN_ID,
+    map.put(ApolloAuditHttpHeaderConstants.SPAN_ID,
         Collections.singletonList(manager.activeSpanContext().getSpanId()));
-    map.put(ApolloAuditHttpHeader.OPERATOR,
+    map.put(ApolloAuditHttpHeaderConstants.OPERATOR,
         Collections.singletonList(manager.activeSpanContext().getOperator()));
     return map;
   }
@@ -56,8 +56,8 @@ public class ApolloAuditTracer {
       return null;
     }
     ApolloAuditSpanContext context = new ApolloAuditSpanContext(
-        map.get(ApolloAuditHttpHeader.TRACE_ID), ApolloAuditHttpHeader.SPAN_ID);
-    context.setOperator(ApolloAuditHttpHeader.OPERATOR);
+        map.get(ApolloAuditHttpHeaderConstants.TRACE_ID), ApolloAuditHttpHeaderConstants.SPAN_ID);
+    context.setOperator(ApolloAuditHttpHeaderConstants.OPERATOR);
     return context;
   }
 

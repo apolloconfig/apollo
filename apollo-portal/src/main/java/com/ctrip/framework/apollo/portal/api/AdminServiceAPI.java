@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.api;
 
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
@@ -60,17 +58,14 @@ public class AdminServiceAPI {
       return restTemplate.get(env, "apps/{appId}", AppDTO.class, appId);
     }
 
-    @ApolloAuditLog(type = OpType.CREATE, name = "rpc.App.create")
     public AppDTO createApp(Env env, AppDTO app) {
       return restTemplate.post(env, "apps", app, AppDTO.class);
     }
 
-    @ApolloAuditLog(type = OpType.UPDATE, name = "rpc.App.update")
     public void updateApp(Env env, AppDTO app) {
       restTemplate.put(env, "apps/{appId}", app, app.getAppId());
     }
 
-    @ApolloAuditLog(type = OpType.DELETE, name = "rpc.App.delete")
     public void deleteApp(Env env, String appId, String operator) {
       restTemplate.delete(env, "/apps/{appId}?operator={operator}", appId, operator);
     }
@@ -159,10 +154,10 @@ public class AdminServiceAPI {
       return Arrays.asList(namespaceDTOs);
     }
 
-    public int countPublicAppNamespaceAssociatedNamespaces(Env env, String publicNamespaceName) {
+    public int countPublicAppNamespaceAssociatedNamespaces(Env env, String publicNamesapceName) {
       Integer count =
           restTemplate.get(env, "/appnamespaces/{publicNamespaceName}/associated-namespaces/count", Integer.class,
-              publicNamespaceName);
+              publicNamesapceName);
 
       return count == null ? 0 : count;
     }
@@ -590,11 +585,6 @@ public class AdminServiceAPI {
     public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig){
       return restTemplate.post(env, "/server/config", serverConfig, ServerConfig.class);
     }
-  }
-
-  @Service
-  public static class AuditLogAPI extends API {
-
   }
 
 }

@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -33,13 +34,15 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
 
   private final HttpMessageConverters httpMessageConverters;
   private final PortalConfig portalConfig;
+  private final ApolloAuditHttpInterceptor apolloAuditHttpInterceptor;
 
   private RestTemplate restTemplate;
 
   public RestTemplateFactory(final HttpMessageConverters httpMessageConverters,
-      final PortalConfig portalConfig) {
+      final PortalConfig portalConfig, final ApolloAuditHttpInterceptor apolloAuditHttpInterceptor) {
     this.httpMessageConverters = httpMessageConverters;
     this.portalConfig = portalConfig;
+    this.apolloAuditHttpInterceptor = apolloAuditHttpInterceptor;
   }
 
   public RestTemplate getObject() {
@@ -64,6 +67,7 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
     requestFactory.setReadTimeout(portalConfig.readTimeout());
 
     restTemplate.setRequestFactory(requestFactory);
+    restTemplate.getInterceptors().add(apolloAuditHttpInterceptor);
   }
 
 

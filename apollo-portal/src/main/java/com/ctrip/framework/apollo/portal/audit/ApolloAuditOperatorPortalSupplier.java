@@ -14,18 +14,23 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.adminservice.audit;
+package com.ctrip.framework.apollo.portal.audit;
 
-import com.ctrip.framework.apollo.audit.spi.ApolloAuditSpanService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import org.springframework.stereotype.Component;
 
-@Configuration
-public class ApolloAuditConfiguration {
+@Component
+public class ApolloAuditOperatorPortalSupplier implements ApolloAuditOperatorSupplier {
 
-  @Bean
-  public ApolloAuditSpanService apolloAuditSpanService() {
-    return new AdminApolloAuditSpanService();
+  private final UserInfoHolder userInfoHolder;
+
+  public ApolloAuditOperatorPortalSupplier(UserInfoHolder userInfoHolder) {
+    this.userInfoHolder = userInfoHolder;
   }
 
+  @Override
+  public String getOperator() {
+    return userInfoHolder.getUser().getName();
+  }
 }

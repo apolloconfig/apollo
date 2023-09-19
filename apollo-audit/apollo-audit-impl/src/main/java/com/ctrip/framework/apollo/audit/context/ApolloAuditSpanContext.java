@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.context;
 
-import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityWrapper;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityDefinition;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +28,6 @@ public class ApolloAuditSpanContext {
 
   private String operator;
 
-  private Map<Class<?>, ApolloAuditEntityWrapper> wrapperMap = new HashMap<>();
-
   public ApolloAuditSpanContext(String traceId, String spanId) {
     this.traceId = traceId;
     this.spanId = spanId;
@@ -39,17 +37,6 @@ public class ApolloAuditSpanContext {
     this.traceId = traceId;
     this.spanId = spanId;
     this.operator = operator;
-  }
-
-  public void putWrapper(Class<?> clazz, ApolloAuditEntityWrapper wrapper) {
-    wrapperMap.put(clazz, wrapper);
-  }
-
-  public ApolloAuditEntityWrapper getWrapper (Class<?> clazz) {
-    if(wrapperMap.containsKey(clazz)) {
-      return wrapperMap.get(clazz);
-    }
-    return null;
   }
 
   public String getTraceId() {

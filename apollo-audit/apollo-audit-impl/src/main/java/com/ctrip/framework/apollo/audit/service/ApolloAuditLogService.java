@@ -61,34 +61,32 @@ public class ApolloAuditLogService {
     logRepository.save(auditLog);
   }
 
-  public List<ApolloAuditLog> findByTraceId(String traceId, Pageable page) {
-    return logRepository.findByTraceIdOrderByDataChangeCreatedTimeDesc(traceId, page);
+  public List<ApolloAuditLog> findByTraceId(String traceId) {
+    return logRepository.findByTraceIdOrderByDataChangeCreatedTimeDesc(traceId);
   }
 
-  public List<ApolloAuditLog> findAll(Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+  public List<ApolloAuditLog> findAll(int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return logRepository.findAll(pageable).getContent();
   }
 
-  public List<ApolloAuditLog> findByOpType(String opType, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+  public List<ApolloAuditLog> findByOpType(String opType, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOpType(opType, pageable);
   }
 
-  public List<ApolloAuditLog> findByOpName(String opName, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+  public List<ApolloAuditLog> findByOpName(String opName, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOpName(opName, pageable);
   }
 
-  public List<ApolloAuditLog> findByOperator(String operator, Pageable page) {
-    Pageable pageable = pageSortByTime(page);
+  public List<ApolloAuditLog> findByOperator(String operator, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOperator(operator, pageable);
   }
 
-  Pageable pageSortByTime(Pageable page) {
-    return PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by(
-        new Order(Direction.DESC, "DataChangeCreatedTime")));
+  Pageable pageSortByTime(int page, int size) {
+    return PageRequest.of(page, size, Sort.by(new Order(Direction.DESC, "DataChangeCreatedTime")));
   }
-
 
 }
