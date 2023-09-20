@@ -67,7 +67,7 @@ public class ServiceExceptionTest extends AbstractUnitTest {
 				Charset.defaultCharset()
 			);
 
-		when(appService.createAppInLocal(any())).thenThrow(adminException);
+		when(appService.createAppAndAddRolePermission(any(), any())).thenThrow(adminException);
 
 		AppModel app = generateSampleApp();
 		try {
