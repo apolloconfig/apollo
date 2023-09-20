@@ -43,12 +43,12 @@
                         <div class="btn-group-vertical">
                             <div class="btn-group btn-group-xs" role="group">
                                 <button type="button" class="btn btn-default" ng-if="toReleaseNamespace.isBranch"
-                                        ng-class="{active:releaseChangeViewType=='change1'}"
-                                        ng-click="switchReleaseChangeViewType('change1')">{{'Component.Publish.change1' | translate }}
+                                        ng-class="{active:releaseChangeViewType=='CompareWithMasterValue'}"
+                                        ng-click="switchReleaseChangeViewType('CompareWithMasterValue')">{{'Component.Publish.CompareWithMasterValue' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
-                                    ng-class="{active:releaseChangeViewType=='change2'}"
-                                    ng-click="switchReleaseChangeViewType('change2')">{{'Component.Publish.change2' | translate }}
+                                    ng-class="{active:releaseChangeViewType=='CompareWithPublishedValue'}"
+                                    ng-click="switchReleaseChangeViewType('CompareWithPublishedValue')">{{'Component.Publish.CompareWithPublishedValue' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
                                     ng-class="{active:releaseChangeViewType=='release'}"
@@ -221,12 +221,12 @@
 
                         <!--file format -->
                         <div ng-repeat="config in toReleaseNamespace.branchItems" ng-if="!toReleaseNamespace.isPropertiesFormat&&toReleaseNamespace.isBranch"
-                             ng-show="releaseChangeViewType=='change1'">
+                             ng-show="releaseChangeViewType=='CompareWithMasterValue'">
                             <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'releaseStrDiff1'">
                             </apollodiff>
                         </div>
                         <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
-                            ng-show="releaseChangeViewType=='change2'">
+                            ng-show="releaseChangeViewType=='CompareWithPublishedValue'">
                             <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiff2'">
                             </apollodiff>
                         </div>
