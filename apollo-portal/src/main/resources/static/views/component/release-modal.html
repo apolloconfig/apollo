@@ -43,12 +43,12 @@
                         <div class="btn-group-vertical">
                             <div class="btn-group btn-group-xs" role="group">
                                 <button type="button" class="btn btn-default" ng-if="toReleaseNamespace.isBranch"
-                                        ng-class="{active:releaseChangeViewType=='CompareWithMasterValue'}"
-                                        ng-click="switchReleaseChangeViewType('CompareWithMasterValue')">{{'Component.Publish.CompareWithMasterValue' | translate }}
+                                        ng-class="{active:releaseChangeViewType=='compareWithMasterValue'}"
+                                        ng-click="switchReleaseChangeViewType('compareWithMasterValue')">{{'Component.Publish.CompareWithMasterValue' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
-                                    ng-class="{active:releaseChangeViewType=='CompareWithPublishedValue'}"
-                                    ng-click="switchReleaseChangeViewType('CompareWithPublishedValue')">{{'Component.Publish.CompareWithPublishedValue' | translate }}
+                                    ng-class="{active:releaseChangeViewType=='compareWithPublishedValue'}"
+                                    ng-click="switchReleaseChangeViewType('compareWithPublishedValue')">{{'Component.Publish.CompareWithPublishedValue' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
                                     ng-class="{active:releaseChangeViewType=='release'}"
@@ -221,13 +221,13 @@
 
                         <!--file format -->
                         <div ng-repeat="config in toReleaseNamespace.branchItems" ng-if="!toReleaseNamespace.isPropertiesFormat&&toReleaseNamespace.isBranch"
-                             ng-show="releaseChangeViewType=='CompareWithMasterValue'">
-                            <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'releaseStrDiff1'">
+                             ng-show="releaseChangeViewType=='compareWithMasterValue'">
+                            <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'releaseStrDiffWithMasterValue'">
                             </apollodiff>
                         </div>
                         <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
-                            ng-show="releaseChangeViewType=='CompareWithPublishedValue'">
-                            <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiff2'">
+                            ng-show="releaseChangeViewType=='compareWithPublishedValue'">
+                            <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiffWithPublishedValue'">
                             </apollodiff>
                         </div>
                         <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
