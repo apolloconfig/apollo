@@ -30,7 +30,6 @@ import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.listener.AppCreationEvent;
 import com.ctrip.framework.apollo.portal.listener.AppDeletionEvent;
 import com.ctrip.framework.apollo.portal.listener.AppInfoChangedEvent;
 import com.ctrip.framework.apollo.portal.service.AdditionalUserInfoEnrichService;
@@ -46,7 +45,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -124,19 +122,7 @@ public class AppController {
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
-
-    App createdApp = appService.createAppInLocal(app);
-
-    publisher.publishEvent(new AppCreationEvent(createdApp));
-
-    Set<String> admins = appModel.getAdmins();
-    if (!CollectionUtils.isEmpty(admins)) {
-      rolePermissionService
-          .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
-              admins, userInfoHolder.getUser().getUserId());
-    }
-
-    return createdApp;
+    return appService.createAppAndAddRolePermission(app, appModel.getAdmins());
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")

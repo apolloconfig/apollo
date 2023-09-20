@@ -64,4 +64,10 @@ public class NotFoundException extends AbstractApolloHttpException {
     return new NotFoundException("app not found for appId:%s", appId);
   }
 
+  public static NotFoundException roleNotFound(String roleName) {
+    return new NotFoundException(
+        "role not found for roleName:%s, please check apollo portal DB table 'Role'",
+        roleName
+    );
+  }
 }
