@@ -289,7 +289,7 @@
   "Component.Publish.AllPublishTips": "（全量发布的配置会作用于全部的实例）",
   "Component.Publish.ToSeeChange": "查看变更",
   "Component.Publish.CompareWithMasterValue": "与主版本对比",
-  "Component.Publish.CompareWithPublishedValue": "与灰度版本对比",
+  "Component.Publish.CompareWithPublishedValue": "与已发布对比",
   "Component.Publish.PublishedValue": "待发布的值",
   "Component.Publish.Changes": "Changes",
   "Component.Publish.Key": "Key",

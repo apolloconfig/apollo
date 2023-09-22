@@ -49,7 +49,8 @@ directive_module.directive('apollodiff',
                     var newStr = scope.newStr == undefined ? '' : scope.newStr;
 
                     var oldStrRes = oldStr.replace(/\r/g, "");
-                    var diff = JsDiff.diffLines(oldStrRes, newStr),
+                    var newStrRes = newStr.replace(/\r/g, "");
+                    var diff = JsDiff.diffLines(oldStrRes, newStrRes),
                         fragment = document.createDocumentFragment();
 
                     diff.forEach(function (part) {
