@@ -357,11 +357,11 @@ After the grayscale configuration, confirm the grayscale configuration and the m
 
 Click on the `Grayscale Publish` button.
 
-![](../../../doc/images/gray-release/click-gray-release.png)
+![click-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/click-gray-release.png)
 
 Confirm the grayscale configuration to be released by comparing the value of the major version and the published value of the grayscale version.
 
-![](../../../doc/images/gray-release/gray-release-diff-items.png)
+![gray-release-diff-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-diff-items.png)
 
 ## 5.4 Configuring grayscale rules
 
