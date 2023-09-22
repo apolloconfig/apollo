@@ -64,6 +64,20 @@
                                     ng-bind="'Token: ' + consumerToken.token"></h4>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
+                                {{'Open.Manage.Consumer.AllowCreateApplication' | translate }}
+                            </label>
+                            <div class="col-sm-3">
+                                <input type="checkbox"
+                                       ng-model="consumer.allowCreateApplication"
+                                       name="allowCreateApplication"
+                                />
+                                <small>{{'Open.Manage.Consumer.AllowCreateApplicationTips' | translate }}</small>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>

@@ -69,8 +69,7 @@
             <div class="row">
                 <div class="col-md-12 pull-left">
                     <ul class="nav nav-tabs">
-                        <li role="presentation" ng-click="switchView(namespace.branch, 'table')"
-                            ng-show="namespace.isPropertiesFormat">
+                        <li role="presentation" ng-click="switchView(namespace.branch, 'table')">
                             <a ng-class="{node_active:namespace.branch.viewType == 'table'}">
                                 <img src="img/table.png">
                                 {{'Component.Namespace.Branch.Tab.Configuration' | translate }}
@@ -111,7 +110,7 @@
                     <div class="panel-heading">
                         {{'Component.Namespace.Branch.Body.Item' | translate }}
                         <button type="button" class="btn btn-primary btn-sm pull-right" style="margin-top: -4px;"
-                            ng-show="namespace.hasModifyPermission" ng-click="createItem(namespace.branch)">
+                                ng-show="namespace.isPropertiesFormat && namespace.hasModifyPermission" ng-click="createItem(namespace.branch)">
                             <img src="img/plus.png">
                             {{'Component.Namespace.Branch.Body.AddedItem' | translate }}
                         </button>
