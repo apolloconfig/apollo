@@ -3974,7 +3974,7 @@ tbody.collapse.in {
 }
 
 .btn-group .btn + .btn, .btn-group .btn + .btn-group, .btn-group .btn-group + .btn, .btn-group .btn-group + .btn-group {
-    margin-left: -1px
+    margin-left: 0px
 }
 
 .btn-toolbar {

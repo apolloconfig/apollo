@@ -29,6 +29,14 @@ public class BadRequestException extends AbstractApolloHttpException {
     setHttpStatus(HttpStatus.BAD_REQUEST);
   }
 
+  public static BadRequestException ownerNameIsBlank() {
+    return new BadRequestException("ownerName can not be blank");
+  }
+
+  public static BadRequestException orgIdIsBlank() {
+    return new BadRequestException("orgId can not be blank");
+  }
+
   public static BadRequestException itemAlreadyExists(String itemKey) {
     return new BadRequestException("item already exists for itemKey:%s", itemKey);
   }
@@ -90,6 +98,14 @@ public class BadRequestException extends AbstractApolloHttpException {
 
   public static BadRequestException appAlreadyExists(String appId) {
     return new BadRequestException("app already exists for appId:%s", appId);
+  }
+
+  public static BadRequestException appIdIsBlank() {
+    return new BadRequestException("appId can not be blank");
+  }
+
+  public static BadRequestException appNameIsBlank() {
+    return new BadRequestException("app name can not be blank");
   }
 
   public static BadRequestException clusterNotExists(String clusterName) {
