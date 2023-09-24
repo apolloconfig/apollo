@@ -39,7 +39,7 @@
                     </label>
                     <div class="col-sm-10" valdr-form-group>
                         <input type="text" name="key" class="form-control" ng-model="item.key" tabindex="1"
-                            ng-required="true" ng-disabled="item.tableViewOperType != 'create'" />
+                            ng-required="true" ng-disabled="item.tableViewOperType == 'update' || !toOperationNamespace.isPropertiesFormat" />
                     </div>
                 </div>
                 <div class="form-group">
@@ -48,7 +48,7 @@
                         {{'Component.ConfigItem.ItemTypeName' | translate }}
                     </label>
                     <div class="col-sm-10" valdr-form-group>
-                        <select class="form-control" name="type" ng-model="item.type" ng-change="changeType()">
+                        <select class="form-control" name="type" ng-model="item.type" ng-change="changeType()" ng-disabled="!toOperationNamespace.isPropertiesFormat">
                             <option value="0">{{'Component.ConfigItem.ItemTypeString' | translate }}</option>
                             <option value="1">{{'Component.ConfigItem.ItemTypeNumber' | translate }}</option>
                             <option value="2">{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</option>
@@ -86,9 +86,9 @@
 
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'Component.ConfigItem.ItemComment' | translate }}</label>
+                    <label class="col-sm-2 control-label" ng-show="toOperationNamespace.isPropertiesFormat">{{'Component.ConfigItem.ItemComment' | translate }}</label>
                     <div class="col-sm-10" valdr-form-group>
-                        <textarea class="form-control" name="comment" ng-model="item.comment" tabindex="3" rows="2">
+                        <textarea class="form-control" name="comment" ng-model="item.comment" tabindex="3" rows="2" ng-show="toOperationNamespace.isPropertiesFormat">
                         </textarea>
                     </div>
                 </div>

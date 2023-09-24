@@ -29,6 +29,8 @@ Apollo 2.2.0
 * [[Multi-Database Support][h2] Support run on h2](https://github.com/apolloconfig/apollo/pull/4851)
 * [Fix the issue that env special case handling is missing in some case](https://github.com/apolloconfig/apollo/pull/4887)
 * [Fix the issue that namespace content being cleared when identical content is pasted into the namespace](https://github.com/apolloconfig/apollo/pull/4922)
+* [feat(openapi): allow user create app via openapi](https://github.com/apolloconfig/apollo/pull/4954)
+* [Support grayscale feature for non-properties namespaces](https://github.com/apolloconfig/apollo/pull/4952)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)

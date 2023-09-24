@@ -418,4 +418,3 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
 }
 
-
