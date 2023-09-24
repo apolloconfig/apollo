@@ -17,9 +17,7 @@
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.repository.AppRepository;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -38,13 +36,10 @@ public class AppService {
 
   private final AppRepository appRepository;
   private final AuditService auditService;
-  private final ApolloAuditLogApi apolloAuditLogApi;
 
-  public AppService(final AppRepository appRepository, final AuditService auditService,
-      final ApolloAuditLogApi apolloAuditLogApi) {
+  public AppService(final AppRepository appRepository, final AuditService auditService) {
     this.appRepository = appRepository;
     this.auditService = auditService;
-    this.apolloAuditLogApi = apolloAuditLogApi;
   }
 
   public boolean isAppIdUnique(String appId) {
