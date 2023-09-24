@@ -1,7 +1,7 @@
 audit_log_menu_module.controller('AuditLogMenuController',
     ['$scope', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
       auditLogMenuController]
-)
+);
 
 function auditLogMenuController($scope, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
 
@@ -12,9 +12,9 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       $scope.formatDate = formatDate;
 
       $scope.page = 0;
-      let PAGE_SIZE = 10;
+      var PAGE_SIZE = 10;
 
-      $scope.opName = ''
+      $scope.opName = '';
       $scope.startDate = null;
       $scope.endDate = null;
 
@@ -34,8 +34,8 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
                   if (result.length === 0) {
                         return;
                   }
-                  $scope.auditLogList = $scope.auditLogList.concat(result)
-            })
+                  $scope.auditLogList = $scope.auditLogList.concat(result);
+            });
       }
 
       function searchByOpNameAndDate(opName, startDate, endDate) {
@@ -71,8 +71,8 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
                         if (result.length === 0) {
                               return;
                         }
-                        $scope.auditLogList = $scope.auditLogList.concat(result)
-                  })
+                        $scope.auditLogList = $scope.auditLogList.concat(result);
+                  });
             }else {
                   AuditLogService.find_logs_by_opName(
                       $scope.opName,
@@ -93,13 +93,17 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       }
 
       function goToTraceDetailsPage(traceId) {
-            console.log("goToTraceDetailsPage" + traceId)
             $window.location.href =  AppUtil.prefixPath() + "/trace_detail.html?#traceId=" + traceId;
       }
 
       function formatDate(dateStr) {
             var date = new Date(dateStr);
-            var formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+            var formattedDate = date.getFullYear() + '-' +
+                (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + '-' +
+                (date.getDate() < 10 ? '0' : '') + date.getDate() + ' ' +
+                (date.getHours() < 10 ? '0' : '') + date.getHours() + ':' +
+                (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' +
+                (date.getSeconds() < 10 ? '0' : '') + date.getSeconds();
             return formattedDate;
       }
 

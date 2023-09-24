@@ -1,7 +1,7 @@
 audit_log_trace_detail_module.controller('AuditLogTraceDetailController',
     ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
       auditLogTraceDetailController]
-)
+);
 function auditLogTraceDetailController($scope, $location, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
       var params = AppUtil.parseParams($location.$$url);
       $scope.traceId = params.traceId;
@@ -30,7 +30,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                       $scope.traceDetails = result;
                 }
 
-            )
+            );
       }
 
       function setShowingDetail(detail) {
@@ -53,7 +53,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
             });
       }
       function getLogsNameBySpanId(spanId) {
-            for(let log in $scope.traceDetails.logDTO) {
+            for(var log in $scope.traceDetails.logDTO) {
                   if(log.spanId == spanId) {
                         return log.opName;
                   }
@@ -81,7 +81,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   }
                   $scope.relatedDataInfluences = result;
 
-            })
+            });
       }
 
       function findMoreRelatedDataInfluence() {
