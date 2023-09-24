@@ -108,5 +108,4 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
             $scope.text = text;
             AppUtil.showModal("#showTextModal");
       }
-
 }
