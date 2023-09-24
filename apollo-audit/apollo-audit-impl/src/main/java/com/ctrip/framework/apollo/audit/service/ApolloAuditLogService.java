@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.audit.service;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -80,13 +81,19 @@ public class ApolloAuditLogService {
     return logRepository.findByOpName(opName, pageable);
   }
 
+  public List<ApolloAuditLog> findByOpNameAndTime(String opName, Date startDate,
+      Date endDate, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
+    return logRepository.findByOpNameAndTime(opName, startDate, endDate, pageable);
+  }
+
   public List<ApolloAuditLog> findByOperator(String operator, int page, int size) {
     Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOperator(operator, pageable);
   }
 
   Pageable pageSortByTime(int page, int size) {
-    return PageRequest.of(page, size, Sort.by(new Order(Direction.DESC, "DataChangeCreatedTime")));
+    return PageRequest.of(page, size, Sort.by(new Order(Direction.DESC, "dataChangeCreatedTime")));
   }
 
 }

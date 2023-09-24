@@ -1173,3 +1173,81 @@ table th {
     width: 16px;
     height: 16px;
 }
+
+/*audit-menu page*/
+#audit-menu h5 {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+#audit-menu {
+    display: flex;
+    background-color: #ffffff;
+    /*实现垂直居中*/
+    align-items: center;
+    /*实现水平居中*/
+    justify-content: center;
+
+}
+
+#audit-menu .main-table {
+    padding-top: 15px;
+    width: 100%;
+    min-width: 500px;
+}
+
+#audit-menu .more-img {
+    width: 20px;
+    height: 20px;
+}
+
+#audit-menu .operate-panel {
+    position: absolute;
+    top: 5px;
+    right: 20px;
+}
+
+#audit-menu .display-table {
+    padding: 15px;
+    margin-left: 30px;
+    margin-right: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+#audit-menu .search-bar {
+    padding: 15px;
+    margin-left: 30px;
+    margin-right: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+#audit-menu table {
+    width: 100%;
+}
+
+#audit-menu tr {
+}
+
+#audit-menu th {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 16px;
+    text-align: left;
+    word-break: break-all;
+}
+
+#audit-menu td {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 14px;
+    word-break: break-all;
+}
+.data-influence {
+    display: table-row;
+    padding: 8px 8px 8px 8px;
+    font-size: 16px;
+    color: #292a29;
+}
+.data-influence-box:hover{
+    background-color: #f5f5f5;
+}

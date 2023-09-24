@@ -16,20 +16,27 @@
  */
 package com.ctrip.framework.apollo.audit.api;
 
-import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
+import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
+import java.util.Date;
 import java.util.List;
 
 public interface ApolloAuditLogQueryApi {
 
   List<ApolloAuditLogDTO> queryLogs(int page, int size);
 
-  List<ApolloAuditLogDTO> queryLogsByOpName(String opName, int page, int size);
+  List<ApolloAuditLogDTO> queryLogsByOpName(String opName, Date startDate, Date endDate, int page,
+      int size);
 
   List<ApolloAuditLogDetailsDTO> queryTraceDetails(String traceId);
 
-  List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName, String entityId,
-      int page, int size);
+  List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName,
+      String entityId, int page, int size);
+
+
+  List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
+      String entityId, String fieldName, int page, int size);
+
 
 }

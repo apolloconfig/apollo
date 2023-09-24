@@ -20,10 +20,13 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
+import java.util.Date;
 import java.util.List;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -49,9 +52,13 @@ public class ApolloAuditController {
   }
 
   @GetMapping("/logs/opName/{opName}")
-  public List<ApolloAuditLogDTO> findAllAuditLogsByOpName(@PathVariable String opName, int page,
-      int size) {
-    List<ApolloAuditLogDTO> logDTOList = api.queryLogsByOpName(opName, page, size);
+  public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@PathVariable String opName,
+      @RequestParam int page,
+      @RequestParam int size,
+      @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
+      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+    List<ApolloAuditLogDTO> logDTOList = api.queryLogsByOpName(opName, startDate, endDate, page,
+        size);
     return logDTOList;
   }
 
@@ -60,6 +67,15 @@ public class ApolloAuditController {
       @PathVariable String entityName, @PathVariable String entityId, int page, int size) {
     List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList = api.queryDataInfluencesByEntity(
         entityName, entityId, page, size);
+    return dataInfluenceDTOList;
+  }
+
+  @GetMapping("/logs/dataInfluences/entityName/{entityName}/entityId/{entityId}/fieldName/{fieldName}")
+  public List<ApolloAuditLogDataInfluenceDTO> findDataInfluencesByField(
+      @PathVariable String entityName, @PathVariable String entityId, @PathVariable String fieldName, int page, int size
+      ) {
+    List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList = api.queryDataInfluencesByField(
+        entityName, entityId, fieldName, page, size);
     return dataInfluenceDTOList;
   }
 

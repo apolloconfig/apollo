@@ -17,9 +17,12 @@
 package com.ctrip.framework.apollo.audit.repository;
 
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface ApolloAuditLogRepository extends PagingAndSortingRepository<ApolloAuditLog, Long> {
 
@@ -28,6 +31,11 @@ public interface ApolloAuditLogRepository extends PagingAndSortingRepository<Apo
   List<ApolloAuditLog> findByOpType(String opType, Pageable page);
 
   List<ApolloAuditLog> findByOpName(String opName, Pageable page);
+
+  @Query("SELECT log FROM ApolloAuditLog log WHERE log.opName = :opName AND (log.dataChangeCreatedTime >= :startDate) AND (log.dataChangeCreatedTime <= :endDate)")
+  List<ApolloAuditLog> findByOpNameAndTime(@Param("opName") String opName,
+      @Param("startDate") Date startDate, @Param("endDate") Date endDate,
+      Pageable pageable);
 
   List<ApolloAuditLog> findByOperator(String operator, Pageable page);
 }

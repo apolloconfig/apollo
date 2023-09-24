@@ -1,0 +1,208 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="audit_log_trace_detail">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="icon" href="img/config.png">
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="vendor/font-awesome.min.css">
+
+  <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+  <link rel="stylesheet" type="text/css" href="vendor/iconfont/iconfont.css">
+</head>
+<body>
+
+<apollonav></apollonav>
+<div class="audit-trace container-fluid apollo-container" ng-controller="AuditLogTraceDetailController">
+  <section class="panel col-md-12 no-radius">
+    <div class="panel-heading row">
+
+      <div class="text-center">
+        <h2>{{ 'ApolloAuditLog.TraceDetailTips' | translate }}</h2>
+        <small>{{'ApolloAuditLog.TraceIdTips' | translate }}:{{traceId}}
+        </small>
+      </div>
+
+    </div>
+
+    <div class="panel-body row">
+      <div class="col-md-4">
+
+        <div class="panel-heading">
+          <span class="label label-primary">
+            {{'ApolloAuditLog.TraceAuditLogTips' | translate }}</span>
+        </div>
+        <div class="panel-body">
+          <div class="media hover" ng-repeat="detail in traceDetails">
+            <h4 class="media-heading word-break" data-toggle="collapse" data-target="#detail{{ detail.logDTO.id }}"
+              ng-click="setShowingDetail(detail);removeInClassFromLogDropDownExceptId(detail.logDTO.id)">
+              {{detail.logDTO.opName}}
+              <span class="glyphicon glyphicon-menu-down"></span>
+            </h4>
+            <div id="detail{{ detail.logDTO.id }}" class="panel-collapse collapse">
+              <div class="word-break">{{'ApolloAuditLog.SpanIdTips' | translate }}:{{detail.logDTO.spanId}}</div>
+              <div class="word-break">{{'ApolloAuditLog.ParentSpan' | translate }}:{{ detail.logDTO.parentSpanId}}</div>
+              <div class="word-break">{{'ApolloAuditLog.FollowsFromSpan' | translate }}:{{ detail.logDTO.followsFromSpanId}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--properties mode info-->
+      <div class="col-md-4">
+        <div class="panel-heading">
+          <span class="label label-info">{{'ApolloAuditLog.RelatedDataInfluenceTips' | translate }}</span>
+        </div>
+        <div class="panel-body">
+          <section>
+
+            <div>
+
+              <div class="data-influence-box" ng-show="showingDetail.dataInfluenceDTOList && showingDetail.dataInfluenceDTOList.length > 0"
+                   ng-repeat="dataInfluence in showingDetail.dataInfluenceDTOList" style="margin-top: 10px;margin-bottom: 10px">
+                <div class="data-influence cursor-pointer word-break padding-top-5 border-bottom"
+                ng-click="showRelatedDataInfluence(dataInfluence.influenceEntityName,dataInfluence.influenceEntityId,dataInfluence.fieldName)">
+                  <div>
+
+                    <strong>
+                      {{'ApolloAuditLog.DataInfluence.EntityName' | translate}}:
+                    </strong>{{dataInfluence.influenceEntityName}}
+                    <strong>
+                      {{'ApolloAuditLog.DataInfluence.EntityId' | translate}}:
+                    </strong>{{dataInfluence.influenceEntityId}}
+                  </div>
+                  <strong>
+                    {{'ApolloAuditLog.DataInfluence.FieldName' | translate}}:
+                  </strong>{{dataInfluence.fieldName}}
+                  <br/>
+                  <strong>
+                    {{'ApolloAuditLog.DataInfluence.FieldNewValue' | translate}}
+                    <span class="glyphicon glyphicon-arrow-right"></span>
+                    {{dataInfluence.fieldNewValue}}
+                  </strong>
+                </div>
+
+              </div>
+            </div>
+            <div class="text-center empty-container"
+                 ng-show="!showingDetail.dataInfluenceDTOList || showingDetail.dataInfluenceDTOList.length == 0">
+              <h5>{{'ApolloAuditLog.NoDataInfluence' | translate }}</h5>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="panel-body">
+          <section>
+            <span class="label label-default-light">{{'ApolloAuditLog.FieldChangeHistory' | translate }}</span>
+            <h4 ng-show="relatedDataInfluences && relatedDataInfluences.length > 0"
+                class="section-title">
+              {{entityNameOfFindRelated + ':' + entityIdOfFindRelated + ':' + fieldNameOfFindRelated}}
+            </h4>
+            <div class="table-responsive">
+              <table ng-show="relatedDataInfluences && relatedDataInfluences.length > 0"
+                      class="no-margin table table-striped table-hover table-bordered">
+                <thead>
+                <tr>
+                  <th style="width: 50%">{{'ApolloAuditLog.DataInfluence.FieldNewValue' | translate }}</th>
+                  <th style="width: 50%">{{'ApolloAuditLog.DataInfluence.HappenedTime' | translate }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="di in relatedDataInfluences">
+                  <td class="cursor-pointer" style="width: 50%" ng-click="showText(di.fieldNewValue)">{{ di.fieldNewValue }}</td>
+                  <td class="cursor-pointer" style="width: 50%" ng-click="showText(di.happenedTime)">{{ di.happenedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="load-more media panel-heading text-center hover" ng-show="!relatedDataInfluenceHasLoadAll"
+                 ng-click="findMoreRelatedDataInfluence()">
+              {{'ApolloAuditLog.DataInfluence.LoadMore' | translate }}
+            </div>
+            <div class="text-center empty-container"
+                 ng-show="!relatedDataInfluences || relatedDataInfluences.length == 0">
+              <h5>{{'ApolloAuditLog.NoDataInfluence' | translate }}</h5>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-body" ng-show="!traceDetails || traceDetails == 0">
+      <h4 class="text-center empty-container">
+        {{'ApolloAuditLog.NoTraceDetail' | translate }}</h4>
+    </div>
+  </section>
+
+  <showtextmodal text="text"></showtextmodal>
+</div>
+
+
+<div ng-include="'../views/common/footer.html'"></div>
+
+<!-- jquery.js -->
+<script src="vendor/jquery.min.js" type="text/javascript"></script>
+<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+
+<!--angular-->
+<script src="vendor/angular/angular.min.js"></script>
+<script src="vendor/angular/angular-resource.min.js"></script>
+<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+<script src="vendor/angular/loading-bar.min.js"></script>
+<script src="vendor/angular/angular-cookies.min.js"></script>
+
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script
+    src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script
+    src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+<!-- bootstrap.js -->
+<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="vendor/diff.min.js" type="text/javascript"></script>
+
+<!--biz-->
+<script type="application/javascript" src="scripts/app.js"></script>
+<script type="application/javascript" src="scripts/services/AppService.js"></script>
+<script type="application/javascript" src="scripts/services/EnvService.js"></script>
+<script type="application/javascript" src="scripts/services/UserService.js"></script>
+<script type="application/javascript" src="scripts/services/CommonService.js"></script>
+<script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
+<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+<script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+<script type="application/javascript" src="scripts/services/AuditLogService.js"></script>
+<script type="application/javascript" src="scripts/services/EventManager.js"></script>
+<script type="application/javascript" src="scripts/AppUtils.js"></script>
+
+<script type="application/javascript"
+        src="scripts/controller/AuditLogTraceDetailController.js"></script>
+
+<script type="application/javascript" src="scripts/PageCommon.js"></script>
+<script type="application/javascript" src="scripts/directive/directive.js"></script>
+<script type="application/javascript" src="scripts/directive/show-text-modal-directive.js"></script>
+<script type="application/javascript" src="scripts/directive/diff-directive.js"></script>
+<script type="application/javascript" src="scripts/directive/rollback-modal-directive.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+audit_log_trace_detail_module.controller('AuditLogTraceDetailController',
+    ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
+      auditLogTraceDetailController]
+)
+function auditLogTraceDetailController($scope, $location, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
+      var params = AppUtil.parseParams($location.$$url);
+      $scope.traceId = params.traceId;
+
+      $scope.traceDetails = [];
+      $scope.showingDetail = {};
+      $scope.relatedDataInfluences = [];
+      $scope.relatedDataInfluencePage = 0;
+      let RelatedDataInfluencePageSize = 10;
+      $scope.setShowingDetail = setShowingDetail;
+      $scope.showText = showText;
+      $scope.removeInClassFromLogDropDownExceptId = removeInClassFromLogDropDownExceptId;
+      $scope.findMoreRelatedDataInfluence = findMoreRelatedDataInfluence;
+      $scope.showRelatedDataInfluence = showRelatedDataInfluence;
+      $scope.getLogsNameBySpanId = getLogsNameBySpanId;
+
+      init();
+
+      function init() {
+            getTraceDetails();
+      }
+
+      function getTraceDetails() {
+            AuditLogService.find_trace_details($scope.traceId).then(
+                function (result) {
+                      $scope.traceDetails = result;
+                }
+
+            )
+      }
+
+      function setShowingDetail(detail) {
+            $scope.showingDetail = detail;
+      }
+
+      function removeInClassFromLogDropDownExceptId(id) {
+
+            $scope.relatedDataInfluences = [];
+
+            // 获取所有以指定前缀开始的ID的元素
+            var elements = document.querySelectorAll('[id^="detail"]');
+
+            // 遍历这些元素并移除 "in" 类
+            elements.forEach(function (element) {
+                  if(element.id !== 'detail'+id) {
+                        element.classList.remove('in');
+                  }
+
+            });
+      }
+      function getLogsNameBySpanId(spanId) {
+            for(let log in $scope.traceDetails.logDTO) {
+                  if(log.spanId == spanId) {
+                        return log.opName;
+                  }
+            }
+
+      }
+
+      function showRelatedDataInfluence(entityName, entityId, fieldName) {
+            $scope.entityNameOfFindRelated = entityName;
+            $scope.entityIdOfFindRelated = entityId;
+            $scope.fieldNameOfFindRelated = fieldName;
+
+            AuditLogService.find_dataInfluences_by_field(
+                $scope.entityNameOfFindRelated,
+                $scope.entityIdOfFindRelated,
+                $scope.fieldNameOfFindRelated,
+                $scope.relatedDataInfluencePage,
+                RelatedDataInfluencePageSize
+            ).then(function (result) {
+                  if (!result || result.length < RelatedDataInfluencePageSize) {
+                        $scope.relatedDataInfluenceHasLoadAll = true;
+                  }
+                  if (result.length === 0) {
+                        return;
+                  }
+                  $scope.relatedDataInfluences = result;
+
+            })
+      }
+
+      function findMoreRelatedDataInfluence() {
+            $scope.relatedDataInfluencePage = $scope.relatedDataInfluencePage + 1;
+            AuditLogService.find_dataInfluences_by_field(
+                $scope.entityNameOfFindRelated,
+                $scope.entityIdOfFindRelated,
+                $scope.fieldNameOfFindRelated,
+                $scope.relatedDataInfluencePage,
+                RelatedDataInfluencePageSize
+            ).then(function (result) {
+                  if (!result || result.length < RelatedDataInfluencePageSize) {
+                        $scope.relatedDataInfluenceHasLoadAll = true;
+                  }
+                  if (result.length === 0) {
+                        return;
+                  }
+                  $scope.relatedDataInfluences = $scope.relatedDataInfluences.concat(result);
+
+            })
+      }
+
+      function showText(text) {
+            $scope.text = text;
+            AppUtil.showModal("#showTextModal");
+      }
+
+}
