@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -45,7 +46,7 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest
-@ContextConfiguration(classes = AppService.class)
+@ContextConfiguration(classes = {AppService.class, ApolloAuditLogApiNoOpImpl.class})
 class AppServiceTest {
 
   private static final String OPERATOR_USER_ID = "userId-operator";

@@ -31,17 +31,8 @@
   <dependencies>
     <dependency>
       <groupId>com.ctrip.framework.apollo</groupId>
-      <artifactId>apollo-audit-annotation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.ctrip.framework.apollo</groupId>
       <artifactId>apollo-audit-impl</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.ctrip.framework.apollo</groupId>
-      <artifactId>apollo-audit-api</artifactId>
-    </dependency>
-
     <!-->third party<-->
     <dependency>
       <groupId>org.springframework.boot</groupId>
