@@ -260,7 +260,6 @@ public class AppNamespaceService {
 
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.batchDeleteByAppId")
   public void batchDeleteByAppId(String appId, String operator) {
-    apolloAuditLogApi.appendDataInfluences(appNamespaceRepository.findByAppId(appId), AppNamespace.class);
     appNamespaceRepository.batchDeleteByAppId(appId, operator);
   }
 
