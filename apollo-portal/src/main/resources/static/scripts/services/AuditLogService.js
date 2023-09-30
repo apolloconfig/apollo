@@ -23,7 +23,7 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
     },
     find_logs_by_opName: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs/opName/:opName?page=:page&size=:size&startDate=:startDate&endDate=:endDate',
+      url: AppUtil.prefixPath() + '/apollo/audit/logs/opName?opName=:opName&page=:page&size=:size&startDate=:startDate&endDate=:endDate',
       isArray: true
     },
     find_trace_details: {

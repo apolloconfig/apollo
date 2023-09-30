@@ -30,12 +30,9 @@ import org.springframework.data.domain.Sort.Order;
 public class ApolloAuditLogService {
 
   private final ApolloAuditLogRepository logRepository;
-  private final ApolloAuditLogDataInfluenceService dataInfluenceService;
 
-  public ApolloAuditLogService(ApolloAuditLogRepository logRepository,
-      ApolloAuditLogDataInfluenceService dataInfluenceService) {
+  public ApolloAuditLogService(ApolloAuditLogRepository logRepository) {
     this.logRepository = logRepository;
-    this.dataInfluenceService = dataInfluenceService;
   }
 
   public ApolloAuditLog save(ApolloAuditLog auditLog) {
@@ -71,11 +68,6 @@ public class ApolloAuditLogService {
     return logRepository.findAll(pageable).getContent();
   }
 
-  public List<ApolloAuditLog> findByOpType(String opType, int page, int size) {
-    Pageable pageable = pageSortByTime(page, size);
-    return logRepository.findByOpType(opType, pageable);
-  }
-
   public List<ApolloAuditLog> findByOpName(String opName, int page, int size) {
     Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOpName(opName, pageable);
@@ -85,11 +77,6 @@ public class ApolloAuditLogService {
       Date endDate, int page, int size) {
     Pageable pageable = pageSortByTime(page, size);
     return logRepository.findByOpNameAndTime(opName, startDate, endDate, pageable);
-  }
-
-  public List<ApolloAuditLog> findByOperator(String operator, int page, int size) {
-    Pageable pageable = pageSortByTime(page, size);
-    return logRepository.findByOperator(operator, pageable);
   }
 
   Pageable pageSortByTime(int page, int size) {

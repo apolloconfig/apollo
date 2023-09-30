@@ -140,7 +140,6 @@ public class AppService {
     appAPI.createApp(env, appDTO);
   }
 
-  @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
   private App createAppInLocal(App app) {
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
@@ -170,6 +169,7 @@ public class AppService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
   public App createAppAndAddRolePermission(
       App app, Set<String> admins
   ) {

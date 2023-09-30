@@ -393,7 +393,7 @@ CREATE TABLE `AuditLog` (
   `FollowsFromSpanId` varchar(32) DEFAULT NULL COMMENT '上一个兄弟跨度ID',
   `Operator` varchar(64) NOT NULL DEFAULT 'anonymous' COMMENT '操作人',
   `OpType` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作类型',
-  `OpName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '操作名称',
+  `OpName` varchar(150) NOT NULL DEFAULT 'default' COMMENT '操作名称',
   `Description` varchar(200) DEFAULT NULL COMMENT '备注',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
@@ -403,6 +403,9 @@ CREATE TABLE `AuditLog` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
+
+CREATE INDEX idx_trace_id_time ON AuditLog (TraceId, DataChange_CreatedTime);
+CREATE INDEX idx_op_name_time ON AuditLog (OpName, DataChange_CreatedTime);
 
 DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 
@@ -424,3 +427,5 @@ CREATE TABLE `AuditLogDataInfluence` (
   INDEX `SpanIdIndex` (`SpanId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志数据变动表';
 
+CREATE INDEX idx_span_id ON AuditLogDataInfluence (SpanId);
+CREATE INDEX idx_entity_field_time ON AuditLogDataInfluence (InfluenceEntityName, InfluenceEntityId, FieldName, DataChange_CreatedTime);

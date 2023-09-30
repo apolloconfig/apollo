@@ -1181,7 +1181,6 @@ table th {
 }
 
 #audit-menu {
-    display: flex;
     background-color: #ffffff;
     /*实现垂直居中*/
     align-items: center;

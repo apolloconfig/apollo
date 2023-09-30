@@ -50,11 +50,6 @@ public class ApolloAuditLogDataInfluenceService {
     return dataInfluenceRepository.findBySpanId(spanId);
   }
 
-  public List<ApolloAuditLogDataInfluence> findByEntityName(String entityName, int page, int size) {
-    Pageable pageable = pageSortByTime(page, size);
-    return dataInfluenceRepository.findByInfluenceEntityName(entityName, pageable);
-  }
-
   public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityId(String entityName,
       String entityId, int page, int size) {
     Pageable pageable = pageSortByTime(page, size);

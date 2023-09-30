@@ -111,9 +111,11 @@
         </div>
       </div>
       <div class="col-md-4">
+        <div class="panel-heading">
+          <span class="label label-default-light">{{'ApolloAuditLog.FieldChangeHistory' | translate }}</span>
+        </div>
         <div class="panel-body">
           <section>
-            <span class="label label-default-light">{{'ApolloAuditLog.FieldChangeHistory' | translate }}</span>
             <h4 ng-show="relatedDataInfluences && relatedDataInfluences.length > 0"
                 class="section-title">
               {{entityNameOfFindRelated + ':' + entityIdOfFindRelated + ':' + fieldNameOfFindRelated}}

@@ -26,6 +26,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       $scope.showingDetail = {};
       $scope.relatedDataInfluences = [];
       $scope.relatedDataInfluencePage = 0;
+      $scope.relatedDataInfluenceHasLoadAll = true;
       var RelatedDataInfluencePageSize = 10;
       $scope.setShowingDetail = setShowingDetail;
       $scope.showText = showText;
@@ -95,8 +96,8 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   if (result.length === 0) {
                         return;
                   }
+                  $scope.relatedDataInfluenceHasLoadAll = false;
                   $scope.relatedDataInfluences = result;
-
             });
       }
 

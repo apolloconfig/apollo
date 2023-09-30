@@ -62,9 +62,8 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditLogService apolloAuditLogService(ApolloAuditLogRepository logRepository,
-      ApolloAuditLogDataInfluenceService dataInfluenceService) {
-    return new ApolloAuditLogService(logRepository, dataInfluenceService);
+  public ApolloAuditLogService apolloAuditLogService(ApolloAuditLogRepository logRepository) {
+    return new ApolloAuditLogService(logRepository);
   }
 
   @Bean

@@ -79,12 +79,14 @@ public class RetryableRestTemplate {
       final @Lazy RestTemplateFactory restTemplateFactory,
       final @Lazy AdminServiceAddressLocator adminServiceAddressLocator,
       final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig) {
+      final PortalConfig portalConfig
+  ) {
     this.restTemplateFactory = restTemplateFactory;
     this.adminServiceAddressLocator = adminServiceAddressLocator;
     this.portalMetaDomainService = portalMetaDomainService;
     this.portalConfig = portalConfig;
   }
+
 
   @PostConstruct
   private void postConstruct() {

@@ -29,8 +29,6 @@ public interface ApolloAuditLogDataInfluenceRepository extends
   List<ApolloAuditLogDataInfluence> findByInfluenceEntityNameAndInfluenceEntityId(
       String influenceEntityName, String influenceEntityId, Pageable page);
 
-  List<ApolloAuditLogDataInfluence> findByInfluenceEntityName(String entityName, Pageable page);
-
   List<ApolloAuditLogDataInfluence> findByInfluenceEntityNameAndInfluenceEntityIdAndFieldName(
       String influenceEntityName, String influenceEntityId, String fieldName, Pageable page);
 

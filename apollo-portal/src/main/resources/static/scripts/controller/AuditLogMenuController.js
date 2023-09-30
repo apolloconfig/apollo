@@ -58,8 +58,8 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
             $scope.auditLogList = [];
             $scope.page = 0;
             $scope.opName = opName;
-            $scope.startDate = formatDate(startDate);
-            $scope.endDate = formatDate(endDate);
+            $scope.startDate = startDate;
+            $scope.endDate = endDate;
             AuditLogService.find_logs_by_opName(
                 $scope.opName,
                 $scope.startDate,
@@ -114,13 +114,13 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
 
       function formatDate(dateStr) {
             var date = new Date(dateStr);
-            var formattedDate = date.getFullYear() + '-' +
-                (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1) + '-' +
-                (date.getDate() < 10 ? '0' : '') + date.getDate() + ' ' +
-                (date.getHours() < 10 ? '0' : '') + date.getHours() + ':' +
-                (date.getMinutes() < 10 ? '0' : '') + date.getMinutes() + ':' +
-                (date.getSeconds() < 10 ? '0' : '') + date.getSeconds();
-            return formattedDate;
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+            const hour = date.getHours().toString().padStart(2, '0');
+            const minute = date.getMinutes().toString().padStart(2, '0');
+            const second = date.getSeconds().toString().padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
       }
 
 }

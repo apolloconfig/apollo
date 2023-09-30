@@ -51,8 +51,8 @@ public class ApolloAuditController {
     return detailsDTOList;
   }
 
-  @GetMapping("/logs/opName/{opName}")
-  public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@PathVariable String opName,
+  @GetMapping("/logs/opName")
+  public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@RequestParam String opName,
       @RequestParam int page,
       @RequestParam int size,
       @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
