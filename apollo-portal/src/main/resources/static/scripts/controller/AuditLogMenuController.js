@@ -25,7 +25,6 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       $scope.goToTraceDetailsPage = goToTraceDetailsPage;
       $scope.searchByOpNameAndDate = searchByOpNameAndDate;
       $scope.getMoreAuditLogs = getMoreAuditLogs;
-      $scope.formatDate = formatDate;
 
       $scope.page = 0;
       var PAGE_SIZE = 10;
@@ -111,18 +110,6 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       function goToTraceDetailsPage(traceId) {
             $window.location.href =  AppUtil.prefixPath() + "/trace_detail.html?#traceId=" + traceId;
       }
-
-      function formatDate(dateStr) {
-            var date = new Date(dateStr);
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const hour = date.getHours().toString().padStart(2, '0');
-            const minute = date.getMinutes().toString().padStart(2, '0');
-            const second = date.getSeconds().toString().padStart(2, '0');
-            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-      }
-
 }
 
 
