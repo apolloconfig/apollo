@@ -23,24 +23,18 @@ import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
 
   //do nothing, for default impl
 
   @Override
-  public Map extractSpan() {
-    return null;
+  public AutoCloseable appendAuditLog(OpType type, String name) {
+    return appendAuditLog(type, name, null);
   }
 
   @Override
-  public AutoCloseable appendSpan(OpType type, String name) {
-    return appendSpan(type, name, null);
-  }
-
-  @Override
-  public AutoCloseable appendSpan(OpType type, String name, String description) {
+  public AutoCloseable appendAuditLog(OpType type, String name, String description) {
     return () -> {
     };
   }
@@ -74,7 +68,7 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public void appendDataInfluences(List entities, Class<?> clazz) {
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
 
   }
 

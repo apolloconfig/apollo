@@ -14,28 +14,44 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.component;
+package com.ctrip.framework.apollo.audit.context;
 
-import com.ctrip.framework.apollo.audit.constants.ApolloAuditContextConstants;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.constants.ApolloAuditConstants;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
+import java.util.Objects;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-public class ApolloAuditOperatorDefaultSupplier implements ApolloAuditOperatorSupplier {
+public class ApolloAuditTraceContext {
 
-  @Override
-  public String getOperator() {
+  private final ApolloAuditOperatorSupplier operatorSupplier;
+
+  public ApolloAuditTraceContext(ApolloAuditOperatorSupplier operatorSupplier) {
+    this.operatorSupplier = operatorSupplier;
+  }
+
+  // if not get one, create one and re-get it
+  public ApolloAuditTracer tracer() {
     RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
     if (requestAttributes != null) {
-      Object tracer = requestAttributes.getAttribute(ApolloAuditContextConstants.TRACER,
+      Object tracer = requestAttributes.getAttribute(ApolloAuditConstants.TRACER,
           RequestAttributes.SCOPE_REQUEST);
       if (tracer != null) {
-        return ((ApolloAuditTracer) tracer).scopeManager().activeSpanContext().getOperator();
+        return ((ApolloAuditTracer) tracer);
       } else {
-        return null;
+        setTracer(new ApolloAuditTracer(new ApolloAuditScopeManager(), operatorSupplier));
+        return tracer();
       }
     }
     return null;
   }
+
+  void setTracer(ApolloAuditTracer tracer) {
+    if (Objects.nonNull(RequestContextHolder.getRequestAttributes())) {
+      RequestContextHolder.getRequestAttributes()
+          .setAttribute(ApolloAuditConstants.TRACER, tracer, RequestAttributes.SCOPE_REQUEST);
+    }
+  }
+
+
 }

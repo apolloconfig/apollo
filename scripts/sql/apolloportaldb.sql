@@ -401,11 +401,13 @@ CREATE TABLE `AuditLog` (
   `DataChange_CreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
-  PRIMARY KEY (`Id`)
+  PRIMARY KEY (`Id`),
+  IX_
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
 
 CREATE INDEX idx_trace_id_time ON AuditLog (TraceId, DataChange_CreatedTime);
 CREATE INDEX idx_op_name_time ON AuditLog (OpName, DataChange_CreatedTime);
+
 
 DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 

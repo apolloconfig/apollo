@@ -17,9 +17,7 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -50,21 +48,18 @@ public class AppNamespaceService {
   private final RoleInitializationService roleInitializationService;
   private final AppService appService;
   private final RolePermissionService rolePermissionService;
-  private final ApolloAuditLogApi apolloAuditLogApi;
 
   public AppNamespaceService(
       final UserInfoHolder userInfoHolder,
       final AppNamespaceRepository appNamespaceRepository,
       final RoleInitializationService roleInitializationService,
       final @Lazy AppService appService,
-      final RolePermissionService rolePermissionService,
-      final ApolloAuditLogApi apolloAuditLogApi) {
+      final RolePermissionService rolePermissionService) {
     this.userInfoHolder = userInfoHolder;
     this.appNamespaceRepository = appNamespaceRepository;
     this.roleInitializationService = roleInitializationService;
     this.appService = appService;
     this.rolePermissionService = rolePermissionService;
-    this.apolloAuditLogApi = apolloAuditLogApi;
   }
 
   /**

@@ -14,22 +14,25 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit;
+package com.ctrip.framework.apollo.audit.configuration;
 
+import com.ctrip.framework.apollo.audit.ApolloAuditRegistrar;
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditContextFilter;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiJpaImpl;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditOperatorDefaultSupplier;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditSpanService;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
 import com.ctrip.framework.apollo.audit.controller.ApolloAuditController;
 import com.ctrip.framework.apollo.audit.listener.ApolloAuditLogDataInfluenceEventListener;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogDataInfluenceRepository;
 import com.ctrip.framework.apollo.audit.repository.ApolloAuditLogRepository;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditLogQueryApiPreAuthorizer;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
+import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditLogQueryApiDefaultPreAuthorizer;
+import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditOperatorDefaultSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -48,10 +51,10 @@ public class ApolloAuditAutoConfiguration {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloAuditAutoConfiguration.class);
 
-  private final ApolloAuditProperties auditProperties;
+  private final ApolloAuditProperties apolloAuditProperties;
 
-  public ApolloAuditAutoConfiguration(ApolloAuditProperties auditProperties) {
-    this.auditProperties = auditProperties;
+  public ApolloAuditAutoConfiguration(ApolloAuditProperties apolloAuditProperties) {
+    this.apolloAuditProperties = apolloAuditProperties;
     logger.info("ApolloAuditAutoConfigure initializing...");
   }
 
@@ -73,15 +76,16 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditSpanService apolloAuditSpanService(
+  public ApolloAuditTraceContext apolloAuditTraceContext(
       ApolloAuditOperatorSupplier apolloAuditLogOperatorSupplier) {
-    return new ApolloAuditSpanService(apolloAuditLogOperatorSupplier);
+    return new ApolloAuditTraceContext(apolloAuditLogOperatorSupplier);
   }
 
   @Bean
   public ApolloAuditLogApi apolloAuditLogApi(ApolloAuditLogService logService,
-      ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditSpanService spanService) {
-    return new ApolloAuditLogApiJpaImpl(logService, dataInfluenceService, spanService);
+      ApolloAuditLogDataInfluenceService dataInfluenceService,
+      ApolloAuditTraceContext apolloAuditTraceContext) {
+    return new ApolloAuditLogApiJpaImpl(logService, dataInfluenceService, apolloAuditTraceContext);
   }
 
   @Bean
@@ -90,8 +94,15 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditHttpInterceptor apolloAuditHttpInterceptor(ApolloAuditLogApi api) {
-    return new ApolloAuditHttpInterceptor(api);
+  public ApolloAuditHttpInterceptor apolloAuditHttpInterceptor(
+      ApolloAuditTraceContext traceContext) {
+    return new ApolloAuditHttpInterceptor(traceContext);
+  }
+
+  @Bean(name = "apolloAuditLogQueryApiPreAuthorizer")
+  @ConditionalOnMissingBean(ApolloAuditLogQueryApiPreAuthorizer.class)
+  public ApolloAuditLogQueryApiPreAuthorizer apolloAuditLogQueryApiPreAuthorizer() {
+    return new ApolloAuditLogQueryApiDefaultPreAuthorizer();
   }
 
   @Bean
@@ -107,10 +118,10 @@ public class ApolloAuditAutoConfiguration {
 
   @Bean
   public FilterRegistrationBean<ApolloAuditContextFilter> apolloAuditContextFilterFilterRegistrationBean(
-      ApolloAuditLogApi api) {
+      ApolloAuditLogApi apolloAuditLogApi) {
     FilterRegistrationBean<ApolloAuditContextFilter> filterRegistrationBean = new FilterRegistrationBean<>();
 
-    filterRegistrationBean.setFilter(new ApolloAuditContextFilter(api));
+    filterRegistrationBean.setFilter(new ApolloAuditContextFilter(apolloAuditLogApi));
     filterRegistrationBean.addUrlPatterns("/apps/*");
     filterRegistrationBean.addUrlPatterns("/appnamespaces/*");
     filterRegistrationBean.addUrlPatterns("/instances/*");

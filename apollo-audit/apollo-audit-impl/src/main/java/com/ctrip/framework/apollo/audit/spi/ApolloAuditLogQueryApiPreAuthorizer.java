@@ -14,10 +14,10 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.constants;
+package com.ctrip.framework.apollo.audit.spi;
 
-public interface ApolloAuditContextConstants {
+public interface ApolloAuditLogQueryApiPreAuthorizer {
 
-  String TRACER = "Apollo-Audit-Tracer";
+  boolean hasQueryPermission();
 
 }

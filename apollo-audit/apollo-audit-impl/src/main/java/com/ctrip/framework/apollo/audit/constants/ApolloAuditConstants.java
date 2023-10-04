@@ -16,8 +16,12 @@
  */
 package com.ctrip.framework.apollo.audit.constants;
 
-public interface ApolloAuditHttpHeaderConstants {
+public interface ApolloAuditConstants {
   String TRACE_ID = "Apollo-Audit-TraceId";
   String SPAN_ID = "Apollo-Audit-SpanId";
   String OPERATOR = "Apollo-Audit-Operator";
+  String PARENT_ID = "Apollo-Audit-ParentId";
+  String FOLLOWS_FROM_ID = "Apollo-Audit-FollowsFromId";
+
+  String TRACER = "Apollo-Audit-Tracer";
 }

@@ -14,20 +14,15 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit;
+package com.ctrip.framework.apollo.audit.spi.defaultimpl;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditLogQueryApiPreAuthorizer;
 
-@ConfigurationProperties(prefix = "apollo.audit.log")
-public class ApolloAuditProperties {
+public class ApolloAuditLogQueryApiDefaultPreAuthorizer implements
+    ApolloAuditLogQueryApiPreAuthorizer {
 
-  private boolean enabled = false;
-
-  public boolean isEnabled() {
-    return enabled;
-  }
-
-  public void setEnabled(boolean enabled) {
-    this.enabled = enabled;
+  @Override
+  public boolean hasQueryPermission() {
+    return true;
   }
 }

@@ -15,7 +15,7 @@
   ~
 -->
 <!doctype html>
-<html ng-app="audit_log_menu">
+<html ng-app="audit_log">
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -28,6 +28,7 @@
   <link rel="stylesheet" type="text/css" media='all' href="vendor/font-awesome.min.css">
 
   <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+  <link rel="stylesheet" type="text/css" href="styles/audit-log.css">
   <link rel="stylesheet" type="text/css" href="vendor/iconfont/iconfont.css">
 </head>
 <body>
@@ -38,49 +39,49 @@
     <section class="panel-body">
       <section class="row">
         <div class="main-table">
-          <div class="search-bar">
-            <h1>{{'ApolloAuditLog.QueryTips' | translate}}</h1>
-            <form>
-              <div class="mb-3">
-                <label for="opName" class="form-label">{{'ApolloAuditLog.OpName' | translate}}</label>
-                <input type="text" class="form-control" id="opName" placeholder="{{'ApolloAuditLog.OpNameTips' | translate}}"
-                       ng-model="opName">
-              </div>
-              <div style="height: 10px"></div>
-              <div class="mb-3">
-                <label for="startDate" class="form-label">{{'ApolloAuditLog.StartDate' | translate}}</label>
-                <input type="datetime-local" class="form-control" id="startDate"
-                       ng-model="startDate">
-              </div>
-              <div style="height: 10px"></div>
-              <div class="mb-3">
-                <label for="endDate" class="form-label">{{'ApolloAuditLog.EndDate' | translate}}</label>
-                <input type="datetime-local" class="form-control" id="endDate"
-                       ng-model="endDate">
-              </div>
-              <div style="height: 10px"></div>
+          <div class="search-bar container-fluid">
+            <h1 class="col-md-12">{{'ApolloAuditLog.Title' | translate}}</h1>
+            <div class="col-md-4">
+              <label for="opName" class="form-label">{{'ApolloAuditLog.OpName' | translate}}</label>
+              <input type="text" class="form-control" id="opName" placeholder="{{'ApolloAuditLog.OpNameTips' | translate}}"
+                     ng-model="opName">
+            </div>
+            <div class="col-md-4">
+              <label for="startDate" class="form-label">{{'ApolloAuditLog.StartDate' | translate}}</label>
+              <input type="datetime-local" class="form-control" id="startDate"
+                     ng-model="startDate">
+            </div>
+            <div class="col-md-4">
+              <label for="endDate" class="form-label">{{'ApolloAuditLog.EndDate' | translate}}</label>
+              <input type="datetime-local" class="form-control" id="endDate"
+                     ng-model="endDate">
+            </div>
+            <div style="height: 10px"></div>
+            <div class="col-md-4 padding-top-5">
               <button type="submit" class="btn btn-primary"
                       ng-click="searchByOpNameAndDate(opName, startDate, endDate)">{{'ApolloAuditLog.DoQuery' | translate}}
               </button>
-            </form>
+            </div>
           </div>
 
           <div style="height: 15px"></div>
-          <div class="display-table">
-            <table>
+          <div class="display-table container-fluid">
+            <table class="col-md-12">
               <tr>
-                <th style="width: 40%">{{'ApolloAuditLog.OpName' | translate }}</th>
+                <th style="width: 30%">{{'ApolloAuditLog.OpName' | translate }}</th>
                 <th style="width: 15%">{{'ApolloAuditLog.OpType' | translate }}</th>
                 <th style="width: 15%">{{'ApolloAuditLog.Operator' | translate }}</th>
-                <th style="width: 30%">{{'ApolloAuditLog.HappenedTime' | translate }}</th>
+                <th style="width: 20%">{{'ApolloAuditLog.HappenedTime' | translate }}</th>
+                <th style="width: 20%">{{'ApolloAuditLog.Description' | translate }}</th>
               </tr>
               <tr ng-repeat="alog in auditLogList" ng-click="goToTraceDetailsPage(alog.traceId)"
                   href="#"
                   class="hover cursor-pointer">
-                <td style="width: 40%">{{ alog.opName }}</td>
+                <td style="width: 30%">{{ alog.opName }}</td>
                 <td style="width: 15%">{{ alog.opType }}</td>
                 <td style="width: 15%">{{ alog.operator }}</td>
-                <td style="width: 30%">{{ alog.happenedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td style="width: 20%">{{ alog.happenedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td style="width: 20%">{{ alog.description }}</td>
               </tr>
             </table>
           </div>

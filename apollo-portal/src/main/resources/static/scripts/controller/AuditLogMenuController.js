@@ -108,7 +108,7 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       }
 
       function goToTraceDetailsPage(traceId) {
-            $window.location.href =  AppUtil.prefixPath() + "/trace_detail.html?#traceId=" + traceId;
+            $window.location.href =  AppUtil.prefixPath() + "/audit_log_trace_detail.html?#traceId=" + traceId;
       }
 }
 

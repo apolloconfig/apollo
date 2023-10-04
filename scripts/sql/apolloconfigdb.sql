@@ -466,11 +466,13 @@ CREATE TABLE `AuditLog` (
   `DataChange_CreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
-  PRIMARY KEY (`Id`)
+  PRIMARY KEY (`Id`),
+  KEY `IX_TraceId` (`TraceId`),
+  KEY `IX_OpName` (`OpName`),
+  KEY `IX_DataChange_CreatedTime` (`DataChange_CreatedTime`),
+  KEY `IX_Operator` (`Operator`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
 
-CREATE INDEX idx_trace_id_time ON AuditLog (TraceId, DataChange_CreatedTime);
-CREATE INDEX idx_op_name_time ON AuditLog (OpName, DataChange_CreatedTime);
 
 DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 
@@ -489,8 +491,7 @@ CREATE TABLE `AuditLogDataInfluence` (
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
-  INDEX `SpanIdIndex` (`SpanId`)
+  KEY `IX_SpanId` (`SpanId`),
+  KEY `IX_DataChange_CreatedTime` (`DataChange_CreatedTime`),
+  KEY `IX_Entity_Field` (`InfluenceEntityName`, `InfluenceEntityId`, `FieldName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志数据变动表';
-
-CREATE INDEX idx_span_id ON AuditLogDataInfluence (SpanId);
-CREATE INDEX idx_entity_field_time ON AuditLogDataInfluence (InfluenceEntityName, InfluenceEntityId, FieldName, DataChange_CreatedTime);

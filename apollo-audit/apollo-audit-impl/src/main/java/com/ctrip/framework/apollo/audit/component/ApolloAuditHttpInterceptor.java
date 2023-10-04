@@ -16,13 +16,8 @@
  */
 package com.ctrip.framework.apollo.audit.component;
 
-import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
 import java.io.IOException;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -30,24 +25,17 @@ import org.springframework.http.client.ClientHttpResponse;
 
 public class ApolloAuditHttpInterceptor implements ClientHttpRequestInterceptor {
 
-  private static final Logger logger = LoggerFactory.getLogger(
-      ApolloAuditHttpInterceptor.class);
+  private final ApolloAuditTraceContext traceContext;
 
-  private final ApolloAuditLogApi api;
-
-  public ApolloAuditHttpInterceptor(ApolloAuditLogApi api) {
-    this.api = api;
+  public ApolloAuditHttpInterceptor(ApolloAuditTraceContext traceContext) {
+    this.traceContext = traceContext;
   }
 
   @Override
   public ClientHttpResponse intercept(HttpRequest request, byte[] body,
       ClientHttpRequestExecution execution) throws IOException {
-    // will set headers only when tracer is injected
-    Map spanHeaders = api.extractSpan();
-    if (spanHeaders != null) {
-      HttpHeaders headers = request.getHeaders();
-      headers.putAll(spanHeaders);
-      logger.debug("carried Audit-Log headers");
+    if(traceContext.tracer() != null) {
+      request = traceContext.tracer().inject(request);
     }
     ClientHttpResponse response = execution.execute(request, body);
     return response;

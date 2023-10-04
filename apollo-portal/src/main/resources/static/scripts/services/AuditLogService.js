@@ -28,12 +28,12 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
     },
     find_trace_details: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/trace/:traceId',
+      url: AppUtil.prefixPath() + '/apollo/audit/trace?traceId=:traceId',
       isArray: true
     },
     find_dataInfluences_by_field: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs/dataInfluences/entityName/:entityName/entityId/:entityId/fieldName/:fieldName',
+      url: AppUtil.prefixPath() + '/apollo/audit/logs/dataInfluences/field?entityName=:entityName&entityId=:entityId&fieldName=:fieldName&page=:page&size=:size',
       isArray: true
     }
   });
@@ -96,4 +96,4 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
       return d.promise;
     }
   }
-}])
+}]);

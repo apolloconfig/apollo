@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.assembly;
 
 import com.ctrip.framework.apollo.adminservice.AdminServiceApplication;
-import com.ctrip.framework.apollo.audit.ApolloAuditAutoConfiguration;
+import com.ctrip.framework.apollo.audit.configuration.ApolloAuditAutoConfiguration;
 import com.ctrip.framework.apollo.configservice.ConfigServiceApplication;
 import com.ctrip.framework.apollo.portal.PortalApplication;
 

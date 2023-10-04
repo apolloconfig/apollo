@@ -18,20 +18,20 @@ package com.ctrip.framework.apollo.audit.event;
 
 public class ApolloAuditLogDataInfluenceEvent {
 
-  private Class<?> clazz;
+  private Class<?> beanDefinition;
   private Object entity;
 
-  public ApolloAuditLogDataInfluenceEvent(Class<?> clazz, Object entity) {
-    this.clazz = clazz;
+  public ApolloAuditLogDataInfluenceEvent(Class<?> beanDefinition, Object entity) {
+    this.beanDefinition = beanDefinition;
     this.entity = entity;
   }
 
-  public Class<?> getClazz() {
-    return clazz;
+  public Class<?> getBeanDefinition() {
+    return beanDefinition;
   }
 
-  public void setClazz(Class<?> clazz) {
-    this.clazz = clazz;
+  public void setBeanDefinition(Class<?> beanDefinition) {
+    this.beanDefinition = beanDefinition;
   }
 
   public Object getEntity() {

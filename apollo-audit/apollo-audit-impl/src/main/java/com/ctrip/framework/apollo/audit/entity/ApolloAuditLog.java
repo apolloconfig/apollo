@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.entity;
 
+import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -160,6 +161,11 @@ public class ApolloAuditLog extends BaseEntity {
 
     public Builder description(String val) {
       auditLog.setDescription(val);
+      return this;
+    }
+
+    public Builder happenedTime(Date val) {
+      auditLog.setDataChangeCreatedTime(val);
       return this;
     }
 

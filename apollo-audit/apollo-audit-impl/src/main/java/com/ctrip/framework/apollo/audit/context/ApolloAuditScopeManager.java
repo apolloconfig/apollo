@@ -25,8 +25,8 @@ public class ApolloAuditScopeManager {
   public ApolloAuditScopeManager() {
   }
 
-  public ApolloAuditScope activate(ApolloAuditSpanContext spanContext) {
-    scope = new ApolloAuditScope(spanContext, this);
+  public ApolloAuditScope activate(ApolloAuditSpan span) {
+    scope = new ApolloAuditScope(span, this);
     return scope;
   }
 
@@ -34,8 +34,8 @@ public class ApolloAuditScopeManager {
     scope.close();
   }
 
-  public ApolloAuditSpanContext activeSpanContext() {
-    return scope == null ? null : scope.activeContext();
+  public ApolloAuditSpan activeSpan() {
+    return scope == null ? null : scope.active();
   }
 
   public ApolloAuditScope getScope() {

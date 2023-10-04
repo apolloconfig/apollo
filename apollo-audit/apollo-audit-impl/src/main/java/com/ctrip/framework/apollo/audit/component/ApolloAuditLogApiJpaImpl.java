@@ -20,8 +20,7 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTa
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
-import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
@@ -33,7 +32,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,45 +42,34 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
 
   private final ApolloAuditLogService logService;
   private final ApolloAuditLogDataInfluenceService dataInfluenceService;
-  private final ApolloAuditSpanService spanService;
+  private final ApolloAuditTraceContext traceContext;
 
   public ApolloAuditLogApiJpaImpl(ApolloAuditLogService logService,
-      ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditSpanService spanService) {
+      ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditTraceContext traceContext) {
     this.logService = logService;
     this.dataInfluenceService = dataInfluenceService;
-    this.spanService = spanService;
+    this.traceContext = traceContext;
   }
 
   @Override
-  public Map extractSpan() {
-    ApolloAuditTracer tracer = spanService.getTracer();
-    if (Objects.isNull(tracer)) {
-      // in the main thread
-      return null;
-    }
-    return tracer.extract();
+  public AutoCloseable appendAuditLog(OpType type, String name) {
+    return appendAuditLog(type, name, null);
   }
 
   @Override
-  public AutoCloseable appendSpan(OpType type, String name) {
-    return appendSpan(type, name, null);
-  }
-
-  @Override
-  public AutoCloseable appendSpan(OpType type, String name, String description) {
-    ApolloAuditSpan span = spanService.generateSpan(type, name, description);
-    ApolloAuditScope scope = spanService.getTracer().scopeManager().activate(span.getSpanContext());
-    logService.logSpan(span);
+  public AutoCloseable appendAuditLog(OpType type, String name, String description) {
+    ApolloAuditScope scope = traceContext.tracer().startActiveSpan(type, name, description);
+    logService.logSpan(scope.active());
     return scope;
   }
 
   @Override
   public void appendSingleDataInfluence(String tableId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue) {
-    if (spanService.getTracer().scopeManager().activeSpanContext() == null) {
+    if (traceContext.tracer().scopeManager().activeSpan() == null) {
       return;
     }
-    String spanId = spanService.getTracer().scopeManager().activeSpanContext().getSpanId();
+    String spanId = traceContext.tracer().scopeManager().activeSpan().spanId();
     ApolloAuditLogDataInfluence influence = ApolloAuditLogDataInfluence.builder().spanId(spanId)
         .entityName(entityName).entityId(tableId).fieldName(fieldName).oldVal(fieldOldValue)
         .newVal(fieldNewValue).build();
@@ -91,15 +78,15 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public void appendDataInfluences(List entities, Class<?> clazz) {
-    String tableName = ApolloAuditUtil.getApolloAuditLogTableName(clazz);
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
+    String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);
     if (Objects.isNull(tableName) || tableName.equals("")) {
       logger.debug("entity not being managed by audit annotations");
       return;
     }
     List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
-        ApolloAuditLogDataInfluenceTableField.class, clazz);
-    Field idField = ApolloAuditUtil.getPersistenceIdFieldByAnnotation(clazz);
+        ApolloAuditLogDataInfluenceTableField.class, beanDefinition);
+    Field idField = ApolloAuditUtil.getPersistenceIdFieldByAnnotation(beanDefinition);
     entities.forEach(e -> {
       if (ApolloAuditUtil.isLogicDeleted(e)) {
         appendDeleteDataInfluences(e, tableName, dataInfluenceFields, idField);

@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.service;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -46,7 +47,7 @@ import org.springframework.test.context.ContextConfiguration;
  */
 @Execution(ExecutionMode.SAME_THREAD)
 @SpringBootTest
-@ContextConfiguration(classes = {AppService.class, ApolloAuditLogApiNoOpImpl.class})
+@ContextConfiguration(classes = AppService.class)
 class AppServiceTest {
 
   private static final String OPERATOR_USER_ID = "userId-operator";
@@ -74,6 +75,8 @@ class AppServiceTest {
   UserService userService;
   @MockBean
   ApplicationEventPublisher publisher;
+  @MockBean
+  ApolloAuditLogApiNoOpImpl apolloAuditLogApi;
 
   @BeforeEach
   void beforeEach() {
@@ -88,7 +91,8 @@ class AppServiceTest {
         rolePermissionService,
         favoriteService,
         userService,
-        publisher
+        publisher,
+        apolloAuditLogApi
     );
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(OPERATOR_USER_ID);
@@ -157,5 +161,10 @@ class AppServiceTest {
 
     Mockito.verify(rolePermissionService, Mockito.times(1))
         .assignRoleToUsers(Mockito.any(), Mockito.eq(admins), Mockito.eq(OPERATOR_USER_ID));
+  }
+
+  @Test
+  void deleteApp() {
+
   }
 }

@@ -32,6 +32,6 @@ public class ApolloAuditLogDataInfluenceEventListener {
   @EventListener
   public void handleEvent(ApolloAuditLogDataInfluenceEvent event) {
     Object e = event.getEntity();
-    api.appendDataInfluences(Collections.singletonList(e), event.getClazz());
+    api.appendDataInfluences(Collections.singletonList(e), event.getBeanDefinition());
   }
 }

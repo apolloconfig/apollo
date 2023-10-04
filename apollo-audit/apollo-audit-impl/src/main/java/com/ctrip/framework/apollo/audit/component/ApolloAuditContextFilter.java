@@ -37,7 +37,6 @@ public class ApolloAuditContextFilter implements Filter {
 
   @Override
   public void init(FilterConfig filterConfig) throws ServletException {
-    Filter.super.init(filterConfig);
   }
 
   @Override
@@ -50,7 +49,7 @@ public class ApolloAuditContextFilter implements Filter {
       return;
     }
 
-    AutoCloseable requestSpanScope = api.appendSpan(OpType.REQUEST, request.getRequestURI());
+    AutoCloseable requestSpanScope = api.appendAuditLog(OpType.HTTP, request.getRequestURI());
 
     chain.doFilter(req, resp);
 

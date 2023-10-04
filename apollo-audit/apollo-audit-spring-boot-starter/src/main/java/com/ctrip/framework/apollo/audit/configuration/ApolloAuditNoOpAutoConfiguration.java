@@ -14,11 +14,14 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit;
+package com.ctrip.framework.apollo.audit.configuration;
 
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
+import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditOperatorDefaultSupplier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -35,9 +38,22 @@ public class ApolloAuditNoOpAutoConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean(ApolloAuditOperatorSupplier.class)
+  public ApolloAuditOperatorSupplier apolloAuditLogOperatorSupplier() {
+    return new ApolloAuditOperatorDefaultSupplier();
+  }
+
+  @Bean
+  @ConditionalOnMissingBean(ApolloAuditTraceContext.class)
+  public ApolloAuditTraceContext apolloAuditTraceContext(ApolloAuditOperatorSupplier supplier) {
+    return new ApolloAuditTraceContext(supplier);
+  }
+
+  @Bean
   @ConditionalOnMissingBean(ApolloAuditHttpInterceptor.class)
-  public ApolloAuditHttpInterceptor apolloAuditLogHttpTracerInterceptor(ApolloAuditLogApi api) {
-    return new ApolloAuditHttpInterceptor(api);
+  public ApolloAuditHttpInterceptor apolloAuditLogHttpTracerInterceptor(
+      ApolloAuditTraceContext traceContext) {
+    return new ApolloAuditHttpInterceptor(traceContext);
   }
 
 }

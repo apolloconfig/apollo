@@ -17,60 +17,49 @@
 package com.ctrip.framework.apollo.audit.context;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
 
 public class ApolloAuditSpan {
-
-  private final static Logger logger = LoggerFactory.getLogger(ApolloAuditSpan.class);
-
-  private String parentId;
-  private String followsFromId;
 
   private OpType opType;
   private String opName;
   private String description;
+  private Date startTime;
+  private Date endTime;
 
-  private ApolloAuditSpanContext spanContext;
+  private ApolloAuditSpanContext context;
 
   public ApolloAuditSpanContext context() {
-    return this.spanContext;
+    return this.context;
   }
 
   //just do nothing
   public void finish() {
-  }
-
-  public String id() {
-    return spanContext.getSpanId();
-  }
-
-  public String operator() {
-    return spanContext.getOperator();
-  }
-
-  public String traceId() {
-    return spanContext.getTraceId();
+    endTime = new Date();
   }
 
   public void log() {
-    logger.info("Span of " + this.opName + " generated!");
   }
 
-  public String getParentId() {
-    return parentId;
+  // sugar method
+  public String spanId() {
+    return context.getSpanId();
   }
 
-  public void setParentId(String parentId) {
-    this.parentId = parentId;
+  public String operator() {
+    return context.getOperator();
   }
 
-  public String getFollowsFromId() {
-    return followsFromId;
+  public String traceId() {
+    return context.getTraceId();
   }
 
-  public void setFollowsFromId(String followsFromId) {
-    this.followsFromId = followsFromId;
+  public String parentId() {
+    return context.getParentId();
+  }
+
+  public String followsFromId() {
+    return context.getFollowsFromId();
   }
 
   public OpType getOpType() {
@@ -97,11 +86,27 @@ public class ApolloAuditSpan {
     this.description = description;
   }
 
-  public ApolloAuditSpanContext getSpanContext() {
-    return spanContext;
+  public ApolloAuditSpanContext getContext() {
+    return context;
   }
 
-  public void setSpanContext(ApolloAuditSpanContext spanContext) {
-    this.spanContext = spanContext;
+  public void setContext(ApolloAuditSpanContext context) {
+    this.context = context;
+  }
+
+  public Date getStartTime() {
+    return startTime;
+  }
+
+  public void setStartTime(Date startTime) {
+    this.startTime = startTime;
+  }
+
+  public Date getEndTime() {
+    return endTime;
+  }
+
+  public void setEndTime(Date endTime) {
+    this.endTime = endTime;
   }
 }

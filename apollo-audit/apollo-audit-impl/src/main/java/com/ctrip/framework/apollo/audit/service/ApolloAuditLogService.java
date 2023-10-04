@@ -43,19 +43,19 @@ public class ApolloAuditLogService {
   public void logSpan(ApolloAuditSpan span) {
 
     ApolloAuditLog auditLog = ApolloAuditLog.builder()
-        .traceId(span.context().getTraceId())
-        .spanId(span.context().getSpanId())
-        .parentSpanId(span.getParentId())
-        .followsFromSpanId(span.getFollowsFromId())
-        .operator(span.context().getOperator() != null ? span.context().getOperator() : "unknown")
+        .traceId(span.traceId())
+        .spanId(span.spanId())
+        .parentSpanId(span.parentId())
+        .followsFromSpanId(span.followsFromId())
+        .operator(span.operator() != null ? span.operator() : "unknown")
         .opName(span.getOpName())
         .opType(span.getOpType().toString())
         .description(span.getDescription())
+        .happenedTime(new Date())
         .build();
 
     auditLog.setId(0);
-    auditLog.setDataChangeCreatedBy(
-        span.context().getOperator() != null ? span.context().getOperator() : "unknown");
+    auditLog.setDataChangeCreatedBy(auditLog.getOperator());
     logRepository.save(auditLog);
   }
 

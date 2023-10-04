@@ -14,20 +14,20 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.audit.api;
+package com.ctrip.framework.apollo.audit.configuration;
 
-import com.ctrip.framework.apollo.audit.annotation.OpType;
-import java.util.List;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
-public interface ApolloAuditLogRecordApi {
+@ConfigurationProperties(prefix = "apollo.audit.log")
+public class ApolloAuditProperties {
 
-  AutoCloseable appendAuditLog(OpType type, String name);
+  private boolean enabled = false;
 
-  AutoCloseable appendAuditLog(OpType type, String name, String description);
+  public boolean isEnabled() {
+    return enabled;
+  }
 
-  void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue);
-
-  void appendDataInfluences(List<Object> entities, Class<?> beanDefinition);
-
+  public void setEnabled(boolean enabled) {
+    this.enabled = enabled;
+  }
 }

@@ -16,40 +16,59 @@
  */
 package com.ctrip.framework.apollo.audit.context;
 
-import java.io.IOException;
-
 public class ApolloAuditScope implements AutoCloseable {
 
   private final ApolloAuditScopeManager manager;
-  private final ApolloAuditSpanContext activeSpanContext;
-  private final ApolloAuditScope hangUp;
-  private ApolloAuditSpanContext lastSpanContext;
 
-  public ApolloAuditScope(ApolloAuditSpanContext activate, ApolloAuditScopeManager manager) {
+  private ApolloAuditSpan activeSpan;
+  private ApolloAuditScope hangUp;
+  private String lastSpanId;
+
+  public ApolloAuditScope(ApolloAuditSpan activeSpan, ApolloAuditScopeManager manager) {
     this.hangUp = manager.getScope();
-    this.activeSpanContext = activate;
+    this.activeSpan = activeSpan;
     this.manager = manager;
-    this.lastSpanContext = null;
+    this.lastSpanId = null;
   }
 
-  public ApolloAuditSpanContext activeContext() {
-    return activeSpanContext;
+  public ApolloAuditSpan active() {
+    return this.activeSpan;
   }
 
   @Override
-  public void close() throws IOException {
+  public void close(){
     // closing span become parent-scope's last span
     if (hangUp != null) {
-      hangUp.lastSpanContext = this.activeSpanContext;
+      hangUp.lastSpanId = this.activeSpan.spanId();
     }
     this.manager.setScope(hangUp);
   }
 
-  public ApolloAuditSpanContext getLastSpanContext() {
-    return lastSpanContext;
+  public ApolloAuditScopeManager getManager() {
+    return manager;
   }
 
-  public void setLastSpanContext(ApolloAuditSpanContext lastSpanContext) {
-    this.lastSpanContext = lastSpanContext;
+  public ApolloAuditSpan getActiveSpan() {
+    return activeSpan;
+  }
+
+  public void setActiveSpan(ApolloAuditSpan activeSpan) {
+    this.activeSpan = activeSpan;
+  }
+
+  public ApolloAuditScope getHangUp() {
+    return hangUp;
+  }
+
+  public void setHangUp(ApolloAuditScope hangUp) {
+    this.hangUp = hangUp;
+  }
+
+  public String getLastSpanId() {
+    return lastSpanId;
+  }
+
+  public void setLastSpanId(String lastSpanId) {
+    this.lastSpanId = lastSpanId;
   }
 }

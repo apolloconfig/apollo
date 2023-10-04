@@ -38,12 +38,10 @@ public class ApolloAuditSpanAspect {
 
   @Around(value = "setAuditSpan(auditLog)")
   public Object around(ProceedingJoinPoint pjp, ApolloAuditLog auditLog) throws Throwable {
-    Object returnVal;
-    try (AutoCloseable scope = api.appendSpan(auditLog.type(), auditLog.name(),
+    try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), auditLog.name(),
         auditLog.description())) {
-      returnVal = pjp.proceed();
+      return pjp.proceed();
     }
-    return returnVal;
   }
 
 }

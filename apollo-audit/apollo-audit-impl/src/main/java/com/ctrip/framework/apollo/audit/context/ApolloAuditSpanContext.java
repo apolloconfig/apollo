@@ -16,17 +16,13 @@
  */
 package com.ctrip.framework.apollo.audit.context;
 
-import com.ctrip.framework.apollo.audit.api.ApolloAuditEntityDefinition;
-import java.util.HashMap;
-import java.util.Map;
-
 public class ApolloAuditSpanContext {
 
   private String traceId;
-
   private String spanId;
-
   private String operator;
+  private String parentId;
+  private String followsFromId;
 
   public ApolloAuditSpanContext(String traceId, String spanId) {
     this.traceId = traceId;
@@ -37,6 +33,14 @@ public class ApolloAuditSpanContext {
     this.traceId = traceId;
     this.spanId = spanId;
     this.operator = operator;
+  }
+
+  public ApolloAuditSpanContext(String traceId, String spanId, String operator, String parentId, String followsFromId) {
+    this.traceId = traceId;
+    this.spanId = spanId;
+    this.operator = operator;
+    this.parentId = parentId;
+    this.followsFromId = followsFromId;
   }
 
   public String getTraceId() {
@@ -63,4 +67,19 @@ public class ApolloAuditSpanContext {
     this.operator = operator;
   }
 
+  public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
+
+  public String getFollowsFromId() {
+    return followsFromId;
+  }
+
+  public void setFollowsFromId(String followsFromId) {
+    this.followsFromId = followsFromId;
+  }
 }
