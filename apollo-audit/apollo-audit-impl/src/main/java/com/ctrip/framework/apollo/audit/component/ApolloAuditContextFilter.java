@@ -18,7 +18,13 @@ package com.ctrip.framework.apollo.audit.component;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
+import com.ctrip.framework.apollo.audit.constants.ApolloAuditConstants;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -29,14 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 
 public class ApolloAuditContextFilter implements Filter {
 
-  private final ApolloAuditLogApi api;
+  private final ApolloAuditTraceContext traceContext;
 
-  public ApolloAuditContextFilter(ApolloAuditLogApi api) {
-    this.api = api;
-  }
-
-  @Override
-  public void init(FilterConfig filterConfig) throws ServletException {
+  public ApolloAuditContextFilter(ApolloAuditTraceContext traceContext) {
+    this.traceContext = traceContext;
   }
 
   @Override
@@ -44,24 +46,8 @@ public class ApolloAuditContextFilter implements Filter {
       throws IOException, ServletException {
 
     HttpServletRequest request = (HttpServletRequest) req;
-    if(request.getMethod().equals("GET")) {
-      chain.doFilter(req, resp);
-      return;
-    }
-
-    AutoCloseable requestSpanScope = api.appendAuditLog(OpType.HTTP, request.getRequestURI());
 
     chain.doFilter(req, resp);
 
-    try {
-      requestSpanScope.close();
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Override
-  public void destroy() {
-    Filter.super.destroy();
   }
 }

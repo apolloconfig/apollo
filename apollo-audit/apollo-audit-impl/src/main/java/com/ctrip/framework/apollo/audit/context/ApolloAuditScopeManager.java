@@ -35,7 +35,7 @@ public class ApolloAuditScopeManager {
   }
 
   public ApolloAuditSpan activeSpan() {
-    return scope == null ? null : scope.active();
+    return scope == null ? null : scope.activeSpan();
   }
 
   public ApolloAuditScope getScope() {

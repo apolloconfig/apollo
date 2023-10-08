@@ -486,12 +486,12 @@ CREATE TABLE `AuditLogDataInfluence` (
   `FieldNewValue` varchar(500) DEFAULT NULL COMMENT '字段新值',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
-  `DataChange_CreatedBy` varchar(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
+  `DataChange_CreatedBy` varchar(64) DEFAULT NULL COMMENT '创建人邮箱前缀',
   `DataChange_CreatedTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   KEY `IX_SpanId` (`SpanId`),
   KEY `IX_DataChange_CreatedTime` (`DataChange_CreatedTime`),
-  KEY `IX_Entity_Field` (`InfluenceEntityName`, `InfluenceEntityId`, `FieldName`)
+  KEY `IX_EntityId` (`InfluenceEntityId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志数据变动表';

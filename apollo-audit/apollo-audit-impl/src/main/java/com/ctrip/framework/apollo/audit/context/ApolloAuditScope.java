@@ -31,7 +31,7 @@ public class ApolloAuditScope implements AutoCloseable {
     this.lastSpanId = null;
   }
 
-  public ApolloAuditSpan active() {
+  public ApolloAuditSpan activeSpan() {
     return this.activeSpan;
   }
 

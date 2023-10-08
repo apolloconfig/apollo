@@ -18,9 +18,11 @@ package com.ctrip.framework.apollo.portal.audit;
 
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "true")
 public class ApolloAuditOperatorPortalSupplier implements ApolloAuditOperatorSupplier {
 
   private final UserInfoHolder userInfoHolder;

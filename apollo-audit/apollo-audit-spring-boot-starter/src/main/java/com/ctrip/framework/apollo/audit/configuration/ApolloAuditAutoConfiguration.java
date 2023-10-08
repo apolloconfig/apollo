@@ -115,19 +115,19 @@ public class ApolloAuditAutoConfiguration {
       ApolloAuditLogApi api) {
     return new ApolloAuditLogDataInfluenceEventListener(api);
   }
-
-  @Bean
-  public FilterRegistrationBean<ApolloAuditContextFilter> apolloAuditContextFilterFilterRegistrationBean(
-      ApolloAuditLogApi apolloAuditLogApi) {
-    FilterRegistrationBean<ApolloAuditContextFilter> filterRegistrationBean = new FilterRegistrationBean<>();
-
-    filterRegistrationBean.setFilter(new ApolloAuditContextFilter(apolloAuditLogApi));
-    filterRegistrationBean.addUrlPatterns("/apps/*");
-    filterRegistrationBean.addUrlPatterns("/appnamespaces/*");
-    filterRegistrationBean.addUrlPatterns("/instances/*");
-    filterRegistrationBean.addUrlPatterns("/namespaces/*");
-
-    return filterRegistrationBean;
-  }
+//
+//  @Bean
+//  public FilterRegistrationBean<ApolloAuditContextFilter> apolloAuditContextFilterFilterRegistrationBean(
+//      ApolloAuditLogApi apolloAuditLogApi) {
+//    FilterRegistrationBean<ApolloAuditContextFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+//
+//    filterRegistrationBean.setFilter(new ApolloAuditContextFilter(apolloAuditLogApi));
+//    filterRegistrationBean.addUrlPatterns("/apps/*");
+//    filterRegistrationBean.addUrlPatterns("/appnamespaces/*");
+//    filterRegistrationBean.addUrlPatterns("/instances/*");
+//    filterRegistrationBean.addUrlPatterns("/namespaces/*");
+//
+//    return filterRegistrationBean;
+//  }
 
 }

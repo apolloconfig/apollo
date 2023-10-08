@@ -18,12 +18,13 @@ package com.ctrip.framework.apollo.portal.audit;
 
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditLogQueryApiPreAuthorizer;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component("apolloAuditLogQueryApiPreAuthorizer")
+@ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "true")
 public class ApolloAuditLogQueryApiPortalPreAuthorizer implements
     ApolloAuditLogQueryApiPreAuthorizer {
-
   private final PermissionValidator permissionValidator;
 
   public ApolloAuditLogQueryApiPortalPreAuthorizer(PermissionValidator permissionValidator) {

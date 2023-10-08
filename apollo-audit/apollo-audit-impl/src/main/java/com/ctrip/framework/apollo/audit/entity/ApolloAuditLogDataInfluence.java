@@ -33,13 +33,13 @@ public class ApolloAuditLogDataInfluence extends BaseEntity {
   @Column(name = "InfluenceEntityId", nullable = false)
   private String influenceEntityId;
 
-  @Column(name = "FieldName", nullable = true)
+  @Column(name = "FieldName")
   private String fieldName;
 
-  @Column(name = "FieldOldValue", nullable = true)
+  @Column(name = "FieldOldValue")
   private String fieldOldValue;
 
-  @Column(name = "FieldNewValue", nullable = true)
+  @Column(name = "FieldNewValue")
   private String fieldNewValue;
 
   public ApolloAuditLogDataInfluence() {

@@ -46,6 +46,7 @@ public class App extends BaseEntity {
       message = InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
   )
   @Column(name = "`AppId`", nullable = false)
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId")
   private String appId;
 
   @Column(name = "`OrgId`", nullable = false)

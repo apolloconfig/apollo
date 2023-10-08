@@ -59,19 +59,22 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   @Override
   public AutoCloseable appendAuditLog(OpType type, String name, String description) {
     ApolloAuditScope scope = traceContext.tracer().startActiveSpan(type, name, description);
-    logService.logSpan(scope.active());
+    logService.logSpan(scope.activeSpan());
     return scope;
   }
 
   @Override
-  public void appendSingleDataInfluence(String tableId, String entityName, String fieldName,
+  public void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue) {
+    if (traceContext.tracer() == null) {
+      return;
+    }
     if (traceContext.tracer().scopeManager().activeSpan() == null) {
       return;
     }
     String spanId = traceContext.tracer().scopeManager().activeSpan().spanId();
     ApolloAuditLogDataInfluence influence = ApolloAuditLogDataInfluence.builder().spanId(spanId)
-        .entityName(entityName).entityId(tableId).fieldName(fieldName).oldVal(fieldOldValue)
+        .entityName(entityName).entityId(entityId).fieldName(fieldName).oldVal(fieldOldValue)
         .newVal(fieldNewValue).build();
 
     dataInfluenceService.save(influence);

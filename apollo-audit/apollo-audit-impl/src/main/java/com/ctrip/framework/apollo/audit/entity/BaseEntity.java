@@ -43,10 +43,10 @@ public abstract class BaseEntity {
   @Column(name = "`DeletedAt`", columnDefinition = "Bigint default '0'")
   protected long deletedAt;
 
-  @Column(name = "`DataChange_CreatedBy`", nullable = true)
+  @Column(name = "`DataChange_CreatedBy`")
   private String dataChangeCreatedBy;
 
-  @Column(name = "`DataChange_CreatedTime`", nullable = true)
+  @Column(name = "`DataChange_CreatedTime`")
   private Date dataChangeCreatedTime;
 
   @Column(name = "`DataChange_LastModifiedBy`")

@@ -36,7 +36,6 @@ public class ApolloAuditLogService {
   }
 
   public ApolloAuditLog save(ApolloAuditLog auditLog) {
-    auditLog.setId(0);
     return logRepository.save(auditLog);
   }
 
@@ -53,8 +52,6 @@ public class ApolloAuditLogService {
         .description(span.getDescription())
         .happenedTime(new Date())
         .build();
-
-    auditLog.setId(0);
     auditLog.setDataChangeCreatedBy(auditLog.getOperator());
     logRepository.save(auditLog);
   }

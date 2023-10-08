@@ -36,9 +36,6 @@ public class ApolloAuditLogDataInfluenceService {
   }
 
   public ApolloAuditLogDataInfluence save(ApolloAuditLogDataInfluence dataInfluence) {
-    // protect
-    dataInfluence.setId(0);
-    dataInfluence.setDataChangeCreatedBy("");
     return dataInfluenceRepository.save(dataInfluence);
   }
 

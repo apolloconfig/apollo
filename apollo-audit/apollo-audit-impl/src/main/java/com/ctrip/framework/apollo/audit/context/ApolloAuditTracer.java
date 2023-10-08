@@ -118,7 +118,7 @@ public class ApolloAuditTracer {
       return null;
     } else {
       ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId, spanId, operator, parentId, followsFromId);
-      return buildSpan(OpType.HTTP, request.getRequestURI()).context(context);
+      return spanBuilder(null, null).regenerateByContext(context);
     }
   }
 
@@ -144,7 +144,7 @@ public class ApolloAuditTracer {
     return operatorSupplier.getOperator();
   }
 
-  public AuditSpanBuilder buildSpan(OpType type, String name) {
+  public AuditSpanBuilder spanBuilder(OpType type, String name) {
     return new AuditSpanBuilder(type, name);
   }
 
@@ -187,12 +187,9 @@ public class ApolloAuditTracer {
       return this;
     }
 
-    public ApolloAuditSpan context(ApolloAuditSpanContext val) {
+    public ApolloAuditSpan regenerateByContext(ApolloAuditSpanContext val) {
       ApolloAuditSpan span = new ApolloAuditSpan();
       span.setContext(val);
-      span.setOpType(this.opType);
-      span.setOpName(opName);
-      span.setDescription(description);
       return span;
     }
 
