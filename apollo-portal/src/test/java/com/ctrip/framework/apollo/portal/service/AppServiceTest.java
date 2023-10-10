@@ -16,7 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
@@ -164,7 +166,33 @@ class AppServiceTest {
   }
 
   @Test
-  void deleteApp() {
+  void testDeleteAppInLocal() {
+    final String appId = "appId100";
+    {
+      App app = new App();
+      app.setAppId(appId);
+      Mockito.when(appRepository.findByAppId(Mockito.eq(appId)))
+          .thenReturn(app);
+    }
+    {
+      Mockito.when(appRepository.deleteApp(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID)))
+          .thenReturn(1);
+    }
 
+    App deletedApp = appService.deleteAppInLocal(appId);
+    Mockito.verify(appRepository, Mockito.times(1))
+        .deleteApp(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(userInfoHolder, Mockito.times(1))
+        .getUser();
+    Mockito.verify(apolloAuditLogApi, Mockito.times(1))
+        .appendDataInfluences(Mockito.eq(Collections.singletonList(deletedApp)), Mockito.eq(App.class));
+    Mockito.verify(appNamespaceService, Mockito.times(1))
+        .batchDeleteByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(favoriteService, Mockito.times(1))
+        .batchDeleteByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(rolePermissionService, Mockito.times(1))
+        .deleteRolePermissionsByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+
+    assertEquals(OPERATOR_USER_ID, deletedApp.getDataChangeLastModifiedBy());
   }
 }

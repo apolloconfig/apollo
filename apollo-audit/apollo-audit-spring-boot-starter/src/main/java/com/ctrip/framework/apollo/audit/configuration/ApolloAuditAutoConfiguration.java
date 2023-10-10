@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.audit.configuration;
 import com.ctrip.framework.apollo.audit.ApolloAuditRegistrar;
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditContextFilter;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiJpaImpl;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -115,19 +113,4 @@ public class ApolloAuditAutoConfiguration {
       ApolloAuditLogApi api) {
     return new ApolloAuditLogDataInfluenceEventListener(api);
   }
-//
-//  @Bean
-//  public FilterRegistrationBean<ApolloAuditContextFilter> apolloAuditContextFilterFilterRegistrationBean(
-//      ApolloAuditLogApi apolloAuditLogApi) {
-//    FilterRegistrationBean<ApolloAuditContextFilter> filterRegistrationBean = new FilterRegistrationBean<>();
-//
-//    filterRegistrationBean.setFilter(new ApolloAuditContextFilter(apolloAuditLogApi));
-//    filterRegistrationBean.addUrlPatterns("/apps/*");
-//    filterRegistrationBean.addUrlPatterns("/appnamespaces/*");
-//    filterRegistrationBean.addUrlPatterns("/instances/*");
-//    filterRegistrationBean.addUrlPatterns("/namespaces/*");
-//
-//    return filterRegistrationBean;
-//  }
-
 }

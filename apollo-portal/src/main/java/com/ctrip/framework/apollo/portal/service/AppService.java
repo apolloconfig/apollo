@@ -253,6 +253,8 @@ public class AppService {
 
     //删除portal数据库中的app
     appRepository.deleteApp(appId, operator);
+
+    // append a deleted data influence should be bounded
     apolloAuditLogApi.appendDataInfluences(Collections.singletonList(managedApp), App.class);
 
     //删除portal数据库中的appNamespace

@@ -95,5 +95,5 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
       );
       return d.promise;
     }
-  }
+  };
 }]);
