@@ -18,10 +18,8 @@ package com.ctrip.framework.apollo.portal.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.ctrip.framework.apollo.audit.annotation.OpType;
-import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -78,7 +76,7 @@ class AppServiceTest {
   @MockBean
   ApplicationEventPublisher publisher;
   @MockBean
-  ApolloAuditLogApiNoOpImpl apolloAuditLogApi;
+  ApolloAuditLogApi apolloAuditLogApi;
 
   @BeforeEach
   void beforeEach() {

@@ -32,9 +32,6 @@ import org.springframework.http.HttpRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/**
- * A global context class, use tracer() to get thread-save instance
- */
 public class ApolloAuditTracer {
 
   private final ApolloAuditScopeManager manager;

@@ -52,12 +52,14 @@ public class ApolloAuditController {
   }
 
   @GetMapping("/trace")
+  @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
   public List<ApolloAuditLogDetailsDTO> findTraceDetails(@RequestParam String traceId) {
     List<ApolloAuditLogDetailsDTO> detailsDTOList = api.queryTraceDetails(traceId);
     return detailsDTOList;
   }
 
   @GetMapping("/logs/opName")
+  @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
   public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@RequestParam String opName,
       @RequestParam int page, @RequestParam int size,
       @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
@@ -67,15 +69,8 @@ public class ApolloAuditController {
     return logDTOList;
   }
 
-  @GetMapping("/logs/dataInfluences/entity")
-  public List<ApolloAuditLogDataInfluenceDTO> findDataInfluencesByEntity(
-      @RequestParam String entityName, @RequestParam String entityId, int page, int size) {
-    List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList = api.queryDataInfluencesByEntity(
-        entityName, entityId, page, size);
-    return dataInfluenceDTOList;
-  }
-
   @GetMapping("/logs/dataInfluences/field")
+  @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
   public List<ApolloAuditLogDataInfluenceDTO> findDataInfluencesByField(
       @RequestParam String entityName, @RequestParam String entityId,
       @RequestParam String fieldName, int page, int size) {

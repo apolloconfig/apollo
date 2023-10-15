@@ -21,10 +21,12 @@ import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
+import com.ctrip.framework.apollo.audit.exception.ApolloAuditEntityBeanDefinitionException;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import com.ctrip.framework.apollo.audit.util.ApolloAuditUtil;
@@ -37,8 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
-
-  private static final Logger logger = LoggerFactory.getLogger(ApolloAuditLogApiJpaImpl.class);
 
   private final ApolloAuditLogService logService;
   private final ApolloAuditLogDataInfluenceService dataInfluenceService;
@@ -58,7 +58,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
 
   @Override
   public AutoCloseable appendAuditLog(OpType type, String name, String description) {
-    ApolloAuditScope scope = traceContext.tracer().startActiveSpan(type, name, description);
+    ApolloAuditTracer tracer = traceContext.tracer();
+    ApolloAuditScope scope = tracer.startActiveSpan(type, name, description);
     logService.logSpan(scope.activeSpan());
     return scope;
   }
@@ -66,26 +67,26 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   @Override
   public void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
       String fieldOldValue, String fieldNewValue) {
+    // might be
     if (traceContext.tracer() == null) {
       return;
     }
-    if (traceContext.tracer().scopeManager().activeSpan() == null) {
+    if (traceContext.tracer().getActiveSpan() == null) {
       return;
     }
-    String spanId = traceContext.tracer().scopeManager().activeSpan().spanId();
+    String spanId = traceContext.tracer().getActiveSpan().spanId();
     ApolloAuditLogDataInfluence influence = ApolloAuditLogDataInfluence.builder().spanId(spanId)
         .entityName(entityName).entityId(entityId).fieldName(fieldName).oldVal(fieldOldValue)
         .newVal(fieldNewValue).build();
-
     dataInfluenceService.save(influence);
   }
 
   @Override
-  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) throws ApolloAuditEntityBeanDefinitionException {
     String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);
     if (Objects.isNull(tableName) || tableName.equals("")) {
-      logger.debug("entity not being managed by audit annotations");
-      return;
+      throw new ApolloAuditEntityBeanDefinitionException("entity not being managed by audit annotations",
+          beanDefinition.getName());
     }
     List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
         ApolloAuditLogDataInfluenceTableField.class, beanDefinition);
@@ -106,19 +107,14 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     String tableId;
     try {
       tableId = idField.get(e).toString();
+      for (Field f : dataInfluenceFields) {
+        f.setAccessible(true);
+        String val = f.get(e) != null ? String.valueOf(f.get(e)) : null;
+        appendSingleDataInfluence(tableId, tableName, f.getName(), null, val);
+      }
     } catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
     }
-    dataInfluenceFields.forEach(field -> {
-      field.setAccessible(true);
-      try {
-        String val = field.get(e).toString();
-        appendSingleDataInfluence(tableId, tableName, field.getName(), null, val);
-      } catch (IllegalAccessException ex) {
-        throw new RuntimeException(ex);
-      }
-    });
-
   }
 
   public void appendDeleteDataInfluences(Object e, String tableName,

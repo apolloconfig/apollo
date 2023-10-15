@@ -18,6 +18,9 @@ package com.ctrip.framework.apollo.audit.dto;
 
 import java.util.List;
 
+/**
+ * A combine of a log and its data influences
+ */
 public class ApolloAuditLogDetailsDTO {
 
   private ApolloAuditLogDTO logDTO;
@@ -27,6 +30,9 @@ public class ApolloAuditLogDetailsDTO {
       List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList) {
     this.logDTO = logDTO;
     this.dataInfluenceDTOList = dataInfluenceDTOList;
+  }
+
+  public ApolloAuditLogDetailsDTO() {
   }
 
   public ApolloAuditLogDTO getLogDTO() {
