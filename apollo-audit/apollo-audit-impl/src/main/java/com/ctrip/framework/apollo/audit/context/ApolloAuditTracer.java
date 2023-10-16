@@ -69,24 +69,15 @@ public class ApolloAuditTracer {
     return request;
   }
 
-  public ApolloAuditSpanContext extract(HttpServletRequest request) {
-    if (request.getHeader(ApolloAuditConstants.TRACE_ID) == null) {
-      return null;
-    }
-    ApolloAuditSpanContext context = new ApolloAuditSpanContext(
-        request.getHeader(ApolloAuditConstants.TRACE_ID), request.getHeader(ApolloAuditConstants.SPAN_ID),
-        request.getHeader(ApolloAuditConstants.OPERATOR), request.getHeader(ApolloAuditConstants.PARENT_ID),
-        request.getHeader(ApolloAuditConstants.FOLLOWS_FROM_ID));
-    return context;
-  }
-
   public ApolloAuditSpan startSpan(OpType type, String name, String description) {
     ApolloAuditSpan activeSpan = getActiveSpan();
     AuditSpanBuilder builder = new AuditSpanBuilder(type, name);
     builder = builder.description(description);
-    builder = activeSpan == null ? builder.asRootSpan(getOperator())
+    builder = activeSpan == null ? builder.asRootSpan(operatorSupplier.getOperator())
         : builder.asChildOf(activeSpan);
-    builder = builder.followsFrom(getFollowsFromId());
+    String followsFromId = scopeManager().getScope() == null ?
+        null : scopeManager().getScope().getLastSpanId();
+    builder = builder.followsFrom(followsFromId);
 
     return builder.build();
   }
@@ -131,14 +122,6 @@ public class ApolloAuditTracer {
     activeSpan = getActiveSpanFromHttp();
     // might be null, root span generate should be done in other place
     return activeSpan;
-  }
-
-  private String getFollowsFromId() {
-    return scopeManager().getScope() == null ? null : scopeManager().getScope().getLastSpanId();
-  }
-
-  private String getOperator() {
-    return operatorSupplier.getOperator();
   }
 
   public AuditSpanBuilder spanBuilder(OpType type, String name) {

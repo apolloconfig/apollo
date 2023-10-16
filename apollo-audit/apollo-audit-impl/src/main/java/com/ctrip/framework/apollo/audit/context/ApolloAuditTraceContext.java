@@ -39,8 +39,9 @@ public class ApolloAuditTraceContext {
       if (tracer != null) {
         return ((ApolloAuditTracer) tracer);
       } else {
-        setTracer(new ApolloAuditTracer(new ApolloAuditScopeManager(), operatorSupplier));
-        return tracer();
+        ApolloAuditTracer newTracer = new ApolloAuditTracer(new ApolloAuditScopeManager(), operatorSupplier);
+        setTracer(newTracer);
+        return newTracer;
       }
     }
     return null;

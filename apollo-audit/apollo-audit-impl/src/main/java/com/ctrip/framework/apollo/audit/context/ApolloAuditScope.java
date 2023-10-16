@@ -39,29 +39,9 @@ public class ApolloAuditScope implements AutoCloseable {
   public void close(){
     // closing span become parent-scope's last span
     if (hangUp != null) {
-      hangUp.lastSpanId = this.activeSpan.spanId();
+      hangUp.setLastSpanId(this.activeSpan.spanId());
     }
     this.manager.setScope(hangUp);
-  }
-
-  public ApolloAuditScopeManager getManager() {
-    return manager;
-  }
-
-  public ApolloAuditSpan getActiveSpan() {
-    return activeSpan;
-  }
-
-  public void setActiveSpan(ApolloAuditSpan activeSpan) {
-    this.activeSpan = activeSpan;
-  }
-
-  public ApolloAuditScope getHangUp() {
-    return hangUp;
-  }
-
-  public void setHangUp(ApolloAuditScope hangUp) {
-    this.hangUp = hangUp;
   }
 
   public String getLastSpanId() {
