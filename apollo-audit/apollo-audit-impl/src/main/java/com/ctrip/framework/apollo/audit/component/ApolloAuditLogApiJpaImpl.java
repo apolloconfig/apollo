@@ -104,9 +104,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   public void appendCreateOrUpdateDataInfluences(Object e, String tableName,
       List<Field> dataInfluenceFields, Field idField) {
     idField.setAccessible(true);
-    String tableId;
     try {
-      tableId = idField.get(e).toString();
+      String tableId = idField.get(e).toString();
       for (Field f : dataInfluenceFields) {
         f.setAccessible(true);
         String val = f.get(e) != null ? String.valueOf(f.get(e)) : null;
@@ -154,13 +153,6 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
               dataInfluenceService.findBySpanId(log.getSpanId()))));
     });
     return detailsDTOList;
-  }
-
-  @Override
-  public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName,
-      String entityId, int page, int size) {
-    return ApolloAuditUtil.dataInfluenceListToDTOList(
-        dataInfluenceService.findByEntityNameAndEntityId(entityName, entityId, page, size));
   }
 
   @Override

@@ -31,10 +31,6 @@ public interface ApolloAuditLogQueryApi {
 
   List<ApolloAuditLogDetailsDTO> queryTraceDetails(String traceId);
 
-  List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName,
-      String entityId, int page, int size);
-
-
   List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size);
 

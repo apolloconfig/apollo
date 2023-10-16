@@ -56,12 +56,6 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByEntity(String entityName,
-      String entityId, int page, int size) {
-    return null;
-  }
-
-  @Override
   public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size) {
     return null;
