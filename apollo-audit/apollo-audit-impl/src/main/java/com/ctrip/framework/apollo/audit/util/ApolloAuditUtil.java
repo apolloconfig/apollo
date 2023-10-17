@@ -45,15 +45,6 @@ public class ApolloAuditUtil {
         .filter(field -> field.isAnnotationPresent(annoClass)).collect(Collectors.toList());
   }
 
-  public static Field getAnnotatedField(Class<? extends Annotation> annoClass, Class<?> clazz) {
-    for (Field f : clazz.getDeclaredFields()) {
-      if (f.isAnnotationPresent(annoClass)) {
-        return f;
-      }
-    }
-    return null;
-  }
-
   public static List<Object> toList(Object obj) {
     if (obj instanceof Collection) {
       Collection<?> collection = (Collection<?>) obj;

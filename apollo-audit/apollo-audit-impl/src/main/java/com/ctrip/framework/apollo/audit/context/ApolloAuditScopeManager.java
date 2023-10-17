@@ -26,16 +26,16 @@ public class ApolloAuditScopeManager {
   }
 
   public ApolloAuditScope activate(ApolloAuditSpan span) {
-    scope = new ApolloAuditScope(span, this);
-    return scope;
+    setScope(new ApolloAuditScope(span, this));
+    return getScope();
   }
 
   public void deactivate() throws IOException {
-    scope.close();
+    getScope().close();
   }
 
   public ApolloAuditSpan activeSpan() {
-    return scope == null ? null : scope.activeSpan();
+    return getScope() == null ? null : getScope().activeSpan();
   }
 
   public ApolloAuditScope getScope() {

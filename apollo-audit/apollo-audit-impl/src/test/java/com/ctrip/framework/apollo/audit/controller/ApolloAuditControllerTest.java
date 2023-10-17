@@ -56,8 +56,7 @@ public class ApolloAuditControllerTest {
       Mockito.when(api.queryLogs(Mockito.eq(page), Mockito.eq(size))).thenReturn(mockLogDTOList);
     }
 
-    mockMvc.perform(
-            MockMvcRequestBuilders.get("/apollo/audit/logs")
+    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/logs")
                 .param("page", String.valueOf(page))
                 .param("size", String.valueOf(size)))
         .andExpect(MockMvcResultMatchers.status().isOk())

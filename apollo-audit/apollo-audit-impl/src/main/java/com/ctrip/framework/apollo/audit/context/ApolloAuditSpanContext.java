@@ -29,12 +29,6 @@ public class ApolloAuditSpanContext {
     this.spanId = spanId;
   }
 
-  public ApolloAuditSpanContext(String traceId, String spanId, String operator) {
-    this.traceId = traceId;
-    this.spanId = spanId;
-    this.operator = operator;
-  }
-
   public ApolloAuditSpanContext(String traceId, String spanId, String operator, String parentId, String followsFromId) {
     this.traceId = traceId;
     this.spanId = spanId;

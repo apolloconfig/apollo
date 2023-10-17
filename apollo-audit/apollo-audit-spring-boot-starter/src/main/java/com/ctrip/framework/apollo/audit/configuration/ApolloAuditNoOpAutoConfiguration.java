@@ -51,7 +51,7 @@ public class ApolloAuditNoOpAutoConfiguration {
 
   @Bean
   @ConditionalOnMissingBean(ApolloAuditHttpInterceptor.class)
-  public ApolloAuditHttpInterceptor apolloAuditLogHttpTracerInterceptor(
+  public ApolloAuditHttpInterceptor apolloAuditLogHttpInterceptor(
       ApolloAuditTraceContext traceContext) {
     return new ApolloAuditHttpInterceptor(traceContext);
   }
