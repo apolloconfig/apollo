@@ -46,13 +46,12 @@ public class ApolloAuditLogService {
         .spanId(span.spanId())
         .parentSpanId(span.parentId())
         .followsFromSpanId(span.followsFromId())
-        .operator(span.operator() != null ? span.operator() : "unknown")
+        .operator(span.operator() != null ? span.operator() : "anonymous")
         .opName(span.getOpName())
         .opType(span.getOpType().toString())
         .description(span.getDescription())
         .happenedTime(new Date())
         .build();
-    auditLog.setDataChangeCreatedBy(auditLog.getOperator());
     logRepository.save(auditLog);
   }
 

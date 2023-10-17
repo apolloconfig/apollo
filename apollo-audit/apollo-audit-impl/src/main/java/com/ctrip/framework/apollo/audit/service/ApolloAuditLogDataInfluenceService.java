@@ -39,19 +39,8 @@ public class ApolloAuditLogDataInfluenceService {
     return dataInfluenceRepository.save(dataInfluence);
   }
 
-  public void batchSave(List<ApolloAuditLogDataInfluence> dataInfluences) {
-    dataInfluenceRepository.saveAll(dataInfluences);
-  }
-
   public List<ApolloAuditLogDataInfluence> findBySpanId(String spanId) {
     return dataInfluenceRepository.findBySpanId(spanId);
-  }
-
-  public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityId(String entityName,
-      String entityId, int page, int size) {
-    Pageable pageable = pageSortByTime(page, size);
-    return dataInfluenceRepository.findByInfluenceEntityNameAndInfluenceEntityId(entityName,
-        entityId, pageable);
   }
 
   public List<ApolloAuditLogDataInfluence> findByEntityNameAndEntityIdAndFieldName(

@@ -26,7 +26,6 @@ import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
-import com.ctrip.framework.apollo.audit.exception.ApolloAuditEntityBeanDefinitionException;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import com.ctrip.framework.apollo.audit.util.ApolloAuditUtil;
@@ -35,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
 
@@ -82,11 +79,10 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) throws ApolloAuditEntityBeanDefinitionException {
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
     String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);
     if (Objects.isNull(tableName) || tableName.equals("")) {
-      throw new ApolloAuditEntityBeanDefinitionException("entity not being managed by audit annotations",
-          beanDefinition.getName());
+      return;
     }
     List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
         ApolloAuditLogDataInfluenceTableField.class, beanDefinition);

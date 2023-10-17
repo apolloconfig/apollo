@@ -17,11 +17,9 @@
 package com.ctrip.framework.apollo.audit.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.ctrip.framework.apollo.audit.MockBeanFactory;
 import com.ctrip.framework.apollo.audit.MockDataInfluenceEntity;
-import com.ctrip.framework.apollo.audit.MockNotDataInfluenceEntity;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScope;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
@@ -34,7 +32,6 @@ import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
-import com.ctrip.framework.apollo.audit.exception.ApolloAuditEntityBeanDefinitionException;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
 import java.lang.reflect.Field;
@@ -163,10 +160,13 @@ public class ApolloAuditLogApiJpaImplTest {
 
   @Test
   public void testAppendDataInfluencesCaseIncompleteConditions() {
-    List<Object> entities = new ArrayList<>();
+    List<Object> entities = new ArrayList<>(entityNum);
 
-    assertThrows(ApolloAuditEntityBeanDefinitionException.class,
-        () -> api.appendDataInfluences(entities, MockNotDataInfluenceEntity.class));
+    api.appendDataInfluences(entities, Object.class);
+
+    Mockito.verify(api, Mockito.times(0))
+        .appendSingleDataInfluence(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any(), Mockito.any());
   }
 
   @Test
