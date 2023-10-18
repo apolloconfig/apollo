@@ -28,6 +28,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -68,7 +69,7 @@ public class AppNamespaceServiceWithCache implements InitializingBean {
     maxIdScanned = 0;
     publicAppNamespaceCache = new CaseInsensitiveMapWrapper<>(Maps.newConcurrentMap());
     appNamespaceCache = new CaseInsensitiveMapWrapper<>(Maps.newConcurrentMap());
-    appNamespaceIdCache = Maps.newConcurrentMap();
+    appNamespaceIdCache = new ConcurrentSkipListMap<>();
     scheduledExecutorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory
         .create("AppNamespaceServiceWithCache", true));
   }
