@@ -24,14 +24,17 @@ import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.google.common.base.Strings;
 
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public abstract class AbstractConfigService implements ConfigService {
-  @Autowired
-  private GrayReleaseRulesHolder grayReleaseRulesHolder;
+
+  private final GrayReleaseRulesHolder grayReleaseRulesHolder;
+
+  protected AbstractConfigService(final GrayReleaseRulesHolder grayReleaseRulesHolder) {
+    this.grayReleaseRulesHolder = grayReleaseRulesHolder;
+  }
 
   @Override
   public Release loadConfig(String clientAppId, String clientIp, String clientLabel, String configAppId, String configClusterName,

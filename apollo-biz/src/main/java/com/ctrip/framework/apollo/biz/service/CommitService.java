@@ -34,10 +34,18 @@ public class CommitService {
     this.commitRepository = commitRepository;
   }
 
-  @Transactional
-  public Commit save(Commit commit){
+  public void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
+      String operator) {
+
+    Commit commit = new Commit();
     commit.setId(0);//protection
-    return commitRepository.save(commit);
+    commit.setAppId(appId);
+    commit.setClusterName(clusterName);
+    commit.setNamespaceName(namespaceName);
+    commit.setChangeSets(configChangeContent);
+    commit.setDataChangeCreatedBy(operator);
+    commit.setDataChangeLastModifiedBy(operator);
+    commitRepository.save(commit);
   }
 
   public List<Commit> find(String appId, String clusterName, String namespaceName, Pageable page){

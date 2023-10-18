@@ -460,7 +460,7 @@ public class ReleaseService {
   public Release rollback(long releaseId, String operator) {
     Release release = findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     if (release.isAbandoned()) {
       throw new BadRequestException("release is not active");
@@ -503,8 +503,12 @@ public class ReleaseService {
 
     Release release = findOne(releaseId);
     Release toRelease = findOne(toReleaseId);
-    if (release == null || toRelease == null) {
-      throw new NotFoundException("release not found");
+
+    if (release == null) {
+      throw NotFoundException.releaseNotFound(releaseId);
+    }
+    if (toRelease == null) {
+      throw NotFoundException.releaseNotFound(toReleaseId);
     }
     if (release.isAbandoned() || toRelease.isAbandoned()) {
       throw new BadRequestException("release is not active");

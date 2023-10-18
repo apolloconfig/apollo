@@ -63,7 +63,7 @@ angular.module('systemRole', ['app.service', 'apollo.directive', 'app.util', 'to
                                 getCreateApplicationRoleUsers();
                             },
                             function (reason) {
-                                toastr.warn(AppUtil.errorMsg(reason), $translate.instant('SystemRole.DeleteFailed'));
+                                toastr.warning(AppUtil.errorMsg(reason), $translate.instant('SystemRole.DeleteFailed'));
                             }
                         );
                 };

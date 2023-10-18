@@ -21,9 +21,11 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.api.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
@@ -37,6 +39,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ServerAppOpenApiService implements AppOpenApiService {
+
   private final PortalSettings portalSettings;
   private final ClusterService clusterService;
   private final AppService appService;
@@ -48,6 +51,26 @@ public class ServerAppOpenApiService implements AppOpenApiService {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
+  }
+
+  private App convert(OpenAppDTO dto) {
+    return App.builder()
+        .appId(dto.getAppId())
+        .name(dto.getName())
+        .ownerName(dto.getOwnerName())
+        .orgId(dto.getOrgId())
+        .orgName(dto.getOrgName())
+        .ownerEmail(dto.getOwnerEmail())
+        .build();
+  }
+
+  /**
+   * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
+   */
+  @Override
+  public void createApp(OpenCreateAppDTO req) {
+    App app = convert(req.getApp());
+    appService.createAppAndAddRolePermission(app, req.getAdmins());
   }
 
   @Override

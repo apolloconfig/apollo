@@ -557,6 +557,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> For version 1.8.0 and above
+
 Enable external nacos service registry to replace built-in eureka
 
 > Note: need repackage
@@ -581,6 +583,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> For version 1.9.0 and above
 
 Enable external Consul service registry to replace built-in eureka
 
@@ -620,6 +624,8 @@ spring.cloud.consul.port=8500
 ```
 
 #### 2.2.3.3 zookeeper-discovery
+
+> For version 2.0.0 and above
 
 Enable external Zookeeper service registry to replace built-in eureka
 
@@ -681,6 +687,8 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
+
+> For version 2.0.0 and above
 
 Enable custom-defined-discovery to replace built-in eureka
 
@@ -1492,9 +1500,16 @@ This is a function switch, if configured to true, config service will cache the 
 
 The default is false. Please evaluate the total configuration size and adjust the config service memory configuration before turning it on.
 
-> Ensure that the app.id of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
+> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
 
 > `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
+
+#### 3.2.3.1 config-service.cache.key.ignore-case - whether to ignore the case of the configuration cache key
+> For versions 2.2.0 and above
+
+This configuration takes effect when config-service.cache.enabled is set to true, and controls whether the configuration cache key ignores case. The default value is false, which means that cache keys are strictly case-sensitive. In this case, it is necessary to ensure that the capitalization of app.id and apollo.cluster configured in the application is correct, otherwise the correct configuration cannot be obtained. It can be configured as true to ignore case sensitivity.
+
+> This configuration is used to be compatible with the configuration acquisition logic when the cache is not enabled, because MySQL database queries are case-insensitive by default. If the cache is enabled and MySQL is used, it is recommended to configure it as true. If the database used by your Apollo is case-sensitive, you must keep the default configuration as false, otherwise the configuration cannot be obtained.
 
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 
@@ -1572,3 +1587,23 @@ A reboot is required to take effect after the modification.
 Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
 
 A reboot is required to take effect after the modification.
+
+### 3.2.12 apollo.release-history.retention.size - Number of retained configurations release history
+
+> For version 2.2.0 and above
+
+The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer(The minimum value is 1, which means at least one record of history must be kept to ensure the basic configuration functionality), only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
+
+### 3.2.13 apollo.release-history.retention.size.override - Number of retained configurations release history at a granular level
+
+> For version 2.2.0 and above
+
+This configuration is used to override the `apollo.release-history.retention.size` configuration and achieve granular control over the number of retained release histories for appId+clusterName+namespaceName+branchName. The value of this configuration is in JSON format, with the JSON key being the concatenated value of appId, clusterName, namespaceName, and branchName using a `+` sign. The format is as follows:
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+bj+namespace2+bj": 20
+}
+```
+The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.

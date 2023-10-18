@@ -19,15 +19,6 @@ spring:
     
 server:
   port: ${port:8090}
-  
-logging:
-  level:
-    org.springframework.cloud: 'DEBUG'
-  file:
-    name: /opt/logs/${ctrip.appid}/apollo-adminservice.log
-
-ctrip:
-  appid: 100003172
 
 eureka:
   instance:

@@ -353,6 +353,16 @@ Fill in the popup box with the value to be grayed out: 3000 and click Submit.
 
 ![gray-release-config-submitted](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-config-submitted.png)
 
+After the grayscale configuration, confirm the grayscale configuration and the major version configuration.
+
+Click on the `Grayscale Publish` button.
+
+![click-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/click-gray-release.png)
+
+Confirm the grayscale configuration to be released by comparing the value of the major version and the published value of the grayscale version.
+
+![gray-release-diff-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-diff-items.png)
+
 ## 5.4 Configuring grayscale rules
 
 Switch to the `Gray Rule` Tab and click the `Add Rule` button

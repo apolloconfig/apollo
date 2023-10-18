@@ -63,8 +63,8 @@
 		<revision>2.2.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<apollo-java.version>2.1.0</apollo-java.version>
-		<spring-boot.version>2.7.9</spring-boot.version>
+		<apollo-java.version>2.2.0-SNAPSHOT</apollo-java.version>
+		<spring-boot.version>2.7.11</spring-boot.version>
 		<spring-cloud.version>2021.0.5</spring-cloud.version>
 		<!-- sort by alphabet -->
 		<awaitility.version>4.2.0</awaitility.version>
@@ -80,17 +80,18 @@
 		<!-- database driver -->
 		<mysql-connector-j.version>8.0.32</mysql-connector-j.version>
 		<postgre.version>42.5.3</postgre.version>
-		<!-- Plugins Version -->
-		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
-		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-		<maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
-		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
-		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+		<!-- Plugins Version sort by alphabet -->
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+		<maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
+		<maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
+		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
+		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
+		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 	</properties>
 
 	<modules>
@@ -146,11 +147,6 @@
 				<version>${apollo-java.version}</version>
 			</dependency>
 			<!--third party -->
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.7.21</version>
-			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -545,6 +541,19 @@
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>flatten-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${maven-jacoco-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>
@@ -570,56 +579,6 @@
 		</resources>
 	</build>
 	<profiles>
-		<profile>
-			<!-- for travis usage -->
-			<id>travis</id>
-			<activation>
-				<property>
-					<name>env.TRAVIS</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.github</groupId>
-						<artifactId>site-maven-plugin</artifactId>
-						<version>0.12</version>
-						<configuration>
-							<message>Site for ${project.artifactId}, ${project.version}</message>
-							<path>${github.path}</path>
-							<merge>true</merge>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>site</goal>
-								</goals>
-								<phase>site</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.8</version>
-						<executions>
-							<execution>
-								<id>prepare-agent</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eluder.coveralls</groupId>
-						<artifactId>coveralls-maven-plugin</artifactId>
-						<version>4.3.0</version>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<!-- for open source usage -->
 			<id>github</id>
@@ -663,6 +622,7 @@
 			</releases>
 			<snapshots>
 				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
 	</repositories>

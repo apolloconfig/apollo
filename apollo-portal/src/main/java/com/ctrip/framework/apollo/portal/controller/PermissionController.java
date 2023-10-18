@@ -57,7 +57,6 @@ public class PermissionController {
   private final SystemRoleManagerService systemRoleManagerService;
   private final PermissionValidator permissionValidator;
 
-  @Autowired
   public PermissionController(
           final UserInfoHolder userInfoHolder,
           final RolePermissionService rolePermissionService,
@@ -128,7 +127,7 @@ public class PermissionController {
 
     // validate env parameter
     if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw new BadRequestException("env is illegal");
+      throw BadRequestException.invalidEnvFormat(env);
     }
 
     NamespaceEnvRolesAssignedUsers assignedUsers = new NamespaceEnvRolesAssignedUsers();
@@ -155,17 +154,17 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
 
     // validate env parameter
     if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw new BadRequestException("env is illegal");
+      throw BadRequestException.invalidEnvFormat(env);
     }
     Set<String> assignedUser = rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, env),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     if (CollectionUtils.isEmpty(assignedUser)) {
-      throw new BadRequestException(user + " already authorized");
+      throw BadRequestException.userAlreadyAuthorized(user);
     }
 
     return ResponseEntity.ok().build();
@@ -178,11 +177,11 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
     // validate env parameter
     if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw new BadRequestException("env is illegal");
+      throw BadRequestException.invalidEnvFormat(env);
     }
     rolePermissionService.removeRoleFromUsers(RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, env),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
@@ -215,12 +214,12 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
     Set<String> assignedUser = rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     if (CollectionUtils.isEmpty(assignedUser)) {
-      throw new BadRequestException(user + " already authorized");
+      throw BadRequestException.userAlreadyAuthorized(user);
     }
 
     return ResponseEntity.ok().build();
@@ -233,7 +232,7 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
     rolePermissionService.removeRoleFromUsers(RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
@@ -259,12 +258,12 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
     Set<String> assignedUsers = rolePermissionService.assignRoleToUsers(RoleUtils.buildAppRoleName(appId, roleType),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     if (CollectionUtils.isEmpty(assignedUsers)) {
-      throw new BadRequestException(user + " already authorized");
+      throw BadRequestException.userAlreadyAuthorized(user);
     }
 
     return ResponseEntity.ok().build();
@@ -277,7 +276,7 @@ public class PermissionController {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
     if (!RoleType.isValidRoleType(roleType)) {
-      throw new BadRequestException("role type is illegal");
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
     rolePermissionService.removeRoleFromUsers(RoleUtils.buildAppRoleName(appId, roleType),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
@@ -286,7 +285,7 @@ public class PermissionController {
 
   private void checkUserExists(String userId) {
     if (userService.findByUserId(userId) == null) {
-      throw new BadRequestException("User %s does not exist!", userId);
+      throw BadRequestException.userNotExists(userId);
     }
   }
 

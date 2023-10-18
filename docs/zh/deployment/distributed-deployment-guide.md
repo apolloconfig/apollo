@@ -532,6 +532,8 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 #### 2.2.3.1 nacos-discovery
 
+> 适用于1.8.0及以上版本
+
 启用外部nacos服务注册中心替换内置eureka
 
 > 注意：需要重新打包
@@ -554,6 +556,8 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
+
+> 适用于1.9.0及以上版本
 
 启用外部Consul服务注册中心替换内置eureka
 
@@ -593,11 +597,11 @@ spring.cloud.consul.port=8500
 
 #### 2.2.3.3 zookeeper-discovery
 
+> 适用于2.0.0及以上版本
+
 启用外部Zookeeper服务注册中心替换内置eureka
 
 ##### 2.2.3.3.1 2.1.0 及以上版本
-
-
 
 1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
@@ -643,6 +647,8 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
+
+> 适用于2.0.0及以上版本
 
 启用custom-defined-discovery替换内置eureka
 
@@ -1436,9 +1442,17 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认为false，开启前请先评估总配置大小并调整config service内存配置。
 
-> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
 
 > `config-service.cache.enabled` 配置调整必须重启 config service 才能生效
+
+#### 3.2.3.1 config-service.cache.key.ignore-case - 是否忽略配置缓存key的大小写
+> 适用于2.2.0及以上版本
+
+该配置作用于`config-service.cache.enabled`为 true 时，用于控制配置缓存key是否忽略大小写。
+默认为 false，即缓存键大小写严格匹配。此时需要确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置。可配置为 true, 则忽略大小写。
+
+> 这个配置用于兼容未开启缓存时的配置获取逻辑，因为 MySQL 数据库查询默认字符串匹配大小写不敏感。如果开启了缓存，且用了 MySQL，建议配置 true。如果你 Apollo 使用的数据库字符串匹配大小写敏感，那么必须保持默认配置 false，否则将获取不到配置。
 
 ### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
 
@@ -1512,3 +1526,23 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
 
 修改完需要重启生效。
+
+### 3.2.12 apollo.release-history.retention.size - 配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+默认为 -1，表示不限制保留数量。如果配置为正整数(最小值为 1，必须保留一条历史记录，保障基本的配置功能)，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
+
+### 3.2.13 apollo.release-history.retention.size.override - 细粒度配置发布历史的保留数量
+
+> 适用于2.2.0及以上版本
+
+此配置用来覆盖 `apollo.release-history.retention.size` 的配置，做到细粒度控制 appId+clusterName+namespaceName+branchName 的发布历史保留数量，配置的值是一个 JSON 格式，JSON 的 key 为 appId、clusterName、namespaceName、branchName 使用 + 号的拼接值，格式如下：
+```
+json
+{
+  "kl+bj+namespace1+bj": 10,
+  "kl+bj+namespace2+bj": 20
+}
+```
+以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。

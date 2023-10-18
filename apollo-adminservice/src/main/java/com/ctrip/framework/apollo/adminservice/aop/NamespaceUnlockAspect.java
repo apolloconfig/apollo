@@ -101,7 +101,7 @@ public class NamespaceUnlockAspect {
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
     if (item == null) {
-      throw new BadRequestException("item not exist.");
+      throw BadRequestException.itemNotExists(itemId);
     }
     tryUnlock(namespaceService.findOne(item.getNamespaceId()));
   }

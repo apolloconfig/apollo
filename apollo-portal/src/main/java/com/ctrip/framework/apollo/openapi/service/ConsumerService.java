@@ -16,8 +16,10 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
-import com.ctrip.framework.apollo.common.dto.PageDTO;
+import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
+
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
@@ -29,6 +31,7 @@ import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -39,6 +42,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.data.domain.Pageable;
@@ -104,7 +109,7 @@ public class ConsumerService {
     String ownerName = consumer.getOwnerName();
     UserInfo owner = userService.findByUserId(ownerName);
     if (owner == null) {
-      throw new BadRequestException("User does not exist. UserId = %s", ownerName);
+      throw BadRequestException.userNotExists(ownerName);
     }
     consumer.setOwnerEmail(owner.getEmail());
 
@@ -187,9 +192,97 @@ public class ConsumerService {
     return Arrays.asList(createdModifyConsumerRole, createdReleaseConsumerRole);
   }
 
+  private ConsumerInfo convert(
+      Consumer consumer,
+      String token,
+      boolean allowCreateApplication
+  ) {
+    ConsumerInfo consumerInfo = new ConsumerInfo();
+    consumerInfo.setConsumerId(consumer.getId());
+    consumerInfo.setAppId(consumer.getAppId());
+    consumerInfo.setName(consumer.getName());
+    consumerInfo.setOwnerName(consumer.getOwnerName());
+    consumerInfo.setOwnerEmail(consumer.getOwnerEmail());
+    consumerInfo.setOrgId(consumer.getOrgId());
+    consumerInfo.setOrgName(consumer.getOrgName());
+
+    consumerInfo.setToken(token);
+    consumerInfo.setAllowCreateApplication(allowCreateApplication);
+    return consumerInfo;
+  }
+
+  public ConsumerInfo getConsumerInfoByAppId(String appId) {
+    ConsumerToken consumerToken = getConsumerTokenByAppId(appId);
+    if (null == consumerToken) {
+      return null;
+    }
+    Consumer consumer = consumerRepository.findByAppId(appId);
+    if (consumer == null) {
+      return null;
+    }
+    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()));
+  }
+
+  private boolean isAllowCreateApplication(Long consumerId) {
+    return isAllowCreateApplication(Collections.singletonList(consumerId)).get(0);
+  }
+
+  private List<Boolean> isAllowCreateApplication(List<Long> consumerIdList) {
+    Role createAppRole = getCreateAppRole();
+    if (createAppRole == null) {
+      List<Boolean> list = new ArrayList<>(consumerIdList.size());
+      for (Long ignored : consumerIdList) {
+        list.add(false);
+      }
+      return list;
+    }
+
+    long roleId = createAppRole.getId();
+    List<Boolean> list = new ArrayList<>(consumerIdList.size());
+    for (Long consumerId : consumerIdList) {
+      ConsumerRole createAppConsumerRole = consumerRoleRepository.findByConsumerIdAndRoleId(
+          consumerId, roleId
+      );
+      list.add(createAppConsumerRole != null);
+    }
+
+    return list;
+  }
+
+  private Role getCreateAppRole() {
+    return rolePermissionService.findRoleByRoleName(CREATE_APPLICATION_ROLE_NAME);
+  }
+
+  public ConsumerRole assignCreateApplicationRoleToConsumer(String token) {
+    Long consumerId = getConsumerIdByToken(token);
+    if (consumerId == null) {
+      throw new BadRequestException("Token is Illegal");
+    }
+    Role createAppRole = getCreateAppRole();
+    if (createAppRole == null) {
+      throw NotFoundException.roleNotFound(CREATE_APPLICATION_ROLE_NAME);
+    }
+
+    long roleId = createAppRole.getId();
+    ConsumerRole createAppConsumerRole = consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
+    if (createAppConsumerRole != null) {
+      return createAppConsumerRole;
+    }
+
+    String operator = userInfoHolder.getUser().getUserId();
+    ConsumerRole consumerRole = createConsumerRole(consumerId, roleId, operator);
+    return consumerRoleRepository.save(consumerRole);
+  }
+
+
   @Transactional
   public ConsumerRole assignAppRoleToConsumer(String token, String appId) {
     Long consumerId = getConsumerIdByToken(token);
+    return assignAppRoleToConsumer(consumerId, appId);
+  }
+
+  @Transactional
+  public ConsumerRole assignAppRoleToConsumer(Long consumerId, String appId) {
     if (consumerId == null) {
       throw new BadRequestException("Token is Illegal");
     }
@@ -296,8 +389,28 @@ public class ConsumerService {
     return appIds;
   }
 
-  public List<Consumer> findAllConsumer(Pageable page){
+  List<Consumer> findAllConsumer(Pageable page){
     return this.consumerRepository.findAll(page).getContent();
+  }
+
+  public List<ConsumerInfo> findConsumerInfoList(Pageable page) {
+    List<Consumer> consumerList = findAllConsumer(page);
+    List<Long> consumerIdList = consumerList.stream()
+        .map(Consumer::getId).collect(Collectors.toList());
+    List<Boolean> allowCreateApplicationList = isAllowCreateApplication(consumerIdList);
+
+    List<ConsumerInfo> consumerInfoList = new ArrayList<>(consumerList.size());
+
+    for (int i = 0; i < consumerList.size(); i++) {
+      Consumer consumer = consumerList.get(i);
+      // without token
+      ConsumerInfo consumerInfo = convert(
+          consumer, null, allowCreateApplicationList.get(i)
+      );
+      consumerInfoList.add(consumerInfo);
+    }
+
+    return consumerInfoList;
   }
 
   @Transactional

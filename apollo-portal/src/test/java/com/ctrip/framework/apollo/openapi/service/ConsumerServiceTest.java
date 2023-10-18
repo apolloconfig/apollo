@@ -19,59 +19,65 @@ package com.ctrip.framework.apollo.openapi.service;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
-import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.ContextConfiguration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ConsumerServiceTest extends AbstractUnitTest {
-
-  @Mock
-  private ConsumerTokenRepository consumerTokenRepository;
-  @Mock
-  private ConsumerRepository consumerRepository;
-  @Mock
-  private PortalConfig portalConfig;
-  @Mock
-  private UserService userService;
-  @Mock
-  private UserInfoHolder userInfoHolder;
-  @Mock
-  private ConsumerRoleRepository consumerRoleRepository;
-  @Mock
-  private RolePermissionService rolePermissionService;
-  @Spy
-  @InjectMocks
+@SpringBootTest
+@ContextConfiguration(classes = ConsumerService.class)
+public class ConsumerServiceTest {
+  @SpyBean
   private ConsumerService consumerService;
+  @MockBean
+  UserInfoHolder userInfoHolder;
+  @MockBean
+  ConsumerTokenRepository consumerTokenRepository;
+  @MockBean
+  ConsumerRepository consumerRepository;
+  @MockBean
+  ConsumerAuditRepository consumerAuditRepository;
+  @MockBean
+  ConsumerRoleRepository consumerRoleRepository;
+  @MockBean
+  PortalConfig portalConfig;
+  @MockBean
+  RolePermissionService rolePermissionService;
+  @MockBean
+  UserService userService;
+  @MockBean
+  RoleRepository roleRepository;
 
-  private String someTokenSalt = "someTokenSalt";
-  private String testAppId = "testAppId";
-  private String testConsumerName = "testConsumerName";
-  private String testOwner = "testOwner";
+  private final String someTokenSalt = "someTokenSalt";
+  private final String testAppId = "testAppId";
+  private final String testConsumerName = "testConsumerName";
+  private final String testOwner = "testOwner";
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     when(portalConfig.consumerTokenSalt()).thenReturn(someTokenSalt);
   }
@@ -153,14 +159,16 @@ public class ConsumerServiceTest extends AbstractUnitTest {
     assertEquals(someToken, consumerToken.getToken());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void testGenerateAndEnrichConsumerTokenWithConsumerNotFound() throws Exception {
     long someConsumerIdNotExist = 1;
 
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setConsumerId(someConsumerIdNotExist);
 
-    consumerService.generateAndEnrichToken(null, consumerToken);
+    assertThrows(IllegalArgumentException.class,
+        () -> consumerService.generateAndEnrichToken(null, consumerToken)
+    );
   }
 
   @Test
@@ -179,7 +187,7 @@ public class ConsumerServiceTest extends AbstractUnitTest {
 
   @Test
   public void testAssignNamespaceRoleToConsumer() {
-    Long consumerId = 1L;
+    long consumerId = 1L;
     String token = "token";
 
     doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
@@ -225,6 +233,70 @@ public class ConsumerServiceTest extends AbstractUnitTest {
     verify(consumerRoleRepository).save(namespaceEnvReleaseConsumerRole);
 
 
+  }
+
+  @Test
+  void notAllowCreateApplication() {
+    final String appId = "appId-consumer-2023";
+    final String token = "token-2023";
+    final long consumerId = 2023;
+    final long roleId = 202309;
+
+    {
+      Consumer consumer = new Consumer();
+      consumer.setAppId(appId);
+      consumer.setId(consumerId);
+      when(consumerRepository.findByAppId(eq(appId)))
+          .thenReturn(consumer);
+
+      ConsumerToken consumerToken = new ConsumerToken();
+      consumerToken.setToken(token);
+      when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
+          .thenReturn(consumerToken);
+    }
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    assertFalse(consumerInfo.isAllowCreateApplication());
+    assertEquals(appId, consumerInfo.getAppId());
+    assertEquals(token, consumerInfo.getToken());
+  }
+
+  @Test
+  void allowCreateApplication() {
+    final String appId = "appId-consumer-2023";
+    final String token = "token-2023";
+    final long consumerId = 2023;
+    final long roleId = 202309;
+
+    {
+      Consumer consumer = new Consumer();
+      consumer.setAppId(appId);
+      consumer.setId(consumerId);
+      when(consumerRepository.findByAppId(eq(appId)))
+          .thenReturn(consumer);
+
+      ConsumerToken consumerToken = new ConsumerToken();
+      consumerToken.setToken(token);
+      when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
+          .thenReturn(consumerToken);
+    }
+
+    {
+      Role role = new Role();
+      role.setId(roleId);
+      when(rolePermissionService.findRoleByRoleName(any()))
+          .thenReturn(role);
+
+      ConsumerRole consumerRole = new ConsumerRole();
+      consumerRole.setConsumerId(consumerId);
+      when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(roleId)))
+          .thenReturn(consumerRole);
+    }
+
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    assertTrue(consumerInfo.isAllowCreateApplication());
+    assertEquals(appId, consumerInfo.getAppId());
+    assertEquals(token, consumerInfo.getToken());
+    assertEquals(consumerId, consumerInfo.getConsumerId());
   }
 
   private Consumer createConsumer(String name, String appId, String ownerName) {

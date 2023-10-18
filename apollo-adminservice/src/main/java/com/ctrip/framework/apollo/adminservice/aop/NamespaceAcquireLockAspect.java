@@ -88,7 +88,7 @@ public class NamespaceAcquireLockAspect {
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
     if (item == null){
-      throw new BadRequestException("item not exist.");
+      throw BadRequestException.itemNotExists(itemId);
     }
     acquireLock(item.getNamespaceId(), operator);
   }
@@ -117,7 +117,7 @@ public class NamespaceAcquireLockAspect {
 
   private void acquireLock(Namespace namespace, String currentUser) {
     if (namespace == null) {
-      throw new BadRequestException("namespace not exist.");
+      throw BadRequestException.namespaceNotExists();
     }
 
     long namespaceId = namespace.getId();

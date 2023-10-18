@@ -130,7 +130,7 @@ public class ItemController {
 
     // In case someone constructs an attack scenario
     if (namespace == null || item.getNamespaceId() != namespace.getId()) {
-      throw new BadRequestException("Invalid request, item and namespace do not match!");
+      throw BadRequestException.namespaceNotMatch();
     }
 
     configService.deleteItem(Env.valueOf(env), itemId, userInfoHolder.getUser().getUserId());
@@ -183,7 +183,7 @@ public class ItemController {
       }
 
       if (permissionValidator
-          .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().name(), namespace.getNamespaceName())) {
+          .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
         diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace in environment: " + namespace.getEnv());
       }

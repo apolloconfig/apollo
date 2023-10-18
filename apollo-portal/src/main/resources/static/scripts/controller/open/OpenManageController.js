@@ -160,12 +160,14 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
 
         if (!$scope.consumer.appId) {
             toastr.warning($translate.instant('Open.Manage.PleaseEnterAppId'));
+            $scope.submitBtnDisabled = false;
             return;
         }
         var selectedOrg = $orgWidget.select2('data')[0];
 
         if (!selectedOrg.id) {
             toastr.warning($translate.instant('Common.PleaseChooseDepartment'));
+            $scope.submitBtnDisabled = false;
             return;
         }
 
@@ -176,6 +178,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
         var owner = $('.ownerSelector').select2('data')[0];
         if (!owner) {
             toastr.warning($translate.instant('Common.PleaseChooseOwner'));
+            $scope.submitBtnDisabled = false;
             return;
         }
         $scope.consumer.ownerName = owner.id;

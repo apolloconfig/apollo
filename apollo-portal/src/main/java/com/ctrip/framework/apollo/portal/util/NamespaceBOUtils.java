@@ -22,17 +22,14 @@ import com.google.gson.Gson;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.utils.PropertiesUtil;
 import com.ctrip.framework.apollo.portal.controller.ConfigsExportController;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**

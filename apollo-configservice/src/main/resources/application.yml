@@ -27,15 +27,13 @@ spring:
     properties:
       hibernate:
         metadata_builder_contributor: com.ctrip.framework.apollo.common.jpa.SqlFunctionsMetadataBuilderContributor
-ctrip:
-  appid: 100003171
 
 server:
   port: 8080
 
 logging:
   file:
-    name: /opt/logs/100003171/apollo-configservice.log
+    name: /opt/logs/apollo-configservice.log
 
 eureka:
   instance:
