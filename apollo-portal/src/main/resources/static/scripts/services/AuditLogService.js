@@ -16,6 +16,11 @@
  */
 appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
   var audit_resource = $resource('', {}, {
+    is_enabled: {
+      method: 'GET',
+      url: AppUtil.prefixPath() + '/apollo/audit/enabled',
+      isArray: false
+    },
     find_all_logs: {
       method: 'GET',
       url: AppUtil.prefixPath() + '/apollo/audit/logs?page=:page&size=:size',
@@ -38,6 +43,17 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
     }
   });
   return {
+    is_enabled: function () {
+      var d = $q.defer();
+      audit_resource.is_enabled({}
+           , function (result) {
+            d.resolve(result);
+          }, function (result) {
+            d.reject(result);
+          }
+      );
+      return d.promise;
+    },
     find_all_logs: function (page, size) {
       var d = $q.defer();
       audit_resource.find_all_logs({

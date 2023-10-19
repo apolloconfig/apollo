@@ -46,7 +46,6 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                 function (result) {
                       $scope.traceDetails = result;
                 }
-
             );
       }
 
@@ -55,13 +54,10 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       }
 
       function removeInClassFromLogDropDownExceptId(id) {
-
             $scope.relatedDataInfluences = [];
 
-            // 获取所有以指定前缀开始的ID的元素
             var elements = document.querySelectorAll('[id^="detail"]');
 
-            // 遍历这些元素并移除 "in" 类
             elements.forEach(function (element) {
                   if(element.id !== 'detail'+id) {
                         element.classList.remove('in');

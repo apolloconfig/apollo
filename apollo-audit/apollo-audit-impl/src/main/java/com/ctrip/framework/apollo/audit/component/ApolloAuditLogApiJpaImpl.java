@@ -104,25 +104,29 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
       String tableId = idField.get(e).toString();
       for (Field f : dataInfluenceFields) {
         f.setAccessible(true);
-        String val = f.get(e) != null ? String.valueOf(f.get(e)) : null;
+        String val = String.valueOf(f.get(e));
         appendSingleDataInfluence(tableId, tableName, f.getName(), null, val);
       }
     } catch (IllegalAccessException ex) {
-      throw new RuntimeException(ex);
+      throw new IllegalArgumentException("failed append data influence, "
+          + "might due to wrong beanDefinition for entity audited", ex);
     }
   }
 
   public void appendDeleteDataInfluences(Object e, String tableName,
       List<Field> dataInfluenceFields, Field idField) {
     idField.setAccessible(true);
-    String tableId;
     try {
-      tableId = idField.get(e).toString();
+      String tableId = idField.get(e).toString();
+      for (Field f : dataInfluenceFields) {
+        f.setAccessible(true);
+        String val = f.get(e) != null ? String.valueOf(f.get(e)) : null;
+        appendSingleDataInfluence(tableId, tableName, f.getName(), val, null);
+      }
     } catch (IllegalAccessException ex) {
-      throw new RuntimeException(ex);
+      throw new IllegalArgumentException("failed append data influence, "
+          + "might due to wrong beanDefinition for entity audited", ex);
     }
-    dataInfluenceFields.forEach(
-        field -> appendSingleDataInfluence(tableId, tableName, field.getName(), null, null));
   }
 
   @Override

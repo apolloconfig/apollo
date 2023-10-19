@@ -21,6 +21,8 @@ audit_log_menu_module.controller('AuditLogMenuController',
 
 function auditLogMenuController($scope, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
 
+      $scope.auditEnabled = false;
+
       $scope.auditLogList = [];
       $scope.goToTraceDetailsPage = goToTraceDetailsPage;
       $scope.searchByOpNameAndDate = searchByOpNameAndDate;
@@ -38,7 +40,14 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       init();
 
       function init() {
+            getAuditEnabled();
             initSearchingMenu();
+      }
+
+      function getAuditEnabled() {
+            AuditLogService.is_enabled().then(function (result) {
+                  $scope.auditEnabled = result.enabled;
+            });
       }
 
       function initSearchingMenu() {

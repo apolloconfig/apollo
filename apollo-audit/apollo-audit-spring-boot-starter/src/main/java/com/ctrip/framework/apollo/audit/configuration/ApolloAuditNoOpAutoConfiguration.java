@@ -16,20 +16,32 @@
  */
 package com.ctrip.framework.apollo.audit.configuration;
 
+import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.audit.component.ApolloAuditLogApiNoOpImpl;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTraceContext;
+import com.ctrip.framework.apollo.audit.controller.ApolloAuditController;
+import com.ctrip.framework.apollo.audit.spi.ApolloAuditLogQueryApiPreAuthorizer;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
+import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditLogQueryApiDefaultPreAuthorizer;
 import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditOperatorDefaultSupplier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableConfigurationProperties(ApolloAuditProperties.class)
 @ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "false", matchIfMissing = true)
 public class ApolloAuditNoOpAutoConfiguration {
+
+  private final ApolloAuditProperties apolloAuditProperties;
+
+  public ApolloAuditNoOpAutoConfiguration(ApolloAuditProperties apolloAuditProperties) {
+    this.apolloAuditProperties = apolloAuditProperties;
+  }
 
   @Bean
   @ConditionalOnMissingBean(ApolloAuditLogApi.class)
@@ -54,6 +66,17 @@ public class ApolloAuditNoOpAutoConfiguration {
   public ApolloAuditHttpInterceptor apolloAuditLogHttpInterceptor(
       ApolloAuditTraceContext traceContext) {
     return new ApolloAuditHttpInterceptor(traceContext);
+  }
+
+  @Bean(name = "apolloAuditLogQueryApiPreAuthorizer")
+  @ConditionalOnMissingBean(ApolloAuditLogQueryApiPreAuthorizer.class)
+  public ApolloAuditLogQueryApiPreAuthorizer apolloAuditLogQueryApiPreAuthorizer() {
+    return new ApolloAuditLogQueryApiDefaultPreAuthorizer();
+  }
+
+  @Bean
+  public ApolloAuditController apolloAuditController(ApolloAuditLogApi api) {
+    return new ApolloAuditController(api, apolloAuditProperties);
   }
 
 }

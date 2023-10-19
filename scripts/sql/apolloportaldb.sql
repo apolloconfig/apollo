@@ -414,7 +414,7 @@ DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 CREATE TABLE `AuditLogDataInfluence` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `SpanId` char(32) NOT NULL DEFAULT '' COMMENT '跨度ID',
-  `InfluenceEntityId` varchar(50) NOT NULL DEFAULT 'default_unique_id' COMMENT '记录ID',
+  `InfluenceEntityId` varchar(50) NOT NULL DEFAULT '0' COMMENT '记录ID',
   `InfluenceEntityName` varchar(50) NOT NULL DEFAULT 'default' COMMENT '表名',
   `FieldName` varchar(50) DEFAULT NULL COMMENT '字段名称',
   `FieldOldValue` varchar(500) DEFAULT NULL COMMENT '字段旧值',

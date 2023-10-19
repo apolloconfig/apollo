@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.controller;
 
+import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
@@ -39,9 +40,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApolloAuditController {
 
   private final ApolloAuditLogApi api;
+  private final ApolloAuditProperties properties;
 
-  public ApolloAuditController(ApolloAuditLogApi api) {
+  public ApolloAuditController(ApolloAuditLogApi api, ApolloAuditProperties properties) {
     this.api = api;
+    this.properties = properties;
+  }
+
+  @GetMapping("/enabled")
+  public String isEnabled() {
+    return "{\"enabled\": "+ properties.isEnabled() +"}";
   }
 
   @GetMapping("/logs")

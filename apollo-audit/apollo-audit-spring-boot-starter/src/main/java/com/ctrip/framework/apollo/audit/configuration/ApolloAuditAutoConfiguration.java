@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.configuration;
 
+import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.ApolloAuditRegistrar;
 import com.ctrip.framework.apollo.audit.aop.ApolloAuditSpanAspect;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
@@ -105,7 +106,7 @@ public class ApolloAuditAutoConfiguration {
 
   @Bean
   public ApolloAuditController apolloAuditController(ApolloAuditLogApi api) {
-    return new ApolloAuditController(api);
+    return new ApolloAuditController(api, apolloAuditProperties);
   }
 
   @Bean

@@ -35,7 +35,17 @@
 
 <apollonav></apollonav>
 <div class="container-fluid apollo-container" ng-controller="AuditLogMenuController">
-  <div id='audit-menu' class="panel">
+  <div id='audit-not-enabled-prompt' class="panel" ng-show="!auditEnabled">
+    <section class="panel-body">
+      <div class="display-text">
+        <h2 style="word-break: break-all; text-align: center">{{'ApolloAuditLog.Disabled' | translate}}</h2>
+        <hr />
+        <h3 style="word-break: break-all; text-align: center">{{'ApolloAuditLog.DisabledTips' | translate}}</h3>
+        <p style="word-break: break-all; text-align: center">{{'ApolloAuditLog.MoreDetails' | translate}}</p>
+      </div>
+    </section>
+  </div>
+  <div id='audit-menu' class="panel" ng-show="auditEnabled">
     <section class="panel-body">
       <section class="row">
         <div class="main-table">
