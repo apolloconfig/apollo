@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.audit.controller;
 
+import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.MockBeanFactory;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
@@ -47,6 +48,8 @@ public class ApolloAuditControllerTest {
   private MockMvc mockMvc;
   @MockBean
   private ApolloAuditLogApi api;
+  @MockBean
+  private ApolloAuditProperties properties;
 
   @Test
   public void testFindAllAuditLogs() throws Exception {

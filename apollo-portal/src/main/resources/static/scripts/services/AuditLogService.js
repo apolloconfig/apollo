@@ -45,8 +45,8 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
   return {
     is_enabled: function () {
       var d = $q.defer();
-      audit_resource.is_enabled({}
-           , function (result) {
+      audit_resource.is_enabled({
+          }, function (result) {
             d.resolve(result);
           }, function (result) {
             d.reject(result);

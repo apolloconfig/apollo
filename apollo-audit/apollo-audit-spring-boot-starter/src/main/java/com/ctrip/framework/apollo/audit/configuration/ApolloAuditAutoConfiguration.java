@@ -105,7 +105,7 @@ public class ApolloAuditAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditController apolloAuditController(ApolloAuditLogApi api) {
+  public ApolloAuditController apolloAuditController(ApolloAuditLogApi api, ApolloAuditProperties apolloAuditProperties) {
     return new ApolloAuditController(api, apolloAuditProperties);
   }
 
