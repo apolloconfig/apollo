@@ -34,10 +34,6 @@ public class ApolloAuditHttpInterceptor implements ClientHttpRequestInterceptor 
   @Override
   public ClientHttpResponse intercept(HttpRequest request, byte[] body,
       ClientHttpRequestExecution execution) throws IOException {
-    if (request.getMethod().matches("GET")) {
-      ClientHttpResponse response = execution.execute(request, body);
-      return response;
-    }
     if (traceContext.tracer() != null) {
       request = traceContext.tracer().inject(request);
     }

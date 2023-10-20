@@ -115,9 +115,9 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
 
       function findOpNameBySpanId(spanId) {
             var res = '';
-            $scope.traceDetails.forEach(detail => {
+            $scope.traceDetails.forEach(function (detail) {
                   if (detail.logDTO.spanId === spanId) {
-                        res = detail.logDTO.opName;
+                        res = detail.logDTO.opName +'('+spanId.substr(0,5)+'...'+')';
                   }
             });
             return res;
@@ -125,15 +125,14 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       
       function refreshDataInfluenceEntities() {
             var entityMap = new Map();
-            $scope.showingDetail.dataInfluenceDTOList.forEach(dto => {
-                  var key = `${dto.influenceEntityName}-${dto.influenceEntityId}`;
+            $scope.showingDetail.dataInfluenceDTOList.forEach(function (dto) {
+                  var key = dto.influenceEntityName + '-' + dto.influenceEntityId;
                   if (!entityMap.has(key)) {
                         entityMap.set(key, []);
                   }
                   entityMap.get(key).push(dto);
             });
             $scope.dataInfluenceEntities = Array.from(entityMap);
-            console.log($scope.dataInfluenceEntities[0]);
       }
 
       function showText(text) {

@@ -63,7 +63,7 @@
               <span class="glyphicon glyphicon-menu-down"></span>
             </h4>
             <div id="detail{{ detail.logDTO.id }}" class="panel-collapse collapse">
-              <div class="word-break">{{'ApolloAuditLog.SpanIdTips' | translate }}:{{detail.logDTO.spanId}}</div>
+              <div class="word-break">{{'ApolloAuditLog.SpanIdTips' | translate }}:{{detail.logDTO.spanId.substr(0,5)+'...'}}</div>
               <div class="word-break">{{'ApolloAuditLog.ParentSpan' | translate }}:{{findOpNameBySpanId(detail.logDTO.parentSpanId)}}</div>
               <div class="word-break">{{'ApolloAuditLog.FollowsFromSpan' | translate }}:{{findOpNameBySpanId(detail.logDTO.followsFromSpanId)}}</div>
             </div>
