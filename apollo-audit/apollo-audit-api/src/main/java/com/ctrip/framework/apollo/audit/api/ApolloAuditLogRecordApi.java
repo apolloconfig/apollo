@@ -25,8 +25,8 @@ public interface ApolloAuditLogRecordApi {
 
   AutoCloseable appendAuditLog(OpType type, String name, String description);
 
-  void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue);
+  void appendDataInfluence(String entityId, String entityName, String fieldName,
+      String fieldCurrentValue);
 
   void appendDataInfluences(List<Object> entities, Class<?> beanDefinition);
 

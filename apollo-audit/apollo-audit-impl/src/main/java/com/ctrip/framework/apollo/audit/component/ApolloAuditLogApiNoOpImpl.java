@@ -40,6 +40,15 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   }
 
   @Override
+  public void appendDataInfluence(String entityId, String entityName, String fieldName,
+      String fieldCurrentValue) {
+  }
+
+  @Override
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
+  }
+
+  @Override
   public List<ApolloAuditLogDTO> queryLogs(int page, int size) {
     return null;
   }
@@ -59,16 +68,5 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size) {
     return null;
-  }
-
-  @Override
-  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
-
-  }
-
-  @Override
-  public void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue) {
-
   }
 }

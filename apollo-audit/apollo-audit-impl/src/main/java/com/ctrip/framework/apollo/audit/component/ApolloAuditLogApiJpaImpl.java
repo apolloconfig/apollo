@@ -56,14 +56,25 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   @Override
   public AutoCloseable appendAuditLog(OpType type, String name, String description) {
     ApolloAuditTracer tracer = traceContext.tracer();
+    if (Objects.isNull(tracer)) {
+      return () -> {};
+    }
     ApolloAuditScope scope = tracer.startActiveSpan(type, name, description);
     logService.logSpan(scope.activeSpan());
     return scope;
   }
 
+  /**
+   * append when there is an active span, judge the op-type by span's
+   * mainly doing persistence
+   * @param entityId
+   * @param entityName
+   * @param fieldName
+   * @param fieldCurrentValue could be the new or old value depending on op-type
+   */
   @Override
-  public void appendSingleDataInfluence(String entityId, String entityName, String fieldName,
-      String fieldOldValue, String fieldNewValue) {
+  public void appendDataInfluence(String entityId, String entityName, String fieldName,
+      String fieldCurrentValue) {
     // might be
     if (traceContext.tracer() == null) {
       return;
@@ -72,12 +83,26 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
       return;
     }
     String spanId = traceContext.tracer().getActiveSpan().spanId();
-    ApolloAuditLogDataInfluence influence = ApolloAuditLogDataInfluence.builder().spanId(spanId)
-        .entityName(entityName).entityId(entityId).fieldName(fieldName).oldVal(fieldOldValue)
-        .newVal(fieldNewValue).build();
-    dataInfluenceService.save(influence);
+    OpType type = traceContext.tracer().getActiveSpan().getOpType();
+    ApolloAuditLogDataInfluence.Builder builder = ApolloAuditLogDataInfluence.builder().spanId(spanId)
+        .entityName(entityName).entityId(entityId).fieldName(fieldName);
+    switch (type) {
+      case CREATE:
+      case UPDATE:
+        builder.newVal(fieldCurrentValue);
+        break;
+      case DELETE:
+        builder.oldVal(fieldCurrentValue);
+    }
+    dataInfluenceService.save(builder.build());
   }
 
+  /**
+   * append by List of audit entity and there audit-bean-definition(with annotations)
+   * mainly dealing with reflection
+   * @param entities
+   * @param beanDefinition
+   */
   @Override
   public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
     String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);
@@ -88,45 +113,20 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
         ApolloAuditLogDataInfluenceTableField.class, beanDefinition);
     Field idField = ApolloAuditUtil.getPersistenceIdFieldByAnnotation(beanDefinition);
     entities.forEach(e -> {
-      if (ApolloAuditUtil.isLogicDeleted(e)) {
-        appendDeleteDataInfluences(e, tableName, dataInfluenceFields, idField);
-      } else {
-        appendCreateOrUpdateDataInfluences(e, tableName, dataInfluenceFields, idField);
+      try {
+        idField.setAccessible(true);
+        String tableId = idField.get(e).toString();
+        for (Field f : dataInfluenceFields) {
+          f.setAccessible(true);
+          String val = String.valueOf(f.get(e));
+          String fieldName = f.getAnnotation(ApolloAuditLogDataInfluenceTableField.class).fieldName();
+          appendDataInfluence(tableId, tableName, fieldName, val);
+        }
+      } catch (IllegalAccessException ex) {
+        throw new IllegalArgumentException("failed append data influence, "
+            + "might due to wrong beanDefinition for entity audited", ex);
       }
     });
-
-  }
-
-  public void appendCreateOrUpdateDataInfluences(Object e, String tableName,
-      List<Field> dataInfluenceFields, Field idField) {
-    idField.setAccessible(true);
-    try {
-      String tableId = idField.get(e).toString();
-      for (Field f : dataInfluenceFields) {
-        f.setAccessible(true);
-        String val = String.valueOf(f.get(e));
-        appendSingleDataInfluence(tableId, tableName, f.getName(), null, val);
-      }
-    } catch (IllegalAccessException ex) {
-      throw new IllegalArgumentException("failed append data influence, "
-          + "might due to wrong beanDefinition for entity audited", ex);
-    }
-  }
-
-  public void appendDeleteDataInfluences(Object e, String tableName,
-      List<Field> dataInfluenceFields, Field idField) {
-    idField.setAccessible(true);
-    try {
-      String tableId = idField.get(e).toString();
-      for (Field f : dataInfluenceFields) {
-        f.setAccessible(true);
-        String val = f.get(e) != null ? String.valueOf(f.get(e)) : null;
-        appendSingleDataInfluence(tableId, tableName, f.getName(), val, null);
-      }
-    } catch (IllegalAccessException ex) {
-      throw new IllegalArgumentException("failed append data influence, "
-          + "might due to wrong beanDefinition for entity audited", ex);
-    }
   }
 
   @Override

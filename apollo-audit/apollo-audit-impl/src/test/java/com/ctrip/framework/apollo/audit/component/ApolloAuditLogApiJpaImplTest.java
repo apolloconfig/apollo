@@ -17,6 +17,8 @@
 package com.ctrip.framework.apollo.audit.component;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.ctrip.framework.apollo.audit.MockBeanFactory;
 import com.ctrip.framework.apollo.audit.MockDataInfluenceEntity;
@@ -34,14 +36,12 @@ import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.entity.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogDataInfluenceService;
 import com.ctrip.framework.apollo.audit.service.ApolloAuditLogService;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,7 +55,8 @@ public class ApolloAuditLogApiJpaImplTest {
 
   // record api
 
-  final OpType opType = OpType.CREATE;
+  final OpType create = OpType.CREATE;
+  final OpType delete = OpType.DELETE;
   final String opName = "test.create";
   final String traceId = "test-trace-id";
   final String spanId = "test-span-id";
@@ -63,11 +64,8 @@ public class ApolloAuditLogApiJpaImplTest {
   final String entityId = "1";
   final String entityName = "App";
   final String fieldName = "name";
-  final String fieldOldValue = null;
-  final String fieldNewValue = "xxx";
+  final String fieldCurrentValue = "xxx";
 
-  final String tableName = "MockTableName";
-  final Class<?> beanDefinition = MockDataInfluenceEntity.class;
   final int entityNum = 3;
 
   // query api
@@ -100,62 +98,104 @@ public class ApolloAuditLogApiJpaImplTest {
   public void testAppendAuditLog() {
     {
       ApolloAuditSpan activeSpan = new ApolloAuditSpan();
-      activeSpan.setOpType(opType);
+      activeSpan.setOpType(create);
       activeSpan.setOpName(opName);
       activeSpan.setContext(new ApolloAuditSpanContext(traceId, spanId));
       ApolloAuditScopeManager manager = new ApolloAuditScopeManager();
       ApolloAuditScope scope = new ApolloAuditScope(activeSpan, manager);
 
-      Mockito.when(tracer.startActiveSpan(Mockito.eq(opType), Mockito.eq(opName), Mockito.eq(null)))
+      Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(null)))
           .thenReturn(scope);
     }
-    ApolloAuditScope scope = (ApolloAuditScope) api.appendAuditLog(opType, opName);
+    ApolloAuditScope scope = (ApolloAuditScope) api.appendAuditLog(create, opName);
 
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
     Mockito.verify(tracer, Mockito.times(1))
-        .startActiveSpan(Mockito.eq(opType), Mockito.eq(opName), Mockito.eq(null));
+        .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(null));
 
-    assertEquals(opType, scope.activeSpan().getOpType());
+    assertEquals(create, scope.activeSpan().getOpType());
     assertEquals(opName, scope.activeSpan().getOpName());
     assertEquals(traceId, scope.activeSpan().traceId());
     assertEquals(spanId, scope.activeSpan().spanId());
   }
 
   @Test
-  public void testAppendSingleDataInfluence() {
+  public void testAppendDataInfluenceCaseCreateOrUpdate() {
     {
-      ApolloAuditSpan span = new ApolloAuditSpan();
-      ApolloAuditSpanContext context = new ApolloAuditSpanContext(traceId, spanId);
-      span.setContext(context);
+      ApolloAuditSpan span = Mockito.mock(ApolloAuditSpan.class);
       Mockito.when(tracer.getActiveSpan()).thenReturn(span);
+      Mockito.when(span.spanId()).thenReturn(spanId);
+      Mockito.when(span.getOpType()).thenReturn(create);
     }
 
-    api.appendSingleDataInfluence(entityId, entityName, fieldName, fieldOldValue, fieldNewValue);
+    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
 
-    Mockito.verify(traceContext, Mockito.times(3)).tracer();
     Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
 
     ApolloAuditLogDataInfluence capturedInfluence = influenceCaptor.getValue();
     assertEquals(entityId, capturedInfluence.getInfluenceEntityId());
     assertEquals(entityName, capturedInfluence.getInfluenceEntityName());
     assertEquals(fieldName, capturedInfluence.getFieldName());
-    assertEquals(fieldOldValue, capturedInfluence.getFieldOldValue());
-    assertEquals(fieldNewValue, capturedInfluence.getFieldNewValue());
+    assertNull(capturedInfluence.getFieldOldValue());
+    assertEquals(fieldCurrentValue, capturedInfluence.getFieldNewValue());
     assertEquals(spanId, capturedInfluence.getSpanId());
   }
 
   @Test
-  public void testAppendSingleDataInfluenceCaseTracerIsNull() {
+  public void testAppendDataInfluenceCaseDelete() {
+    {
+      ApolloAuditSpan span = Mockito.mock(ApolloAuditSpan.class);
+      Mockito.when(tracer.getActiveSpan()).thenReturn(span);
+      Mockito.when(span.spanId()).thenReturn(spanId);
+      Mockito.when(span.getOpType()).thenReturn(delete);
+    }
+
+    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
+
+    Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
+
+    ApolloAuditLogDataInfluence capturedInfluence = influenceCaptor.getValue();
+    assertEquals(entityId, capturedInfluence.getInfluenceEntityId());
+    assertEquals(entityName, capturedInfluence.getInfluenceEntityName());
+    assertEquals(fieldName, capturedInfluence.getFieldName());
+    assertEquals(fieldCurrentValue, capturedInfluence.getFieldOldValue());
+    assertNull(capturedInfluence.getFieldNewValue());
+    assertEquals(spanId, capturedInfluence.getSpanId());
+  }
+
+  @Test
+  public void testAppendDataInfluenceCaseTracerIsNull() {
     Mockito.when(traceContext.tracer()).thenReturn(null);
-    api.appendSingleDataInfluence(entityId, entityName, fieldName, fieldOldValue, fieldNewValue);
+    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
   }
 
   @Test
-  public void testAppendSingleDataInfluenceCaseActiveSpanIsNull() {
-    api.appendSingleDataInfluence(entityId, entityName, fieldName, fieldOldValue, fieldNewValue);
+  public void testAppendDataInfluenceCaseActiveSpanIsNull() {
+    Mockito.when(tracer.getActiveSpan()).thenReturn(null);
+    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
     Mockito.verify(traceContext, Mockito.times(2)).tracer();
     Mockito.verify(tracer, Mockito.times(1)).getActiveSpan();
+  }
+
+  @Test
+  public void testAppendDataInfluences() {
+    List<Object> entities = MockBeanFactory.mockDataInfluenceEntityListByLength(entityNum);
+    api.appendDataInfluences(entities, MockDataInfluenceEntity.class);
+
+    Mockito.verify(api, Mockito.times(entityNum))
+        .appendDataInfluence(Mockito.anyString(), Mockito.eq("MockTableName"), Mockito.eq("MarkedAttribute"),
+            Mockito.any());
+  }
+
+  @Test
+  public void testAppendDataInfluencesCaseWrongBeanDefinition() {
+    List<Object> entities = new ArrayList<>();
+    entities.add(new Object());
+    assertThrows(IllegalArgumentException.class, () -> {
+      api.appendDataInfluences(entities, MockDataInfluenceEntity.class);
+    });
+
   }
 
   @Test
@@ -165,43 +205,11 @@ public class ApolloAuditLogApiJpaImplTest {
     api.appendDataInfluences(entities, Object.class);
 
     Mockito.verify(api, Mockito.times(0))
-        .appendSingleDataInfluence(Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any(), Mockito.any());
+        .appendDataInfluence(Mockito.any(), Mockito.any(),
+            Mockito.any(), Mockito.any());
   }
 
-  @Test
-  public void testAppendCreateOrUpdateDataInfluences() {
-    final String attr = "create-or-update";
 
-    List<Object> entities = MockBeanFactory.mockDataInfluenceEntityListByLength(3);
-    entities.forEach(e -> ((MockDataInfluenceEntity) e).setMarkedAttribute(attr));
-
-    api.appendDataInfluences(entities, beanDefinition);
-
-    Mockito.verify(api, Mockito.times(entityNum))
-        .appendCreateOrUpdateDataInfluences(Mockito.argThat(new EntityNotDeletedMatcher()),
-            Mockito.eq(tableName), Mockito.argThat(new DataInfluenceFieldsMatcher()),
-            Mockito.argThat(new IdFieldMatcher()));
-    Mockito.verify(api, Mockito.times(entityNum))
-        .appendSingleDataInfluence(Mockito.anyString(), Mockito.eq(tableName),
-            Mockito.eq("markedAttribute"), Mockito.eq(null), Mockito.eq(attr));
-  }
-
-  @Test
-  public void testAppendDeleteDataInfluences() {
-    List<Object> entities = MockBeanFactory.mockDataInfluenceEntityListByLength(3);
-    entities.forEach(e -> ((MockDataInfluenceEntity) e).setDeleted(true));
-
-    api.appendDataInfluences(entities, beanDefinition);
-
-    Mockito.verify(api, Mockito.times(entityNum))
-        .appendDeleteDataInfluences(Mockito.argThat(new EntityDeletedMatcher()),
-            Mockito.eq(tableName), Mockito.argThat(new DataInfluenceFieldsMatcher()),
-            Mockito.argThat(new IdFieldMatcher()));
-    Mockito.verify(api, Mockito.times(entityNum))
-        .appendSingleDataInfluence(Mockito.anyString(), Mockito.eq(tableName),
-            Mockito.eq("markedAttribute"), Mockito.eq(null), Mockito.eq(null));
-  }
 
   @Test
   public void testQueryLogs() {
@@ -297,38 +305,4 @@ public class ApolloAuditLogApiJpaImplTest {
             Mockito.eq(entityId), Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size));
     assertEquals(size, dtoList.size());
   }
-
-  private class EntityNotDeletedMatcher implements ArgumentMatcher<Object> {
-
-    @Override
-    public boolean matches(Object e) {
-      return !((MockDataInfluenceEntity) e).isDeleted();
-    }
-  }
-
-  private class EntityDeletedMatcher implements ArgumentMatcher<Object> {
-
-    @Override
-    public boolean matches(Object e) {
-      return ((MockDataInfluenceEntity) e).isDeleted();
-    }
-  }
-
-  private class DataInfluenceFieldsMatcher implements ArgumentMatcher<List<Field>> {
-
-    @Override
-    public boolean matches(List<Field> fields) {
-
-      return fields.size() == 1 && fields.get(0).getName().equals("markedAttribute");
-    }
-  }
-
-  private class IdFieldMatcher implements ArgumentMatcher<Field> {
-
-    @Override
-    public boolean matches(Field field) {
-      return field.getName().equals("id");
-    }
-  }
-
 }

@@ -73,22 +73,6 @@ public class ApolloAuditUtil {
     return null;
   }
 
-  public static boolean isLogicDeleted(Object o) {
-    Class<?> clazz = o.getClass();
-    while (!clazz.equals(Objects.class)) {
-      try {
-        Field field = clazz.getDeclaredField("isDeleted");
-        field.setAccessible(true);
-        return ((boolean) field.get(o));
-      } catch (NoSuchFieldException e) {
-        clazz = clazz.getSuperclass();
-      } catch (IllegalAccessException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return false;
-  }
-
   public static ApolloAuditLogDTO logToDTO(ApolloAuditLog auditLog) {
     ApolloAuditLogDTO dto = new ApolloAuditLogDTO();
     dto.setId(auditLog.getId());
