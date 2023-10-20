@@ -121,7 +121,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateApplicationPermission()")
   @PostMapping
-  @ApolloAuditLog(type = OpType.RPC, name = "App.create.request")
+  @ApolloAuditLog(type = OpType.CREATE)
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
@@ -130,7 +130,7 @@ public class AppController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @PutMapping("/{appId:.+}")
-  @ApolloAuditLog(type = OpType.RPC, name = "App.update.request")
+  @ApolloAuditLog(type = OpType.UPDATE)
   public void update(@PathVariable String appId, @Valid @RequestBody AppModel appModel) {
     if (!Objects.equals(appId, appModel.getAppId())) {
       throw new BadRequestException("The App Id of path variable and request body is different");

@@ -18,10 +18,13 @@ package com.ctrip.framework.apollo.audit.aop;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
+import java.util.Objects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Aspect
 public class ApolloAuditSpanAspect {
@@ -38,7 +41,12 @@ public class ApolloAuditSpanAspect {
 
   @Around(value = "setAuditSpan(auditLog)")
   public Object around(ProceedingJoinPoint pjp, ApolloAuditLog auditLog) throws Throwable {
-    try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), auditLog.name(),
+    String opName = auditLog.name();
+    if (opName.equals("") && RequestContextHolder.getRequestAttributes() != null) {
+      ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      opName = servletRequestAttributes.getRequest().getRequestURI();
+    }
+    try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), opName,
         auditLog.description())) {
       return pjp.proceed();
     }

@@ -24,6 +24,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
 
       $scope.traceDetails = [];
       $scope.showingDetail = {};
+      $scope.dataInfluenceEntities = [];
       $scope.relatedDataInfluences = [];
       $scope.relatedDataInfluencePage = 0;
       $scope.relatedDataInfluenceHasLoadAll = true;
@@ -33,7 +34,8 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       $scope.removeInClassFromLogDropDownExceptId = removeInClassFromLogDropDownExceptId;
       $scope.findMoreRelatedDataInfluence = findMoreRelatedDataInfluence;
       $scope.showRelatedDataInfluence = showRelatedDataInfluence;
-      $scope.getLogsNameBySpanId = getLogsNameBySpanId;
+      $scope.findOpNameBySpanId = findOpNameBySpanId;
+      $scope.refreshDataInfluenceEntities = refreshDataInfluenceEntities;
 
       init();
 
@@ -51,10 +53,12 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
 
       function setShowingDetail(detail) {
             $scope.showingDetail = detail;
+            refreshDataInfluenceEntities();
       }
 
       function removeInClassFromLogDropDownExceptId(id) {
             $scope.relatedDataInfluences = [];
+            $scope.relatedDataInfluenceHasLoadAll = true;
 
             var elements = document.querySelectorAll('[id^="detail"]');
 
@@ -64,14 +68,6 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   }
 
             });
-      }
-      function getLogsNameBySpanId(spanId) {
-            for(var log in $scope.traceDetails.logDTO) {
-                  if(log.spanId == spanId) {
-                        return log.opName;
-                  }
-            }
-
       }
 
       function showRelatedDataInfluence(entityName, entityId, fieldName) {
@@ -115,6 +111,29 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   $scope.relatedDataInfluences = $scope.relatedDataInfluences.concat(result);
 
             });
+      }
+
+      function findOpNameBySpanId(spanId) {
+            var res = '';
+            $scope.traceDetails.forEach(detail => {
+                  if (detail.logDTO.spanId === spanId) {
+                        res = detail.logDTO.opName;
+                  }
+            });
+            return res;
+      }
+      
+      function refreshDataInfluenceEntities() {
+            var entityMap = new Map();
+            $scope.showingDetail.dataInfluenceDTOList.forEach(dto => {
+                  var key = `${dto.influenceEntityName}-${dto.influenceEntityId}`;
+                  if (!entityMap.has(key)) {
+                        entityMap.set(key, []);
+                  }
+                  entityMap.get(key).push(dto);
+            });
+            $scope.dataInfluenceEntities = Array.from(entityMap);
+            console.log($scope.dataInfluenceEntities[0]);
       }
 
       function showText(text) {

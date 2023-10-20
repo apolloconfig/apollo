@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLog {
   OpType type();
-  String name();
+  String name() default "";
   String description() default "no description";
 }
 

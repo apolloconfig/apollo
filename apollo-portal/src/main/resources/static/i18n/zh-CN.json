@@ -867,6 +867,7 @@
   "ApolloAuditLog.DataInfluence.EntityId": "实体ID",
   "ApolloAuditLog.DataInfluence.FieldName": "实体属性名",
   "ApolloAuditLog.DataInfluence.FieldNewValue": "属性值记录",
+  "ApolloAuditLog.DataInfluence.Fields": "变化字段",
   "ApolloAuditLog.DataInfluence.HappenedTime": "记录时间",
   "ApolloAuditLog.TraceIdTips": "链路唯一ID",
   "ApolloAuditLog.OpName": "操作名称",
@@ -885,7 +886,8 @@
   "ApolloAuditLog.NoDataInfluence": "没有相关数据变动",
   "ApolloAuditLog.TraceDetailTips": "链路记录展示",
   "ApolloAuditLog.SpanIdTips": "操作ID",
-  "ApolloAuditLog.ParentSpan": "父操作ID",
-  "ApolloAuditLog.FollowsFromSpan": "前操作ID",
-  "ApolloAuditLog.FieldChangeHistory": "属性变动历史"
+  "ApolloAuditLog.ParentSpan": "父操作",
+  "ApolloAuditLog.FollowsFromSpan": "前操作",
+  "ApolloAuditLog.FieldChangeHistory": "属性变动历史",
+  "ApolloAuditLog.InfluenceEntity": "影响的实体"
 }
