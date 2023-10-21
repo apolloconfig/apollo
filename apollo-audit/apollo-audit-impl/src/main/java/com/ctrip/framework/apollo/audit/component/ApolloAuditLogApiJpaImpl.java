@@ -161,4 +161,9 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     return ApolloAuditUtil.dataInfluenceListToDTOList(dataInfluenceService.findByEntityNameAndEntityIdAndFieldName(entityName, entityId,
         fieldName, page, size));
   }
+
+  @Override
+  public List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size) {
+    return ApolloAuditUtil.logListToDTOList(logService.searchLogByNameOrTypeOrOperator(query, page, size));
+  }
 }

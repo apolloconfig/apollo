@@ -69,4 +69,9 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
       String entityId, String fieldName, int page, int size) {
     return null;
   }
+
+  @Override
+  public List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size) {
+    return null;
+  }
 }

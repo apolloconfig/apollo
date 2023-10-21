@@ -34,5 +34,6 @@ public interface ApolloAuditLogQueryApi {
   List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size);
 
+  List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size);
 
 }

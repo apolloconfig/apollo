@@ -84,6 +84,8 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
             ).then(function (result) {
                   if (!result || result.length < RelatedDataInfluencePageSize) {
                         $scope.relatedDataInfluenceHasLoadAll = true;
+                        $scope.relatedDataInfluences = result;
+                        return;
                   }
                   if (result.length === 0) {
                         return;

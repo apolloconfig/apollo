@@ -15,11 +15,11 @@
  *
  */
 audit_log_menu_module.controller('AuditLogMenuController',
-    ['$scope', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
+    ['$scope', '$window', '$translate', '$document', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
       auditLogMenuController]
 );
 
-function auditLogMenuController($scope, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
+function auditLogMenuController($scope, $window, $translate, $document, toastr, AppService, AppUtil, EventManager, AuditLogService) {
 
       $scope.auditEnabled = false;
 
@@ -36,6 +36,19 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
       $scope.endDate = null;
 
       $scope.hasLoadAll = false;
+
+      $scope.options = [];
+      $scope.showSearchDropdown = false;
+
+      $scope.showOptions = function(query) {
+            $scope.options = [];
+            searchAuditLogs(query);
+      };
+
+      $scope.selectOption = function(option) {
+            $scope.opName = option.display.split('-')[0];
+            $scope.showSearchDropdown = false;
+      };
 
       init();
 
@@ -116,9 +129,38 @@ function auditLogMenuController($scope, $window, $translate, toastr, AppService,
             }
       }
 
+      function searchAuditLogs(query) {
+            AuditLogService.search_by_name_or_type_or_operator(query, 0, 20).then(function (result) {
+                  result.forEach(function (log) {
+                        var optionDisplay = log.opName + '-(' + log.opType + ').by:' + log.operator;
+                        var option = {
+                              id: log.id,
+                              display: optionDisplay
+                        }
+                        $scope.options.push(option);
+                  });
+                  $scope.showSearchDropdown = $scope.options.length > 0;
+            });
+      }
+
       function goToTraceDetailsPage(traceId) {
             $window.location.href =  AppUtil.prefixPath() + "/audit_log_trace_detail.html?#traceId=" + traceId;
       }
+
+      $document.on('click', function(event) {
+            if (!$scope.showSearchDropdown) {
+                  return;
+            }
+
+            const target = angular.element(event.target);
+
+            // 检查点击的目标是否是输入框或下拉栏，如果不是，则隐藏下拉栏
+            if (!target.hasClass('form-control') && !target.hasClass('options-container')) {
+                  $scope.$apply(function() {
+                        $scope.showSearchDropdown = false;
+                  });
+            }
+      });
 }
 
 

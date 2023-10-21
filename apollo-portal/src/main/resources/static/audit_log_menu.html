@@ -56,7 +56,12 @@
             <div class="col-md-4">
               <label for="opName" class="form-label">{{'ApolloAuditLog.OpName' | translate}}</label>
               <input type="text" class="form-control" id="opName" placeholder="{{'ApolloAuditLog.OpNameTips' | translate}}"
-                     ng-model="opName">
+                     ng-model="opName" ng-change="showOptions(opName)" autocomplete="off">
+              <div class="options-container" ng-show="showSearchDropdown">
+                <ul class="options-list" ng-show="showSearchDropdown">
+                  <li ng-repeat="option in options" ng-click="selectOption(option)">{{ option.display }}</li>
+                </ul>
+              </div>
             </div>
             <div class="col-md-4">
               <label for="startDate" class="form-label">{{'ApolloAuditLog.StartDate' | translate}}</label>

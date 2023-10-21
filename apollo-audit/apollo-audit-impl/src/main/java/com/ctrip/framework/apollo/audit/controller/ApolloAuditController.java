@@ -87,4 +87,11 @@ public class ApolloAuditController {
     return dataInfluenceDTOList;
   }
 
+  @GetMapping("/logs/by-name-or-type-or-operator")
+  @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
+  public List<ApolloAuditLogDTO> findAuditLogsByNameOrTypeOrOperator(@RequestParam String query, int page, int size) {
+    List<ApolloAuditLogDTO> logDTOList = api.searchLogByNameOrTypeOrOperator(query, page, size);
+    return logDTOList;
+  }
+
 }

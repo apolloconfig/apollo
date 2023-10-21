@@ -34,4 +34,7 @@ public interface ApolloAuditLogRepository extends PagingAndSortingRepository<Apo
   List<ApolloAuditLog> findByOpNameAndTime(@Param("opName") String opName,
       @Param("startDate") Date startDate, @Param("endDate") Date endDate,
       Pageable pageable);
+
+  List<ApolloAuditLog> findByOpNameContainingOrOpTypeContainingOrOperatorContaining(String opName,
+      String opType, String operator, Pageable pageable);
 }

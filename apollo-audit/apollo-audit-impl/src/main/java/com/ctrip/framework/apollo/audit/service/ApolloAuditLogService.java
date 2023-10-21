@@ -75,6 +75,12 @@ public class ApolloAuditLogService {
     return logRepository.findByOpNameAndTime(opName, startDate, endDate, pageable);
   }
 
+  public List<ApolloAuditLog> searchLogByNameOrTypeOrOperator(String query, int page, int size) {
+    Pageable pageable = pageSortByTime(page, size);
+    return logRepository.findByOpNameContainingOrOpTypeContainingOrOperatorContaining(query, query,
+        query, pageable);
+  }
+
   Pageable pageSortByTime(int page, int size) {
     return PageRequest.of(page, size, Sort.by(new Order(Direction.DESC, "dataChangeCreatedTime")));
   }

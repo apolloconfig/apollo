@@ -115,3 +115,28 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
   border-radius: 5%;
 }
+
+.options-container {
+  max-height: 150px; /* 设置最大高度，可根据需求调整 */
+  overflow-y: auto; /* 启用垂直滚动条 */
+  border: 1px solid #ccc; /* 添加边框，可根据需要自定义样式 */
+  border-top: 0; /* 避免重叠边框 */
+  /*position: absolute; !* 可能需要调整定位方式 *!*/
+  background: #fff; /* 背景颜色，可根据需要调整 */
+  z-index: 1000;
+}
+
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.options-list li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.options-list li:hover {
+  background-color: #f0f0f0;
+}

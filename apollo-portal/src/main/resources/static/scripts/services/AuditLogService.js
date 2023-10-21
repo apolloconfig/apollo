@@ -40,6 +40,11 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
       method: 'GET',
       url: AppUtil.prefixPath() + '/apollo/audit/logs/dataInfluences/field?entityName=:entityName&entityId=:entityId&fieldName=:fieldName&page=:page&size=:size',
       isArray: true
+    },
+    search_by_name_or_type_or_operator: {
+      method: 'GET',
+      url: AppUtil.prefixPath() + '/apollo/audit/logs/by-name-or-type-or-operator?query=:query&page=:page&size=:size',
+      isArray: true
     }
   });
   return {
@@ -101,6 +106,20 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
             entityName: entityName,
             entityId: entityId,
             fieldName: fieldName,
+            page: page,
+            size: size
+          }, function (result) {
+            d.resolve(result);
+          }, function (result) {
+            d.reject(result);
+          }
+      );
+      return d.promise;
+    },
+    search_by_name_or_type_or_operator: function (query, page, size) {
+      var d = $q.defer();
+      audit_resource.search_by_name_or_type_or_operator({
+            query: query,
             page: page,
             size: size
           }, function (result) {
