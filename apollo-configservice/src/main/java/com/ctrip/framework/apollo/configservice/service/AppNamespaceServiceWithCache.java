@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -194,7 +195,7 @@ public class AppNamespaceServiceWithCache implements InitializingBean {
 
   //for those updated or deleted app namespaces
   private void updateAndDeleteCache() {
-    List<Long> ids = Lists.newArrayList(appNamespaceIdCache.keySet());
+    List<Long> ids = appNamespaceIdCache.keySet().stream().sorted().collect(Collectors.toList());
     if (CollectionUtils.isEmpty(ids)) {
       return;
     }
