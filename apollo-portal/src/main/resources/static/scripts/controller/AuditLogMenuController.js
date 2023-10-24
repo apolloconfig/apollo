@@ -46,7 +46,7 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
       };
 
       $scope.selectOption = function(option) {
-            $scope.opName = option.display.split('-')[0];
+            $scope.opName = option.opName;
             $scope.showSearchDropdown = false;
       };
 
@@ -135,8 +135,9 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
                         var optionDisplay = log.opName + '-(' + log.opType + ').by:' + log.operator;
                         var option = {
                               id: log.id,
-                              display: optionDisplay
-                        }
+                              display: optionDisplay,
+                              opName: log.opName
+                        };
                         $scope.options.push(option);
                   });
                   $scope.showSearchDropdown = $scope.options.length > 0;
@@ -152,7 +153,7 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
                   return;
             }
 
-            const target = angular.element(event.target);
+            var target = angular.element(event.target);
 
             // 检查点击的目标是否是输入框或下拉栏，如果不是，则隐藏下拉栏
             if (!target.hasClass('form-control') && !target.hasClass('options-container')) {

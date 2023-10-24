@@ -865,9 +865,11 @@
   "ApolloAuditLog.DataInfluenceTips": "DataInfluences:",
   "ApolloAuditLog.DataInfluence.EntityName": "entity name",
   "ApolloAuditLog.DataInfluence.EntityId": "entity ID",
+  "ApolloAuditLog.DataInfluence.AnyMatchedEntityId": "any entity matched",
   "ApolloAuditLog.DataInfluence.FieldName": "field name",
   "ApolloAuditLog.DataInfluence.FieldNewValue": "recorded value",
   "ApolloAuditLog.DataInfluence.Fields": "influenced fields",
+  "ApolloAuditLog.DataInfluence.MatchedFields": "matched fields",
   "ApolloAuditLog.DataInfluence.HappenedTime": "recorded time",
   "ApolloAuditLog.TraceIdTips": "Trace Unique ID",
   "ApolloAuditLog.OpName": "operate name",
@@ -889,5 +891,5 @@
   "ApolloAuditLog.ParentSpan": "parent operation",
   "ApolloAuditLog.FollowsFromSpan": "last operation",
   "ApolloAuditLog.FieldChangeHistory": "Field Change History",
-  "ApolloAuditLog.InfluenceEntity": "Entity influenced"
+  "ApolloAuditLog.InfluenceEntity": "Audit entity influenced"
 }

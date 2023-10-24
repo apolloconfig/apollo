@@ -75,6 +75,10 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
             $scope.entityIdOfFindRelated = entityId;
             $scope.fieldNameOfFindRelated = fieldName;
 
+            if (entityId === 'AnyMatched') {
+                  return;
+            }
+
             AuditLogService.find_dataInfluences_by_field(
                 $scope.entityNameOfFindRelated,
                 $scope.entityIdOfFindRelated,
@@ -128,7 +132,10 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       function refreshDataInfluenceEntities() {
             var entityMap = new Map();
             $scope.showingDetail.dataInfluenceDTOList.forEach(function (dto) {
-                  var key = dto.influenceEntityName + '-' + dto.influenceEntityId;
+                  var key = {
+                        name: dto.influenceEntityName,
+                        id: dto.influenceEntityId
+                  }
                   if (!entityMap.has(key)) {
                         entityMap.set(key, []);
                   }

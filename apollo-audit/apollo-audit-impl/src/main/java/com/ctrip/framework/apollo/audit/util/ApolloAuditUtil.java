@@ -95,7 +95,7 @@ public class ApolloAuditUtil {
     dto.setInfluenceEntityName(dataInfluence.getInfluenceEntityName());
     dto.setInfluenceEntityId(dataInfluence.getInfluenceEntityId());
     dto.setFieldName(dataInfluence.getFieldName());
-    dto.setFieldNewValue(dataInfluence.getFieldNewValue());
+    dto.setFieldOldValue(dataInfluence.getFieldOldValue());
     dto.setFieldNewValue(dataInfluence.getFieldNewValue());
     dto.setHappenedTime(dataInfluence.getDataChangeCreatedTime());
     dto.setSpanId(dataInfluence.getSpanId());

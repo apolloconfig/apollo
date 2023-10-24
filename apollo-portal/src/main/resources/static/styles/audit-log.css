@@ -111,9 +111,8 @@
 #dataInfluenceEntity {
   padding: 8px;
   margin-top: 8px;
-  margin-down: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
-  border-radius: 5%;
+  border-radius: 3%;
 }
 
 .options-container {
@@ -121,7 +120,6 @@
   overflow-y: auto; /* 启用垂直滚动条 */
   border: 1px solid #ccc; /* 添加边框，可根据需要自定义样式 */
   border-top: 0; /* 避免重叠边框 */
-  /*position: absolute; !* 可能需要调整定位方式 *!*/
   background: #fff; /* 背景颜色，可根据需要调整 */
   z-index: 1000;
 }

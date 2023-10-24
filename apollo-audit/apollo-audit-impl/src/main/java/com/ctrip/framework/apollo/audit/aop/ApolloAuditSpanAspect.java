@@ -17,7 +17,13 @@
 package com.ctrip.framework.apollo.audit.aop;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -46,10 +52,44 @@ public class ApolloAuditSpanAspect {
       ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
       opName = servletRequestAttributes.getRequest().getRequestURI();
     }
+
     try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), opName,
         auditLog.description())) {
+      Object[] args = pjp.getArgs();
+      Method method = findMethod(pjp.getTarget().getClass(), pjp.getSignature().getName());
+      for (int i = 0; i < args.length; i++) {
+        Object arg = args[i];
+        Annotation[] annotations = method.getParameterAnnotations()[i];
+        if (Arrays.stream(annotations).anyMatch(anno -> anno instanceof ApolloAuditLogDataInfluence)) {
+          String entityName = null;
+          String entityId = null;
+          String fieldName = null;
+          for(int j = 0; j < annotations.length; j++) {
+            if(annotations[j] instanceof ApolloAuditLogDataInfluenceTable) {
+              entityName = ((ApolloAuditLogDataInfluenceTable) annotations[j]).tableName();
+            }
+            if(annotations[j] instanceof ApolloAuditLogDataInfluenceTableField) {
+              fieldName = ((ApolloAuditLogDataInfluenceTableField) annotations[j]).fieldName();
+            }
+          }
+          if (entityName != null && fieldName != null) {
+            entityId = "AnyMatched";
+          }
+          String matchedValue = String.valueOf(arg);
+          api.appendDataInfluence(entityId, entityName, fieldName, matchedValue);
+        }
+      }
       return pjp.proceed();
     }
+  }
+
+  private Method findMethod(Class<?> clazz, String methodName) {
+    for (Method method : clazz.getDeclaredMethods()) {
+      if (method.getName().equals(methodName)) {
+        return method;
+      }
+    }
+    return null;
   }
 
 }
