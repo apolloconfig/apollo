@@ -83,7 +83,7 @@ public class ApolloAuditSpanAspect {
     }
   }
 
-  private Method findMethod(Class<?> clazz, String methodName) {
+  Method findMethod(Class<?> clazz, String methodName) {
     for (Method method : clazz.getDeclaredMethods()) {
       if (method.getName().equals(methodName)) {
         return method;

@@ -135,7 +135,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   var key = {
                         name: dto.influenceEntityName,
                         id: dto.influenceEntityId
-                  }
+                  };
                   if (!entityMap.has(key)) {
                         entityMap.set(key, []);
                   }
