@@ -21,10 +21,44 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Mainly used in field definitions, indicates the name of the corresponding audit data table field
+ * of this member variables(attributes).
+ * <p></p>
+ * It could also be used on method parameters to express the field name of the field which this
+ * parameter matches.
+ * <p></p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * CASE 1:
+ * public class App {
+ *   @ApolloAuditLogDataInfluenceTableField(fieldName="AppId")
+ *   private String appId;
+ *   // ...
+ * }
+ * CASE 2:
+ * public App batchDeleteByAppId(
+ *   @ApolloAuditLogDataInfluence
+ *   @ApolloAuditLogDataInfluenceTable(tableName="App")
+ *   @ApolloAuditLogDataInfluenceTableField(fieldName="AppId") String appId) {
+ *   // ...
+ * }
+ * }
+ * </pre>
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLogDataInfluenceTableField {
 
+  /**
+   * Define the field name of audited entity field.
+   *
+   * @return field name
+   */
   String fieldName();
 
 }

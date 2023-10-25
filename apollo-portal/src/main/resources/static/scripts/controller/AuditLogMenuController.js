@@ -34,6 +34,8 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
       $scope.opName = '';
       $scope.startDate = null;
       $scope.endDate = null;
+      $scope.startDateFmt = null;
+      $scope.endDateFmt = null;
 
       $scope.hasLoadAll = false;
 
@@ -53,12 +55,12 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
       init();
 
       function init() {
-            getAuditEnabled();
+            getAuditProperties();
             initSearchingMenu();
       }
 
-      function getAuditEnabled() {
-            AuditLogService.is_enabled().then(function (result) {
+      function getAuditProperties() {
+            AuditLogService.get_properties().then(function (result) {
                   $scope.auditEnabled = result.enabled;
             });
       }
@@ -76,6 +78,12 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
       }
 
       function searchByOpNameAndDate(opName, startDate, endDate) {
+            if (startDate !== null) {
+                  $scope.startDateFmt = new Date(startDate).Format("yyyy-MM-dd hh:mm:ss.S");
+            }
+            if (endDate !== null) {
+                  $scope.endDateFmt = new Date(endDate).Format("yyyy-MM-dd hh:mm:ss.S");
+            }
             $scope.auditLogList = [];
             $scope.page = 0;
             $scope.opName = opName;
@@ -83,8 +91,8 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
             $scope.endDate = endDate;
             AuditLogService.find_logs_by_opName(
                 $scope.opName,
-                $scope.startDate,
-                $scope.endDate,
+                $scope.startDateFmt,
+                $scope.endDateFmt,
                 $scope.page,
                 PAGE_SIZE
             ).then(function (result) {
@@ -113,8 +121,8 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
             }else {
                   AuditLogService.find_logs_by_opName(
                       $scope.opName,
-                      $scope.startTime,
-                      $scope.endTime,
+                      $scope.startDateFmt,
+                      $scope.endDateFmt,
                       $scope.page,
                       PAGE_SIZE
                   ).then(function (result) {

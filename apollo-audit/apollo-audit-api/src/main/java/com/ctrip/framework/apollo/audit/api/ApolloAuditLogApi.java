@@ -16,6 +16,12 @@
  */
 package com.ctrip.framework.apollo.audit.api;
 
+/**
+ * API interface that integrates all functional interfaces.
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 public interface ApolloAuditLogApi extends ApolloAuditLogRecordApi, ApolloAuditLogQueryApi{
 
 }

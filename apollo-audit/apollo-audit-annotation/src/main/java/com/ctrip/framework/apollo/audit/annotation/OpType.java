@@ -16,6 +16,12 @@
  */
 package com.ctrip.framework.apollo.audit.annotation;
 
+/**
+ * Includes all types of audit operations.
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 public enum OpType {
   CREATE, UPDATE, DELETE, RPC
 }

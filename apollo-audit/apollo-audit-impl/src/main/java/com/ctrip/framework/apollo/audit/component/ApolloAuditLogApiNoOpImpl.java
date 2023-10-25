@@ -40,7 +40,7 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public void appendDataInfluence(String entityId, String entityName, String fieldName,
+  public void appendDataInfluence(String entityName, String entityId, String fieldName,
       String fieldCurrentValue) {
   }
 

@@ -47,13 +47,16 @@ public class AppNamespace extends BaseEntity {
   @ApolloAuditLogDataInfluenceTableField(fieldName = "Name")
   private String name;
 
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId")
   @NotBlank(message = "AppId cannot be blank")
   @Column(name = "`AppId`", nullable = false)
   private String appId;
 
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "Format")
   @Column(name = "`Format`", nullable = false)
   private String format;
 
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "IsPublic")
   @Column(name = "`IsPublic`", columnDefinition = "Bit default '0'")
   private boolean isPublic = false;
 

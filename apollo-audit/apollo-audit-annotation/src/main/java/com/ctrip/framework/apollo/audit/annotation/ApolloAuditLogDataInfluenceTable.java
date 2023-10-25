@@ -21,10 +21,42 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Mainly used in class definitions, indicates the name of the corresponding audit data table of
+ * this class.
+ * <p></p>
+ * It could also be used on method parameters to express the table name of the class which this
+ * parameter belongs to.
+ * <p></p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * CASE 1:
+ * @ApolloAuditLogDataInfluenceTable(tableName="App")
+ * public class App {
+ *   // ...
+ * }
+ * CASE 2:
+ * public App batchDeleteByAppId(
+ *   @ApolloAuditLogDataInfluence
+ *   @ApolloAuditLogDataInfluenceTable(tableName="App") String appId) {
+ *   // ...
+ * }
+ * }
+ * </pre>
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 @Target({ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLogDataInfluenceTable {
 
+  /**
+   * Define the table name(entity name) of audited entity.
+   *
+   * @return table name
+   */
   String tableName();
 
 }

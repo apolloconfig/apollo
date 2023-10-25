@@ -21,11 +21,49 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * This annotation is mainly used for operations(mainly reflected through methods) that need to be
+ * audited.
+ * <p></p>
+ * Define the attributes of the operation for persisting and querying.
+ * <p></p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * @ApolloAuditLog(type=OpType.CREATE,name="App.create")
+ * public App create() {
+ *   // ...
+ * }
+ * }
+ * </pre>
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLog {
+
+  /**
+   * Define the type of operation.
+   *
+   * @return operation type
+   */
   OpType type();
+
+  /**
+   * Define the name of operation. The requested URL will be taken by default if no specific name is
+   * specified.
+   *
+   * @return operation name
+   */
   String name() default "";
+
+  /**
+   * Define the description of operation. Default is "no description".
+   *
+   * @return operation description
+   */
   String description() default "no description";
 }
 

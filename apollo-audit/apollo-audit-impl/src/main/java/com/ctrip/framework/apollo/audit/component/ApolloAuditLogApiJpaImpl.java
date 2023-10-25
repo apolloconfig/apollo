@@ -50,7 +50,7 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
 
   @Override
   public AutoCloseable appendAuditLog(OpType type, String name) {
-    return appendAuditLog(type, name, null);
+    return appendAuditLog(type, name, "no description");
   }
 
   @Override
@@ -64,16 +64,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     return scope;
   }
 
-  /**
-   * append when there is an active span, judge the op-type by span's
-   * mainly doing persistence
-   * @param entityId
-   * @param entityName
-   * @param fieldName
-   * @param fieldCurrentValue could be the new or old value depending on op-type
-   */
   @Override
-  public void appendDataInfluence(String entityId, String entityName, String fieldName,
+  public void appendDataInfluence(String entityName, String entityId, String fieldName,
       String fieldCurrentValue) {
     // might be
     if (traceContext.tracer() == null) {
@@ -97,12 +89,6 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     dataInfluenceService.save(builder.build());
   }
 
-  /**
-   * append by List of audit entity and there audit-bean-definition(with annotations)
-   * mainly dealing with reflection
-   * @param entities
-   * @param beanDefinition
-   */
   @Override
   public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
     String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);

@@ -62,7 +62,6 @@ public class ApolloAuditSpanAspect {
         Annotation[] annotations = method.getParameterAnnotations()[i];
         if (Arrays.stream(annotations).anyMatch(anno -> anno instanceof ApolloAuditLogDataInfluence)) {
           String entityName = null;
-          String entityId = null;
           String fieldName = null;
           for(int j = 0; j < annotations.length; j++) {
             if(annotations[j] instanceof ApolloAuditLogDataInfluenceTable) {
@@ -73,10 +72,9 @@ public class ApolloAuditSpanAspect {
             }
           }
           if (entityName != null && fieldName != null) {
-            entityId = "AnyMatched";
+            String matchedValue = String.valueOf(arg);
+            api.appendDataInfluence("AnyMatched", entityName, fieldName, matchedValue);
           }
-          String matchedValue = String.valueOf(arg);
-          api.appendDataInfluence(entityId, entityName, fieldName, matchedValue);
         }
       }
       return pjp.proceed();

@@ -16,9 +16,9 @@
  */
 appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
   var audit_resource = $resource('', {}, {
-    is_enabled: {
+    get_properties: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/enabled',
+      url: AppUtil.prefixPath() + '/apollo/audit/properties',
       isArray: false
     },
     find_all_logs: {
@@ -48,9 +48,9 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
     }
   });
   return {
-    is_enabled: function () {
+    get_properties: function () {
       var d = $q.defer();
-      audit_resource.is_enabled({
+      audit_resource.get_properties({
           }, function (result) {
             d.resolve(result);
           }, function (result) {

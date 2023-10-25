@@ -47,9 +47,9 @@ public class ApolloAuditController {
     this.properties = properties;
   }
 
-  @GetMapping("/enabled")
-  public String isEnabled() {
-    return "{\"enabled\": "+ properties.isEnabled() +"}";
+  @GetMapping("/properties")
+  public ApolloAuditProperties getProperties() {
+    return properties;
   }
 
   @GetMapping("/logs")
@@ -70,8 +70,8 @@ public class ApolloAuditController {
   @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
   public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@RequestParam String opName,
       @RequestParam int page, @RequestParam int size,
-      @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date startDate,
-      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date endDate) {
+      @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date startDate,
+      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date endDate) {
     List<ApolloAuditLogDTO> logDTOList = api.queryLogsByOpName(opName, startDate, endDate, page,
         size);
     return logDTOList;

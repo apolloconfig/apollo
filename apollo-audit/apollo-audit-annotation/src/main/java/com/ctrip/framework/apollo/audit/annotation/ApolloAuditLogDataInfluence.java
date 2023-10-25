@@ -21,6 +21,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * It is mainly used to mark the method's parameters that need to be audited.
+ * <p></p>
+ * Example usage:
+ * <pre>
+ * {@code
+ * public App batchDeleteByAppId(
+ *            @ApolloAuditLogDataInfluence String appId) {
+ *   // ...
+ * }
+ * }
+ * </pre>
+ *
+ * @author luke0125
+ * @since 2.2.0
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLogDataInfluence {

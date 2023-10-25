@@ -30,10 +30,8 @@ public interface ApolloAuditLogRepository extends PagingAndSortingRepository<Apo
 
   List<ApolloAuditLog> findByOpName(String opName, Pageable page);
 
-  @Query("SELECT log FROM ApolloAuditLog log WHERE log.opName = :opName AND (log.dataChangeCreatedTime >= :startDate) AND (log.dataChangeCreatedTime <= :endDate)")
-  List<ApolloAuditLog> findByOpNameAndTime(@Param("opName") String opName,
-      @Param("startDate") Date startDate, @Param("endDate") Date endDate,
-      Pageable pageable);
+  List<ApolloAuditLog> findByOpNameAndDataChangeCreatedTimeGreaterThanEqualAndDataChangeCreatedTimeLessThanEqual(
+      String opName, Date startDate, Date endDate, Pageable pageable);
 
   List<ApolloAuditLog> findByOpNameContainingOrOpTypeContainingOrOperatorContaining(String opName,
       String opType, String operator, Pageable pageable);
