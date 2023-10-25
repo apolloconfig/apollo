@@ -95,7 +95,7 @@ public class ApolloAuditControllerTest {
     final String opName = "query-op-name";
     final Date startDate = new Date(2023, Calendar.OCTOBER, 15);
     final Date endDate = new Date(2023, Calendar.OCTOBER, 16);
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 
     {
       List<ApolloAuditLogDTO> mockLogDTOList = MockBeanFactory.mockAuditLogDTOListByLength(size);
