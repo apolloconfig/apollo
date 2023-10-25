@@ -143,3 +143,5 @@ In the rightmost column, we can view the historical operation records of the spe
 ### check-by-database
 
 The databases are in ApolloPortalDB, the table `AuditLog` and `AuditLogDataInfluence`.
+
+We can verify if the parent/followsfrom relationships are in line with our expectations.
