@@ -22,12 +22,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * It is mainly used to mark the method's parameters that need to be audited.
+ * Combine with {@link ApolloAuditLog}, mark which method's parameter is audit log's data change.
  * <p></p>
  * Example usage:
  * <pre>
  * {@code
- * public App batchDeleteByAppId(
+ * @ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
+ * public AppNamespace batchDeleteByAppId(
  *            @ApolloAuditLogDataInfluence String appId) {
  *   // ...
  * }

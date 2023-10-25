@@ -37,9 +37,10 @@ import java.lang.annotation.Target;
  *   // ...
  * }
  * CASE 2:
- * public App batchDeleteByAppId(
+ * @ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
+ * public AppNamespace batchDeleteByAppId(
  *   @ApolloAuditLogDataInfluence
- *   @ApolloAuditLogDataInfluenceTable(tableName="App") String appId) {
+ *   @ApolloAuditLogDataInfluenceTable(tableName="AppNamespace") String appId) {
  *   // ...
  * }
  * }

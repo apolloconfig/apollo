@@ -22,10 +22,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is mainly used for operations(mainly reflected through methods) that need to be
- * audited.
+ * Mark which method should be audited, add to controller or service's method.
  * <p></p>
- * Define the attributes of the operation for persisting and querying.
+ * Define the attributes of the operation for persisting and querying. When adding to controller's
+ * methods, suggested that don't set name, and it will automatically be set to request's url.
  * <p></p>
  * Example usage:
  * <pre>
