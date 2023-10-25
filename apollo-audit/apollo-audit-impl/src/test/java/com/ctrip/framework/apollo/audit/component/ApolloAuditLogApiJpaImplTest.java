@@ -96,6 +96,7 @@ public class ApolloAuditLogApiJpaImplTest {
 
   @Test
   public void testAppendAuditLog() {
+    final String description = "no description";
     {
       ApolloAuditSpan activeSpan = new ApolloAuditSpan();
       activeSpan.setOpType(create);
@@ -104,14 +105,14 @@ public class ApolloAuditLogApiJpaImplTest {
       ApolloAuditScopeManager manager = new ApolloAuditScopeManager();
       ApolloAuditScope scope = new ApolloAuditScope(activeSpan, manager);
 
-      Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(null)))
+      Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description)))
           .thenReturn(scope);
     }
     ApolloAuditScope scope = (ApolloAuditScope) api.appendAuditLog(create, opName);
 
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
     Mockito.verify(tracer, Mockito.times(1))
-        .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(null));
+        .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description));
 
     assertEquals(create, scope.activeSpan().getOpType());
     assertEquals(opName, scope.activeSpan().getOpName());
@@ -128,7 +129,7 @@ public class ApolloAuditLogApiJpaImplTest {
       Mockito.when(span.getOpType()).thenReturn(create);
     }
 
-    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
+    api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
 
     Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
 
@@ -150,7 +151,7 @@ public class ApolloAuditLogApiJpaImplTest {
       Mockito.when(span.getOpType()).thenReturn(delete);
     }
 
-    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
+    api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
 
     Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
 
@@ -166,14 +167,14 @@ public class ApolloAuditLogApiJpaImplTest {
   @Test
   public void testAppendDataInfluenceCaseTracerIsNull() {
     Mockito.when(traceContext.tracer()).thenReturn(null);
-    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
+    api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
   }
 
   @Test
   public void testAppendDataInfluenceCaseActiveSpanIsNull() {
     Mockito.when(tracer.getActiveSpan()).thenReturn(null);
-    api.appendDataInfluence(entityId, entityName, fieldName, fieldCurrentValue);
+    api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
     Mockito.verify(traceContext, Mockito.times(2)).tracer();
     Mockito.verify(tracer, Mockito.times(1)).getActiveSpan();
   }
