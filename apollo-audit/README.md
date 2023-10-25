@@ -1,8 +1,12 @@
 # Features: Apollo-Audit-Log
 
-This module mainly provides audit log functions for other Apollo modules.
+This module provides audit log functions for other Apollo modules.
 
-## How to switch 
+Only apolloconfig's developer need to read it, 
+
+apolloconfig's user doesn't need.
+
+## How to enable/disable
 
 We can switch this module freely by properties:
 
@@ -14,9 +18,11 @@ by adding properties to application.properties:
 apollo.audit.log.enabled = true
 ```
 
-## How to use
+## How to generate audit log
 
 ### Append an AuditLog
+
+Through an AuditLog, we have the ability to record **Who, When, Why, Where, What and How** operates something.
 
 We can do this by using annotations:
 
@@ -33,6 +39,12 @@ Equally, we can use ApolloAuditLogApi to do this manually:
 
 ```java
 public App create() {
+  try(AutoCloseable auditScope = api.appendAuditLog(type, name)) {
+    // ...
+  }
+}
+/**************OR**************/
+public App create() {
   Autocloseable auditScope = api.appendAuditLog(type, name);
   // ...
   auditScope.close();
@@ -45,7 +57,9 @@ The only thing you need to pay attention to is that you need to close this scope
 
 This function can also be implemented automatically and manually.
 
-#### Automatically
+There is a corresponding relationship between DataInfluences and a certain AuditLog, and they are caused by this AuditLog. But not all AuditLogs will generate DataInfluences!
+
+#### Mark which data change
 
 First, we need to add audit-bean-definition to class of the entity you want to audit:
 
@@ -62,14 +76,6 @@ In class App, we define that its data-influence table' name is "App", the field 
 
 Second, use API's method to append it:
 
-```java
-/**
- * Append DataInfluences by a list of entities needs to be audited, and their
- * audit-bean-definition.
- */
-ApolloAuditLogApi.appendDataInfluences(List<Object> entities, Class<?> beanDefinition);
-```
-
 Actually we don't need to manually call it. We can depend on the DomainEvents that pre-set in BaseEntity:
 
 ```java
@@ -83,17 +89,24 @@ And this will call appendDataInfluences automatically by the listener.
 
 #### Manually
 
+```java
+/**
+ * Append DataInfluences by a list of entities needs to be audited, and their
+ * audit-bean-definition.
+ */
+ApolloAuditLogApi.appendDataInfluences(List<Object> entities, Class<?> beanDefinition);
+```
+
 Just call the api method in an active scope, the data influences will combine with the log automatically.
 
 ```java
 public App create() {
-  Autocloseable auditScope = api.appendAuditLog(type, name);
-  // ...
-  api.appendDataInfluences(appList, App.class);
-  // or.
-  api.appendDataInfluence("App","10001","Name","xxx");
-  // ...
-  auditScope.close();
+  try(AutoCloseable auditScope = api.appendAuditLog(type, name)) {
+    // ...
+    api.appendDataInfluences(appList, App.class);
+  	// or.
+  	api.appendDataInfluence("App","10001","Name","xxx");
+  }
 }
 ```
 
@@ -112,3 +125,21 @@ public AppNamespace batchDeleteByAppId(
 ```
 
 This will generate a special data influence. It means that all entities matching the input parameter value have been affected.
+
+## How to verify the audit-log work
+
+### check-by-UI
+
+The entrance of audit log UI is in Admin Tools.
+
+Then, we can check if the AuditLogs are created properly by searching or just find in table below.
+
+Then, check in the trace detail page.
+
+We can check if the relationship between AuditLogs are correct and the DataInfluences caused by certain AuditLog is logically established.
+
+In the rightmost column, we can view the historical operation records of the specified field's value. Null means being deleted~
+
+### check-by-database
+
+The databases are in ApolloPortalDB, the table `AuditLog` and `AuditLogDataInfluence`.
