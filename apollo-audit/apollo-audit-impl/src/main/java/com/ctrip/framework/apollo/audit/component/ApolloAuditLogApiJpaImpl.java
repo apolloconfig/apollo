@@ -106,7 +106,7 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
           f.setAccessible(true);
           String val = String.valueOf(f.get(e));
           String fieldName = f.getAnnotation(ApolloAuditLogDataInfluenceTableField.class).fieldName();
-          appendDataInfluence(tableId, tableName, fieldName, val);
+          appendDataInfluence(tableName, tableId, fieldName, val);
         }
       } catch (IllegalAccessException ex) {
         throw new IllegalArgumentException("failed append data influence, "

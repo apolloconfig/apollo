@@ -24,7 +24,8 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Objects;
+import java.util.Collection;
+import java.util.Iterator;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -72,8 +73,17 @@ public class ApolloAuditSpanAspect {
             }
           }
           if (entityName != null && fieldName != null) {
-            String matchedValue = String.valueOf(arg);
-            api.appendDataInfluence("AnyMatched", entityName, fieldName, matchedValue);
+            // if arg is a collection
+            if (arg instanceof Collection) {
+              for (Object o : ((Collection<?>) arg).toArray()) {
+                String matchedValue = String.valueOf(o);
+                api.appendDataInfluence(entityName, "AnyMatched", fieldName, matchedValue);
+              }
+            }
+            else {
+              String matchedValue = String.valueOf(arg);
+              api.appendDataInfluence(entityName, "AnyMatched", fieldName, matchedValue);
+            }
           }
         }
       }

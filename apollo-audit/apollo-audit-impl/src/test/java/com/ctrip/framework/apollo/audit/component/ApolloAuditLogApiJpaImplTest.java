@@ -185,7 +185,7 @@ public class ApolloAuditLogApiJpaImplTest {
     api.appendDataInfluences(entities, MockDataInfluenceEntity.class);
 
     Mockito.verify(api, Mockito.times(entityNum))
-        .appendDataInfluence(Mockito.anyString(), Mockito.eq("MockTableName"), Mockito.eq("MarkedAttribute"),
+        .appendDataInfluence(Mockito.eq("MockTableName"), Mockito.any(), Mockito.eq("MarkedAttribute"),
             Mockito.any());
   }
 
