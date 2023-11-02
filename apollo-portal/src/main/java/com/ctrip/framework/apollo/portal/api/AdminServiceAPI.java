@@ -118,17 +118,20 @@ public class AdminServiceAPI {
                   NamespaceDTO.class, appId, clusterName, namespaceName);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Namespace.createInRemote")
     public NamespaceDTO createNamespace(Env env, NamespaceDTO namespace) {
       return restTemplate
           .post(env, "apps/{appId}/clusters/{clusterName}/namespaces", namespace, NamespaceDTO.class,
               namespace.getAppId(), namespace.getClusterName());
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.createInRemote")
     public AppNamespaceDTO createAppNamespace(Env env, AppNamespaceDTO appNamespace) {
       return restTemplate
           .post(env, "apps/{appId}/appnamespaces", appNamespace, AppNamespaceDTO.class, appNamespace.getAppId());
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.createMissingAppNamespaceInRemote")
     public AppNamespaceDTO createMissingAppNamespace(Env env, AppNamespaceDTO appNamespace) {
       return restTemplate
           .post(env, "apps/{appId}/appnamespaces?silentCreation=true", appNamespace, AppNamespaceDTO.class,
@@ -140,6 +143,7 @@ public class AdminServiceAPI {
       return Arrays.asList(appNamespaceDTOs);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Namespace.deleteInRemote")
     public void deleteNamespace(Env env, String appId, String clusterName, String namespaceName, String operator) {
       restTemplate
           .delete(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}?operator={operator}", appId,
@@ -167,6 +171,7 @@ public class AdminServiceAPI {
       return count == null ? 0 : count;
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
     public void deleteAppNamespace(Env env, String appId, String namespaceName, String operator) {
       restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}", appId, namespaceName,
           operator);
@@ -266,12 +271,13 @@ public class AdminServiceAPI {
 
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Cluster.createInRemote")
     public ClusterDTO create(Env env, ClusterDTO cluster) {
       return restTemplate.post(env, "apps/{appId}/clusters", cluster, ClusterDTO.class,
           cluster.getAppId());
     }
 
-
+    @ApolloAuditLog(type = OpType.RPC, name = "Cluster.deleteInRemote")
     public void delete(Env env, String appId, String clusterName, String operator) {
       restTemplate.delete(env, "apps/{appId}/clusters/{clusterName}?operator={operator}", appId, clusterName, operator);
     }

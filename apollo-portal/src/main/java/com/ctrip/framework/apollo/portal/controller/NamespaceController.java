@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
@@ -141,6 +143,7 @@ public class NamespaceController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping("/apps/{appId}/namespaces")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.create")
   public ResponseEntity<Void> createNamespace(@PathVariable String appId,
                                               @RequestBody List<NamespaceCreationModel> models) {
 
@@ -171,6 +174,7 @@ public class NamespaceController {
 
   @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/linked-namespaces/{namespaceName:.+}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Namespace.deleteLinkedNamespace")
   public ResponseEntity<Void> deleteLinkedNamespace(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName) {
 
@@ -193,6 +197,7 @@ public class NamespaceController {
 
   @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
   public ResponseEntity<Void> deleteAppNamespace(@PathVariable String appId, @PathVariable String namespaceName) {
 
     AppNamespace appNamespace = appNamespaceService.deleteAppNamespace(appId, namespaceName);
@@ -215,6 +220,7 @@ public class NamespaceController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateAppNamespacePermission(#appId, #appNamespace)")
   @PostMapping("/apps/{appId}/appnamespaces")
+  @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create")
   public AppNamespace createAppNamespace(@PathVariable String appId,
       @RequestParam(defaultValue = "true") boolean appendNamespacePrefix,
       @Valid @RequestBody AppNamespace appNamespace) {
@@ -272,6 +278,7 @@ public class NamespaceController {
   }
 
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/missing-namespaces")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.createMissingNamespaces")
   public ResponseEntity<Void> createMissingNamespaces(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
 
     Set<String> missingNamespaces = findMissingNamespaceNames(appId, env, clusterName);

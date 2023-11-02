@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
@@ -73,6 +75,7 @@ public class PermissionController {
   }
 
   @PostMapping("/apps/{appId}/initPermission")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(@PathVariable String appId, @RequestBody String namespaceName) {
     roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
@@ -148,6 +151,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
   @PostMapping("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceEnvRoleToUser")
   public ResponseEntity<Void> assignNamespaceEnvRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String namespaceName,
                                                            @PathVariable String roleType, @RequestBody String user) {
     checkUserExists(user);
@@ -172,6 +176,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
   @DeleteMapping("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceEnvRoleFromUser")
   public ResponseEntity<Void> removeNamespaceEnvRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String namespaceName,
                                                              @PathVariable String roleType, @RequestParam String user) {
     RequestPrecondition.checkArgumentsNotEmpty(user);
@@ -208,6 +213,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
   @PostMapping("/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceRoleToUser")
   public ResponseEntity<Void> assignNamespaceRoleToUser(@PathVariable String appId, @PathVariable String namespaceName,
                                                         @PathVariable String roleType, @RequestBody String user) {
     checkUserExists(user);
@@ -227,6 +233,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
   @DeleteMapping("/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceRoleFromUser")
   public ResponseEntity<Void> removeNamespaceRoleFromUser(@PathVariable String appId, @PathVariable String namespaceName,
                                                           @PathVariable String roleType, @RequestParam String user) {
     RequestPrecondition.checkArgumentsNotEmpty(user);
@@ -252,6 +259,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasManageAppMasterPermission(#appId)")
   @PostMapping("/apps/{appId}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignAppRoleToUser")
   public ResponseEntity<Void> assignAppRoleToUser(@PathVariable String appId, @PathVariable String roleType,
                                                   @RequestBody String user) {
     checkUserExists(user);
@@ -271,6 +279,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.hasManageAppMasterPermission(#appId)")
   @DeleteMapping("/apps/{appId}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeAppRoleFromUser")
   public ResponseEntity<Void> removeAppRoleFromUser(@PathVariable String appId, @PathVariable String roleType,
                                                     @RequestParam String user) {
     RequestPrecondition.checkArgumentsNotEmpty(user);
@@ -291,6 +300,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/system/role/createApplication")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.addCreateApplicationRoleToUser")
   public ResponseEntity<Void> addCreateApplicationRoleToUser(@RequestBody List<String> userIds) {
 
     userIds.forEach(this::checkUserExists);
@@ -302,6 +312,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping("/system/role/createApplication/{userId}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.deleteCreateApplicationRoleFromUser")
   public ResponseEntity<Void> deleteCreateApplicationRoleFromUser(@PathVariable("userId") String userId) {
     checkUserExists(userId);
     Set<String> userIds = new HashSet<>();
@@ -327,6 +338,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/apps/{appId}/system/master/{userId}")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.addManageAppMasterRoleToUser")
   public ResponseEntity<Void> addManageAppMasterRoleToUser(@PathVariable String appId, @PathVariable String userId) {
     checkUserExists(userId);
     roleInitializationService.initManageAppMasterRole(appId, userInfoHolder.getUser().getUserId());
@@ -339,6 +351,7 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping("/apps/{appId}/system/master/{userId}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.forbidManageAppMaster")
   public ResponseEntity<Void> forbidManageAppMaster(@PathVariable String appId, @PathVariable String  userId) {
     checkUserExists(userId);
     roleInitializationService.initManageAppMasterRole(appId, userInfoHolder.getUser().getUserId());

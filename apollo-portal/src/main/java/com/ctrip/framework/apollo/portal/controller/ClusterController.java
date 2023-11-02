@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
@@ -44,6 +46,7 @@ public class ClusterController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateClusterPermission(#appId)")
   @PostMapping(value = "apps/{appId}/envs/{env}/clusters")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Cluster.create.request")
   public ClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
                                   @Valid @RequestBody ClusterDTO cluster) {
     String operator = userInfoHolder.getUser().getUserId();
@@ -55,6 +58,7 @@ public class ClusterController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete.request")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,
                                             @PathVariable String clusterName){
     clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
