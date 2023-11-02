@@ -78,6 +78,9 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     OpType type = traceContext.tracer().getActiveSpan().getOpType();
     ApolloAuditLogDataInfluence.Builder builder = ApolloAuditLogDataInfluence.builder().spanId(spanId)
         .entityName(entityName).entityId(entityId).fieldName(fieldName);
+    if (type == null) {
+      return;
+    }
     switch (type) {
       case CREATE:
       case UPDATE:

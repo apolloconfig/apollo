@@ -148,7 +148,6 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                   entityMap.get(keyString).dtoList.push(dto);
             });
             $scope.dataInfluenceEntities = Array.from(entityMap);
-            console.log($scope.dataInfluenceEntities);
       }
 
       function showText(text) {

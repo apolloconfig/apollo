@@ -119,8 +119,12 @@
                      class="cursor-pointer"
                      ng-click="showRelatedDataInfluence(dataInfluence.influenceEntityName,dataInfluence.influenceEntityId,dataInfluence.fieldName)">
                   <div class="audit-field" style="font-size: 12pt; word-break: break-all; padding-bottom: 5px; padding-top: 5px"
-                       ng-show="dataInfluenceEntity[1].id != 'AnyMatched'">
+                       ng-show="dataInfluenceEntity[1].id != 'AnyMatched' && dataInfluence.fieldNewValue">
                     {{dataInfluence.fieldName}} ==> {{dataInfluence.fieldNewValue}}
+                  </div>
+                  <div class="audit-field" style="font-size: 12pt; word-break: break-all; padding-bottom: 5px; padding-top: 5px"
+                       ng-show="dataInfluenceEntity[1].id != 'AnyMatched' && !dataInfluence.fieldNewValue">
+                    {{dataInfluence.fieldName}} : {{dataInfluence.fieldOldValue}} ==> (deleted)
                   </div>
                   <div class="audit-field" style="font-size: 12pt; word-break: break-all; padding-bottom: 5px; padding-top: 5px"
                        ng-show="dataInfluenceEntity[1].id == 'AnyMatched'">
@@ -158,7 +162,7 @@
                 </thead>
                 <tbody>
                 <tr ng-repeat="di in relatedDataInfluences">
-                  <td class="cursor-pointer" style="width: 50%" ng-click="showText(di.fieldNewValue)">{{ di.fieldNewValue }}</td>
+                  <td class="cursor-pointer" style="width: 50%" ng-click="showText(di.fieldNewValue)">{{ di.fieldNewValue ? di.fieldNewValue : '(deleted)' }}</td>
                   <td class="cursor-pointer" style="width: 50%" ng-click="showText(di.happenedTime)">{{ di.happenedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
                 </tr>
                 </tbody>
