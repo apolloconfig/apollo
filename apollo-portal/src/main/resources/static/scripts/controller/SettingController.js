@@ -1,12 +1,28 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 setting_module.controller('SettingController',
-                          ['$scope', '$location', 'toastr',
-                           'AppService', 'AppUtil', 'PermissionService',
-                           'OrganizationService',
-                           SettingController]);
+    ['$scope', '$location', '$translate', 'toastr',
+        'AppService', 'AppUtil', 'PermissionService',
+        'OrganizationService',
+        SettingController]);
 
-function SettingController($scope, $location, toastr,
-                           AppService, AppUtil, PermissionService,
-                           OrganizationService) {
+function SettingController($scope, $location, $translate, toastr,
+    AppService, AppUtil, PermissionService,
+    OrganizationService) {
 
     var params = AppUtil.parseParams($location.$$url);
     var $orgWidget = $('#organization');
@@ -34,8 +50,6 @@ function SettingController($scope, $location, toastr,
         initOrganization();
         initPermission();
         initAdmins();
-        initApplication();
-
     }
 
     function initOrganization() {
@@ -49,10 +63,11 @@ function SettingController($scope, $location, toastr,
                 organizations.push(org);
             });
             $orgWidget.select2({
-                                   placeholder: '请选择部门',
-                                   width: '100%',
-                                   data: organizations
-                               });
+                placeholder: $translate.instant('Common.PleaseChooseDepartment'),
+                width: '100%',
+                data: organizations
+            });
+            initApplication();
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), "load organizations error");
         });
@@ -63,14 +78,20 @@ function SettingController($scope, $location, toastr,
             .then(function (result) {
                 $scope.hasAssignUserPermission = result.hasPermission;
 
-                PermissionService.has_manage_app_master_permission($scope.pageContext.appId).then(function (res) {
-                    $scope.hasManageAppMasterPermission = res.hasPermission && $scope.hasAssignUserPermission;
+                PermissionService.has_open_manage_app_master_role_limit().then(function (value) {
+                     if (!value.isManageAppMasterPermissionEnabled) {
+                        $scope.hasManageAppMasterPermission = $scope.hasAssignUserPermission;
+                        return;
+                     }
 
-                    PermissionService.has_root_permission().then(function (value) {
-                        $scope.hasManageAppMasterPermission = value.hasPermission || $scope.hasManageAppMasterPermission;
+                    PermissionService.has_manage_app_master_permission($scope.pageContext.appId).then(function (res) {
+                        $scope.hasManageAppMasterPermission = res.hasPermission && $scope.hasAssignUserPermission;
+
+                        PermissionService.has_root_permission().then(function (value) {
+                            $scope.hasManageAppMasterPermission = value.hasPermission || $scope.hasManageAppMasterPermission;
+                        });
                     });
                 });
-
             });
     }
 
@@ -80,7 +101,7 @@ function SettingController($scope, $location, toastr,
                 $scope.appRoleUsers = result;
                 $scope.admins = [];
                 $scope.appRoleUsers.masterUsers.forEach(function (user) {
-                    $scope.admins.push(user.userId);
+                    $scope.admins.push(_.escape(user.userId));
                 });
 
             });
@@ -100,8 +121,8 @@ function SettingController($scope, $location, toastr,
         $orgWidget.val(app.orgId).trigger("change");
 
         var $ownerSelector = $('.ownerSelector');
-        var defaultSelectedDOM = '<option value="' + app.ownerName + '" selected="selected">' + app.ownerName
-                                 + '</option>';
+        var defaultSelectedDOM = '<option value="' + _.escape(app.ownerName) + '" selected="selected">' + _.escape(app.ownerName)
+            + '</option>';
         $ownerSelector.append(defaultSelectedDOM);
         $ownerSelector.trigger('change');
     }
@@ -109,21 +130,21 @@ function SettingController($scope, $location, toastr,
     function assignMasterRoleToUser() {
         var user = $('.' + $scope.userSelectWidgetId).select2('data')[0];
         if (!user) {
-            toastr.warning("请选择用户");
+            toastr.warning($translate.instant('App.Setting.PleaseChooseUser'));
             return;
         }
         var toAssignMasterRoleUser = user.id;
         $scope.submitBtnDisabled = true;
         PermissionService.assign_master_role($scope.pageContext.appId,
-                                             toAssignMasterRoleUser)
+            toAssignMasterRoleUser)
             .then(function (result) {
                 $scope.submitBtnDisabled = false;
-                toastr.success("添加成功");
-                $scope.appRoleUsers.masterUsers.push({userId: toAssignMasterRoleUser});
+                toastr.success($translate.instant('App.Setting.Added'));
+                $scope.appRoleUsers.masterUsers.push({ userId: toAssignMasterRoleUser });
                 $('.' + $scope.userSelectWidgetId).select2("val", "");
             }, function (result) {
                 $scope.submitBtnDisabled = false;
-                toastr.error(AppUtil.errorMsg(result), "添加失败");
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('App.Setting.AddFailed'));
             });
     }
 
@@ -134,10 +155,10 @@ function SettingController($scope, $location, toastr,
         }
         PermissionService.remove_master_role($scope.pageContext.appId, user)
             .then(function (result) {
-                toastr.success("删除成功");
+                toastr.success($translate.instant('App.Setting.Deleted'));
                 removeUserFromList($scope.appRoleUsers.masterUsers, user);
             }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "删除失败");
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('App.Setting.DeleteFailed'));
             });
     }
 
@@ -171,7 +192,7 @@ function SettingController($scope, $location, toastr,
         var selectedOrg = $orgWidget.select2('data')[0];
 
         if (!selectedOrg.id) {
-            toastr.warning("请选择部门");
+            toastr.warning($translate.instant('Common.PleaseChooseDepartment'));
             return;
         }
 
@@ -181,13 +202,13 @@ function SettingController($scope, $location, toastr,
         // owner
         var owner = $('.ownerSelector').select2('data')[0];
         if (!owner) {
-            toastr.warning("请选择应用负责人");
+            toastr.warning($translate.instant('Common.PleaseChooseOwner'));
             return;
         }
         app.ownerName = owner.id;
 
         AppService.update(app).then(function (app) {
-            toastr.success("修改成功");
+            toastr.success($translate.instant('App.Setting.Modified'));
             initApplication();
             $scope.display.app.edit = false;
             $scope.submitBtnDisabled = false;

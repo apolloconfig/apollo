@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.entity.bo;
 
 import com.ctrip.framework.apollo.common.entity.EntityPair;
@@ -20,6 +36,8 @@ public class ReleaseHistoryBO {
 
   private String operator;
 
+  private String operatorDisplayName;
+
   private long releaseId;
 
   private String releaseTitle;
@@ -31,6 +49,8 @@ public class ReleaseHistoryBO {
   private String releaseTimeFormatted;
 
   private List<EntityPair<String>> configuration;
+
+  private boolean isReleaseAbandoned;
 
   private long previousReleaseId;
 
@@ -79,44 +99,28 @@ public class ReleaseHistoryBO {
     this.branchName = branchName;
   }
 
-  public long getReleaseId() {
-    return releaseId;
-  }
-
-  public void setReleaseId(long releaseId) {
-    this.releaseId = releaseId;
-  }
-
-  public long getPreviousReleaseId() {
-    return previousReleaseId;
-  }
-
-  public void setPreviousReleaseId(long previousReleaseId) {
-    this.previousReleaseId = previousReleaseId;
-  }
-
-  public int getOperation() {
-    return operation;
-  }
-
-  public void setOperation(int operation) {
-    this.operation = operation;
-  }
-
-  public Map<String, Object> getOperationContext() {
-    return operationContext;
-  }
-
-  public void setOperationContext(Map<String, Object> operationContext) {
-    this.operationContext = operationContext;
-  }
-
   public String getOperator() {
     return operator;
   }
 
   public void setOperator(String operator) {
     this.operator = operator;
+  }
+
+  public String getOperatorDisplayName() {
+    return operatorDisplayName;
+  }
+
+  public void setOperatorDisplayName(String operatorDisplayName) {
+    this.operatorDisplayName = operatorDisplayName;
+  }
+
+  public long getReleaseId() {
+    return releaseId;
+  }
+
+  public void setReleaseId(long releaseId) {
+    this.releaseId = releaseId;
   }
 
   public String getReleaseTitle() {
@@ -158,5 +162,37 @@ public class ReleaseHistoryBO {
   public void setConfiguration(
       List<EntityPair<String>> configuration) {
     this.configuration = configuration;
+  }
+
+  public boolean isReleaseAbandoned() {
+    return isReleaseAbandoned;
+  }
+
+  public void setReleaseAbandoned(boolean releaseAbandoned) {
+    isReleaseAbandoned = releaseAbandoned;
+  }
+
+  public long getPreviousReleaseId() {
+    return previousReleaseId;
+  }
+
+  public void setPreviousReleaseId(long previousReleaseId) {
+    this.previousReleaseId = previousReleaseId;
+  }
+
+  public int getOperation() {
+    return operation;
+  }
+
+  public void setOperation(int operation) {
+    this.operation = operation;
+  }
+
+  public Map<String, Object> getOperationContext() {
+    return operationContext;
+  }
+
+  public void setOperationContext(Map<String, Object> operationContext) {
+    this.operationContext = operationContext;
   }
 }

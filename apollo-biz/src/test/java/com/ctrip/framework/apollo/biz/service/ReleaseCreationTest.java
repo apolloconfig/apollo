@@ -1,7 +1,22 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.entity.GrayReleaseRule;
@@ -19,12 +34,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 public class ReleaseCreationTest extends AbstractIntegrationTest {
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   @Autowired
   private ReleaseService releaseService;
@@ -494,7 +508,7 @@ public class ReleaseCreationTest extends AbstractIntegrationTest {
   }
 
   private Map<String, String> parseConfiguration(String configuration) {
-    return gson.fromJson(configuration, GsonType.CONFIG);
+    return GSON.fromJson(configuration, GsonType.CONFIG);
   }
 
 }

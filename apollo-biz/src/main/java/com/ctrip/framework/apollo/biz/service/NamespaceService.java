@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
@@ -19,6 +35,8 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +54,7 @@ import java.util.stream.Collectors;
 @Service
 public class NamespaceService {
 
-  private Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
 
   private final NamespaceRepository namespaceRepository;
   private final AuditService auditService;
@@ -88,10 +106,25 @@ public class NamespaceService {
                                                                          namespaceName);
   }
 
+  /**
+   * the returned content's size is not fixed. so please carefully used.
+   */
+  public Page<Namespace> findByItem(String itemKey, Pageable pageable) {
+    Page<Item> items = itemService.findItemsByKey(itemKey, pageable);
+
+    if (!items.hasContent()) {
+      return Page.empty();
+    }
+
+    Set<Long> namespaceIds = BeanUtils.toPropertySet("namespaceId", items.getContent());
+
+    return new PageImpl<>(namespaceRepository.findByIdIn(namespaceIds));
+  }
+
   public Namespace findPublicNamespaceForAssociatedNamespace(String clusterName, String namespaceName) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespaceName);
     if (appNamespace == null) {
-      throw new BadRequestException("namespace not exist");
+      throw BadRequestException.namespaceNotExists("", clusterName, namespaceName);
     }
 
     String appId = appNamespace.getAppId();
@@ -359,7 +392,7 @@ public class NamespaceService {
   public Map<String, Boolean> namespacePublishInfo(String appId) {
     List<Cluster> clusters = clusterService.findParentClusters(appId);
     if (CollectionUtils.isEmpty(clusters)) {
-      throw new BadRequestException("app not exist");
+      throw BadRequestException.appNotExists(appId);
     }
 
     Map<String, Boolean> clusterHasNotPublishedItems = Maps.newHashMap();
@@ -400,7 +433,7 @@ public class NamespaceService {
       return false;
     }
 
-    Map<String, String> publishedConfiguration = gson.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
+    Map<String, String> publishedConfiguration = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
     for (Item item : itemsModifiedAfterLastPublish) {
       if (!Objects.equals(item.getValue(), publishedConfiguration.get(item.getKey()))) {
         return true;

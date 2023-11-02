@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
@@ -25,8 +41,9 @@ import java.util.Map;
 @RestController
 public class ReleaseHistoryController {
 
-  private Gson gson = new Gson();
-  private Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
+  private static final Gson GSON = new Gson();
+
+  private final Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
   }.getType();
 
   private final ReleaseHistoryService releaseHistoryService;
@@ -87,7 +104,7 @@ public class ReleaseHistoryController {
   private ReleaseHistoryDTO transformReleaseHistory2DTO(ReleaseHistory releaseHistory) {
     ReleaseHistoryDTO dto = new ReleaseHistoryDTO();
     BeanUtils.copyProperties(releaseHistory, dto, "operationContext");
-    dto.setOperationContext(gson.fromJson(releaseHistory.getOperationContext(),
+    dto.setOperationContext(GSON.fromJson(releaseHistory.getOperationContext(),
                                           configurationTypeReference));
 
     return dto;

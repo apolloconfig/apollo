@@ -1,9 +1,25 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!DOCTYPE html>
 <html data-ng-app="application">
 
 <head>
     <meta charset="UTF-8">
-    <title>Apollo配置中心</title>
+    <title>{{'Config.Title' | translate }}</title>
     <link rel="icon" href="./img/config.png">
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
@@ -15,437 +31,435 @@
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div id="config-info" class="apollo-container app">
-    <div ng-controller="ConfigBaseInfoController">
-        <div class="J_appNotFound hidden row text-center app-not-found" ng-show="notFoundApp">
-            <img src="img/404.png">
-            <br>
-            <p>
-                <span ng-bind="pageContext.appId"></span> 不存在，<a href="/app.html">点击创建</a>
-            </p>
-        </div>
+    <div id="config-info" class="apollo-container app">
+        <div ng-controller="ConfigBaseInfoController">
+            <div class="J_appNotFound hidden row text-center app-not-found" ng-show="notFoundApp">
+                <img src="img/404.png">
+                <br>
+                <p>
+                    <span ng-bind="pageContext.appId"></span> {{'Config.AppIdNotFound' | translate }}<a
+                        href="app.html">{{'Config.ClickByCreate' | translate }}</a>
+                </p>
+            </div>
 
-        <div class="side-bar"
-             ng-class="{'position-absolute': viewMode == 1, 'position-fixed': viewMode == 2}">
-            <div class="J_appFound hidden"
-                 ng-show="!notFoundApp && (viewMode == 1 || (viewMode == 2 && showSideBar))">
+            <div class="side-bar" ng-class="{'position-absolute': viewMode == 1, 'position-fixed': viewMode == 2}">
+                <div class="J_appFound hidden"
+                    ng-show="!notFoundApp && (viewMode == 1 || (viewMode == 2 && showSideBar))">
 
-                <!--env list-->
-                <section class="panel">
-                    <header class="panel-heading">
-                        环境列表
-                        <span class="pull-right"
-                              data-tooltip="tooltip" data-placement="bottom" title="通过切换环境、集群来管理不同环境、集群的配置">
-                                    <img src="img/question.png" class="i-20"/>
+                    <!--env list-->
+                    <section class="panel">
+                        <header class="panel-heading">
+                            {{'Config.EnvList' | translate }}
+                            <span class="pull-right" data-tooltip="tooltip" data-placement="bottom"
+                                title="{{'Config.EnvListTips' | translate }}">
+                                <img src="img/question.png" class="i-20" />
                             </span>
-                    </header>
-                    <div id="treeview" class="no-radius"></div>
-                </section>
+                        </header>
+                        <div id="treeview" class="no-radius"></div>
+                    </section>
 
 
-                <!--app info-->
-                <section class="panel">
-                    <header class="panel-heading">
-                        项目信息
+                    <!--app info-->
+                    <section class="panel">
+                        <header class="panel-heading">
+                            {{'Config.ProjectInfo' | translate }}
                             <span class="pull-right">
 
-                                <a href="/app/setting.html?#/appid={{pageContext.appId}}"
-                                   style="margin-right: 5px;text-decoration:none;">
-                                    <img src="img/edit.png" class="i-20 cursor-pointer"
-                                         data-tooltip="tooltip" data-placement="bottom" title="修改项目基本信息"/>
+                                <a href="app/setting.html?#/appid={{pageContext.appId}}"
+                                    style="margin-right: 5px;text-decoration:none;">
+                                    <img src="img/edit.png" class="i-20 cursor-pointer" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Config.ModifyBasicProjectInfo' | translate }}" />
                                 </a>
 
-                                <img src="img/unlike.png" class="i-20 cursor-pointer"
-                                     ng-if="!favoriteId" ng-click="addFavorite()"
-                                     data-tooltip="tooltip" data-placement="bottom" title="收藏"/>
+                                <img src="img/unlike.png" class="i-20 cursor-pointer" ng-if="!favoriteId"
+                                    ng-click="addFavorite()" data-tooltip="tooltip" data-placement="bottom"
+                                    title="{{'Config.Favorite' | translate }}" />
 
-                                <img src="img/like.png" class="i-20 cursor-pointer"
-                                     ng-if="favoriteId" ng-click="deleteFavorite()"
-                                     data-tooltip="tooltip" data-placement="bottom" title="取消收藏"/>
+                                <img src="img/like.png" class="i-20 cursor-pointer" ng-if="favoriteId"
+                                    ng-click="deleteFavorite()" data-tooltip="tooltip" data-placement="bottom"
+                                    title="{{'Config.CancelFavorite' | translate }}" />
                             </span>
-                    </header>
-                    <div class="panel-body">
-                        <table class="project-info">
-                            <tbody class="text-left">
-                            <tr>
-                                <th>AppId:</th>
-                                <td ng-bind="appBaseInfo.appId"></td>
-                            </tr>
-                            <tr>
-                                <th>应用名:</th>
-                                <td>
-                                    <small ng-bind="appBaseInfo.name"></small>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>部门:</th>
-                                <td ng-bind="appBaseInfo.orgInfo"></td>
-                            </tr>
-                            <tr>
-                                <th>负责人:</th>
-                                <td ng-bind="appBaseInfo.ownerName"></td>
-                            </tr>
-                            <tr>
-                                <th>邮箱:</th>
-                                <td>
-                                    <small ng-bind="appBaseInfo.ownerEmail"></small>
-                                </td>
-                            </tr>
-                            <tr ng-show="missEnvs.length > 0">
-                                <th>缺失的环境:</th>
-                                <td>
-                                <span ng-repeat="env in missEnvs" ng-bind="env">
-                                </span>
-                                </td>
-                            </tr>
-                            <tr ng-show="missingNamespaces.length > 0">
-                                <th>缺失的Namespace:</th>
-                                <td>
-                                <span ng-repeat="namespace in missingNamespaces" ng-bind="namespace">
-                                </span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+                        </header>
+                        <div class="panel-body">
+                            <table class="project-info">
+                                <tbody class="text-left">
+                                    <tr>
+                                        <th>{{'Common.AppId' | translate }}:</th>
+                                        <td ng-bind="appBaseInfo.appId"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{{'Common.AppName' | translate }}:</th>
+                                        <td>
+                                            <small ng-bind="appBaseInfo.name"></small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>{{'Common.Department' | translate }}:</th>
+                                        <td ng-bind="appBaseInfo.orgInfo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{{'Common.AppOwner' | translate }}:</th>
+                                        <td ng-bind="appBaseInfo.ownerInfo"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>{{'Common.Email' | translate }}:</th>
+                                        <td>
+                                            <small ng-bind="appBaseInfo.ownerEmail"></small>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="missEnvs.length > 0">
+                                        <th>{{'Config.MissEnv' | translate }}:</th>
+                                        <td>
+                                            <span ng-repeat="env in missEnvs" ng-bind="env">
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr ng-show="missingNamespaces.length > 0">
+                                        <th>{{'Config.MissNamespace' | translate }}:</th>
+                                        <td>
+                                            <span ng-repeat="namespace in missingNamespaces" ng-bind="namespace">
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-                    </div>
-                </section>
-
-                <!--operation entrance-->
-                <section>
-                    <apolloentrance apollo-title="'管理项目'" apollo-img-src="'project-manage'"
-                                    apollo-href="'/app/setting.html?#/appid=' + pageContext.appId"></apolloentrance>
-
-                    <a class="list-group-item" ng-show="missEnvs.length > 0" ng-click="createAppInMissEnv()">
-                        <div class="row icon-text icon-plus-orange">
-                            <p class="btn-title ng-binding">补缺环境</p>
                         </div>
-                    </a>
+                    </section>
 
-                    <a class="list-group-item" ng-show="missingNamespaces.length > 0" ng-click="createMissingNamespaces()">
-                        <div class="row icon-text icon-plus-orange">
-                            <p class="btn-title ng-binding">补缺Namespace</p>
+                    <!--operation entrance-->
+                    <section>
+                        <apolloentrance apollo-title="'Config.ProjectManage' | translate"
+                            apollo-img-src="'project-manage'"
+                            apollo-href="'app/setting.html?#/appid=' + pageContext.appId"></apolloentrance>
+
+                        <apolloentrance apollo-title="'Config.AccessKeyManage' | translate"
+                                        apollo-img-src="'accesskey-manage'"
+                                        apollo-href="'app/access_key.html?#/appid=' + pageContext.appId"></apolloentrance>
+
+                        <a class="list-group-item" ng-show="missEnvs.length > 0" ng-click="createAppInMissEnv()">
+                            <div class="row icon-text icon-plus-orange">
+                                <p class="btn-title ng-binding">{{'Config.CreateAppMissEnv' | translate }}</p>
+                            </div>
+                        </a>
+
+                        <a class="list-group-item" ng-show="missingNamespaces.length > 0"
+                            ng-click="createMissingNamespaces()">
+                            <div class="row icon-text icon-plus-orange">
+                                <p class="btn-title ng-binding">{{'Config.CreateAppMissNamespace' | translate }}</p>
+                            </div>
+                        </a>
+
+                        <apolloentrance apollo-title="'Config.AddCluster' | translate" apollo-img-src="'plus-orange'"
+                            apollo-href="'cluster.html?#/appid=' + pageContext.appId"
+                            ng-show="hasCreateClusterPermission"></apolloentrance>
+
+                        <div class="list-group-item cursor-pointer hover" ng-click="showMasterPermissionTips()"
+                            ng-show="!hasCreateClusterPermission">
+                            <div class="row icon-text icon-plus-orange">
+                                <p class="btn-title">{{'Config.AddCluster' | translate }}</p>
+                            </div>
                         </div>
-                    </a>
 
-                    <apolloentrance apollo-title="'添加集群'" apollo-img-src="'plus-orange'"
-                                    apollo-href="'cluster.html?#/appid=' + pageContext.appId"
-                                    ng-show="hasCreateClusterPermission"></apolloentrance>
+                        <apolloentrance apollo-title="'Config.AddNamespace' | translate" apollo-img-src="'plus-orange'"
+                            apollo-href="'namespace.html?#/appid=' + pageContext.appId"
+                            ng-show="hasCreateNamespacePermission"></apolloentrance>
 
-                    <div class="list-group-item cursor-pointer hover" ng-click="showMasterPermissionTips()"
-                         ng-show="!hasCreateClusterPermission">
-                        <div class="row icon-text icon-plus-orange">
-                            <p class="btn-title">添加集群</p>
+                        <div class="list-group-item cursor-pointer hover" ng-click="showMasterPermissionTips()"
+                            ng-show="!hasCreateNamespacePermission">
+                            <div class="row icon-text icon-plus-orange">
+                                <p class="btn-title">{{'Config.AddNamespace' | translate }}</p>
+                            </div>
                         </div>
-                    </div>
-
-                    <apolloentrance apollo-title="'添加Namespace'" apollo-img-src="'plus-orange'"
-                                    apollo-href="'namespace.html?#/appid=' + pageContext.appId"
-                                    ng-show="hasCreateNamespacePermission"></apolloentrance>
-
-                    <div class="list-group-item cursor-pointer hover" ng-click="showMasterPermissionTips()"
-                         ng-show="!hasCreateNamespacePermission">
-                        <div class="row icon-text icon-plus-orange">
-                            <p class="btn-title">添加Namespace</p>
-                        </div>
-                    </div>
 
 
-                </section>
+                    </section>
 
-            </div>
-        </div>
-    </div>
-
-    <!--具体配置信息-->
-    <!--namespaces-->
-    <div class="config-item-container hide"
-         ng-class="{'view-mode-1': viewMode == 1, 'view-mode-2': viewMode == 2}"
-         ng-controller="ConfigNamespaceController">
-
-        <h4 class="text-center" ng-show="viewMode == 2">
-            当前操作环境:{{pageContext.env}}， 集群:{{pageContext.clusterName}}
-        </h4>
-        <div class="alert alert-info alert-dismissible" role="alert"
-             ng-show="(!hideTip || !hideTip[pageContext.appId][pageContext.clusterName]) && envMapClusters[pageContext.env]">
-
-            <button class="btn btn-sm btn-default pull-right" style="margin-top: -7px;margin-right:-15px;"
-                    ng-click="closeTip(pageContext.clusterName)">不再提示
-            </button>
-
-            <!--default cluster tip -->
-            <div ng-show="pageContext.clusterName == 'default'">
-                <strong>注意: </strong>所有不属于
-                <span ng-bind="envMapClusters[pageContext.env]"></span>
-                集群的实例会使用default集群（当前页面）的配置，属于
-                <span ng-bind="envMapClusters[pageContext.env]"></span>
-                的实例会使用对应集群的配置！
-            </div>
-
-            <!--custom cluster tip-->
-            <div ng-show="pageContext.clusterName != 'default'">
-                <strong>注意:</strong>属于
-                <span ng-bind="pageContext.clusterName"></span>
-                集群的实例只会使用
-                <span ng-bind="pageContext.clusterName"></span>
-                集群（当前页面）的配置，只有当对应namespace在当前集群没有发布过配置时，才会使用default集群的配置。
-            </div>
-
-        </div>
-
-        <div class="alert alert-info"
-             ng-if="hasNotPublishNamespace">
-            <p><b>注意:</b> 以下环境/集群有未发布的配置，客户端获取不到未发布的配置，请及时发布。</p>
-            <p>
-                <mark ng-bind="namespacePublishInfo.join('，')"></mark>
-            </p>
-        </div>
-
-        <apollonspanel ng-repeat="namespace in namespaces"
-                       namespace="namespace"
-                       app-id="pageContext.appId"
-                       env="pageContext.env"
-                       lock-check="lockCheck"
-                       cluster="pageContext.clusterName"
-                       user="currentUser"
-                       pre-release-ns="prepareReleaseNamespace"
-                       create-item="createItem" edit-item="editItem"
-                       pre-delete-item="preDeleteItem"
-                       show-text="showText"
-                       show-no-modify-permission-dialog="showNoModifyPermissionDialog"
-                       show-body="namespaces.length < 3"
-                       lazy-load="namespaces.length > 10"
-                       pre-create-branch="preCreateBranch"
-                       pre-delete-branch="preDeleteBranch">
-        </apollonspanel>
-
-        <releasemodal app-id="pageContext.appId"
-                      env="pageContext.env"
-                      cluster="pageContext.clusterName">
-        </releasemodal>
-
-        <itemmodal to-operation-namespace="toOperationNamespace"
-                   app-id="pageContext.appId"
-                   env="pageContext.env"
-                   cluster="pageContext.clusterName"
-                   item="item">
-        </itemmodal>
-
-        <showtextmodal text="text"></showtextmodal>
-
-        <rollbackmodal app-id="pageContext.appId"
-                       env="pageContext.env"
-                       cluster="pageContext.clusterName">
-        </rollbackmodal>
-
-        <rulesmodal app-id="pageContext.appId"
-                    env="pageContext.env"
-                    cluster="pageContext.clusterName">
-
-        </rulesmodal>
-
-
-        <mergeandpublishmodal app-id="pageContext.appId"
-                              env="pageContext.env"
-                              cluster="pageContext.clusterName">
-        </mergeandpublishmodal>
-
-        <publishdenymodal env="pageContext.env"></publishdenymodal>
-
-        <deletenamespacemodal env="pageContext.env"></deletenamespacemodal>
-
-        <apolloconfirmdialog apollo-dialog-id="'deleteConfirmDialog'" apollo-title="'删除配置'"
-                             apollo-detail="'您正在删除 Key 为 <b>' + config.key + '</b> Value 为 <b>' + config.value + '</b> 的配置.<br>确定要删除配置吗?'"
-                             apollo-show-cancel-btn="true" apollo-confirm="deleteItem"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'releaseNoPermissionDialog'" apollo-title="'发布'"
-                             apollo-detail="'您没有发布权限哦~ 请找项目管理员 ' + masterUsers + ' 分配发布权限'"
-                             apollo-show-cancel-btn="false"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'modifyNoPermissionDialog'" apollo-title="'申请配置权限'"
-                             apollo-detail="'请找项目管理员 ' + masterUsers + ' 分配编辑或发布权限'"
-                             apollo-show-cancel-btn="false"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'masterNoPermissionDialog'" apollo-title="'申请配置权限'"
-                             apollo-detail="'您不是项目管理员， 只有项目管理员才有添加集群、namespace的权限。
-                                 如需管理员权限，请找项目管理员 ' + masterUsers + ' 分配管理员权限'"
-                             apollo-show-cancel-btn="false"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'namespaceLockedDialog'" apollo-title="'编辑受限'"
-                             apollo-detail="'当前namespace正在被 ' + lockOwner + ' 编辑，一次发布只能被一个人修改.'"
-                             apollo-show-cancel-btn="false"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'rollbackAlertDialog'" apollo-title="'回滚'"
-                             apollo-detail="'确定要回滚吗?'"
-                             apollo-show-cancel-btn="true" apollo-confirm="rollback"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'emergencyPublishAlertDialog'" apollo-title="'紧急发布'"
-                             apollo-detail="'确定要紧急发布吗?'"
-                             apollo-show-cancel-btn="true" apollo-confirm="emergencyPublish"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'deleteBranchDialog'" apollo-title="'删除灰度'"
-                             apollo-detail="'删除灰度会丢失灰度的配置，确定要删除吗?'"
-                             apollo-show-cancel-btn="true" apollo-confirm="deleteBranch"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'updateRuleTips'" apollo-title="'更新灰度规则提示'"
-                             apollo-detail="'灰度规则已生效，但发现灰度版本有未发布的配置，这些配置需要手动灰度发布才会生效'"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'mergeAndReleaseDenyDialog'" apollo-title="'全量发布'"
-                             apollo-detail="'namespace主版本有未发布的配置，请先发布主版本配置'"></apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'grayReleaseWithoutRulesTips'" apollo-title="'缺失灰度规则提示'"
-                             apollo-detail="'灰度版本还没有配置任何灰度规则，请配置灰度规则'">
-        </apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForMasterInstanceDialog'"
-                             apollo-title="'删除Namespace警告信息'"
-                             apollo-detail="'发现有 <b>' + deleteNamespaceContext.namespace.instancesCount +
-                             '</b> 个实例正在使用Namespace(' + deleteNamespaceContext.namespace.baseInfo.namespaceName +
-                             ')，删除Namespace将导致实例获取不到配置。<br>
-                             请到 <ins>“实例列表”</ins> 确认实例信息，如确认相关实例都已经不再使用该Namespace配置，可以联系Apollo相关负责人删除实例信息（InstanceConfig）或等待实例24小时自动过期后再来删除。'"
-                             apollo-confirm="continueDeleteNamespace">
-        </apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForBranchInstanceDialog'"
-                             apollo-title="'删除Namespace警告信息'"
-                             apollo-detail="'发现有 <b>' + deleteNamespaceContext.namespace.branch.latestReleaseInstances.total
-                             + '</b> 个实例正在使用Namespace(' + deleteNamespaceContext.namespace.baseInfo.namespaceName +
-                             ')灰度版本的配置，删除Namespace将导致实例获取不到配置。<br>
-                             请到 <ins>“灰度版本” => “实例列表”</ins> 确认实例信息，如确认相关实例都已经不再使用该Namespace配置，可以联系Apollo相关负责人删除实例信息（InstanceConfig）或等待实例24小时自动过期后再来删除。'"
-                             apollo-confirm="continueDeleteNamespace">
-        </apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForPublicNamespaceDialog'"
-                             apollo-title="'删除Namespace失败提示'"
-                             apollo-detail="deleteNamespaceContext.detailReason">
-        </apolloconfirmdialog>
-
-        <apolloconfirmdialog apollo-dialog-id="'syntaxCheckFailedDialog'"
-                             apollo-title="'语法检查错误'"
-                             apollo-detail="syntaxCheckContext.syntaxCheckMessage"
-                             apollo-extra-class="'pre'">
-        </apolloconfirmdialog>
-
-
-        <div class="modal fade" id="createBranchTips" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header panel-primary">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">创建灰度须知</h4>
-                    </div>
-                    <div class="modal-body">
-                        通过创建灰度版本，您可以对某些配置做灰度测试<br>
-                        灰度流程为:<br>
-                        &nbsp;&nbsp;1.创建灰度版本 <br>
-                        &nbsp;&nbsp;2.配置灰度配置项<br>
-                        &nbsp;&nbsp;3.配置灰度规则.如果是私有的namespace可以按照客户端的IP进行灰度，如果是公共的namespace则可以同时按AppId和客户端的IP进行灰度<br>
-                        &nbsp;&nbsp;4.灰度发布<br>
-                        灰度版本最终有两种结果:<b>全量发布和放弃灰度</b><br>
-                        <b>全量发布</b>:灰度的配置合到主版本并发布，所有的客户端都会使用合并后的配置<br>
-                        <b>放弃灰度</b>:删除灰度版本，所有的客户端都会使用回主版本的配置<br>
-                        注意事项:<br>
-                        &nbsp;&nbsp;1.如果灰度版本已经有灰度发布过，那么修改灰度规则后，无需再次灰度发布就立即生效<br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                ng-click="createBranch()">
-                            确定
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
+
+        <!--具体配置信息-->
+        <!--namespaces-->
+        <div class="config-item-container hide" ng-class="{'view-mode-1': viewMode == 1, 'view-mode-2': viewMode == 2}"
+            ng-controller="ConfigNamespaceController">
+
+            <h4 class="text-center" ng-show="viewMode == 2">
+                {{'Config.CurrentlyOperatorEnv' | translate }}:{{pageContext.env}}，
+                {{'Common.Cluster' | translate }}:{{pageContext.clusterName}}
+            </h4>
+            <div class="alert alert-info alert-dismissible" role="alert"
+                ng-show="(!hideTip || !hideTip[pageContext.appId][pageContext.clusterName]) && envMapClusters[pageContext.env]">
+
+                <button class="btn btn-sm btn-default pull-right" style="margin-top: -7px;margin-right:-15px;"
+                    ng-click="closeTip(pageContext.clusterName)">{{'Config.DoNotRemindAgain' | translate }}
+                </button>
+
+                <!--default cluster tip -->
+                <div ng-show="pageContext.clusterName == 'default'">
+                    <strong>{{'Config.Note' | translate }}:</strong>
+                    <span translate="Config.ClusterIsDefaultTipContent"
+                        translate-value-name="{{envMapClusters[pageContext.env]}}"></span>
+                </div>
+
+                <!--custom cluster tip-->
+                <div ng-show="pageContext.clusterName != 'default'">
+                    <strong>{{'Config.Note' | translate }}:</strong>
+                    <span translate="Config.ClusterIsCustomTipContent"
+                        translate-value-name="{{pageContext.clusterName}}"></span>
+                </div>
+
+            </div>
+
+            <div class="alert alert-info" ng-if="hasNotPublishNamespace">
+                <p><b>{{'Config.Note' | translate }}:</b> {{'Config.HasNotPublishNamespace' | translate }}</p>
+                <p>
+                    <mark ng-bind="namespacePublishInfo.join('，')"></mark>
+                </p>
+            </div>
+
+            <apollonspanel ng-repeat="namespace in namespaces" namespace="namespace" app-id="pageContext.appId"
+                env="pageContext.env" lock-check="lockCheck" cluster="pageContext.clusterName" user="currentUser"
+                pre-release-ns="prepareReleaseNamespace" create-item="createItem" edit-item="editItem"
+                pre-delete-item="preDeleteItem" pre-revoke-item="preRevokeItem"
+                show-text="showText"
+                show-no-modify-permission-dialog="showNoModifyPermissionDialog" show-body="namespaces.length < 3"
+                lazy-load="namespaces.length > 10" pre-create-branch="preCreateBranch"
+                pre-delete-branch="preDeleteBranch">
+            </apollonspanel>
+
+            <releasemodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
+            </releasemodal>
+
+            <itemmodal to-operation-namespace="toOperationNamespace" app-id="pageContext.appId" env="pageContext.env"
+                cluster="pageContext.clusterName" item="item">
+            </itemmodal>
+
+            <showtextmodal text="text"></showtextmodal>
+
+            <rollbackmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
+            </rollbackmodal>
+
+            <rulesmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
+
+            </rulesmodal>
+
+
+            <mergeandpublishmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
+            </mergeandpublishmodal>
+
+            <publishdenymodal env="pageContext.env"></publishdenymodal>
+
+            <deletenamespacemodal env="pageContext.env"></deletenamespacemodal>
+
+            <importnamespacemodal env="pageContext.env"></importnamespacemodal>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteConfirmDialog'"
+                apollo-title="'Config.DeleteItem.DialogTitle' | translate"
+                apollo-detail="'Config.DeleteItem.DialogContent' | translate:this" apollo-show-cancel-btn="true"
+                apollo-confirm="deleteItem"></apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'releaseNoPermissionDialog'"
+                apollo-title="'Config.PublishNoPermission.DialogTitle' | translate"
+                apollo-detail="'Config.PublishNoPermission.DialogContent' | translate:this"
+                apollo-show-cancel-btn="false">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'modifyNoPermissionDialog'"
+                apollo-title="'Config.ModifyNoPermission.DialogTitle' | translate"
+                apollo-detail="'Config.ModifyNoPermission.DialogContent' | translate:this"
+                apollo-show-cancel-btn="false">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'masterNoPermissionDialog'"
+                apollo-title="'Config.MasterNoPermission.DialogTitle' | translate"
+                apollo-detail="'Config.MasterNoPermission.DialogContent' | translate:this"
+                apollo-show-cancel-btn="false">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'namespaceLockedDialog'"
+                apollo-title="'Config.NamespaceLocked.DialogTitle' | translate"
+                apollo-detail="'Config.NamespaceLocked.DialogContent' | translate:this" apollo-show-cancel-btn="false">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'rollbackAlertDialog'"
+                apollo-title="'Config.RollbackAlert.DialogTitle' | translate"
+                apollo-detail="'Config.RollbackAlert.DialogContent' | translate" apollo-show-cancel-btn="true"
+                apollo-confirm="rollback"></apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'emergencyPublishAlertDialog'"
+                apollo-title="'Config.EmergencyPublishAlert.DialogTitle' | translate"
+                apollo-detail="'Config.EmergencyPublishAlert.DialogContent' | translate" apollo-show-cancel-btn="true"
+                apollo-confirm="emergencyPublish">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteBranchDialog'"
+                apollo-title="'Config.DeleteBranch.DialogTitle' | translate"
+                apollo-detail="'Config.DeleteBranch.DialogContent' | translate" apollo-show-cancel-btn="true"
+                apollo-confirm="deleteBranch">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'updateRuleTips'"
+                apollo-title="'Config.UpdateRuleTips.DialogTitle' | translate"
+                apollo-detail="'Config.UpdateRuleTips.DialogContent' | translate"></apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'mergeAndReleaseDenyDialog'"
+                apollo-title="'Config.MergeAndReleaseDeny.DialogTitle' | translate"
+                apollo-detail="'Config.MergeAndReleaseDeny.DialogContent' | translate"></apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'grayReleaseWithoutRulesTips'"
+                apollo-title="'Config.GrayReleaseWithoutRulesTips.DialogTitle' | translate"
+                apollo-detail="'Config.GrayReleaseWithoutRulesTips.DialogContent' | translate">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForMasterInstanceDialog'"
+                apollo-title="'Config.DeleteNamespaceDenyForMasterInstance.DialogTitle' | translate"
+                apollo-detail="'Config.DeleteNamespaceDenyForMasterInstance.DialogContent' | translate:this"
+                apollo-confirm="continueDeleteNamespace">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForBranchInstanceDialog'"
+                apollo-title="'Config.DeleteNamespaceDenyForBranchInstance.DialogTitle' | translate"
+                apollo-detail="'Config.DeleteNamespaceDenyForBranchInstance.DialogContent' | translate:this"
+                apollo-confirm="continueDeleteNamespace">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteNamespaceDenyForPublicNamespaceDialog'"
+                apollo-title="'Config.DeleteNamespaceDenyForPublicNamespace.DialogTitle' | translate"
+                apollo-detail="deleteNamespaceContext.detailReason">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'syntaxCheckFailedDialog'"
+                apollo-title="'Config.SyntaxCheckFailed.DialogTitle' | translate"
+                apollo-detail="syntaxCheckContext.syntaxCheckMessage" apollo-extra-class="'pre'">
+            </apolloconfirmdialog>
+
+            <apolloconfirmdialog apollo-dialog-id="'revokeItemConfirmDialog'"
+                apollo-title="'Config.RevokeItem.DialogTitle' | translate"
+                apollo-detail="'Config.RevokeItem.DialogContent' | translate:this" apollo-show-cancel-btn="true"
+                apollo-confirm="revokeItem">
+           </apolloconfirmdialog>
+
+
+            <div class="modal fade" id="createBranchTips" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header panel-primary">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">{{'Config.CreateBranchTips.DialogTitle' | translate}}</h4>
+                        </div>
+                        <div class="modal-body" ng-bind-html="'Config.CreateBranchTips.DialogContent' | translate">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default"
+                                data-dismiss="modal">{{'Common.Cancel' | translate}}</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                ng-click="createBranch()">{{'Common.Ok' | translate}}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-</div>
 
 
-<div ng-include="'views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
+
+    <!--load backTop component-->
+    <div ng-include="'views/component/back-top.html'"></div>
+
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="vendor/jquery-plugin/jquery.textareafullscreen.js" type="text/javascript"></script>
+
+    <!--lodash.js-->
+    <script src="vendor/lodash.min.js" type="text/javascript"></script>
+
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+    <script src="vendor/angular/angular-sanitize.min.js"></script>
+
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="vendor/bootstrap/js/bootstrap-treeview.min.js" type="text/javascript"></script>
+
+    <script src="vendor/diff.min.js" type="text/javascript"></script>
+
+    <script src="vendor/clipboard.min.js" type="text/javascript"></script>
+
+    <script src="vendor/ui-ace/ace.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/ui-ace.min.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/mode-properties.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/mode-xml.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/mode-yaml.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/mode-json.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/worker-json.js" type="text/javascript"></script>
+    <script src="vendor/ui-ace/worker-xml.js" type="text/javascript"></script>
 
 
-<!-- jquery.js -->
-<script src="vendor/jquery.min.js" type="text/javascript"></script>
 
-<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
-<script src="vendor/jquery-plugin/jquery.textareafullscreen.js" type="text/javascript"></script>
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<!--lodash.js-->
-<script src="vendor/lodash.min.js" type="text/javascript"></script>
+    <!--biz script-->
+    <script type="application/javascript" src="scripts/app.js"></script>
 
-<!--angular-->
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-resource.min.js"></script>
-<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="vendor/angular/loading-bar.min.js"></script>
-
-<!-- bootstrap.js -->
-<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
-<script src="vendor/bootstrap/js/bootstrap-treeview.min.js" type="text/javascript"></script>
-
-<script src="vendor/diff.min.js" type="text/javascript"></script>
-
-<script src="vendor/clipboard.min.js" type="text/javascript"></script>
-
-<script src="vendor/ui-ace/ace.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/ui-ace.min.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/mode-properties.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/mode-xml.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/mode-yaml.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/mode-json.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/worker-json.js" type="text/javascript"></script>
-<script src="vendor/ui-ace/worker-xml.js" type="text/javascript"></script>
+    <!--service-->
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/ConfigService.js"></script>
+    <script type="application/javascript" src="scripts/services/ReleaseService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommitService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceLockService.js"></script>
+    <script type="application/javascript" src="scripts/services/InstanceService.js"></script>
+    <script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceBranchService.js"></script>
+    <script type="application/javascript" src="scripts/services/EventManager.js"></script>
 
 
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
 
-<!--valdr-->
-<script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <!--directive-->
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/namespace-panel-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/diff-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/release-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/item-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/show-text-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/rollback-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/gray-release-rules-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/merge-and-publish-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/publish-deny-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/delete-namespace-modal-directive.js"></script>
+    <script type="application/javascript" src="scripts/directive/import-namespace-modal-directive.js"></script>
 
-<!--biz script-->
-<script type="application/javascript" src="scripts/app.js"></script>
+    <!--controller-->
+    <script type="application/javascript" src="scripts/controller/config/ConfigNamespaceController.js"></script>
+    <script type="application/javascript" src="scripts/controller/config/ConfigBaseInfoController.js"></script>
+    <script type="application/javascript" src="scripts/controller/BackTopController.js"></script>
 
-<!--service-->
-<script type="application/javascript" src="scripts/services/AppService.js"></script>
-<script type="application/javascript" src="scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="scripts/services/UserService.js"></script>
-<script type="application/javascript" src="scripts/services/ConfigService.js"></script>
-<script type="application/javascript" src="scripts/services/ReleaseService.js"></script>
-<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
-<script type="application/javascript" src="scripts/services/CommitService.js"></script>
-<script type="application/javascript" src="scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="scripts/services/NamespaceLockService.js"></script>
-<script type="application/javascript" src="scripts/services/InstanceService.js"></script>
-<script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
-<script type="application/javascript" src="scripts/services/NamespaceBranchService.js"></script>
-<script type="application/javascript" src="scripts/services/EventManager.js"></script>
+    <script type="application/javascript" src="scripts/PageCommon.js"></script>
 
-
-<script type="application/javascript" src="scripts/AppUtils.js"></script>
-
-<!--directive-->
-<script type="application/javascript" src="scripts/directive/directive.js"></script>
-<script type="application/javascript" src="scripts/directive/namespace-panel-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/diff-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/release-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/item-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/show-text-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/rollback-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/gray-release-rules-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/merge-and-publish-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/publish-deny-modal-directive.js"></script>
-<script type="application/javascript" src="scripts/directive/delete-namespace-modal-directive.js"></script>
-
-<!--controller-->
-<script type="application/javascript" src="scripts/controller/config/ConfigNamespaceController.js"></script>
-<script type="application/javascript" src="scripts/controller/config/ConfigBaseInfoController.js"></script>
-
-<script type="application/javascript" src="scripts/PageCommon.js"></script>
-
-<script src="scripts/valdr.js" type="text/javascript"></script>
+    <script src="scripts/valdr.js" type="text/javascript"></script>
 </body>
+
 </html>

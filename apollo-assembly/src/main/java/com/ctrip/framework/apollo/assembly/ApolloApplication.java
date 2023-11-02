@@ -1,6 +1,23 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.assembly;
 
 import com.ctrip.framework.apollo.adminservice.AdminServiceApplication;
+import com.ctrip.framework.apollo.audit.configuration.ApolloAuditAutoConfiguration;
 import com.ctrip.framework.apollo.configservice.ConfigServiceApplication;
 import com.ctrip.framework.apollo.portal.PortalApplication;
 
@@ -15,7 +32,7 @@ import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class})
+    HibernateJpaAutoConfiguration.class, ApolloAuditAutoConfiguration.class})
 public class ApolloApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplication.class);

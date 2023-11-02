@@ -1,4 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.defaultImpl;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
@@ -13,18 +33,14 @@ import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -269,13 +285,14 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryUsersWithRole() throws Exception {
-    String someRoleName = "someRoleName";
+    String roleName = "someRoleName";
+    Set<UserInfo> users = rolePermissionService.queryUsersWithRole(roleName);
+    Assertions.assertThat(users).isEmpty();
 
-    Set<UserInfo> users = rolePermissionService.queryUsersWithRole(someRoleName);
-
+    roleName = "apolloRoleName";
+    users = rolePermissionService.queryUsersWithRole(roleName);
     Set<String> userIds = users.stream().map(UserInfo::getUserId).collect(Collectors.toSet());
-
-    assertTrue(userIds.containsAll(Sets.newHashSet("someUser", "anotherUser")));
+    assertTrue(userIds.containsAll(Sets.newHashSet("apollo")));
   }
 
   @Test

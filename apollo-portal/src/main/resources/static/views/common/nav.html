@@ -1,49 +1,80 @@
 <nav class="navbar navbar-default">
+    <!--
+      ~ Copyright 2023 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="container-fluid">
         <div class="navbar-header">
-            <img class="navbar-brand side-bar-switch cursor-pointer" src="../../img/show_sidebar.png"
+            <img class="navbar-brand side-bar-switch cursor-pointer" src="{{ '/img/show_sidebar.png' | prefixPath }}"
                  onMouseOver="this.style.background='#f1f2f7'"
                  onMouseOut="this.style.background='#fff'"
-                 data-tooltip="tooltip" data-placement="bottom" title="显示导航栏"
+                 data-tooltip="tooltip" data-placement="bottom" title="{{'Common.Nav.ShowNavBar' | translate }}"
                  ng-show="viewMode == 2 && !showSideBar"
                  ng-click="showSideBar = !showSideBar">
-            <img class="navbar-brand side-bar-switch cursor-pointer" src="../../img/hide_sidebar.png"
+            <img class="navbar-brand side-bar-switch cursor-pointer" src="{{ '/img/hide_sidebar.png' | prefixPath }}"
                  onMouseOver="this.style.background='#f1f2f7'"
                  onMouseOut="this.style.background='#fff'"
-                 data-tooltip="tooltip" data-placement="bottom" title="隐藏导航栏"
+                 data-tooltip="tooltip" data-placement="bottom" title="{{'Common.Nav.HideNavBar' | translate }}"
                  ng-show="viewMode == 2 && showSideBar"
                  ng-click="showSideBar = !showSideBar">
-            <a class="navbar-brand logo" href="/">
-                <img src="../../img/logo-simple.png" style="height:45px; margin-top: -13px">
+            <a class="navbar-brand logo" href="{{ '/' | prefixPath }}">
+                <img class="logo" src="{{ '/img/logo-simple.png' | prefixPath }}">
             </a>
         </div>
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse">
 
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <a href="{{pageSetting.wikiAddress}}" target="_blank">
-                        <span class="glyphicon glyphicon-question-sign"></span> 帮助
+                        <span class="glyphicon glyphicon-question-sign"></span> {{'Common.Nav.Help' | translate }}
                     </a>
-                </li>
-                <li class="dropdown" ng-if="hasRootPermission">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-cog"></span>&nbsp;管理员工具
-                        <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="/user-manage.html" target="_blank">用户管理</a></li>
-                        <li><a href="/system-role-manage.html" target="_blank">系统权限管理</a></li>
-                        <li><a href="/open/manage.html" target="_blank">开放平台授权管理</a></li>
-                        <li><a href="/server_config.html" target="_blank">系统参数</a></li>
-                        <li><a href="/delete_app_cluster_namespace.html" target="_blank">删除应用、集群、AppNamespace</a></li>
-                        <li><a href="/system_info.html" target="_blank">系统信息</a></li>
-                    </ul>
                 </li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span class="glyphicon glyphicon-user"></span>&nbsp;{{userName}}
+                        <img class="nav-switch-lang" style="" src="{{ '/img/language.png' | prefixPath }}">
+                        <span class="glyphicon .glyphicon-glyphicon-font"></span>&nbsp;Language<span class="caret"></span></a>
+
+                    <ul class="dropdown-menu">
+                        <li value="en"><a href="javascript:void(0)" ng-click="changeLanguage('en')">English</a></li>
+                        <li value="zh-CN"><a href="javascript:void(0)" ng-click="changeLanguage('zh-CN')">简体中文</a></li>
+                    </ul>
+                </li>
+
+                <!-- admin tool -->
+                <li class="dropdown" ng-if="hasRootPermission == true">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.AdminTools' | translate }}
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu" >
+                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
+                        <li><a href="{{ '/system-role-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemRoleManage' | translate }}</a></li>
+                        <li><a href="{{ '/open/manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.OpenMange' | translate }}</a></li>
+                        <li><a href="{{ '/server_config_manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemConfig' | translate }}</a></li>
+                        <li><a href="{{ '/delete_app_cluster_namespace.html' | prefixPath }}" target="_blank">{{'Common.Nav.DeleteApp-Cluster-Namespace' | translate }}</a></li>
+                        <li><a href="{{ '/system_info.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemInfo' | translate }}</a></li>
+                        <li><a href="{{ '/config_export.html' | prefixPath }}" target="_blank">{{'Common.Nav.ConfigExport' | translate }}</a></li>
+                        <li><a href="{{ '/audit_log_menu.html' | prefixPath }}" target="_blank">{{'ApolloAuditLog.Title' | translate }}</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-user"></span>&nbsp;{{userDisplayName}}({{userName}})
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="/user/logout">退出</a></li>
+                        <li><a href="{{ '/user/logout' | prefixPath }}">{{'Common.Nav.Logout' | translate }}</a></li>
                     </ul>
                 </li>
 
@@ -51,7 +82,7 @@
 
             <div class="navbar-form navbar-right form-inline" role="search">
                 <div class="form-group app-search-list">
-                    <select id="app-search-list" style="width: 350px"></select>
+                    <select id="app-search-list"></select>
                 </div>
             </div>
         </div>

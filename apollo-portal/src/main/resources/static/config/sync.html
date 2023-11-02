@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="sync_item">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="../img/config.png">
@@ -9,238 +26,251 @@
     <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
     <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <title>同步配置</title>
+    <title>{{'Config.Sync.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div class="container-fluid apollo-container hidden" ng-controller="SyncItemController">
-    <section class="panel col-md-offset-1 col-md-10">
-        <header class="panel-heading">
-            <div class="row">
-                <div class="col-md-7">
-                    <h4 class="modal-title">同步配置
-                        <small ng-show="syncItemStep == 1">(第一步:选择同步信息)</small>
-                        <small ng-show="syncItemStep == 2">(第二步:检查Diff)</small>
-                    </h4>
-                </div>
-                <div class="col-md-5 text-right">
-                    <button type="button" class="btn btn-primary" ng-show="syncItemStep > 1 && syncItemStep < 3"
-                            ng-click="syncItemNextStep(-1)">上一步
-                    </button>
-                    <button type="button" class="btn btn-primary" ng-show="syncItemStep < 2"
-                            ng-click="diff()">下一步
-                    </button>
-                    <button type="button" class="btn btn-success" ng-show="syncItemStep == 2 && hasDiff"
-                            ng-click="syncItems()" ng-disabled="syncBtnDisabled">同步
-                    </button>
-                    <button type="button" class="btn btn-info" data-dismiss="modal"
-                            ng-click="backToAppHomePage()">返回到项目首页
-                    </button>
-                </div>
-            </div>
-        </header>
-        <div class="panel-body">
-            <div class="row" ng-show="syncItemStep == 1">
-                <div class="alert-info alert no-radius">
-                    <strong>Tips:</strong>
-                    <ul>
-                        <li>通过同步配置功能，可以使多个环境、集群间的配置保持一致</li>
-                        <li>需要注意的是，同步完之后需要发布后才会对应用生效</li>
-                    </ul>
-                </div>
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">同步的Namespace</label>
-                        <div class="col-sm-6">
-                            <h4 ng-bind="pageContext.namespaceName"></h4>
-                        </div>
+    <div class="container-fluid apollo-container hidden" ng-controller="SyncItemController">
+        <section class="panel col-md-offset-1 col-md-10">
+            <header class="panel-heading">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4 class="modal-title">{{'Config.Sync.Title' | translate }}
+                            <small ng-show="syncItemStep == 1">{{'Config.Sync.FistStep' | translate }}</small>
+                            <small ng-show="syncItemStep == 2">{{'Config.Sync.SecondStep' | translate }}</small>
+                        </h4>
+                    </div>
+                    <div class="col-md-5 text-right">
+                        <button type="button" class="btn btn-primary" ng-show="syncItemStep > 1 && syncItemStep < 3"
+                            ng-click="syncItemNextStep(-1)">{{'Config.Sync.PreviousStep' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-primary" ng-show="syncItemStep < 2"
+                            ng-click="diff()">{{'Config.Sync.NextStep' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-success" ng-show="syncItemStep == 2 && hasDiff"
+                            ng-click="syncItems()" ng-disabled="syncBtnDisabled">{{'Config.Sync.Sync' | translate }}
+                        </button>
+                        <button type="button" class="btn btn-info" data-dismiss="modal"
+                            ng-click="backToAppHomePage()">{{'Common.ReturnToIndex' | translate }}
+                        </button>
                     </div>
                 </div>
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">同步到那个集群</label>
-                        <div class="col-sm-6">
-                            <apolloclusterselector apollo-app-id="pageContext.appId" apollo-default-all-checked="true"
-                                                   apollo-select="collectSelectedClusters"
-                                                   apollo-not-checked-env="pageContext.env"
-                                                   apollo-not-checked-cluster="pageContext.clusterName"></apolloclusterselector>
-                        </div>
+            </header>
+            <div class="panel-body">
+                <div class="row" ng-show="syncItemStep == 1">
+                    <div class="alert-info alert no-radius">
+                        <strong>{{'Config.Sync.Tips' | translate }}:</strong>
+                        <ul>
+                            <li>{{'Config.Sync.Tips1' | translate }}</li>
+                            <li>{{'Config.Sync.Tips2' | translate }}</li>
+                        </ul>
                     </div>
-                </div>
-                <hr>
-            </div>
-
-            <div class="row" ng-show="syncItemStep == 1" style="margin-top: 10px;">
-                <div class="form-horizontal">
-                    <div class="col-sm-2 text-right">
-                        <label class="control-label">需要同步的配置</label>
-                    </div>
-                    <div class="col-sm-10">
-                        <div class="row text-right" style="margin-bottom: 5px; margin-right: 0px;">
-                            按最后更新时间过滤
-                            开始时间:<input type="date" ng-model="filterBeginTime"> 结束时间:  <input type="date" ng-model="filterEndTime">
-                            <button class="btn btn-sm btn-primary" ng-click="filter()">过滤</button>
-                            <button class="btn btn-sm btn-default" ng-click="resetFilter()">重置</button>
-                        </div>
-                        <table class="table table-bordered table-striped table-hover">
-                            <thead>
-                            <tr>
-                                <td><input type="checkbox" ng-click="toggleItemsCheckedStatus()"></td>
-                                <td class="hover" ng-click="col='key';desc=!desc;">
-                                    Key
-                                    <span class="glyphicon glyphicon-sort"></span>
-                                </td>
-                                <td>Value</td>
-                                <td class="hover" ng-click="col='dataChangeCreatedTime';desc=!desc;">
-                                    Create Time
-                                    <span class="glyphicon glyphicon-sort"></span>
-                                </td>
-                                <td class="hover" ng-click="col='dataChangeLastModifiedTime';desc=!desc;">
-                                    Update Time
-                                    <span class="glyphicon glyphicon-sort"></span>
-                                </td>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr ng-repeat="item in viewItems|orderBy:col:desc">
-                                <td width="10%"><input type="checkbox" ng-checked="item.checked"
-                                                       ng-click="switchSelect(item)"></td>
-                                <td width="20%">
-                                    <span ng-bind="item.key | limitTo: 250"></span>
-                                    <span ng-bind="item.key.length > 250 ? '...' : ''"></span>
-                                </td>
-                                <td class="cursor-pointer" width="40%" ng-click="showText(item.value)">
-                                    <span ng-bind="item.value | limitTo: 250"></span>
-                                    <span ng-bind="item.value.length > 250 ? '...' : ''"></span>
-                                </td>
-                                <td width="15%">
-                                    <span ng-bind="item.dataChangeCreatedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></span>
-                                </td>
-                                <td width="15%">
-                                    <span ng-bind="item.dataChangeLastModifiedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-
-                    </div>
-                </div>
-
-            </div>
-
-            <!--step 2-->
-            <div class="row" ng-show="syncItemStep == 2" ng-repeat="clusterDiff in clusterDiffs">
-                <h4 class="text-center">
-                    环境:<span ng-bind="clusterDiff.namespace.env"></span>
-                    集群:<span ng-bind="clusterDiff.namespace.clusterName"></span>
-                    <span ng-show="!clusterDiff.extInfo">Namespace:{{pageContext.namespaceName}}</span>
-                </h4>
-                <div class="text-center"
-                     ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 || clusterDiff.extInfo">
-                    <span ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 && !clusterDiff.extInfo">没有更新的配置</span>
-                    <span ng-show="clusterDiff.extInfo" ng-bind="clusterDiff.extInfo"></span>
-                    ,忽略同步
-                </div>
-
-                <div class="row" style="margin-top: 10px;"
-                     ng-show="clusterDiff.diffs.updateItems.length + clusterDiff.diffs.createItems.length > 0">
                     <div class="form-horizontal">
-                        <div class="col-sm-12">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Config.Sync.SyncNamespace' | translate }}</label>
+                            <div class="col-sm-6">
+                                <h4 ng-bind="pageContext.namespaceName"></h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'Config.Sync.SyncToCluster' | translate }}</label>
+                            <div class="col-sm-6">
+                                <apolloclusterselector apollo-app-id="pageContext.appId"
+                                    apollo-default-all-checked="true" apollo-select="collectSelectedClusters"
+                                    apollo-not-checked-env="pageContext.env"
+                                    apollo-not-checked-cluster="pageContext.clusterName"></apolloclusterselector>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
+                <div class="row" ng-show="syncItemStep == 1" style="margin-top: 10px;">
+                    <div class="form-horizontal">
+                        <div class="col-sm-2 text-right">
+                            <label class="control-label">{{'Config.Sync.NeedToSyncItem' | translate }}</label>
+                        </div>
+                        <div class="col-sm-10">
+                            <div class="row text-right" style="margin-bottom: 5px; margin-right: 0px;">
+                                {{'Config.Sync.SortByLastModifyTime' | translate }}
+                                {{'Config.Sync.BeginTime' | translate }}:<input type="date" ng-model="filterBeginTime">
+                                {{'Config.Sync.EndTime' | translate }}: <input type="date" ng-model="filterEndTime">
+                                <button class="btn btn-sm btn-primary"
+                                    ng-click="filter()">{{'Config.Sync.Filter' | translate }}</button>
+                                <button class="btn btn-sm btn-default"
+                                    ng-click="resetFilter()">{{'Config.Sync.Rest' | translate }}</button>
+                            </div>
                             <table class="table table-bordered table-striped table-hover">
                                 <thead>
-                                <tr>
-                                    <td>Type</td>
-                                    <td>Key</td>
-                                    <td>同步前</td>
-                                    <td>同步后</td>
-                                    <td>Comment</td>
-                                    <td>操作</td>
-                                </tr>
+                                    <tr>
+                                        <td><input type="checkbox" ng-click="toggleItemsCheckedStatus()"></td>
+                                        <td class="hover" ng-click="col='key';desc=!desc;">
+                                            {{'Config.Sync.ItemKey' | translate }}
+                                            <span class="glyphicon glyphicon-sort"></span>
+                                        </td>
+                                        <td>{{'Config.Sync.ItemValue' | translate }}</td>
+                                        <td class="hover" ng-click="col='dataChangeCreatedTime';desc=!desc;">
+                                            {{'Config.Sync.ItemCreateTime' | translate }}
+                                            <span class="glyphicon glyphicon-sort"></span>
+                                        </td>
+                                        <td class="hover" ng-click="col='dataChangeLastModifiedTime';desc=!desc;">
+                                            {{'Config.Sync.ItemUpdateTime' | translate }}
+                                            <span class="glyphicon glyphicon-sort"></span>
+                                        </td>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <tr ng-repeat="createItem in clusterDiff.diffs.createItems">
-                                    <td width="5%">新增</td>
-                                    <td width="15%" ng-bind="createItem.key"></td>
-                                    <td width="30%"></td>
-                                    <td width="30%" ng-bind="createItem.value"></td>
-                                    <td width="15%" ng-bind="createItem.comment"></td>
-                                    <td width="5%">
-                                        <a data-tooltip="tooltip" data-placement="bottom" title="不同步该配置"
-                                           ng-click="removeItem(clusterDiff.diffs, 'create', createItem)">删除</a>
-                                    </td>
-                                </tr>
-                                <tr ng-repeat="updateItem in clusterDiff.diffs.updateItems">
-                                    <td width="5%">更新</td>
-                                    <td width="15%" ng-bind="updateItem.key"></td>
-                                    <td width="30%" ng-bind="updateItem.oldValue"></td>
-                                    <td width="30%" ng-bind="updateItem.value"></td>
-                                    <td width="15%" ng-bind="updateItem.comment"></td>
-                                    <td width="5%">
-                                        <a data-tooltip="tooltip" data-placement="bottom" title="不同步该配置"
-                                           ng-click="removeItem(clusterDiff.diffs, 'update', updateItem)">删除</a>
-                                    </td>
-                                </tr>
+                                    <tr ng-repeat="item in viewItems|orderBy:col:desc">
+                                        <td width="10%"><input type="checkbox" ng-checked="item.checked"
+                                                ng-click="switchSelect(item)"></td>
+                                        <td width="20%">
+                                            <span ng-bind="item.key | limitTo: 250"></span>
+                                            <span ng-bind="item.key.length > 250 ? '...' : ''"></span>
+                                        </td>
+                                        <td class="cursor-pointer" width="40%" ng-click="showText(item.value)">
+                                            <span ng-bind="item.value | limitTo: 250"></span>
+                                            <span ng-bind="item.value.length > 250 ? '...' : ''"></span>
+                                        </td>
+                                        <td width="15%">
+                                            <span
+                                                ng-bind="item.dataChangeCreatedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></span>
+                                        </td>
+                                        <td width="15%">
+                                            <span
+                                                ng-bind="item.dataChangeLastModifiedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></span>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
 
                         </div>
                     </div>
+
                 </div>
+
+                <!--step 2-->
+                <div class="row" ng-show="syncItemStep == 2" ng-repeat="clusterDiff in clusterDiffs">
+                    <h4 class="text-center">
+                        {{'Common.Environment' | translate }}:<span ng-bind="clusterDiff.namespace.env"></span>
+                        {{'Common.Cluster' | translate }}:<span ng-bind="clusterDiff.namespace.clusterName"></span>
+                        <span
+                            ng-show="!clusterDiff.extInfo">{{'Common.Namespace' | translate }}:{{pageContext.namespaceName}}</span>
+                    </h4>
+                    <div class="text-center"
+                        ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 || clusterDiff.extInfo">
+                        <span
+                            ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 && !clusterDiff.extInfo">{{'Config.Sync.NoNeedSyncItem' | translate }}</span>
+                        <span ng-show="clusterDiff.extInfo" ng-bind="clusterDiff.extInfo"></span>, {{'Config.Sync.IgnoreSync' | translate }}
+                    </div>
+
+                    <div class="row" style="margin-top: 10px;"
+                        ng-show="clusterDiff.diffs.updateItems.length + clusterDiff.diffs.createItems.length > 0">
+                        <div class="form-horizontal">
+                            <div class="col-sm-12">
+                                <table class="table table-bordered table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <td>{{'Config.Sync.Step2Type' | translate }}</td>
+                                            <td>{{'Config.Sync.Step2Key' | translate }}</td>
+                                            <td>{{'Config.Sync.Step2SyncBefore' | translate }}</td>
+                                            <td>{{'Config.Sync.Step2SyncAfter' | translate }}</td>
+                                            <td>{{'Config.Sync.Step2Comment' | translate }}</td>
+                                            <td>{{'Config.Sync.Step2Operator' | translate }}</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="createItem in clusterDiff.diffs.createItems">
+                                            <td width="5%">{{'Config.Sync.NewAdd' | translate }}</td>
+                                            <td width="15%" ng-bind="createItem.key"></td>
+                                            <td width="30%"></td>
+                                            <td width="30%" ng-bind="createItem.value"></td>
+                                            <td width="15%" ng-bind="createItem.comment"></td>
+                                            <td width="5%">
+                                                <a data-tooltip="tooltip" data-placement="bottom"
+                                                    title="{{'Config.Sync.NoSyncItem' | translate }}"
+                                                    ng-click="removeItem(clusterDiff.diffs, 'create', createItem)">{{'Config.Sync.Delete' | translate }}</a>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat="updateItem in clusterDiff.diffs.updateItems">
+                                            <td width="5%">{{'Config.Sync.Update' | translate }}</td>
+                                            <td width="15%" ng-bind="updateItem.key"></td>
+                                            <td width="30%" ng-bind="updateItem.oldValue"></td>
+                                            <td width="30%" ng-bind="updateItem.value"></td>
+                                            <td width="15%" ng-bind="updateItem.comment"></td>
+                                            <td width="5%">
+                                                <a data-tooltip="tooltip" data-placement="bottom"
+                                                    title="{{'Config.Sync.NoSyncItem' | translate }}"
+                                                    ng-click="removeItem(clusterDiff.diffs, 'update', updateItem)">{{'Config.Sync.Delete' | translate }}</a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!--step 3-->
+                <div class="row text-center" ng-show="syncItemStep == 3 && syncSuccess">
+                    <img src="../img/sync-succ.png" style="height: 100px; width: 100px">
+                    <h3>{{'Config.Sync.SyncSuccessfully' | translate }}</h3>
+                </div>
+                <div class="row text-center" ng-show="syncItemStep == 3 && !syncSuccess">
+                    <img src="../img/sync-error.png" style="height: 100px; width: 100px">
+                    <h3>{{'Config.Sync.SyncFailed' | translate }}</h3>
+                </div>
+
             </div>
+        </section>
 
-
-            <!--step 3-->
-            <div class="row text-center" ng-show="syncItemStep == 3 && syncSuccess">
-                <img src="../img/sync-succ.png" style="height: 100px; width: 100px">
-                <h3>同步成功!</h3>
-            </div>
-            <div class="row text-center" ng-show="syncItemStep == 3 && !syncSuccess">
-                <img src="../img/sync-error.png" style="height: 100px; width: 100px">
-                <h3>同步失败!</h3>
-            </div>
-
-        </div>
-    </section>
-
-    <showtextmodal text="text"/>
-</div>
+        <showtextmodal text="text" />
+    </div>
 
 
 
-<div ng-include="'../views/common/footer.html'"></div>
+    <div ng-include="'../views/common/footer.html'"></div>
 
-<!-- jquery.js -->
-<script src="../vendor/jquery.min.js" type="text/javascript"></script>
-<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="../vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
 
-<!--angular-->
-<script src="../vendor/angular/angular.min.js"></script>
-<script src="../vendor/angular/angular-resource.min.js"></script>
-<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="../vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="../vendor/angular/angular.min.js"></script>
+    <script src="../vendor/angular/angular-resource.min.js"></script>
+    <script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="../vendor/angular/loading-bar.min.js"></script>
+    <script src="../vendor/angular/angular-cookies.min.js"></script>
 
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!-- bootstrap.js -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script src="../vendor/clipboard.min.js" type="text/javascript"></script>
-<!--biz-->
-<script type="application/javascript" src="../scripts/app.js"></script>
-<script type="application/javascript" src="../scripts/services/AppService.js"></script>
-<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="../scripts/services/ConfigService.js"></script>
-<script type="application/javascript" src="../scripts/services/UserService.js"></script>
-<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script src="../vendor/clipboard.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <script type="application/javascript" src="../scripts/app.js"></script>
+    <script type="application/javascript" src="../scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="../scripts/services/ConfigService.js"></script>
+    <script type="application/javascript" src="../scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
 
-<script type="application/javascript" src="../scripts/AppUtils.js"></script>
-<script type="application/javascript" src="../scripts/controller/config/SyncConfigController.js"></script>
+    <script type="application/javascript" src="../scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="../scripts/controller/config/SyncConfigController.js"></script>
 
-<script type="application/javascript" src="../scripts/PageCommon.js"></script>
-<script type="application/javascript" src="../scripts/directive/directive.js"></script>
-<script type="application/javascript" src="../scripts/directive/show-text-modal-directive.js"></script>
+    <script type="application/javascript" src="../scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="../scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="../scripts/directive/show-text-modal-directive.js"></script>
 </body>
+
 </html>

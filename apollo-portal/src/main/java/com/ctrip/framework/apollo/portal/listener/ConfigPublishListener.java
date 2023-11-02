@@ -1,7 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.listener;
 
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.component.ConfigReleaseWebhookNotifier;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.component.emailbuilder.GrayPublishEmailBuilder;
@@ -32,6 +49,7 @@ public class ConfigPublishListener {
   private final MergeEmailBuilder mergeEmailBuilder;
   private final PortalConfig portalConfig;
   private final MQService mqService;
+  private final ConfigReleaseWebhookNotifier configReleaseWebhookNotifier;
 
   private ExecutorService executorService;
 
@@ -43,7 +61,8 @@ public class ConfigPublishListener {
       final RollbackEmailBuilder rollbackEmailBuilder,
       final MergeEmailBuilder mergeEmailBuilder,
       final PortalConfig portalConfig,
-      final MQService mqService) {
+      final MQService mqService,
+      final ConfigReleaseWebhookNotifier configReleaseWebhookNotifier) {
     this.releaseHistoryService = releaseHistoryService;
     this.emailService = emailService;
     this.normalPublishEmailBuilder = normalPublishEmailBuilder;
@@ -52,6 +71,7 @@ public class ConfigPublishListener {
     this.mergeEmailBuilder = mergeEmailBuilder;
     this.portalConfig = portalConfig;
     this.mqService = mqService;
+    this.configReleaseWebhookNotifier = configReleaseWebhookNotifier;
   }
 
   @PostConstruct
@@ -67,7 +87,7 @@ public class ConfigPublishListener {
 
   private class ConfigPublishNotifyTask implements Runnable {
 
-    private ConfigPublishEvent.ConfigPublishInfo publishInfo;
+    private final ConfigPublishEvent.ConfigPublishInfo publishInfo;
 
     ConfigPublishNotifyTask(ConfigPublishEvent.ConfigPublishInfo publishInfo) {
       this.publishInfo = publishInfo;
@@ -80,6 +100,8 @@ public class ConfigPublishListener {
         Tracer.logError("Load release history failed", null);
         return;
       }
+
+      this.sendPublishWebHook(releaseHistory);
 
       sendPublishEmail(releaseHistory);
 
@@ -101,10 +123,25 @@ public class ConfigPublishListener {
       if (publishInfo.isRollbackEvent()) {
         return releaseHistoryService
             .findLatestByPreviousReleaseIdAndOperation(env, publishInfo.getPreviousReleaseId(), operation);
-      } else {
-        return releaseHistoryService.findLatestByReleaseIdAndOperation(env, publishInfo.getReleaseId(), operation);
+      }
+      return releaseHistoryService.findLatestByReleaseIdAndOperation(env, publishInfo.getReleaseId(), operation);
+
+    }
+
+    /**
+    * webhook send
+    *
+    * @param releaseHistory {@link ReleaseHistoryBO}
+    */
+    private void sendPublishWebHook(ReleaseHistoryBO releaseHistory) {
+      Env env = publishInfo.getEnv();
+
+      String[] webHookUrls = portalConfig.webHookUrls();
+      if (!portalConfig.webHookSupportedEnvs().contains(env) || webHookUrls == null) {
+        return;
       }
 
+      configReleaseWebhookNotifier.notify(webHookUrls, env, releaseHistory);
     }
 
     private void sendPublishEmail(ReleaseHistoryBO releaseHistory) {

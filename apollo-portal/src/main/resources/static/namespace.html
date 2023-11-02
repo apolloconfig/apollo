@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="namespace">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="./img/config.png">
@@ -9,223 +26,234 @@
     <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
     <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="styles/common-style.css">
-    <title>新建Namespace</title>
+    <title>{{'Namespace.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div class="container-fluid apollo-container hidden" ng-controller="LinkNamespaceController">
+    <div class="container-fluid apollo-container hidden" ng-controller="LinkNamespaceController">
 
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel">
-                <header class="panel-heading">
-                    <div class="row">
-                        <div class="col-md-6">新建Namespace
-                        <small><a target="_blank" href="https://github.com/ctripcorp/apollo/wiki/Apollo%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E4%B9%8B%E2%80%9CNamespace%E2%80%9D">
-                            (点击了解更多Namespace相关知识)
-                        </a> </small>
-                        </div>
-                        <div class="col-md-6 text-right">
-                            <button type="button" class="btn btn-info" ng-click="back()">返回到项目首页
-                            </button>
-                        </div>
-                    </div>
-
-                </header>
-
-                <div class="panel-body">
-
-                    <div class="alert alert-info no-radius">
-                        <strong>Tips:</strong>
-                        <ul ng-show="type == 'link'">
-                            <li>应用可以通过关联公共namespace来覆盖公共Namespace的配置</li>
-                            <li>如果应用不需要覆盖公共Namespace的配置，那么无需关联公共Namespace</li>
-                        </ul>
-                        <ul ng-show="type == 'create' && appNamespace.isPublic">
-                            <li>公共的Namespace的配置能被任何项目读取</li>
-                            <li>
-                                通过创建公共Namespace可以实现公共组件的配置，或多个应用共享同一份配置的需求
-                            </li>
-                            <li>如果其它应用需要覆盖公共部分的配置，可以在其它应用那里关联公共Namespace，然后在关联的Namespace里面配置需要覆盖的配置即可</li>
-                            <li>如果其它应用不需要覆盖公共部分的配置，那么就不需要在其它应用那里关联公共Namespace</li>
-                        </ul>
-                        <ul ng-show="type == 'create' && !appNamespace.isPublic">
-                            <li>私有Namespace的配置只能被所属的应用获取到</li>
-                            <li>
-                                通过创建一个私有的Namespace可以实现分组管理配置
-                            </li>
-                            <li>私有Namespace的格式可以是xml、yml、yaml、json、txt. 您可以通过apollo-client中ConfigFile接口来获取非properties格式Namespace的内容</li>
-                            <li>1.3.0及以上版本的apollo-client针对yaml/yml提供了更好的支持，可以通过ConfigService.getConfig("someNamespace.yml")直接获取Config对象，也可以通过@EnableApolloConfig("someNamespace.yml")或apollo.bootstrap.namespaces=someNamespace.yml注入yml配置到Spring/Spring Boot中去</li>
-                        </ul>
-                    </div>
-                    <div class="row text-right" style="padding-right: 20px;">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="...">
-                            <button type="button" class="btn btn-default" ng-class="{active:type=='link'}"
-                                    ng-click="switchType('link')">关联公共Namespace
-                            </button>
-                            <button type="button" class="btn btn-default" ng-class="{active:type=='create'}"
-                                    ng-click="switchType('create')">创建Namespace
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <form class="form-horizontal" name="namespaceForm" valdr-type="AppNamespace"
-                          style="margin-top: 30px;" ng-show="step == 1" ng-submit="createNamespace()">
-                        <div class="form-group">
-                            <label class="col-sm-3 control-label">AppId</label>
-                            <div class="col-sm-6" valdr-form-group>
-                                <label class="form-control-static" ng-bind="appId"></label>
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <div class="panel">
+                    <header class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-6">{{'Namespace.Title' | translate }}
+                                <small><a target="_blank"
+                                        href="https://www.apolloconfig.com/#/zh/design/apollo-core-concept-namespace">
+                                        {{'Namespace.UnderstandMore' | translate }}
+                                    </a> </small>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <button type="button" class="btn btn-info"
+                                    ng-click="back()">{{'Common.ReturnToIndex' | translate }} </button>
                             </div>
                         </div>
-                        <div class="form-horizontal" ng-show="type == 'link'">
+
+                    </header>
+
+                    <div class="panel-body">
+
+                        <div class="alert alert-info no-radius">
+                            <strong>Tips:</strong>
+                            <ul ng-show="type == 'link'">
+                                <li>{{'Namespace.Link.Tips1' | translate }}</li>
+                                <li>{{'Namespace.Link.Tips2' | translate }}</li>
+                            </ul>
+                            <ul ng-show="type == 'create' && appNamespace.isPublic">
+                                <li>{{'Namespace.CreatePublic.Tips1' | translate }}</li>
+                                <li>{{'Namespace.CreatePublic.Tips2' | translate }}</li>
+                                <li>{{'Namespace.CreatePublic.Tips3' | translate }}</li>
+                                <li>{{'Namespace.CreatePublic.Tips4' | translate }}</li>
+                            </ul>
+                            <ul ng-show="type == 'create' && !appNamespace.isPublic">
+                                <li>{{'Namespace.CreatePrivate.Tips1' | translate }}</li>
+                                <li>{{'Namespace.CreatePrivate.Tips2' | translate }}</li>
+                                <li>{{'Namespace.CreatePrivate.Tips3' | translate }}</li>
+                                <li>{{'Namespace.CreatePrivate.Tips4' | translate }}</li>
+                            </ul>
+                        </div>
+
+                        <form class="form-horizontal" name="namespaceForm" valdr-type="AppNamespace"
+                            style="margin-top: 30px;" ng-show="step == 1" ng-submit="createNamespace()">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">
+                                </label>
+
+                                <div class="col-sm-5">
+                                    <div class="btn-group btn-group-sm" role="group" style="margin-left: -15px">
+                                        <button type="button" class="btn btn-default" ng-class="{active:type=='create'}"
+                                                ng-click="switchType('create')">{{'Namespace.CreateNamespace' | translate }}
+                                        </button>
+                                        <button type="button" class="btn btn-default" ng-class="{active:type=='link'}"
+                                                ng-click="switchType('link')">{{'Namespace.AssociationPublicNamespace' | translate }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{{'Common.AppId' | translate }}</label>
+                                <div class="col-sm-6" valdr-form-group style="margin-bottom:-15px">
+                                    <label class="form-control-static" ng-bind="appId"></label>
+                                </div>
+                            </div>
+                            <div class="form-group"
+                                 ng-show="type == 'create' && (pageSetting.canAppAdminCreatePrivateNamespace || hasRootPermission)">
+                                <label class="col-sm-3 control-label">
                                     <apollorequiredfield></apollorequiredfield>
-                                    选择集群</label>
-                                <div class="col-sm-6" valdr-form-group>
-                                    <apolloclusterselector apollo-app-id="appId" apollo-default-all-checked="true"
-                                                           apollo-select="collectSelectedClusters"></apolloclusterselector>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="type == 'create'">
-                            <label class="col-sm-3 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                名称</label>
-                            <div class="col-sm-5" valdr-form-group>
-                                <div ng-class="{'input-group':appNamespace.isPublic && appendNamespacePrefix}">
-                                    <span class="input-group-addon" ng-show="appNamespace.isPublic && appendNamespacePrefix"
-                                          ng-bind="appBaseInfo.namespacePrefix"></span>
-                                    <input type="text" name="namespaceName" class="form-control"
-                                           ng-model="appNamespace.name">
-                                </div>
-                            </div>
-
-                            <!--public namespace can only be properties -->
-                            <div class="col-sm-2" ng-show="!appNamespace.isPublic">
-                                <select class="form-control" name="format" ng-model="appNamespace.format">
-                                    <option value="properties">properties</option>
-                                    <option value="xml">xml</option>
-                                    <option value="json">json</option>
-                                    <option value="yml">yml</option>
-                                    <option value="yaml">yaml</option>
-                                    <option value="txt">txt</option>
-                                </select>
-                            </div>
-
-                            &nbsp;&nbsp;
-                            <span ng-show="appNamespace.isPublic && appendNamespacePrefix" ng-bind="concatNamespace()"
-                                  style="line-height: 34px;"></span>
-                        </div>
-
-                        <div class="form-group" ng-show="type == 'create' && appNamespace.isPublic">
-                            <label class="col-sm-3 control-label">
-                                自动添加部门前缀
-                            </label>
-                            <div class="col-sm-6" valdr-form-group>
-                                <div>
-                                    <label class="checkbox-inline">
-                                        <input type="checkbox" ng-model="appendNamespacePrefix" />
-                                        {{appBaseInfo.namespacePrefix}}
+                                    {{'Namespace.NamespaceType' | translate }}
+                                </label>
+                                <div class="col-sm-5" valdr-form-group>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="namespaceType" value="false" ng-value="false"
+                                               ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Private' | translate }}
+                                    </label>
+                                    <label class="radio-inline">
+                                        <input type="radio" name="namespaceType" value="true" ng-value="true"
+                                               ng-model="appNamespace.isPublic"> {{'Namespace.NamespaceType.Public' | translate }}
                                     </label>
                                 </div>
-                                <small>(公共Namespace的名称需要全局唯一，添加部门前缀有助于保证全局唯一性)</small>
                             </div>
-                        </div>
-
-                        <div class="form-group" ng-show="type == 'create' && (pageSetting.canAppAdminCreatePrivateNamespace || hasRootPermission)">
-                            <label class="col-sm-3 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                类型</label>
-                            <div class="col-sm-4" valdr-form-group>
-                                <label class="radio-inline">
-                                    <input type="radio" name="namespaceType" value="true" ng-value="true"
-                                           ng-model="appNamespace.isPublic"> public
+                            <div class="form-horizontal" ng-show="type == 'link'">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">
+                                        <apollorequiredfield></apollorequiredfield>
+                                        {{'Namespace.ChooseCluster' | translate }}
+                                    </label>
+                                    <div class="col-sm-6" valdr-form-group>
+                                        <apolloclusterselector apollo-app-id="appId" apollo-default-all-checked="true"
+                                            apollo-select="collectSelectedClusters"></apolloclusterselector>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="type == 'create' && appNamespace.isPublic">
+                                <label class="col-sm-3 control-label">
+                                    {{'Namespace.AutoAddDepartmentPrefix' | translate }}
                                 </label>
-                                <label class="radio-inline">
-                                    <input type="radio" name="namespaceType" value="false" ng-value="false"
-                                           ng-model="appNamespace.isPublic"> private
+                                <div class="col-sm-6" valdr-form-group>
+                                    <div>
+                                        <label class="checkbox-inline">
+                                            <input type="checkbox" ng-model="appendNamespacePrefix" />
+                                            {{appBaseInfo.namespacePrefix}}
+                                        </label>
+                                    </div>
+                                    <small>{{'Namespace.AutoAddDepartmentPrefixTips' | translate }}</small>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="type == 'create'">
+                                <label class="col-sm-3 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Namespace.NamespaceName' | translate }}
                                 </label>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="type == 'create'" valdr-form-group>
-                            <label class="col-sm-3 control-label">备注</label>
-                            <div class="col-sm-7" valdr-form-group>
-                                <textarea class="form-control" rows="3" name="comment"
-                                          ng-model="appNamespace.comment"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group" ng-show="type == 'link'">
-                            <label class="col-sm-3 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                namespace</label>
-                            <div class="col-sm-4" valdr-form-group>
-                                <select id="namespaces">
-                                    <option></option>
-                                </select>
-                            </div>
-                        </div>
+                                <div class="col-sm-5" valdr-form-group>
+                                    <div ng-class="{'input-group':appNamespace.isPublic && appendNamespacePrefix}">
+                                        <span class="input-group-addon"
+                                            ng-show="appNamespace.isPublic && appendNamespacePrefix"
+                                            ng-bind="appBaseInfo.namespacePrefix"></span>
+                                        <input type="text" name="namespaceName" class="form-control"
+                                            ng-model="appNamespace.name">
+                                    </div>
+                                </div>
 
-                        <div class="form-group">
-                            <div class="col-sm-offset-3 col-sm-10">
-                                <button type="submit" class="btn btn-primary"
+                                <div class="col-sm-2">
+                                    <select class="form-control" name="format" ng-model="appNamespace.format">
+                                        <option value="properties">properties</option>
+                                        <option value="xml">xml</option>
+                                        <option value="json">json</option>
+                                        <option value="yml">yml</option>
+                                        <option value="yaml">yaml</option>
+                                        <option value="txt">txt</option>
+                                    </select>
+                                </div>
+
+                                &nbsp;&nbsp;
+                                <span ng-show="appNamespace.isPublic && appendNamespacePrefix"
+                                    ng-bind="concatNamespace()" style="line-height: 34px;"></span>
+                            </div>
+
+                            <div class="form-group" ng-show="type == 'create'" valdr-form-group>
+                                <label class="col-sm-3 control-label">{{'Namespace.Remark' | translate }}</label>
+                                <div class="col-sm-7" valdr-form-group>
+                                    <textarea class="form-control" rows="3" name="comment"
+                                        ng-model="appNamespace.comment"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="type == 'link'">
+                                <label class="col-sm-3 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Namespace.Namespace' | translate }}
+                                </label>
+                                <div class="col-sm-4" valdr-form-group>
+                                    <select multiple id="namespaces">
+                                        <option></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-3 col-sm-10">
+                                    <button type="submit" class="btn btn-primary"
                                         ng-disabled="(type == 'create' && namespaceForm.$invalid) || submitBtnDisabled">
-                                    提交
-                                </button>
+                                        {{'Common.Submit' | translate }}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
 
-                    <div class="row text-center" ng-show="step == 2">
-                        <img src="img/sync-succ.png" style="height: 100px; width: 100px">
-                        <h3>创建成功!</h3>
+                        <div class="row text-center" ng-show="step == 2">
+                            <img src="img/sync-succ.png" style="height: 100px; width: 100px">
+                            <h3>{{'Common.Created' | translate }}</h3>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
-<div ng-include="'views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-<!--angular-->
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-resource.min.js"></script>
-<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<!-- jquery.js -->
-<script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
 
 
-<!-- bootstrap.js -->
-<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<script type="application/javascript" src="scripts/app.js"></script>
-<script type="application/javascript" src="scripts/services/AppService.js"></script>
-<script type="application/javascript" src="scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="scripts/services/UserService.js"></script>
-<script type="application/javascript" src="scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
-<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
 
-<!--directive-->
-<script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <!--directive-->
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
 
-<script type="application/javascript" src="scripts/controller/NamespaceController.js"></script>
+    <script type="application/javascript" src="scripts/controller/NamespaceController.js"></script>
 
-<script src="scripts/valdr.js" type="text/javascript"></script>
+    <script src="scripts/valdr.js" type="text/javascript"></script>
 
 </body>
+
 </html>

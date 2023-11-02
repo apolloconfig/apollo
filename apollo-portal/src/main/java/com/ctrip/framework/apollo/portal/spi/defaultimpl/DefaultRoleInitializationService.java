@@ -1,9 +1,25 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.defaultimpl;
 
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.constant.RoleType;
@@ -15,7 +31,6 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
@@ -29,12 +44,17 @@ import java.util.stream.Stream;
  */
 public class DefaultRoleInitializationService implements RoleInitializationService {
 
-  @Autowired
-  private RolePermissionService rolePermissionService;
-  @Autowired
-  private PortalConfig portalConfig;
-  @Autowired
-  private PermissionRepository permissionRepository;
+  private final RolePermissionService rolePermissionService;
+  private final PortalConfig portalConfig;
+  private final PermissionRepository permissionRepository;
+
+  public DefaultRoleInitializationService(final RolePermissionService rolePermissionService,
+      final PortalConfig portalConfig,
+      final PermissionRepository permissionRepository) {
+    this.rolePermissionService = rolePermissionService;
+    this.portalConfig = portalConfig;
+    this.permissionRepository = permissionRepository;
+  }
 
   @Transactional
   public void initAppRoles(App app) {
@@ -127,10 +147,10 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
-  private void createManageAppMasterRole(String appId, String operator) {
+  public void createManageAppMasterRole(String appId, String operator) {
     Permission permission = createPermission(appId, PermissionType.MANAGE_APP_MASTER, operator);
     rolePermissionService.createPermission(permission);
-    Role role = createRole(RoleUtils.buildManageAppMasterRoleName(PermissionType.MANAGE_APP_MASTER, appId), operator);
+    Role role = createRole(RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER), operator);
     Set<Long> permissionIds = new HashSet<>();
     permissionIds.add(permission.getId());
     rolePermissionService.createRoleWithPermissions(role, permissionIds);
@@ -139,7 +159,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   // fix historical data
   @Transactional
   public void initManageAppMasterRole(String appId, String operator) {
-    String manageAppMasterRoleName = RoleUtils.buildManageAppMasterRoleName(PermissionType.MANAGE_APP_MASTER, appId);
+    String manageAppMasterRoleName = RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER);
     if (rolePermissionService.findRoleByRoleName(manageAppMasterRoleName) != null) {
       return;
     }

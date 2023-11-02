@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.adminservice.controller;
 
 
@@ -56,7 +72,7 @@ public class ReleaseController {
   public ReleaseDTO get(@PathVariable("releaseId") long releaseId) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException(String.format("release not found for %s", releaseId));
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
@@ -109,8 +125,7 @@ public class ReleaseController {
                             @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException(String.format("Could not find namespace for %s %s %s", appId,
-                                                clusterName, namespaceName));
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
     Release release = releaseService.publish(namespace, releaseName, releaseComment, operator, isEmergencyPublish);
 
@@ -146,8 +161,7 @@ public class ReleaseController {
                                      @RequestBody ItemChangeSets changeSets) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException(String.format("Could not find namespace for %s %s %s", appId,
-                                                clusterName, namespaceName));
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
     Release release = releaseService.mergeBranchChangeSetsAndRelease(namespace, branchName, releaseName,
@@ -168,9 +182,15 @@ public class ReleaseController {
   @Transactional
   @PutMapping("/releases/{releaseId}/rollback")
   public void rollback(@PathVariable("releaseId") long releaseId,
+                       @RequestParam(name="toReleaseId", defaultValue = "-1") long toReleaseId,
                        @RequestParam("operator") String operator) {
 
-    Release release = releaseService.rollback(releaseId, operator);
+    Release release;
+    if (toReleaseId > -1) {
+      release = releaseService.rollbackTo(releaseId, toReleaseId, operator);
+    } else {
+      release = releaseService.rollback(releaseId, operator);
+    }
 
     String appId = release.getAppId();
     String clusterName = release.getClusterName();
@@ -192,11 +212,11 @@ public class ReleaseController {
                             @RequestParam(name = "grayDelKeys") Set<String> grayDelKeys){
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
-      throw new NotFoundException(String.format("Could not find namespace for %s %s %s", appId,
-              clusterName, namespaceName));
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
-    Release release = releaseService.grayDeletionPublish(namespace, releaseName, releaseComment, operator, isEmergencyPublish, grayDelKeys);
+    Release release = releaseService.grayDeletionPublish(namespace, releaseName, releaseComment,
+        operator, isEmergencyPublish, grayDelKeys);
 
     //send release message
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);

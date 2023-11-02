@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.google.common.base.MoreObjects;
@@ -17,35 +33,35 @@ import javax.persistence.Table;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Entity
-@Table(name = "InstanceConfig")
+@Table(name = "`InstanceConfig`")
 public class InstanceConfig {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "Id")
+  @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "InstanceId")
+  @Column(name = "`InstanceId`")
   private long instanceId;
 
-  @Column(name = "ConfigAppId", nullable = false)
+  @Column(name = "`ConfigAppId`", nullable = false)
   private String configAppId;
 
-  @Column(name = "ConfigClusterName", nullable = false)
+  @Column(name = "`ConfigClusterName`", nullable = false)
   private String configClusterName;
 
-  @Column(name = "ConfigNamespaceName", nullable = false)
+  @Column(name = "`ConfigNamespaceName`", nullable = false)
   private String configNamespaceName;
 
-  @Column(name = "ReleaseKey", nullable = false)
+  @Column(name = "`ReleaseKey`", nullable = false)
   private String releaseKey;
 
-  @Column(name = "ReleaseDeliveryTime", nullable = false)
+  @Column(name = "`ReleaseDeliveryTime`", nullable = false)
   private Date releaseDeliveryTime;
 
-  @Column(name = "DataChange_CreatedTime", nullable = false)
+  @Column(name = "`DataChange_CreatedTime`", nullable = false)
   private Date dataChangeCreatedTime;
 
-  @Column(name = "DataChange_LastTime")
+  @Column(name = "`DataChange_LastTime`")
   private Date dataChangeLastModifiedTime;
 
   @PrePersist

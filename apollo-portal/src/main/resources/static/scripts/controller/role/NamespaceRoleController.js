@@ -1,8 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 role_module.controller('NamespaceRoleController',
-    ['$scope', '$location', '$window', 'toastr', 'AppService', 'UserService', 'AppUtil', 'EnvService',
+    ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'UserService', 'AppUtil', 'EnvService',
         'PermissionService',
-        function ($scope, $location, $window, toastr, AppService, UserService, AppUtil, EnvService,
-                  PermissionService) {
+        function ($scope, $location, $window, $translate, toastr, AppService, UserService, AppUtil, EnvService,
+            PermissionService) {
 
             var params = AppUtil.parseParams($location.$$url);
             $scope.pageContext = {
@@ -22,8 +38,8 @@ role_module.controller('NamespaceRoleController',
             PermissionService.init_app_namespace_permission($scope.pageContext.appId, $scope.pageContext.namespaceName)
                 .then(function (result) {
 
-                }, function(result) {
-                    toastr.warn(AppUtil.errorMsg(result), "初始化授权出错");
+                }, function (result) {
+                    toastr.warning(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.InitNamespacePermissionError'));
                 });
 
             PermissionService.has_assign_user_permission($scope.pageContext.appId)
@@ -34,7 +50,7 @@ role_module.controller('NamespaceRoleController',
                 });
 
             EnvService.find_all_envs()
-                .then(function (result){
+                .then(function (result) {
                     $scope.envs = result;
                     $scope.envRolesAssignedUsers = {};
                     for (var iLoop = 0; iLoop < result.length; iLoop++) {
@@ -42,8 +58,8 @@ role_module.controller('NamespaceRoleController',
                         PermissionService.get_namespace_env_role_users($scope.pageContext.appId, env, $scope.pageContext.namespaceName)
                             .then(function (result) {
                                 $scope.envRolesAssignedUsers[result.env] = result;
-                            }, function(result) {
-                                toastr.error(AppUtil.errorMsg(result), "加载" + env + "授权用户出错");
+                            }, function (result) {
+                                toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.GetEnvGrantUserError', { env }));
                             });
                     }
                 });
@@ -53,14 +69,14 @@ role_module.controller('NamespaceRoleController',
                 .then(function (result) {
                     $scope.rolesAssignedUsers = result;
                 }, function (result) {
-                    toastr.error(AppUtil.errorMsg(result), "加载授权用户出错");
+                    toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.GetGrantUserError'));
                 });
 
             $scope.assignRoleToUser = function (roleType) {
                 if ("ReleaseNamespace" === roleType) {
                     var user = $('.' + $scope.releaseRoleWidgetId).select2('data')[0];
                     if (!user) {
-                        toastr.warning("请选择用户");
+                        toastr.warning($translate.instant('Namespace.Role.PleaseChooseUser'));
                         return;
                     }
                     $scope.ReleaseRoleSubmitBtnDisabled = true;
@@ -76,26 +92,26 @@ role_module.controller('NamespaceRoleController',
                         $scope.pageContext.namespaceName,
                         toAssignReleaseNamespaceRoleUser)
                         .then(function (result) {
-                            toastr.success("添加成功");
+                            toastr.success($translate.instant('Namespace.Role.Added'));
                             $scope.ReleaseRoleSubmitBtnDisabled = false;
                             if ($scope.releaseRoleSelectedEnv === "") {
                                 $scope.rolesAssignedUsers.releaseRoleUsers.push(
-                                    {userId: toAssignReleaseNamespaceRoleUser});
+                                    { userId: toAssignReleaseNamespaceRoleUser });
                             } else {
                                 $scope.envRolesAssignedUsers[$scope.releaseRoleSelectedEnv].releaseRoleUsers.push(
-                                    {userId: toAssignReleaseNamespaceRoleUser});
+                                    { userId: toAssignReleaseNamespaceRoleUser });
                             }
 
                             $('.' + $scope.releaseRoleWidgetId).select2("val", "");
                             $scope.releaseRoleSelectedEnv = "";
                         }, function (result) {
                             $scope.ReleaseRoleSubmitBtnDisabled = false;
-                            toastr.error(AppUtil.errorMsg(result), "添加失败");
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.AddFailed'));
                         });
                 } else {
                     var user = $('.' + $scope.modifyRoleWidgetId).select2('data')[0];
                     if (!user) {
-                        toastr.warning("请选择用户");
+                        toastr.warning($translate.instant('Namespace.Role.PleaseChooseUser'));
                         return;
                     }
                     $scope.modifyRoleSubmitBtnDisabled = true;
@@ -111,20 +127,20 @@ role_module.controller('NamespaceRoleController',
                         $scope.pageContext.namespaceName,
                         toAssignModifyNamespaceRoleUser)
                         .then(function (result) {
-                            toastr.success("添加成功");
+                            toastr.success($translate.instant('Namespace.Role.Added'));
                             $scope.modifyRoleSubmitBtnDisabled = false;
                             if ($scope.modifyRoleSelectedEnv === "") {
                                 $scope.rolesAssignedUsers.modifyRoleUsers.push(
-                                    {userId: toAssignModifyNamespaceRoleUser});
+                                    { userId: toAssignModifyNamespaceRoleUser });
                             } else {
                                 $scope.envRolesAssignedUsers[$scope.modifyRoleSelectedEnv].modifyRoleUsers.push(
-                                    {userId: toAssignModifyNamespaceRoleUser});
+                                    { userId: toAssignModifyNamespaceRoleUser });
                             }
                             $('.' + $scope.modifyRoleWidgetId).select2("val", "");
                             $scope.modifyRoleSelectedEnv = "";
                         }, function (result) {
                             $scope.modifyRoleSubmitBtnDisabled = false;
-                            toastr.error(AppUtil.errorMsg(result), "添加失败");
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.AddFailed'));
                         });
                 }
             };
@@ -141,14 +157,14 @@ role_module.controller('NamespaceRoleController',
                         $scope.pageContext.namespaceName,
                         user)
                         .then(function (result) {
-                            toastr.success("删除成功");
+                            toastr.success($translate.instant('Namespace.Role.Deleted'));
                             if (!env) {
                                 removeUserFromList($scope.rolesAssignedUsers.releaseRoleUsers, user);
                             } else {
                                 removeUserFromList($scope.envRolesAssignedUsers[env].releaseRoleUsers, user);
                             }
                         }, function (result) {
-                            toastr.error(AppUtil.errorMsg(result), "删除失败");
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.DeleteFailed'));
                         });
                 } else {
                     var removeModifyNamespaceRoleFunc = !env ?
@@ -161,14 +177,14 @@ role_module.controller('NamespaceRoleController',
                         $scope.pageContext.namespaceName,
                         user)
                         .then(function (result) {
-                            toastr.success("删除成功");
+                            toastr.success($translate.instant('Namespace.Role.Deleted'));
                             if (!env) {
                                 removeUserFromList($scope.rolesAssignedUsers.modifyRoleUsers, user);
                             } else {
                                 removeUserFromList($scope.envRolesAssignedUsers[env].modifyRoleUsers, user);
                             }
                         }, function (result) {
-                            toastr.error(AppUtil.errorMsg(result), "删除失败");
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.DeleteFailed'));
                         });
                 }
             };

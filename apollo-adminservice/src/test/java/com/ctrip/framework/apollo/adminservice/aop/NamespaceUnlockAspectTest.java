@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.adminservice.aop;
 
 import com.ctrip.framework.apollo.biz.entity.Item;
@@ -71,7 +87,7 @@ public class NamespaceUnlockAspectTest {
     Namespace namespace = createNamespace(namespaceId);
 
     Release release = createRelease("{\"k1\":\"v1\"}");
-    List<Item> items = Arrays.asList(createItem("k1", "v2"));
+    List<Item> items = Collections.singletonList(createItem("k1", "v2"));
 
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
     when(itemService.findItemsWithoutOrdered(namespaceId)).thenReturn(items);
@@ -88,7 +104,7 @@ public class NamespaceUnlockAspectTest {
     Namespace namespace = createNamespace(namespaceId);
 
     Release release = createRelease("{\"k1\":\"v1\"}");
-    List<Item> items = Arrays.asList(createItem("k2", "v2"));
+    List<Item> items = Collections.singletonList(createItem("k2", "v2"));
 
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
     when(itemService.findItemsWithoutOrdered(namespaceId)).thenReturn(items);
@@ -106,7 +122,7 @@ public class NamespaceUnlockAspectTest {
     Namespace parentNamespace = createNamespace(parentNamespaceId);
 
     Release childRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
-    List<Item> childItems = Arrays.asList(createItem("k1", "v3"));
+    List<Item> childItems = Collections.singletonList(createItem("k1", "v3"));
     Release parentRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
 
     when(releaseService.findLatestActiveRelease(childNamespace)).thenReturn(childRelease);
@@ -126,7 +142,7 @@ public class NamespaceUnlockAspectTest {
     Namespace parentNamespace = createNamespace(parentNamespaceId);
 
     Release childRelease = createRelease("{\"k1\":\"v3\", \"k2\":\"v2\"}");
-    List<Item> childItems = Arrays.asList(createItem("k1", "v3"));
+    List<Item> childItems = Collections.singletonList(createItem("k1", "v3"));
     Release parentRelease = createRelease("{\"k1\":\"v1\", \"k2\":\"v2\"}");
 
     when(releaseService.findLatestActiveRelease(childNamespace)).thenReturn(childRelease);

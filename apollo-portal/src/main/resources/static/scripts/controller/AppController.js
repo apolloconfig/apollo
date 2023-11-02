@@ -1,8 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 app_module.controller('CreateAppController',
-                      ['$scope', '$window', 'toastr', 'AppService', 'AppUtil', 'OrganizationService','SystemRoleService','UserService',
-                       createAppController]);
+    ['$scope', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'OrganizationService', 'SystemRoleService', 'UserService',
+        createAppController]);
 
-function createAppController($scope, $window, toastr, AppService, AppUtil, OrganizationService, SystemRoleService, UserService) {
+function createAppController($scope, $window, $translate, toastr, AppService, AppUtil, OrganizationService, SystemRoleService, UserService) {
 
     $scope.app = {};
     $scope.submitBtnDisabled = false;
@@ -27,10 +43,10 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
                 organizations.push(org);
             });
             $('#organization').select2({
-                                           placeholder: '请选择部门',
-                                           width: '100%',
-                                           data: organizations
-                                       });
+                placeholder: $translate.instant('Common.PleaseChooseDepartment'),
+                width: '100%',
+                data: organizations
+            });
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), "load organizations error");
         });
@@ -60,7 +76,7 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
         var selectedOrg = $('#organization').select2('data')[0];
 
         if (!selectedOrg.id) {
-            toastr.warning("请选择部门");
+            toastr.warning($translate.instant('Common.PleaseChooseDepartment'));
             $scope.submitBtnDisabled = false;
             return;
         }
@@ -71,10 +87,10 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
         // owner
         var owner = $('.ownerSelector').select2('data')[0];
         if ($scope.isOpenManageAppMasterRoleLimit) {
-            owner  = {id:  $scope.currentUser.userId};
+            owner = { id: $scope.currentUser.userId };
         }
         if (!owner) {
-            toastr.warning("请选择应用负责人");
+            toastr.warning($translate.instant('Common.PleaseChooseOwner'));
             $scope.submitBtnDisabled = false;
             return;
         }
@@ -84,7 +100,7 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
         $scope.app.admins = [];
         var admins = $(".adminSelector").select2('data');
         if ($scope.isOpenManageAppMasterRoleLimit) {
-            admins  = [{id: $scope.currentUser.userId}];
+            admins = [{ id: $scope.currentUser.userId }];
         }
         if (admins) {
             admins.forEach(function (admin) {
@@ -93,14 +109,14 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
         }
 
         AppService.create($scope.app).then(function (result) {
-            toastr.success('创建成功!');
+            toastr.success($translate.instant('Common.Created'));
             setInterval(function () {
                 $scope.submitBtnDisabled = false;
-                $window.location.href = '/config.html?#appid=' + result.appId;
+                $window.location.href = AppUtil.prefixPath() + '/config.html?#appid=' + result.appId;
             }, 1000);
         }, function (result) {
             $scope.submitBtnDisabled = false;
-            toastr.error(AppUtil.errorMsg(result), '创建失败!');
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('Common.CreateFailed'));
         });
     }
 
@@ -118,7 +134,7 @@ function createAppController($scope, $window, toastr, AppService, AppUtil, Organ
         if (owner) {
             $(".adminSelector").parent().find(".select2-selection__rendered").prepend(
                 '<li class="select2-selection__choice J_owner">'
-                + owner.text + '</li>')
+                + _.escape(owner.text) + '</li>')
         }
     }
 }

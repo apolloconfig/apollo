@@ -1,11 +1,26 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.controller;
 
 
-import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
-import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import java.util.Objects;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.ServerConfigService;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,38 +34,34 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class ServerConfigController {
+  private final ServerConfigService serverConfigService;
 
-  private final ServerConfigRepository serverConfigRepository;
-  private final UserInfoHolder userInfoHolder;
-
-  public ServerConfigController(final ServerConfigRepository serverConfigRepository, final UserInfoHolder userInfoHolder) {
-    this.serverConfigRepository = serverConfigRepository;
-    this.userInfoHolder = userInfoHolder;
+  public ServerConfigController(final ServerConfigService serverConfigService) {
+    this.serverConfigService = serverConfigService;
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
-  @PostMapping("/server/config")
-  public ServerConfig createOrUpdate(@Valid @RequestBody ServerConfig serverConfig) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
-
-    ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
-
-    if (Objects.isNull(storedConfig)) {//create
-      serverConfig.setDataChangeCreatedBy(modifiedBy);
-      serverConfig.setDataChangeLastModifiedBy(modifiedBy);
-      serverConfig.setId(0L);//为空，设置ID 为0，jpa执行新增操作
-      return serverConfigRepository.save(serverConfig);
-    } else {//update
-      BeanUtils.copyEntityProperties(serverConfig, storedConfig);
-      storedConfig.setDataChangeLastModifiedBy(modifiedBy);
-      return serverConfigRepository.save(storedConfig);
-    }
+  @PostMapping("/server/portal-db/config")
+  public ServerConfig createOrUpdatePortalDBConfig(@Valid @RequestBody ServerConfig serverConfig) {
+    return serverConfigService.createOrUpdatePortalDBConfig(serverConfig);
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
-  @GetMapping("/server/config/{key:.+}")
-  public ServerConfig loadServerConfig(@PathVariable String key) {
-    return serverConfigRepository.findByKey(key);
+  @PostMapping("/server/envs/{env}/config-db/config")
+  public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig, @PathVariable String env) {
+    return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig);
+  }
+
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @GetMapping("/server/portal-db/config/find-all-config")
+  public List<ServerConfig> findAllPortalDBServerConfig() {
+    return serverConfigService.findAllPortalDBConfig();
+  }
+
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @GetMapping("/server/envs/{env}/config-db/config/find-all-config")
+  public List<ServerConfig> findAllConfigDBServerConfig(@PathVariable String env) {
+    return serverConfigService.findAllConfigDBConfig(Env.transformEnv(env));
   }
 
 }

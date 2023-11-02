@@ -1,0 +1,184 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="access_key">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="../img/config.png">
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
+    <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
+    <title>{{'Config.AccessKeyManage' | translate }}</title>
+</head>
+
+<body>
+
+    <apollonav></apollonav>
+
+    <div class="container-fluid apollo-container project-setting" ng-controller="AccessKeyController">
+        <section class="col-md-10 col-md-offset-1 panel hidden">
+            <header class="panel-heading">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h4 class="modal-title">{{'Config.AccessKeyManage' | translate }} (
+                            {{'Common.AppId' | translate }}:<label ng-bind="pageContext.appId"></label> )
+                        </h4>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <a type="button" class="btn btn-info" data-dismiss="modal"
+                            href="{{ '/config.html' | prefixPath }}?#appid={{pageContext.appId}}">{{'Common.ReturnToIndex' | translate }}
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="panel-body row">
+
+                <section class="context" ng-show="hasAssignUserPermission">
+                    <section class="form-horizontal">
+                        <div class="alert alert-info no-radius" role="alert">
+                            <strong>Tips:</strong>
+                            <ul>
+                                <li>{{'AccessKey.Tips.1' | translate }}</li>
+                                <li>{{'AccessKey.Tips.2' | translate }}</li>
+                                <li>{{'AccessKey.Tips.3' | translate }}</li>
+                                <ul>
+                                    <li>{{'AccessKey.Tips.3.1' | translate }}</li>
+                                    <li>{{'AccessKey.Tips.3.2' | translate }}</li>
+                                    <li>{{'AccessKey.Tips.3.3' | translate }}</li>
+                                </ul>
+                            </ul>
+                        </div>
+                    </section>
+                    <section>
+                        <div class="row">
+                            <form class="col-sm-8 form-inline" ng-submit="create()">
+                                <div class="form-group">
+                                    <select class="form-control input-sm" style="width: 450px;" ng-model="addAccessKeySelectedEnv">
+                                        <option value="">{{'Cluster.PleaseChooseEnvironment' | translate }}</option>
+                                        <option ng-repeat="env in envs" ng-value="env">{{env}}</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-default" style="margin-left: 20px;"
+                                        ng-disabled="addAccessKeySelectedEnv == ''">{{'App.Setting.Add' | translate }}
+                                </button>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!--application info-->
+                    <section  ng-repeat="env in envs" ng-value="env">
+                        <hr>
+                        <h4>{{'Common.Environment' | translate }}: {{env}}
+                        </h4>
+
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>{{'AccessKey.ConfigAccessKeys.Secret' | translate }}</th>
+                                    <th>{{'AccessKey.ConfigAccessKeys.Status' | translate }}</th>
+                                    <th>{{'AccessKey.ConfigAccessKeys.LastModify' | translate }}</th>
+                                    <th>{{'AccessKey.ConfigAccessKeys.LastModifyTime' | translate }}</th>
+                                    <th>{{'AccessKey.ConfigAccessKeys.Operator' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-show="(!accessKeys[env] || accessKeys[env].length < 1)">
+                                    <td colspan="5" style="text-align: center;">{{'AccessKey.NoAccessKeyServiceTips' | translate }}</td>
+                                </tr>
+                                <tr ng-show="accessKeys[env] && accessKeys[env].length > 0"
+                                    ng-repeat="accessKey in accessKeys[env]">
+                                    <td style="text-align: center;">{{accessKey.secret}}</td>
+                                    <td style="text-align: center;" ng-style="{'color': accessKey.enabled ? '#5cb85c' : '#d20707'}">{{accessKey.enabled ? ('AccessKey.Operator.Enabled' | translate) : ('AccessKey.Operator.Disabled' | translate) }}</td>
+                                    <td style="text-align: center;">{{accessKey.dataChangeLastModifiedBy}}</td>
+                                    <td style="text-align: center;">{{accessKey.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
+                                    <td style="text-align: center;">
+                                        <a href="javascript:;"
+                                           ng-click="enable(accessKey.id, env)" ng-if="!accessKey.enabled">{{'AccessKey.Operator.Enable' | translate}}</a>
+                                        <a href="javascript:;"
+                                           ng-click="disable(accessKey.id, env)" ng-if="accessKey.enabled">{{'AccessKey.Operator.Disable' | translate}}</a>
+                                        <a href="javascript:;"
+                                           ng-click="remove(accessKey.id, env)" ng-if="!accessKey.enabled">{{'AccessKey.Operator.Remove' | translate }}</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </section>
+
+                <section class="context" ng-show="!hasAssignUserPermission">
+                    <div class="panel-body text-center">
+                        <h4 translate="App.AccessKey.NoPermissionTips" translate-value-users="{{admins.join(',')}}"></h4>
+                    </div>
+                </section>
+
+            </div>
+        </section>
+    </div>
+
+    <div ng-include="'../views/common/footer.html'"></div>
+
+    <!-- jquery.js -->
+    <script src="../vendor/jquery.min.js" type="text/javascript"></script>
+
+    <!--angular-->
+    <script src="../vendor/angular/angular.min.js"></script>
+    <script src="../vendor/angular/angular-route.min.js"></script>
+    <script src="../vendor/angular/angular-resource.min.js"></script>
+    <script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="../vendor/angular/loading-bar.min.js"></script>
+    <script src="../vendor/angular/angular-cookies.min.js"></script>
+
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+    <!--valdr-->
+    <script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+    <!-- bootstrap.js -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script src="../vendor/lodash.min.js"></script>
+
+    <script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="../scripts/app.js"></script>
+    <script type="application/javascript" src="../scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="../scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/services/OrganizationService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/services/AccessKeyService.js"></script>
+
+    <script type="application/javascript" src="../scripts/AppUtils.js"></script>
+
+    <script type="application/javascript" src="../scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="../scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="../scripts/valdr.js"></script>
+
+    <script type="application/javascript" src="../scripts/controller/AccessKeyController.js"></script>
+</body>
+
+</html>

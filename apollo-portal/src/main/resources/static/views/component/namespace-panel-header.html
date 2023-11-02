@@ -1,19 +1,35 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <header class="row namespace-attribute-panel">
     <div class="row">
         <div class="col-md-6" style="padding-bottom:5px;">
             <span class="text-center namespace-attribute-public label label-primary no-radius">
                 <span data-tooltip="tooltip" data-placement="bottom"
-                      title="私有namespace({{namespace.baseInfo.namespaceName}})的配置只能被AppId为{{appId}}的客户端读取到"
-                      ng-show="!namespace.isPublic">私有</span>
+                    title="{{'Component.Namespace.Header.Title.PrivateTips' | translate:this }}"
+                    ng-show="!namespace.isPublic">{{'Component.Namespace.Header.Title.Private' | translate }}</span>
 
-                    <span data-tooltip="tooltip" data-placement="top"
-                          title="namespace({{namespace.baseInfo.namespaceName}})的配置能被任何客户端读取到"
-                          ng-show="namespace.isPublic && namespace.parentAppId == namespace.baseInfo.appId">公共</span>
+                <span data-tooltip="tooltip" data-placement="top"
+                    title="{{'Component.Namespace.Header.Title.PublicTips' | translate:this }}"
+                    ng-show="namespace.isPublic && namespace.parentAppId == namespace.baseInfo.appId">{{'Component.Namespace.Header.Title.Public' | translate }}</span>
 
-                    <span data-tooltip="tooltip" data-placement="top"
-                          title="namespace({{namespace.baseInfo.namespaceName}})的配置将会覆盖公共namespace的配置, 且合并之后的配置只能被AppId为{{appId}}的客户端读取到"
-                          ng-show="namespace.isPublic && namespace.isLinkedNamespace"
-                          ng-click="goToParentAppConfigPage(namespace)">关联</span>
+                <span data-tooltip="tooltip" data-placement="top"
+                    title="{{'Component.Namespace.Header.Title.ExtendTips' | translate:this }}"
+                    ng-show="namespace.isPublic && namespace.isLinkedNamespace"
+                    ng-click="goToParentAppConfigPage(namespace)">{{'Component.Namespace.Header.Title.Extend' | translate }}</span>
             </span>
             <span class="text-center namespace-attribute-public label label-info no-radius">
                 <span ng-bind="namespace.format" style="width:30px;"></span>
@@ -21,11 +37,10 @@
         </div>
         <div class="col-md-6 text-right" style="padding-right:23px;">
             <span data-toggle="collapse" data-target="#BODY{{namespace.branch.id}}" aria-expanded="false">
-                <span class="label no-radius cursor-pointer"
-                      data-toggle="collapse" data-target="#BODY{{namespace.id}}" aria-expanded="false"
-                      ng-click="showNamespaceBody = !showNamespaceBody"
-                      ng-show="namespace.initialized">
-                    <a>[展开/收缩]</a>
+                <span class="label no-radius cursor-pointer" data-toggle="collapse" data-target="#BODY{{namespace.id}}"
+                    aria-expanded="false" ng-click="showNamespaceBody = !showNamespaceBody"
+                    ng-show="namespace.initialized">
+                    <a>{{'Component.Namespace.Header.Title.ExpandAndCollapse' | translate }}</a>
                 </span>
             </span>
         </div>
@@ -39,16 +54,16 @@
             <ul class="nav nav-tabs">
                 <li role="presentation">
                     <a ng-class="{'node_active': namespace.displayControl.currentOperateBranch == 'master'}"
-                       ng-click="switchBranch('master', true)">
+                        ng-click="switchBranch('master', true)">
                         <img src="img/branch.png">
-                        主版本
+                        {{'Component.Namespace.Header.Title.Master' | translate }}
                     </a>
                 </li>
                 <li role="presentation">
                     <a ng-class="{'node_active': namespace.displayControl.currentOperateBranch != 'master'}"
-                       ng-click="switchBranch(namespace.branchName, true)">
+                        ng-click="switchBranch(namespace.branchName, true)">
                         <img src="img/branch.png">
-                        灰度版本
+                        {{'Component.Namespace.Header.Title.Grayscale' | translate }}
                     </a>
                 </li>
 

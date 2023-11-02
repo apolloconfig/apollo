@@ -1,23 +1,39 @@
-appService.service('InstanceService', ['$resource', '$q', function ($resource, $q) {
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+appService.service('InstanceService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
     var resource = $resource('', {}, {
         find_instances_by_release: {
             method: 'GET',
-            url: '/envs/:env/instances/by-release'
+            url: AppUtil.prefixPath() + '/envs/:env/instances/by-release'
         },
         find_instances_by_namespace: {
             method: 'GET',
             isArray: false,
-            url: '/envs/:env/instances/by-namespace'
+            url: AppUtil.prefixPath() + '/envs/:env/instances/by-namespace'
         },
         find_by_releases_not_in: {
             method: 'GET',
             isArray: true,
-            url: '/envs/:env/instances/by-namespace-and-releases-not-in'
+            url: AppUtil.prefixPath() + '/envs/:env/instances/by-namespace-and-releases-not-in'
         },
         get_instance_count_by_namespace: {
             method: 'GET',
             isArray: false,
-            url: "envs/:env/instances/by-namespace/count"
+            url: AppUtil.prefixPath() + "/envs/:env/instances/by-namespace/count"
         }
     });
 

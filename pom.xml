@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.ctrip.framework.apollo</groupId>
 	<artifactId>apollo</artifactId>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>${revision}</version>
 	<name>Apollo</name>
 	<packaging>pom</packaging>
-	<description>Ctrip Configuration Center</description>
-	<url>https://github.com/ctripcorp/apollo</url>
-
-	<organization>
-		<name>Ctrip, Inc.</name>
-		<url>http://www.ctrip.com</url>
-	</organization>
+	<description>Configuration Center</description>
+	<url>https://github.com/apolloconfig/apollo</url>
 
 	<licenses>
 		<license>
@@ -24,104 +35,82 @@
 	</licenses>
 
 	<scm>
-		<url>https://github.com/ctripcorp/apollo</url>
-		<connection>scm:git:git://github.com/ctripcorp/apollo.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/ctripcorp/apollo.git</developerConnection>
+		<url>https://github.com/apolloconfig/apollo</url>
+		<connection>scm:git:git@github.com:apolloconfig/apollo.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:apolloconfig/apollo.git</developerConnection>
 	</scm>
 
 	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.org/ctripcorp/apollo</url>
+		<system>GitHub Actions</system>
+		<url>https://github.com/apolloconfig/apollo/actions</url>
 	</ciManagement>
 
 	<issueManagement>
 		<system>github</system>
-		<url>https://github.com/ctripcorp/apollo/issues</url>
+		<url>https://github.com/apolloconfig/apollo/issues</url>
 	</issueManagement>
 
 	<developers>
 		<developer>
-			<id>nobodyiam</id>
-			<name>Jason(Shun) Song</name>
-			<email>nobodyiam at gmail.com</email>
-			<organization>Ctrip, Inc.</organization>
-			<organizationUrl>http://www.ctrip.com</organizationUrl>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>lepdou</id>
-			<name>Le Zhang</name>
-			<email>lepdou at gmail.com</email>
-			<organization>Ctrip, Inc.</organization>
-			<organizationUrl>http://www.ctrip.com</organizationUrl>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>yiming187</id>
-			<name>Billy(Yiming) Liu</name>
-			<email>liuyiming.vip at gmail.com</email>
-			<organization>Ctrip, Inc.</organization>
-			<organizationUrl>http://www.ctrip.com</organizationUrl>
-			<roles>
-				<role>Developer(Inactive)</role>
-			</roles>
+			<id>apollo</id>
+			<name>The Apollo Project Contributors</name>
+			<email>apollo-config@googlegroups.com</email>
+			<url>https://www.apolloconfig.com/</url>
 		</developer>
 	</developers>
 
 	<properties>
+		<revision>2.2.0-SNAPSHOT</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<platform-bom.version>Cairo-SR4</platform-bom.version>
-		<spring-boot.version>2.0.5.RELEASE</spring-boot.version>
-		<spring-cloud.version>Finchley.SR1</spring-cloud.version>
-        <jaxb.version>2.3.0</jaxb.version>
-        <javax.activation.version>1.1.1</javax.activation.version>
-        <javassist.version>3.23.1-GA</javassist.version>
-		<!-- Plugins Version -->
-		<maven-compiler-plugin.version>3.6.0</maven-compiler-plugin.version>
-		<maven-surefire-plugin.version>2.19.1</maven-surefire-plugin.version>
-		<maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-		<maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
-		<maven-war-plugin.version>3.0.0</maven-war-plugin.version>
-		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+		<apollo-java.version>2.2.0-SNAPSHOT</apollo-java.version>
+		<spring-boot.version>2.7.11</spring-boot.version>
+		<spring-cloud.version>2021.0.5</spring-cloud.version>
+		<!-- sort by alphabet -->
+		<awaitility.version>4.2.0</awaitility.version>
+		<common-lang3.version>3.12.0</common-lang3.version>
+		<gson.version>2.10.1</gson.version>
+		<guava.version>31.1-jre</guava.version>
+		<javassist.version>3.23.1-GA</javassist.version>
+		<javax.activation.version>1.1.1</javax.activation.version>
+		<javax.mail.version>1.6.2</javax.mail.version>
+		<jaxb.version>2.3.1</jaxb.version>
+		<junit.version>5.9.2</junit.version>
+		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
+		<!-- database driver -->
+		<mysql-connector-j.version>8.0.32</mysql-connector-j.version>
+		<postgre.version>42.5.3</postgre.version>
+		<!-- Plugins Version sort by alphabet -->
+		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
 		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
-		<maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-		<!-- for travis usage -->
-		<github.global.server>github</github.global.server>
-		<github.global.oauth2Token>${env.GITHUB_OAUTH_TOKEN}</github.global.oauth2Token>
+		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+		<maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
+		<maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
+		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
+		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
+		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 	</properties>
 
 	<modules>
 		<module>apollo-buildtools</module>
-		<module>apollo-core</module>
-		<module>apollo-client</module>
 		<module>apollo-common</module>
 		<module>apollo-biz</module>
 		<module>apollo-configservice</module>
 		<module>apollo-adminservice</module>
 		<module>apollo-portal</module>
 		<module>apollo-assembly</module>
-		<module>apollo-demo</module>
-		<module>apollo-mockserver</module>
-		<module>apollo-openapi</module>
-	</modules>
+    <module>apollo-audit</module>
+  </modules>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-core</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo</groupId>
-				<artifactId>apollo-client</artifactId>
-				<version>${project.version}</version>
+				<version>${apollo-java.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
@@ -156,146 +145,90 @@
 			<dependency>
 				<groupId>com.ctrip.framework.apollo</groupId>
 				<artifactId>apollo-openapi</artifactId>
+				<version>${apollo-java.version}</version>
+			</dependency>
+			<!--audit log module -->
+			<dependency>
+				<groupId>com.ctrip.framework.apollo</groupId>
+				<artifactId>apollo-audit-annotation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- ctrip internal dependencies, only used when ctrip profiles are enabled -->
 			<dependency>
-				<groupId>com.dianping.cat</groupId>
-				<artifactId>cat-client</artifactId>
-				<version>2.2.3</version>
+				<groupId>com.ctrip.framework.apollo</groupId>
+				<artifactId>apollo-audit-impl</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.ctrip.platform</groupId>
-				<artifactId>ctrip-dal-client</artifactId>
-				<version>1.0.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with xpp3:xpp3_min -->
-					<exclusion>
-						<groupId>xmlpull</groupId>
-						<artifactId>xmlpull</artifactId>
-					</exclusion>
-					<!-- duplicated with bcpkix-jdk15on -->
-					<exclusion>
-						<groupId>org.bouncycastle</groupId>
-						<artifactId>bcprov-jdk16</artifactId>
-					</exclusion>
-					<!-- duplicated with hibernate-jpa-2.1-api -->
-					<exclusion>
-						<groupId>javax.persistence</groupId>
-						<artifactId>persistence-api</artifactId>
-					</exclusion>
-				</exclusions>
+				<groupId>com.ctrip.framework.apollo</groupId>
+				<artifactId>apollo-audit-api</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.ctrip.framework.clogging</groupId>
-				<artifactId>clogging-agent</artifactId>
-				<version>3.5.2</version>
-				<exclusions>
-					<exclusion>
-						<artifactId>logback-core</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>logback-classic</artifactId>
-						<groupId>ch.qos.logback</groupId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.credis</groupId>
-				<artifactId>credis</artifactId>
-				<version>2.4.11</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework</groupId>
-				<artifactId>vi</artifactId>
-				<version>0.9.1</version>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-sso</groupId>
-				<artifactId>apollo-sso-ctrip</artifactId>
-				<version>1.1.0</version>
-				<exclusions>
-					<!-- partially duplicated with org.ow2.asm:asm -->
-					<exclusion>
-						<groupId>asm</groupId>
-						<artifactId>asm</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo-ctrip-service</groupId>
-				<artifactId>apollo-email-service</artifactId>
-				<version>1.0.0</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>javax.servlet-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>commons-logging</groupId>
-						<artifactId>commons-logging</artifactId>
-					</exclusion>
-					<!-- duplicated with commons-collections and commons-beanutils -->
-					<exclusion>
-						<groupId>commons-beanutils</groupId>
-						<artifactId>commons-beanutils-core</artifactId>
-					</exclusion>
-				</exclusions>
+				<groupId>com.ctrip.framework.apollo</groupId>
+				<artifactId>apollo-audit-spring-boot-starter</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<!--third party -->
 			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.7.21</version>
-			</dependency>
-			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>19.0</version>
+				<version>${guava.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
-				<version>2.8.0</version>
+				<version>${gson.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>mysql</groupId>
-				<artifactId>mysql-connector-java</artifactId>
-				<version>5.1.46</version>
+				<groupId>com.mysql</groupId>
+				<artifactId>mysql-connector-j</artifactId>
+				<version>${mysql-connector-j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${postgre.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
-				<version>4.1.0</version>
+				<version>5.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${common-lang3.version}</version>
+			</dependency>
+			<!-- to fix CVE-2022-41966 -->
+			<dependency>
+				<groupId>com.thoughtworks.xstream</groupId>
+				<artifactId>xstream</artifactId>
+				<version>1.4.20</version>
 			</dependency>
 			<!--for test -->
 			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.191</version>
+				<groupId>org.awaitility</groupId>
+				<artifactId>awaitility</artifactId>
+				<version>${awaitility.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.vintage</groupId>
+				<artifactId>junit-vintage-engine</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.stefanbirkner</groupId>
+				<artifactId>system-lambda</artifactId>
+				<version>1.2.0</version>
+				<scope>test</scope>
 			</dependency>
 			<!-- declare Spring BOMs in order -->
 			<dependency>
-				<groupId>io.spring.platform</groupId>
-				<artifactId>platform-bom</artifactId>
-				<version>${platform-bom.version}</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring-boot.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -306,18 +239,11 @@
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
-			<!-- ctrip modified -->
-			<!-- removed duplicated javax/persistence classes -->
+			<!-- required by eureka -->
 			<dependency>
-				<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-				<artifactId>tomcat-embed-core</artifactId>
-				<version>8.0.37</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.apache.tomcat.embed</groupId>
-						<artifactId>tomcat-embed-logging-juli</artifactId>
-					</exclusion>
-				</exclusions>
+				<groupId>com.sun.jersey.contribs</groupId>
+				<artifactId>jersey-apache-client4</artifactId>
+				<version>1.19.4</version>
 			</dependency>
 			<!-- JDK 1.8+ -->
 			<dependency>
@@ -340,13 +266,18 @@
 				<artifactId>activation</artifactId>
 				<version>${javax.activation.version}</version>
 			</dependency>
-            <!-- JDK 11+ -->
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-            <!-- end of JDK 11+ -->
+			<dependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>javax.mail</artifactId>
+				<version>${javax.mail.version}</version>
+			</dependency>
+			<!-- JDK 11+ -->
+			<dependency>
+				<groupId>org.javassist</groupId>
+				<artifactId>javassist</artifactId>
+				<version>${javassist.version}</version>
+			</dependency>
+			<!-- end of JDK 11+ -->
 		</dependencies>
 	</dependencyManagement>
 
@@ -359,6 +290,23 @@
 				<exclusion>
 					<artifactId>spring-boot-starter</artifactId>
 					<groupId>org.springframework.boot</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- for junit 4 -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.hamcrest</groupId>
+					<artifactId>hamcrest-core</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -447,6 +395,13 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-gpg-plugin</artifactId>
 					<version>${maven-gpg-plugin.version}</version>
+					<configuration>
+						<!-- Prevent gpg from using pinentry programs -->
+						<gpgArguments>
+							<arg>--pinentry-mode</arg>
+							<arg>loopback</arg>
+						</gpgArguments>
+					</configuration>
 					<executions>
 						<execution>
 							<phase>verify</phase>
@@ -459,7 +414,11 @@
 				<plugin>
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
-					<version>1.3.5.RELEASE</version>
+					<version>${spring-boot.version}</version>
+					<configuration>
+						<executable>true</executable>
+						<attach>false</attach>
+					</configuration>
 					<executions>
 						<execution>
 							<goals>
@@ -487,19 +446,63 @@
 						<dependency>
 							<groupId>ch.qos.logback</groupId>
 							<artifactId>logback-classic</artifactId>
-							<version>1.1.7</version>
+							<version>1.2.0</version>
 						</dependency>
 					</dependencies>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.6</version>
+					<version>${maven-assembly-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.2</version>
+				</plugin>
+				<plugin>
+					<groupId>pl.project13.maven</groupId>
+					<artifactId>git-commit-id-plugin</artifactId>
+					<version>2.2.6</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>revision</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<verbose>true</verbose>
+						<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+						<generateGitPropertiesFile>true</generateGitPropertiesFile>
+						<generateGitPropertiesFilename>${project.build.outputDirectory}/apollo-git.properties</generateGitPropertiesFilename>
+						<failOnNoGitDirectory>false</failOnNoGitDirectory>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>flatten-maven-plugin</artifactId>
+					<version>1.1.0</version>
+					<configuration>
+						<updatePomFile>true</updatePomFile>
+						<flattenMode>resolveCiFriendliesOnly</flattenMode>
+					</configuration>
+					<executions>
+						<execution>
+							<id>flatten</id>
+							<phase>process-resources</phase>
+							<goals>
+								<goal>flatten</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>flatten.clean</id>
+							<phase>clean</phase>
+							<goals>
+								<goal>clean</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 				<!-- Need to set releases.repo and snapshots.repo properties in your .m2/settings.xml -->
 			</plugins>
@@ -512,6 +515,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<trimStackTrace>false</trimStackTrace>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -552,20 +558,23 @@
 			<plugin>
 				<groupId>pl.project13.maven</groupId>
 				<artifactId>git-commit-id-plugin</artifactId>
-				<version>2.2.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${maven-jacoco-plugin.version}</version>
 				<executions>
 					<execution>
+						<id>prepare-agent</id>
 						<goals>
-							<goal>revision</goal>
+							<goal>prepare-agent</goal>
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<verbose>true</verbose>
-					<dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
-					<generateGitPropertiesFile>true</generateGitPropertiesFile>
-					<failOnNoGitDirectory>false</failOnNoGitDirectory>
-				</configuration>
 			</plugin>
 		</plugins>
 		<resources>
@@ -589,73 +598,9 @@
 					<exclude>**/*.xml</exclude>
 				</excludes>
 			</resource>
-			<resource>
-				<directory>src/main/config</directory>
-				<filtering>true</filtering>
-				<includes>
-					<include>application-github.properties</include>
-				</includes>
-			</resource>
-			<resource>
-				<directory>src/main/config</directory>
-				<filtering>false</filtering>
-				<excludes>
-					<exclude>application-github.properties</exclude>
-				</excludes>
-			</resource>
 		</resources>
 	</build>
 	<profiles>
-		<profile>
-			<!-- for travis usage -->
-			<id>travis</id>
-			<activation>
-				<property>
-					<name>env.TRAVIS</name>
-					<value>true</value>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.github.github</groupId>
-						<artifactId>site-maven-plugin</artifactId>
-						<version>0.12</version>
-						<configuration>
-							<message>Site for ${project.artifactId}, ${project.version}</message>
-							<path>${github.path}</path>
-							<merge>true</merge>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>site</goal>
-								</goals>
-								<phase>site</phase>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.3</version>
-						<executions>
-							<execution>
-								<id>prepare-agent</id>
-								<goals>
-									<goal>prepare-agent</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.eluder.coveralls</groupId>
-						<artifactId>coveralls-maven-plugin</artifactId>
-						<version>4.2.0</version>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<!-- for open source usage -->
 			<id>github</id>
@@ -667,340 +612,40 @@
 			</activation>
 		</profile>
 		<profile>
-      <!-- for ctrip development -->
-			<id>ctrip-dev</id>
+			<id>nacos-discovery</id>
 			<properties>
-				<package.environment>ctrip</package.environment>
+				<nacos.discovery.version>0.2.12</nacos.discovery.version>
+				<fastjson.version>1.2.83</fastjson.version>
 			</properties>
 			<dependencyManagement>
 				<dependencies>
 					<dependency>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-starter-web</artifactId>
-						<version>${spring-boot.version}</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-logging-juli</artifactId>
-							</exclusion>
-							<!-- use ctrip modified version instead -->
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-core</artifactId>
-							</exclusion>
-						</exclusions>
+						<groupId>com.alibaba.boot</groupId>
+						<artifactId>nacos-discovery-spring-boot-starter</artifactId>
+						<version>${nacos.discovery.version}</version>
 					</dependency>
-					<!-- eureka -->
 					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-						<version>${spring-cloud.version}</version>
-						<exclusions>
-							<!-- already in java -->
-							<exclusion>
-								<groupId>stax</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>javax.xml.stream</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-security-core -->
-							<exclusion>
-								<groupId>org.springframework.security</groupId>
-								<artifactId>spring-security-crypto</artifactId>
-							</exclusion>
-							<!-- duplicated with xpp3:xpp3_min -->
-							<exclusion>
-								<groupId>xmlpull</groupId>
-								<artifactId>xmlpull</artifactId>
-							</exclusion>
-							<!-- duplicated with netty-all -->
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-codec-http</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-buffer</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-common</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport-native-epoll</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport</artifactId>
-							</exclusion>
-							<!-- duplicated with commons-collections and commons-beanutils -->
-							<exclusion>
-								<groupId>commons-beanutils</groupId>
-								<artifactId>commons-beanutils-core</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-aop -->
-							<exclusion>
-								<groupId>aopalliance</groupId>
-								<artifactId>aopalliance</artifactId>
-							</exclusion>
-						</exclusions>
+						<groupId>com.alibaba</groupId>
+						<artifactId>fastjson</artifactId>
+						<version>${fastjson.version}</version>
 					</dependency>
-					<!-- end of eureka -->
 				</dependencies>
 			</dependencyManagement>
-			<dependencies>
-				<dependency>
-					<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-					<artifactId>tomcat-embed-core</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<!-- for ctrip development with logging capability -->
-			<id>ctrip-logging</id>
-            <dependencies>
-				<dependency>
-					<groupId>com.dianping.cat</groupId>
-					<artifactId>cat-client</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.clogging</groupId>
-					<artifactId>clogging-agent</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<!-- for ctrip production -->
-			<id>ctrip</id>
-			<properties>
-				<package.environment>ctrip</package.environment>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-starter-web</artifactId>
-						<version>${spring-boot.version}</version>
-						<exclusions>
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-logging-juli</artifactId>
-							</exclusion>
-							<!-- use ctrip modified version instead -->
-							<exclusion>
-								<groupId>org.apache.tomcat.embed</groupId>
-								<artifactId>tomcat-embed-core</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- eureka -->
-					<dependency>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-						<version>${spring-cloud.version}</version>
-						<exclusions>
-							<!-- already in java -->
-							<exclusion>
-								<groupId>stax</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>javax.xml.stream</groupId>
-								<artifactId>stax-api</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-security-core -->
-							<exclusion>
-								<groupId>org.springframework.security</groupId>
-								<artifactId>spring-security-crypto</artifactId>
-							</exclusion>
-							<!-- duplicated with xpp3:xpp3_min -->
-							<exclusion>
-								<groupId>xmlpull</groupId>
-								<artifactId>xmlpull</artifactId>
-							</exclusion>
-							<!-- duplicated with netty-all -->
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-codec-http</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-buffer</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-common</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport-native-epoll</artifactId>
-							</exclusion>
-							<exclusion>
-								<groupId>io.netty</groupId>
-								<artifactId>netty-transport</artifactId>
-							</exclusion>
-                            <!-- duplicated with commons-collections and commons-beanutils -->
-							<exclusion>
-								<groupId>commons-beanutils</groupId>
-								<artifactId>commons-beanutils-core</artifactId>
-							</exclusion>
-							<!-- duplicated with spring-aop -->
-							<exclusion>
-								<groupId>aopalliance</groupId>
-								<artifactId>aopalliance</artifactId>
-							</exclusion>
-						</exclusions>
-					</dependency>
-					<!-- end of eureka -->
-				</dependencies>
-			</dependencyManagement>
-			<dependencies>
-				<dependency>
-					<groupId>com.dianping.cat</groupId>
-					<artifactId>cat-client</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.3rdparty.tomcat.embed</groupId>
-					<artifactId>tomcat-embed-core</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.framework.clogging</groupId>
-					<artifactId>clogging-agent</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.ctrip.platform</groupId>
-					<artifactId>ctrip-dal-client</artifactId>
-				</dependency>
-			</dependencies>
-		</profile>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>configdb</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.flywaydb</groupId>
-						<artifactId>flyway-maven-plugin</artifactId>
-						<version>5.2.4</version>
-						<dependencies>
-							<dependency>
-								<groupId>mysql</groupId>
-								<artifactId>mysql-connector-java</artifactId>
-								<version>5.1.46</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<configFile>scripts/db/migration/flyway-configdb.properties</configFile>
-						</configuration>
-						<inherited>false</inherited>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>portaldb</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.flywaydb</groupId>
-						<artifactId>flyway-maven-plugin</artifactId>
-						<version>5.2.4</version>
-						<dependencies>
-							<dependency>
-								<groupId>mysql</groupId>
-								<artifactId>mysql-connector-java</artifactId>
-								<version>5.1.46</version>
-							</dependency>
-						</dependencies>
-						<configuration>
-							<configFile>scripts/db/migration/flyway-portaldb.properties</configFile>
-						</configuration>
-						<inherited>false</inherited>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 
-	<reporting>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.9</version>
-				<reportSets>
-					<reportSet>
-						<reports>
-							<report>index</report>
-							<report>summary</report>
-							<report>dependency-info</report>
-							<report>project-team</report>
-							<report>scm</report>
-							<report>issue-tracking</report>
-							<report>mailing-list</report>
-							<!-- <report>dependency-management</report> -->
-							<!-- <report>dependencies</report> -->
-							<!-- <report>dependency-convergence</report> -->
-							<report>cim</report>
-							<report>plugin-management</report>
-							<report>plugins</report>
-							<report>distribution-management</report>
-							<report>license</report>
-							<report>modules</report>
-						</reports>
-					</reportSet>
-				</reportSets>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.17</version>
-				<configuration>
-					<configLocation>google_checks.xml</configLocation>
-					<headerLocation>LICENSE-2.0.txt</headerLocation>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-pmd-plugin</artifactId>
-				<version>3.6</version>
-				<configuration>
-					<aggregate>true</aggregate>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>3.0.3</version>
-			</plugin>
-		</plugins>
-	</reporting>
-	<distributionManagement>
+	<repositories>
+		<!-- for apollo-core and apollo-openapi snapshot versions -->
 		<repository>
-			<id>releases</id>
-			<url>${releases.repo}</url>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
 		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<url>${snapshots.repo}</url>
-		</snapshotRepository>
-	</distributionManagement>
+	</repositories>
 </project>
-

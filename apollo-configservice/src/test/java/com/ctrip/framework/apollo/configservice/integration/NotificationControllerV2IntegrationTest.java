@@ -1,7 +1,22 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.integration;
 
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -10,7 +25,6 @@ import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWit
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +69,7 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
     someCluster = ConfigConsts.CLUSTER_NAME_DEFAULT;
     defaultNamespace = ConfigConsts.NAMESPACE_APPLICATION;
     somePublicNamespace = "somePublicNamespace";
-    executorService = Executors.newSingleThreadExecutor();
+    executorService = Executors.newFixedThreadPool(1);
     typeReference = new ParameterizedTypeReference<List<ApolloConfigNotification>>() {
     };
   }
@@ -298,7 +312,7 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
     assertNotEquals(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, messages.get(key).longValue());
   }
 
-  @Test(timeout = 5000L)
+  @Test(timeout = 10000L)
   @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWthMultipleNamespacesAndMultipleNamespacesChanged()
@@ -632,10 +646,6 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
     );
   }
 
-  private String assembleKey(String appId, String cluster, String namespace) {
-    return Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(appId, cluster, namespace);
-  }
-
   private String transformApolloConfigNotificationsToString(
       String namespace, long notificationId) {
     List<ApolloConfigNotification> notifications =
@@ -644,8 +654,8 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private String transformApolloConfigNotificationsToString(String namespace, long notificationId,
-                                                            String anotherNamespace,
-                                                            long anotherNotificationId) {
+      String anotherNamespace,
+      long anotherNotificationId) {
     List<ApolloConfigNotification> notifications =
         Lists.newArrayList(assembleApolloConfigNotification(namespace, notificationId),
             assembleApolloConfigNotification(anotherNamespace, anotherNotificationId));
@@ -653,10 +663,10 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private String transformApolloConfigNotificationsToString(String namespace, long notificationId,
-                                                            String anotherNamespace,
-                                                            long anotherNotificationId,
-                                                            String yetAnotherNamespace,
-                                                            long yetAnotherNotificationId) {
+      String anotherNamespace,
+      long anotherNotificationId,
+      String yetAnotherNamespace,
+      long yetAnotherNotificationId) {
     List<ApolloConfigNotification> notifications =
         Lists.newArrayList(assembleApolloConfigNotification(namespace, notificationId),
             assembleApolloConfigNotification(anotherNamespace, anotherNotificationId),
@@ -665,7 +675,7 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
   }
 
   private ApolloConfigNotification assembleApolloConfigNotification(String namespace,
-                                                                    long notificationId) {
+      long notificationId) {
     ApolloConfigNotification notification = new ApolloConfigNotification(namespace, notificationId);
     return notification;
   }

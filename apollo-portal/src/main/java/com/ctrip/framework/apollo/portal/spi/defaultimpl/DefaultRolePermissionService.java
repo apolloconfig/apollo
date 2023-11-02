@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.spi.defaultimpl;
 
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
@@ -12,12 +28,14 @@ import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -33,18 +51,30 @@ import java.util.stream.StreamSupport;
  * Created by timothy on 2017/4/26.
  */
 public class DefaultRolePermissionService implements RolePermissionService {
-    @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private RolePermissionRepository rolePermissionRepository;
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-    @Autowired
-    private PermissionRepository permissionRepository;
-    @Autowired
-    private PortalConfig portalConfig;
-    @Autowired
-    private ConsumerRoleRepository consumerRoleRepository;
+
+    private final RoleRepository roleRepository;
+    private final RolePermissionRepository rolePermissionRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final PermissionRepository permissionRepository;
+    private final PortalConfig portalConfig;
+    private final ConsumerRoleRepository consumerRoleRepository;
+    private final UserService userService;
+
+    public DefaultRolePermissionService(final RoleRepository roleRepository,
+        final RolePermissionRepository rolePermissionRepository,
+        final UserRoleRepository userRoleRepository,
+        final PermissionRepository permissionRepository,
+        final PortalConfig portalConfig,
+        final ConsumerRoleRepository consumerRoleRepository,
+        final UserService userService) {
+      this.roleRepository = roleRepository;
+      this.rolePermissionRepository = rolePermissionRepository;
+      this.userRoleRepository = userRoleRepository;
+      this.permissionRepository = permissionRepository;
+      this.portalConfig = portalConfig;
+      this.consumerRoleRepository = consumerRoleRepository;
+      this.userService = userService;
+    }
 
     /**
      * Create role with permissions, note that role name should be unique
@@ -133,14 +163,15 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
 
         List<UserRole> userRoles = userRoleRepository.findByRoleId(role.getId());
+        List<UserInfo> userInfos = userService.findByUserIds(userRoles.stream().map(UserRole::getUserId).collect(Collectors.toList()));
 
-        Set<UserInfo> users = userRoles.stream().map(userRole -> {
-            UserInfo userInfo = new UserInfo();
-            userInfo.setUserId(userRole.getUserId());
-            return userInfo;
-        }).collect(Collectors.toSet());
+        if(userInfos == null){
+            return Collections.emptySet();
+        }
 
-        return users;
+        return userInfos.stream()
+            .sorted(Comparator.comparing(UserInfo::getUserId))
+            .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     /**

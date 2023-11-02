@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
@@ -91,7 +107,7 @@ public class ClusterService {
   public void delete(long id, String operator) {
     Cluster cluster = clusterRepository.findById(id).orElse(null);
     if (cluster == null) {
-      throw new BadRequestException("cluster not exist");
+      throw BadRequestException.clusterNotExists("");
     }
 
     //delete linked namespaces
@@ -135,7 +151,7 @@ public class ClusterService {
   public List<Cluster> findChildClusters(String appId, String parentClusterName) {
     Cluster parentCluster = findOne(appId, parentClusterName);
     if (parentCluster == null) {
-      throw new BadRequestException("parent cluster not exist");
+      throw BadRequestException.clusterNotExists(parentClusterName);
     }
 
     return clusterRepository.findByParentClusterId(parentCluster.getId());

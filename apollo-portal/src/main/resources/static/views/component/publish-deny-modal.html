@@ -1,26 +1,40 @@
 <div class="modal fade" id="publishDenyModal" tabindex="-1" role="dialog">
+    <!--
+      ~ Copyright 2023 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header panel-primary">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">发布受限</h4>
+                <h4 class="modal-title">{{'Component.PublishDeny.Title' | translate }}</h4>
             </div>
-            <div class="modal-body">
-                您不能发布哟~{{env}}环境配置的编辑和发布必须为不同的人，请找另一个具有当前namespace发布权的人操作发布~
+            <div class="modal-body">{{'Component.PublishDeny.Tips1' | translate:this }}
                 <span ng-if="toReleaseNamespace.isEmergencyPublishAllowed">
-                    <br><br><small>（如果是非工作时间或者特殊情况，您可以通过点击<mark>紧急发布</mark>按钮进行发布）</small>
+                    <br><br><small>{{'Component.PublishDeny.Tips2' | translate }}</small>
                 </span>
 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal"
-                        ng-if="toReleaseNamespace.isEmergencyPublishAllowed"
-                        ng-click="emergencyPublish()">
-                    紧急发布
+                    ng-if="toReleaseNamespace.isEmergencyPublishAllowed" ng-click="emergencyPublish()">
+                    {{'Component.PublishDeny.EmergencyPublish' | translate }}
                 </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">
-                    关闭
+                    {{'Component.PublishDeny.Close' | translate }}
                 </button>
             </div>
         </div>

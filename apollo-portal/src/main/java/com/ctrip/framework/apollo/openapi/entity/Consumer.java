@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.openapi.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
@@ -10,27 +26,27 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "Consumer")
-@SQLDelete(sql = "Update Consumer set isDeleted = 1 where id = ?")
-@Where(clause = "isDeleted = 0")
+@Table(name = "`Consumer`")
+@SQLDelete(sql = "Update Consumer set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@Where(clause = "`IsDeleted` = false")
 public class Consumer extends BaseEntity {
 
-  @Column(name = "Name", nullable = false)
+  @Column(name = "`Name`", nullable = false)
   private String name;
 
-  @Column(name = "AppId", nullable = false)
+  @Column(name = "`AppId`", nullable = false)
   private String appId;
 
-  @Column(name = "OrgId", nullable = false)
+  @Column(name = "`OrgId`", nullable = false)
   private String orgId;
 
-  @Column(name = "OrgName", nullable = false)
+  @Column(name = "`OrgName`", nullable = false)
   private String orgName;
 
-  @Column(name = "OwnerName", nullable = false)
+  @Column(name = "`OwnerName`", nullable = false)
   private String ownerName;
 
-  @Column(name = "OwnerEmail", nullable = false)
+  @Column(name = "`OwnerEmail`", nullable = false)
   private String ownerEmail;
 
   public String getAppId() {

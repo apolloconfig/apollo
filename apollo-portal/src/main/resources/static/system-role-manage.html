@@ -1,169 +1,198 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="systemRole">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="icon" href="../img/config.png">
+    <link rel="icon" href="img/config.png">
     <!-- styles -->
-    <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
-    <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
-    <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <title>系统权限管理</title>
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <title>{{'SystemRole.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
 
-<div class="container-fluid" ng-controller="SystemRoleController">
-    <div class="col-md-10 col-md-offset-1 panel">
+    <div class="container-fluid" ng-controller="SystemRoleController">
+        <div class="col-md-10 col-md-offset-1 panel">
 
-        <section class="panel-body" ng-show="isRootUser">
+            <section class="panel-body" ng-show="isRootUser">
 
-            <section class="row">
-                <h5>为用户添加创建应用权限
-                    <small>
-                        (暂时只允许系统管理员操作)
-                    </small>
-                </h5>
-                <hr>
-                <div class="row">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">用户选择<br></label>
-                            <div class="col-sm-8">
-                                <form class="form-inline" ng-submit="addCreateApplicationRoleToUser()">
-                                    <div class="form-group">
-                                        <apollouserselector apollo-id="modifySystemRoleWidgetId"></apollouserselector>
+                <section class="row">
+                    <h5>{{'SystemRole.AddCreateAppRoleToUser' | translate }}
+                        <small>
+                            {{'SystemRole.AddCreateAppRoleToUserTips' | translate }}
+                        </small>
+                    </h5>
+                    <hr>
+                    <div class="row">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label
+                                    class="col-sm-2 control-label">{{'SystemRole.ChooseUser' | translate }}<br></label>
+                                <div class="col-sm-8">
+                                    <form class="form-inline" ng-submit="addCreateApplicationRoleToUser()">
+                                        <div class="form-group">
+                                            <apollouserselector apollo-id="modifySystemRoleWidgetId">
+                                            </apollouserselector>
+                                        </div>
+                                        <button type="submit" class="btn btn-default"
+                                            style="margin-left: 20px;">{{'SystemRole.Add' | translate }}</button>
+                                    </form>
+
+                                    <div class="item-container">
+                                        <h5>{{'SystemRole.AuthorizedUser' | translate }}</h5>
+                                        <div class="btn-group item-info"
+                                            ng-repeat="user in hasCreateApplicationPermissionUserList">
+                                            <button type="button" class="btn btn-default" ng-bind="user"></button>
+                                            <button type="button" class="btn btn-default dropdown-toggle"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                                ng-click="deleteCreateApplicationRoleFromUser(user)">
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-default" style="margin-left: 20px;">添加</button>
-                                </form>
 
-                                <div class="item-container">
-                                    <h5>已拥有权限用户</h5>
-                                    <div class="btn-group item-info" ng-repeat="user in hasCreateApplicationPermissionUserList">
-                                        <button type="button" class="btn btn-default" ng-bind="user"></button>
-                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                                aria-haspopup="true" aria-expanded="false" ng-click="deleteCreateApplicationRoleFromUser(user)">
-                                            <span class="glyphicon glyphicon-remove"></span>
-                                        </button>
-                                    </div>
                                 </div>
 
                             </div>
-
                         </div>
                     </div>
-                </div>
+                </section>
+
+                <section class="row">
+                    <h5>{{'SystemRole.ModifyAppAdminUser' | translate }}
+                        <small>
+                            {{'SystemRole.ModifyAppAdminUserTips' | translate }}
+                        </small>
+                    </h5>
+                    <hr>
+                    <form class="form-horizontal">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'SystemRole.AppIdTips' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="app.appId">
+                                <small>{{'SystemRole.Title' | translate }}</small>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-info"
+                                    ng-click="getAppInfo()">{{'Common.Search' | translate }}</button>
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                {{'SystemRole.AppInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 ng-show="app.info" ng-bind="app.info"></h5>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'SystemRole.ChooseUser' | translate }}<br></label>
+                            <div class="col-sm-8">
+                                <form class="form-inline">
+                                    <div class="form-group">
+                                        <apollouserselector apollo-id="modifyManageAppMasterRoleWidgetId">
+                                        </apollouserselector>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
+                                <button type="submit" class="btn btn-primary"
+                                    ng-disabled="operateManageAppMasterRoleBtn" ng-click="allowAppMasterAssignRole()">
+                                    {{'SystemRole.AllowAppMasterAssignRole' | translate }}
+                                </button>
+                                <button type="submit" class="btn btn-primary"
+                                    ng-disabled="operateManageAppMasterRoleBtn" ng-click="deleteAppMasterAssignRole()">
+                                    {{'SystemRole.DeleteAppMasterAssignRole' | translate }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
             </section>
 
-            <section class="row">
-                <h5>修改应用管理员分配权限
-                    <small>
-                        (应用管理员分配权限仅限制非superAdmin以外的用户能否为应用添加其他管理员，不影响其他权限)
-                    </small>
-                </h5>
-                <hr>
-                <form class="form-horizontal">
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            应用AppId</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="app.appId">
-                            <small>(请先查询应用信息)</small>
-                        </div>
-                        <div class="col-sm-1">
-                            <button class="btn btn-info" ng-click="getAppInfo()">查询</button>
-                        </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            应用信息</label>
-                        <div class="col-sm-5">
-                            <h5 ng-show="app.info" ng-bind="app.info"></h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">用户选择<br></label>
-                        <div class="col-sm-8">
-                            <form class="form-inline">
-                                <div class="form-group">
-                                    <apollouserselector apollo-id="modifyManageAppMasterRoleWidgetId"></apollouserselector>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="operateManageAppMasterRoleBtn"
-                                    ng-click="allowAppMasterAssignRole()">
-                                允许此用户作为管理员时添加Master
-                            </button>
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="operateManageAppMasterRoleBtn"
-                                    ng-click="deleteAppMasterAssignRole()">
-                                禁止此用户作为管理员时添加Master
-                            </button>
-                        </div>
-                    </div>
-                </form>
+            <section class="panel-body text-center" ng-if="!isRootUser">
+                <h4>{{'Common.IsRootUser' | translate }}</h4>
             </section>
 
-        </section>
-
-        <section class="panel-body text-center" ng-if="!isRootUser">
-            <h4>当前页面只对Apollo管理员开放</h4>
-        </section>
-
+        </div>
     </div>
-</div>
 
-<div ng-include="'../views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-<!-- jquery.js -->
-<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
 
-<!--angular-->
-<script src="../vendor/angular/angular.min.js"></script>
-<script src="../vendor/angular/angular-route.min.js"></script>
-<script src="../vendor/angular/angular-resource.min.js"></script>
-<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="../vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-route.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<!--valdr-->
-<script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<script src="../vendor/lodash.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
-<!--biz-->
-<!--must import-->
-<script type="application/javascript" src="../scripts/app.js"></script>
-<script type="application/javascript" src="../scripts/services/AppService.js"></script>
-<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="../scripts/services/UserService.js"></script>
-<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="../scripts/services/ClusterService.js"></script>
-<script type="application/javascript" src="../scripts/services/NamespaceService.js"></script>
-<script type="application/javascript" src="../scripts/services/SystemRoleService.js"></script>
+    <script src="vendor/lodash.min.js"></script>
 
-<script type="application/javascript" src="../scripts/AppUtils.js"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/ClusterService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+    <script type="application/javascript" src="scripts/services/SystemRoleService.js"></script>
 
-<script type="application/javascript" src="../scripts/PageCommon.js"></script>
-<script type="application/javascript" src="../scripts/directive/directive.js"></script>
-<script type="application/javascript" src="../scripts/valdr.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
 
-<script type="application/javascript" src="../scripts/controller/role/SystemRoleController.js"></script>
+    <script type="application/javascript" src="scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/valdr.js"></script>
+
+    <script type="application/javascript" src="scripts/controller/role/SystemRoleController.js"></script>
 </body>
+
 </html>

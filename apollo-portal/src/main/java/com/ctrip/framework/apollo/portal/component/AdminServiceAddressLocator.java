@@ -1,8 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.component;
 
-import com.ctrip.framework.apollo.core.MetaDomainConsts;
+import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
@@ -39,13 +55,17 @@ public class AdminServiceAddressLocator {
 
   private final PortalSettings portalSettings;
   private final RestTemplateFactory restTemplateFactory;
+  private final PortalMetaDomainService portalMetaDomainService;
 
   public AdminServiceAddressLocator(
       final HttpMessageConverters httpMessageConverters,
       final PortalSettings portalSettings,
-      final RestTemplateFactory restTemplateFactory) {
+      final RestTemplateFactory restTemplateFactory,
+      final PortalMetaDomainService portalMetaDomainService
+  ) {
     this.portalSettings = portalSettings;
     this.restTemplateFactory = restTemplateFactory;
+    this.portalMetaDomainService = portalMetaDomainService;
   }
 
   @PostConstruct
@@ -106,17 +126,17 @@ public class AdminServiceAddressLocator {
         return true;
       } catch (Throwable e) {
         logger.error(String.format("Get admin server address from meta server failed. env: %s, meta server address:%s",
-                                   env, MetaDomainConsts.getDomain(env)), e);
+                                   env, portalMetaDomainService.getDomain(env)), e);
         Tracer
             .logError(String.format("Get admin server address from meta server failed. env: %s, meta server address:%s",
-                                    env, MetaDomainConsts.getDomain(env)), e);
+                                    env, portalMetaDomainService.getDomain(env)), e);
       }
     }
     return false;
   }
 
   private ServiceDTO[] getAdminServerAddress(Env env) {
-    String domainName = MetaDomainConsts.getDomain(env);
+    String domainName = portalMetaDomainService.getDomain(env);
     String url = domainName + ADMIN_SERVICE_URL_PATH;
     return restTemplate.getForObject(url, ServiceDTO[].class);
   }

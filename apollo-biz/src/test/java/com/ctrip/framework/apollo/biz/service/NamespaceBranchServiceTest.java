@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
@@ -6,6 +22,11 @@ import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.common.constants.NamespaceBranchStatus;
 import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
+import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
+import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
+import java.lang.reflect.Type;
+import java.util.Set;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +35,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
 
@@ -66,7 +89,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, releaseHistory.getOperation());
     Assert.assertEquals(0, releaseHistory.getReleaseId());
     Assert.assertEquals(0, releaseHistory.getPreviousReleaseId());
-    Assert.assertTrue(releaseHistory.getOperationContext().contains(rule.getRules()));
+    Assert.assertTrue(containRules(releaseHistory.getOperationContext(), rule.getRules()));
   }
 
   @Test
@@ -78,7 +101,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, firstRule);
 
     GrayReleaseRule secondRule = instanceGrayReleaseRule();
-    secondRule.setRules("[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"]}]");
+    secondRule.setRules("[{\"clientAppId\":\"branch-test\",\"clientIpList\":[\"10.38.57.112\"],\"clientLabelList\":[\"branch-test\"]}]");
     namespaceBranchService.updateBranchGrayRules(testApp, testCluster, testNamespace, testBranchName, secondRule);
 
     GrayReleaseRule
@@ -99,10 +122,34 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(2, releaseHistories.getTotalElements());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, firstReleaseHistory.getOperation());
     Assert.assertEquals(ReleaseOperation.APPLY_GRAY_RULES, secondReleaseHistory.getOperation());
-    Assert.assertTrue(firstReleaseHistory.getOperationContext().contains(firstRule.getRules()));
-    Assert.assertFalse(firstReleaseHistory.getOperationContext().contains(secondRule.getRules()));
-    Assert.assertTrue(secondReleaseHistory.getOperationContext().contains(firstRule.getRules()));
-    Assert.assertTrue(secondReleaseHistory.getOperationContext().contains(secondRule.getRules()));
+    Assert.assertTrue(containRules(firstReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertFalse(containRules(firstReleaseHistory.getOperationContext(), secondRule.getRules()));
+    Assert.assertTrue(containRules(secondReleaseHistory.getOperationContext(), firstRule.getRules()));
+    Assert.assertTrue(containRules(secondReleaseHistory.getOperationContext(), secondRule.getRules()));
+  }
+
+  private boolean containRules(String context, String rules) {
+    Type grayReleaseRuleItemsType = new TypeToken<Map<String, Set<GrayReleaseRuleItemDTO>>>() {
+    }.getType();
+    Map<String, Set<GrayReleaseRuleItemDTO>> contextRulesMap = new Gson().fromJson(context, grayReleaseRuleItemsType);
+    Set<GrayReleaseRuleItemDTO> ruleSet = GrayReleaseRuleItemTransformer.batchTransformFromJSON(rules);
+
+    for (GrayReleaseRuleItemDTO rule : ruleSet) {
+      boolean found = false;
+      loop: for (Set<GrayReleaseRuleItemDTO> contextRules : contextRulesMap.values()) {
+        for (GrayReleaseRuleItemDTO contextRule : contextRules) {
+          if (contextRule.toString().equals(rule.toString())) {
+            found = true;
+            break loop;
+          }
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Test
@@ -184,7 +231,7 @@ public class NamespaceBranchServiceTest extends AbstractIntegrationTest {
     rule.setNamespaceName(testNamespace);
     rule.setBranchName(testBranchName);
     rule.setBranchStatus(NamespaceBranchStatus.ACTIVE);
-    rule.setRules("[{\"clientAppId\":\"test\",\"clientIpList\":[\"1.0.0.4\"]}]");
+    rule.setRules("[{\"clientAppId\":\"test\",\"clientIpList\":[\"1.0.0.4\"],\"clientLabelList\":[]}]");
     return rule;
   }
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 
 
 package com.ctrip.framework.apollo.portal.spi.ldap;
@@ -67,16 +83,16 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
     if (!StringUtils.hasLength(username)) {
       throw new BadCredentialsException(
           this.messages.getMessage("LdapAuthenticationProvider.emptyUsername", "Empty Username"));
-    } else if (!StringUtils.hasLength(password)) {
+    }
+    if (!StringUtils.hasLength(password)) {
       throw new BadCredentialsException(this.messages
           .getMessage("AbstractLdapAuthenticationProvider.emptyPassword", "Empty Password"));
-    } else {
-      Assert.notNull(password, "Null password was supplied in authentication token");
-      DirContextOperations userData = this.doAuthentication(userToken);
-      String loginId = userData.getStringAttribute(properties.getMapping().getLoginId());
-      UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, loginId,
-          this.loadUserAuthorities(userData, loginId, (String) authentication.getCredentials()));
-      return this.createSuccessfulAuthentication(userToken, user);
     }
+    Assert.notNull(password, "Null password was supplied in authentication token");
+    DirContextOperations userData = this.doAuthentication(userToken);
+    String loginId = userData.getStringAttribute(properties.getMapping().getLoginId());
+    UserDetails user = this.userDetailsContextMapper.mapUserFromContext(userData, loginId,
+        this.loadUserAuthorities(userData, loginId, (String) authentication.getCredentials()));
+    return this.createSuccessfulAuthentication(userToken, user);
   }
 }

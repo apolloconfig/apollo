@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.component.emailbuilder;
 
 import com.google.common.base.Joiner;
@@ -5,7 +21,7 @@ import com.google.gson.Gson;
 
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
 
 import org.springframework.stereotype.Component;
@@ -56,23 +72,22 @@ public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
 
     if (CollectionUtils.isEmpty(ruleItems)) {
       return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE, "<br><h4>无灰度规则</h4>");
-    } else {
-      StringBuilder rulesHtmlBuilder = new StringBuilder();
-      for (GrayReleaseRuleItemDTO ruleItem : ruleItems) {
-        String clientAppId = ruleItem.getClientAppId();
-        Set<String> ips = ruleItem.getClientIpList();
-
-        rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>")
-                .append(clientAppId)
-                .append("&nbsp;&nbsp; <b>IP:&nbsp;</b>");
-
-        IP_JOINER.appendTo(rulesHtmlBuilder, ips);
-      }
-      String grayRulesModuleContent = portalConfig.emailGrayRulesModuleTemplate().replaceAll(EMAIL_CONTENT_GRAY_RULES_CONTENT,
-              Matcher.quoteReplacement(rulesHtmlBuilder.toString()));
-
-      return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE, Matcher.quoteReplacement(grayRulesModuleContent));
     }
+    StringBuilder rulesHtmlBuilder = new StringBuilder();
+    for (GrayReleaseRuleItemDTO ruleItem : ruleItems) {
+      String clientAppId = ruleItem.getClientAppId();
+      Set<String> ips = ruleItem.getClientIpList();
+
+      rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>")
+              .append(clientAppId)
+              .append("&nbsp;&nbsp; <b>IP:&nbsp;</b>");
+
+      IP_JOINER.appendTo(rulesHtmlBuilder, ips);
+    }
+    String grayRulesModuleContent = portalConfig.emailGrayRulesModuleTemplate().replaceAll(EMAIL_CONTENT_GRAY_RULES_CONTENT,
+            Matcher.quoteReplacement(rulesHtmlBuilder.toString()));
+
+    return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE, Matcher.quoteReplacement(grayRulesModuleContent));
 
   }
 }

@@ -1,3 +1,19 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="cluster">
 <head>
@@ -9,7 +25,7 @@
     <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
     <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="styles/common-style.css">
-    <title>新建集群</title>
+    <title>{{'Cluster.CreateCluster' | translate }}</title>
 </head>
 
 <body>
@@ -23,10 +39,10 @@
                 <header class="panel-heading">
                     <div class="row">
                         <div class="col-md-6">
-                            <h4>创建集群</h4>
+                            <h4>{{'Cluster.CreateCluster' | translate }}</h4>
                         </div>
                         <div class="col-md-6 text-right">
-                            <a type="button" class="btn btn-info" href="/config.html?#/appid={{appId}}">返回到项目首页
+                            <a type="button" class="btn btn-info" href="config.html?#/appid={{appId}}">{{'Common.ReturnToIndex' | translate }}
                             </a>
                         </div>
                     </div>
@@ -39,13 +55,10 @@
                     <div class="alert alert-info no-radius" role="alert">
                         <strong>Tips:</strong>
                         <ul>
-                            <li>通过添加集群，可以使同一份程序在不同的集群（如不同的数据中心）使用不同的配置</li>
-                            <li>如果不同集群使用一样的配置，则没有必要创建集群</li>
-                            <li>
-                                Apollo默认会读取机器上/opt/settings/server.properties(linux)或C:\opt\settings\server.properties(windows)文件中的idc属性作为集群名字，
-                                如SHAJQ（金桥数据中心）、SHAOY（欧阳数据中心)
-                            </li>
-                            <li>在这里创建的集群名字需要和机器上server.properties中的idc属性一致</li>
+                            <li>{{'Cluster.Tips.1' | translate }}</li>
+                            <li>{{'Cluster.Tips.2' | translate }}</li>
+                            <li>{{'Cluster.Tips.3' | translate }}</li>
+                            <li>{{'Cluster.Tips.4' | translate }}</li>
                         </ul>
                     </div>
                     <form class="form-horizontal" name="clusterForm" valdr-type="Cluster" ng-show="step == 1"
@@ -53,7 +66,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
-                                应用AppId</label>
+                                {{'Common.AppId' | translate }}</label>
                             <div class="col-sm-6">
                                 <label class="form-control-static" ng-bind="appId"></label>
                             </div>
@@ -61,16 +74,16 @@
                         <div class="form-group" valdr-form-group>
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
-                                集群名称</label>
+                                {{'Common.ClusterName' | translate }}</label>
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="clusterName" ng-model="clusterName">
-                                <small>(部署集群如:SHAJQ,SHAOY 或自定义集群如:SHAJQ-xx,SHAJQ-yy)</small>
+                                <small>{{'Cluster.CreateNameTips' | translate }}</small>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
-                                选择环境</label>
+                                {{'Cluster.ChooseEnvironment' | translate }}</label>
                             <div class="col-sm-5">
                                 <table class="table table-hover" style="width: 100px">
                                     <tbody>
@@ -89,14 +102,14 @@
                             <div class="col-sm-offset-2 col-sm-10">
 
                                 <button type="submit" class="btn btn-primary"
-                                        ng-disabled="clusterForm.$invalid || submitBtnDisabled">提交
+                                        ng-disabled="clusterForm.$invalid || submitBtnDisabled">{{'Common.Submit' | translate }}
                                 </button>
                             </div>
                         </div>
                     </form>
                     <div class="row text-center" ng-show="step == 2">
                         <img src="img/sync-succ.png" style="height: 100px; width: 100px">
-                        <h3>创建成功!</h3>
+                        <h3>{{'Common.Created' | translate }}!</h3>
                     </div>
                 </div>
             </div>
@@ -111,6 +124,11 @@
 <script src="vendor/angular/angular-resource.min.js"></script>
 <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
 <script src="vendor/angular/loading-bar.min.js"></script>
+<script src="vendor/angular/angular-cookies.min.js"></script>
+
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
 <!-- jquery.js -->
 <script src="vendor/jquery.min.js" type="text/javascript"></script>

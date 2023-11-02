@@ -1,0 +1,275 @@
+# Copyright 2023 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+apiVersion: v1
+entries:
+  apollo-portal:
+  - apiVersion: v2
+    appVersion: 1.9.1
+    created: "2021-09-09T09:24:18.945869+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 6e50025665de4179f3485aa58ef33f24556267764afc645eaaab98810716f7ab
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 1.9.0
+    created: "2021-08-23T20:17:19.061588+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 5013793bf02482003afc17df98e5a6c62fbfb1e17f08ba49f3d27bd02fbd768d
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 1.8.2
+    created: "2021-06-02T23:05:43.379448+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 5586b2597ebe098a26c94273855461891041241628d85dc13e05ce661ff5e7a2
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 1.8.1
+    created: "2021-06-02T23:05:43.378586+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 8bac1b48361e2717d7d4ee669a85a14ee22ada96f249300d90ee563def63baea
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 1.8.0
+    created: "2021-06-02T23:05:43.377736+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 8a55c5f3ddd76b9768067fe6eecfb34b588084557c11882e263abb2af7dfc173
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 1.7.2
+    created: "2021-06-02T23:05:43.376846+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 1db8b2435e0471ef55c63c47b970e4ae059800f88ed4ac4f1ca6cd27fe502722
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.7.1
+    created: "2021-06-02T23:05:43.375959+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: 7c1b4efa13d4cc54a714b3ec836f609a8f97286c465789f6d807d1227cfc5b74
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.7.0
+    created: "2021-06-02T23:05:43.37481+08:00"
+    description: A Helm chart for Apollo Portal
+    digest: b838e4478f0c031093691defeffb5805d51189989db0eb9caaa2dc67905c8391
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-portal
+    type: application
+    urls:
+    - apollo-portal-0.1.0.tgz
+    version: 0.1.0
+  apollo-service:
+  - apiVersion: v2
+    appVersion: 1.9.1
+    created: "2021-09-09T09:24:18.953677+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: e444ef8db74d8e11b7b5cfebb31ac2e1138a40d036045f432898ebf98fc33f07
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 1.9.0
+    created: "2021-08-23T20:17:19.069986+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 8eab8f69d2fddc8b3c930c76f9e930d2e144cc31805b4df8856cf1e945e9333a
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 1.8.2
+    created: "2021-06-02T23:05:43.388235+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 7291d516b94390843439bae7a2635561e713a549339a314fa2ef79ef098b6ab4
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
+    appVersion: 1.8.1
+    created: "2021-06-02T23:05:43.387399+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: f88f0c6942353b3d49b4caa43a7580b885ccc94a646428694adc2ed3d43e49fe
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 1.8.0
+    created: "2021-06-02T23:05:43.385355+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 73e66c651499f93b6f3891e979dcbe2a20ad37809087e42bc98643c604c457c6
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 1.7.2
+    created: "2021-06-02T23:05:43.38449+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: be9379611b45db416a32b7e1367527faec7c29a969493ca4a0a72b5b87a280f4
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.7.1
+    created: "2021-06-02T23:05:43.381142+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 787a26590d68735341b7839c14274492097fed4a0843fc9a1e5c692194199707
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 1.7.0
+    created: "2021-06-02T23:05:43.380337+08:00"
+    description: A Helm chart for Apollo Config Service and Apollo Admin Service
+    digest: 65c08f39b54ad1ac1d849cc841ce978bd6e95b0b6cbd2423d9f17f66bc7e8d3e
+    home: https://github.com/apolloconfig/apollo
+    icon: https://raw.githubusercontent.com/apolloconfig/apollo/master/apollo-portal/src/main/resources/static/img/logo-simple.png
+    maintainers:
+    - email: nobodyiam@gmail.com
+      name: nobodyiam
+      url: https://github.com/nobodyiam
+    name: apollo-service
+    type: application
+    urls:
+    - apollo-service-0.1.0.tgz
+    version: 0.1.0
+generated: "2021-06-02T23:05:43.373363+08:00"

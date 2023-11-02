@@ -1,19 +1,41 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!--master panel body when not initialized-->
 <section class="master-panel-body" ng-if="!namespace.initialized">
     <!--main header-->
     <header class="panel-heading">
         <div class="row">
             <div class="col-md-6 col-sm-6 header-namespace">
-                <b class="namespace-name" ng-bind="namespace.viewName"></b>
+                <b class="namespace-name" ng-bind="namespace.viewName"
+                   data-tooltip="tooltip" data-placement="bottom" title="{{namespace.comment}}"></b>
+                <span class="label label-warning no-radius namespace-label modify-tip"
+                      ng-show="namespace.itemModifiedCnt > 0">
+                    {{'Component.Namespace.Master.Items.Changed' | translate }}
+                    <span class="badge label badge-white namespace-label" ng-bind="namespace.itemModifiedCnt"></span>
+                </span>
             </div>
 
             <div class="col-md-6 col-sm-6 text-right header-buttons">
 
-                <button type="button" class="btn btn-default btn-sm"
-                        data-tooltip="tooltip" data-placement="bottom" title="加载Namespace"
-                        ng-click="refreshNamespace()">
+                <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.LoadNamespaceTips' | translate }}"
+                    ng-click="refreshNamespace()">
                     <img src="img/more.png">
-                    加载Namespace
+                    {{'Component.Namespace.Master.LoadNamespace' | translate }}
                 </button>
             </div>
         </div>
@@ -21,80 +43,89 @@
 
 </section>
 <!--master panel body-->
-<section class="master-panel-body"
-         ng-if="namespace.initialized &&
+<section class="master-panel-body" ng-if="namespace.initialized &&
          (namespace.hasBranch && namespace.displayControl.currentOperateBranch == 'master' || !namespace.hasBranch)">
     <!--main header-->
     <header class="panel-heading">
         <div class="row">
             <div class="col-md-6 col-sm-6 header-namespace">
-                <b class="namespace-name" ng-bind="namespace.viewName"></b>
+                <b class="namespace-name" ng-bind="namespace.viewName"
+                   data-tooltip="tooltip" data-placement="bottom" title="{{namespace.comment}}"></b>
                 <span class="label label-warning no-radius namespace-label modify-tip"
-                      ng-show="namespace.itemModifiedCnt > 0">
-                    有修改
+                    ng-show="namespace.itemModifiedCnt > 0">
+                    {{'Component.Namespace.Master.Items.Changed' | translate }}
                     <span class="badge label badge-white namespace-label" ng-bind="namespace.itemModifiedCnt"></span>
                 </span>
                 <span class="label label-primary no-radius namespace-label"
-                      ng-show="namespace.lockOwner">当前修改者:{{namespace.lockOwner}}</span>
+                    ng-show="namespace.lockOwner">{{'Component.Namespace.Master.Items.ChangedUser' | translate }}:{{namespace.lockOwner}}</span>
             </div>
 
             <div class="col-md-6 col-sm-6 text-right header-buttons">
 
-                <button type="button" class="btn btn-success btn-sm"
-                        data-tooltip="tooltip" data-placement="bottom" title="发布配置"
-                        ng-show="(namespace.hasReleasePermission || namespace.hasModifyPermission)"
-                        ng-disabled="namespace.isTextEditing"
-                        ng-click="publish(namespace)">
+                <button type="button" class="btn btn-success btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.PublishTips' | translate }}"
+                    ng-show="(namespace.hasReleasePermission || namespace.hasModifyPermission)"
+                    ng-disabled="namespace.isTextEditing" ng-click="publish(namespace)">
                     <img src="img/release.png">
-                    发布
+                    {{'Component.Namespace.Master.Items.Publish' | translate }}
                 </button>
-                <button type="button" class="btn btn-default btn-sm"
-                        data-tooltip="tooltip" data-placement="bottom" title="回滚已发布配置"
-                        ng-show="namespace.hasReleasePermission"
-                        ng-click="rollback(namespace)">
+                <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.RollbackTips' | translate }}"
+                    ng-show="namespace.hasReleasePermission" ng-click="rollback(namespace)">
                     <img src="img/rollback.png">
-                    回滚
+                    {{'Component.Namespace.Master.Items.Rollback' | translate }}
                 </button>
-                <a type="button" class="btn btn-default btn-sm"
-                   data-tooltip="tooltip" data-placement="bottom" title="查看发布历史"
-                   href="/config/history.html?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}">
+                <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.PublishHistoryTips' | translate }}"
+                    href="{{ '/config/history.html' | prefixPath }}?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}">
                     <img src="img/release-history.png">
-                    发布历史
+                    {{'Component.Namespace.Master.Items.PublishHistory' | translate }}
                 </a>
-                <a type="button" class="btn btn-default btn-sm"
-                   data-tooltip="tooltip" data-placement="bottom" title="配置修改、发布权限"
-                   href="/namespace/role.html?#/appid={{appId}}&namespaceName={{namespace.baseInfo.namespaceName}}"
-                   ng-show="hasAssignUserPermission">
+                <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.GrantTips' | translate }}"
+                    href="{{ '/namespace/role.html' | prefixPath }}?#/appid={{appId}}&namespaceName={{namespace.baseInfo.namespaceName}}"
+                    ng-show="hasAssignUserPermission">
                     <img src="img/assign.png">
-                    授权
+                    {{'Component.Namespace.Master.Items.Grant' | translate }}
                 </a>
 
-                <a type="button" class="btn btn-default btn-sm"
-                   data-tooltip="tooltip" data-placement="bottom" title="创建测试版本"
-                   ng-show="!namespace.hasBranch && namespace.isPropertiesFormat && namespace.hasModifyPermission"
-                   ng-click="preCreateBranch(namespace)">
+                <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.GrayscaleTips' | translate }}"
+                    ng-show="!namespace.hasBranch && namespace.hasModifyPermission"
+                    ng-click="preCreateBranch(namespace)">
                     <img src="img/test.png">
-                    灰度
+                    {{'Component.Namespace.Master.Items.Grayscale' | translate }}
                 </a>
 
-                <a type="button" class="btn btn-default btn-sm J_tableview_btn"
-                   data-tooltip="tooltip" data-placement="bottom" title="您没有任何配置权限,请申请"
-                   ng-click="showNoModifyPermissionDialog()"
-                   ng-show="!namespace.hasModifyPermission && !namespace.hasReleasePermission">
-                    申请配置权限
+                <a type="button" class="btn btn-default btn-sm J_tableview_btn" data-tooltip="tooltip"
+                    data-placement="bottom"
+                    title="{{'Component.Namespace.Master.Items.RequestPermissionTips' | translate }}"
+                    ng-click="showNoModifyPermissionDialog()"
+                    ng-show="!namespace.hasModifyPermission && !namespace.hasReleasePermission">
+                    {{'Component.Namespace.Master.Items.RequestPermission' | translate }}
                 </a>
 
                 <div class="btn-group"
-                     ng-show="namespace.hasModifyPermission || namespace.hasReleasePermission || hasAssignUserPermission">
-                    <button type="button" class="btn btn-default btn-sm dropdown-toggle"
-                            data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
+                    ng-show="namespace.hasModifyPermission || namespace.hasReleasePermission || hasAssignUserPermission">
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                         <img src="img/operate.png"> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" style="right: 0; left: -160px;">
+                        <li ng-click="exportNamespace(namespace)">
+                            <a>
+                                <img src="img/export.png">
+                                {{'Component.Namespace.Master.Items.ExportNamespace' | translate }}</a>
+                        </li>
+                        <li ng-click="importNamespace(namespace)">
+                            <a>
+                                <img src="img/import.png">
+                                {{'Component.Namespace.Master.Items.ImportNamespace' | translate }}</a>
+                        </li>
                         <li ng-click="deleteNamespace(namespace)">
                             <a style="color: red">
-                                <img src="img/delete.png"> 删除Namespace</a>
+                                <img src="img/delete.png">
+                                {{'Component.Namespace.Master.Items.DeleteNamespace' | translate }}</a>
                         </li>
                     </ul>
                 </div>
@@ -105,9 +136,8 @@
 
 
     <div id="BODY{{namespace.id}}" ng-class="{'collapse in': showNamespaceBody, 'collapse' : !showNamespaceBody}">
-        <div class="J_namespace-release-tip well well-sm no-radius text-center"
-             ng-show="namespace.isConfigHidden">
-            <span style="color: red">您不是该项目的管理员，也没有该Namespace的编辑或发布权限，无法查看配置信息。</span>
+        <div class="J_namespace-release-tip well well-sm no-radius text-center" ng-show="namespace.isConfigHidden">
+            <span style="color: red">{{'Component.Namespace.Master.Items.NoPermissionTips' | translate }}</span>
         </div>
 
         <!--second header-->
@@ -120,92 +150,107 @@
                             ng-show="namespace.isPropertiesFormat">
                             <a ng-class="{node_active:namespace.viewType == 'table'}">
                                 <img src="img/table.png">
-                                表格
+                                {{'Component.Namespace.Master.Items.ItemList' | translate }}
                             </a>
                         </li>
-                        <li role="presentation"
-                            ng-click="switchView(namespace, 'text')">
+                        <li role="presentation" ng-click="switchView(namespace, 'text')">
                             <a ng-class="{node_active:namespace.viewType == 'text'}">
                                 <img src="img/text.png">
-                                文本
+                                {{'Component.Namespace.Master.Items.ItemListByText' | translate }}
                             </a>
                         </li>
                         <li role="presentation" ng-click="switchView(namespace, 'history')">
                             <a ng-class="{node_active:namespace.viewType == 'history'}">
                                 <img src="img/change.png">
-                                更改历史
+                                {{'Component.Namespace.Master.Items.ItemHistory' | translate }}
                             </a>
                         </li>
                         <li role="presentation" ng-click="switchView(namespace, 'instance')">
                             <a ng-class="{node_active:namespace.viewType == 'instance'}">
                                 <img src="img/machine.png">
-                                实例列表
+                                {{'Component.Namespace.Master.Items.ItemInstance' | translate }}
                                 <span class="badge badge-grey" ng-bind="namespace.instancesCount"></span>
                             </a>
                         </li>
                     </ul>
                 </div>
                 <div class="col-md-6 col-sm-6 text-right">
+                    <img src="img/compare.png" class="ns_btn clipboard cursor-pointer"
+                         data-tooltip="tooltip" data-placement="bottom"
+                         title="{{'Component.Namespace.Master.Items.DiffItemTips' | translate }}"
+                         ng-click="goToDiffPage(namespace)"
+                         ng-show="namespace.displayControl.currentOperateBranch == 'master' && !namespace.isPropertiesFormat && !namespace.isTextEditing">
+                    &nbsp;
                     <img src="img/copy.png" class="ns_btn clipboard cursor-pointer"
-                         data-clipboard-text="{{namespace.text}}"
-                         data-tooltip="tooltip" data-placement="bottom" title="复制文本"
-                         ng-show="!namespace.isTextEditing && namespace.viewType == 'text' && namespace.hasModifyPermission">
-                    <img src="img/syntax.png" class="ns_btn cursor-pointer"
-                         data-tooltip="tooltip" data-placement="bottom" title="语法检查"
-                         ng-show="namespace.isTextEditing && namespace.viewType == 'text' && namespace.isSyntaxCheckable"
-                         ng-click="syntaxCheck(namespace)">
+                        data-clipboard-text="{{namespace.text}}" data-tooltip="tooltip" data-placement="bottom"
+                        title="{{'Component.Namespace.Master.Items.CopyText' | translate }}"
+                        ng-show="!namespace.isTextEditing && namespace.viewType == 'text' && namespace.hasModifyPermission">
+                    <img src="img/syntax.png" class="ns_btn cursor-pointer" data-tooltip="tooltip"
+                        data-placement="bottom" title="{{'Component.Namespace.Master.Items.GrammarCheck' | translate }}"
+                        ng-show="namespace.isTextEditing && namespace.viewType == 'text' && namespace.isSyntaxCheckable"
+                        ng-click="syntaxCheck(namespace)">
                     &nbsp;
-                    <img src="img/cancel.png" class="ns_btn cursor-pointer"
-                         data-tooltip="tooltip" data-placement="bottom" title="取消修改"
-                         ng-show="namespace.isTextEditing && namespace.viewType == 'text'"
-                         ng-click="toggleTextEditStatus(namespace)">
-                    <img src="img/edit.png" class="ns_btn cursor-pointer"
-                         data-tooltip="tooltip" data-placement="bottom" title="修改配置"
-                         ng-show="!namespace.isTextEditing && namespace.viewType == 'text' && namespace.hasModifyPermission"
-                         ng-click="toggleTextEditStatus(namespace)">
+                    <img src="img/cancel.png" class="ns_btn cursor-pointer" data-tooltip="tooltip"
+                        data-placement="bottom"
+                        title="{{'Component.Namespace.Master.Items.CancelChanged' | translate }}"
+                        ng-show="namespace.isTextEditing && namespace.viewType == 'text'"
+                        ng-click="toggleTextEditStatus(namespace)">
+                    <img src="img/edit.png" class="ns_btn cursor-pointer" data-tooltip="tooltip" data-placement="bottom"
+                        title="{{'Component.Namespace.Master.Items.Change' | translate }}"
+                        ng-show="!namespace.isTextEditing && namespace.viewType == 'text' && namespace.hasModifyPermission"
+                        ng-click="toggleTextEditStatus(namespace)">
 
                     &nbsp;
-                    <img src="img/submit.png" class="ns_btn cursor-pointer"
-                         data-tooltip="tooltip" data-placement="bottom" title="提交修改"
-                         data-toggle="modal" data-target="#commitModal"
-                         ng-show="namespace.isTextEditing && namespace.viewType == 'text'"
-                         ng-click="modifyByText(namespace)">
+                    <img src="img/submit.png" class="ns_btn cursor-pointer" data-tooltip="tooltip"
+                        data-placement="bottom"
+                        title="{{'Component.Namespace.Master.Items.SummitChanged' | translate }}" data-toggle="modal"
+                        data-target="#commitModal" ng-show="namespace.isTextEditing && namespace.viewType == 'text'"
+                        ng-click="modifyByText(namespace)">
 
-                    <button type="button" class="btn btn-default btn-sm"
-                            data-tooltip="tooltip" data-placement="bottom" title="按Key过滤配置"
-                            ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
-                        && !namespace.isLinkedNamespace"
-                            ng-click="toggleItemSearchInput(namespace)">
+                    <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                            title="{{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory.SortByKey' | translate }}" ng-show="namespace.viewType == 'history' && namespace.displayControl.currentOperateBranch == 'master'
+                        && !namespace.isLinkedNamespace" ng-click="toggleHistorySearchInput(namespace)">
                         <span class="glyphicon glyphicon-filter"></span>
-                        过滤配置
+                        {{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory' | translate }}
                     </button>
 
-                    <button type="button" class="btn btn-default btn-sm J_tableview_btn"
-                            data-tooltip="tooltip" data-placement="bottom" title="同步各环境间配置"
-                            ng-click="goToSyncPage(namespace)"
-                            ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
+                    <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                        title="{{'Component.Namespace.Master.Items.SortByKey' | translate }}" ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
+                        && !namespace.isLinkedNamespace" ng-click="toggleItemSearchInput(namespace)">
+                        <span class="glyphicon glyphicon-filter"></span>
+                        {{'Component.Namespace.Master.Items.FilterItem' | translate }}
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-sm J_tableview_btn" data-tooltip="tooltip"
+                        data-placement="bottom" title="{{'Component.Namespace.Master.Items.SyncItemTips' | translate }}"
+                        ng-click="goToSyncPage(namespace)" ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
                              && namespace.hasModifyPermission && namespace.isPropertiesFormat">
                         <img src="img/sync.png">
-                        同步配置
+                        {{'Component.Namespace.Master.Items.SyncItem' | translate }}
                     </button>
 
-                    <button type="button" class="btn btn-default btn-sm J_tableview_btn"
-                            data-tooltip="tooltip" data-placement="bottom" title="比较各环境间配置"
-                            ng-click="goToDiffPage(namespace)"
-                            ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
+                    <button type="button" class="btn btn-default btn-sm J_tableview_btn" data-tooltip="tooltip"
+                            data-placement="bottom" title="{{'Component.Namespace.Master.Items.RevokeItemTips' | translate }}"
+                            ng-click="preRevokeItem(namespace)" ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
+                            && namespace.hasModifyPermission && namespace.isPropertiesFormat">
+                        <img src="img/rollback.png">
+                        {{'Component.Namespace.Master.Items.RevokeItem' | translate }}
+                    </button>
+
+                    <button type="button" class="btn btn-default btn-sm J_tableview_btn" data-tooltip="tooltip"
+                        data-placement="bottom" title="{{'Component.Namespace.Master.Items.DiffItemTips' | translate }}"
+                        ng-click="goToDiffPage(namespace)" ng-show="namespace.viewType == 'table' && namespace.displayControl.currentOperateBranch == 'master'
                              && namespace.isPropertiesFormat">
                         <img src="img/diff.png">
-                        比较配置
+                        {{'Component.Namespace.Master.Items.DiffItem' | translate }}
                     </button>
 
-                    <button type="button" class="btn btn-primary btn-sm"
-                            ng-show="!namespace.isLinkedNamespace
+                    <button type="button" class="btn btn-primary btn-sm" ng-show="!namespace.isLinkedNamespace
                              && namespace.viewType == 'table'
                              && namespace.displayControl.currentOperateBranch == 'master'
-                             && namespace.hasModifyPermission"
-                            ng-click="createItem(namespace)">
+                             && namespace.hasModifyPermission" ng-click="createItem(namespace)">
                         <img src="img/plus.png">
-                        新增配置
+                        {{'Component.Namespace.Master.Items.AddItem' | translate }}
                     </button>
                 </div>
             </div>
@@ -217,103 +262,137 @@
             <div class="namespace-view-table" ng-show="namespace.viewType == 'table'">
 
                 <div class="J_namespace-release-tip well well-sm no-radius text-center"
-                     ng-show="namespace.isLatestReleaseLoaded && !namespace.isLinkedNamespace && !namespace.latestRelease">
-                    <span style="color: red"> Tips: 此namespace从来没有发布过，Apollo客户端将获取不到配置并记录404日志信息，请及时发布。</span>
+                    ng-show="namespace.isLatestReleaseLoaded && !namespace.isLinkedNamespace && !namespace.latestRelease">
+                    <span style="color: red">
+                        {{'Component.Namespace.Master.Items.Body.ItemsNoPublishedTips' | translate }}</span>
                 </div>
                 <!--not link namespace-->
                 <div ng-if="!namespace.isLinkedNamespace">
                     <div class="search-input" ng-show="namespace.displayControl.showSearchInput">
-                        <input type="text" class="form-control" placeholder="输入key过滤"
-                               ng-model="namespace.searchKey"
-                               ng-change="searchItems(namespace)">
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="searchItemKeyInput"
+                                       placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
+                                       ng-model="namespace.searchKey" ng-change="searchItems(namespace)">
+                            </div>
+                            <button type="button" class="btn btn-default" ng-click="resetSearchItems(namespace)">{{'Config.Sync.Rest' | translate }}</button>
+                        </form>
                     </div>
 
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
-                        <tr>
-                            <th>发布状态</th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.key';desc=!desc;">
-                                Key&nbsp;
-                                <span class="glyphicon glyphicon-sort"></span>
+                            <tr>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                   ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
+                                  {{'Component.Namespace.Master.Items.Body.PublishState' | translate }}
+                                  <span class="glyphicon glyphicon-sort"></span>
+                                </th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.key';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemKey' | translate }}&nbsp;
+                                    <span class="glyphicon glyphicon-sort"></span>
+                                </th>
+                                <th>
+                                    {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemComment' | translate }}
+                                </th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemLastModify' | translate }}
+                                    <span class="glyphicon glyphicon-sort"></span>
 
-                            </th>
-                            <th>
-                                Value
-                            </th>
-                            <th>
-                                备注
-                            </th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
-                                最后修改人
-                                <span class="glyphicon glyphicon-sort"></span>
+                                </th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemLastModifyTime' | translate }}
+                                    <span class="glyphicon glyphicon-sort"></span>
+                                </th>
 
-                            </th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
-                                最后修改时间
-                                <span class="glyphicon glyphicon-sort"></span>
-                            </th>
-
-                            <th>
-                                操作
-                            </th>
-                        </tr>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemOperator' | translate }}
+                                </th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="config in namespace.viewItems |orderBy:col:desc"
-                            ng-if="config.item.key"
-                            ng-class="{'warning': !config.item.value}">
-                            <td width="8%" class="text-center">
-                            <span class="label label-warning no-radius cursor-pointer" ng-if="config.isModified"
-                                  data-tooltip="tooltip" data-placement="bottom" title="点击查看已发布的值"
-                                  ng-click="showText(config.oldValue?config.oldValue:'新增的配置,无发布的值')">未发布</span>
-                                <span class="label label-default-light no-radius"
-                                      data-tooltip="tooltip" data-placement="bottom" title="已生效的配置"
-                                      ng-if="!config.isModified">已发布</span>
-                            </td>
-                            <td width="15%" class="cursor-pointer" title="点击查看" ng-click="showText(config.item.key)">
-                                <span ng-bind="config.item.key | limitTo: 250"></span>
-                                <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
-                                <span class="label label-default cursor-pointer" ng-if="config.hasBranchValue"
-                                      data-tooltip="tooltip" data-placement="bottom" title="该配置有灰度配置,点击查看灰度的值"
-                                      ng-click="namespace.displayControl.currentOperateBranch=namespace.branchName;namespace.branch.viewType='table'">灰</span>
-                                <span class="label label-success" ng-if="config.isModified && !config.oldValue"
-                                      data-tooltip="tooltip" data-placement="bottom" title="新增的配置">新</span>
-                                <span class="label label-info"
-                                      ng-if="config.isModified && config.oldValue && !config.isDeleted"
-                                      data-tooltip="tooltip" data-placement="bottom" title="修改的配置">改</span>
-                                <span class="label label-danger" ng-if="config.isDeleted"
-                                      data-tooltip="tooltip" data-placement="bottom" title="删除的配置">删</span>
-                            </td>
-                            <td width="30%" class="cursor-pointer" title="点击查看" ng-click="showText(config.item.value)">
-                                <span ng-bind="config.item.value | limitTo: 250"></span>
-                                <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
-                            </td>
-                            <td width="13%" title="{{config.item.comment}}">
-                                <span ng-bind="config.item.comment | limitTo: 250"></span>
-                                <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
-                            </td>
-                            <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
-                            </td>
-                            <td width="16%"
-                                ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                            </td>
+                            <tr ng-repeat="config in namespace.viewItems |orderBy:col:desc" ng-if="config.item.key"
+                                ng-class="{'warning': !config.item.value}">
 
-                            <td width="8%" class="text-center" ng-if="!config.isDeleted">
-                                <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom" title="修改"
-                                     ng-click="editItem(namespace, config.item)"
-                                     ng-show="namespace.hasModifyPermission">
-                                <img style="margin-left: 5px;" src="img/cancel.png"
-                                     data-tooltip="tooltip" data-placement="bottom" title="删除"
-                                     ng-click="preDeleteItem(namespace, config.item)"
-                                     ng-show="namespace.hasModifyPermission">
-                            </td>
-                            <td width="6%" class="text-center" ng-if="config.isDeleted">
-                            </td>
+                                <td width="8%" class="text-center">
+                                    <span class="label label-warning no-radius cursor-pointer" ng-if="config.isModified"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.NoPublishTitle' | translate }}"
+                                        ng-click="showText(config.oldValue?config.oldValue:('Component.Namespace.Master.Items.Body.NoPublishTips' | translate))">{{'Component.Namespace.Master.Items.Body.NoPublish' | translate }}</span>
+                                    <span class="label label-default-light no-radius" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.PublishedTitle' | translate }}"
+                                        ng-if="!config.isModified">{{'Component.Namespace.Master.Items.Body.Published' | translate }}</span>
+                                </td>
+                                <td width="15%" class="cursor-pointer"
+                                    title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                    ng-click="showText(config.item.key)">
+                                    <span ng-bind="config.item.key | limitTo: 250"></span>
+                                    <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
+                                    <span class="label label-default cursor-pointer" ng-if="config.hasBranchValue"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.HaveGrayscale' | translate }}"
+                                        ng-click="namespace.displayControl.currentOperateBranch=namespace.branchName;namespace.branch.viewType='table'">{{'Component.Namespace.Master.Items.Body.Grayscale' | translate }}</span>
+                                    <span class="label label-success" ng-if="config.isModified && !config.oldValue"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
+                                    <span class="label label-info"
+                                        ng-if="config.isModified && config.oldValue && !config.isDeleted"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
+                                    <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
+                                </td>
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                </td>
+                                <td width="25%" class="cursor-pointer"
+                                    title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                    ng-click="showText(config.item.value)">
+                                    <span ng-bind="config.item.value | limitTo: 250"></span>
+                                    <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="11%" title="{{config.item.comment}}">
+                                    <span ng-bind="config.item.comment | limitTo: 250"></span>
+                                    <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
+                                </td>
+                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                </td>
+                                <td width="16%"
+                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                </td>
 
-                        </tr>
+                                <td width="8%" class="text-center" ng-if="!config.isDeleted">
+                                    <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.ModifyTips' | translate }}"
+                                        ng-click="editItem(namespace, config.item)"
+                                        ng-show="namespace.hasModifyPermission">
+                                    <img style="margin-left: 5px;" src="img/cancel.png" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.DeleteTips' | translate }}"
+                                        ng-click="preDeleteItem(namespace, config.item)"
+                                        ng-show="namespace.hasModifyPermission">
+                                </td>
+                                <td width="6%" class="text-center" ng-if="config.isDeleted">
+                                </td>
+
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -323,112 +402,134 @@
                     <div class="panel-heading">
                         <div class="row">
                             <div class="padding-top-5 col-md-4 col-sm-4">
-                                覆盖的配置
+                                {{'Component.Namespace.Master.Items.Body.Link.Title' | translate }}
                             </div>
                             <div class="col-md-8 col-sm-8">
                                 <input type="text" class="form-control pull-right" placeholder="filter by key ..."
-                                       ng-class="{'search-onblur': namespace.searchStatus == 'OFF' || !namespace.searchStatus,
-                                    'search-focus': namespace.searchStatus == 'ON'}"
-                                       ng-model="namespace.searchKey"
-                                       ng-change="searchItems(namespace)"
-                                       ng-focus="namespace.searchStatus='ON'"
-                                       ng-blur="namespace.searchStatus='OFF'">
+                                    ng-class="{'search-onblur': namespace.searchStatus == 'OFF' || !namespace.searchStatus,
+                                    'search-focus': namespace.searchStatus == 'ON'}" ng-model="namespace.searchKey"
+                                    ng-change="searchItems(namespace)" ng-focus="namespace.searchStatus='ON'"
+                                    ng-blur="namespace.searchStatus='OFF'">
                             </div>
                         </div>
                     </div>
 
                     <table class="table table-bordered table-striped table-hover"
-                           ng-if="namespace.viewItems && namespace.viewItems.length">
+                        ng-if="namespace.viewItems && namespace.viewItems.length">
                         <thead>
-                        <tr>
-                            <th>发布状态</th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.key';desc=!desc;">
-                                Key&nbsp;
-                                <span class="glyphicon glyphicon-sort"></span>
+                            <tr>
+                                <th>{{'Component.Namespace.Master.Items.Body.PublishState' | translate }}</th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.key';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemKey' | translate }}&nbsp;
+                                    <span class="glyphicon glyphicon-sort"></span>
 
-                            </th>
-                            <th>
-                                Value
-                            </th>
-                            <th>
-                                备注
-                            </th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
-                                最后修改人
-                                <span class="glyphicon glyphicon-sort"></span>
+                                </th>
+                                <th>
+                                    {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
+                                </th>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemComment' | translate }}
+                                </th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemLastModify' | translate }}
+                                    <span class="glyphicon glyphicon-sort"></span>
 
-                            </th>
-                            <th class="hover" title="排序"
-                                ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
-                                最后修改时间
-                                <span class="glyphicon glyphicon-sort"></span>
-                            </th>
+                                </th>
+                                <th class="hover" title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                    ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
+                                    {{'Component.Namespace.Master.Items.Body.ItemLastModifyTime' | translate }}
+                                    <span class="glyphicon glyphicon-sort"></span>
+                                </th>
 
-                            <th>
-                                操作
-                            </th>
-                        </tr>
+                                <th>
+                                    {{'Component.Namespace.Master.Items.Body.ItemOperator' | translate }}
+                                </th>
+                            </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat="config in namespace.viewItems |orderBy:col:desc"
-                            ng-if="config.item.key">
-                            <td width="8%" class="text-center">
-                            <span class="label label-warning no-radius cursor-pointer" ng-if="config.isModified"
-                                  data-tooltip="tooltip" data-placement="bottom" title="点击查看已发布的值"
-                                  ng-click="showText(config.oldValue?config.oldValue:'新增的配置,无发布的值')">未发布</span>
-                                <span class="label label-default-light no-radius"
-                                      data-tooltip="tooltip" data-placement="bottom" title="已生效的配置"
-                                      ng-if="!config.isModified">已发布</span>
-                            </td>
-                            <td width="15%" class="cursor-pointer" title="点击查看" ng-click="showText(config.item.key)">
-                                <span ng-bind="config.item.key | limitTo: 250"></span>
-                                <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
-                                <span class="label label-default cursor-pointer" ng-if="config.hasBranchValue"
-                                      data-tooltip="tooltip" data-placement="bottom" title="该配置有灰度配置,点击查看灰度的值"
-                                      ng-click="namespace.displayControl.currentOperateBranch=namespace.branchName;namespace.branch.viewType='table'">灰</span>
-                                <span class="label label-success" ng-if="config.isModified && !config.oldValue"
-                                      data-tooltip="tooltip" data-placement="bottom" title="新增的配置">新</span>
-                                <span class="label label-info"
-                                      ng-if="config.isModified && config.oldValue && !config.isDeleted"
-                                      data-tooltip="tooltip" data-placement="bottom" title="修改的配置">改</span>
-                                <span class="label label-danger" ng-if="config.isDeleted"
-                                      data-tooltip="tooltip" data-placement="bottom" title="删除的配置">删</span>
-                            </td>
-                            <td width="30%" class="cursor-pointer" title="点击查看" ng-click="showText(config.item.value)">
-                                <span ng-bind="config.item.value | limitTo: 250"></span>
-                                <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
-                            </td>
-                            <td width="13%" title="{{config.item.comment}}">
-                                <span ng-bind="config.item.comment | limitTo: 250"></span>
-                                <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
-                            </td>
-                            <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
-                            </td>
-                            <td width="16%"
-                                ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                            </td>
+                            <tr ng-repeat="config in namespace.viewItems |orderBy:col:desc" ng-if="config.item.key">
+                                <td width="8%" class="text-center">
+                                    <span class="label label-warning no-radius cursor-pointer" ng-if="config.isModified"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.NoPublishTitle' | translate }}"
+                                        ng-click="showText(config.oldValue?config.oldValue:('Component.Namespace.Master.Items.Body.NoPublishTips' | translate))">{{'Component.Namespace.Master.Items.Body.NoPublish' | translate }}</span>
+                                    <span class="label label-default-light no-radius" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.PublishedTitle' | translate }}"
+                                        ng-if="!config.isModified">{{'Component.Namespace.Master.Items.Body.Published' | translate }}</span>
+                                </td>
+                                <td width="15%" class="cursor-pointer"
+                                    title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                    ng-click="showText(config.item.key)">
+                                    <span ng-bind="config.item.key | limitTo: 250"></span>
+                                    <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
+                                    <span class="label label-default cursor-pointer" ng-if="config.hasBranchValue"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.HaveGrayscale' | translate }}"
+                                        ng-click="namespace.displayControl.currentOperateBranch=namespace.branchName;namespace.branch.viewType='table'">{{'Component.Namespace.Master.Items.Body.Grayscale' | translate }}</span>
+                                    <span class="label label-success" ng-if="config.isModified && !config.oldValue"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
+                                    <span class="label label-info"
+                                        ng-if="config.isModified && config.oldValue && !config.isDeleted"
+                                        data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
+                                    <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
+                                </td>
+                                <td width="7%" class="text-center">
+                                    <span ng-if="config.item.type == '0'"
+                                    >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                    <span ng-if="config.item.type == '1'"
+                                    >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                    <span ng-if="config.item.type == '2'"
+                                    >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                    <span ng-if="config.item.type == '3'"
+                                    >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                </td>
+                                <td width="25%" class="cursor-pointer"
+                                    title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                    ng-click="showText(config.item.value)">
+                                    <span ng-bind="config.item.value | limitTo: 250"></span>
+                                    <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
+                                </td>
+                                <td width="11%" title="{{config.item.comment}}">
+                                    <span ng-bind="config.item.comment | limitTo: 250"></span>
+                                    <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
+                                </td>
+                                <td width="7%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                </td>
+                                <td width="13%"
+                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                </td>
 
-                            <td width="8%" class="text-center" ng-if="!config.isDeleted">
-                                <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom" title="修改"
-                                     ng-click="editItem(namespace, config.item)"
-                                     ng-show="namespace.hasModifyPermission">
-                                <img style="margin-left: 5px;" src="img/cancel.png"
-                                     data-tooltip="tooltip" data-placement="bottom" title="删除"
-                                     ng-click="preDeleteItem(namespace, config.item)"
-                                     ng-show="namespace.hasModifyPermission">
-                            </td>
-                            <td width="6%" class="text-center" ng-if="config.isDeleted">
-                            </td>
+                                <td width="8%" class="text-center" ng-if="!config.isDeleted">
+                                    <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.ModifyTips' | translate }}"
+                                        ng-click="editItem(namespace, config.item)"
+                                        ng-show="namespace.hasModifyPermission">
+                                    <img style="margin-left: 5px;" src="img/cancel.png" data-tooltip="tooltip"
+                                        data-placement="bottom"
+                                        title="{{'Component.Namespace.Master.Items.Body.DeleteTips' | translate }}"
+                                        ng-click="preDeleteItem(namespace, config.item)"
+                                        ng-show="namespace.hasModifyPermission">
+                                </td>
+                                <td width="6%" class="text-center" ng-if="config.isDeleted">
+                                </td>
 
-                        </tr>
+                            </tr>
                         </tbody>
                     </table>
 
                     <div class="text-center no-config-panel"
-                         ng-if="!namespace.viewItems || !namespace.viewItems.length">
-                        <h5>无覆盖的配置</h5>
+                        ng-if="!namespace.viewItems || !namespace.viewItems.length">
+                        <h5>{{'Component.Namespace.Master.Items.Body.Link.NoCoverLinkItem' | translate }}</h5>
                     </div>
                 </div>
 
@@ -438,212 +539,239 @@
                         <div class="panel-heading">
                             <div class="row">
                                 <div class="padding-top-5 col-md-4 col-sm-4">
-                                    公共的配置
-                                    <a href="/config.html?#/appid={{namespace.publicNamespace.baseInfo.appId}}&env={{env}}&cluster={{namespace.publicNamespace.baseInfo.clusterName}}"
-                                       target="_blank">
+                                    {{'Component.Namespace.Master.Items.Body.Public.Title' | translate }}
+                                    <a href="{{ '/config.html' | prefixPath }}?#/appid={{namespace.publicNamespace.baseInfo.appId}}&env={{env}}&cluster={{namespace.publicNamespace.baseInfo.clusterName}}"
+                                        target="_blank">
                                         <small>
-                                            (AppId:{{namespace.publicNamespace.baseInfo.appId}},
-                                            Cluster:{{namespace.publicNamespace.baseInfo.clusterName}})
+                                            ({{'Common.AppId' | translate }}:{{namespace.publicNamespace.baseInfo.appId}},
+                                            {{'Common.Cluster' | translate }}:{{namespace.publicNamespace.baseInfo.clusterName}})
                                         </small>
                                     </a>
                                 </div>
 
                                 <div class="col-md-4 col-sm-4 text-center">
                                     <div class="btn-group btn-group-sm" role="group"
-                                         ng-show="namespace.publicNamespace.isModified">
-                                        <button type="button" class="btn btn-default"
-                                                ng-class="{'active':namespace.publicNamespaceViewType == 'RELEASE'
+                                        ng-show="namespace.publicNamespace.isModified">
+                                        <button type="button" class="btn btn-default" ng-class="{'active':namespace.publicNamespaceViewType == 'RELEASE'
                                         || !namespace.publicNamespaceViewType}"
-                                                ng-click="namespace.publicNamespaceViewType = 'RELEASE'">
-                                            已发布的配置
+                                            ng-click="namespace.publicNamespaceViewType = 'RELEASE'">
+                                            {{'Component.Namespace.Master.Items.Body.Public.Published' | translate }}
                                         </button>
                                         <button type="button" class="btn btn-default"
-                                                ng-class="{'active':namespace.publicNamespaceViewType == 'NOT_RELEASE'}"
-                                                ng-click="namespace.publicNamespaceViewType = 'NOT_RELEASE'">
-                                            未发布的配置
+                                            ng-class="{'active':namespace.publicNamespaceViewType == 'NOT_RELEASE'}"
+                                            ng-click="namespace.publicNamespaceViewType = 'NOT_RELEASE'">
+                                            {{'Component.Namespace.Master.Items.Body.Public.NoPublish' | translate }}
                                         </button>
                                     </div>
                                 </div>
 
                                 <div class="col-md-4 col-sm-4">
                                     <input type="text" class="form-control pull-right" placeholder="filter by key ..."
-                                           ng-class="{'search-onblur': namespace.publicNamespace.searchStatus == 'OFF'
+                                        ng-class="{'search-onblur': namespace.publicNamespace.searchStatus == 'OFF'
                                    || !namespace.publicNamespace.searchStatus,
                                     'search-focus': namespace.publicNamespace.searchStatus == 'ON'}"
-                                           ng-model="namespace.publicNamespace.searchKey"
-                                           ng-change="searchItems(namespace.publicNamespace)"
-                                           ng-blur="namespace.publicNamespace.searchStatus='OFF'"
-                                           ng-focus="namespace.publicNamespace.searchStatus='ON'"/>
+                                        ng-model="namespace.publicNamespace.searchKey"
+                                        ng-change="searchItems(namespace.publicNamespace)"
+                                        ng-blur="namespace.publicNamespace.searchStatus='OFF'"
+                                        ng-focus="namespace.publicNamespace.searchStatus='ON'" />
                                 </div>
                             </div>
                         </div>
 
 
                         <!--published items-->
-                        <div ng-show="!namespace.publicNamespaceViewType || namespace.publicNamespaceViewType == 'RELEASE'">
+                        <div
+                            ng-show="!namespace.publicNamespaceViewType || namespace.publicNamespaceViewType == 'RELEASE'">
                             <table class="table table-bordered table-striped table-hover"
-                                   ng-show="namespace.publicNamespace.hasPublishedItem">
+                                ng-show="namespace.publicNamespace.hasPublishedItem">
                                 <thead>
-                                <tr>
-                                    <th class="hover" title="排序"
-                                        ng-click="col='item.key';desc=!desc;">
-                                        Key&nbsp;
-                                        <span class="glyphicon glyphicon-sort"></span>
+                                    <tr>
+                                        <th class="hover"
+                                            title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                            ng-click="col='item.key';desc=!desc;">
+                                            {{'Component.Namespace.Master.Items.Body.ItemKey' | translate }}&nbsp;
+                                            <span class="glyphicon glyphicon-sort"></span>
 
-                                    </th>
-                                    <th>
-                                        Value
-                                    </th>
-                                    <th>
-                                        备注
-                                    </th>
-                                    <th class="hover" title="排序"
-                                        ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
-                                        最后修改人
-                                        <span class="glyphicon glyphicon-sort"></span>
+                                        </th>
+                                        <th>
+                                            {{'Component.ConfigItem.ItemTypeName' | translate }}
+                                        </th>
+                                        <th>
+                                            {{'Component.Namespace.Master.Items.Body.ItemValue' | translate }}
+                                        </th>
+                                        <th>
+                                            {{'Component.Namespace.Master.Items.Body.ItemComment' | translate }}
+                                        </th>
+                                        <th class="hover"
+                                            title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                            ng-click="col='item.dataChangeLastModifiedBy';desc=!desc;">
+                                            {{'Component.Namespace.Master.Items.Body.ItemLastModify' | translate }}
+                                            <span class="glyphicon glyphicon-sort"></span>
 
-                                    </th>
-                                    <th class="hover" title="排序"
-                                        ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
-                                        最后修改时间
-                                        <span class="glyphicon glyphicon-sort"></span>
-                                    </th>
+                                        </th>
+                                        <th class="hover"
+                                            title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                            ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
+                                            {{'Component.Namespace.Master.Items.Body.ItemLastModifyTime' | translate }}
+                                            <span class="glyphicon glyphicon-sort"></span>
+                                        </th>
 
-                                    <th>
-                                        操作
-                                    </th>
-                                </tr>
+                                        <th>
+                                            {{'Component.Namespace.Master.Items.Body.ItemOperator' | translate }}
+                                        </th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                <tr ng-repeat="config in namespace.publicNamespace.viewItems |orderBy:col:desc"
-                                    ng-if="config.item.key && !config.isModified && !config.isDeleted">
-                                    <td width="15%" class="cursor-pointer" title="点击查看"
-                                        ng-click="showText(config.item.key)">
-                                        <span ng-bind="config.item.key | limitTo: 250"></span>
-                                        <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
-                                    </td>
-                                    <td width="35%" class="cursor-pointer" title="点击查看"
-                                        ng-click="showText(config.item.value)">
-                                        <span ng-bind="config.item.value | limitTo: 250"></span>
-                                        <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
-                                    </td>
-                                    <td width="15%" title="{{config.item.comment}}">
-                                        <span ng-bind="config.item.comment | limitTo: 250"></span>
-                                        <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
-                                    </td>
-                                    <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                    </td>
-                                    <td width="15%"
-                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                                    </td>
+                                    <tr ng-repeat="config in namespace.publicNamespace.viewItems |orderBy:col:desc"
+                                        ng-if="config.item.key && !config.isModified && !config.isDeleted">
+                                        <td width="15%" class="cursor-pointer"
+                                            title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                            ng-click="showText(config.item.key)">
+                                            <span ng-bind="config.item.key | limitTo: 250"></span>
+                                            <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
+                                        </td>
+                                        <td width="7%" class="text-center">
+                                            <span ng-if="config.item.type == '0'"
+                                            >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
+                                            <span ng-if="config.item.type == '1'"
+                                            >{{'Component.ConfigItem.ItemTypeNumber' | translate }}</span>
+                                            <span ng-if="config.item.type == '2'"
+                                            >{{'Component.ConfigItem.ItemTypeBoolean' | translate }}</span>
+                                            <span ng-if="config.item.type == '3'"
+                                            >{{'Component.ConfigItem.ItemTypeJson' | translate }}</span>
+                                        </td>
+                                        <td width="30%" class="cursor-pointer"
+                                            title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                            ng-click="showText(config.item.value)">
+                                            <span ng-bind="config.item.value | limitTo: 250"></span>
+                                            <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
+                                        </td>
+                                        <td width="13%" title="{{config.item.comment}}">
+                                            <span ng-bind="config.item.comment | limitTo: 250"></span>
+                                            <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
+                                        </td>
+                                        <td width="7%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                        </td>
+                                        <td width="12%"
+                                            ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                        </td>
 
-                                    <td width="10%" class="text-center" ng-if="!config.isDeleted">
-                                        <img src="img/gray.png" data-tooltip="tooltip" data-placement="bottom"
-                                             title="覆盖此配置"
-                                             ng-click="editItem(namespace, config.item)"
-                                             ng-show="namespace.hasModifyPermission && !config.covered">
-                                    </td>
-                                    <td width="6%" class="text-center" ng-if="config.isDeleted">
-                                    </td>
+                                        <td width="10%" class="text-center" ng-if="!config.isDeleted">
+                                            <img src="img/gray.png" data-tooltip="tooltip" data-placement="bottom"
+                                                title="{{'Component.Namespace.Master.Items.Body.Public.PublishedAndCover' | translate }}"
+                                                ng-click="editItem(namespace, config.item)"
+                                                ng-show="namespace.hasModifyPermission && !config.covered">
+                                        </td>
+                                        <td width="6%" class="text-center" ng-if="config.isDeleted">
+                                        </td>
 
-                                </tr>
+                                    </tr>
                                 </tbody>
                             </table>
 
-                            <div class="text-center no-config-panel"
-                                 ng-if="namespace.publicNamespace.viewItems
+                            <div class="text-center no-config-panel" ng-if="namespace.publicNamespace.viewItems
                      && namespace.publicNamespace.viewItems.length
                      && !namespace.publicNamespace.hasPublishedItem">
-                                <h5>无发布的配置</h5>
+                                <h5>{{'Component.Namespace.Master.Items.Body.Public.NoPublished' | translate }}</h5>
                             </div>
                         </div>
 
                         <!--not published items-->
                         <table class="table table-bordered table-striped table-hover"
-                               ng-show="namespace.publicNamespaceViewType == 'NOT_RELEASE'">
+                            ng-show="namespace.publicNamespaceViewType == 'NOT_RELEASE'">
                             <thead>
-                            <tr>
-                                <th class="hover" title="排序"
-                                    ng-click="col='item.key';desc=!desc;">
-                                    Key&nbsp;
-                                    <span class="glyphicon glyphicon-sort"></span>
+                                <tr>
+                                    <th class="hover"
+                                        title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                        ng-click="col='item.key';desc=!desc;">
+                                        {{'Component.Namespace.Master.Items.Body.ItemKey' | translate }}&nbsp;
+                                        <span class="glyphicon glyphicon-sort"></span>
 
-                                </th>
-                                <th>
-                                    已发布的值
-                                </th>
-                                <th>
-                                    未发布的值
-                                </th>
-                                <th>
-                                    备注
-                                </th>
-                                <th class="hover" title="排序"
-                                    ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
-                                    最后修改时间
-                                    <span class="glyphicon glyphicon-sort"></span>
-                                </th>
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.NoPublished.PublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.NoPublished.NoPublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.ItemComment' | translate }}
+                                    </th>
+                                    <th class="hover"
+                                        title="{{'Component.Namespace.Master.Items.Body.Sort' | translate }}"
+                                        ng-click="col='item.dataChangeLastModifiedTime';desc=!desc;">
+                                        {{'Component.Namespace.Master.Items.Body.ItemLastModifyTime' | translate }}
+                                        <span class="glyphicon glyphicon-sort"></span>
+                                    </th>
 
-                                <th>
-                                    操作
-                                </th>
-                            </tr>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.ItemOperator' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="config in namespace.publicNamespace.viewItems |orderBy:col:desc"
-                                ng-if="config.item.key && (config.isModified || config.isDeleted)">
-                                <td width="20%" class="cursor-pointer" title="点击查看"
-                                    ng-click="showText(config.item.key)">
-                                    <span ng-bind="config.item.key | limitTo: 250"></span>
-                                    <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
-                                    <span class="label label-success" ng-if="config.isModified && !config.oldValue"
-                                          data-tooltip="tooltip" data-placement="bottom" title="新增的配置">新</span>
-                                    <span class="label label-info"
-                                          ng-if="config.isModified && config.oldValue && !config.isDeleted"
-                                          data-tooltip="tooltip" data-placement="bottom" title="修改的配置">改</span>
-                                    <span class="label label-danger" ng-if="config.isDeleted"
-                                          data-tooltip="tooltip" data-placement="bottom" title="删除的配置">删</span>
-                                </td>
-                                <td width="25%" class="cursor-pointer" title="点击查看"
-                                    ng-click="showText(config.oldValue)">
-                                    <span ng-bind="config.oldValue | limitTo: 250"></span>
-                                    <span ng-bind="config.oldValue.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="25%" class="cursor-pointer" title="点击查看"
-                                    ng-click="showText(config.item.value)">
-                                    <span ng-bind="config.item.value | limitTo: 250"></span>
-                                    <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="10%" title="{{config.item.comment}}">
-                                    <span ng-bind="config.item.comment | limitTo: 250"></span>
-                                    <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
-                                </td>
-                                <td width="15%"
-                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                                </td>
+                                <tr ng-repeat="config in namespace.publicNamespace.viewItems |orderBy:col:desc"
+                                    ng-if="config.item.key && (config.isModified || config.isDeleted)">
+                                    <td width="20%" class="cursor-pointer"
+                                        title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                        ng-click="showText(config.item.key)">
+                                        <span ng-bind="config.item.key | limitTo: 250"></span>
+                                        <span ng-bind="config.item.key.length > 250 ? '...' :''"></span>
+                                        <span class="label label-success" ng-if="config.isModified && !config.oldValue"
+                                            data-tooltip="tooltip" data-placement="bottom"
+                                            title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
+                                        <span class="label label-info"
+                                            ng-if="config.isModified && config.oldValue && !config.isDeleted"
+                                            data-tooltip="tooltip" data-placement="bottom"
+                                            title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
+                                        <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
+                                            data-placement="bottom"
+                                            title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
+                                    </td>
+                                    <td width="25%" class="cursor-pointer"
+                                        title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                        ng-click="showText(config.oldValue)">
+                                        <span ng-bind="config.oldValue | limitTo: 250"></span>
+                                        <span ng-bind="config.oldValue.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="25%" class="cursor-pointer"
+                                        title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
+                                        ng-click="showText(config.item.value)">
+                                        <span ng-bind="config.item.value | limitTo: 250"></span>
+                                        <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="10%" title="{{config.item.comment}}">
+                                        <span ng-bind="config.item.comment | limitTo: 250"></span>
+                                        <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                    <td width="15%"
+                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    </td>
 
-                                <td width="5%" class="text-center" ng-if="!config.isDeleted">
-                                    <img src="img/gray.png" data-tooltip="tooltip" data-placement="bottom" title="覆盖此配置"
-                                         ng-click="editItem(namespace, config.item)"
-                                         ng-show="namespace.hasModifyPermission && !config.covered">
-                                </td>
+                                    <td width="5%" class="text-center" ng-if="!config.isDeleted">
+                                        <img src="img/gray.png" data-tooltip="tooltip" data-placement="bottom"
+                                            title="{{'Component.Namespace.Master.Items.Body.Public.PublishedAndCover' | translate }}"
+                                            ng-click="editItem(namespace, config.item)"
+                                            ng-show="namespace.hasModifyPermission && !config.covered">
+                                    </td>
 
-                            </tr>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="text-center no-config-panel"
-                             ng-if="!namespace.publicNamespace.viewItems || !namespace.publicNamespace.viewItems.length">
-                            <h5>无公共的配置</h5>
+                            ng-if="!namespace.publicNamespace.viewItems || !namespace.publicNamespace.viewItems.length">
+                            <h5>{{'Component.Namespace.Master.Items.Body.NoPublished.Title' | translate }}</h5>
                         </div>
                     </div>
                     <div class="panel panel-default" ng-if="!namespace.publicNamespace">
                         <div class="panel-heading">
-                            公共的配置
+                            {{'Component.Namespace.Master.Items.Body.Public.Title' | translate }}
                         </div>
                         <div class="panel-body text-center">
-                            当前公共namespace的所有者
-                            <a href="/config.html?#/appid={{namespace.parentAppId}}" target="_blank">{{namespace.parentAppId}}</a>
-                            没有关联此namespace,请联系{{namespace.parentAppId}}的所有者在{{namespace.parentAppId}}项目里关联此namespace
+                            {{'Component.Namespace.Master.Items.Body.Public.NoPublicNamespaceTips1' | translate }}
+                            <a href="{{ '/config.html' | prefixPath }}?#/appid={{namespace.parentAppId}}"
+                                target="_blank">{{namespace.parentAppId}}</a>
+                            {{'Component.Namespace.Master.Items.Body.Public.NoPublicNamespaceTips2' | translate:this }}
                         </div>
                     </div>
                 </div>
@@ -651,156 +779,256 @@
             </div>
 
             <!--text view-->
-            <!--只读模式下的文本内容,不替换换行符-->
-            <div ui-ace="aceConfig" readonly="true"
-                 class="form-control no-radius"
-                 rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
-                 ng-show="namespace.viewType == 'text' && !namespace.isTextEditing"
-                 ng-model="namespace.text">
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Link.Title' | translate }}
+                    </div>
+                </div>
             </div>
+
+            <!--只读模式下的文本内容,不替换换行符-->
+            <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
+                rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
+                ng-show="namespace.viewType == 'text' && !namespace.isTextEditing" ng-model="namespace.text">
+            </div>
+
+
+
             <!--编辑状态下的文本内容,会过滤掉换行符-->
-            <div ui-ace="aceConfig"
-                 class="form-control no-radius"
+            <div ui-ace="aceConfig" class="form-control no-radius"
+                rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
+                ng-show="namespace.viewType == 'text' && namespace.isTextEditing" ng-disabled="!namespace.isTextEditing"
+                ng-model="namespace.editText">
+            </div>
+
+
+
+            <div class="panel-heading" ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace">
+                <div class="row">
+                    <div class="padding-top-5 col-md-4 col-sm-4">
+                        {{'Component.Namespace.Master.Items.Body.Public.Title' | translate }}
+                        <a href="{{ '/config.html' | prefixPath }}?#/appid={{namespace.publicNamespace.baseInfo.appId}}&env={{env}}&cluster={{namespace.publicNamespace.baseInfo.clusterName}}"
+                           target="_blank">
+                            <small>
+                                ({{'Common.AppId' | translate }}:{{namespace.publicNamespace.baseInfo.appId}},
+                                {{'Common.Cluster' | translate }}:{{namespace.publicNamespace.baseInfo.clusterName}})
+                            </small>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--关联的 Parent Namespace 内容,只读模式,不替换换行符-->
+            <div ui-ace="aceConfig" readonly="true" class="form-control no-radius"
                  rows="{{namespace.itemCnt < 10 ? 10: namespace.itemCnt>20 ? 20:namespace.itemCnt}}"
-                 ng-show="namespace.viewType == 'text' && namespace.isTextEditing"
-                 ng-disabled="!namespace.isTextEditing" ng-model="namespace.editText">
+                 ng-show="namespace.viewType == 'text' && namespace.isLinkedNamespace"
+                 ng-model="namespace.publicNamespaceText">
             </div>
 
             <!--history view-->
             <div class="J_historyview history-view" ng-show="namespace.viewType == 'history'">
-                <div class="media"
-                     ng-show="namespace.commits && namespace.commits.length"
-                     ng-repeat="commits in namespace.commits">
+                <!-- 过滤更改历史 -->
+                <div class="search-input" ng-show="namespace.displayControl.showHistorySearchInput">
+                    <input type="text" class="form-control"
+                           placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
+                           ng-model="namespace.HistorySearchKey" ng-change="searchHistory(namespace)">
+                </div>
+                <div class="media" ng-show="namespace.commits && namespace.commits.length"
+                    ng-repeat="commits in namespace.commits">
                     <div class="media-body">
                         <div class="row">
-                            <div class="col-md-6 col-sm-6"><h3 class="media-heading"
-                                                               ng-bind="commits.dataChangeCreatedBy"></h3>
+                            <div class="col-md-6 col-sm-6">
+                                <h3 class="media-heading"
+                                    ng-bind="commits.dataChangeCreatedByDisplayName + '(' + commits.dataChangeCreatedBy + ')'"></h3>
                             </div>
-                            <div class="col-md-6 col-sm-6 text-right"><h5 class="media-heading"
-                                                                          ng-bind="commits.dataChangeCreatedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></h5>
+                            <div class="col-md-6 col-sm-6 text-right">
+                                <h5 class="media-heading"
+                                    ng-bind="commits.dataChangeCreatedTime  | date: 'yyyy-MM-dd HH:mm:ss'"></h5>
                             </div>
                         </div>
 
 
                         <!--properties format-->
                         <table class="table table-bordered table-striped text-center table-hover"
-                               style="margin-top: 5px;"
-                               ng-if="namespace.isPropertiesFormat">
+                            style="margin-top: 5px;" ng-if="namespace.isPropertiesFormat">
                             <thead>
-                            <tr>
-                                <th>
-                                    Type
-                                </th>
-                                <th>
-                                    Key
-                                </th>
-                                <th>
-                                    Old Value
-                                </th>
-                                <th>
-                                    New Value
-                                </th>
-                                <th>
-                                    Comment
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemType' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemKey' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemOldValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemNewValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemComment' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
 
-                            <!--兼容老数据,不显示item类型为空行和注释的item-->
-                            <tr ng-repeat="item in commits.changeSets.createItems" ng-show="item.key">
-                                <td width="2%">
-                                    新增
-                                </td>
-                                <td width="20%" title="{{item.key}}">
+                                <!--兼容老数据,不显示item类型为空行和注释的item-->
+                                <tr ng-repeat="item in commits.changeSets.createItems" ng-show="item.key">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.NewAdded' | translate }}
+                                    </td>
+                                    <td width="20%" title="{{item.key}}">
 
-                                    <span ng-bind="item.key | limitTo: 250"></span>
-                                    <span ng-bind="item.key.length > 250 ? '...' :''"></span>
-                                </td>
-                                <td width="30%">
-                                </td>
-                                <td width="30%" class="cursor-pointer" title="{{item.value}}"
-                                    ng-click="showText(item.value)">
-                                    <span ng-bind="item.value | limitTo: 250"></span>
-                                    <span ng-bind="item.value.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="18%" title="{{item.comment}}">
-                                    <span ng-bind="item.comment | limitTo: 250"></span>
-                                    <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
-                                </td>
-                            </tr>
-                            <tr ng-repeat="item in commits.changeSets.updateItems">
-                                <td width="2%">
-                                    更新
-                                </td>
-                                <td width="20%" title="{{item.newItem.key}}">
-                                    <span ng-bind="item.newItem.key | limitTo: 250"></span>
-                                    <span ng-bind="item.newItem.key.length > 250 ? '...' :''"></span>
-                                </td>
-                                <td width="30%" class="cursor-pointer" title="{{item.oldItem.value}}"
-                                    ng-click="showText(item.oldItem.value)">
-                                    <span ng-bind="item.oldItem.value | limitTo: 250"></span>
-                                    <span ng-bind="item.oldItem.value.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="30%" class="cursor-pointer" title="{{item.newItem.value}}"
-                                    ng-click="showText(item.newItem.value)">
-                                    <span ng-bind="item.newItem.value | limitTo: 250"></span>
-                                    <span ng-bind="item.newItem.value.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="18%" title="{{item.newItem.comment}}">
-                                    <span ng-bind="item.newItem.comment | limitTo: 250"></span>
-                                    <span ng-bind="item.newItem.comment.length > 250 ?'...' : ''"></span>
-                                </td>
-                            </tr>
-                            <tr ng-repeat="item in commits.changeSets.deleteItems"
-                                ng-show="item.key || item.comment">
-                                <td width="2%">
-                                    删除
-                                </td>
-                                <td width="20%" title="{{item.key}}">
-                                    <span ng-bind="item.key | limitTo: 250"></span>
-                                    <span ng-bind="item.key.length > 250 ? '...' :''"></span>
-                                </td>
-                                <td width="30%" title="{{item.value}}">
-                                    <span ng-bind="item.value | limitTo: 250"></span>
-                                    <span ng-bind="item.value.length > 250 ? '...': ''"></span>
-                                </td>
-                                <td width="30%">
-                                </td>
-                                <td width="18%" title="{{item.comment}}">
-                                    <span ng-bind="item.comment | limitTo: 250"></span>
-                                    <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
-                                </td>
-                            </tr>
+                                        <span ng-bind="item.key | limitTo: 250"></span>
+                                        <span ng-bind="item.key.length > 250 ? '...' :''"></span>
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.value}}"
+                                        ng-click="showText(item.value)">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.updateItems">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Updated' | translate }}
+                                    </td>
+                                    <td width="20%" title="{{item.newItem.key}}">
+                                        <span ng-bind="item.newItem.key | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.key.length > 250 ? '...' :''"></span>
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.oldItem.value}}"
+                                        ng-click="showText(item.oldItem.value)">
+                                        <span ng-bind="item.oldItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.oldItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.newItem.value}}"
+                                        ng-click="showText(item.newItem.value)">
+                                        <span ng-bind="item.newItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.newItem.comment}}">
+                                        <span ng-bind="item.newItem.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.deleteItems"
+                                    ng-show="item.key || item.comment">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Deleted' | translate }}
+                                    </td>
+                                    <td width="20%" title="{{item.key}}">
+                                        <span ng-bind="item.key | limitTo: 250"></span>
+                                        <span ng-bind="item.key.length > 250 ? '...' :''"></span>
+                                    </td>
+                                    <td width="28%" title="{{item.value}}">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
 
                         <!--not properties format-->
-                        <div ng-if="!namespace.isPropertiesFormat">
-                            <div ng-repeat="item in commits.changeSets.createItems">
-                    <textarea class="form-control no-radius" rows="20"
-                              ng-disabled="true" ng-bind="item.value">
-                                </textarea>
-                            </div>
+                        <table class="table table-bordered table-striped text-center table-hover"
+                            style="margin-top: 5px;" ng-if="!namespace.isPropertiesFormat">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemType' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemOldValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemNewValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.ItemComment' | translate }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                            <div ng-repeat="item in commits.changeSets.updateItems">
-                    <textarea class="form-control no-radius" rows="20"
-                              ng-disabled="true" ng-bind="item.newItem.value">
-                                </textarea>
-                            </div>
-                        </div>
-
+                                <!--兼容老数据,不显示item类型为空行和注释的item-->
+                                <tr ng-repeat="item in commits.changeSets.createItems" ng-show="item.key">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.NewAdded' | translate }}
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.value}}"
+                                        ng-click="showText(item.value)">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.updateItems">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Updated' | translate }}
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.oldItem.value}}"
+                                        ng-click="showText(item.oldItem.value)">
+                                        <span ng-bind="item.oldItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.oldItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%" class="cursor-pointer" title="{{item.newItem.value}}"
+                                        ng-click="showText(item.newItem.value)">
+                                        <span ng-bind="item.newItem.value | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="18%" title="{{item.newItem.comment}}">
+                                        <span ng-bind="item.newItem.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.newItem.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                                <tr ng-repeat="item in commits.changeSets.deleteItems"
+                                    ng-show="item.key || item.comment">
+                                    <td width="6%">
+                                        {{'Component.Namespace.Master.Items.Body.HistoryView.Deleted' | translate }}
+                                    </td>
+                                    <td width="28%" title="{{item.value}}">
+                                        <span ng-bind="item.value | limitTo: 250"></span>
+                                        <span ng-bind="item.value.length > 250 ? '...': ''"></span>
+                                    </td>
+                                    <td width="28%">
+                                    </td>
+                                    <td width="18%" title="{{item.comment}}">
+                                        <span ng-bind="item.comment | limitTo: 250"></span>
+                                        <span ng-bind="item.comment.length > 250 ?'...' : ''"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                     </div>
                     <hr>
                 </div>
                 <div class="text-center">
                     <button type="button" class="btn btn-default" ng-show="!namespace.hasLoadAllCommit"
-                            ng-click="loadCommitHistory(namespace)">加载更多
+                        ng-click="loadCommitHistory(namespace)">{{'Component.Namespace.Master.Items.Body.HistoryView.LoadMore' | translate }}
                         <span class="glyphicon glyphicon-menu-down"></span></button>
                 </div>
                 <div class="empty-container text-center" ng-show="!namespace.commits || !namespace.commits.length">
-                    无更改历史
+                    {{'Component.Namespace.Master.Items.Body.HistoryView.NoHistory' | translate }}
                 </div>
             </div>
             <!--instance view-->
@@ -809,31 +1037,32 @@
                     <div class="row">
 
                         <div class="col-md-5 col-sm-5">
-                            <small>实例说明:只展示最近一天访问过Apollo的实例</small>
+                            <small>{{'Component.Namespace.Master.Items.Body.Instance.Tips' | translate }}</small>
                         </div>
                         <div class="col-md-7 col-sm-7 text-right">
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-default"
-                                        ng-class="{'btn-primary':namespace.instanceViewType == 'latest_release'}"
-                                        ng-click="switchInstanceViewType(namespace, 'latest_release')"> 使用最新配置的实例
+                                    ng-class="{'btn-primary':namespace.instanceViewType == 'latest_release'}"
+                                    ng-click="switchInstanceViewType(namespace, 'latest_release')">
+                                    {{'Component.Namespace.Master.Items.Body.Instance.UsedNewItem' | translate }}
                                     <span class="badge" ng-bind="namespace.latestReleaseInstances.total"></span>
                                 </button>
                                 <button type="button" class="btn btn-default"
-                                        ng-class="{'btn-primary':namespace.instanceViewType == 'not_latest_release'}"
-                                        ng-click="switchInstanceViewType(namespace, 'not_latest_release')">使用非最新配置的实例
+                                    ng-class="{'btn-primary':namespace.instanceViewType == 'not_latest_release'}"
+                                    ng-click="switchInstanceViewType(namespace, 'not_latest_release')">{{'Component.Namespace.Master.Items.Body.Instance.NoUsedNewItem' | translate }}
                                     <span class="badge"
-                                          ng-bind="namespace.instancesCount - namespace.latestReleaseInstances.total"></span>
+                                        ng-bind="namespace.instancesCount - namespace.latestReleaseInstances.total"></span>
                                 </button>
                                 <button type="button" class="btn btn-default"
-                                        ng-class="{'btn-primary':namespace.instanceViewType == 'all'}"
-                                        ng-click="switchInstanceViewType(namespace, 'all')">所有实例
+                                    ng-class="{'btn-primary':namespace.instanceViewType == 'all'}"
+                                    ng-click="switchInstanceViewType(namespace, 'all')">{{'Component.Namespace.Master.Items.Body.Instance.AllInstance' | translate }}
                                     <span class="badge" ng-bind="namespace.instancesCount"></span>
                                 </button>
                             </div>
-                            <button class="btn btn-default btn-sm"
-                                    data-tooltip="tooltip" data-placement="bottom" title="刷新列表"
-                                    ng-click="refreshInstancesInfo(namespace)">
-                                <img src="../../img/refresh.png"/>
+                            <button class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                                title="{{'Component.Namespace.Master.Items.Body.Instance.RefreshList' | translate }}"
+                                ng-click="refreshInstancesInfo(namespace)">
+                                <img ng-src="{{ '/img/refresh.png' | prefixPath }}" />
                             </button>
                         </div>
 
@@ -845,83 +1074,92 @@
 
                     <div class="panel-default" ng-if="namespace.latestReleaseInstances.total > 0">
                         <div class="panel-heading">
-                            <a target="_blank" data-tooltip="tooltip" data-placement="bottom" title="查看配置"
-                               href="/config/history.html?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}&releaseId={{namespace.latestRelease.id}}">
+                            <a target="_blank" data-tooltip="tooltip" data-placement="bottom"
+                                title="{{'Component.Namespace.Master.Items.Body.Instance.ToSeeItem' | translate }}"
+                                ng-href="{{ '/config/history.html' | prefixPath }}?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}&releaseId={{namespace.latestRelease.id}}">
                                 {{namespace.latestRelease.name}}
                             </a>
                         </div>
                         <table class="table table-bordered table-striped">
                             <thead>
-                            <tr>
-                                <td>App ID</td>
-                                <td>Cluster Name</td>
-                                <td>Data Center</td>
-                                <td>IP</td>
-                                <td>配置获取时间</td>
-                            </tr>
+                                <tr>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemAppId' | translate }}</td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemCluster' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemDataCenter' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemIp' | translate }}</td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemGetTime' | translate }}
+                                    </td>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="instance in namespace.latestReleaseInstances.content">
-                                <td width="20%" ng-bind="instance.appId"></td>
-                                <td width="20%" ng-bind="instance.clusterName"></td>
-                                <td width="20%" ng-bind="instance.dataCenter"></td>
-                                <td width="20%" ng-bind="instance.ip"></td>
-                                <td width="20%">{{instance.configs && instance.configs.length ?
+                                <tr ng-repeat="instance in namespace.latestReleaseInstances.content">
+                                    <td width="20%" ng-bind="instance.appId"></td>
+                                    <td width="20%" ng-bind="instance.clusterName"></td>
+                                    <td width="20%" ng-bind="instance.dataCenter"></td>
+                                    <td width="20%" ng-bind="instance.ip"></td>
+                                    <td width="20%">{{instance.configs && instance.configs.length ?
                                     (instance.configs[0].releaseDeliveryTime | date: 'yyyy-MM-dd HH:mm:ss') : ''}}
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="row text-center"
-                             ng-show="namespace.latestReleaseInstances.content.length < namespace.latestReleaseInstances.total">
-                            <button class="btn btn-default" ng-click="loadInstanceInfo(namespace)">加载更多</button>
+                            ng-show="namespace.latestReleaseInstances.content.length < namespace.latestReleaseInstances.total">
+                            <button class="btn btn-default"
+                                ng-click="loadInstanceInfo(namespace)">{{'Component.Namespace.Master.Items.Body.Instance.LoadMore' | translate }}</button>
 
                         </div>
                     </div>
 
                     <div class="text-center" ng-if="namespace.latestReleaseInstances.total == 0">
-                        无实例信息
+                        {{'Component.Namespace.Master.Items.Body.Instance.NoInstanceTips' | translate }}
                     </div>
                 </div>
 
                 <!--not latest release instances-->
                 <div class="panel-body" ng-show="namespace.instanceViewType == 'not_latest_release'">
                     <div class="panel-default"
-                         ng-if="namespace.instancesCount - namespace.latestReleaseInstances.total > 0"
-                         ng-repeat="release in namespace.notLatestReleases">
+                        ng-if="namespace.instancesCount - namespace.latestReleaseInstances.total > 0"
+                        ng-repeat="release in namespace.notLatestReleases">
                         <div class="panel-heading">
-                            <a target="_blank" data-tooltip="tooltip" data-placement="bottom" title="查看配置"
-                               href="/config/history.html?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}&releaseId={{release.id}}">
+                            <a target="_blank" data-tooltip="tooltip" data-placement="bottom"
+                                title="{{'Component.Namespace.Master.Items.Body.Instance.ToSeeItem' | translate }}"
+                                href="{{ '/config/history.html' | prefixPath }}?#/appid={{appId}}&env={{env}}&clusterName={{cluster}}&namespaceName={{namespace.baseInfo.namespaceName}}&releaseId={{release.id}}">
                                 {{release.name}}
                             </a>
 
                         </div>
                         <table class="table table-bordered table-striped">
                             <thead>
-                            <tr>
-                                <td>App ID</td>
-                                <td>Cluster Name</td>
-                                <td>Data Center</td>
-                                <td>IP</td>
-                                <td>配置获取时间</td>
-                            </tr>
+                                <tr>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemAppId' | translate }}</td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemCluster' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemDataCenter' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemIp' | translate }}</td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemGetTime' | translate }}
+                                    </td>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="instance in namespace.notLatestReleaseInstances[release.id]">
-                                <td width="20%" ng-bind="instance.appId"></td>
-                                <td width="20%" ng-bind="instance.clusterName"></td>
-                                <td width="20%" ng-bind="instance.dataCenter"></td>
-                                <td width="20%" ng-bind="instance.ip"></td>
-                                <td width="20%">{{instance.configs && instance.configs.length ?
+                                <tr ng-repeat="instance in namespace.notLatestReleaseInstances[release.id]">
+                                    <td width="20%" ng-bind="instance.appId"></td>
+                                    <td width="20%" ng-bind="instance.clusterName"></td>
+                                    <td width="20%" ng-bind="instance.dataCenter"></td>
+                                    <td width="20%" ng-bind="instance.ip"></td>
+                                    <td width="20%">{{instance.configs && instance.configs.length ?
                                     (instance.configs[0].releaseDeliveryTime | date: 'yyyy-MM-dd HH:mm:ss') : ''}}
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div class="text-center"
-                         ng-if="namespace.instancesCount - namespace.latestReleaseInstances.total == 0">
-                        无实例信息
+                        ng-if="namespace.instancesCount - namespace.latestReleaseInstances.total == 0">
+                        {{'Component.Namespace.Master.Items.Body.Instance.NoInstanceTips' | translate }}
                     </div>
                 </div>
 
@@ -930,28 +1168,31 @@
                     <div class="panel-default" ng-if="namespace.instancesCount > 0">
                         <table class="table table-bordered table-striped" ng-if="namespace.allInstances">
                             <thead>
-                            <tr>
-                                <td>App ID</td>
-                                <td>Cluster Name</td>
-                                <td>Data Center</td>
-                                <td>IP</td>
-                            </tr>
+                                <tr>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemAppId' | translate }}</td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemCluster' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemDataCenter' | translate }}
+                                    </td>
+                                    <td>{{'Component.Namespace.Master.Items.Body.Instance.ItemIp' | translate }}</td>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="instance in namespace.allInstances">
-                                <td width="25%" ng-bind="instance.appId"></td>
-                                <td width="25%" ng-bind="instance.clusterName"></td>
-                                <td width="25%" ng-bind="instance.dataCenter"></td>
-                                <td width="25%" ng-bind="instance.ip"></td>
-                            </tr>
+                                <tr ng-repeat="instance in namespace.allInstances">
+                                    <td width="25%" ng-bind="instance.appId"></td>
+                                    <td width="25%" ng-bind="instance.clusterName"></td>
+                                    <td width="25%" ng-bind="instance.dataCenter"></td>
+                                    <td width="25%" ng-bind="instance.ip"></td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="row text-center" ng-show="namespace.allInstances.length < namespace.instancesCount">
-                            <button class="btn btn-default" ng-click="loadInstanceInfo(namespace)">加载更多</button>
+                            <button class="btn btn-default"
+                                ng-click="loadInstanceInfo(namespace)">{{'Component.Namespace.Master.Items.Body.Instance.LoadMore' | translate }}</button>
                         </div>
                     </div>
                     <div class="text-center" ng-if="namespace.instancesCount == 0">
-                        无实例信息
+                        {{'Component.Namespace.Master.Items.Body.Instance.NoInstanceTips' | translate }}
                     </div>
                 </div>
             </div>

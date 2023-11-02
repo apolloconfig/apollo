@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="role">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="../img/config.png">
@@ -9,156 +26,176 @@
     <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
     <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <title>权限管理</title>
+    <title>{{'Namespace.Role.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div class="container-fluid apollo-container">
-    <section class="panel col-md-offset-1 col-md-10" ng-controller="NamespaceRoleController">
-        <header class="panel-heading">
-            <div class="row">
-                <div class="col-md-7">
-                    <h4 class="modal-title">权限管理<small>(AppId:<label ng-bind="pageContext.appId"></label> Namespace:<label ng-bind="pageContext.namespaceName"></label>)</small>
-                    </h4>
-                </div>
-                <div class="col-md-5 text-right">
-                    <a type="button" class="btn btn-info" data-dismiss="modal"
-                            href="/config.html?#appid={{pageContext.appId}}">返回到项目首页
-                    </a>
-                </div>
-            </div>
-        </header>
-        <div class="panel-body" ng-show="hasAssignUserPermission">
-            <div class="row">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">修改权<br><small>(可以修改配置)</small></label>
-                        <div class="col-sm-8">
-                            <form class="form-inline" ng-submit="assignRoleToUser('ModifyNamespace')">
-                                <div class="form-group">
-                                    <apollouserselector apollo-id="modifyRoleWidgetId"></apollouserselector>
-                                    <select class="form-control input-sm" ng-model="modifyRoleSelectedEnv">
-                                        <option value="">所有环境</option>
-                                        <option ng-repeat="env in envs" ng-value="env">{{env}}</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-default" style="margin-left: 20px;" ng-disabled="modifyRoleSubmitBtnDisabled">添加</button>
-                            </form>
-                            <!-- Split button -->
-                            <div class="item-container">
-                                <h5>所有环境</h5>
-                                <div class="btn-group item-info" ng-repeat="user in rolesAssignedUsers.modifyRoleUsers">
-                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false" ng-click="removeUserRole('ModifyNamespace', user.userId, null)">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="item-container" ng-repeat="env in envs">
-                                <h5>{{env}}</h5>
-                                <div class="btn-group item-info" ng-repeat="user in envRolesAssignedUsers[env].modifyRoleUsers">
-                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false" ng-click="removeUserRole('ModifyNamespace', user.userId, env)">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
+    <div class="container-fluid apollo-container">
+        <section class="panel col-md-offset-1 col-md-10" ng-controller="NamespaceRoleController">
+            <header class="panel-heading">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h4 class="modal-title">
+                            {{'Namespace.Role.Title' | translate }}<small>({{'Common.AppId' | translate }}:<label
+                                    ng-bind="pageContext.appId"></label> {{'Common.Namespace' | translate }}:<label
+                                    ng-bind="pageContext.namespaceName"></label>)</small>
+                        </h4>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <a type="button" class="btn btn-info" data-dismiss="modal"
+                            href="{{ '/config.html' | prefixPath }}?#appid={{pageContext.appId}}">{{'Common.ReturnToIndex' | translate }}
+                        </a>
                     </div>
                 </div>
-                <hr>
-
-                <div class="row" style="margin-top: 10px;">
+            </header>
+            <div class="panel-body" ng-show="hasAssignUserPermission">
+                <div class="row">
                     <div class="form-horizontal">
-                        <div class="col-sm-2 text-right">
-                            <label class="control-label">发布权<br><small>(可以发布配置)</small></label>
-                        </div>
-                        <div class="col-sm-8">
-                            <form class="form-inline" ng-submit="assignRoleToUser('ReleaseNamespace')">
-                                <div class="form-group">
-                                    <apollouserselector apollo-id="releaseRoleWidgetId"></apollouserselector>
-                                    <select class="form-control input-sm" ng-model="releaseRoleSelectedEnv">
-                                        <option value="">所有环境</option>
-                                        <option ng-repeat="env in envs" ng-value="env">{{env}}</option>
-                                    </select>
+                        <div class="form-group">
+                            <label
+                                class="col-sm-2 control-label">{{'Namespace.Role.GrantModifyTo' | translate }}<br><small>{{'Namespace.Role.GrantModifyTo2' | translate }}</small></label>
+                            <div class="col-sm-8">
+                                <form class="form-inline" ng-submit="assignRoleToUser('ModifyNamespace')">
+                                    <div class="form-group">
+                                        <apollouserselector apollo-id="modifyRoleWidgetId"></apollouserselector>
+                                        <select class="form-control input-sm" ng-model="modifyRoleSelectedEnv">
+                                            <option value="">{{'Namespace.Role.AllEnv' | translate }}</option>
+                                            <option ng-repeat="env in envs" ng-value="env">{{env}}</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-default" style="margin-left: 20px;"
+                                        ng-disabled="modifyRoleSubmitBtnDisabled">{{'Namespace.Role.Add' | translate }}</button>
+                                </form>
+                                <!-- Split button -->
+                                <div class="item-container">
+                                    <h5>{{'Namespace.Role.AllEnv' | translate }}</h5>
+                                    <div class="btn-group item-info"
+                                        ng-repeat="user in rolesAssignedUsers.modifyRoleUsers">
+                                        <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            ng-click="removeUserRole('ModifyNamespace', user.userId, null)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <button type="submit" class="btn btn-default" style="margin-left: 20px;" ng-disabled="ReleaseRoleSubmitBtnDisabled">添加</button>
-                            </form>
-                            <!-- Split button -->
-                            <div class="item-container">
-                                <h5>所有环境</h5>
-                                <div class="btn-group item-info" ng-repeat="user in rolesAssignedUsers.releaseRoleUsers">
-                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false" ng-click="removeUserRole('ReleaseNamespace', user.userId, null)">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </button>
+                                <div class="item-container" ng-repeat="env in envs">
+                                    <h5>{{env}}</h5>
+                                    <div class="btn-group item-info"
+                                        ng-repeat="user in envRolesAssignedUsers[env].modifyRoleUsers">
+                                        <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            ng-click="removeUserRole('ModifyNamespace', user.userId, env)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="item-container" ng-repeat="env in envs">
-                                <h5>{{env}}</h5>
-                                <div class="btn-group item-info" ng-repeat="user in envRolesAssignedUsers[env].releaseRoleUsers">
-                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
-                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
-                                            aria-haspopup="true" aria-expanded="false" ng-click="removeUserRole('ReleaseNamespace', user.userId, env)">
-                                        <span class="glyphicon glyphicon-remove"></span>
-                                    </button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="form-horizontal">
+                            <div class="col-sm-2 text-right">
+                                <label
+                                    class="control-label">{{'Namespace.Role.GrantPublishTo' | translate }}<br><small>{{'Namespace.Role.GrantPublishTo2' | translate }}</small></label>
+                            </div>
+                            <div class="col-sm-8">
+                                <form class="form-inline" ng-submit="assignRoleToUser('ReleaseNamespace')">
+                                    <div class="form-group">
+                                        <apollouserselector apollo-id="releaseRoleWidgetId"></apollouserselector>
+                                        <select class="form-control input-sm" ng-model="releaseRoleSelectedEnv">
+                                            <option value="">{{'Namespace.Role.AllEnv' | translate }}</option>
+                                            <option ng-repeat="env in envs" ng-value="env">{{env}}</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-default" style="margin-left: 20px;"
+                                        ng-disabled="ReleaseRoleSubmitBtnDisabled">{{'Namespace.Role.Add' | translate }}</button>
+                                </form>
+                                <!-- Split button -->
+                                <div class="item-container">
+                                    <h5>{{'Namespace.Role.AllEnv' | translate }}</h5>
+                                    <div class="btn-group item-info"
+                                        ng-repeat="user in rolesAssignedUsers.releaseRoleUsers">
+                                        <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            ng-click="removeUserRole('ReleaseNamespace', user.userId, null)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="item-container" ng-repeat="env in envs">
+                                    <h5>{{env}}</h5>
+                                    <div class="btn-group item-info"
+                                        ng-repeat="user in envRolesAssignedUsers[env].releaseRoleUsers">
+                                        <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                        <button type="button" class="btn btn-default dropdown-toggle"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                            ng-click="removeUserRole('ReleaseNamespace', user.userId, env)">
+                                            <span class="glyphicon glyphicon-remove"></span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                 </div>
 
+
+            </div>
+            <div class="panel-body text-center" ng-show="!hasAssignUserPermission">
+                <h2>{{'Namespace.Role.NoPermission' | translate }}</h2>
             </div>
 
+        </section>
+    </div>
 
-        </div>
-        <div class="panel-body text-center" ng-show="!hasAssignUserPermission">
-            <h2>您没有权限哟!</h2>
-        </div>
+    <div ng-include="'../views/common/footer.html'"></div>
 
-    </section>
-</div>
+    <!-- jquery.js -->
+    <script src="../vendor/jquery.min.js" type="text/javascript"></script>
 
-<div ng-include="'../views/common/footer.html'"></div>
+    <!--angular-->
+    <script src="../vendor/angular/angular.min.js"></script>
+    <script src="../vendor/angular/angular-resource.min.js"></script>
+    <script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="../vendor/angular/loading-bar.min.js"></script>
+    <script src="../vendor/angular/angular-cookies.min.js"></script>
 
-<!-- jquery.js -->
-<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!--angular-->
-<script src="../vendor/angular/angular.min.js"></script>
-<script src="../vendor/angular/angular-resource.min.js"></script>
-<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="../vendor/angular/loading-bar.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
+    <script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
 
-<!-- bootstrap.js -->
-<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="../scripts/app.js"></script>
+    <script type="application/javascript" src="../scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="../scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
 
-<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script type="application/javascript" src="../scripts/AppUtils.js"></script>
 
-<!--biz-->
-<!--must import-->
-<script type="application/javascript" src="../scripts/app.js"></script>
-<script type="application/javascript" src="../scripts/services/AppService.js"></script>
-<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="../scripts/services/UserService.js"></script>
-<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="../scripts/directive/directive.js"></script>
 
-<script type="application/javascript" src="../scripts/AppUtils.js"></script>
-
-<script type="application/javascript" src="../scripts/PageCommon.js"></script>
-<script type="application/javascript" src="../scripts/directive/directive.js"></script>
-
-<script type="application/javascript" src="../scripts/controller/role/NamespaceRoleController.js"></script>
+    <script type="application/javascript" src="../scripts/controller/role/NamespaceRoleController.js"></script>
 </body>
+
 </html>

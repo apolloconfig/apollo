@@ -1,10 +1,26 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 directive_module.directive('apollonspanel', directive);
 
-function directive($window, toastr, AppUtil, EventManager, PermissionService, NamespaceLockService,
-                   UserService, CommitService, ReleaseService, InstanceService, NamespaceBranchService, ConfigService) {
+function directive($window, $translate, toastr, AppUtil, EventManager, PermissionService, NamespaceLockService,
+    UserService, CommitService, ReleaseService, InstanceService, NamespaceBranchService, ConfigService) {
     return {
         restrict: 'E',
-        templateUrl: '../../views/component/namespace-panel.html',
+        templateUrl: AppUtil.prefixPath() + '/views/component/namespace-panel.html',
         transclude: true,
         replace: true,
         scope: {
@@ -17,6 +33,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
             createItem: '=',
             editItem: '=',
             preDeleteItem: '=',
+            preRevokeItem: '=',
             showText: '=',
             showNoModifyPermissionDialog: '=',
             preCreateBranch: '=',
@@ -47,7 +64,10 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
             scope.refreshNamespace = refreshNamespace;
             scope.switchView = switchView;
             scope.toggleItemSearchInput = toggleItemSearchInput;
+            scope.toggleHistorySearchInput = toggleHistorySearchInput;
             scope.searchItems = searchItems;
+            scope.resetSearchItems = resetSearchItems;
+            scope.searchHistory = searchHistory;
             scope.loadCommitHistory = loadCommitHistory;
             scope.toggleTextEditStatus = toggleTextEditStatus;
             scope.goToSyncPage = goToSyncPage;
@@ -68,15 +88,17 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
             scope.editRuleItem = editRuleItem;
 
             scope.deleteNamespace = deleteNamespace;
+            scope.exportNamespace = exportNamespace;
+            scope.importNamespace = importNamespace;
 
             var subscriberId = EventManager.subscribe(EventManager.EventType.UPDATE_GRAY_RELEASE_RULES,
-                                                      function (context) {
-                                                          useRules(context.branch);
-                                                      }, scope.namespace.baseInfo.namespaceName);
+                function (context) {
+                    useRules(context.branch);
+                }, scope.namespace.baseInfo.namespaceName);
 
             scope.$on('$destroy', function () {
                 EventManager.unsubscribe(EventManager.EventType.UPDATE_GRAY_RELEASE_RULES,
-                                         subscriberId, scope.namespace.baseInfo.namespaceName);
+                    subscriberId, scope.namespace.baseInfo.namespaceName);
             });
 
             preInit(scope.namespace);
@@ -91,8 +113,8 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                     namespace.isPublic ? namespace.parentAppId != namespace.baseInfo.appId : false;
                 //namespace view name hide suffix
                 namespace.viewName = namespace.baseInfo.namespaceName.replace(".xml", "").replace(
-                            ".properties", "").replace(".json", "").replace(".yml", "")
-                            .replace(".yaml", "").replace(".txt", "");
+                    ".properties", "").replace(".json", "").replace(".yml", "")
+                    .replace(".yaml", "").replace(".txt", "");
             }
 
             function init() {
@@ -103,7 +125,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
             function refreshNamespace() {
                 EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                  {namespace: scope.namespace});
+                    { namespace: scope.namespace });
             }
 
             function initNamespace(namespace, viewType) {
@@ -111,7 +133,9 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 namespace.isBranch = false;
                 namespace.displayControl = {
                     currentOperateBranch: 'master',
-                    showSearchInput: false,
+                    showSearchInput: namespace.showSearchItemInput,
+                    searchItemKey: namespace.searchItemKey,
+                    showHistorySearchInput: false,
                     show: scope.showBody
                 };
                 scope.showNamespaceBody = namespace.showNamespaceBody ? true : scope.showBody;
@@ -133,11 +157,12 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 initPermission(namespace);
                 initLinkedNamespace(namespace);
                 loadInstanceInfo(namespace);
+                initSearchItemInput(namespace);
 
                 function initNamespaceBranch(namespace) {
                     NamespaceBranchService.findNamespaceBranch(scope.appId, scope.env,
-                                                               namespace.baseInfo.clusterName,
-                                                               namespace.baseInfo.namespaceName)
+                        namespace.baseInfo.clusterName,
+                        namespace.baseInfo.namespaceName)
                         .then(function (result) {
 
                             if (!result.baseInfo) {
@@ -248,7 +273,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                                     scope.appId,
                                     scope.env,
                                     namespace.baseInfo.namespaceName
-                                    )
+                                )
                                     .then(function (result) {
                                         //branch has same permission
                                         namespace.hasModifyPermission = result.hasPermission;
@@ -258,8 +283,8 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                                     });
                             }
                             else {
-                            //branch has same permission
-                            namespace.hasModifyPermission = result.hasPermission;
+                                //branch has same permission
+                                namespace.hasModifyPermission = result.hasPermission;
                                 if (namespace.branch) {
                                     namespace.branch.hasModifyPermission = result.hasPermission;
                                 }
@@ -275,7 +300,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                                     scope.appId,
                                     scope.env,
                                     namespace.baseInfo.namespaceName
-                                    )
+                                )
                                     .then(function (result) {
                                         //branch has same permission
                                         namespace.hasReleasePermission = result.hasPermission;
@@ -295,12 +320,12 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 }
 
                 function initLinkedNamespace(namespace) {
-                    if (!namespace.isPublic || !namespace.isLinkedNamespace || namespace.format != 'properties') {
+                    if (!namespace.isPublic || !namespace.isLinkedNamespace) {
                         return;
                     }
                     //load public namespace
                     ConfigService.load_public_namespace_for_associated_namespace(scope.env, scope.appId, scope.cluster,
-                                                                                 namespace.baseInfo.namespaceName)
+                        namespace.baseInfo.namespaceName)
                         .then(function (result) {
                             var publicNamespace = result;
                             namespace.publicNamespace = publicNamespace;
@@ -327,9 +352,16 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                                     publicNamespace.hasPublishedItem = true;
                                 }
                             });
-
+                            publicNamespace.isPropertiesFormat = publicNamespace.format == 'properties';
+                            loadParentNamespaceText(namespace);
                         });
+                }
 
+                function loadParentNamespaceText(namespace){
+                    namespace.publicNamespaceText = "";
+                    if(namespace.isLinkedNamespace) {
+                        namespace.publicNamespaceText = parseModel2Text(namespace.publicNamespace)
+                    }
                 }
 
                 function initNamespaceViewName(namespace) {
@@ -346,8 +378,8 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
                 function initNamespaceLock(namespace) {
                     NamespaceLockService.get_namespace_lock(scope.appId, scope.env,
-                                                            namespace.baseInfo.clusterName,
-                                                            namespace.baseInfo.namespaceName)
+                        namespace.baseInfo.clusterName,
+                        namespace.baseInfo.namespaceName)
                         .then(function (result) {
                             namespace.lockOwner = result.lockOwner;
                             namespace.isEmergencyPublishAllowed = result.isEmergencyPublishAllowed;
@@ -372,13 +404,19 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
                 }
 
+                function initSearchItemInput(namespace) {
+                    if (namespace.displayControl.searchItemKey) {
+                        namespace.searchKey = namespace.displayControl.searchItemKey;
+                        searchItems(namespace);
+                    }
+                }
             }
 
             function initNamespaceInstancesCount(namespace) {
                 InstanceService.getInstanceCountByNamespace(scope.appId,
-                                                            scope.env,
-                                                            scope.cluster,
-                                                            namespace.baseInfo.namespaceName)
+                    scope.env,
+                    scope.cluster,
+                    namespace.baseInfo.namespaceName)
                     .then(function (result) {
                         namespace.instancesCount = result.num;
                     })
@@ -446,11 +484,12 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
                 var size = 10;
                 CommitService.find_commits(scope.appId,
-                                           scope.env,
-                                           namespace.baseInfo.clusterName,
-                                           namespace.baseInfo.namespaceName,
-                                           namespace.commitPage,
-                                           size)
+                    scope.env,
+                    namespace.baseInfo.clusterName,
+                    namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
+                    namespace.commitPage,
+                    size)
                     .then(function (result) {
                         if (result.length < size) {
                             namespace.hasLoadAllCommit = true;
@@ -463,7 +502,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                         }
                         namespace.commitPage += 1;
                     }, function (result) {
-                        toastr.error(AppUtil.errorMsg(result), "加载修改历史记录出错");
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingHistoryError'));
                     });
             }
 
@@ -479,9 +518,9 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 if (namespace_instance_view_type.LATEST_RELEASE == type) {
                     if (!namespace.latestRelease) {
                         ReleaseService.findLatestActiveRelease(scope.appId,
-                                                               scope.env,
-                                                               namespace.baseInfo.clusterName,
-                                                               namespace.baseInfo.namespaceName)
+                            scope.env,
+                            namespace.baseInfo.clusterName,
+                            namespace.baseInfo.namespaceName)
                             .then(function (result) {
                                 namespace.isLatestReleaseLoaded = true;
 
@@ -492,9 +531,9 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                                 }
                                 namespace.latestRelease = result;
                                 InstanceService.findInstancesByRelease(scope.env,
-                                                                       namespace.latestRelease.id,
-                                                                       namespace.latestReleaseInstancesPage,
-                                                                       size)
+                                    namespace.latestRelease.id,
+                                    namespace.latestReleaseInstancesPage,
+                                    size)
                                     .then(function (result) {
                                         namespace.latestReleaseInstances = result;
                                         namespace.latestReleaseInstancesPage++;
@@ -502,9 +541,9 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                             });
                     } else {
                         InstanceService.findInstancesByRelease(scope.env,
-                                                               namespace.latestRelease.id,
-                                                               namespace.latestReleaseInstancesPage,
-                                                               size)
+                            namespace.latestRelease.id,
+                            namespace.latestReleaseInstancesPage,
+                            size)
                             .then(function (result) {
                                 if (result && result.content.length) {
                                     namespace.latestReleaseInstancesPage++;
@@ -522,10 +561,10 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                         return;
                     }
                     InstanceService.findByReleasesNotIn(scope.appId,
-                                                        scope.env,
-                                                        scope.cluster,
-                                                        namespace.baseInfo.namespaceName,
-                                                        namespace.latestRelease.id)
+                        scope.env,
+                        scope.cluster,
+                        namespace.baseInfo.namespaceName,
+                        namespace.latestRelease.id)
                         .then(function (result) {
                             if (!result || result.length == 0) {
                                 return
@@ -558,11 +597,11 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
                 } else {
                     InstanceService.findInstancesByNamespace(scope.appId,
-                                                             scope.env,
-                                                             scope.cluster,
-                                                             namespace.baseInfo.namespaceName,
-                                                             '',
-                                                             namespace.allInstancesPage)
+                        scope.env,
+                        scope.cluster,
+                        namespace.baseInfo.namespaceName,
+                        '',
+                        namespace.allInstancesPage)
                         .then(function (result) {
                             if (result && result.content.length) {
                                 namespace.allInstancesPage++;
@@ -598,10 +637,10 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
             function initRules(branch) {
 
                 NamespaceBranchService.findBranchGrayRules(scope.appId,
-                                                           scope.env,
-                                                           scope.cluster,
-                                                           scope.namespace.baseInfo.namespaceName,
-                                                           branch.baseInfo.clusterName)
+                    scope.env,
+                    scope.cluster,
+                    scope.namespace.baseInfo.namespaceName,
+                    branch.baseInfo.clusterName)
                     .then(function (result) {
 
                         if (result.appId) {
@@ -609,7 +648,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                         }
 
                     }, function (result) {
-                        toastr.error(AppUtil.errorMsg(result), "加载灰度规则出错");
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingGrayscaleError'));
                     });
 
             }
@@ -619,6 +658,8 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                     clientAppId: !branch.parentNamespace.isPublic ? branch.baseInfo.appId : '',
                     clientIpList: [],
                     draftIpList: [],
+                    clientLabelList: [],
+                    draftLabelList: [],
                     isNew: true
                 };
 
@@ -631,7 +672,8 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
             function editRuleItem(branch, ruleItem) {
                 ruleItem.isNew = false;
-                ruleItem.draftIpList = _.clone(ruleItem.clientIpList);
+                ruleItem.draftIpList = _.clone(ruleItem.clientIpList) || [];
+                ruleItem.draftLabelList = _.clone(ruleItem.clientLabelList) || [];
                 branch.editingRuleItem = ruleItem;
 
                 EventManager.emit(EventManager.EventType.EDIT_GRAY_RELEASE_RULES, {
@@ -643,7 +685,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 branch.rules.ruleItems.forEach(function (item, index) {
                     if (item.clientAppId == ruleItem.clientAppId) {
                         branch.rules.ruleItems.splice(index, 1);
-                        toastr.success("删除成功");
+                        toastr.success($translate.instant('ApolloNsPanel.Deleted'));
                     }
                 });
 
@@ -652,14 +694,14 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
             function useRules(branch) {
                 NamespaceBranchService.updateBranchGrayRules(scope.appId,
-                                                             scope.env,
-                                                             scope.cluster,
-                                                             scope.namespace.baseInfo.namespaceName,
-                                                             branch.baseInfo.clusterName,
-                                                             branch.rules
+                    scope.env,
+                    scope.cluster,
+                    scope.namespace.baseInfo.namespaceName,
+                    branch.baseInfo.clusterName,
+                    branch.rules
                 )
                     .then(function (result) {
-                        toastr.success('灰度规则更新成功');
+                        toastr.success($translate.instant('ApolloNsPanel.GrayscaleModified'));
 
                         //show tips if branch has not release configs
                         if (branch.itemModifiedCnt) {
@@ -671,7 +713,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                         }, 1500);
 
                     }, function (result) {
-                        AppUtil.showErrorMsg(result, "灰度规则更新失败");
+                        AppUtil.showErrorMsg(result, $translate.instant('ApolloNsPanel.GrayscaleModifyFailed'));
                     })
             }
 
@@ -697,7 +739,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                     return false;
                 }
                 $window.location.href =
-                    "config/sync.html?#/appid=" + scope.appId + "&env="
+                AppUtil.prefixPath() + "/config/sync.html?#/appid=" + scope.appId + "&env="
                     + scope.env + "&clusterName="
                     + scope.cluster
                     + "&namespaceName=" + namespace.baseInfo.namespaceName;
@@ -705,13 +747,14 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
 
             function goToDiffPage(namespace) {
                 $window.location.href =
-                    "config/diff.html?#/appid=" + scope.appId + "&env="
+                AppUtil.prefixPath() + "/config/diff.html?#/appid=" + scope.appId + "&env="
                     + scope.env + "&clusterName="
                     + scope.cluster
                     + "&namespaceName=" + namespace.baseInfo.namespaceName;
             }
 
             function modifyByText(namespace) {
+
                 var model = {
                     configText: namespace.editText,
                     namespaceId: namespace.baseInfo.id,
@@ -724,27 +767,26 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 }
                 namespace.commitChangeBtnDisabled = true;
                 ConfigService.modify_items(scope.appId,
-                                           scope.env,
-                                           scope.cluster,
-                                           namespace.baseInfo.namespaceName,
-                                           model).then(
-                    function (result) {
-                        toastr.success("更新成功, 如需生效请发布");
-                        //refresh all namespace items
-                        EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                          {
-                                              namespace: namespace
-                                          });
-                        return true;
+                    scope.env,
+                    scope.cluster,
+                    namespace.baseInfo.namespaceName,
+                    model).then(
+                        function (result) {
+                            toastr.success($translate.instant('ApolloNsPanel.ModifiedTips'));
+                            //refresh all namespace items
+                            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                                {
+                                    namespace: namespace
+                                });
+                            return true;
 
-                    }, function (result) {
-                        toastr.error(AppUtil.errorMsg(result), "更新失败");
-                        namespace.commitChangeBtnDisabled = false;
-                        return false;
-                    }
-                );
+                        }, function (result) {
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.ModifyFailed'));
+                            namespace.commitChangeBtnDisabled = false;
+                            return false;
+                        }
+                    );
                 namespace.commited = true;
-                toggleTextEditStatus(namespace);
             }
 
             function syntaxCheck(namespace) {
@@ -754,28 +796,27 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                     format: namespace.format
                 };
                 ConfigService.syntax_check_text(scope.appId,
-                                                scope.env,
-                                                scope.cluster,
-                                                namespace.baseInfo.namespaceName,
-                                                model).then(
-                    function (result) {
-                        toastr.success("语法正确！");
+                    scope.env,
+                    scope.cluster,
+                    namespace.baseInfo.namespaceName,
+                    model).then(
+                        function (result) {
+                            toastr.success($translate.instant('ApolloNsPanel.GrammarIsRight'));
 
-                    }, function (result) {
-                        EventManager.emit(EventManager.EventType.SYNTAX_CHECK_TEXT_FAILED, {
-                            syntaxCheckMessage: AppUtil.pureErrorMsg(result)
-                        });
-                    }
-                );
+                        }, function (result) {
+                            EventManager.emit(EventManager.EventType.SYNTAX_CHECK_TEXT_FAILED, {
+                                syntaxCheckMessage: AppUtil.pureErrorMsg(result)
+                            });
+                        }
+                    );
             }
 
             function goToParentAppConfigPage(namespace) {
-                $window.location.href = "/config.html?#/appid=" + namespace.parentAppId;
+                $window.location.href = AppUtil.prefixPath() + "/config.html?#/appid=" + namespace.parentAppId;
                 $window.location.reload();
             }
 
             function parseModel2Text(namespace) {
-
                 if (namespace.items.length == 0) {
                     namespace.itemCnt = 0;
                     return "";
@@ -802,7 +843,7 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 var itemCnt = 0;
                 namespace.items.forEach(function (item) {
                     //deleted key
-                    if (!item.item.dataChangeLastModifiedBy) {
+                    if (item.isDeleted) {
                         return;
                     }
                     if (item.item.key) {
@@ -837,9 +878,45 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 namespace.viewItems = items;
             }
 
+            function resetSearchItems(namespace) {
+                namespace.searchKey = '';
+                searchItems(namespace);
+            }
+
+            function toggleHistorySearchInput(namespace) {
+                namespace.displayControl.showHistorySearchInput = !namespace.displayControl.showHistorySearchInput;
+            }
+
+            function searchHistory(namespace) {
+                namespace.commits = [];
+                namespace.commitPage = 0;
+                namespace.hasLoadAllCommit = false;
+                var size = 10;
+                CommitService.find_commits(scope.appId,
+                    scope.env,
+                    namespace.baseInfo.clusterName,
+                    namespace.baseInfo.namespaceName,
+                    namespace.HistorySearchKey,
+                    namespace.commitPage,
+                    size)
+                    .then(function (result) {
+                        if (result.length < size) {
+                            namespace.hasLoadAllCommit = true;
+                        }
+
+                        for (var i = 0; i < result.length; i++) {
+                            //to json
+                            result[i].changeSets = JSON.parse(result[i].changeSets);
+                            namespace.commits.push(result[i]);
+                        }
+                        namespace.commitPage++
+                    }, function (result) {
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ApolloNsPanel.LoadingHistoryError'));
+                    });
+            }
+
             //normal release and gray release
             function publish(namespace) {
-
                 if (!namespace.hasReleasePermission) {
                     AppUtil.showModal('#releaseNoPermissionDialog');
                     return;
@@ -857,9 +934,9 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 }
 
                 EventManager.emit(EventManager.EventType.PUBLISH_NAMESPACE,
-                                  {
-                                      namespace: namespace
-                                  });
+                    {
+                        namespace: namespace
+                    });
             }
 
             function mergeAndPublish(branch) {
@@ -874,16 +951,26 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                         mergeAndPublish: true
                     });
                 } else {
-                    EventManager.emit(EventManager.EventType.MERGE_AND_PUBLISH_NAMESPACE, {branch: branch});
+                    EventManager.emit(EventManager.EventType.MERGE_AND_PUBLISH_NAMESPACE, { branch: branch });
                 }
             }
 
             function rollback(namespace) {
-                EventManager.emit(EventManager.EventType.PRE_ROLLBACK_NAMESPACE, {namespace: namespace});
+                EventManager.emit(EventManager.EventType.PRE_ROLLBACK_NAMESPACE, { namespace: namespace });
             }
 
             function deleteNamespace(namespace) {
-                EventManager.emit(EventManager.EventType.PRE_DELETE_NAMESPACE, {namespace: namespace});
+                EventManager.emit(EventManager.EventType.PRE_DELETE_NAMESPACE, { namespace: namespace });
+            }
+
+            function exportNamespace(namespace) {
+                $window.location.href =
+                    AppUtil.prefixPath() + '/apps/' + scope.appId + "/envs/" + scope.env + "/clusters/" + scope.cluster
+                    + "/namespaces/" + namespace.baseInfo.namespaceName + "/items/export"
+            }
+
+            function importNamespace(namespace) {
+                EventManager.emit(EventManager.EventType.PRE_IMPORT_NAMESPACE, { namespace: namespace });
             }
 
             //theme: https://github.com/ajaxorg/ace-builds/tree/ba3b91e04a5aa559d56ac70964f9054baa0f4caf/src-min
@@ -895,10 +982,16 @@ function directive($window, toastr, AppUtil, EventManager, PermissionService, Na
                 onLoad: function (_editor) {
                     _editor.$blockScrolling = Infinity;
                     _editor.setOptions({
-                                           fontSize: 13,
-                                           minLines: 10,
-                                           maxLines: 20
-                                       })
+                        fontSize: 13,
+                        minLines: 10,
+                        maxLines: 20
+                    })
+                },
+                onChange: function (e) {
+                    if ((e[0].action === 'insert') && (scope.namespace.hasOwnProperty("editText"))) {
+                        scope.namespace.editText = e[1].session.getValue();
+                    }
+
                 }
             };
 

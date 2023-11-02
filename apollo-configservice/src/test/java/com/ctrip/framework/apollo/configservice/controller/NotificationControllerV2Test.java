@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.controller;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
@@ -32,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -334,10 +351,58 @@ public class NotificationControllerV2Test {
     //in batch mode, at most one of them should have result
     assertFalse(deferredResult.hasResult() && anotherDeferredResult.hasResult());
 
-    TimeUnit.MILLISECONDS.sleep(someBatchInterval * 10);
-
     //now both of them should have result
-    assertTrue(deferredResult.hasResult() && anotherDeferredResult.hasResult());
+    await().atMost(someBatchInterval * 500, TimeUnit.MILLISECONDS).untilAsserted(
+        () -> assertTrue(deferredResult.hasResult() && anotherDeferredResult.hasResult()));
+  }
+
+  @Test
+  public void testPollNotificationWithIncorrectCase() throws Exception {
+    String appIdWithIncorrectCase = someAppId.toUpperCase();
+    String namespaceWithIncorrectCase = defaultNamespace.toUpperCase();
+    String someMessage = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+        .join(someAppId, someCluster, defaultNamespace);
+    String someWatchKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+        .join(appIdWithIncorrectCase, someCluster, defaultNamespace);
+
+    Multimap<String, String> watchKeysMap =
+        assembleMultiMap(defaultNamespace, Lists.newArrayList(someWatchKey));
+
+    String notificationAsString =
+        transformApolloConfigNotificationsToString(defaultNamespace.toUpperCase(), someNotificationId);
+
+    when(namespaceUtil.filterNamespaceName(namespaceWithIncorrectCase)).thenReturn(namespaceWithIncorrectCase);
+    when(namespaceUtil.normalizeNamespace(appIdWithIncorrectCase, namespaceWithIncorrectCase)).thenReturn(defaultNamespace);
+    when(watchKeysUtil
+        .assembleAllWatchKeys(appIdWithIncorrectCase, someCluster, Sets.newHashSet(defaultNamespace),
+            someDataCenter)).thenReturn(watchKeysMap);
+
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>>
+        deferredResult = controller
+        .pollNotification(appIdWithIncorrectCase, someCluster, notificationAsString, someDataCenter,
+            someClientIp);
+
+    long someId = 1;
+    ReleaseMessage someReleaseMessage = new ReleaseMessage(someMessage);
+    someReleaseMessage.setId(someId);
+
+    controller.handleMessage(someReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
+
+    assertTrue(deferredResult.hasResult());
+
+    ResponseEntity<List<ApolloConfigNotification>> response =
+        (ResponseEntity<List<ApolloConfigNotification>>) deferredResult.getResult();
+
+    assertEquals(1, response.getBody().size());
+    ApolloConfigNotification notification = response.getBody().get(0);
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals(namespaceWithIncorrectCase, notification.getNamespaceName());
+    assertEquals(someId, notification.getNotificationId());
+
+    ApolloNotificationMessages notificationMessages = notification.getMessages();
+    assertEquals(1, notificationMessages.getDetails().size());
+    assertEquals(someId, notificationMessages.get(someMessage).longValue());
+
   }
 
   private String transformApolloConfigNotificationsToString(

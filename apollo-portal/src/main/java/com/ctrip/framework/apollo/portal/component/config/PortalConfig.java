@@ -1,10 +1,25 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.component.config;
-
 
 import com.ctrip.framework.apollo.common.config.RefreshableConfig;
 import com.ctrip.framework.apollo.common.config.RefreshablePropertySource;
-import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.PortalDBPropertySource;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.google.common.base.Strings;
@@ -12,20 +27,39 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.springframework.stereotype.Component;
-
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 @Component
 public class PortalConfig extends RefreshableConfig {
 
-  private Gson gson = new Gson();
+  private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
+
+  private static final Gson GSON = new Gson();
   private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
   }.getType();
+
+  private static final List<String> DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST = Arrays.asList(
+      "111", "222", "333", "444", "555", "666", "777", "888", "999", "000",
+      "001122", "112233", "223344", "334455", "445566", "556677", "667788", "778899", "889900",
+      "009988", "998877", "887766", "776655", "665544", "554433", "443322", "332211", "221100",
+      "0123", "1234", "2345", "3456", "4567", "5678", "6789", "7890",
+      "0987", "9876", "8765", "7654", "6543", "5432", "4321", "3210",
+      "1q2w", "2w3e", "3e4r", "5t6y", "abcd", "qwer", "asdf", "zxcv"
+  );
+
+  /**
+   * meta servers config in "PortalDB.ServerConfig"
+   */
+  private static final Type META_SERVERS = new TypeToken<Map<String, String>>(){}.getType();
 
   private final PortalDBPropertySource portalDBPropertySource;
 
@@ -46,10 +80,32 @@ public class PortalConfig extends RefreshableConfig {
     List<Env> envs = Lists.newLinkedList();
 
     for (String env : configurations) {
-      envs.add(Env.fromString(env));
+      envs.add(Env.addEnvironment(env));
     }
 
     return envs;
+  }
+
+  /**
+   * @return the relationship between environment and its meta server. empty if meet exception
+   */
+  public Map<String, String> getMetaServers() {
+    final String key = "apollo.portal.meta.servers";
+    String jsonContent = getValue(key);
+    if (null == jsonContent) {
+      return Collections.emptyMap();
+    }
+
+    // watch out that the format of content may be wrong
+    // that will cause exception
+    Map<String, String> map = Collections.emptyMap();
+    try {
+      // try to parse
+      map = GSON.fromJson(jsonContent, META_SERVERS);
+    } catch (Exception e) {
+      logger.error("Wrong format for: {}", key, e);
+    }
+    return map;
   }
 
   public List<String> superAdmins() {
@@ -69,7 +125,22 @@ public class PortalConfig extends RefreshableConfig {
     }
 
     for (String env : configurations) {
-      result.add(Env.fromString(env));
+      result.add(Env.valueOf(env));
+    }
+
+    return result;
+  }
+
+  public Set<Env> webHookSupportedEnvs() {
+    String[] configurations = getArrayProperty("webhook.supported.envs", null);
+
+    Set<Env> result = Sets.newHashSet();
+    if (configurations == null || configurations.length == 0) {
+      return result;
+    }
+
+    for (String env : configurations) {
+      result.add(Env.valueOf(env));
     }
 
     return result;
@@ -101,7 +172,7 @@ public class PortalConfig extends RefreshableConfig {
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");
-    return organizations == null ? Collections.emptyList() : gson.fromJson(organizations, ORGANIZATION);
+    return organizations == null ? Collections.emptyList() : GSON.fromJson(organizations, ORGANIZATION);
   }
 
   public String portalAddress() {
@@ -109,7 +180,7 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {
-    String targetEnv = env.name();
+    String targetEnv = env.getName();
 
     String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
@@ -134,7 +205,7 @@ public class PortalConfig extends RefreshableConfig {
     }
 
     for (String env : configurations) {
-      result.add(Env.fromString(env));
+      result.add(Env.valueOf(env));
     }
 
     return result;
@@ -144,8 +215,28 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("consumer.token.salt", "apollo-portal");
   }
 
+  public boolean isEmailEnabled() {
+    return getBooleanProperty("email.enabled", false);
+  }
+
+  public String emailConfigHost() {
+    return getValue("email.config.host", "");
+  }
+
+  public String emailConfigUser() {
+    return getValue("email.config.user", "");
+  }
+
+  public String emailConfigPassword() {
+    return getValue("email.config.password", "");
+  }
+
   public String emailSender() {
-    return getValue("email.sender");
+    String value = getValue("email.sender", "");
+    if (Strings.isNullOrEmpty(value)) {
+      value = emailConfigUser();
+    }
+    return value;
   }
 
   public String emailTemplateFramework() {
@@ -165,7 +256,7 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public String wikiAddress() {
-    return getValue("wiki.address", "https://github.com/ctripcorp/apollo/wiki");
+    return getValue("wiki.address", "https://www.apolloconfig.com");
   }
 
   public boolean canAppAdminCreatePrivateNamespace() {
@@ -180,70 +271,23 @@ public class PortalConfig extends RefreshableConfig {
     return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
   }
 
-  /***
-   * The following configurations are used in ctrip profile
-   **/
-
-  public int appId() {
-    return getIntProperty("ctrip.appid", 0);
+  public String getAdminServiceAccessTokens() {
+    return getValue("admin-service.access.tokens");
   }
 
-  //send code & template id. apply from ewatch
-  public String sendCode() {
-    return getValue("ctrip.email.send.code");
+  public String[] webHookUrls() {
+    return getArrayProperty("config.release.webhook.service.url", null);
   }
 
-  public int templateId() {
-    return getIntProperty("ctrip.email.template.id", 0);
+  public boolean supportSearchByItem() {
+    return getBooleanProperty("searchByItem.switch", true);
   }
-
-  //email retention time in email server queue.TimeUnit: hour
-  public int survivalDuration() {
-    return getIntProperty("ctrip.email.survival.duration", 5);
+  
+  public List<String> getUserPasswordNotAllowList() {
+    String[] value = getArrayProperty("apollo.portal.auth.user-password-not-allow-list", null);
+    if (value == null || value.length == 0) {
+      return DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST;
+    }
+    return Arrays.asList(value);
   }
-
-  public boolean isSendEmailAsync() {
-    return getBooleanProperty("email.send.async", true);
-  }
-
-  public String portalServerName() {
-    return getValue("serverName");
-  }
-
-  public String casServerLoginUrl() {
-    return getValue("casServerLoginUrl");
-  }
-
-  public String casServerUrlPrefix() {
-    return getValue("casServerUrlPrefix");
-  }
-
-  public String credisServiceUrl() {
-    return getValue("credisServiceUrl");
-  }
-
-  public String userServiceUrl() {
-    return getValue("userService.url");
-  }
-
-  public String userServiceAccessToken() {
-    return getValue("userService.accessToken");
-  }
-
-  public String soaServerAddress() {
-    return getValue("soa.server.address");
-  }
-
-  public String cloggingUrl() {
-    return getValue("clogging.server.url");
-  }
-
-  public String cloggingPort() {
-    return getValue("clogging.server.port");
-  }
-
-  public String hermesServerAddress() {
-    return getValue("hermes.server.address");
-  }
-
 }

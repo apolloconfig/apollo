@@ -1,72 +1,92 @@
-appService.service('PermissionService', ['$resource', '$q', function ($resource, $q) {
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
     var permission_resource = $resource('', {}, {
         init_app_namespace_permission: {
             method: 'POST',
-            url: '/apps/:appId/initPermission',
+            url: AppUtil.prefixPath() + '/apps/:appId/initPermission',
             headers: {
                  'Content-Type': 'text/plain;charset=UTF-8'
             }
         },
         has_app_permission: {
             method: 'GET',
-            url: '/apps/:appId/permissions/:permissionType'
+            url: AppUtil.prefixPath() + '/apps/:appId/permissions/:permissionType'
         },
         has_namespace_permission: {
             method: 'GET',
-            url: '/apps/:appId/namespaces/:namespaceName/permissions/:permissionType'
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/permissions/:permissionType'
         },
         has_namespace_env_permission: {
             method: 'GET',
-            url: '/apps/:appId/envs/:env/namespaces/:namespaceName/permissions/:permissionType'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/namespaces/:namespaceName/permissions/:permissionType'
         },
         has_root_permission:{
             method: 'GET',
-            url: '/permissions/root'
+            url: AppUtil.prefixPath() + '/permissions/root'
         },
         get_namespace_role_users: {
             method: 'GET',
-            url: '/apps/:appId/namespaces/:namespaceName/role_users'
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/role_users'
         },
         get_namespace_env_role_users: {
             method: 'GET',
-            url: '/apps/:appId/envs/:env/namespaces/:namespaceName/role_users'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/namespaces/:namespaceName/role_users'
         },
         assign_namespace_role_to_user: {
             method: 'POST',
-            url: '/apps/:appId/namespaces/:namespaceName/roles/:roleType',
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/roles/:roleType',
             headers: {
                  'Content-Type': 'text/plain;charset=UTF-8'
             }
         },
         assign_namespace_env_role_to_user: {
             method: 'POST',
-            url: '/apps/:appId/envs/:env/namespaces/:namespaceName/roles/:roleType',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/namespaces/:namespaceName/roles/:roleType',
             headers: {
                  'Content-Type': 'text/plain;charset=UTF-8'
             }
         },
         remove_namespace_role_from_user: {
             method: 'DELETE',
-            url: '/apps/:appId/namespaces/:namespaceName/roles/:roleType?user=:user'
+            url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/roles/:roleType?user=:user'
         },
         remove_namespace_env_role_from_user: {
             method: 'DELETE',
-            url: '/apps/:appId/envs/:env/namespaces/:namespaceName/roles/:roleType?user=:user'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/namespaces/:namespaceName/roles/:roleType?user=:user'
         },
         get_app_role_users: {
             method: 'GET',
-            url: '/apps/:appId/role_users'    
+            url: AppUtil.prefixPath() + '/apps/:appId/role_users'    
         },
         assign_app_role_to_user: {
             method: 'POST',
-            url: '/apps/:appId/roles/:roleType',
+            url: AppUtil.prefixPath() + '/apps/:appId/roles/:roleType',
             headers: {
                  'Content-Type': 'text/plain;charset=UTF-8'
             }
         },
         remove_app_role_from_user: {
             method: 'DELETE',
-            url: '/apps/:appId/roles/:roleType?user=:user'
+            url: AppUtil.prefixPath() + '/apps/:appId/roles/:roleType?user=:user'
+        },
+        has_open_manage_app_master_role_limit: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/system/role/manageAppMaster'
         }
     });
 
@@ -317,6 +337,17 @@ appService.service('PermissionService', ['$resource', '$q', function ($resource,
                                                           function (result) {
                                                               d.resolve(result);
                                                           }, function (result) {
+                    d.reject(result);
+                });
+            return d.promise;
+        },
+        has_open_manage_app_master_role_limit: function () {
+            var d = $q.defer();
+            permission_resource.has_open_manage_app_master_role_limit({},
+                function (result) {
+                    d.resolve(result);
+                },
+                function (result) {
                     d.reject(result);
                 });
             return d.promise;

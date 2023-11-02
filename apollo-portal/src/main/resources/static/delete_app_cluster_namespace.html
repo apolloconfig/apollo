@@ -1,221 +1,248 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="delete_app_cluster_namespace">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="icon" href="../img/config.png">
+    <link rel="icon" href="img/config.png">
     <!-- styles -->
-    <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
-    <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
-    <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <title>删除应用、集群、AppNamespace</title>
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <title>{{'Delete.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
 
-<div class="container-fluid" ng-controller="DeleteAppClusterNamespaceController">
-    <div class="col-md-10 col-md-offset-1 panel">
+    <div class="container-fluid" ng-controller="DeleteAppClusterNamespaceController">
+        <div class="col-md-10 col-md-offset-1 panel">
 
-        <section class="panel-body" ng-show="isRootUser">
-            <!-- delete app -->
-            <section class="row">
-                <h5>删除应用
-                    <small>
-                        (由于删除应用影响面较大，所以现在暂时只允许系统管理员删除，请确保没有客户端读取该应用的配置后再做删除动作)
-                    </small>
-                </h5>
-                <hr>
-                <form class="form-horizontal">
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            应用AppId</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="app.appId">
-                            <small>(删除前请先查询应用信息)</small>
+            <section class="panel-body" ng-show="isRootUser">
+                <!-- delete app -->
+                <section class="row">
+                    <h5>{{'Delete.DeleteApp' | translate }}
+                        <small>
+                            {{'Delete.DeleteAppTips' | translate }}
+                        </small>
+                    </h5>
+                    <hr>
+                    <form class="form-horizontal">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.AppId' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="app.appId">
+                                <small> {{'Delete.AppIdTips' | translate }}</small>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-info" ng-click="getAppInfo()">{{'Common.Search' | translate }}</button>
+                            </div>
                         </div>
-                        <div class="col-sm-1">
-                            <button class="btn btn-info" ng-click="getAppInfo()">查询</button>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                {{'Delete.AppInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 ng-show="app.info" ng-bind="app.info"></h5>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            应用信息</label>
-                        <div class="col-sm-5">
-                            <h5 ng-show="app.info" ng-bind="app.info"></h5>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="deleteAppBtnDisabled"
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
+                                <button type="submit" class="btn btn-primary" ng-disabled="deleteAppBtnDisabled"
                                     ng-click="deleteApp()">
-                                删除应用
-                            </button>
+                                    {{'Delete.DeleteApp' | translate }}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </section>
+                    </form>
+                </section>
 
-            <!-- delete cluster -->
-            <section class="row">
-                <h5>删除集群
-                    <small>
-                        (由于删除集群影响面较大，所以现在暂时只允许系统管理员删除，请确保没有客户端读取该集群的配置后再做删除动作)
-                    </small>
-                </h5>
-                <hr>
-                <form class="form-horizontal">
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            应用AppId</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="cluster.appId">
+                <!-- delete cluster -->
+                <section class="row">
+                    <h5>{{'Delete.DeleteCluster' | translate }}
+                        <small>
+                            {{'Delete.DeleteClusterTips' | translate }}
+                        </small>
+                    </h5>
+                    <hr>
+                    <form class="form-horizontal">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.AppId' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.appId">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            环境名称</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="cluster.env">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Delete.EnvName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.env">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            集群名称</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="cluster.name">
-                            <small>(删除前请先查询应用集群信息)</small>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.ClusterName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.name">
+                                <small>{{'Delete.ClusterNameTips' | translate }}</small>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-info"
+                                    ng-click="getClusterInfo()">{{'Common.Search' | translate }}</button>
+                            </div>
                         </div>
-                        <div class="col-sm-1">
-                            <button class="btn btn-info" ng-click="getClusterInfo()">查询</button>
+                        <div class="form-group" viv clform-group>
+                            <label class="col-sm-2 control-label">
+                                {{'Delete.ClusterInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 ng-show="cluster.info" ng-bind="cluster.info"></h5>
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group" viv clform-group>
-                        <label class="col-sm-2 control-label">
-                            集群信息</label>
-                        <div class="col-sm-5">
-                            <h5 ng-show="cluster.info" ng-bind="cluster.info"></h5>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="deleteClusterBtnDisabled"
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
+                                <button type="submit" class="btn btn-primary" ng-disabled="deleteClusterBtnDisabled"
                                     ng-click="deleteCluster()">
-                                删除集群
-                            </button>
+                                    {{'Delete.DeleteCluster' | translate }}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </section>
+
+                <!-- delete app namespace -->
+                <section class="row">
+                    <h5>{{'Delete.DeleteNamespace' | translate }}
+                        <small>{{'Delete.DeleteNamespaceTips' | translate }}</small>
+                    </h5>
+                    <small>
+                            {{'Delete.DeleteNamespaceTips2' | translate }}
+                    </small>
+                    <hr>
+                    <form class="form-horizontal">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.AppId' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="appNamespace.appId">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Delete.AppNamespaceName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="appNamespace.name">
+                                <small>{{'Delete.AppNamespaceNameTips' | translate }}</small>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-info" ng-click="getAppNamespaceInfo()">{{'Common.Search' | translate }}</button>
+                            </div>
+                        </div>
+                        <div class="form-group" viv clform-group>
+                            <label class="col-sm-2 control-label">
+                                    {{'Delete.AppNamespaceInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 ng-show="appNamespace.info" ng-bind="appNamespace.info"></h5>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
+                                <button type="submit" class="btn btn-primary"
+                                    ng-disabled="deleteAppNamespaceBtnDisabled" ng-click="deleteAppNamespace()">
+                                    {{'Delete.DeleteNamespace' | translate }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
             </section>
 
-            <!-- delete app namespace -->
-            <section class="row">
-                <h5>删除AppNamespace
-                    <small>（注意，所有环境的Namespace和AppNamespace都会被删除！如果只是要删除某个环境的Namespace，让用户到项目页面中自行删除！）</small>
-                </h5>
-                <small>
-                    目前用户可以自行删除关联的Namespace和私有的Namespace，不过无法删除AppNamespace元信息，因为删除AppNamespace影响面较大，所以现在暂时只允许系统管理员删除，对于公共Namespace需要确保没有应用关联了该AppNamespace。
-                </small>
-                <hr>
-                <form class="form-horizontal">
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            应用AppId</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="appNamespace.appId">
-                        </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            AppNamespace名称</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" ng-model="appNamespace.name">
-                            <small>(非properties类型的namespace请加上类型后缀，例如apollo.xml)</small>
-                        </div>
-                        <div class="col-sm-1">
-                            <button class="btn btn-info" ng-click="getAppNamespaceInfo()">查询</button>
-                        </div>
-                    </div>
-                    <div class="form-group" viv clform-group>
-                        <label class="col-sm-2 control-label">
-                            AppNamespace信息</label>
-                        <div class="col-sm-5">
-                            <h5 ng-show="appNamespace.info" ng-bind="appNamespace.info"></h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-9">
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="deleteAppNamespaceBtnDisabled"
-                                    ng-click="deleteAppNamespace()">
-                                删除AppNamespace
-                            </button>
-                        </div>
-                    </div>
-                </form>
+            <section class="panel-body text-center" ng-if="!isRootUser">
+                <h4>{{'Common.IsRootUser' | translate }}</h4>
             </section>
-        </section>
 
-        <section class="panel-body text-center" ng-if="!isRootUser">
-            <h4>当前页面只对Apollo管理员开放</h4>
-        </section>
-
+        </div>
     </div>
-</div>
 
-<div ng-include="'../views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-<!-- jquery.js -->
-<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
 
-<!--angular-->
-<script src="../vendor/angular/angular.min.js"></script>
-<script src="../vendor/angular/angular-route.min.js"></script>
-<script src="../vendor/angular/angular-resource.min.js"></script>
-<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="../vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-route.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<!--valdr-->
-<script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<script src="../vendor/lodash.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
-<!--biz-->
-<!--must import-->
-<script type="application/javascript" src="../scripts/app.js"></script>
-<script type="application/javascript" src="../scripts/services/AppService.js"></script>
-<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="../scripts/services/UserService.js"></script>
-<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="../scripts/services/ClusterService.js"></script>
-<script type="application/javascript" src="../scripts/services/NamespaceService.js"></script>
+    <script src="vendor/lodash.min.js"></script>
 
-<script type="application/javascript" src="../scripts/AppUtils.js"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/ClusterService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
 
-<script type="application/javascript" src="../scripts/PageCommon.js"></script>
-<script type="application/javascript" src="../scripts/directive/directive.js"></script>
-<script type="application/javascript" src="../scripts/valdr.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
 
-<script type="application/javascript" src="../scripts/controller/DeleteAppClusterNamespaceController.js"></script>
+    <script type="application/javascript" src="scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/valdr.js"></script>
+
+    <script type="application/javascript" src="scripts/controller/DeleteAppClusterNamespaceController.js"></script>
 </body>
+
 </html>

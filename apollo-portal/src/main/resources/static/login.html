@@ -1,8 +1,24 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!DOCTYPE html>
 <html lang="en" ng-app="login">
 <head>
     <meta charset="UTF-8">
-    <title>Apollo配置中心</title>
+    <title>{{ 'Common.Title' | translate }}</title>
     <link rel="icon" href="./img/config.png">
     <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="vendor/font-awesome.min.css">
@@ -242,7 +258,7 @@
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <form id="login-form" action="/signin" method="post" role="form" style="display: block;">
+                            <form id="login-form" action="signin" method="post" role="form" style="display: block;">
                                 <p class="text-center"><img src="img/logo-detail.png" style="width: 500px;"></p>
                                 <div class="form-group">
                                     <input type="text" name="username" tabindex="1" class="form-control"
@@ -257,7 +273,7 @@
                                 </div>
                                 <div class="col-xs-12 form-group pull-right">
                                     <input type="submit" name="login-submit" id="login-submit" tabindex="4"
-                                           class="form-control btn btn-login" value="登录">
+                                           class="form-control btn btn-login" value="{{'Login.Login' | translate }}">
                                 </div>
                             </form>
                         </div>
@@ -277,6 +293,25 @@
 <script src="vendor/angular/angular-resource.min.js"></script>
 <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
 <script src="vendor/angular/loading-bar.min.js"></script>
+<script src="vendor/angular/angular-cookies.min.js"></script>
+
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+<script type="application/javascript">
+    function getPrefixPath() {
+        $.ajax({
+            method: 'get',
+            async: false,
+            url: 'prefix-path',
+            success: function (res) {
+                window.localStorage.setItem("prefixPath", res);
+            }
+        })
+    }
+    getPrefixPath();
+</script>
 
 <script type="application/javascript" src="scripts/app.js"></script>
 <script type="application/javascript" src="scripts/AppUtils.js"></script>
@@ -285,6 +320,7 @@
 
 
 <script type="application/javascript">
+
     $(function () {
         $('#login-form-link').click(function (e) {
             $("#login-form").delay(100).fadeIn(100);
@@ -300,7 +336,6 @@
             $(this).addClass('active');
             e.preventDefault();
         });
-
     });
 
 </script>

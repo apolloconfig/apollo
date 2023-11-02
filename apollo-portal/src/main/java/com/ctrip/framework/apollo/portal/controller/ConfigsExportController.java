@@ -1,32 +1,51 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.controller;
 
-import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.ServiceException;
-import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.enums.Env;
-import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
-import com.ctrip.framework.apollo.portal.service.ItemService;
-import com.ctrip.framework.apollo.portal.service.NamespaceService;
-import com.ctrip.framework.apollo.portal.util.ConfigToFileUtils;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+
+import com.ctrip.framework.apollo.common.exception.ServiceException;
+import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.ConfigsExportService;
+import com.ctrip.framework.apollo.portal.service.NamespaceService;
+import com.ctrip.framework.apollo.portal.util.NamespaceBOUtils;
+
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * jian.tan
@@ -34,88 +53,83 @@ import java.util.stream.Collectors;
 @RestController
 public class ConfigsExportController {
 
-  private final ItemService configService;
+  private static final Logger logger        = LoggerFactory.getLogger(ConfigsExportController.class);
+  private static final String ENV_SEPARATOR = ",";
+
+  private final ConfigsExportService configsExportService;
 
   private final NamespaceService namespaceService;
 
   public ConfigsExportController(
-      final ItemService configService,
-      final @Lazy NamespaceService namespaceService) {
-    this.configService = configService;
+      final ConfigsExportService configsExportService,
+      final @Lazy NamespaceService namespaceService
+  ) {
+    this.configsExportService = configsExportService;
     this.namespaceService = namespaceService;
   }
 
-  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/import")
-  public void importConfigFile(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @RequestParam("file") MultipartFile file) {
-    if (file.isEmpty()) {
-      throw new BadRequestException("The file is empty.");
-    }
-
-    NamespaceDTO namespaceDTO = namespaceService
-        .loadNamespaceBaseInfo(appId, Env.fromString(env), clusterName, namespaceName);
-
-    if (Objects.isNull(namespaceDTO)) {
-      throw new BadRequestException(String.format("Namespace: {} not exist.", namespaceName));
-    }
-
-    NamespaceTextModel model = new NamespaceTextModel();
-    List<String> fileNameSplit = Splitter.on(".").splitToList(file.getOriginalFilename());
-    if (fileNameSplit.size() <= 1) {
-      throw new BadRequestException("The file format is invalid.");
-    }
-
-    String format = fileNameSplit.get(fileNameSplit.size() - 1);
-    model.setFormat(format);
-    model.setAppId(appId);
-    model.setEnv(env);
-    model.setClusterName(clusterName);
-    model.setNamespaceName(namespaceName);
-    model.setNamespaceId(namespaceDTO.getId());
-    String configText;
-    try(InputStream in = file.getInputStream()){
-      configText = ConfigToFileUtils.fileToString(in);
-    }catch (IOException e) {
-      throw new ServiceException("Read config file errors:{}", e);
-    }
-    model.setConfigText(configText);
-
-    configService.updateConfigItemByText(model);
-  }
-
+  /**
+   * export one config as file.
+   * keep compatibility.
+   * file name examples:
+   * <pre>
+   *   application.properties
+   *   application.yml
+   *   application.json
+   * </pre>
+   */
+  @PreAuthorize(value = "!@permissionValidator.shouldHideConfigToCurrentUser(#appId, #env, #namespaceName)")
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/export")
   public void exportItems(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      HttpServletResponse res) {
+                                  @PathVariable String clusterName, @PathVariable String namespaceName,
+                                  HttpServletResponse res) {
     List<String> fileNameSplit = Splitter.on(".").splitToList(namespaceName);
 
-    String fileName = fileNameSplit.size() <= 1 ? Joiner.on(".")
-        .join(namespaceName, ConfigFileFormat.Properties.getValue()) : namespaceName;
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.fromString
-        (env), clusterName, namespaceName);
+    String fileName = namespaceName;
+
+    //properties file or public namespace has not suffix (.properties)
+    if (fileNameSplit.size() <= 1 || !ConfigFileFormat.isValidFormat(fileNameSplit.get(fileNameSplit.size() - 1))) {
+      fileName = Joiner.on(".").join(namespaceName, ConfigFileFormat.Properties.getValue());
+    }
+
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
+        (env), clusterName, namespaceName, false);
 
     //generate a file.
-    res.setHeader("Content-Disposition", "attachment;filename=" + fileName);
-
-    List<String> fileItems = namespaceBO.getItems().stream().map(itemBO -> {
-      String key = itemBO.getItem().getKey();
-      String value = itemBO.getItem().getValue();
-      if (ConfigConsts.CONFIG_FILE_CONTENT_KEY.equals(key)) {
-        return value;
-      }
-
-      if ("".equals(key)) {
-        return Joiner.on("").join(itemBO.getItem().getKey(), itemBO.getItem().getValue());
-      }
-
-      return Joiner.on(" = ").join(itemBO.getItem().getKey(), itemBO.getItem().getValue());
-    }).collect(Collectors.toList());
-
+    res.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName);
+    // file content
+    final String configFileContent = NamespaceBOUtils.convert2configFileContent(namespaceBO);
     try {
-      ConfigToFileUtils.itemsToFile(res.getOutputStream(), fileItems);
+      // write content to net
+      res.getOutputStream().write(configFileContent.getBytes());
     } catch (Exception e) {
       throw new ServiceException("export items failed:{}", e);
     }
   }
+
+  /**
+   * Export all configs in a compressed file. Just export namespace which current exists read permission. The permission
+   * check in service.
+   */
+  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @GetMapping("/configs/export")
+  public void exportAll(@RequestParam(value = "envs") String envs,
+                        HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // filename must contain the information of time
+    final String filename = "apollo_config_export_" + DateFormatUtils.format(new Date(), "yyyy_MMdd_HH_mm_ss") + ".zip";
+    // log who download the configs
+    logger.info("Download configs, remote addr [{}], remote host [{}]. Filename is [{}]", request.getRemoteAddr(),
+                request.getRemoteHost(), filename);
+    // set downloaded filename
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
+
+    List<Env>
+        exportEnvs =
+        Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(env -> Env.valueOf(env)).collect(Collectors.toList());
+
+    try (OutputStream outputStream = response.getOutputStream()) {
+      configsExportService.exportData(outputStream, exportEnvs);
+    }
+  }
+
 }

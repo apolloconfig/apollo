@@ -1,5 +1,23 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.service.config;
 
+import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.google.common.collect.Lists;
 
@@ -15,7 +33,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -39,6 +56,10 @@ public class ConfigServiceWithCacheTest {
   private Release someRelease;
   @Mock
   private ReleaseMessage someReleaseMessage;
+  @Mock
+  private BizConfig bizConfig;
+  @Mock
+  private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someAppId;
   private String someClusterName;
@@ -49,9 +70,8 @@ public class ConfigServiceWithCacheTest {
 
   @Before
   public void setUp() throws Exception {
-    configServiceWithCache = new ConfigServiceWithCache();
-    ReflectionTestUtils.setField(configServiceWithCache, "releaseService", releaseService);
-    ReflectionTestUtils.setField(configServiceWithCache, "releaseMessageService", releaseMessageService);
+    configServiceWithCache = new ConfigServiceWithCache(releaseService, releaseMessageService,
+        grayReleaseRulesHolder, bizConfig);
 
     configServiceWithCache.initialize();
 

@@ -1,0 +1,140 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+#audit-not-enabled-prompt {
+  background-color: #ffffff;
+  /*实现垂直居中*/
+  align-items: center;
+  /*实现水平居中*/
+  justify-content: center;
+}
+
+#audit-not-enabled-prompt .display-text {
+  padding: 15px;
+  margin-left: 30px;
+  margin-right: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+
+/*audit-menu page*/
+#audit-menu h5 {
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+#audit-menu {
+  background-color: #ffffff;
+  /*实现垂直居中*/
+  align-items: center;
+  /*实现水平居中*/
+  justify-content: center;
+
+}
+
+#audit-menu .main-table {
+  padding-top: 15px;
+  width: 100%;
+  min-width: 500px;
+}
+
+#audit-menu .more-img {
+  width: 20px;
+  height: 20px;
+}
+
+#audit-menu .operate-panel {
+  position: absolute;
+  top: 5px;
+  right: 20px;
+}
+
+#audit-menu .display-table {
+  padding: 15px;
+  margin-left: 30px;
+  margin-right: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+#audit-menu .search-bar {
+  padding: 15px;
+  margin-left: 30px;
+  margin-right: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+#audit-menu table {
+  width: 100%;
+}
+
+#audit-menu tr {
+}
+
+#audit-menu th {
+  border-bottom: 1px solid #E4E7ED;
+  padding: 15px 15px 15px 15px;
+  font-size: 16px;
+  text-align: left;
+  word-break: break-all;
+}
+
+#audit-menu td {
+  border-bottom: 1px solid #E4E7ED;
+  padding: 15px 15px 15px 15px;
+  font-size: 14px;
+  word-break: break-all;
+}
+.data-influence {
+  display: table-row;
+  padding: 8px 8px 8px 8px;
+  font-size: 16px;
+  color: #292a29;
+}
+.audit-field:hover{
+  background-color: #f5f5f5;
+}
+
+#dataInfluenceEntity {
+  padding: 8px;
+  margin-top: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+  border-radius: 3%;
+}
+
+.options-container {
+  max-height: 150px; /* 设置最大高度，可根据需求调整 */
+  overflow-y: auto; /* 启用垂直滚动条 */
+  border: 1px solid #ccc; /* 添加边框，可根据需要自定义样式 */
+  border-top: 0; /* 避免重叠边框 */
+  background: #fff; /* 背景颜色，可根据需要调整 */
+  z-index: 1000;
+}
+
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.options-list li {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.options-list li:hover {
+  background-color: #f0f0f0;
+}

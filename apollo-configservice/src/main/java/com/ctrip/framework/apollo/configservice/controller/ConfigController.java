@@ -1,7 +1,24 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.controller;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.utils.WebUtils;
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
 import com.ctrip.framework.apollo.configservice.util.InstanceConfigAuditUtil;
@@ -10,7 +27,6 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -37,8 +53,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/configs")
 public class ConfigController {
-  private static final Splitter X_FORWARDED_FOR_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+
   private final ConfigService configService;
   private final AppNamespaceServiceWithCache appNamespaceService;
   private final NamespaceUtil namespaceUtil;
@@ -67,6 +82,7 @@ public class ConfigController {
                                   @RequestParam(value = "dataCenter", required = false) String dataCenter,
                                   @RequestParam(value = "releaseKey", defaultValue = "-1") String clientSideReleaseKey,
                                   @RequestParam(value = "ip", required = false) String clientIp,
+                                  @RequestParam(value = "label", required = false) String clientLabel,
                                   @RequestParam(value = "messages", required = false) String messagesAsString,
                                   HttpServletRequest request, HttpServletResponse response) throws IOException {
     String originalNamespace = namespace;
@@ -76,7 +92,7 @@ public class ConfigController {
     namespace = namespaceUtil.normalizeNamespace(appId, namespace);
 
     if (Strings.isNullOrEmpty(clientIp)) {
-      clientIp = tryToGetClientIp(request);
+      clientIp = WebUtils.tryToGetClientIp(request);
     }
 
     ApolloNotificationMessages clientMessages = transformMessages(messagesAsString);
@@ -85,7 +101,7 @@ public class ConfigController {
 
     String appClusterNameLoaded = clusterName;
     if (!ConfigConsts.NO_APPID_PLACEHOLDER.equalsIgnoreCase(appId)) {
-      Release currentAppRelease = configService.loadConfig(appId, clientIp, appId, clusterName, namespace,
+      Release currentAppRelease = configService.loadConfig(appId, clientIp, clientLabel, appId, clusterName, namespace,
           dataCenter, clientMessages);
 
       if (currentAppRelease != null) {
@@ -97,9 +113,9 @@ public class ConfigController {
 
     //if namespace does not belong to this appId, should check if there is a public configuration
     if (!namespaceBelongsToAppId(appId, namespace)) {
-      Release publicRelease = this.findPublicConfig(appId, clientIp, clusterName, namespace,
+      Release publicRelease = this.findPublicConfig(appId, clientIp, clientLabel, clusterName, namespace,
           dataCenter, clientMessages);
-      if (!Objects.isNull(publicRelease)) {
+      if (Objects.nonNull(publicRelease)) {
         releases.add(publicRelease);
       }
     }
@@ -157,7 +173,7 @@ public class ConfigController {
    * @param namespace   the namespace
    * @param dataCenter  the datacenter
    */
-  private Release findPublicConfig(String clientAppId, String clientIp, String clusterName,
+  private Release findPublicConfig(String clientAppId, String clientIp, String clientLabel, String clusterName,
                                    String namespace, String dataCenter, ApolloNotificationMessages clientMessages) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespace);
 
@@ -168,7 +184,7 @@ public class ConfigController {
 
     String publicConfigAppId = appNamespace.getAppId();
 
-    return configService.loadConfig(clientAppId, clientIp, publicConfigAppId, clusterName, namespace, dataCenter,
+    return configService.loadConfig(clientAppId, clientIp, clientLabel, publicConfigAppId, clusterName, namespace, dataCenter,
         clientMessages);
   }
 
@@ -177,7 +193,7 @@ public class ConfigController {
    * Release in lower index override those in higher index
    */
   Map<String, String> mergeReleaseConfigurations(List<Release> releases) {
-    Map<String, String> result = Maps.newHashMap();
+    Map<String, String> result = Maps.newLinkedHashMap();
     for (Release release : Lists.reverse(releases)) {
       result.putAll(gson.fromJson(release.getConfigurations(), configurationTypeReference));
     }
@@ -189,7 +205,7 @@ public class ConfigController {
     if (!Strings.isNullOrEmpty(dataCenter)) {
       keyParts.add(dataCenter);
     }
-    return keyParts.stream().collect(Collectors.joining(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR));
+    return String.join(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR, keyParts);
   }
 
   private void auditReleases(String appId, String cluster, String dataCenter, String clientIp,
@@ -203,14 +219,6 @@ public class ConfigController {
           release.getClusterName(),
           release.getNamespaceName(), release.getReleaseKey());
     }
-  }
-
-  private String tryToGetClientIp(HttpServletRequest request) {
-    String forwardedFor = request.getHeader("X-FORWARDED-FOR");
-    if (!Strings.isNullOrEmpty(forwardedFor)) {
-      return X_FORWARDED_FOR_SPLITTER.splitToList(forwardedFor).get(0);
-    }
-    return request.getRemoteAddr();
   }
 
   ApolloNotificationMessages transformMessages(String messagesAsString) {

@@ -1,0 +1,408 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="server_config_manage">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="./img/config.png">
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+
+    <title>{{'ServiceConfig.Title' | translate }}</title>
+</head>
+
+<body>
+
+    <apollonav></apollonav>
+    <div class="container-fluid apollo-container" ng-controller="ServerConfigController" ng-show="isRootUser">
+        <div class="col-md-10 col-md-offset-1 panel">
+            <ul class="nav nav-tabs">
+                <li role="presentation" ng-class="{false:'disabled'}[allowSwitchingTabs]" class="active" >
+                    <a ng-disabled="!allowSwitchingTabs" style="border-left-style:none" href="#portal_db" data-toggle="tab">{{'ServiceConfig.PortalDB.Tab' | translate}}</a>
+                </li>
+                <li role="presentation" ng-class="{false:'disabled'}[allowSwitchingTabs]">
+                    <a ng-disabled="!allowSwitchingTabs" href="#config_db"  data-toggle="tab">{{'ServiceConfig.ConfigDB.Tab' | translate}}</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane fade in active" id="portal_db" style="background-color:#fff">
+                    <section class="panel-body">
+                        <div class="row">
+                            <div ng-show="displayModule==='home'" >
+                                <div>
+                                    <div>
+                                        <header class="panel-heading">
+                                            {{'ServiceConfig.Title' | translate }}
+                                            <small>{{'ServiceConfig.PortalDB.Tips' | translate }}</small>
+                                        </header>
+                                        <div style="height: 15px"></div>
+                                        <button type="button" ng-click="configEdit('add')"
+                                                class="btn btn-primary">
+                                            {{'Config.Add' | translate }}
+                                        </button>
+                                        <form class="form-inline" style="display:inline">
+                                            <div class="form-group">
+                                                <input type="text" class="form-control" id="searchUserInput"
+                                                       placeholder="{{'Config.SortByKey' | translate }}"
+                                                       ng-model="portalDBConfigSearchKey">
+                                            </div>
+                                            <button type="button" class="btn btn-default" ng-click="portalDBConfigFilter()">
+                                                <span class="glyphicon glyphicon-filter"></span>
+                                                {{'Config.FilterConfig' | translate }}
+                                            </button>
+                                            <button type="button" class="btn btn-default" ng-click="resetPortalDBConfigSearchKey()">
+                                                {{'Config.Reset' | translate }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <div style="height: 15px"></div>
+                                </div>
+
+                                <table class="table table-bordered table-striped table-hover">
+                                    <tr>
+                                        <th style="text-align: left">{{'Config.Key' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Value' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Comment' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Operation' | translate }}</th>
+                                    </tr>
+                                    <tr ng-repeat="config in portalDBFilterConfigs" href="#" class="hover cursor-pointer">
+                                        <td>{{ config.key }}</td>
+                                        <td>{{ config.value }}</td>
+                                        <td>{{ config.comment }}</td>
+                                        <td>
+                                    <span class="btn btn-primary" ng-click="configEdit('edit', config)">
+                                        {{'UserMange.Edit' | translate }}
+                                    </span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div style="text-align: end;">
+                                </div>
+                            </div>
+
+                            <div ng-show="displayModule==='edit'">
+                                <div class="panel-body">
+                                    <form class="form-horizontal panel-body" name="appForm"
+                                          valdr-type="App" ng-submit="createPortalDBConfig()">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Key' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Value' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                {{'ServiceConfig.Comment' | translate }}</label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                                    {{'Common.Save' | translate }}
+                                                </button>
+                                                <button type="button" ng-click="gobackPortalDBTabs()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div ng-show="displayModule==='add'">
+                                <div class="panel-body">
+                                    <form class="form-horizontal panel-body" name="appForm"
+                                          valdr-type="App" ng-submit="createPortalDBConfig()">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Key' | translate }}
+                                            </label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Value' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                {{'ServiceConfig.Comment' | translate }}</label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                                    {{'Common.Save' | translate }}
+                                                </button>
+                                                <button type="button" ng-click="gobackPortalDBTabs()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+                <div class="tab-pane fade" id="config_db" style="background-color:#fff">
+                    <section class="panel-body">
+                        <div class="row">
+
+                            <div ng-show="displayModule==='home'" >
+                                <div>
+                                        <header class="panel-heading">
+                                            {{'ServiceConfig.Title' | translate }}
+                                            <small>{{'ServiceConfig.ConfigDB.Tips' | translate }}</small>
+                                        </header>
+                                    <div style="height: 15px"></div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="radio">
+                                                <label class="control-label">{{'ServiceConfig.Switch.Env' | translate}}：</label>
+                                                    <span ng-repeat="env in envs">
+                                                        <label >
+                                                          <input type="radio" ng-click="switchConfigDBEnvs(env)" name="env" value="{{env}}" ng-model="selectedEnv"> {{env}}
+                                                        </label>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <hr/>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="button" ng-click="configEdit('add')"
+                                                    class="btn btn-primary">
+                                                {{'Config.Add' | translate }}
+                                            </button>
+                                            <form class="form-inline" style="display:inline">
+                                                <div class="form-group">
+                                                    <input type="text" class="form-control" id="searchUserInput2"
+                                                           placeholder="{{'Config.SortByKey' | translate }}"
+                                                           ng-model="configDBConfigSearchKey">
+                                                </div>
+                                                <button type="button" class="btn btn-default" ng-click="configDBConfigFilter()">
+                                                    <span class="glyphicon glyphicon-filter"></span>
+                                                    {{'Config.FilterConfig' | translate }}
+                                                </button>
+                                                <button type="button" class="btn btn-default" ng-click="resetConfigDBConfigSearchKey()">
+                                                    {{'Config.Reset' | translate }}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div style="height: 15px"></div>
+
+
+                                <table class="table table-bordered table-striped table-hover">
+                                    <tr>
+                                        <th style="text-align: left">{{'Config.Key' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Value' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Comment' | translate }}</th>
+                                        <th style="text-align: left">{{'Config.Operation' | translate }}</th>
+                                    </tr>
+                                    <tr ng-repeat="config in configDBFilterConfigs" href="#" class="hover cursor-pointer">
+                                        <td>{{ config.key }}</td>
+                                        <td>{{ config.value }}</td>
+                                        <td>{{ config.comment }}</td>
+                                        <td>
+                                    <span class="btn btn-primary" ng-click="configEdit('edit', config)">
+                                        {{'UserMange.Edit' | translate }}
+                                    </span>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <div style="text-align: end;">
+                                </div>
+                            </div>
+
+                            <div ng-show="displayModule==='edit'">
+                                <div class="panel-body">
+                                    <form class="form-horizontal panel-body" name="appForm"
+                                          valdr-type="App" ng-submit="createConfigDBConfig()">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Key' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Value' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                {{'ServiceConfig.Comment' | translate }}</label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                                    {{'Common.Save' | translate }}
+                                                </button>
+                                                <button type="button" ng-click="gobackConfigDBTabs()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div ng-show="displayModule==='add'">
+                                <div class="panel-body">
+                                    <form class="form-horizontal panel-body" name="appForm"
+                                          valdr-type="App" ng-submit="createConfigDBConfig()">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Key' | translate }}
+                                            </label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" name="key" ng-model="serverConfig.key"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
+                                                {{'ServiceConfig.Value' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="value"
+                                              ng-model="serverConfig.value"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                {{'ServiceConfig.Comment' | translate }}</label>
+                                            <div class="col-sm-9">
+                                    <textarea class="form-control" rows="4" name="comment"
+                                              ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
+                                                    {{'Common.Save' | translate }}
+                                                </button>
+                                                <button type="button" ng-click="gobackConfigDBTabs()" class="btn">{{'UserMange.Back' | translate }}</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div ng-include="'views/common/footer.html'"></div>
+
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/ServerConfigService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+
+    <script type="application/javascript" src="scripts/controller/ServerConfigController.js"></script>
+
+    <script src="scripts/valdr.js" type="text/javascript"></script>
+</body>
+
+</html>

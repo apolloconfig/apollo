@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.message;
 
 import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
@@ -6,6 +22,7 @@ import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 import com.google.common.collect.Queues;
+import javax.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -27,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DatabaseMessageSender implements MessageSender {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseMessageSender.class);
   private static final int CLEAN_QUEUE_MAX_SIZE = 100;
-  private BlockingQueue<Long> toClean = Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
+  private final BlockingQueue<Long> toClean = Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
   private final ExecutorService cleanExecutorService;
   private final AtomicBoolean cleanStopped;
 
@@ -44,7 +61,7 @@ public class DatabaseMessageSender implements MessageSender {
   public void sendMessage(String message, String channel) {
     logger.info("Sending message {} to channel {}", message, channel);
     if (!Objects.equals(channel, Topics.APOLLO_RELEASE_TOPIC)) {
-      logger.warn("Channel {} not supported by DatabaseMessageSender!");
+      logger.warn("Channel {} not supported by DatabaseMessageSender!", channel);
       return;
     }
 
@@ -52,7 +69,9 @@ public class DatabaseMessageSender implements MessageSender {
     Transaction transaction = Tracer.newTransaction("Apollo.AdminService", "sendMessage");
     try {
       ReleaseMessage newMessage = releaseMessageRepository.save(new ReleaseMessage(message));
-      toClean.offer(newMessage.getId());
+      if(!toClean.offer(newMessage.getId())){
+        logger.warn("Queue is full, Failed to add message {} to clean queue", newMessage.getId());
+      }
       transaction.setStatus(Transaction.SUCCESS);
     } catch (Throwable ex) {
       logger.error("Sending message to database failed", ex);
@@ -82,12 +101,12 @@ public class DatabaseMessageSender implements MessageSender {
   }
 
   private void cleanMessage(Long id) {
-    boolean hasMore = true;
     //double check in case the release message is rolled back
     ReleaseMessage releaseMessage = releaseMessageRepository.findById(id).orElse(null);
     if (releaseMessage == null) {
       return;
     }
+    boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
       List<ReleaseMessage> messages = releaseMessageRepository.findFirst100ByMessageAndIdLessThanOrderByIdAsc(
           releaseMessage.getMessage(), releaseMessage.getId());
@@ -100,6 +119,7 @@ public class DatabaseMessageSender implements MessageSender {
     }
   }
 
+  @PreDestroy
   void stopClean() {
     cleanStopped.set(true);
   }

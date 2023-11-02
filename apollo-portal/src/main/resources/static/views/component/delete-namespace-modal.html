@@ -1,26 +1,75 @@
 <div id="deleteNamespaceModal" class="modal fade">
+    <!--
+      ~ Copyright 2023 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header panel-primary">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title">
-                    删除Namespace
+                        {{'Component.DeleteNamespace.Title' | translate }}
                 </h4>
             </div>
-            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic">
-                删除Namespace将导致实例获取不到此Namespace的配置，确定要删除吗?
+            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic && !toDeleteNamespace.isLinkedNamespace">
+                    {{'Component.DeleteNamespace.PublicContent' | translate }}
+            </div>
+            <div class="modal-body form-horizontal" ng-show="toDeleteNamespace.isPublic && toDeleteNamespace.isLinkedNamespace">
+                {{'Component.DeleteNamespace.LinkedContent' | translate }}
             </div>
             <div class="modal-body form-horizontal" ng-show="!toDeleteNamespace.isPublic">
-                删除私有Namespace将导致实例获取不到此Namespace的配置，且页面会提示缺失Namespace（除非使用管理员工具删除AppNamespace），确定要删除吗?
+                    {{'Component.DeleteNamespace.PrivateContent' | translate }}
+            </div>
+
+            <div class="form-horizontal" ng-show="toDeleteNamespace.forceDeleteButton" style="margin-left: 15px;margin-right: 15px">
+                <h5 style="color: #f60d05">{{'Component.DeleteNamespace.ForceDeleteContent' | translate }}</h5>
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                    <tr>
+                        <th>{{'Common.Environment' | translate }}</th>
+                        <th>{{'Common.Cluster' | translate }}</th>
+                        <th>{{'Common.Namespace' | translate }}</th>
+                        <th>{{'Common.Instance' | translate }}</th>
+                        <th>{{'Common.GrayscaleInstance' | translate }}</th>
+                        <th ng-show="toDeleteNamespace.isPublic && !toDeleteNamespace.isLinkedNamespace">{{'Common.LinkedNamespace' | translate }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="usage in toDeleteNamespace.namespaceUsage">
+                        <td style="text-align: center;">{{usage.envName}}</td>
+                        <td style="text-align: center;">{{usage.clusterName}}</td>
+                        <td style="text-align: center;">{{usage.namespaceName}}</td>
+                        <td style="text-align: center;">{{usage.instanceCount}}</td>
+                        <td style="text-align: center;">{{usage.branchInstanceCount}}</td>
+                        <td style="text-align: center;" ng-show="toDeleteNamespace.isPublic && !toDeleteNamespace.isLinkedNamespace">{{usage.linkedNamespaceCount}}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">
-                    取消
+                        {{'Common.Cancel' | translate }}
                 </button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal"
+                <button type="button" class="btn btn-danger" ng-show="!toDeleteNamespace.forceDeleteButton" data-dismiss="modal"
                 ng-click="doDeleteNamespace()">
-                    确认
+                {{'Common.Ok' | translate }}
+                </button>
+                <button type="button" class="btn btn-danger" ng-show="toDeleteNamespace.forceDeleteButton" data-dismiss="modal"
+                        ng-click="doDeleteNamespace()">
+                    {{'Common.ForceDelete' | translate }}
                 </button>
             </div>
         </div>

@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="setting">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="../img/config.png">
@@ -9,192 +26,198 @@
     <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
     <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <title>项目管理</title>
+    <title>{{'App.Setting.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div class="container-fluid apollo-container project-setting" ng-controller="SettingController">
-    <section class="col-md-10 col-md-offset-1 panel hidden">
-        <header class="panel-heading">
-            <div class="row">
-                <div class="col-md-7">
-                    <h4 class="modal-title">项目管理 ( AppId:<label ng-bind="pageContext.appId"></label> )
-                    </h4>
+    <div class="container-fluid apollo-container project-setting" ng-controller="SettingController">
+        <section class="col-md-10 col-md-offset-1 panel hidden">
+            <header class="panel-heading">
+                <div class="row">
+                    <div class="col-md-9">
+                        <h4 class="modal-title">{{'App.Setting.Title' | translate }} (
+                            {{'Common.AppId' | translate }}:<label ng-bind="pageContext.appId"></label> )
+                        </h4>
+                    </div>
+                    <div class="col-md-3 text-right">
+                        <a type="button" class="btn btn-info" data-dismiss="modal"
+                            href="{{ '/config.html' | prefixPath }}?#appid={{pageContext.appId}}">{{'Common.ReturnToIndex' | translate }}
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-5 text-right">
-                    <a type="button" class="btn btn-info" data-dismiss="modal"
-                       href="/config.html?#appid={{pageContext.appId}}">返回到项目首页
-                    </a>
-                </div>
-            </div>
-        </header>
+            </header>
 
-        <div class="panel-body row">
+            <div class="panel-body row">
 
-            <section class="context" ng-show="hasAssignUserPermission">
-                <!--project admin-->
-                <section class="form-horizontal" ng-show="hasManageAppMasterPermission">
-                    <h5>管理员
-                        <small>
-                            (项目管理员具有以下权限: 1. 创建Namespace 2. 创建集群 3. 管理项目、Namespace权限)
-                        </small>
-                    </h5>
-                    <hr>
+                <section class="context" ng-show="hasAssignUserPermission">
+                    <!--project admin-->
+                    <section class="form-horizontal" ng-show="hasManageAppMasterPermission">
+                        <h5>{{'App.Setting.Admin' | translate }}
+                            <small>
+                                {{'App.Setting.AdminTips' | translate }}
+                            </small>
+                        </h5>
+                        <hr>
 
-                    <div class="col-md-offset-1">
-                        <form class="form-inline" ng-submit="assignMasterRoleToUser()">
-                            <div class="form-group" style="padding-left: 15px">
-                                <apollouserselector apollo-id="userSelectWidgetId"></apollouserselector>
-                            </div>
-                            <button type="submit" class="btn btn-default" style="margin-left: 20px;"
-                                    ng-disabled="submitBtnDisabled">添加
-                            </button>
-                        </form>
-                        <!-- Split button -->
-                        <div class="item-container">
+                        <div class="col-md-offset-1">
+                            <form class="form-inline" ng-submit="assignMasterRoleToUser()">
+                                <div class="form-group" style="padding-left: 15px">
+                                    <apollouserselector apollo-id="userSelectWidgetId"></apollouserselector>
+                                </div>
+                                <button type="submit" class="btn btn-default" style="margin-left: 20px;"
+                                    ng-disabled="submitBtnDisabled">{{'App.Setting.Add' | translate }}
+                                </button>
+                            </form>
+                            <!-- Split button -->
+                            <div class="item-container">
 
-                            <div class="btn-group item-info" ng-repeat="user in appRoleUsers.masterUsers">
-                                <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                                <div class="btn-group item-info" ng-repeat="user in appRoleUsers.masterUsers">
+                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false"
                                         ng-click="removeMasterRoleFromUser(user.userId)">
-                                    <span class="glyphicon glyphicon-remove"></span>
-                                </button>
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </div>
                             </div>
+
                         </div>
 
-                    </div>
 
+                    </section>
 
-                </section>
+                    <!--application info-->
+                    <section>
+                        <h5>{{'App.Setting.BasicInfo' | translate }}</h5>
+                        <hr>
+                        <form class="form-horizontal" name="appForm" valdr-type="App" ng-submit="updateAppInfo()">
 
-                <!--application info-->
-                <section>
-                    <h5>基本信息</h5>
-                    <hr>
-                    <form class="form-horizontal" name="appForm" valdr-type="App"
-                          ng-submit="updateAppInfo()">
-
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                AppId</label>
-                            <div class="col-sm-3">
-                                <label class="form-control-static" ng-bind="pageContext.appId">
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Common.AppId' | translate }}
                                 </label>
+                                <div class="col-sm-3">
+                                    <label class="form-control-static" ng-bind="pageContext.appId">
+                                    </label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                部门</label>
-                            <div class="col-sm-3">
-                                <select id="organization" ng-disabled="!display.app.edit">
-                                    <option></option>
-                                </select>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'Common.Department' | translate }}
+                                </label>
+                                <div class="col-sm-3">
+                                    <select id="organization" ng-disabled="!display.app.edit">
+                                        <option></option>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group" valdr-form-group>
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                项目名称</label>
-                            <div class="col-sm-4">
-                                <input type="text" class="form-control" name="appName" ng-model="viewApp.name"
-                                       ng-disabled="!display.app.edit">
-                                <small>(建议格式 xx-yy-zz 例:apollo-server)</small>
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'App.Setting.ProjectName' | translate }}
+                                </label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="appName" ng-model="viewApp.name"
+                                        ng-disabled="!display.app.edit">
+                                    <small>{{'App.Setting.ProjectNameTips' | translate }}</small>
+                                </div>
                             </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                项目负责人</label>
-                            <div class="col-sm-6 J_ownerSelectorPanel">
-                                <apollouserselector apollo-id="'ownerSelector'"
-                                                    disabled="!display.app.edit"></apollouserselector>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'App.Setting.ProjectOwner' | translate }}
+                                </label>
+                                <div class="col-sm-6 J_ownerSelectorPanel">
+                                    <apollouserselector apollo-id="'ownerSelector'" disabled="!display.app.edit">
+                                    </apollouserselector>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-9">
-                                <button type="button" class="btn btn-primary"
-                                        ng-show="!display.app.edit"
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-9">
+                                    <button type="button" class="btn btn-primary" ng-show="!display.app.edit"
                                         ng-click="toggleEditStatus()">
-                                    修改项目信息
-                                </button>
-                                <button type="button" class="btn btn-warning"
-                                        ng-show="display.app.edit"
+                                        {{'App.Setting.Modify' | translate }}
+                                    </button>
+                                    <button type="button" class="btn btn-warning" ng-show="display.app.edit"
                                         ng-click="toggleEditStatus()">
-                                    取消修改
-                                </button>
-                                <button type="submit" class="btn btn-primary"
-                                        ng-show="display.app.edit"
+                                        {{'App.Setting.Cancel' | translate }}
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" ng-show="display.app.edit"
                                         ng-disabled="appForm.$invalid || submitBtnDisabled">
-                                    提交
-                                </button>
+                                        {{'Common.Submit' | translate }}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </section>
+
+
                 </section>
 
+                <section class="context" ng-show="!hasAssignUserPermission">
+                    <div class="panel-body text-center">
+                        <h4 translate="App.Setting.NoPermissionTips" translate-value-users="{{admins.join(',')}}"></h4>
+                    </div>
+                </section>
+            </div>
 
-            </section>
+            <apolloconfirmdialog apollo-dialog-id="'warning'" apollo-title="'App.Setting.DeleteAdmin' | translate"
+                apollo-detail="'App.Setting.CanNotDeleteAllAdmin' | translate" apollo-show-cancel-btn="false">
+            </apolloconfirmdialog>
+        </section>
+    </div>
 
-            <section class="context" ng-show="!hasAssignUserPermission">
-                <div class="panel-body text-center">
-                    <h4>您没有权限操作，请找 [{{admins.join(',')}}] 开通权限</h4>
-                </div>
-            </section>
-        </div>
+    <div ng-include="'../views/common/footer.html'"></div>
 
-        <apolloconfirmdialog apollo-dialog-id="'warning'" apollo-title="'删除管理员'"
-                             apollo-detail="'不能删除所有的管理员'"
-                             apollo-show-cancel-btn="false"></apolloconfirmdialog>
-    </section>
-</div>
+    <!-- jquery.js -->
+    <script src="../vendor/jquery.min.js" type="text/javascript"></script>
 
-<div ng-include="'../views/common/footer.html'"></div>
+    <!--angular-->
+    <script src="../vendor/angular/angular.min.js"></script>
+    <script src="../vendor/angular/angular-route.min.js"></script>
+    <script src="../vendor/angular/angular-resource.min.js"></script>
+    <script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="../vendor/angular/loading-bar.min.js"></script>
+    <script src="../vendor/angular/angular-cookies.min.js"></script>
 
-<!-- jquery.js -->
-<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+    <!--valdr-->
+    <script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<!--angular-->
-<script src="../vendor/angular/angular.min.js"></script>
-<script src="../vendor/angular/angular-route.min.js"></script>
-<script src="../vendor/angular/angular-resource.min.js"></script>
-<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="../vendor/angular/loading-bar.min.js"></script>
+    <!-- bootstrap.js -->
+    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<!--valdr-->
-<script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <script src="../vendor/lodash.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+    <!--biz-->
+    <!--must import-->
+    <script type="application/javascript" src="../scripts/app.js"></script>
+    <script type="application/javascript" src="../scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="../scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/services/OrganizationService.js"></script>
+    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
 
-<script src="../vendor/lodash.min.js"></script>
+    <script type="application/javascript" src="../scripts/AppUtils.js"></script>
 
-<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
-<!--biz-->
-<!--must import-->
-<script type="application/javascript" src="../scripts/app.js"></script>
-<script type="application/javascript" src="../scripts/services/AppService.js"></script>
-<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="../scripts/services/UserService.js"></script>
-<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="../scripts/services/OrganizationService.js"></script>
-<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="../scripts/PageCommon.js"></script>
+    <script type="application/javascript" src="../scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="../scripts/valdr.js"></script>
 
-<script type="application/javascript" src="../scripts/AppUtils.js"></script>
-
-<script type="application/javascript" src="../scripts/PageCommon.js"></script>
-<script type="application/javascript" src="../scripts/directive/directive.js"></script>
-<script type="application/javascript" src="../scripts/valdr.js"></script>
-
-<script type="application/javascript" src="../scripts/controller/SettingController.js"></script>
+    <script type="application/javascript" src="../scripts/controller/SettingController.js"></script>
 </body>
+
 </html>

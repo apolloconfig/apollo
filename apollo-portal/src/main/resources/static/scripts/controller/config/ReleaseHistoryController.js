@@ -1,10 +1,26 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 release_history_module.controller("ReleaseHistoryController",
-                                  ['$scope', '$location', 'AppUtil',
-                                   'ReleaseService', 'ConfigService', 'ReleaseHistoryService', releaseHistoryController
-                                  ]);
+    ['$scope', '$location', '$translate', 'AppUtil', 'EventManager',
+        'ReleaseService', 'ConfigService', 'PermissionService', 'ReleaseHistoryService', releaseHistoryController
+    ]);
 
-function releaseHistoryController($scope, $location, AppUtil,
-                                  ReleaseService, ConfigService, ReleaseHistoryService) {
+function releaseHistoryController($scope, $location, $translate, AppUtil, EventManager,
+    ReleaseService, ConfigService, PermissionService, ReleaseHistoryService) {
 
     var params = AppUtil.parseParams($location.$$url);
     $scope.pageContext = {
@@ -20,7 +36,9 @@ function releaseHistoryController($scope, $location, AppUtil,
         DIFF: 'diff',
         ALL: 'all'
     };
+    var selectedReleaseId = -1;
 
+    $scope.namespace = {};
     $scope.page = 0;
     $scope.releaseHistories = [];
     $scope.hasLoadAll = false;
@@ -30,9 +48,15 @@ function releaseHistoryController($scope, $location, AppUtil,
     $scope.isConfigHidden = false;
 
     $scope.showReleaseHistoryDetail = showReleaseHistoryDetail;
+    $scope.rollback = rollback;
+    $scope.preRollback = preRollback;
     $scope.switchConfigViewType = switchConfigViewType;
     $scope.findReleaseHistory = findReleaseHistory;
     $scope.showText = showText;
+
+    EventManager.subscribe(EventManager.EventType.REFRESH_RELEASE_HISTORY, function () {
+        location.reload(true);
+    });
 
     init();
 
@@ -43,15 +67,23 @@ function releaseHistoryController($scope, $location, AppUtil,
         loadNamespace();
     }
 
+    function preRollback() {
+        EventManager.emit(EventManager.EventType.PRE_ROLLBACK_NAMESPACE, { namespace: $scope.namespace, toReleaseId: selectedReleaseId });
+    }
+
+    function rollback() {
+        EventManager.emit(EventManager.EventType.ROLLBACK_NAMESPACE, { toReleaseId: selectedReleaseId });
+    }
+
     function findReleaseHistory() {
         if ($scope.hasLoadAll) {
             return;
         }
         ReleaseHistoryService.findReleaseHistoryByNamespace($scope.pageContext.appId,
-                                                            $scope.pageContext.env,
-                                                            $scope.pageContext.clusterName,
-                                                            $scope.pageContext.namespaceName,
-                                                            $scope.page, PAGE_SIZE)
+            $scope.pageContext.env,
+            $scope.pageContext.clusterName,
+            $scope.pageContext.namespaceName,
+            $scope.page, PAGE_SIZE)
             .then(function (result) {
                 if ($scope.page == 0) {
                     $(".release-history").removeClass('hidden');
@@ -75,7 +107,7 @@ function releaseHistoryController($scope, $location, AppUtil,
                         } else if ($scope.pageContext.releaseId == history.releaseId) {
                             // text namespace doesn't support ALL view
                             if (!$scope.isTextNamespace) {
-                              history.viewType = CONFIG_VIEW_TYPE.ALL;
+                                history.viewType = CONFIG_VIEW_TYPE.ALL;
                             }
                             defaultToShowReleaseHistory = history;
                         }
@@ -87,21 +119,23 @@ function releaseHistoryController($scope, $location, AppUtil,
                 $scope.page = $scope.page + 1;
 
             }, function (result) {
-                AppUtil.showErrorMsg(result, "加载发布历史信息出错");
+                AppUtil.showErrorMsg(result, $translate.instant('Config.History.LoadingHistoryError'));
             });
     }
 
     function loadNamespace() {
         ConfigService.load_namespace($scope.pageContext.appId,
-                                     $scope.pageContext.env,
-                                     $scope.pageContext.clusterName,
-                                     $scope.pageContext.namespaceName)
+            $scope.pageContext.env,
+            $scope.pageContext.clusterName,
+            $scope.pageContext.namespaceName)
             .then(function (result) {
+                $scope.namespace = result;
                 $scope.isTextNamespace = result.format != "properties";
                 if ($scope.isTextNamespace) {
-                  fixTextNamespaceViewType();
+                    fixTextNamespaceViewType();
                 }
                 $scope.isConfigHidden = result.isConfigHidden;
+                initPermission();
             })
     }
 
@@ -109,6 +143,7 @@ function releaseHistoryController($scope, $location, AppUtil,
 
         $scope.history = history;
         $scope.selectedReleaseHistory = history.id;
+        selectedReleaseId = history.releaseId;
         if (!history.viewType) {//default view type
             history.viewType = CONFIG_VIEW_TYPE.DIFF;
             getReleaseDiffConfiguration(history);
@@ -116,13 +151,32 @@ function releaseHistoryController($scope, $location, AppUtil,
 
     }
 
+    function initPermission() {
+        PermissionService.has_release_namespace_permission(
+            $scope.pageContext.appId,
+            $scope.namespace.baseInfo.namespaceName)
+            .then(function (result) {
+                if (!result.hasPermission) {
+                    PermissionService.has_release_namespace_env_permission(
+                        $scope.pageContext.appId,
+                        $scope.pageContext.env,
+                        $scope.namespace.baseInfo.namespaceName)
+                        .then(function (result) {
+                            $scope.namespace.hasReleasePermission = result.hasPermission;
+                        });
+                } else {
+                    $scope.namespace.hasReleasePermission = result.hasPermission;
+                }
+            });
+    }
+
     function fixTextNamespaceViewType() {
-      $scope.releaseHistories.forEach(function (history) {
-          // text namespace doesn't support ALL view
-          if (history.viewType == CONFIG_VIEW_TYPE.ALL) {
-            switchConfigViewType(history, CONFIG_VIEW_TYPE.DIFF);
-          }
-      });
+        $scope.releaseHistories.forEach(function (history) {
+            // text namespace doesn't support ALL view
+            if (history.viewType == CONFIG_VIEW_TYPE.ALL) {
+                switchConfigViewType(history, CONFIG_VIEW_TYPE.DIFF);
+            }
+        });
     }
 
     function switchConfigViewType(history, viewType) {
@@ -144,8 +198,8 @@ function releaseHistoryController($scope, $location, AppUtil,
             }
 
             ReleaseService.compare($scope.pageContext.env,
-                                   history.previousReleaseId,
-                                   history.releaseId)
+                history.previousReleaseId,
+                history.releaseId)
                 .then(function (result) {
                     history.changes = result.changes;
                 })

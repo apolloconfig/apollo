@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.service.config;
 
 import static org.junit.Assert.*;
@@ -18,7 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -33,6 +48,7 @@ public class DefaultConfigServiceTest {
   private String defaultNamespaceName;
   private String someDataCenter;
   private String someClientIp;
+  private String someClientLabel;
   @Mock
   private ApolloNotificationMessages someNotificationMessages;
   @Mock
@@ -45,9 +61,7 @@ public class DefaultConfigServiceTest {
 
   @Before
   public void setUp() throws Exception {
-    configService = new DefaultConfigService();
-    ReflectionTestUtils.setField(configService, "releaseService", releaseService);
-    ReflectionTestUtils.setField(configService, "grayReleaseRulesHolder", grayReleaseRulesHolder);
+    configService = new DefaultConfigService(releaseService, grayReleaseRulesHolder);
 
     someClientAppId = "1234";
     someConfigAppId = "1";
@@ -56,8 +70,9 @@ public class DefaultConfigServiceTest {
     defaultNamespaceName = ConfigConsts.NAMESPACE_APPLICATION;
     someDataCenter = "someDC";
     someClientIp = "someClientIp";
+    someClientLabel = "someClientLabel";
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(anyString(), anyString(),
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(anyString(), anyString(), anyString(),
         anyString(), anyString(), anyString())).thenReturn(null);
   }
 
@@ -67,7 +82,7 @@ public class DefaultConfigServiceTest {
         .thenReturn(someRelease);
 
     Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
             someNotificationMessages);
 
     verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
@@ -80,12 +95,12 @@ public class DefaultConfigServiceTest {
     Release grayRelease = mock(Release.class);
     long grayReleaseId = 999;
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId, someClientIp,
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId, someClientIp, someClientLabel,
         someConfigAppId, someClusterName, defaultNamespaceName)).thenReturn(grayReleaseId);
     when(releaseService.findActiveOne(grayReleaseId)).thenReturn(grayRelease);
 
     Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
             someNotificationMessages);
 
     verify(releaseService, times(1)).findActiveOne(grayReleaseId);
@@ -100,7 +115,7 @@ public class DefaultConfigServiceTest {
         .thenReturn(null);
 
     Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
+        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
             someNotificationMessages);
 
     assertNull(release);
@@ -112,7 +127,7 @@ public class DefaultConfigServiceTest {
         .thenReturn(someRelease);
 
     Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
+        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
             someNotificationMessages);
 
     verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);
@@ -128,7 +143,7 @@ public class DefaultConfigServiceTest {
         .thenReturn(someRelease);
 
     Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
+        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, defaultClusterName, defaultNamespaceName, someDataCenter,
             someNotificationMessages);
 
     verify(releaseService, times(1)).findLatestActiveRelease(someConfigAppId, someDataCenter, defaultNamespaceName);

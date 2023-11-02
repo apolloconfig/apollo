@@ -1,16 +1,34 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 application_module.controller("ConfigNamespaceController",
-                              ['$rootScope', '$scope', 'toastr', 'AppUtil', 'EventManager', 'ConfigService',
-                               'PermissionService', 'UserService', 'NamespaceBranchService', 'NamespaceService',
-                               controller]);
+    ['$rootScope', '$scope', '$translate', 'toastr', 'AppUtil', 'EventManager', 'ConfigService',
+        'PermissionService', 'UserService', 'NamespaceBranchService', 'NamespaceService',
+        controller]);
 
-function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigService,
-                    PermissionService, UserService, NamespaceBranchService, NamespaceService) {
+function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManager, ConfigService,
+    PermissionService, UserService, NamespaceBranchService, NamespaceService) {
 
     $scope.rollback = rollback;
     $scope.preDeleteItem = preDeleteItem;
     $scope.deleteItem = deleteItem;
     $scope.editItem = editItem;
     $scope.createItem = createItem;
+    $scope.preRevokeItem = preRevokeItem;
+    $scope.revokeItem = revokeItem;
     $scope.closeTip = closeTip;
     $scope.showText = showText;
     $scope.createBranch = createBranch;
@@ -24,18 +42,16 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
     init();
 
     function init() {
-
         initRole();
         initUser();
         initPublishInfo();
     }
-
     function initRole() {
         PermissionService.get_app_role_users($rootScope.pageContext.appId)
             .then(function (result) {
                 var masterUsers = '';
                 result.masterUsers.forEach(function (user) {
-                    masterUsers += user.userId + ',';
+                    masterUsers += _.escape(user.userId) + ',';
                 });
                 $scope.masterUsers = masterUsers.substring(0, masterUsers.length - 1);
             }, function (result) {
@@ -87,32 +103,45 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
     }
 
     EventManager.subscribe(EventManager.EventType.REFRESH_NAMESPACE,
-                           function (context) {
-                               if (context.namespace) {
-                                   refreshSingleNamespace(context.namespace);
-                               } else {
-                                   refreshAllNamespaces();
-                               }
+        function (context) {
+            if (context.namespace) {
+                refreshSingleNamespace(context.namespace);
+            } else {
+                refreshAllNamespaces(context);
+            }
 
-                           });
+        });
 
-    function refreshAllNamespaces() {
+    function refreshAllNamespaces(context) {
         if ($rootScope.pageContext.env == '') {
             return;
         }
 
         ConfigService.load_all_namespaces($rootScope.pageContext.appId,
-                                          $rootScope.pageContext.env,
-                                          $rootScope.pageContext.clusterName).then(
-            function (result) {
+            $rootScope.pageContext.env,
+            $rootScope.pageContext.clusterName).then(
+                function (result) {
 
-                $scope.namespaces = result;
-                $('.config-item-container').removeClass('hide');
+                    $scope.namespaces = result;
+                    $('.config-item-container').removeClass('hide');
 
-                initPublishInfo();
-            }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "加载配置信息出错");
-            });
+                    initPublishInfo();
+                    //If there is a namespace parameter in the URL, expand the corresponding namespace directly
+                    if (context && context.firstLoad && $rootScope.pageContext.namespaceName) {
+                        refreshSingleNamespace({
+                            baseInfo: {
+                                namespaceName: $rootScope.pageContext.namespaceName
+                            },
+                            searchInfo: {
+                                showSearchInput: true,
+                                searchItemKey: $rootScope.pageContext.item,
+                            }
+
+                        });
+                    }
+                }, function (result) {
+                    toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.LoadingAllNamespaceError'));
+                });
     }
 
     function refreshSingleNamespace(namespace) {
@@ -120,26 +149,31 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
             return;
         }
 
+        const showSearchItemInput = namespace.searchInfo ? namespace.searchInfo.showSearchInput : false;
+        const searchItemKey = namespace.searchInfo ? namespace.searchInfo.searchItemKey : '';
+
         ConfigService.load_namespace($rootScope.pageContext.appId,
-                                     $rootScope.pageContext.env,
-                                     $rootScope.pageContext.clusterName,
-                                     namespace.baseInfo.namespaceName).then(
-            function (result) {
+            $rootScope.pageContext.env,
+            $rootScope.pageContext.clusterName,
+            namespace.baseInfo.namespaceName).then(
+                function (result) {
 
-                $scope.namespaces.forEach(function (namespace, index) {
-                    if (namespace.baseInfo.namespaceName == result.baseInfo.namespaceName) {
-                        result.showNamespaceBody = true;
-                        result.initialized = true;
-                        result.show = namespace.show;
-                        $scope.namespaces[index] = result;
-                    }
+                    $scope.namespaces.forEach(function (namespace, index) {
+                        if (namespace.baseInfo.namespaceName === result.baseInfo.namespaceName) {
+                            result.showNamespaceBody = true;
+                            result.initialized = true;
+                            result.show = namespace.show;
+                            $scope.namespaces[index] = result;
+                            result.showSearchItemInput = showSearchItemInput;
+                            result.searchItemKey = searchItemKey;
+                        }
+                    });
+
+                    initPublishInfo();
+
+                }, function (result) {
+                    toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.LoadingAllNamespaceError'));
                 });
-
-                initPublishInfo();
-
-            }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "加载配置信息出错");
-            });
     }
 
     function rollback() {
@@ -156,7 +190,9 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
             return;
         }
 
-        $scope.config = item;
+        $scope.config = {};
+        $scope.config.key = _.escape(item.key);
+        $scope.config.value = _.escape(item.value);
         $scope.toOperationNamespace = namespace;
         toDeleteItemId = item.id;
 
@@ -165,19 +201,46 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
 
     function deleteItem() {
         ConfigService.delete_item($rootScope.pageContext.appId,
-                                  $rootScope.pageContext.env,
-                                  $rootScope.pageContext.clusterName,
-                                  $scope.toOperationNamespace.baseInfo.namespaceName,
-                                  toDeleteItemId).then(
+            $rootScope.pageContext.env,
+            $scope.toOperationNamespace.baseInfo.clusterName,
+            $scope.toOperationNamespace.baseInfo.namespaceName,
+            toDeleteItemId).then(
+                function (result) {
+                    toastr.success($translate.instant('Config.Deleted'));
+                    EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                        {
+                            namespace: $scope.toOperationNamespace
+                        });
+                }, function (result) {
+                    toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.DeleteFailed'));
+                });
+    }
+
+    function preRevokeItem(namespace) {
+        if (!lockCheck(namespace)) {
+            return;
+        }
+        $scope.toOperationNamespace = namespace;
+        toRevokeItemId = namespace.baseInfo.id;
+        $("#revokeItemConfirmDialog").modal("show");
+    }
+
+    function revokeItem() {
+        ConfigService.revoke_item($rootScope.pageContext.appId,
+            $rootScope.pageContext.env,
+            $scope.toOperationNamespace.baseInfo.clusterName,
+            $scope.toOperationNamespace.baseInfo.namespaceName).then(
             function (result) {
-                toastr.success("删除成功!");
+                toastr.success($translate.instant('Revoke.RevokeSuccessfully'));
                 EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                  {
-                                      namespace: $scope.toOperationNamespace
-                                  });
+                    {
+                        namespace: $scope.toOperationNamespace
+                    });
+
             }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "删除失败");
-            });
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('Revoke.RevokeFailed'));
+            }
+        );
     }
 
     //修改配置
@@ -187,7 +250,7 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
         }
 
         $scope.item = _.clone(toEditItem);
-
+        $scope.item.type = String($scope.item.type || 0)
         if (namespace.isBranch || namespace.isLinkedNamespace) {
             var existedItem = false;
             namespace.items.forEach(function (item) {
@@ -220,6 +283,9 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
         $scope.item = {
             tableViewOperType: 'create'
         };
+        $scope.item.type = '0';
+        $scope.showNumberError = false;
+        $scope.showJsonError = false;
 
         $scope.toOperationNamespace = namespace;
         AppUtil.showModal('#itemModal');
@@ -276,17 +342,17 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
 
     function createBranch() {
         NamespaceBranchService.createBranch($rootScope.pageContext.appId,
-                                            $rootScope.pageContext.env,
-                                            $rootScope.pageContext.clusterName,
-                                            toCreateBranchNamespace.baseInfo.namespaceName)
+            $rootScope.pageContext.env,
+            $rootScope.pageContext.clusterName,
+            toCreateBranchNamespace.baseInfo.namespaceName)
             .then(function (result) {
-                toastr.success("创建灰度成功");
+                toastr.success($translate.instant('Config.GrayscaleCreated'));
                 EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                  {
-                                      namespace: toCreateBranchNamespace
-                                  });
+                    {
+                        namespace: toCreateBranchNamespace
+                    });
             }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "创建灰度失败");
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.GrayscaleCreateFailed'));
             })
 
     }
@@ -300,75 +366,46 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
 
     function deleteBranch() {
         NamespaceBranchService.deleteBranch($rootScope.pageContext.appId,
-                                            $rootScope.pageContext.env,
-                                            $rootScope.pageContext.clusterName,
-                                            $scope.toDeleteBranch.baseInfo.namespaceName,
-                                            $scope.toDeleteBranch.baseInfo.clusterName
-            )
+            $rootScope.pageContext.env,
+            $rootScope.pageContext.clusterName,
+            $scope.toDeleteBranch.baseInfo.namespaceName,
+            $scope.toDeleteBranch.baseInfo.clusterName
+        )
             .then(function (result) {
-                toastr.success("删除成功");
+                toastr.success($translate.instant('Config.BranchDeleted'));
                 EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                  {
-                                      namespace: $scope.toDeleteBranch.parentNamespace
-                                  });
+                    {
+                        namespace: $scope.toDeleteBranch.parentNamespace
+                    });
             }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), "删除分支失败");
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.BranchDeleteFailed'));
             })
 
     }
 
     EventManager.subscribe(EventManager.EventType.EMERGENCY_PUBLISH,
-                           function (context) {
-                               AppUtil.showModal("#emergencyPublishAlertDialog");
-                               $scope.emergencyPublishContext = context;
-                           });
+        function (context) {
+            AppUtil.showModal("#emergencyPublishAlertDialog");
+            $scope.emergencyPublishContext = context;
+        });
 
     function emergencyPublish() {
         if ($scope.emergencyPublishContext.mergeAndPublish) {
 
             EventManager.emit(EventManager.EventType.MERGE_AND_PUBLISH_NAMESPACE,
-                              {
-                                  branch: $scope.emergencyPublishContext.namespace,
-                                  isEmergencyPublish: true
-                              });
+                {
+                    branch: $scope.emergencyPublishContext.namespace,
+                    isEmergencyPublish: true
+                });
         } else {
             EventManager.emit(EventManager.EventType.PUBLISH_NAMESPACE,
-                              {
-                                  namespace: $scope.emergencyPublishContext.namespace,
-                                  isEmergencyPublish: true
-                              });
+                {
+                    namespace: $scope.emergencyPublishContext.namespace,
+                    isEmergencyPublish: true
+                });
         }
 
     }
-
-    EventManager.subscribe(EventManager.EventType.DELETE_NAMESPACE_FAILED, function (context) {
-        $scope.deleteNamespaceContext = context;
-
-        if (context.reason == 'master_instance') {
-            AppUtil.showModal('#deleteNamespaceDenyForMasterInstanceDialog');
-        } else if (context.reason == 'branch_instance') {
-            AppUtil.showModal('#deleteNamespaceDenyForBranchInstanceDialog');
-        } else if (context.reason == 'public_namespace') {
-            var otherAppAssociatedNamespaces = context.otherAppAssociatedNamespaces;
-            var namespaceTips = [];
-            otherAppAssociatedNamespaces.forEach(function (namespace) {
-                var appId = namespace.appId;
-                var clusterName = namespace.clusterName;
-                var url = '/config.html?#/appid=' + appId + '&env=' + $scope.pageContext.env + '&cluster='
-                          + clusterName;
-
-                namespaceTips.push("<a target='_blank' href=\'" + url + "\'>AppId = " + appId + ", 集群 = " + clusterName
-                                   + ", Namespace = " + namespace.namespaceName + "</a>");
-            });
-
-            $scope.deleteNamespaceContext.detailReason =
-                "以下应用已关联此公共Namespace，必须先删除全部已关联的Namespace才能删除公共Namespace。<br>"
-                + namespaceTips.join("<br>");
-
-            AppUtil.showModal('#deleteNamespaceDenyForPublicNamespaceDialog');
-        }
-
-    });
 
     EventManager.subscribe(EventManager.EventType.SYNTAX_CHECK_TEXT_FAILED, function (context) {
         $scope.syntaxCheckContext = context;
@@ -380,5 +417,4 @@ function controller($rootScope, $scope, toastr, AppUtil, EventManager, ConfigSer
 
 
 }
-
 

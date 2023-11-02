@@ -1,7 +1,23 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
-import com.ctrip.framework.apollo.core.enums.Env;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.util.Objects;
-
-import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkModel;
 
 @RestController
 public class ClusterController {
@@ -44,14 +57,14 @@ public class ClusterController {
   @DeleteMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,
                                             @PathVariable String clusterName){
-    clusterService.deleteCluster(Env.fromString(env), appId, clusterName);
+    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
     return ResponseEntity.ok().build();
   }
 
   @GetMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
   public ClusterDTO loadCluster(@PathVariable("appId") String appId, @PathVariable String env, @PathVariable("clusterName") String clusterName) {
 
-    return clusterService.loadCluster(appId, Env.fromString(env), clusterName);
+    return clusterService.loadCluster(appId, Env.valueOf(env), clusterName);
   }
 
 }

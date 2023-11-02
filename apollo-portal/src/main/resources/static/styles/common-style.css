@@ -1,5 +1,22 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 html, body {
-    height: 100%
+    height: 100%;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -146,10 +163,28 @@ pre, .pre {
 }
 
 .footer {
+    display: inline-block;
     width: 100%;
-    height: 75px;
-    margin-top: 50px;
-    padding-top: 25px;
+    height: 20px;
+    line-height: 20px;
+    position: relative;
+}
+
+.footer .footer-repo {
+    position: relative;
+    text-decoration: none;
+    height: 100%;
+}
+
+.footer .footer-repo .footer-repo-img {
+    position: absolute;
+    top: 2px;
+    height: 16px;
+}
+
+.footer .footer-repo .footer-repo-name {
+    color: #3c3c3c;
+    margin-left: 18px;
 }
 
 /*panel*/
@@ -287,7 +322,6 @@ table th {
 
 #treeview .list-group {
     margin: 0;
-
 }
 
 #treeview .list-group .list-group-item {
@@ -297,7 +331,7 @@ table th {
 
 .project-info th {
     text-align: right;
-    padding: 4px 6px;
+    padding: 4px 2px;
     width: 5em;
 }
 
@@ -352,7 +386,6 @@ table th {
 
 .config-item-container .second-panel-heading .nav-tabs .node_active {
     border-bottom: 3px #1b6d85 solid;
-
 }
 
 .config-item-container .config-items {
@@ -418,7 +451,6 @@ table th {
     cursor: pointer;
     width: 23px;
     height: 23px;
-
 }
 
 .namespace-panel .namespace-view-table table {
@@ -438,7 +470,7 @@ table th {
 }
 
 .namespace-panel .namespace-view-table .search-input input {
-    width: 350px;
+    width: 500px;
 }
 
 .namespace-panel .no-config-panel {
@@ -505,6 +537,10 @@ table th {
     background: url(../img/manage.png) no-repeat;
 }
 
+.list-group-item .icon-accesskey-manage {
+    background: url(../img/secret.png) no-repeat;
+}
+
 .list-group-item .icon-plus-orange {
     background: url(../img/add.png) no-repeat;
 }
@@ -517,18 +553,19 @@ table th {
 
 /*搜索框*/
 ::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    background: rgba(255, 255, 255, 0);
+  /*滚动条整体样式*/
+  width: 8px; /*高宽分别对应横竖滚动条的尺寸*/
+  height: 8px;
 }
 
-::-webkit-scrollbar-thumb:vertical {
-    background: rgba(255, 255, 255, 0);
-    border-radius: 10px;
+::-webkit-scrollbar-thumb {
+  /*滚动条里面小方块*/
+  border-radius: 10px;
+  background-color: rgba(178, 178, 178, 0.8);
 }
 
-::-webkit-scrollbar-thumb:vertical:hover {
-    background: rgba(255, 255, 255, 0);
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(178, 178, 178, 1);
 }
 
 .app-list {
@@ -654,7 +691,7 @@ table th {
 .release-history .operation-caption {
     position: absolute;
     top: 45px;
-    width: 75px;
+    width: 100px;
     height: 18px;
     color: #fff;
     font-size: 12px;
@@ -673,6 +710,11 @@ table th {
 
 .release-history .panel-heading {
     padding: 15px;
+}
+
+.release-history .panel-heading button img {
+    width: 12px;
+    height: 12px;
 }
 
 .empty-container {
@@ -703,6 +745,23 @@ table th {
     word-break: break-all;
 }
 
+#app-list {
+    display: flex;
+    background-color: #ffffff;
+    width: 100vw;
+}
+
+#app-list .left-bar {
+    width: 15%;
+    min-width: 200px;
+}
+
+#app-list .main-table {
+    padding-top: 15px;
+    width: 85%;
+    min-width: 500px;
+}
+
 #app-list .media-body {
     padding-top: 15px;
 }
@@ -713,15 +772,16 @@ table th {
 }
 
 #app-list .media-left {
-    width: 1000px;
+    min-width: 200px;
+    max-width: 400px;
     color: #fff;
     display: table-cell;
     vertical-align: middle;
 }
 
 #app-list .more-img {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
 }
 
 #app-list .app-panel {
@@ -735,22 +795,231 @@ table th {
     right: 20px;
 }
 
+#app-list .display-table {
+    padding: 15px;
+    margin-left: 30px;
+    margin-right: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
+}
+
+#app-list table {
+    width: 100%;
+}
+
+#app-list tr {
+}
+
+#app-list th {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 16px;
+    text-align: left;
+    word-break: break-all;
+}
+
+#app-list td {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.left-bar h5 {
+    font-size: 15px;
+    margin-left: 12px;
+}
+
+.left-bar .app-list-show {
+    height: 60px;
+    color: #337AB7;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+
+.left-bar .app-list-choose {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .app-list-choose:hover {
+    background-color: #F2F6FC;
+}
+
+.left-bar .favorite-list-show {
+    height: 60px;
+    color: #337AB7;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .favorite-list-choose {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .favorite-list-choose:hover {
+    background-color: #F2F6FC;
+}
+
+.left-bar .public-namespace-list-show {
+    height: 60px;
+    color: #337AB7;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .public-namespace-list-choose {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .public-namespace-list-choose:hover {
+    background-color: #F2F6FC
+}
+
+.left-bar .visited-list-show {
+    height: 60px;
+    color: #337AB7;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .visited-list-choose {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    padding-left: 25px;
+    border-right: 1px solid #DCDFE6;
+    cursor: pointer;
+}
+.left-bar .visited-list-choose:hover {
+    background-color: #F2F6FC
+}
+
+.wapper {
+    width: 600px;
+    padding: 15px 0 30px 30px;
+}
+
+.select-wapper {
+    width: 500px;
+    height: 40px;
+    position: relative;
+}
+
+.select-wapper>input {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #CCCCCC;
+    font-size: 15px;
+    padding: 0 10px 0 0;
+    box-sizing: border-box;
+    border-radius: 4px;
+    padding: 5px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+.select-wapper>input:focus {
+    border: 1px solid rgb(102,175,233);
+    -webkit-box-shadow: inset 0 1px 1px rgba(102,175,233, .075);
+    box-shadow: inset 0 1px 1px rgba(122,156,211, .075);
+    outline: none;
+}
+
+.select-wapper:after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-top: 8px solid #77705d;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+    display: inline;
+    position: absolute;
+    right: 8px;
+    top: 11px;
+}
+
+.select-wapper .select-content-panel {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    border: 1px solid rgb(122,156,211);
+    margin-top: 0;
+    padding: 0;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+.select-wapper .select-content-panel li {
+    display: block;
+    list-style: none;
+    padding: 2px 10px;
+    font-size: 14px;
+    height: 30px;
+    border: 0 !important;
+}
+
+.select-wapper .select-content-panel li:hover {
+    background-color: rgb(30, 144, 255);
+    color: white !important;
+}
+
+.select-wapper .select-content-panel li:active {
+    background-color: rgb(30, 144, 255);
+    color: white !important;
+}
+.select-wapper .item-bg {
+    background-color: rgb(30, 144, 255);
+    color: white !important;
+}
+.select-wapper .hidden-cls {
+    display: none;
+}
+
 .create-app-list .media-left {
     background: #a9d96c;
 }
-
-.create-app-list .create-btn {
-    background: #a9d96c;
-    color: #fff
-}
-
-.create-app-list .create-btn:hover {
-    background: #81AB56;
+.create-app-list .create-btn-panel {
+    padding-right: 35px;
+    padding-bottom: 15px;
 }
 
 .create-app-list .create-btn img {
-    width: 26px;
-    height: 26px
+    width: 16px;
+    height: 16px;
 }
 
 .favorites-app-list .media-left {
@@ -758,11 +1027,26 @@ table th {
 }
 
 .favorites-app-list .no-favorites {
+    padding-top: 75px;
+
+}
+
+.public-namespace-list .media-left {
+    background: #65c294;
+}
+
+.public-namespace-list .no-public {
     padding-bottom: 15px;
 }
 
 .visit-app-list .media-left {
     background: #41cac0;
+}
+
+.homepage-loading-more-panel {
+    margin-top: 20px;
+    padding-right: 30px;
+    padding-left: 30px;
 }
 
 #rulesModal .rules-ip-selector {
@@ -798,11 +1082,12 @@ table th {
 }
 
 .project-setting .panel-body {
-    padding-top: 35px
+    padding-top: 35px;
 }
 
 .project-setting .panel-body .context {
     padding-left: 30px;
+    padding-right: 30px;
 }
 
 .app-search-list .select2-container, .app-search-list .select2-container .select2-selection {
@@ -812,4 +1097,79 @@ table th {
 .app-search-list .select2-container .select2-selection .select2-selection__rendered {
     line-height: 34px;
     font-size: 14px;
+}
+
+#app-search-list {
+    width: 375px;
+}
+
+/*backTop component style*/
+.back-top {
+    position: fixed;
+    height: 40px;
+    width: 40px;
+    border-radius: 4px;
+    color: #ffffff;
+    z-index: 5;
+    cursor: pointer;
+    right: 40px;
+    bottom: 40px;
+    text-align: center;
+    line-height: 40px;
+    font-size: 16px;
+    background: #0c4c7f;
+    opacity: .2;
+    user-select: none;
+}
+
+.back-top:hover {
+    opacity: .4;
+}
+
+.back-top:active {
+    opacity: .6;
+}
+
+.navbar-nav .nav-switch-lang {
+    width: 12px;
+    height: 12px;
+    margin-top: -4px;
+    margin-right: -5px;
+}
+
+.navbar-header .logo {
+    height: 35px;
+    margin-top: -4px
+}
+
+
+.margin-top10 { margin-top:10px; }
+
+#consumer-list th {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 16px;
+    text-align: left;
+    word-break: break-all;
+}
+
+#consumer-list td {
+    border-bottom: 1px solid #E4E7ED;
+    padding: 15px 8px 15px 8px;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+#consumer-list table {
+    margin-left: 20px;
+}
+
+#consumer-list .more-img {
+    width: 20px;
+    height: 20px;
+}
+
+#consumer-list .create-btn img {
+    width: 16px;
+    height: 16px;
 }

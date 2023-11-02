@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.grayReleaseRule;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
@@ -7,7 +23,7 @@ import java.util.Set;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public class GrayReleaseRuleCache {
+public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   private long ruleId;
   private String branchName;
   private String namespaceName;
@@ -59,12 +75,17 @@ public class GrayReleaseRuleCache {
     return namespaceName;
   }
 
-  public boolean matches(String clientAppId, String clientIp) {
+  public boolean matches(String clientAppId, String clientIp, String clientLabel) {
     for (GrayReleaseRuleItemDTO ruleItem : ruleItems) {
-      if (ruleItem.matches(clientAppId, clientIp)) {
+      if (ruleItem.matches(clientAppId, clientIp, clientLabel)) {
         return true;
       }
     }
     return false;
+  }
+
+  @Override
+  public int compareTo(GrayReleaseRuleCache that) {
+    return Long.compare(this.ruleId, that.ruleId);
   }
 }

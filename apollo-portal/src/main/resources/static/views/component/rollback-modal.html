@@ -1,5 +1,20 @@
-<form id="rollbackModal" class="modal fade form-horizontal"
-      ng-submit="showRollbackAlertDialog()">
+<form id="rollbackModal" class="modal fade form-horizontal" ng-submit="showRollbackAlertDialog()">
+    <!--
+      ~ Copyright 2023 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header panel-primary">
@@ -7,79 +22,85 @@
                         aria-hidden="true">&times;</span></button>
                 <div class="modal-title text-center">
                     <span style="font-size: 18px;" ng-bind="toRollbackNamespace.firstRelease.name"></span>
-                    <span style="font-size: 18px;"> &nbsp;回滚到&nbsp;</span>
+                    <span style="font-size: 18px;"> &nbsp;{{'Component.Rollback.To' | translate }}&nbsp;</span>
                     <span style="font-size: 18px;" ng-bind="toRollbackNamespace.secondRelease.name"></span>
                 </div>
             </div>
             <div class="modal-body">
-                <div class="alert alert-warning" role="alert">
-                    此操作将会回滚到上一个发布版本，且当前版本作废，但不影响正在修改的配置。可在发布历史页面查看当前生效的版本
+                <div ng-if="!isRollbackTo" class="alert alert-warning" role="alert">
+                    {{'Component.Rollback.Tips' | translate }}
                     <a target="_blank"
-                       href="/config/history.html?#/appid={{appId}}&env={{env}}&clusterName={{toRollbackNamespace.baseInfo.clusterName}}&namespaceName={{toRollbackNamespace.baseInfo.namespaceName}}">点击查看</a>
+                        href="{{ '/config/history.html' | prefixPath }}?#/appid={{appId}}&env={{env}}&clusterName={{toRollbackNamespace.baseInfo.clusterName}}&namespaceName={{toRollbackNamespace.baseInfo.namespaceName}}">{{'Component.Rollback.ClickToView' | translate }}</a>
+                </div>
+                <div ng-if="isRollbackTo" class="alert alert-warning" role="alert">
+                    {{'Component.RollbackTo.Tips' | translate }}
                 </div>
 
-                <div class="form-group" style="margin-top: 15px;">
+                <div class="form-group pre-scrollable" style="margin-top: 15px;max-height: 490px">
                     <!--properties format-->
                     <div class="col-sm-12"
-                         ng-if="toRollbackNamespace.releaseCompareResult.length > 0 && toRollbackNamespace.isPropertiesFormat">
+                        ng-if="toRollbackNamespace.releaseCompareResult.length > 0 && toRollbackNamespace.isPropertiesFormat">
                         <table class="table table-bordered table-striped text-center table-hover"
-                               ng-if="toRollbackNamespace.isPropertiesFormat">
+                            ng-if="toRollbackNamespace.isPropertiesFormat">
                             <thead>
-                            <tr>
-                                <th>
-                                    Type
-                                </th>
-                                <th>
-                                    Key
-                                </th>
-                                <th>
-                                    回滚前
-                                </th>
-                                <th>
-                                    回滚后
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        {{'Component.Rollback.ItemType' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Rollback.ItemKey' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Rollback.RollbackBeforeValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Rollback.RollbackAfterValue' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
 
-                            <tr ng-repeat="change in toRollbackNamespace.releaseCompareResult">
-                                <td width="10%">
-                                    <span ng-show="change.type == 'ADDED'">新增</span>
-                                    <span ng-show="change.type == 'MODIFIED'">更新</span>
-                                    <span ng-show="change.type == 'DELETED'">删除</span>
-                                </td>
-                                <td width="20%" ng-bind="change.entity.firstEntity.key">
+                                <tr ng-repeat="change in toRollbackNamespace.releaseCompareResult">
+                                    <td width="10%">
+                                        <span
+                                            ng-show="change.type == 'ADDED'">{{'Component.Rollback.Added' | translate }}</span>
+                                        <span
+                                            ng-show="change.type == 'MODIFIED'">{{'Component.Rollback.Modified' | translate }}</span>
+                                        <span
+                                            ng-show="change.type == 'DELETED'">{{'Component.Rollback.Deleted' | translate }}</span>
+                                    </td>
+                                    <td width="20%" ng-bind="change.entity.firstEntity.key">
 
-                                </td>
-                                <td width="35%" ng-bind="change.entity.firstEntity.value">
-                                </td>
-                                <td width="35%" ng-bind="change.entity.secondEntity.value">
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td width="35%" ng-bind="change.entity.firstEntity.value">
+                                    </td>
+                                    <td width="35%" ng-bind="change.entity.secondEntity.value">
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <!--file format -->
                     <div class="col-sm-12"
-                         ng-if="toRollbackNamespace.releaseCompareResult.length > 0 && !toRollbackNamespace.isPropertiesFormat">
+                        ng-if="toRollbackNamespace.releaseCompareResult.length > 0 && !toRollbackNamespace.isPropertiesFormat">
                         <div ng-repeat="change in toRollbackNamespace.releaseCompareResult"
-                             ng-if="!toRollbackNamespace.isPropertiesFormat">
-                            <h5>回滚前</h5>
-                                        <textarea class="form-control no-radius" rows="20"
-                                                  ng-disabled="true" ng-bind="change.entity.firstEntity.value">
+                            ng-if="!toRollbackNamespace.isPropertiesFormat">
+                            <h5>{{'Component.Rollback.RollbackBeforeValue' | translate }}</h5>
+                            <textarea class="form-control no-radius" rows="20" ng-disabled="true"
+                                ng-bind="change.entity.firstEntity.value">
                                             </textarea>
                             <hr>
-                            <h5>回滚后</h5>
-                                        <textarea class="form-control no-radius" rows="20"
-                                                  ng-disabled="true" ng-bind="change.entity.secondEntity.value">
+                            <h5>{{'Component.Rollback.RollbackAfterValue' | translate }}</h5>
+                            <textarea class="form-control no-radius" rows="20" ng-disabled="true"
+                                ng-bind="change.entity.secondEntity.value">
                                             </textarea>
                         </div>
 
                     </div>
                     <div class="col-sm-12 text-center" ng-if="toRollbackNamespace.releaseCompareResult.length == 0">
                         <h4>
-                            配置没有变化
+                            {{'Component.Rollback.NoChange' | translate }}
                         </h4>
                     </div>
                 </div>
@@ -87,9 +108,10 @@
 
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-default"
+                    data-dismiss="modal">{{'Common.Cancel' | translate }}</button>
                 <button type="submit" class="btn btn-danger"
-                        ng-disabled="toRollbackNamespace.rollbackBtnDisabled">回滚
+                    ng-disabled="toRollbackNamespace.rollbackBtnDisabled">{{'Component.Rollback.OpRollback' | translate }}
                 </button>
             </div>
         </div>

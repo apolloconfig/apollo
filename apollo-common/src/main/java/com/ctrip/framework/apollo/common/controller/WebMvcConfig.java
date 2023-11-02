@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.common.controller;
 
 import java.util.List;
@@ -41,10 +57,11 @@ public class WebMvcConfig implements WebMvcConfigurer, WebServerFactoryCustomize
     // 10 days
     addCacheControl(registry, "img", 864000);
     addCacheControl(registry, "vendor", 864000);
+    addCacheControl(registry, "scripts", 864000);
+    addCacheControl(registry, "styles", 864000);
     // 1 day
-    addCacheControl(registry, "scripts", 86400);
-    addCacheControl(registry, "styles", 86400);
     addCacheControl(registry, "views", 86400);
+    addCacheControl(registry, "i18n", 86400);
   }
 
   private void addCacheControl(ResourceHandlerRegistry registry, String folder, int cachePeriod) {

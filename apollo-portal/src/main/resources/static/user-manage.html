@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="user">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="./img/config.png">
@@ -10,99 +27,189 @@
     <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
     <link rel="stylesheet" type="text/css" href="styles/common-style.css">
 
-    <title>用户管理</title>
+    <title>{{'UserMange.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
-<div class="container-fluid apollo-container">
+    <apollonav></apollonav>
+    <div id ="user-list" class="container-fluid apollo-container" ng-controller="UserController">
+        <div class="col-md-10 col-md-offset-1 panel">
+            <section class="panel-body" ng-show="isRootUser">
+                <div class="main-table"></div>
+                <div class="row">
+                    <header class="panel-heading">
+                        {{'UserMange.Title' | translate }}
+                        <small>
+                            {{'UserMange.TitleTips' | translate }}
+                        </small>
+                    </header>
 
-    <div class="row">
-        <div class="col-md-8 col-md-offset-2">
-            <div class="panel">
-                <header class="panel-heading">
-                    用户管理
-                    <small>
-                        （仅对默认的Spring Security简单认证方式有效: -Dapollo_profile=github,auth）
-                    </small>
-                </header>
-
-                <form class="form-horizontal panel-body" name="appForm" ng-controller="UserController"
-                      valdr-type="App"
-                      ng-submit="createOrUpdateUser()">
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            用户名</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" name="username" ng-model="user.username">
-                            <small>输入的用户名如果不存在，则新建。若已存在，则更新。</small>
+                    <div class="table-responsive" ng-show="status==='1'  && createdUsers.length > 0">
+                        <div>
+                            <div style="height: 15px"></div>
+                            <div>
+                                <button type="button" ng-click="changeStatus('2')"
+                                        class="btn btn-primary">
+                                    {{'UserMange.Add' | translate }}
+                                </button>
+                                <form class="form-inline" style="display:inline">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="searchUserInput"
+                                               placeholder="{{'UserMange.SortByUserLoginName' | translate }}"
+                                               ng-model="searchKey">
+                                    </div>
+                                    <button type="button" class="btn btn-default" ng-click="searchUsers()">
+                                        <span class="glyphicon glyphicon-filter"></span>
+                                        {{'UserMange.FilterUser' | translate }}
+                                    </button>
+                                    <button type="button" class="btn btn-default" ng-click="resetSearchUser()">
+                                        {{'UserMange.Reset' | translate }}
+                                    </button>
+                                </form>
+                            </div>
+                            <div style="height: 15px"></div>
                         </div>
+                        <table class="table table-bordered table-striped table-hover">
+                            <tr>
+                                <th style="text-align: left">{{'UserMange.UserName' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.UserDisplayName' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Email' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Enabled' | translate }}</th>
+                                <th style="text-align: left">{{'UserMange.Operation' | translate }}</th>
+                            </tr>
+                            <tr ng-repeat="user in filterUser" href="#" class="hover cursor-pointer">
+                                <td>{{ user.userId }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                    <span class="label label-primary no-radius namespace-label" data-tooltip="tooltip"
+                                          data-placement="bottom"
+                                          ng-show="user.enabled === 1">{{('UserMange.Enable' | translate)}}
+                                    </span>
+                                    <span class="label label-warning no-radius cursor-pointer" data-tooltip="tooltip"
+                                          data-placement="bottom"
+                                          ng-show="user.enabled === 0">{{('UserMange.Disable' | translate)}}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="btn btn-primary" ng-click="changeStatus('3', user)">
+                                        {{'UserMange.Edit' | translate }}
+                                    </span>
+                                    <span class="btn btn-primary" ng-click="changeUserEnabled(user)">
+                                        {{user.enabled === 1 ? ('UserMange.Disable' | translate) : ('UserMange.Enable' | translate) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            密码</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" name="password" ng-model="user.password">
+                    <div ng-show="status==='2' || status==='3'">
+                        <form class="form-horizontal panel-body" name="appForm"
+                              valdr-type="App" ng-submit="createOrUpdateUser()">
+                            <span>{{status==='3' ? ('UserMange.Edit' | translate) : ('UserMange.Add' | translate) }}</span>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.UserName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="username" ng-model="user.username" ng-disabled="status==='3'">
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-group" valdr-form-group>
-                        <label class="col-sm-2 control-label">
-                            <apollorequiredfield></apollorequiredfield>
-                            邮箱</label>
-                        <div class="col-sm-5">
-                            <input type="text" class="form-control" name="password" ng-model="user.email">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.UserDisplayName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="userDisplayName" ng-model="user.userDisplayName">
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <div class="col-sm-offset-2 col-sm-9">
-
-                            <button type="submit" class="btn btn-primary"
-                                    ng-disabled="appForm.$invalid || submitBtnDisabled">提交
-                            </button>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.Pwd' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="password" ng-model="user.password">
+                            </div>
                         </div>
-                    </div>
-                </form>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.Email' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" name="email" ng-model="user.email">
+                            </div>
+                        </div>
+                            <div class="form-group" valdr-form-group>
+                                <label class="col-sm-2 control-label">
+                                    <apollorequiredfield></apollorequiredfield>
+                                    {{'UserMange.Enabled' | translate }}
+                                </label>
+                                <div class="col-sm-5">
+                                    <input type="radio" name="enabled" ng-model="user.enabled" ng-value="1"/> {{'UserMange.Enable' | translate }}
+                                    <input type="radio" name="enabled" ng-model="user.enabled" ng-value="0"/> {{'UserMange.Disable' | translate }}
+                                </div>
+                            </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-9">
 
-            </div>
+                                <button type="submit" class="btn btn-primary"
+                                        ng-disabled="appForm.$invalid || submitBtnDisabled">{{status==='3' ? ('UserMange.Save' | translate) : ('Common.Submit' | translate) }}
+                                </button>
+                                <button type="button" ng-click="changeStatus('1')" class="btn">{{status==='3' ? ('UserMange.Cancel' | translate) : ('UserMange.Back' | translate) }}</button>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                    <div style="height: 15px"></div>
+                </div>
+            </section>
+            <section class="panel-body text-center" ng-if="!isRootUser">
+                <h4>{{'Common.IsRootUser' | translate }}</h4>
+            </section>
         </div>
     </div>
-</div>
 
-<div ng-include="'views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-<!--angular-->
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-resource.min.js"></script>
-<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<!-- jquery.js -->
-<script src="vendor/jquery.min.js" type="text/javascript"></script>
-<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
 
-<!--valdr-->
-<script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
-<script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script type="application/javascript" src="scripts/app.js"></script>
-<script type="application/javascript" src="scripts/services/AppService.js"></script>
-<script type="application/javascript" src="scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="scripts/services/UserService.js"></script>
-<script type="application/javascript" src="scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="scripts/AppUtils.js"></script>
-<script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
-<script type="application/javascript" src="scripts/directive/directive.js"></script>
-<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <!--valdr-->
+    <script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+    <script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
 
-<script type="application/javascript" src="scripts/controller/UserController.js"></script>
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
 
-<script src="scripts/valdr.js" type="text/javascript"></script>
+    <script type="application/javascript" src="scripts/controller/UserController.js"></script>
+
+    <script src="scripts/valdr.js" type="text/javascript"></script>
 </body>
+
 </html>

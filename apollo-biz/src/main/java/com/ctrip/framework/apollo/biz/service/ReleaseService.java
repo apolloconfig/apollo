@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Audit;
@@ -17,11 +33,21 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.GrayReleaseRuleItemTransformer;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang.time.FastDateFormat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,16 +56,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
@@ -47,7 +63,7 @@ import java.util.Set;
 public class ReleaseService {
 
   private static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
-  private static final Gson gson = new Gson();
+  private static final Gson GSON = new Gson();
   private static final Set<Integer> BRANCH_RELEASE_OPERATIONS = Sets
       .newHashSet(ReleaseOperation.GRAY_RELEASE, ReleaseOperation.MASTER_NORMAL_RELEASE_MERGE_TO_GRAY,
           ReleaseOperation.MATER_ROLLBACK_MERGE_TO_GRAY);
@@ -138,6 +154,21 @@ public class ReleaseService {
     return releases;
   }
 
+  private List<Release> findActiveReleasesBetween(String appId, String clusterName, String namespaceName,
+                                                  long fromReleaseId, long toReleaseId) {
+    List<Release>
+        releases =
+        releaseRepository.findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(appId,
+                                                                                                                clusterName,
+                                                                                                                namespaceName,
+                                                                                                                fromReleaseId,
+                                                                                                                toReleaseId);
+    if (releases == null) {
+      return Collections.emptyList();
+    }
+    return releases;
+  }
+
   @Transactional
   public Release mergeBranchChangeSetsAndRelease(Namespace namespace, String branchName, String releaseName,
                                                  String releaseComment, boolean isEmergencyPublish,
@@ -153,7 +184,7 @@ public class ReleaseService {
 
     Map<String, String> operateNamespaceItems = getNamespaceItems(namespace);
 
-    Map<String, Object> operationContext = Maps.newHashMap();
+    Map<String, Object> operationContext = Maps.newLinkedHashMap();
     operationContext.put(ReleaseOperationContext.SOURCE_BRANCH, branchName);
     operationContext.put(ReleaseOperationContext.BASE_RELEASE_ID, branchReleaseId);
     operationContext.put(ReleaseOperationContext.IS_EMERGENCY_PUBLISH, isEmergencyPublish);
@@ -188,7 +219,7 @@ public class ReleaseService {
     }
 
     //master release
-    Map<String, Object> operationContext = Maps.newHashMap();
+    Map<String, Object> operationContext = Maps.newLinkedHashMap();
     operationContext.put(ReleaseOperationContext.IS_EMERGENCY_PUBLISH, isEmergencyPublish);
 
     Release release = masterRelease(namespace, releaseName, releaseComment, operateNamespaceItems,
@@ -210,8 +241,8 @@ public class ReleaseService {
                                          String operator, boolean isEmergencyPublish, Set<String> grayDelKeys) {
     Release parentLatestRelease = findLatestActiveRelease(parentNamespace);
     Map<String, String> parentConfigurations = parentLatestRelease != null ?
-            gson.fromJson(parentLatestRelease.getConfigurations(),
-                    GsonType.CONFIG) : new HashMap<>();
+            GSON.fromJson(parentLatestRelease.getConfigurations(),
+                          GsonType.CONFIG) : new LinkedHashMap<>();
     long baseReleaseId = parentLatestRelease == null ? 0 : parentLatestRelease.getId();
 
     Map<String, String> configsToPublish = mergeConfiguration(parentConfigurations, childNamespaceItems);
@@ -242,9 +273,8 @@ public class ReleaseService {
     if (parentNamespace != null) {
       return publishBranchNamespace(parentNamespace, namespace, operateNamespaceItems,
               releaseName, releaseComment, operator, isEmergencyPublish, grayDelKeys);
-    }else {
-      throw new NotFoundException("Parent namespace not found");
     }
+    throw new NotFoundException("Parent namespace not found");
   }
 
   private void checkLock(Namespace namespace, boolean isEmergencyPublish, String operator) {
@@ -267,7 +297,7 @@ public class ReleaseService {
     Map<String, String> childReleaseConfiguration;
     Collection<String> branchReleaseKeys;
     if (childNamespaceLatestActiveRelease != null) {
-      childReleaseConfiguration = gson.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
+      childReleaseConfiguration = GSON.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
       branchReleaseKeys = getBranchReleaseKeys(childNamespaceLatestActiveRelease.getId());
     } else {
       childReleaseConfiguration = Collections.emptyMap();
@@ -275,8 +305,8 @@ public class ReleaseService {
     }
 
     Map<String, String> parentNamespaceOldConfiguration = masterPreviousRelease == null ?
-                                                          null : gson.fromJson(masterPreviousRelease.getConfigurations(),
-                                                                        GsonType.CONFIG);
+                                                          null : GSON.fromJson(masterPreviousRelease.getConfigurations(),
+                                                                               GsonType.CONFIG);
 
     Map<String, String> childNamespaceToPublishConfigs =
         calculateChildNamespaceToPublishConfiguration(parentNamespaceOldConfiguration, parentNamespaceItems,
@@ -299,10 +329,16 @@ public class ReleaseService {
       return null;
     }
 
-    Map<String, Object> operationContext = gson
-        .fromJson(releaseHistories.getContent().get(0).getOperationContext(), OPERATION_CONTEXT_TYPE_REFERENCE);
+    String operationContextJson = releaseHistories.getContent().get(0).getOperationContext();
+    if (Strings.isNullOrEmpty(operationContextJson)
+        || !operationContextJson.contains(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
+      return null;
+    }
 
-    if (operationContext == null || !operationContext.containsKey(ReleaseOperationContext.BRANCH_RELEASE_KEYS)) {
+    Map<String, Object> operationContext = GSON.fromJson(operationContextJson,
+        OPERATION_CONTEXT_TYPE_REFERENCE);
+
+    if (operationContext == null) {
       return null;
     }
 
@@ -343,7 +379,7 @@ public class ReleaseService {
                                                       childNamespace.getNamespaceName());
     long previousReleaseId = previousRelease == null ? 0 : previousRelease.getId();
 
-    Map<String, Object> releaseOperationContext = Maps.newHashMap();
+    Map<String, Object> releaseOperationContext = Maps.newLinkedHashMap();
     releaseOperationContext.put(ReleaseOperationContext.BASE_RELEASE_ID, baseReleaseId);
     releaseOperationContext.put(ReleaseOperationContext.IS_EMERGENCY_PUBLISH, isEmergencyPublish);
     releaseOperationContext.put(ReleaseOperationContext.BRANCH_RELEASE_KEYS, branchReleaseKeys);
@@ -373,24 +409,21 @@ public class ReleaseService {
 
   private Map<String, String> mergeConfiguration(Map<String, String> baseConfigurations,
                                                  Map<String, String> coverConfigurations) {
-    Map<String, String> result = new HashMap<>();
+    int expectedSize = baseConfigurations.size() + coverConfigurations.size();
+    Map<String, String> result = Maps.newLinkedHashMapWithExpectedSize(expectedSize);
+
     //copy base configuration
-    for (Map.Entry<String, String> entry : baseConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(baseConfigurations);
 
     //update and publish
-    for (Map.Entry<String, String> entry : coverConfigurations.entrySet()) {
-      result.put(entry.getKey(), entry.getValue());
-    }
+    result.putAll(coverConfigurations);
 
     return result;
   }
 
-
   private Map<String, String> getNamespaceItems(Namespace namespace) {
-    List<Item> items = itemService.findItemsWithoutOrdered(namespace.getId());
-    Map<String, String> configurations = new HashMap<>();
+    List<Item> items = itemService.findItemsWithOrdered(namespace.getId());
+    Map<String, String> configurations = new LinkedHashMap<>();
     for (Item item : items) {
       if (StringUtils.isEmpty(item.getKey())) {
         continue;
@@ -413,7 +446,7 @@ public class ReleaseService {
     release.setAppId(namespace.getAppId());
     release.setClusterName(namespace.getClusterName());
     release.setNamespaceName(namespace.getNamespaceName());
-    release.setConfigurations(gson.toJson(configurations));
+    release.setConfigurations(GSON.toJson(configurations));
     release = releaseRepository.save(release);
 
     namespaceLockService.unlock(namespace.getId());
@@ -427,7 +460,7 @@ public class ReleaseService {
   public Release rollback(long releaseId, String operator) {
     Release release = findOne(releaseId);
     if (release == null) {
-      throw new NotFoundException("release not found");
+      throw NotFoundException.releaseNotFound(releaseId);
     }
     if (release.isAbandoned()) {
       throw new BadRequestException("release is not active");
@@ -440,11 +473,11 @@ public class ReleaseService {
     PageRequest page = PageRequest.of(0, 2);
     List<Release> twoLatestActiveReleases = findActiveReleases(appId, clusterName, namespaceName, page);
     if (twoLatestActiveReleases == null || twoLatestActiveReleases.size() < 2) {
-      throw new BadRequestException(String.format(
+      throw new BadRequestException(
           "Can't rollback namespace(appId=%s, clusterName=%s, namespaceName=%s) because there is only one active release",
           appId,
           clusterName,
-          namespaceName));
+          namespaceName);
     }
 
     release.setAbandoned(true);
@@ -462,6 +495,49 @@ public class ReleaseService {
     return release;
   }
 
+  @Transactional
+  public Release rollbackTo(long releaseId, long toReleaseId, String operator) {
+    if (releaseId == toReleaseId) {
+      throw new BadRequestException("current release equal to target release");
+    }
+
+    Release release = findOne(releaseId);
+    Release toRelease = findOne(toReleaseId);
+
+    if (release == null) {
+      throw NotFoundException.releaseNotFound(releaseId);
+    }
+    if (toRelease == null) {
+      throw NotFoundException.releaseNotFound(toReleaseId);
+    }
+    if (release.isAbandoned() || toRelease.isAbandoned()) {
+      throw new BadRequestException("release is not active");
+    }
+
+    String appId = release.getAppId();
+    String clusterName = release.getClusterName();
+    String namespaceName = release.getNamespaceName();
+
+    List<Release> releases = findActiveReleasesBetween(appId, clusterName, namespaceName,
+                                                       toReleaseId, releaseId);
+
+    for (int i = 0; i < releases.size() - 1; i++) {
+      releases.get(i).setAbandoned(true);
+      releases.get(i).setDataChangeLastModifiedBy(operator);
+    }
+
+    releaseRepository.saveAll(releases);
+
+    releaseHistoryService.createReleaseHistory(appId, clusterName,
+                                               namespaceName, clusterName, toReleaseId,
+                                               release.getId(), ReleaseOperation.ROLLBACK, null, operator);
+
+    //publish child namespace if namespace has child
+    rollbackChildNamespace(appId, clusterName, namespaceName, Lists.newArrayList(release, toRelease), operator);
+
+    return release;
+  }
+
   private void rollbackChildNamespace(String appId, String clusterName, String namespaceName,
                                       List<Release> parentNamespaceTwoLatestActiveRelease, String operator) {
     Namespace parentNamespace = namespaceService.findOne(appId, clusterName, namespaceName);
@@ -474,7 +550,7 @@ public class ReleaseService {
     Map<String, String> childReleaseConfiguration;
     Collection<String> branchReleaseKeys;
     if (childNamespaceLatestActiveRelease != null) {
-      childReleaseConfiguration = gson.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
+      childReleaseConfiguration = GSON.fromJson(childNamespaceLatestActiveRelease.getConfigurations(), GsonType.CONFIG);
       branchReleaseKeys = getBranchReleaseKeys(childNamespaceLatestActiveRelease.getId());
     } else {
       childReleaseConfiguration = Collections.emptyMap();
@@ -484,12 +560,12 @@ public class ReleaseService {
     Release abandonedRelease = parentNamespaceTwoLatestActiveRelease.get(0);
     Release parentNamespaceNewLatestRelease = parentNamespaceTwoLatestActiveRelease.get(1);
 
-    Map<String, String> parentNamespaceAbandonedConfiguration = gson.fromJson(abandonedRelease.getConfigurations(),
+    Map<String, String> parentNamespaceAbandonedConfiguration = GSON.fromJson(abandonedRelease.getConfigurations(),
                                                                               GsonType.CONFIG);
 
     Map<String, String>
         parentNamespaceNewLatestConfiguration =
-        gson.fromJson(parentNamespaceNewLatestRelease.getConfigurations(), GsonType.CONFIG);
+        GSON.fromJson(parentNamespaceNewLatestRelease.getConfigurations(), GsonType.CONFIG);
 
     Map<String, String>
         childNamespaceNewConfiguration =
@@ -521,7 +597,7 @@ public class ReleaseService {
       Map<String, String> masterReleaseConfigs, Map<String, String> branchReleaseConfigs,
       Collection<String> branchReleaseKeys) {
 
-    Map<String, String> modifiedConfigs = new HashMap<>();
+    Map<String, String> modifiedConfigs = new LinkedHashMap<>();
 
     if (CollectionUtils.isEmpty(branchReleaseConfigs)) {
       return modifiedConfigs;

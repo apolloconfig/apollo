@@ -1,5 +1,22 @@
+<!--
+  ~ Copyright 2023 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
 <!doctype html>
 <html ng-app="index">
+
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="icon" href="./img/config.png">
@@ -11,127 +28,244 @@
     <link rel="stylesheet" type="text/css" media='all' href="vendor/font-awesome.min.css">
 
     <link rel="stylesheet" type="text/css" href="styles/common-style.css">
-    <title>Apollo配置中心</title>
+    <link rel="stylesheet" type="text/css" href="vendor/iconfont/iconfont.css">
+    <title>{{'Common.Title' | translate }}</title>
 </head>
 
 <body>
 
-<apollonav></apollonav>
+    <apollonav></apollonav>
 
-<div id="app-list" class="hidden" ng-controller="IndexController">
+    <div id="app-list" class="hidden" ng-controller="IndexController">
+        <div class="left-bar">
+            <div class="app-list-show" ng-click="changeContent('1')" ng-show="whichContent==='1'">
+                <i class="iconfont icon-02"></i>
+                <h5>{{'Index.MyProject' | translate }}</h5>
+            </div>
+            <div class="app-list-choose" ng-click="changeContent('1')" ng-show="whichContent!=='1'">
+                <i class="iconfont icon-02" style="color: #666"></i>
+                <h5>{{'Index.MyProject' | translate }}</h5>
+            </div>
 
-    <section class="media create-app-list">
-        <aside class="media-left text-center">
-            <h5>我的项目</h5>
-        </aside>
-        <aside class="media-body">
-            <div class="app-panel col-md-2 text-center" ng-click="goToCreateAppPage()" ng-if="hasCreateApplicationPermission">
-                <div href="#" class="thumbnail create-btn hover cursor-pointer">
-                    <img src="img/plus-white.png"/>
-                    <h5>创建项目</h5>
+            <div class="favorite-list-show" ng-click="changeContent('2')" ng-show="whichContent==='2'">
+                <i class="iconfont icon-icon"></i>
+                <h5>{{'Index.FavoriteItems' | translate }}</h5>
+            </div>
+            <div class="favorite-list-choose" ng-click="changeContent('2')" ng-show="whichContent!=='2'">
+                <i class="iconfont icon-icon" style="color: #666"></i>
+                <h5>{{'Index.FavoriteItems' | translate }}</h5>
+            </div>
+
+            <div class="visited-list-show" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent==='4'">
+                <i class="iconfont icon-liulan"></i>
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+            <div class="visited-list-choose" ng-click="changeContent('4')" ng-show="visitedApps && visitedApps.length  && whichContent!=='4'">
+                <i class="iconfont icon-liulan" style="color: #666"></i>
+                <h5>{{'Index.RecentlyViewedItems' | translate }}</h5>
+            </div>
+            
+            <div class="public-namespace-list-show" ng-click="changeContent('3')" ng-show="whichContent==='3'">
+                <i class="iconfont icon-gonggongziliao"></i>
+                <h5>{{'Index.PublicNamespace' | translate }}</h5>
+            </div>
+            <div class="public-namespace-list-choose" ng-click="changeContent('3')" ng-show="whichContent!=='3'">
+                <i class="iconfont icon-gonggongziliao" style="color: #666"></i>
+                <h5>{{'Index.PublicNamespace' | translate }}</h5>
+            </div>
+
+        </div>
+        <div class="main-table">
+            <div class="create-app-list" ng-show="whichContent==='1'">
+                <div class="text-right create-btn-panel">
+                    <button class="btn btn-primary btn-md create-btn" ng-if="hasCreateApplicationPermission"
+                            ng-click="goToCreateAppPage()">
+                        <img src="img/plus.png"/>
+                        {{'Index.CreateProject' | translate }}
+                    </button>
+                </div>
+                <div class="display-table" ng-show="createdApps.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 20%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in createdApps" ng-click="goToAppHomePage(app.appId)" href="#" class="hover cursor-pointer">
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 20%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div ng-show="!hasMoreCreatedApps" style="height: 15px"></div>
+                <div class="homepage-loading-more-panel" ng-show="hasMoreCreatedApps"
+                     ng-click="getUserCreatedApps()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
                 </div>
             </div>
-            <div class="app-panel col-md-2 text-center" ng-repeat="app in createdApps"
-                 ng-click="goToAppHomePage(app.appId)">
-                <div href="#" class="thumbnail hover cursor-pointer">
-                    <h4 ng-bind="app.appId"></h4>
-                    <h5 ng-bind="app.name"></h5>
+            <div class="favorites-app-list" ng-show="whichContent==='2'">
+                <div class="display-table" ng-show="favorites && favorites.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 15%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 15%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
+                            <th style="width: 10%">{{'Index.appTable.operation' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in favorites" ng-click="goToAppHomePage(app.appId)"
+                            ng-mouseover="toggleOperationBtn(app)" ng-mouseout="toggleOperationBtn(app)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 15%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 15%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
+                            <td style="width: 10%">
+                                <button class="btn btn-default btn-xs" title="{{'Index.Topping' | translate }}"
+                                        ng-click="toTop(app.favoriteId);$event.stopPropagation();">
+                                    <img src="img/top.png" class="i-15">
+                                </button>
+                                <button class="btn btn-default btn-xs" title="{{'Index.FavoriteCancel' | translate }}"
+                                        ng-click="deleteFavorite(app.favoriteId);$event.stopPropagation();">
+                                    <img src="img/like.png" class="i-15">
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="no-favorites text-center" ng-show="!favorites || favorites.length == 0">
+                    <h4>{{'Index.FavoriteTip' | translate }}</h4>
+                </div>
+                <div ng-show="!hasMoreFavorites" style="height: 15px"></div>
+                <div class="homepage-loading-more-panel" ng-show="hasMoreFavorites"
+                     ng-click="getUserFavorites()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
                 </div>
             </div>
-            <div class="app-panel col-md-2 text-center" ng-show="hasMoreCreatedApps"
-                 ng-click="getUserCreatedApps()">
-                <div href="#" class="thumbnail hover cursor-pointer">
-                    <img class="more-img" src="img/more.png"/>
-                    <h5>加载更多</h5>
+            <div class="public-namespace-list" ng-show="whichContent==='3'">
+                <div class="wapper">
+                    <select id="public-name-spaces-search-list" data-placeholder="{{'Index.SearchNamespace' | translate }}" style="width: 350px">
+                        <option value=""></option>
+                    </select>
+                </div>
+                <div class="display-table" ng-show="publicNamespaces.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 20%">{{'Common.Namespace' | translate }}</th>
+                            <th style="width: 30%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 20%">{{'Index.appTable.Format' | translate }}</th>
+                            <th style="width: 30%">{{'Index.appTable.Comment' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in publicNamespaces" ng-click="goToAppHomePage(app.appId)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 20%">{{ app.name }}</td>
+                            <td style="width: 30%">{{ app.appId }}</td>
+                            <td style="width: 20%">{{ app.format }}</td>
+                            <td style="width: 30%">{{ app.comment }}</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="no-public text-center" ng-show="!publicNamespaces || publicNamespaces.length == 0">
+                    <h4>{{'Index.PublicNamespaceTip' | translate }}</h4>
+                </div>
+                <div ng-show="!hasMorePublicNamespaces" style="height: 15px"></div>
+                <div class="homepage-loading-more-panel" ng-show="hasMorePublicNamespaces"
+                     ng-click="morePublicNamespace()">
+                    <div href="#" class="thumbnail hover cursor-pointer"
+                         style="display: flex;justify-content: center;align-items: center">
+                        <div><img class="more-img" src="img/more.png" /></div>
+                        <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+                    </div>
                 </div>
             </div>
-        </aside>
-    </section>
-
-    <section class="media favorites-app-list">
-        <aside class="media-left text-center">
-            <h5>收藏的项目</h5>
-        </aside>
-        <aside class="media-body">
-            <div class="app-panel col-md-2 text-center"
-                 ng-repeat="app in favorites"
-                 ng-click="goToAppHomePage(app.appId)"
-                 ng-mouseover="toggleOperationBtn(app)"
-                 ng-mouseout="toggleOperationBtn(app)">
-                <div class="thumbnail hover">
-                    <h4 ng-bind="app.appId"></h4>
-                    <h5 ng-bind="app.name"></h5>
-
-                    <p class="operate-panel" ng-show="app.showOperationBtn">
-                        <button class="btn btn-default btn-xs" title="置顶"
-                                ng-click="toTop(app.favoriteId);$event.stopPropagation();">
-                            <img src="img/top.png" class="i-15">
-                        </button>
-                        <button class="btn btn-default btn-xs" title="取消收藏"
-                                ng-click="deleteFavorite(app.favoriteId);$event.stopPropagation();">
-                            <img src="img/like.png" class="i-15">
-                        </button>
-                    </p>
+            <div class="visit-app-list" ng-show="whichContent==='4'">
+                <div class="display-table" ng-show="visitedApps.length > 0">
+                    <table>
+                        <tr>
+                            <th style="width: 15%">{{'Common.AppId' | translate }}</th>
+                            <th style="width: 25%">{{'Common.AppName' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                            <th style="width: 20%">{{'Common.AppOwner' | translate }}</th>
+                            <th style="width: 20%">{{'Common.Email' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="app in visitedApps" ng-click="goToAppHomePage(app.appId)"
+                            href="#" class="hover cursor-pointer">
+                            <td style="width: 15%">{{ app.appId }}</td>
+                            <td style="width: 25%">{{ app.name }}</td>
+                            <td style="width: 20%">{{ app.orgName + '(' + app.orgId + ')' }}</td>
+                            <td style="width: 20%">{{ app.ownerName }}</td>
+                            <td style="width: 20%">{{ app.ownerEmail }}</td>
+                        </tr>
+                    </table>
                 </div>
+                <div style="height: 15px"></div>
             </div>
-            <div class="col-md-2 text-center" ng-show="hasMoreFavorites"
-                 ng-click="getUserFavorites()">
-                <div href="#" class="thumbnail hover cursor-pointer">
-                    <img class="more-img" src="img/more.png"/>
-                    <h5>加载更多</h5>
-                </div>
-            </div>
-            <div class="no-favorites text-center" ng-show="!favorites || favorites.length == 0">
-                <h4>您还没有收藏过任何项目，在项目主页可以收藏项目哟~</h4>
-            </div>
-
-        </aside>
-    </section>
-
-    <section class="media visit-app-list" ng-show="visitedApps && visitedApps.length">
-        <aside class="media-left text-center">
-            <h5>最近浏览的项目</h5>
-        </aside>
-        <aside class="media-body">
-            <div class="app-panel col-md-2 text-center"
-                 ng-repeat="app in visitedApps"
-                 ng-click="goToAppHomePage(app.appId)">
-                <div class="thumbnail hover">
-                    <h4 ng-bind="app.appId"></h4>
-                    <h5 ng-bind="app.name"></h5>
-                </div>
-            </div>
-        </aside>
-    </section>
-</div>
+        </div>
+    </div>
 
 
-<div ng-include="'views/common/footer.html'"></div>
+    <div ng-include="'views/common/footer.html'"></div>
 
-<!--angular-->
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-resource.min.js"></script>
-<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-<script src="vendor/angular/loading-bar.min.js"></script>
+    <!--angular-->
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
 
-<!-- jquery.js -->
-<script src="vendor/jquery.min.js" type="text/javascript"></script>
-<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
 
-<!-- bootstrap.js -->
-<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+    <!-- jquery.js -->
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
 
-<script type="application/javascript" src="scripts/app.js"></script>
-<script type="application/javascript" src="scripts/services/AppService.js"></script>
-<script type="application/javascript" src="scripts/services/EnvService.js"></script>
-<script type="application/javascript" src="scripts/services/UserService.js"></script>
-<script type="application/javascript" src="scripts/services/CommonService.js"></script>
-<script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
-<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
-<script type="application/javascript" src="scripts/AppUtils.js"></script>
-<script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <!-- bootstrap.js -->
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
 
-<script type="application/javascript" src="scripts/controller/IndexController.js"></script>
+    <script type="application/javascript">
+        function getPrefixPath() {
+            $.ajax({
+                method: 'get',
+                async: false,
+                url: 'prefix-path',
+                success: function (res) {
+                    window.localStorage.setItem("prefixPath", res);
+                }
+            })
+        }
+        getPrefixPath();
+    </script>
+
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+
+    <script type="application/javascript" src="scripts/controller/IndexController.js"></script>
 
 </body>
+
 </html>

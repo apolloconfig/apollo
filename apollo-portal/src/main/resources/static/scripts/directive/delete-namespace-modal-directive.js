@@ -1,10 +1,26 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 directive_module.directive('deletenamespacemodal', deleteNamespaceModalDirective);
 
-function deleteNamespaceModalDirective($window, $q, toastr, AppUtil, EventManager,
-                                       PermissionService, UserService, NamespaceService) {
+function deleteNamespaceModalDirective($window, $q, $translate, toastr, AppUtil, EventManager,
+    PermissionService, UserService, NamespaceService) {
     return {
         restrict: 'E',
-        templateUrl: '../../views/component/delete-namespace-modal.html',
+        templateUrl: AppUtil.prefixPath() + '/views/component/delete-namespace-modal.html',
         transclude: true,
         replace: true,
         scope: {
@@ -21,21 +37,25 @@ function deleteNamespaceModalDirective($window, $q, toastr, AppUtil, EventManage
                 //1. check operator has master permission
                 checkPermission(toDeleteNamespace).then(function () {
 
-                    //2. check namespace's master branch has not instances
-                    if (!checkMasterInstance(toDeleteNamespace)) {
-                        return;
-                    }
-
-                    //3. check namespace's gray branch has not instances
-                    if (!checkBranchInstance(toDeleteNamespace)) {
-                        return;
-                    }
-
-                    if (!toDeleteNamespace.isPublic || toDeleteNamespace.isLinkedNamespace) {
-                        showDeleteNamespaceConfirmDialog();
+                    if (toDeleteNamespace.isLinkedNamespace) {
+                        NamespaceService.getLinkedNamespaceUsage(toDeleteNamespace.baseInfo.appId, scope.env,
+                            toDeleteNamespace.baseInfo.clusterName,
+                            toDeleteNamespace.baseInfo.namespaceName
+                        ).then(function (usage) {
+                            scope.toDeleteNamespace.namespaceUsage = usage;
+                            if (usage[0].instanceCount > 0 || usage[0].branchInstanceCount > 0) {
+                                scope.toDeleteNamespace.forceDeleteButton = true;
+                            }
+                            showDeleteNamespaceConfirmDialog();
+                        });
                     } else {
-                        //5. check public namespace has not associated namespace
-                        checkPublicNamespace(toDeleteNamespace).then(function () {
+                        NamespaceService.getNamespaceUsage(toDeleteNamespace.baseInfo.appId,
+                            toDeleteNamespace.baseInfo.namespaceName
+                        ).then(function (usage) {
+                            scope.toDeleteNamespace.namespaceUsage = usage;
+                            if (usage.length > 0) {
+                                scope.toDeleteNamespace.forceDeleteButton = true;
+                            }
                             showDeleteNamespaceConfirmDialog();
                         });
                     }
@@ -56,7 +76,7 @@ function deleteNamespaceModalDirective($window, $q, toastr, AppUtil, EventManage
                             var masterUsers = [];
 
                             appRoleUsers.masterUsers.forEach(function (user) {
-                                masterUsers.push(user.userId);
+                                masterUsers.push(_.escape(user.userId));
 
                                 if (currentUser.userId == user.userId) {
                                     isAppMasterUser = true;
@@ -67,8 +87,9 @@ function deleteNamespaceModalDirective($window, $q, toastr, AppUtil, EventManage
                             scope.isAppMasterUser = isAppMasterUser;
 
                             if (!isAppMasterUser) {
-                                toastr.error("您没有项目管理员权限，只有管理员才能删除Namespace，请找项目管理员 [" + scope.masterUsers.join("，")
-                                             + "] 删除Namespace", "删除失败");
+                                toastr.error($translate.instant('Config.DeleteNamespaceNoPermissionFailedTips', {
+                                    users: scope.masterUsers.join(", ")
+                                }), $translate.instant('Config.DeleteNamespaceNoPermissionFailedTitle'));
                                 d.reject();
                             } else {
                                 d.resolve();
@@ -79,84 +100,40 @@ function deleteNamespaceModalDirective($window, $q, toastr, AppUtil, EventManage
                 return d.promise;
             }
 
-            function checkMasterInstance(namespace) {
-                if (namespace.instancesCount > 0) {
-                    EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                        namespace: namespace,
-                        reason: 'master_instance'
-                    });
-
-                    return false;
-                }
-
-                return true;
-            }
-
-            function checkBranchInstance(namespace) {
-                if (namespace.hasBranch && namespace.branch.latestReleaseInstances.total > 0) {
-                    EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                        namespace: namespace,
-                        reason: 'branch_instance'
-                    });
-
-                    return false;
-                }
-
-                return true;
-            }
-
-            function checkPublicNamespace(namespace) {
-                var d = $q.defer();
-
-                var publicAppId = namespace.baseInfo.appId;
-                NamespaceService.getPublicAppNamespaceAllNamespaces(scope.env,
-                                                                    namespace.baseInfo.namespaceName,
-                                                                    0, 20)
-                    .then(function (associatedNamespaces) {
-                        var otherAppAssociatedNamespaces = [];
-                        associatedNamespaces.forEach(function (associatedNamespace) {
-                            if (associatedNamespace.appId != publicAppId) {
-                                otherAppAssociatedNamespaces.push(associatedNamespace);
-                            }
-                        });
-
-                        if (otherAppAssociatedNamespaces.length) {
-                            EventManager.emit(EventManager.EventType.DELETE_NAMESPACE_FAILED, {
-                                namespace: namespace,
-                                reason: 'public_namespace',
-                                otherAppAssociatedNamespaces: otherAppAssociatedNamespaces
-                            });
-                            d.reject();
-                        } else {
-                            d.resolve();
-                        }
-
-                    });
-
-                return d.promise;
-
-            }
-
             function showDeleteNamespaceConfirmDialog() {
                 AppUtil.showModal('#deleteNamespaceModal');
             }
 
             function doDeleteNamespace() {
                 var toDeleteNamespace = scope.toDeleteNamespace;
-                NamespaceService.deleteNamespace(toDeleteNamespace.baseInfo.appId, scope.env,
-                                                 toDeleteNamespace.baseInfo.clusterName,
-                                                 toDeleteNamespace.baseInfo.namespaceName)
+                if(toDeleteNamespace.isLinkedNamespace){
+                    NamespaceService.deleteLinkedNamespace(toDeleteNamespace.baseInfo.appId, scope.env,
+                        toDeleteNamespace.baseInfo.clusterName,
+                        toDeleteNamespace.baseInfo.namespaceName)
                     .then(function () {
-                        toastr.success("删除成功");
+                        toastr.success($translate.instant('Common.Deleted'));
 
                         setTimeout(function () {
                             $window.location.reload();
                         }, 1000);
 
                     }, function (result) {
-                        AppUtil.showErrorMsg(result, "删除失败");
+                        AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
                     })
+                } else {
+                    NamespaceService.deleteAppNamespace(toDeleteNamespace.baseInfo.appId,
+                        toDeleteNamespace.baseInfo.namespaceName)
+                    .then(function () {
+                        toastr.success($translate.instant('Common.Deleted'));
 
+                        setTimeout(function () {
+                            $window.location.reload();
+                        }, 1000);
+
+                    }, function (result) {
+                        AppUtil.showErrorMsg(result, $translate.instant('Common.DeleteFailed'));
+                    })
+                }
             }
 
         }

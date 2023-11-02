@@ -3974,7 +3974,7 @@ tbody.collapse.in {
 }
 
 .btn-group .btn + .btn, .btn-group .btn + .btn-group, .btn-group .btn-group + .btn, .btn-group .btn-group + .btn-group {
-    margin-left: -1px
+    margin-left: 0px
 }
 
 .btn-toolbar {
@@ -4916,6 +4916,10 @@ textarea.input-group-sm > .form-control, textarea.input-group-sm > .input-group-
 }
 
 .navbar-default .navbar-collapse, .navbar-default .navbar-form {
+    border-color: #e7e7e7
+}
+
+.wapper .navbar-form {
     border-color: #e7e7e7
 }
 

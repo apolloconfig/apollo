@@ -1,9 +1,26 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.configservice.util;
+
+import static com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator.generate;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
 import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -21,7 +38,6 @@ import java.util.stream.Collectors;
  */
 @Component
 public class WatchKeysUtil {
-  private static final Joiner STRING_JOINER = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR);
   private final AppNamespaceServiceWithCache appNamespaceService;
 
   public WatchKeysUtil(final AppNamespaceServiceWithCache appNamespaceService) {
@@ -86,10 +102,6 @@ public class WatchKeysUtil {
     return watchedKeysMap;
   }
 
-  private String assembleKey(String appId, String cluster, String namespace) {
-    return STRING_JOINER.join(appId, cluster, namespace);
-  }
-
   private Set<String> assembleWatchKeys(String appId, String clusterName, String namespace,
                                         String dataCenter) {
     if (ConfigConsts.NO_APPID_PLACEHOLDER.equalsIgnoreCase(appId)) {
@@ -99,16 +111,16 @@ public class WatchKeysUtil {
 
     //watch specified cluster config change
     if (!Objects.equals(ConfigConsts.CLUSTER_NAME_DEFAULT, clusterName)) {
-      watchedKeys.add(assembleKey(appId, clusterName, namespace));
+      watchedKeys.add(generate(appId, clusterName, namespace));
     }
 
     //watch data center config change
     if (!Strings.isNullOrEmpty(dataCenter) && !Objects.equals(dataCenter, clusterName)) {
-      watchedKeys.add(assembleKey(appId, dataCenter, namespace));
+      watchedKeys.add(generate(appId, dataCenter, namespace));
     }
 
     //watch default cluster config change
-    watchedKeys.add(assembleKey(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace));
+    watchedKeys.add(generate(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace));
 
     return watchedKeys;
   }

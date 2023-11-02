@@ -1,9 +1,0 @@
-ctrip:
-  appid: 100003173
-  email:
-    send:
-      code: 37030033
-    template:
-      id: 37030033
-    survival:
-      duration: 5

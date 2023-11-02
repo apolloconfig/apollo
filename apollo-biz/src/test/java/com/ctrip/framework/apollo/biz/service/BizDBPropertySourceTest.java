@@ -1,3 +1,19 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.ctrip.framework.apollo.biz.service;
 
 import com.google.common.collect.Lists;
@@ -12,8 +28,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.core.env.Environment;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +45,13 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
   @Mock
   private ServerConfigRepository serverConfigRepository;
+
+  @Mock
+  private DataSource dataSource;
+
+  @Mock
+  private Environment environment;
+
   private BizDBPropertySource propertySource;
 
   private String clusterConfigKey = "clusterKey";
@@ -39,8 +63,7 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
   @Before
   public void initTestData() {
-    propertySource = spy(new BizDBPropertySource());
-    ReflectionTestUtils.setField(propertySource, "serverConfigRepository", serverConfigRepository);
+    propertySource = spy(new BizDBPropertySource(serverConfigRepository, dataSource, environment));
 
     List<ServerConfig> configs = Lists.newLinkedList();
 

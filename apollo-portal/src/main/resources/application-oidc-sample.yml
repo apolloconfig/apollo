@@ -1,0 +1,63 @@
+#
+# Copyright 2023 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+server:
+  # 解析反向代理请求头
+  forward-headers-strategy: framework
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          # provider-name 是 oidc 提供者的名称, 任意字符均可, registration 的配置需要用到这个名称
+          <fill-in-the-provider-name-here>:
+            # 必须是 https, oidc 的 issuer-uri, 和 jwt 的 issuer-uri 一致的话直接引用即可, 也可以单独设置
+            issuer-uri: ${spring.security.oauth2.resourceserver.jwt.issuer-uri}
+        registration:
+          # registration-name 是 oidc 客户端的名称, 任意字符均可, oidc 登录必须配置一个 authorization_code 类型的 registration
+          <fill-in-the-registration-name-here>:
+            # oidc 登录必须配置一个 authorization_code 类型的 registration
+            authorization-grant-type: authorization_code
+            client-authentication-method: basic
+            # client-id 是在 oidc 提供者处配置的客户端ID, 用于登录 provider
+            client-id: apollo-portal
+            # provider 的名称, 需要和上面配置的 provider 名称保持一致
+            provider: <fill-in-the-provider-name-here>
+            # openid 为 oidc 登录的必须 scope, 此处可以添加其它自定义的 scope
+            scope:
+              - openid
+            # client-secret 是在 oidc 提供者处配置的客户端密码, 用于登录 provider
+            # 从安全角度考虑更推荐使用环境变量来配置, 环境变量的命名规则为: 将配置项的 key 当中的 点(.)、横杠(-)替换为下划线(_), 然后将所有字母改为大写, spring boot 会自动处理符合此规则的环境变量
+            # 例如 spring.security.oauth2.client.registration.<fill-in-the-registration-name-here>.client-secret -> SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_<FILL_IN_THE_REGISTRATION_NAME_HERE>_CLIENT_SECRET (<FILL_IN_THE_REGISTRATION_NAME_HERE> 可以替换为自定义的 oidc 客户端的名称)
+            client-secret: d43c91c0-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+          # registration-name-client 是 oidc 客户端的名称, 任意字符均可, client_credentials 类型的 registration 为选填项, 可以不配置
+          registration-name-client:
+            # client_credentials 类型的 registration 为选填项, 用于 apollo-portal 作为客户端请求其它被 oidc 保护的资源, 可以不配置
+            authorization-grant-type: client_credentials
+            client-authentication-method: basic
+            # client-id 是在 oidc 提供者处配置的客户端ID, 用于登录 provider
+            client-id: apollo-portal
+            # provider 的名称, 需要和上面配置的 provider 名称保持一致
+            provider: <fill-in-the-provider-name-here>
+            # openid 为 oidc 登录的必须 scope, 此处可以添加其它自定义的 scope
+            scope:
+              - openid
+            # client-secret 是在 oidc 提供者处配置的客户端密码, 用于登录 provider, 多个 registration 的密码如果一致可以直接引用
+            client-secret: ${spring.security.oauth2.client.registration.registration-name.client-secret}
+      resourceserver:
+        jwt:
+          # 必须是 https, jwt 的 issuer-uri
+          # 例如 你的 issuer-uri 是 https://host:port/auth/realms/apollo/.well-known/openid-configuration, 那么此处只需要配置 https://host:port/auth/realms/apollo 即可, spring boot 处理的时候会自动加上 /.well-known/openid-configuration 的后缀
+          issuer-uri: https://host:port/auth/realms/apollo

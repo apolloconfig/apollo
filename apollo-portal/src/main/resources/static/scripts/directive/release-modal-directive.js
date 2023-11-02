@@ -1,9 +1,25 @@
+/*
+ * Copyright 2023 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 directive_module.directive('releasemodal', releaseModalDirective);
 
-function releaseModalDirective(toastr, AppUtil, EventManager, ReleaseService, NamespaceBranchService) {
+function releaseModalDirective($translate, toastr, AppUtil, EventManager, ReleaseService, NamespaceBranchService) {
     return {
         restrict: 'E',
-        templateUrl: '../../views/component/release-modal.html',
+        templateUrl: AppUtil.prefixPath() + '/views/component/release-modal.html',
         transclude: true,
         replace: true,
         scope: {
@@ -17,28 +33,28 @@ function releaseModalDirective(toastr, AppUtil, EventManager, ReleaseService, Na
             scope.release = release;
 
             scope.releaseBtnDisabled = false;
-            scope.releaseChangeViewType = 'change';
+            scope.releaseChangeViewType = 'compareWithPublishedValue';
             scope.releaseComment = '';
             scope.isEmergencyPublish = false;
-            
+
             EventManager.subscribe(EventManager.EventType.PUBLISH_NAMESPACE,
-                                   function (context) {
+                function (context) {
 
-                                       var namespace = context.namespace;
-                                       scope.toReleaseNamespace = context.namespace;
-                                       scope.isEmergencyPublish = !!context.isEmergencyPublish;
+                    var namespace = context.namespace;
+                    scope.toReleaseNamespace = context.namespace;
+                    scope.isEmergencyPublish = !!context.isEmergencyPublish;
 
-                                       var date = new Date().Format("yyyyMMddhhmmss");
-                                       if (namespace.mergeAndPublish) {
-                                           namespace.releaseTitle = date + "-gray-release-merge-to-master";
-                                       } else if (namespace.isBranch) {
-                                           namespace.releaseTitle = date + "-gray";
-                                       } else {
-                                           namespace.releaseTitle = date + "-release";
-                                       }
+                    var date = new Date().Format("yyyyMMddhhmmss");
+                    if (namespace.mergeAndPublish) {
+                        namespace.releaseTitle = date + "-gray-release-merge-to-master";
+                    } else if (namespace.isBranch) {
+                        namespace.releaseTitle = date + "-gray";
+                    } else {
+                        namespace.releaseTitle = date + "-release";
+                    }
 
-                                       AppUtil.showModal('#releaseModal');
-                                   });
+                    AppUtil.showModal('#releaseModal');
+                });
 
             function release() {
                 if (scope.toReleaseNamespace.mergeAndPublish) {
@@ -54,96 +70,99 @@ function releaseModalDirective(toastr, AppUtil, EventManager, ReleaseService, Na
             function publish() {
                 scope.releaseBtnDisabled = true;
                 ReleaseService.publish(scope.appId, scope.env,
-                                       scope.toReleaseNamespace.baseInfo.clusterName,
-                                       scope.toReleaseNamespace.baseInfo.namespaceName,
-                                       scope.toReleaseNamespace.releaseTitle,
-                                       scope.releaseComment,
-                                       scope.isEmergencyPublish).then(
-                    function (result) {
-                        AppUtil.hideModal('#releaseModal');
-                        toastr.success("发布成功");
+                    scope.toReleaseNamespace.baseInfo.clusterName,
+                    scope.toReleaseNamespace.baseInfo.namespaceName,
+                    scope.toReleaseNamespace.releaseTitle,
+                    scope.releaseComment,
+                    scope.isEmergencyPublish).then(
+                        function (result) {
+                            AppUtil.hideModal('#releaseModal');
+                            toastr.success($translate.instant('ReleaseModal.Published'));
 
-                        scope.releaseBtnDisabled = false;
+                            scope.releaseBtnDisabled = false;
 
-                        EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                          {
-                                              namespace: scope.toReleaseNamespace
-                                          })
+                            EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
+                                {
+                                    namespace: scope.toReleaseNamespace
+                                })
 
-                    }, function (result) {
-                        scope.releaseBtnDisabled = false;
-                        toastr.error(AppUtil.errorMsg(result), "发布失败");
+                        }, function (result) {
+                            scope.releaseBtnDisabled = false;
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('ReleaseModal.PublishFailed'));
 
-                    }
-                );
+                        }
+                    );
 
             }
 
             function grayPublish() {
                 scope.releaseBtnDisabled = true;
                 ReleaseService.grayPublish(scope.appId, scope.env,
-                                           scope.toReleaseNamespace.parentNamespace.baseInfo.clusterName,
-                                           scope.toReleaseNamespace.baseInfo.namespaceName,
-                                           scope.toReleaseNamespace.baseInfo.clusterName,
-                                           scope.toReleaseNamespace.releaseTitle,
-                                           scope.releaseComment,
-                                           scope.isEmergencyPublish).then(
-                    function (result) {
-                        AppUtil.hideModal('#releaseModal');
-                        toastr.success("灰度发布成功");
+                    scope.toReleaseNamespace.parentNamespace.baseInfo.clusterName,
+                    scope.toReleaseNamespace.baseInfo.namespaceName,
+                    scope.toReleaseNamespace.baseInfo.clusterName,
+                    scope.toReleaseNamespace.releaseTitle,
+                    scope.releaseComment,
+                    scope.isEmergencyPublish).then(
+                        function (result) {
+                            AppUtil.hideModal('#releaseModal');
+                            toastr.success($translate.instant('ReleaseModal.GrayscalePublished'));
 
-                        scope.releaseBtnDisabled = false;
+                            scope.releaseBtnDisabled = false;
 
-                        //refresh item status
-                        scope.toReleaseNamespace.branchItems.forEach(function (item, index) {
-                            if (item.isDeleted) {
-                                scope.toReleaseNamespace.branchItems.splice(index, 1);
-                            } else {
-                                item.isModified = false;
+                            //refresh item status
+                            for (let index = 0; index < scope.toReleaseNamespace.branchItems.length; index++) {
+                                const item = scope.toReleaseNamespace.branchItems[index];
+                                if (item.isDeleted) {
+                                    scope.toReleaseNamespace.branchItems.splice(index, 1);
+                                    index--;
+                                } else {
+                                    item.isModified = false;
+                                }
                             }
+
+                            //reset namespace status
+                            scope.toReleaseNamespace.itemModifiedCnt = 0;
+                            scope.toReleaseNamespace.lockOwner = undefined;
+
+                            //check rules
+                            if (!scope.toReleaseNamespace.rules
+                                || !scope.toReleaseNamespace.rules.ruleItems
+                                || !scope.toReleaseNamespace.rules.ruleItems.length) {
+
+                                scope.toReleaseNamespace.viewType = 'rule';
+                                AppUtil.showModal('#grayReleaseWithoutRulesTips');
+                            }
+
+                        }, function (result) {
+                            scope.releaseBtnDisabled = false;
+                            toastr.error(AppUtil.errorMsg(result), $translate.instant('ReleaseModal.GrayscalePublishFailed'));
+
                         });
-                        //reset namespace status
-                        scope.toReleaseNamespace.itemModifiedCnt = 0;
-                        scope.toReleaseNamespace.lockOwner = undefined;
-
-                        //check rules
-                        if (!scope.toReleaseNamespace.rules
-                            || !scope.toReleaseNamespace.rules.ruleItems
-                            || !scope.toReleaseNamespace.rules.ruleItems.length) {
-
-                            scope.toReleaseNamespace.viewType = 'rule';
-                            AppUtil.showModal('#grayReleaseWithoutRulesTips');
-                        }
-
-                    }, function (result) {
-                        scope.releaseBtnDisabled = false;
-                        toastr.error(AppUtil.errorMsg(result), "灰度发布失败");
-
-                    });
             }
 
             function mergeAndPublish() {
 
                 NamespaceBranchService.mergeAndReleaseBranch(scope.appId,
-                                                             scope.env,
-                                                             scope.cluster,
-                                                             scope.toReleaseNamespace.baseInfo.namespaceName,
-                                                             scope.toReleaseNamespace.baseInfo.clusterName,
-                                                             scope.toReleaseNamespace.releaseTitle,
-                                                             scope.releaseComment,
-                                                             scope.isEmergencyPublish,
-                                                             scope.toReleaseNamespace.mergeAfterDeleteBranch)
+                    scope.env,
+                    scope.cluster,
+                    scope.toReleaseNamespace.baseInfo.namespaceName,
+                    scope.toReleaseNamespace.baseInfo.clusterName,
+                    scope.toReleaseNamespace.releaseTitle,
+                    scope.releaseComment,
+                    scope.isEmergencyPublish,
+                    scope.toReleaseNamespace.mergeAfterDeleteBranch)
                     .then(function (result) {
 
-                        toastr.success("全量发布成功");
+                        toastr.success($translate.instant('ReleaseModal.AllPublished'));
 
                         EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
-                                          {
-                                              namespace: scope.toReleaseNamespace
-                                          })
+                            {
+                                namespace: scope.toReleaseNamespace
+                            })
 
                     }, function (result) {
-                        toastr.error(AppUtil.errorMsg(result), "全量发布失败");
+                        toastr.error(AppUtil.errorMsg(result), $translate.instant('ReleaseModal.AllPublishFailed'));
                     });
 
                 AppUtil.hideModal('#releaseModal');

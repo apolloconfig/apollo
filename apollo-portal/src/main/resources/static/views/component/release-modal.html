@@ -1,237 +1,262 @@
 <form id="releaseModal" class="modal fade form-horizontal" name="releaseForm" valdr-type="Release"
-      ng-submit="release()">
+    ng-submit="release()">
+    <!--
+      ~ Copyright 2023 Apollo Authors
+      ~
+      ~ Licensed under the Apache License, Version 2.0 (the "License");
+      ~ you may not use this file except in compliance with the License.
+      ~ You may obtain a copy of the License at
+      ~
+      ~ http://www.apache.org/licenses/LICENSE-2.0
+      ~
+      ~ Unless required by applicable law or agreed to in writing, software
+      ~ distributed under the License is distributed on an "AS IS" BASIS,
+      ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      ~ See the License for the specific language governing permissions and
+      ~ limitations under the License.
+      ~
+    -->
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header panel-primary">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" ng-show="!toReleaseNamespace.isBranch">发布
-                    <small>(只有发布过的配置才会被客户端获取到，此次发布只会作用于当前环境:{{env}})</small>
+                <h4 class="modal-title" ng-show="!toReleaseNamespace.isBranch">
+                    {{'Component.Publish.Title' | translate }}
+                    <small>{{'Component.Publish.Tips' | translate:this }}</small>
                 </h4>
                 <h4 class="modal-title" ng-show="toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish">
-                    灰度发布
-                    <small>(灰度发布的配置只会作用于在灰度规则中配置的实例)</small>
+                    {{'Component.Publish.Grayscale' | translate }}
+                    <small>{{'Component.Publish.GrayscaleTips' | translate }}</small>
                 </h4>
                 <h4 class="modal-title" ng-show="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
-                    全量发布
-                    <small>(全量发布的配置会作用于全部的实例)</small>
+                    {{'Component.Publish.AllPublish' | translate }}
+                    <small>{{'Component.Publish.AllPublishTips' | translate }}</small>
                 </h4>
 
             </div>
 
             <div class="release modal-body">
 
-                <div class="form-group">
+                <div class="form-group pre-scrollable">
                     <div class="col-sm-2 control-label" ng-if="!toReleaseNamespace.isPropertiesFormat">
-                        <div class="row">
-                            <div class="btn-group btn-group-xs" style="padding-right: 10px" role="group">
-                                <button type="button" class="btn btn-default"
-                                        ng-class="{active:releaseChangeViewType=='change'}"
-                                        ng-click="switchReleaseChangeViewType('change')">查看变更
+                        <div class="btn-group-vertical">
+                            <div class="btn-group btn-group-xs" role="group">
+                                <button type="button" class="btn btn-default" ng-if="toReleaseNamespace.isBranch"
+                                        ng-class="{active:releaseChangeViewType=='compareWithMasterValue'}"
+                                        ng-click="switchReleaseChangeViewType('compareWithMasterValue')">{{'Component.Publish.CompareWithMasterValue' | translate }}
                                 </button>
                                 <button type="button" class="btn btn-default"
-                                        ng-class="{active:releaseChangeViewType=='release'}"
-                                        ng-click="switchReleaseChangeViewType('release')">发布的值
+                                    ng-class="{active:releaseChangeViewType=='compareWithPublishedValue'}"
+                                    ng-click="switchReleaseChangeViewType('compareWithPublishedValue')">{{'Component.Publish.CompareWithPublishedValue' | translate }}
+                                </button>
+                                <button type="button" class="btn btn-default"
+                                    ng-class="{active:releaseChangeViewType=='release'}"
+                                    ng-click="switchReleaseChangeViewType('release')">{{'Component.Publish.PublishedValue' | translate }}
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <label class="col-sm-2 control-label" ng-if="toReleaseNamespace.isPropertiesFormat">Changes</label>
+                    <label class="col-sm-2 control-label"
+                        ng-if="toReleaseNamespace.isPropertiesFormat">{{'Component.Publish.Changes' | translate }}</label>
 
                     <div class="col-sm-10"
-                         ng-if="(!toReleaseNamespace.isBranch && toReleaseNamespace.itemModifiedCnt)
+                        ng-if="(!toReleaseNamespace.isBranch && toReleaseNamespace.itemModifiedCnt)
                                     || (toReleaseNamespace.isBranch && toReleaseNamespace.itemModifiedCnt)
                                     || (toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish && toReleaseNamespace.branchItems.length)"
-                         valdr-form-group>
+                        valdr-form-group>
 
                         <!--properties format-->
                         <!--normal release-->
                         <table class="table table-bordered table-striped text-center table-hover"
-                               ng-if="toReleaseNamespace.isPropertiesFormat && !toReleaseNamespace.isBranch">
+                            ng-if="toReleaseNamespace.isPropertiesFormat && !toReleaseNamespace.isBranch">
                             <thead>
-                            <tr>
-                                <th>
-                                    Key
-                                </th>
-                                <th>
-                                    发布的值
-                                </th>
-                                <th>
-                                    未发布的值
-                                </th>
-                                <th>
-                                    修改人
-                                </th>
-                                <th>
-                                    修改时间
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        {{'Component.Publish.Key' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.PublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.NoPublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyUser' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="config in toReleaseNamespace.items"
-                                ng-if="config.item.key && config.isModified">
-                                <td width="20%" title="{{config.item.key}}">
-                                    <span ng-bind="config.item.key"></span>
-                                     <span class="label label-success" ng-if="config.isModified && !config.oldValue"
-                                           data-tooltip="tooltip" data-placement="bottom" title="新增的配置">新</span>
-                                    <span class="label label-info"
-                                          ng-if="config.isModified && config.oldValue && !config.isDeleted"
-                                          data-tooltip="tooltip" data-placement="bottom" title="修改的配置">改</span>
-                                    <span class="label label-danger" ng-if="config.isDeleted"
-                                          data-tooltip="tooltip" data-placement="bottom" title="删除的配置">删</span>
-                                </td>
-                                <td width="25%" title="{{config.oldValue}}">
-                                    <span ng-bind="config.oldValue"></span>
-                                </td>
-                                <td width="25%" title="{{config.newValue}}">
-                                    <span ng-bind="config.newValue"></span>
-                                </td>
-                                <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                </td>
-                                <td width="15%"
-                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                                </td>
-                            </tr>
+                                <tr ng-repeat="config in toReleaseNamespace.items"
+                                    ng-if="config.item.key && config.isModified">
+                                    <td width="20%" title="{{config.item.key}}">
+                                        <span ng-bind="config.item.key"></span>
+                                        <span class="label label-success" ng-if="config.isModified && !config.oldValue"
+                                            data-tooltip="tooltip" data-placement="bottom"
+                                            title="{{'Component.Publish.NewAddedTips' | translate }}">{{'Component.Publish.NewAdded' | translate }}</span>
+                                        <span class="label label-info"
+                                            ng-if="config.isModified && config.oldValue && !config.isDeleted"
+                                            data-tooltip="tooltip" data-placement="bottom"
+                                            title="{{'Component.Publish.ModifiedTips' | translate }}">{{'Component.Publish.Modified' | translate }}</span>
+                                        <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
+                                            data-placement="bottom"
+                                            title="{{'Component.Publish.DeletedTips' | translate }}">{{'Component.Publish.Deleted' | translate }}</span>
+                                    </td>
+                                    <td width="25%" title="{{config.oldValue}}">
+                                        <span ng-bind="config.oldValue"></span>
+                                    </td>
+                                    <td width="25%" title="{{config.newValue}}">
+                                        <span ng-bind="config.newValue"></span>
+                                    </td>
+                                    <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                    </td>
+                                    <td width="15%"
+                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
 
                         <!--branch gray release-->
-                        <table class="table table-bordered table-striped text-center table-hover"
-                               ng-if="toReleaseNamespace.isPropertiesFormat &&
+                        <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish">
                             <thead>
-                            <tr>
-                                <th>
-                                    Key
-                                </th>
-                                <th>
-                                    主版本值
-                                </th>
-                                <th>
-                                    灰度版本发布的值
-                                </th>
-                                <th>
-                                    灰度版本未发布的值
-                                </th>
-                                <th>
-                                    修改人
-                                </th>
-                                <th>
-                                    修改时间
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        {{'Component.Publish.Key' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.MasterValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.GrayPublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.GrayNoPublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyUser' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="config in toReleaseNamespace.branchItems"
-                                ng-if="config.isModified || config.isDeleted">
-                                <td width="15%" title="{{config.item.key}}">
-                                    <span ng-bind="config.item.key"></span>
+                                <tr ng-repeat="config in toReleaseNamespace.branchItems"
+                                    ng-if="config.isModified || config.isDeleted">
+                                    <td width="15%" title="{{config.item.key}}">
+                                        <span ng-bind="config.item.key"></span>
                                         <span class="label label-danger"
-                                              ng-show="config.isDeleted">删</span>
-                                </td>
-                                <td width="20%" title="{{config.masterReleaseValue}}">
-                                    <span ng-bind="config.masterReleaseValue"></span>
-                                </td>
-                                <td width="20%" title="{{config.oldValue}}">
-                                    <span ng-bind="config.oldValue"></span>
-                                </td>
-                                <td width="20%" title="{{config.newValue}}">
-                                    <span ng-bind="config.newValue"></span>
-                                </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                </td>
-                                <td width="15%"
-                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                                </td>
-                            </tr>
+                                            ng-show="config.isDeleted">{{'Component.Publish.Deleted' | translate }}</span>
+                                    </td>
+                                    <td width="20%" title="{{config.masterReleaseValue}}">
+                                        <span ng-bind="config.masterReleaseValue"></span>
+                                    </td>
+                                    <td width="20%" title="{{config.oldValue}}">
+                                        <span ng-bind="config.oldValue"></span>
+                                    </td>
+                                    <td width="20%" title="{{config.newValue}}">
+                                        <span ng-bind="config.newValue"></span>
+                                    </td>
+                                    <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                    </td>
+                                    <td width="15%"
+                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
 
                         <!--branch updateAndPublish and publish-->
-                        <table class="table table-bordered table-striped text-center table-hover"
-                               ng-if="toReleaseNamespace.isPropertiesFormat &&
+                        <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
                             <thead>
-                            <tr>
-                                <th>
-                                    Key
-                                </th>
-                                <th ng-if="toReleaseNamespace.isBranch">
-                                    主版本值
-                                </th>
-                                <th ng-if="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
-                                    灰度版本的值
-                                </th>
-                                <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
-                                    发布的值
-                                </th>
-                                <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
-                                    未发布的值
-                                </th>
-                                <th>
-                                    修改人
-                                </th>
-                                <th>
-                                    修改时间
-                                </th>
-                            </tr>
+                                <tr>
+                                    <th>
+                                        {{'Component.Publish.Key' | translate }}
+                                    </th>
+                                    <th ng-if="toReleaseNamespace.isBranch">
+                                        {{'Component.Publish.MasterValue' | translate }}
+                                    </th>
+                                    <th ng-if="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
+                                        {{'Component.Publish.GrayValue' | translate }}
+                                    </th>
+                                    <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
+                                        {{'Component.Publish.PublishedValue' | translate }}
+                                    </th>
+                                    <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
+                                        {{'Component.Publish.NoPublishedValue' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyUser' | translate }}
+                                    </th>
+                                    <th>
+                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    </th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr ng-repeat="config in toReleaseNamespace.branchItems"
-                                ng-if="!config.isDeleted">
-                                <td width="20%" title="{{config.item.key}}">
-                                    <span ng-bind="config.item.key"></span>
-                                </td>
-                                <td width="25%" title="{{config.masterReleaseValue}}">
-                                    <span ng-bind="config.masterReleaseValue"></span>
-                                </td>
-                                <td width="25%" title="{{config.item.value}}">
-                                    <span ng-bind="config.item.value"></span>
-                                </td>
-                                <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                </td>
-                                <td width="15%"
-                                    ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
-                                </td>
-                            </tr>
+                                <tr ng-repeat="config in toReleaseNamespace.branchItems" ng-if="!config.isDeleted">
+                                    <td width="20%" title="{{config.item.key}}">
+                                        <span ng-bind="config.item.key"></span>
+                                    </td>
+                                    <td width="25%" title="{{config.masterReleaseValue}}">
+                                        <span ng-bind="config.masterReleaseValue"></span>
+                                    </td>
+                                    <td width="25%" title="{{config.item.value}}">
+                                        <span ng-bind="config.item.value"></span>
+                                    </td>
+                                    <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
+                                    </td>
+                                    <td width="15%"
+                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
 
                         <!--file format -->
-                        <div ng-repeat="item in toReleaseNamespace.items"
-                             ng-if="!toReleaseNamespace.isPropertiesFormat"
-                             ng-show="releaseChangeViewType=='change'">
-                            <apollodiff old-str="item.oldValue" new-str="item.newValue"
-                                        apollo-id="'releaseStrDiff'"></apollodiff>
+                        <div ng-repeat="config in toReleaseNamespace.branchItems" ng-if="!toReleaseNamespace.isPropertiesFormat&&toReleaseNamespace.isBranch"
+                             ng-show="releaseChangeViewType=='compareWithMasterValue'">
+                            <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'releaseStrDiffWithMasterValue'">
+                            </apollodiff>
                         </div>
-                        <div ng-repeat="item in toReleaseNamespace.items"
-                             ng-if="!toReleaseNamespace.isPropertiesFormat"
-                             ng-show="releaseChangeViewType=='release'">
-                                        <textarea class="form-control no-radius" rows="20"
-                                                  ng-disabled="true" ng-show="item.newValue" ng-bind="item.newValue">
+                        <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
+                            ng-show="releaseChangeViewType=='compareWithPublishedValue'">
+                            <apollodiff old-str="item.oldValue" new-str="item.newValue" apollo-id="'releaseStrDiffWithPublishedValue'">
+                            </apollodiff>
+                        </div>
+                        <div ng-repeat="item in toReleaseNamespace.items" ng-if="!toReleaseNamespace.isPropertiesFormat"
+                            ng-show="releaseChangeViewType=='release'">
+                            <textarea class="form-control no-radius" rows="20" ng-disabled="true"
+                                ng-show="item.newValue" ng-bind="item.newValue">
                                         </textarea>
                         </div>
 
                     </div>
                     <div class="col-sm-5"
-                         ng-show="(!toReleaseNamespace.isBranch && !toReleaseNamespace.itemModifiedCnt)"
-                         valdr-form-group>
+                        ng-show="(!toReleaseNamespace.isBranch && !toReleaseNamespace.itemModifiedCnt)"
+                        valdr-form-group>
                         <label class="form-control-static">
-                            配置没有变化
+                            {{'Component.Publish.ItemNoChange' | translate }}
                         </label>
                     </div>
                     <div class="col-sm-5"
-                         ng-show="(toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish && !toReleaseNamespace.itemModifiedCnt)"
-                         valdr-form-group>
+                        ng-show="(toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish && !toReleaseNamespace.itemModifiedCnt)"
+                        valdr-form-group>
                         <label class="form-control-static">
-                            灰度配置没有变化
+                            {{'Component.Publish.GrayItemNoChange' | translate }}
                         </label>
                     </div>
                     <div class="col-sm-5"
-                         ng-show="(toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish && toReleaseNamespace.branchItems.length == 0)"
-                         valdr-form-group>
+                        ng-show="(toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish && toReleaseNamespace.branchItems.length == 0)"
+                        valdr-form-group>
                         <label class="form-control-static">
-                            没有灰度的配置项
+                            {{'Component.Publish.NoGrayItems' | translate }}
                         </label>
                     </div>
 
@@ -239,20 +264,18 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">
                         <apollorequiredfield></apollorequiredfield>
-                        Release Name</label>
+                        {{'Component.Publish.Release' | translate }}
+                    </label>
                     <div class="col-sm-5" valdr-form-group>
-                        <input type="text" name="releaseName" class="form-control"
-                               placeholder="input release name"
-                               ng-model="toReleaseNamespace.releaseTitle" ng-required="true">
+                        <input type="text" name="releaseName" class="form-control" placeholder="input release name"
+                            ng-model="toReleaseNamespace.releaseTitle" ng-required="true">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">Comment</label>
+                    <label class="col-sm-2 control-label">{{'Component.Publish.ReleaseComment' | translate }}</label>
                     <div class="col-sm-10" valdr-form-group>
-                                            <textarea rows="4" name="comment" class="form-control"
-                                                      style="margin-top: 15px;"
-                                                      ng-model="releaseComment"
-                                                      placeholder="Add an optional extended description..."></textarea>
+                        <textarea rows="4" name="comment" class="form-control" style="margin-top: 15px;"
+                            ng-model="releaseComment" placeholder="Add an optional extended description..."></textarea>
                     </div>
                 </div>
 
@@ -260,16 +283,14 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-default"
+                    data-dismiss="modal">{{'Common.Cancel' | translate }}</button>
                 <button type="submit" class="btn btn-primary"
-                        ng-disabled="releaseForm.$invalid || releaseBtnDisabled
+                    ng-disabled="releaseForm.$invalid || releaseBtnDisabled
                         || (toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish && toReleaseNamespace.branchItems.length == 0)">
-                    发布
+                    {{'Component.Publish.OpPublish' | translate }}
                 </button>
             </div>
         </div>
     </div>
 </form>
-
-
-
