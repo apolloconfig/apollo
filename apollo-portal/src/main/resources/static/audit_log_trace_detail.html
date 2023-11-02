@@ -99,31 +99,31 @@
               <div id="dataInfluenceEntity" class="padding-top-5">
                 <div>
                   <div style="font-size: 12pt; word-break: break-all">
-                    {{'ApolloAuditLog.DataInfluence.EntityName' | translate}}: {{dataInfluenceEntity[0].name}}
+                    {{'ApolloAuditLog.DataInfluence.EntityName' | translate}}: {{dataInfluenceEntity[1].name}}
                   </div>
-                  <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[0].id != 'AnyMatched'">
-                    {{'ApolloAuditLog.DataInfluence.EntityId' | translate}}: {{dataInfluenceEntity[0].id}}
+                  <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[1].id != 'AnyMatched'">
+                    {{'ApolloAuditLog.DataInfluence.EntityId' | translate}}: {{dataInfluenceEntity[1].id}}
                   </div>
-                  <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[0].id == 'AnyMatched'">
+                  <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[1].id == 'AnyMatched'">
                     {{'ApolloAuditLog.DataInfluence.AnyMatchedEntityId' | translate}}
                   </div>
                 </div>
                 <hr style="margin: 5px"/>
-                <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[0].id != 'AnyMatched'">
+                <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[1].id != 'AnyMatched'">
                   {{'ApolloAuditLog.DataInfluence.Fields' | translate}}:
                 </div>
-                <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[0].id == 'AnyMatched'">
+                <div style="font-size: 12pt; word-break: break-all" ng-show="dataInfluenceEntity[1].id == 'AnyMatched'">
                   {{'ApolloAuditLog.DataInfluence.MatchedFields' | translate}}:
                 </div>
-                <div ng-repeat="dataInfluence in dataInfluenceEntity[1]"
+                <div ng-repeat="dataInfluence in dataInfluenceEntity[1].dtoList"
                      class="cursor-pointer"
                      ng-click="showRelatedDataInfluence(dataInfluence.influenceEntityName,dataInfluence.influenceEntityId,dataInfluence.fieldName)">
                   <div class="audit-field" style="font-size: 12pt; word-break: break-all; padding-bottom: 5px; padding-top: 5px"
-                       ng-show="dataInfluenceEntity[0].id != 'AnyMatched'">
+                       ng-show="dataInfluenceEntity[1].id != 'AnyMatched'">
                     {{dataInfluence.fieldName}} ==> {{dataInfluence.fieldNewValue}}
                   </div>
                   <div class="audit-field" style="font-size: 12pt; word-break: break-all; padding-bottom: 5px; padding-top: 5px"
-                       ng-show="dataInfluenceEntity[0].id == 'AnyMatched'">
+                       ng-show="dataInfluenceEntity[1].id == 'AnyMatched'">
                     {{dataInfluence.fieldName}} <==
                     {{showingDetail.logDTO.opType == 'DELETE' ? dataInfluence.fieldOldValue : dataInfluence.fieldNewValue}}
                   </div>
