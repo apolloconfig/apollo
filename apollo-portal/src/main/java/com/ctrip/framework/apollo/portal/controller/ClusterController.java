@@ -46,7 +46,7 @@ public class ClusterController {
 
   @PreAuthorize(value = "@permissionValidator.hasCreateClusterPermission(#appId)")
   @PostMapping(value = "apps/{appId}/envs/{env}/clusters")
-  @ApolloAuditLog(type = OpType.CREATE, name = "Cluster.create.request")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Cluster.create")
   public ClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
                                   @Valid @RequestBody ClusterDTO cluster) {
     String operator = userInfoHolder.getUser().getUserId();
@@ -58,7 +58,7 @@ public class ClusterController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @DeleteMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
-  @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete.request")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,
                                             @PathVariable String clusterName){
     clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);

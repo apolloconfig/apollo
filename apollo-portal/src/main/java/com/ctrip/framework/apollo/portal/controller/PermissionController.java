@@ -75,7 +75,6 @@ public class PermissionController {
   }
 
   @PostMapping("/apps/{appId}/initPermission")
-  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(@PathVariable String appId, @RequestBody String namespaceName) {
     roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
