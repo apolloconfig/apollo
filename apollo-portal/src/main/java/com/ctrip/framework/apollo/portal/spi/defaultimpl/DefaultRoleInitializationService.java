@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.spi.defaultimpl;
 
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import com.ctrip.framework.apollo.core.ConfigConsts;

@@ -24,4 +24,6 @@ public interface ApolloAuditConstants {
   String FOLLOWS_FROM_ID = "Apollo-Audit-FollowsFromId";
 
   String TRACER = "Apollo-Audit-Tracer";
+
+  String ANY_MATCHED_ID = "AnyMatched";
 }
