@@ -50,8 +50,9 @@ public class ApolloAuditSpanAspect {
     String opName = auditLog.name();
     try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), opName,
         auditLog.description())) {
+      Object proceed = pjp.proceed();
       auditDataInfluenceArg(pjp);
-      return pjp.proceed();
+      return proceed;
     }
   }
 
@@ -96,22 +97,18 @@ public class ApolloAuditSpanAspect {
   }
 
   void parseArgAndAppend(String entityName, String fieldName, Object arg) {
-    if (entityName == null || fieldName == null) {
+    if (entityName == null || fieldName == null || arg == null) {
       return;
     }
 
-    Collection<Object> parsedList = new ArrayList<>(Collections.emptyList());
     if (arg instanceof Collection) {
-      /* if arg is a collection */
-      parsedList.addAll((Collection<?>) arg);
+      for (Object o : (Collection<?>) arg) {
+        String matchedValue = String.valueOf(o);
+        api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName, matchedValue);
+      }
     } else {
-      parsedList.add(arg);
-    }
-
-    for (Object o : parsedList) {
-      String matchedValue = String.valueOf(o);
-      api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName,
-          matchedValue);
+      String matchedValue = String.valueOf(arg);
+      api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName, matchedValue);
     }
   }
 }
