@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
@@ -78,6 +80,7 @@ public class NamespaceBranchController {
 
   @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
+  @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
   public NamespaceDTO createBranch(@PathVariable String appId,
                                    @PathVariable String env,
                                    @PathVariable String clusterName,
@@ -87,6 +90,7 @@ public class NamespaceBranchController {
   }
 
   @DeleteMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "NamespaceBranch.delete")
   public void deleteBranch(@PathVariable String appId,
                            @PathVariable String env,
                            @PathVariable String clusterName,
@@ -113,6 +117,7 @@ public class NamespaceBranchController {
 
   @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
   public ReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
                           @PathVariable String clusterName, @PathVariable String namespaceName,
                           @PathVariable String branchName, @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
@@ -152,6 +157,7 @@ public class NamespaceBranchController {
 
   @PreAuthorize(value = "@permissionValidator.hasOperateNamespacePermission(#appId, #namespaceName, #env)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.updateBranchRules")
   public void updateBranchRules(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
                                 @PathVariable String branchName, @RequestBody GrayReleaseRuleDTO rules) {

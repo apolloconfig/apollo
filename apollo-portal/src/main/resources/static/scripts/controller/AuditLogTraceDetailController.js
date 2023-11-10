@@ -136,10 +136,16 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
                         name: dto.influenceEntityName,
                         id: dto.influenceEntityId
                   };
-                  if (!entityMap.has(key)) {
-                        entityMap.set(key, []);
+                  var keyString = JSON.stringify(key);
+                  var value = {
+                        name: dto.influenceEntityName,
+                        id: dto.influenceEntityId,
+                        dtoList: []
+                  };
+                  if (!entityMap.has(keyString)) {
+                        entityMap.set(keyString, value);
                   }
-                  entityMap.get(key).push(dto);
+                  entityMap.get(keyString).dtoList.push(dto);
             });
             $scope.dataInfluenceEntities = Array.from(entityMap);
       }

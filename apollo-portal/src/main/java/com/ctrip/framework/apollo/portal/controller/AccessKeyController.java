@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AccessKeyService;
@@ -44,6 +46,7 @@ public class AccessKeyController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/accesskeys")
+  @ApolloAuditLog(type = OpType.CREATE, name = "AccessKey.create")
   public AccessKeyDTO save(@PathVariable String appId, @PathVariable String env,
       @RequestBody AccessKeyDTO accessKeyDTO) {
     String secret = UUID.randomUUID().toString().replaceAll("-", "");
@@ -61,6 +64,7 @@ public class AccessKeyController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @DeleteMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "AccessKey.delete")
   public void delete(@PathVariable String appId,
       @PathVariable String env,
       @PathVariable long id) {
@@ -70,6 +74,7 @@ public class AccessKeyController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}/enable")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "AccessKey.enable")
   public void enable(@PathVariable String appId,
       @PathVariable String env,
       @PathVariable long id) {
@@ -79,6 +84,7 @@ public class AccessKeyController {
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}/disable")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "AccessKey.disable")
   public void disable(@PathVariable String appId,
       @PathVariable String env,
       @PathVariable long id) {

@@ -118,17 +118,20 @@ public class AdminServiceAPI {
                   NamespaceDTO.class, appId, clusterName, namespaceName);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Namespace.createInRemote")
     public NamespaceDTO createNamespace(Env env, NamespaceDTO namespace) {
       return restTemplate
           .post(env, "apps/{appId}/clusters/{clusterName}/namespaces", namespace, NamespaceDTO.class,
               namespace.getAppId(), namespace.getClusterName());
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.createInRemote")
     public AppNamespaceDTO createAppNamespace(Env env, AppNamespaceDTO appNamespace) {
       return restTemplate
           .post(env, "apps/{appId}/appnamespaces", appNamespace, AppNamespaceDTO.class, appNamespace.getAppId());
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.createMissingAppNamespaceInRemote")
     public AppNamespaceDTO createMissingAppNamespace(Env env, AppNamespaceDTO appNamespace) {
       return restTemplate
           .post(env, "apps/{appId}/appnamespaces?silentCreation=true", appNamespace, AppNamespaceDTO.class,
@@ -140,6 +143,7 @@ public class AdminServiceAPI {
       return Arrays.asList(appNamespaceDTOs);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Namespace.deleteInRemote")
     public void deleteNamespace(Env env, String appId, String clusterName, String namespaceName, String operator) {
       restTemplate
           .delete(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}?operator={operator}", appId,
@@ -167,6 +171,7 @@ public class AdminServiceAPI {
       return count == null ? 0 : count;
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
     public void deleteAppNamespace(Env env, String appId, String namespaceName, String operator) {
       restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}", appId, namespaceName,
           operator);
@@ -266,12 +271,13 @@ public class AdminServiceAPI {
 
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "Cluster.createInRemote")
     public ClusterDTO create(Env env, ClusterDTO cluster) {
       return restTemplate.post(env, "apps/{appId}/clusters", cluster, ClusterDTO.class,
           cluster.getAppId());
     }
 
-
+    @ApolloAuditLog(type = OpType.RPC, name = "Cluster.deleteInRemote")
     public void delete(Env env, String appId, String clusterName, String operator) {
       restTemplate.delete(env, "apps/{appId}/clusters/{clusterName}?operator={operator}", appId, clusterName, operator);
     }
@@ -280,6 +286,7 @@ public class AdminServiceAPI {
   @Service
   public static class AccessKeyAPI extends API {
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.createInRemote")
     public AccessKeyDTO create(Env env, AccessKeyDTO accessKey) {
       return restTemplate.post(env, "apps/{appId}/accesskeys",
           accessKey, AccessKeyDTO.class, accessKey.getAppId());
@@ -291,16 +298,19 @@ public class AdminServiceAPI {
       return Arrays.asList(accessKeys);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.deleteInRemote")
     public void delete(Env env, String appId, long id, String operator) {
       restTemplate.delete(env, "apps/{appId}/accesskeys/{id}?operator={operator}",
           appId, id, operator);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.enableInRemote")
     public void enable(Env env, String appId, long id, String operator) {
       restTemplate.put(env, "apps/{appId}/accesskeys/{id}/enable?operator={operator}",
           null, appId, id, operator);
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.disableInRemote")
     public void disable(Env env, String appId, long id, String operator) {
       restTemplate.put(env, "apps/{appId}/accesskeys/{id}/disable?operator={operator}",
           null, appId, id, operator);
@@ -513,6 +523,7 @@ public class AdminServiceAPI {
   @Service
   public static class NamespaceBranchAPI extends API {
 
+    @ApolloAuditLog(type = OpType.RPC, name = "NamespaceBranch.createInRemote")
     public NamespaceDTO createBranch(String appId, Env env, String clusterName,
         String namespaceName, String operator) {
       return restTemplate
@@ -534,6 +545,7 @@ public class AdminServiceAPI {
 
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "NamespaceBranch.updateInRemote")
     public void updateBranchGrayRules(String appId, Env env, String clusterName,
         String namespaceName, String branchName, GrayReleaseRuleDTO rules) {
       restTemplate
@@ -542,6 +554,7 @@ public class AdminServiceAPI {
 
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "NamespaceBranch.deleteInRemote")
     public void deleteBranch(String appId, Env env, String clusterName,
         String namespaceName, String branchName, String operator) {
       restTemplate.delete(env,
@@ -587,6 +600,7 @@ public class AdminServiceAPI {
       }).getBody();
     }
 
+    @ApolloAuditLog(type = OpType.RPC, name = "ServerConfig.createOrUpdateConfigDBConfigInRemote")
     public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig){
       return restTemplate.post(env, "/server/config", serverConfig, ServerConfig.class);
     }
