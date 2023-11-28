@@ -69,17 +69,17 @@ public class DefaultEmailService implements EmailService {
       String password = portalConfig.emailConfigPassword();
 
       if (useSsl) {
-        t = (SMTPTransport) session.getTransport("smtp");
-        t.connect(host, user, password);
-        msg.saveChanges();
-        t.sendMessage(msg, msg.getAllRecipients());
-        logger.debug("email response: {}", t.getLastServerResponse());
-      } else {
         tSsl = (SMTPSSLTransport) session.getTransport("smtps");
         tSsl.connect(host, user, password);
         msg.saveChanges();
         tSsl.sendMessage(msg, msg.getAllRecipients());
         logger.debug("email response: {}", tSsl.getLastServerResponse());
+      } else {
+        t = (SMTPTransport) session.getTransport("smtp");
+        t.connect(host, user, password);
+        msg.saveChanges();
+        t.sendMessage(msg, msg.getAllRecipients());
+        logger.debug("email response: {}", t.getLastServerResponse());
       }
     } catch (Exception e) {
       logger.error("send email failed.", e);
