@@ -223,6 +223,10 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("email.config.host", "");
   }
 
+  public Boolean emailConfigUseSsl() {
+    return getBooleanProperty("email.config.useSsl", false);
+  }
+
   public String emailConfigUser() {
     return getValue("email.config.user", "");
   }

@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.Email;
 import com.ctrip.framework.apollo.portal.spi.EmailService;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import com.sun.mail.smtp.SMTPSSLTransport;
 import com.sun.mail.smtp.SMTPTransport;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,7 +50,10 @@ public class DefaultEmailService implements EmailService {
       return;
     }
 
+    Boolean useSsl = portalConfig.emailConfigUseSsl();
+
     SMTPTransport t = null;
+    SMTPSSLTransport tSsl = null;
     try {
       Properties prop = System.getProperties();
       Session session = Session.getInstance(prop, null);
@@ -64,21 +68,32 @@ public class DefaultEmailService implements EmailService {
       String user = portalConfig.emailConfigUser();
       String password = portalConfig.emailConfigPassword();
 
-      t = (SMTPTransport) session.getTransport("smtp");
-      t.connect(host, user, password);
-      msg.saveChanges();
-      t.sendMessage(msg, msg.getAllRecipients());
-      logger.debug("email response: {}", t.getLastServerResponse());
+      if (useSsl) {
+        t = (SMTPTransport) session.getTransport("smtp");
+        t.connect(host, user, password);
+        msg.saveChanges();
+        t.sendMessage(msg, msg.getAllRecipients());
+        logger.debug("email response: {}", t.getLastServerResponse());
+      } else {
+        tSsl = (SMTPSSLTransport) session.getTransport("smtps");
+        tSsl.connect(host, user, password);
+        msg.saveChanges();
+        tSsl.sendMessage(msg, msg.getAllRecipients());
+        logger.debug("email response: {}", tSsl.getLastServerResponse());
+      }
     } catch (Exception e) {
       logger.error("send email failed.", e);
       Tracer.logError("send email failed.", e);
     } finally {
-      if (t != null) {
-        try {
+      try {
+        if (t != null) {
           t.close();
-        } catch (Exception e) {
-          // nothing
         }
+        if (tSsl != null) {
+            tSsl.close();
+        }
+      } catch (Exception e) {
+        // nothing
       }
     }
   }
