@@ -26,9 +26,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.cglib.core.ReflectUtils;
 
 @Aspect
 public class ApolloAuditSpanAspect {
@@ -61,6 +64,7 @@ public class ApolloAuditSpanAspect {
       Object arg = args[i];
       Annotation[] annotations = method.getParameterAnnotations()[i];
 
+
       boolean needAudit = false;
       String entityName = null;
       String fieldName = null;
@@ -85,13 +89,18 @@ public class ApolloAuditSpanAspect {
 
   Method findMethod(ProceedingJoinPoint pjp) {
     Class<?> clazz = pjp.getTarget().getClass();
+    Signature pjpSignature = pjp.getSignature();
     String methodName = pjp.getSignature().getName();
-    for (Method method : clazz.getDeclaredMethods()) {
-      if (method.getName().equals(methodName)) {
-        return method;
-      }
+    Class[] parameterTypes = null;
+    if (pjpSignature instanceof MethodSignature) {
+      parameterTypes = ((MethodSignature) pjpSignature).getParameterTypes();
     }
-    return null;
+    try {
+      Method method = ReflectUtils.findDeclaredMethod(clazz, methodName, parameterTypes);
+      return method;
+    } catch (NoSuchMethodException e) {
+      return null;
+    }
   }
 
   void parseArgAndAppend(String entityName, String fieldName, Object arg) {
