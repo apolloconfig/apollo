@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.audit.aop;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -37,7 +38,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.Signature;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -99,16 +100,19 @@ public class ApolloAuditSpanAspectTest {
   public void testFindMethod() throws NoSuchMethodException {
     ProceedingJoinPoint mockPJP = mock(ProceedingJoinPoint.class);
     MockAuditClass mockAuditClass = new MockAuditClass();
-    Signature signature = mock(Signature.class);
+    MethodSignature signature = mock(MethodSignature.class);
     Method method = MockAuditClass.class.getMethod("mockAuditMethod", Object.class, Object.class);
+    Method sameNameMethod = MockAuditClass.class.getMethod("mockAuditMethod", Object.class);
     {
       when(mockPJP.getTarget()).thenReturn(mockAuditClass);
       when(mockPJP.getSignature()).thenReturn(signature);
       when(signature.getName()).thenReturn("mockAuditMethod");
+      when(signature.getParameterTypes()).thenReturn(new Class[]{Object.class, Object.class});
     }
     Method methodFounded = aspect.findMethod(mockPJP);
 
     assertEquals(method, methodFounded);
+    assertNotEquals(sameNameMethod, methodFounded);
   }
 
   @Test
@@ -153,6 +157,11 @@ public class ApolloAuditSpanAspectTest {
         @ApolloAuditLogDataInfluence
         @ApolloAuditLogDataInfluenceTable(tableName = "App")
         @ApolloAuditLogDataInfluenceTableField(fieldName = "Name") Object val1,
+        Object val2) {
+    }
+
+    // same name method test
+    public void mockAuditMethod(
         Object val2) {
     }
   }
