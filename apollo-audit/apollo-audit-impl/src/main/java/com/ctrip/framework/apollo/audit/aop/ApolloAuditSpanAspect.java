@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.audit.constants.ApolloAuditConstants;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Objects;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.annotation.Around;
@@ -59,6 +60,9 @@ public class ApolloAuditSpanAspect {
 
   void auditDataInfluenceArg(ProceedingJoinPoint pjp) {
     Method method = findMethod(pjp);
+    if (Objects.isNull(method)) {
+      return;
+    }
     Object[] args = pjp.getArgs();
     for (int i = 0; i < args.length; i++) {
       Object arg = args[i];
