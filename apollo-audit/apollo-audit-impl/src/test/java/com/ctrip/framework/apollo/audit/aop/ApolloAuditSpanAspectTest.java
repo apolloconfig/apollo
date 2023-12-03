@@ -97,6 +97,19 @@ public class ApolloAuditSpanAspectTest {
   }
 
   @Test
+  public void testAuditDataInfluenceArgCaseFindMethodReturnNull() throws NoSuchMethodException {
+    ProceedingJoinPoint mockPJP = mock(ProceedingJoinPoint.class);
+    Object[] args = new Object[]{new Object(), new Object()};
+    {
+      doReturn(null).when(aspect).findMethod(any());
+      when(mockPJP.getArgs()).thenReturn(args);
+    }
+    aspect.auditDataInfluenceArg(mockPJP);
+    verify(aspect, times(0))
+        .parseArgAndAppend(eq("App"), eq("Name"), eq(args[0]));
+  }
+
+  @Test
   public void testFindMethod() throws NoSuchMethodException {
     ProceedingJoinPoint mockPJP = mock(ProceedingJoinPoint.class);
     MockAuditClass mockAuditClass = new MockAuditClass();
