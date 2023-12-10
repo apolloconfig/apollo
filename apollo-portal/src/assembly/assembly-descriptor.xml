@@ -48,6 +48,7 @@
 			<includes>
 				<include>application-github.properties</include>
 				<include>apollo-env.properties</include>
+				<include>application.properties</include>
 			</includes>
 		</fileSet>
 		<!--artifact -->
