@@ -102,6 +102,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.14 获取 Namespace 最后一次发布的内容](#_3214-获取某个namespace当前生效的已发布配置接口)
 - [3.2.15 回滚 Namespace](#_3215-回滚已发布配置接口)
 - [3.2.16 分页获取配置项](#_3216-分页获取配置项接口) 
+- [3.2.17 创建App并授权给当前token](#3.2.17 创建App并授权给当前token)
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -608,6 +609,45 @@ size | false | int | 页大小，默认为 50
     "total": 2
 }
 ```
+
+##### 3.2.17 创建App并获取管理员权限
+
+可以通过此接口创建App，
+
+>  注意：需要在创建第三方应用时，**勾选允许创建app，否则会产生异常，HTTP状态码401**
+
+* **URL** ：  http://{portal_address}/openapi/v1/apps/
+* **Method** ： POST
+* **Request Params** ：无
+* **请求内容(Request Body, JSON格式)** ： 
+
+| 参数名              | 必选  | 类型     | 说明                                  |
+| ------------------- | ----- | -------- | ------------------------------------- |
+| assignAppRoleToSelf | true  | Boolean  | true：授予自己APP的管理权限           |
+| admins              | false | String[] | 授予这些用户APP的管理权限             |
+| app                 | true  | Object   | APP的信息，字段参考下方的请求值Sample |
+
+* **请求值 Sample** ： 
+
+```json
+{
+  "assignAppRoleToSelf": true,
+  "admins": [
+    "user1",
+    "user2"
+  ],
+  "app": {
+    "name": "appName1234",
+    "appId": "xxx-web",
+    "orgId": "development",
+    "orgName": "产品研发部",
+    "ownerName": "user3",
+    "ownerEmail": "user3@test.com"
+  }
+}
+```
+
+* **返回值 Sample** ： 无返回值
 
 ### 四、错误码说明
 
