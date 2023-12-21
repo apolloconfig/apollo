@@ -609,8 +609,6 @@ This interface is the interface used to get whether the current namespace is loc
 
 App can be created through this interface, 
 
->  note: 需要在创建第三方应用时，**勾选允许创建app，否则会触发异常，HTTP状态码401**
->
 >  note: When creating and allowing third-party application, **check the box to Allow app creation, otherwise an exception will be throw, HTTP status code 401**
 
 * **URL** ：  http://{portal_address}/openapi/v1/apps/
