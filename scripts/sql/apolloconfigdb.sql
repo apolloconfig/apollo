@@ -429,24 +429,8 @@ CREATE TABLE `ServiceRegistry` (
   INDEX `IX_DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='注册中心';
 
-
-# Config
+# Dump of table AuditLog
 # ------------------------------------------------------------
-INSERT INTO `ServerConfig` (`Key`, `Cluster`, `Value`, `Comment`)
-VALUES
-    ('eureka.service.url', 'default', 'http://localhost:8080/eureka/', 'Eureka服务Url，多个service以英文逗号分隔'),
-    ('namespace.lock.switch', 'default', 'false', '一次发布只能有一个人修改开关'),
-    ('item.key.length.limit', 'default', '128', 'item key 最大长度限制'),
-    ('item.value.length.limit', 'default', '20000', 'item value最大长度限制'),
-    ('config-service.cache.enabled', 'default', 'false', 'ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！');
-
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
 
 DROP TABLE IF EXISTS `AuditLog`;
 
@@ -473,6 +457,8 @@ CREATE TABLE `AuditLog` (
   KEY `IX_Operator` (`Operator`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志表';
 
+# Dump of table AuditLogDataInfluence
+# ------------------------------------------------------------
 
 DROP TABLE IF EXISTS `AuditLogDataInfluence`;
 
@@ -495,3 +481,20 @@ CREATE TABLE `AuditLogDataInfluence` (
   KEY `IX_DataChange_CreatedTime` (`DataChange_CreatedTime`),
   KEY `IX_EntityId` (`InfluenceEntityId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='审计日志数据变动表';
+
+# Config
+# ------------------------------------------------------------
+INSERT INTO `ServerConfig` (`Key`, `Cluster`, `Value`, `Comment`)
+VALUES
+    ('eureka.service.url', 'default', 'http://localhost:8080/eureka/', 'Eureka服务Url，多个service以英文逗号分隔'),
+    ('namespace.lock.switch', 'default', 'false', '一次发布只能有一个人修改开关'),
+    ('item.key.length.limit', 'default', '128', 'item key 最大长度限制'),
+    ('item.value.length.limit', 'default', '20000', 'item value最大长度限制'),
+    ('config-service.cache.enabled', 'default', 'false', 'ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！');
+
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
