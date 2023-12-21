@@ -31,7 +31,6 @@ Apollo 2.2.0
 * [Fix the issue that namespace content being cleared when identical content is pasted into the namespace](https://github.com/apolloconfig/apollo/pull/4922)
 * [feat(openapi): allow user create app via openapi](https://github.com/apolloconfig/apollo/pull/4954)
 * [Support grayscale feature for non-properties namespaces](https://github.com/apolloconfig/apollo/pull/4952)
-* [Fix circular references on LdapAutoConfiguration](https://github.com/apolloconfig/apollo/pull/5055)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/13?closed=1)
