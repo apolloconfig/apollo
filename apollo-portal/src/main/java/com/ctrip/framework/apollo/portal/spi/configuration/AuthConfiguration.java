@@ -195,14 +195,11 @@ public class AuthConfiguration {
 
     private final LdapProperties properties;
     private final Environment environment;
-    private final LdapTemplate ldapTemplate;
 
     public SpringSecurityLDAPAuthAutoConfiguration(final LdapProperties properties,
-        final Environment environment,
-        final LdapTemplate ldapTemplate) {
+        final Environment environment) {
       this.properties = properties;
       this.environment = environment;
-      this.ldapTemplate = ldapTemplate;
     }
 
     @Bean
@@ -225,7 +222,7 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserService.class)
-    public UserService springSecurityUserService() {
+    public UserService springSecurityUserService(LdapTemplate ldapTemplate) {
       return new LdapUserService(ldapTemplate);
     }
 
