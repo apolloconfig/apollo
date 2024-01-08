@@ -241,6 +241,7 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
                         parentNode.push(node.text);
                         clusterNode.tags = [$translate.instant('Common.Cluster')];
                         clusterNode.parentNode = parentNode;
+                        clusterNode.comment = cluster.comment;
                         clusterNodes.push(clusterNode);
 
                     });
@@ -287,6 +288,17 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
                     $rootScope.showSideBar = false;
                 }
             });
+            $('#treeview .node-treeview').hover(
+                function () {
+                    // get comment by nodeid
+                    var commentValue = $('#treeview').treeview('getNode', $(this).data('nodeid')).comment;
+                    if (typeof commentValue !== 'undefined') {
+                        $(this).attr('title', 'comment: ' + commentValue);
+                    }
+                },
+                function () {
+                }
+            );
 
             var envMapClusters = {};
             navTree.forEach(function (node) {

@@ -27,6 +27,8 @@
   "Common.AppOwnerLong": "App Owner",
   "Common.AppAdmin": "App Administrators",
   "Common.ClusterName": "Cluster Name",
+  "Common.ClusterComment": "Cluster Comment",
+  "Cluster.CreateCommentTips": "Adding comment to clusters can help users better understand the purpose of each cluster.",
   "Common.Submit": "Submit",
   "Common.Save": "Save",
   "Common.Created": "Create Successfully",

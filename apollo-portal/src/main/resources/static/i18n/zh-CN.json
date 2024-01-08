@@ -27,6 +27,8 @@
   "Common.AppOwnerLong": "应用负责人",
   "Common.AppAdmin": "应用管理员",
   "Common.ClusterName": "集群名称",
+  "Common.ClusterComment": "集群备注",
+  "Cluster.CreateCommentTips": "为新建集群增加备注说明可以帮助用户更好地理解每个集群的用途",
   "Common.Submit": "提交",
   "Common.Save": "保存",
   "Common.Created": "创建成功",

@@ -43,6 +43,9 @@ public class Cluster extends BaseEntity implements Comparable<Cluster> {
   @Column(name = "`ParentClusterId`", nullable = false)
   private long parentClusterId;
 
+  @Column(name = "`Comment`")
+  private String comment;
+
   public String getAppId() {
     return appId;
   }
@@ -67,9 +70,17 @@ public class Cluster extends BaseEntity implements Comparable<Cluster> {
     this.parentClusterId = parentClusterId;
   }
 
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
   public String toString() {
     return toStringHelper().add("name", name).add("appId", appId)
-        .add("parentClusterId", parentClusterId).toString();
+        .add("parentClusterId", parentClusterId).add("comments", comment).toString();
   }
 
   @Override

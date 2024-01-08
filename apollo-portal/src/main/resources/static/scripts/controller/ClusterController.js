@@ -39,6 +39,7 @@ cluster_module.controller('ClusterController',
             });
 
             $scope.clusterName = '';
+            $scope.clusterComment = '';
 
             $scope.switchChecked = function (env, $event) {
                 env.checked = !env.checked;
@@ -59,6 +60,7 @@ cluster_module.controller('ClusterController',
                         ClusterService.create_cluster($scope.appId, env.name,
                             {
                                 name: $scope.clusterName,
+                                comment: $scope.clusterComment,
                                 appId: $scope.appId
                             }).then(function (result) {
                                 toastr.success(env.name, $translate.instant('Cluster.ClusterCreated'));
