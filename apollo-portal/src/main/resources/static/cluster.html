@@ -82,11 +82,11 @@
                         </div>
                         <div class="form-group" valdr-form-group>
                             <label class="col-sm-2 control-label">
-                                <apollorequiredfield></apollorequiredfield>
-                                {{'Common.ClusterComment' | translate }}</label>
+                                {{'Common.ClusterRemarks' | translate }}</label>
                             <div class="col-sm-6">
-                                <input type="text" class="form-control" name="clusterComment" ng-model="clusterComment">
-                                <small>{{'Cluster.CreateCommentTips' | translate }}</small>
+                                <textarea class="form-control" rows="3" name="clusterComment"
+                                          ng-model="clusterComment"></textarea>
+                                <small>{{'Cluster.CreateRemarksTips' | translate }}</small>
                             </div>
                         </div>
                         <div class="form-group">

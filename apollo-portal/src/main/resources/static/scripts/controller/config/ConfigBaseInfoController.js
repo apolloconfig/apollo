@@ -293,7 +293,7 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
                     // get comment by nodeid
                     var commentValue = $('#treeview').treeview('getNode', $(this).data('nodeid')).comment;
                     if (typeof commentValue !== 'undefined') {
-                        $(this).attr('title', 'comment: ' + commentValue);
+                        $(this).attr('title', commentValue);
                     }
                 },
                 function () {

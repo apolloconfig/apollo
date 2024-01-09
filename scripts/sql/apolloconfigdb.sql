@@ -113,7 +113,7 @@ CREATE TABLE `Cluster` (
   `Name` varchar(32) NOT NULL DEFAULT '' COMMENT '集群名字',
   `AppId` varchar(64) NOT NULL DEFAULT '' COMMENT 'App id',
   `ParentClusterId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '父cluster',
-  `Comment` varchar(64) DEFAULT NULL COMMENT '注释',
+  `Comment` varchar(64) DEFAULT NULL COMMENT '备注',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
   `DataChange_CreatedBy` varchar(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',

@@ -18,4 +18,4 @@
 Use ApolloConfigDB;
 
 ALTER TABLE `Cluster`
-    ADD COLUMN `Comment` varchar(64) DEFAULT NULL COMMENT '注释';
+    ADD COLUMN `Comment` varchar(64) DEFAULT NULL COMMENT '备注';
