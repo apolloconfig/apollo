@@ -353,7 +353,7 @@
   "Cluster.Tips.3": "By default, Apollo reads IDC attributes in /opt/settings/server.properties(Linux) or C:\\opt\\settings\\server.properties(Windows) files on the machine as cluster names, such as SHAJQ (Jinqiao Data Center), SHAOY (Ouyang Data Center)",
   "Cluster.Tips.4": "The cluster name created here should be consistent with the IDC attribute in server.properties on the machine",
   "Cluster.CreateNameTips": "(Cluster names such as SHAJQ, SHAOY or customized clusters such as SHAJQ-xx, SHAJQ-yy)",
-  "Cluster.CreateRemarksTips": "Adding remarks to clusters can help users better understand the purpose of each cluster.",
+  "Cluster.CreateRemarksTips": "(Adding remarks to clusters can help users better understand the purpose of each cluster.)",
   "Cluster.ChooseEnvironment": "Environment",
   "Cluster.LoadingEnvironmentError": "Error in loading environment information",
   "Cluster.ClusterCreated": "Create cluster successfully",
