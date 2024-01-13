@@ -6,6 +6,7 @@ Apollo 2.3.0
 
 ------------------
 * [Fix circular references on LdapAutoConfiguration](https://github.com/apolloconfig/apollo/pull/5055)
+* [Add comment for clusters and UI display](https://github.com/apolloconfig/apollo/pull/5072)
 
 
 ------------------

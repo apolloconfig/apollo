@@ -80,7 +80,7 @@ public class Cluster extends BaseEntity implements Comparable<Cluster> {
 
   public String toString() {
     return toStringHelper().add("name", name).add("appId", appId)
-        .add("parentClusterId", parentClusterId).add("comments", comment).toString();
+        .add("parentClusterId", parentClusterId).add("comment", comment).toString();
   }
 
   @Override
