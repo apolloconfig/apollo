@@ -66,6 +66,8 @@ Apollo currently supports the following environments.
 
 > If you want to add custom environment names, you can refer to [How to add new environments by Portal Console](en/faq/common-issues-in-deployment-and-development-phase?id=_4-how-to-add-environment-by-portal-console) for the specific steps.
 
+> Please note, if your custom environment name is "PROD", it will be forcibly converted to "PRO". Similarly, if the environment name is "FWS", it will be forcibly converted to "FAT".
+
 You can refer to [deployment-architecture](en/deployment/deployment-architecture.md)
 
 

@@ -66,6 +66,8 @@ Apollo目前支持以下环境：
 
 > 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
 
+> 请注意,如果自定义的环境名称为 PROD,会被强制转换为 PRO。FWS 会被强制转换为 FAT。
+
 可以参考 [部署架构](zh/deployment/deployment-architecture.md)
 
 
