@@ -37,6 +37,8 @@ If the environment to be added is an Apollo pre-defined environment (DEV, FAT, U
 
 > Note 2: If you are adding an environment to Apollo Configuration Center that has been running for a while, don't forget to refer to [2.1.2.4 Importing ApolloConfigDB project data from another environment](en/deployment/distributed-deployment-guide?id=_2124-importing-apolloconfigdb-project-data-from-another-environment) to initialize the new environment
 
+> Note 3: if your custom environment name is "PROD", it will be forcibly converted to "PRO". Similarly, if the environment name is "FWS", it will be forcibly converted to "FAT".
+
 ##### 4.2.2 Adding a custom environment
 
 If the environment to be added is not one of Apollo's pre-defined environments, please refer to the following steps.
