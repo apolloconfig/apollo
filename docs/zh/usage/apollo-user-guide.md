@@ -338,11 +338,11 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 点击`灰度发布`按钮
 
-![](../../../doc/images/gray-release/click-gray-release.png)
+![click-gray-release](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/click-gray-release.png)
 
 与主版本的值和灰度版本已发布的值对比，确认将要发布的灰度配置
 
-![](../../../doc/images/gray-release/gray-release-diff-items.png)
+![gray-release-diff-items](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/gray-release/gray-release-diff-items.png)
 
 ## 5.4 配置灰度规则
 切换到`灰度规则`Tab，点击`新增规则`按钮

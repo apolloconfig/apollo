@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceDiscoveryAutoConfiguration;
 import com.ctrip.framework.apollo.biz.registry.configuration.ApolloServiceRegistryAutoConfiguration;
-import com.ctrip.framework.apollo.biz.repository.ServiceRegistryRepository;
-
 import java.util.List;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -49,7 +46,6 @@ import org.springframework.test.context.TestPropertySource;
     ApolloServiceRegistryAutoConfiguration.class,
     ApolloServiceDiscoveryAutoConfiguration.class,
 })
-@EnableJpaRepositories(basePackageClasses = ServiceRegistryRepository.class)
 public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -73,6 +75,8 @@ class AppServiceTest {
   UserService userService;
   @MockBean
   ApplicationEventPublisher publisher;
+  @MockBean
+  ApolloAuditLogApi apolloAuditLogApi;
 
   @BeforeEach
   void beforeEach() {
@@ -87,7 +91,8 @@ class AppServiceTest {
         rolePermissionService,
         favoriteService,
         userService,
-        publisher
+        publisher,
+        apolloAuditLogApi
     );
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(OPERATOR_USER_ID);
@@ -156,5 +161,36 @@ class AppServiceTest {
 
     Mockito.verify(rolePermissionService, Mockito.times(1))
         .assignRoleToUsers(Mockito.any(), Mockito.eq(admins), Mockito.eq(OPERATOR_USER_ID));
+  }
+
+  @Test
+  void testDeleteAppInLocal() {
+    final String appId = "appId100";
+    {
+      App app = new App();
+      app.setAppId(appId);
+      Mockito.when(appRepository.findByAppId(Mockito.eq(appId)))
+          .thenReturn(app);
+    }
+    {
+      Mockito.when(appRepository.deleteApp(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID)))
+          .thenReturn(1);
+    }
+
+    App deletedApp = appService.deleteAppInLocal(appId);
+    Mockito.verify(appRepository, Mockito.times(1))
+        .deleteApp(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(userInfoHolder, Mockito.times(1))
+        .getUser();
+    Mockito.verify(apolloAuditLogApi, Mockito.times(1))
+        .appendDataInfluences(Mockito.eq(Collections.singletonList(deletedApp)), Mockito.eq(App.class));
+    Mockito.verify(appNamespaceService, Mockito.times(1))
+        .batchDeleteByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(favoriteService, Mockito.times(1))
+        .batchDeleteByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+    Mockito.verify(rolePermissionService, Mockito.times(1))
+        .deleteRolePermissionsByAppId(Mockito.eq(appId), Mockito.eq(OPERATOR_USER_ID));
+
+    assertEquals(OPERATOR_USER_ID, deletedApp.getDataChangeLastModifiedBy());
   }
 }

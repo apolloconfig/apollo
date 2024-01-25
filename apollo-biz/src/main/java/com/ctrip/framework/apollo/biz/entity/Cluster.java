@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,9 @@ public class Cluster extends BaseEntity implements Comparable<Cluster> {
   @Column(name = "`ParentClusterId`", nullable = false)
   private long parentClusterId;
 
+  @Column(name = "`Comment`")
+  private String comment;
+
   public String getAppId() {
     return appId;
   }
@@ -67,9 +70,17 @@ public class Cluster extends BaseEntity implements Comparable<Cluster> {
     this.parentClusterId = parentClusterId;
   }
 
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
   public String toString() {
     return toStringHelper().add("name", name).add("appId", appId)
-        .add("parentClusterId", parentClusterId).toString();
+        .add("parentClusterId", parentClusterId).add("comment", comment).toString();
   }
 
   @Override
