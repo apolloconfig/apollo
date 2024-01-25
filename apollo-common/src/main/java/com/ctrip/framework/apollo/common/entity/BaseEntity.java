@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
  */
 package com.ctrip.framework.apollo.common.entity;
 
+import com.ctrip.framework.apollo.audit.event.ApolloAuditLogDataInfluenceEvent;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -31,6 +34,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
 import javax.persistence.PreUpdate;
+import org.springframework.data.domain.DomainEvents;
 
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -147,5 +151,10 @@ public abstract class BaseEntity {
 
   public String toString(){
     return toStringHelper().toString();
+  }
+
+  @DomainEvents
+  public Collection<ApolloAuditLogDataInfluenceEvent> domainEvents() {
+    return Collections.singletonList(new ApolloAuditLogDataInfluenceEvent(this.getClass(), this));
   }
 }

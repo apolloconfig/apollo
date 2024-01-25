@@ -532,7 +532,7 @@ This interface is the interface used to get whether the current namespace is loc
 * **URL** : `http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/ latest`
 * **Method** : GET
 * **Request Params** : None
-* **Response Sample** : None
+* **Response Sample** :
 
 ``` json
 {
@@ -604,6 +604,45 @@ This interface is the interface used to get whether the current namespace is loc
     "total": 2
 }
 ```
+
+##### 3.2.17 Create App And grant administrative privileges
+
+App can be created through this interface, 
+
+>  note: When creating and allowing third-party application, **check the box to Allow app creation, otherwise an exception will be throw, HTTP status code 401**
+
+* **URL** ：  http://{portal_address}/openapi/v1/apps/
+* **Method** ： POST
+* **Request Params** ：无
+* **Request Body, JSON format**:
+
+| Parameter Name      | Required | Type     | Description                                              |
+| ------------------- | -------- | -------- | -------------------------------------------------------- |
+| assignAppRoleToSelf | true     | Boolean  | true：granting app's administrative privileges to self   |
+| admins              | false    | String[] | granting app's administrative privileges to those users  |
+| app                 | true     | Object   | APP's information，see Request Sample followed for field |
+
+* **Request Sample** ： 
+
+```json
+{
+  "assignAppRoleToSelf": true,
+  "admins": [
+    "user1",
+    "user2"
+  ],
+  "app": {
+    "name": "appName1234",
+    "appId": "xxx-web",
+    "orgId": "development",
+    "orgName": "产品研发部",
+    "ownerName": "user3",
+    "ownerEmail": "user3@test.com"
+  }
+}
+```
+
+* **Response Sample** ： None
 
 ### IV. Error code description
 

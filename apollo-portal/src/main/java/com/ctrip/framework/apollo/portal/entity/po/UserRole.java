@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.entity.po;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
 import org.hibernate.annotations.SQLDelete;
@@ -32,10 +34,13 @@ import javax.persistence.Table;
 @Table(name = "`UserRole`")
 @SQLDelete(sql = "Update UserRole set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
+@ApolloAuditLogDataInfluenceTable(tableName = "UserRole")
 public class UserRole extends BaseEntity {
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "UserId")
   @Column(name = "`UserId`", nullable = false)
   private String userId;
 
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "RoleId")
   @Column(name = "`RoleId`", nullable = false)
   private long roleId;
 

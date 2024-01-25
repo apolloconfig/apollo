@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class BizDBPropertySource extends RefreshablePropertySource {
   @PostConstruct
   public void runSqlScript() throws Exception {
     if (env.acceptsProfiles(Profiles.of("h2"))) {
-      Resource resource = new ClassPathResource("jpa/init.h2.sql");
+      Resource resource = new ClassPathResource("jpa/configdb.init.h2.sql");
       if (resource.exists()) {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
       }

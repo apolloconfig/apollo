@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2023 Apollo Authors
+  ~ Copyright 2024 Apollo Authors
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -78,6 +78,15 @@
                             <div class="col-sm-6">
                                 <input type="text" class="form-control" name="clusterName" ng-model="clusterName">
                                 <small>{{'Cluster.CreateNameTips' | translate }}</small>
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                {{'Common.ClusterRemarks' | translate }}</label>
+                            <div class="col-sm-6">
+                                <textarea class="form-control" rows="3" name="clusterComment"
+                                          ng-model="clusterComment"></textarea>
+                                <small>{{'Cluster.CreateRemarksTips' | translate }}</small>
                             </div>
                         </div>
                         <div class="form-group">

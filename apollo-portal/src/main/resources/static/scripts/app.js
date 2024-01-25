@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,3 +86,7 @@ var system_info_module = angular.module('system_info', ['app.service', 'apollo.d
 var access_key_module = angular.module('access_key', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar']);
 //config export
 var config_export_module = angular.module('config_export', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar']);
+//audit log menu
+var audit_log_menu_module = angular.module('audit_log', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar']);
+//audit log trace detail
+var audit_log_trace_detail_module = angular.module('audit_log_trace_detail', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar']);

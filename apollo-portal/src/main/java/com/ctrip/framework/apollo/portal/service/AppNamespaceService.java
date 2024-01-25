@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -94,6 +99,7 @@ public class AppNamespaceService {
     return Lists.newArrayList(appNamespaces);
   }
 
+  @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create", description = "createDefaultAppNamespace")
   @Transactional
   public void createDefaultAppNamespace(String appId) {
     if (!isAppNamespaceNameUnique(appId, ConfigConsts.NAMESPACE_APPLICATION)) {
@@ -124,6 +130,7 @@ public class AppNamespaceService {
   }
 
   @Transactional
+  @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create", description = "createAppNamespaceInLocal")
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, boolean appendNamespacePrefix) {
     String appId = appNamespace.getAppId();
 
@@ -228,7 +235,7 @@ public class AppNamespaceService {
     }
   }
 
-
+  @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete", description = "deleteAppNamespace")
   @Transactional
   public AppNamespace deleteAppNamespace(String appId, String namespaceName) {
     AppNamespace appNamespace = appNamespaceRepository.findByAppIdAndName(appId, namespaceName);
@@ -250,7 +257,12 @@ public class AppNamespaceService {
     return appNamespace;
   }
 
-  public void batchDeleteByAppId(String appId, String operator) {
+  @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.batchDeleteByAppId", description = "batchDeleteByAppId")
+  public void batchDeleteByAppId(
+      @ApolloAuditLogDataInfluence
+      @ApolloAuditLogDataInfluenceTable(tableName = "AppNamespace")
+      @ApolloAuditLogDataInfluenceTableField(fieldName = "AppId") String appId,
+      String operator) {
     appNamespaceRepository.batchDeleteByAppId(appId, operator);
   }
 

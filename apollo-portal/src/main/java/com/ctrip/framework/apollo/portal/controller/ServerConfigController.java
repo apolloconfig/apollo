@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
@@ -42,12 +44,14 @@ public class ServerConfigController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/server/portal-db/config")
+  @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdatePortalDBConfig")
   public ServerConfig createOrUpdatePortalDBConfig(@Valid @RequestBody ServerConfig serverConfig) {
     return serverConfigService.createOrUpdatePortalDBConfig(serverConfig);
   }
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @PostMapping("/server/envs/{env}/config-db/config")
+  @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdateConfigDBConfig")
   public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig, @PathVariable String env) {
     return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig);
   }

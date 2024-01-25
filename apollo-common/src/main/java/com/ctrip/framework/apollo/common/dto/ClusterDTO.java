@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ public class ClusterDTO extends BaseDTO{
 
   private long parentClusterId;
 
+  private String comment;
+
   public long getId() {
     return id;
   }
@@ -66,5 +68,13 @@ public class ClusterDTO extends BaseDTO{
 
   public void setParentClusterId(long parentClusterId) {
     this.parentClusterId = parentClusterId;
+  }
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
   }
 }

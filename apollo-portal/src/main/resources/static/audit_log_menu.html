@@ -1,0 +1,168 @@
+<!--
+  ~ Copyright 2024 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="audit_log">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="icon" href="img/config.png">
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+  <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="vendor/font-awesome.min.css">
+
+  <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+  <link rel="stylesheet" type="text/css" href="styles/audit-log.css">
+  <link rel="stylesheet" type="text/css" href="vendor/iconfont/iconfont.css">
+
+  <title>{{'ApolloAuditLog.Title' | translate}}</title>
+</head>
+<body>
+
+<apollonav></apollonav>
+<div class="container-fluid apollo-container" ng-controller="AuditLogMenuController">
+  <div id='audit-not-enabled-prompt' class="panel" ng-show="!auditEnabled">
+    <section class="panel-body">
+      <div class="display-text">
+        <h2 style="word-break: break-all; text-align: center">{{'ApolloAuditLog.Disabled' | translate}}</h2>
+        <hr />
+        <h3 style="word-break: break-all; text-align: center">{{'ApolloAuditLog.DisabledTips' | translate}}</h3>
+        <p style="word-break: break-all; text-align: center">{{'ApolloAuditLog.MoreDetails' | translate}}</p>
+      </div>
+    </section>
+  </div>
+  <div id='audit-menu' class="panel" ng-show="auditEnabled">
+    <section class="panel-body">
+      <section class="row">
+        <div class="main-table">
+          <div class="search-bar container-fluid">
+            <h1 class="col-md-12">{{'ApolloAuditLog.Title' | translate}}</h1>
+            <div class="col-md-4">
+              <label for="opName" class="form-label">{{'ApolloAuditLog.OpName' | translate}}</label>
+              <input type="text" class="form-control" id="opName" placeholder="{{'ApolloAuditLog.OpNameTips' | translate}}"
+                     ng-model="opName" ng-change="showOptions(opName)" autocomplete="off">
+              <div class="options-container" ng-show="showSearchDropdown">
+                <ul class="options-list" ng-show="showSearchDropdown">
+                  <li ng-repeat="option in options" ng-click="selectOption(option)">{{ option.display }}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label for="startDate" class="form-label">{{'ApolloAuditLog.StartDate' | translate}}</label>
+              <input type="datetime-local" class="form-control" id="startDate"
+                     ng-model="startDate">
+            </div>
+            <div class="col-md-4">
+              <label for="endDate" class="form-label">{{'ApolloAuditLog.EndDate' | translate}}</label>
+              <input type="datetime-local" class="form-control" id="endDate"
+                     ng-model="endDate">
+            </div>
+            <div style="height: 10px"></div>
+            <div class="col-md-4 padding-top-5">
+              <button type="submit" class="btn btn-primary"
+                      ng-click="searchByOpNameAndDate(opName, startDate, endDate)">{{'ApolloAuditLog.DoQuery' | translate}}
+              </button>
+            </div>
+          </div>
+
+          <div style="height: 15px"></div>
+          <div class="display-table container-fluid">
+            <table class="col-md-12">
+              <tr>
+                <th style="width: 30%">{{'ApolloAuditLog.OpName' | translate }}</th>
+                <th style="width: 15%">{{'ApolloAuditLog.OpType' | translate }}</th>
+                <th style="width: 15%">{{'ApolloAuditLog.Operator' | translate }}</th>
+                <th style="width: 20%">{{'ApolloAuditLog.HappenedTime' | translate }}</th>
+                <th style="width: 20%">{{'ApolloAuditLog.Description' | translate }}</th>
+              </tr>
+              <tr ng-repeat="alog in auditLogList" ng-click="goToTraceDetailsPage(alog.traceId)"
+                  href="#"
+                  class="hover cursor-pointer">
+                <td style="width: 30%">{{ alog.opName }}</td>
+                <td style="width: 15%">{{ alog.opType }}</td>
+                <td style="width: 15%">{{ alog.operator }}</td>
+                <td style="width: 20%">{{ alog.happenedTime | date: 'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td style="width: 20%">{{ alog.description }}</td>
+              </tr>
+            </table>
+          </div>
+          <div style="height: 15px"></div>
+          <div class="homepage-loading-more-panel" ng-click="getMoreAuditLogs()"
+               ng-show="!hasLoadAll">
+            <div href="#" class="thumbnail hover cursor-pointer"
+                 style="display: flex;justify-content: center;align-items: center">
+              <div><img class="more-img" src="img/more.png"/></div>
+              <div style="margin-left: 5px"><h5>{{'ApolloAuditLog.LoadMore' | translate }}</h5></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+</div>
+
+
+<div ng-include="'views/common/footer.html'"></div>
+
+
+<!-- jquery.js -->
+<script src="vendor/jquery.min.js" type="text/javascript"></script>
+<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+
+<!--angular-->
+<script src="vendor/angular/angular.min.js"></script>
+<script src="vendor/angular/angular-resource.min.js"></script>
+<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+<script src="vendor/angular/loading-bar.min.js"></script>
+<script src="vendor/angular/angular-cookies.min.js"></script>
+
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script
+    src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script
+    src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+<!-- bootstrap.js -->
+<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="vendor/diff.min.js" type="text/javascript"></script>
+
+<!--biz-->
+<script type="application/javascript" src="scripts/app.js"></script>
+<script type="application/javascript" src="scripts/services/AppService.js"></script>
+<script type="application/javascript" src="scripts/services/EnvService.js"></script>
+<script type="application/javascript" src="scripts/services/UserService.js"></script>
+<script type="application/javascript" src="scripts/services/CommonService.js"></script>
+<script type="application/javascript" src="scripts/services/FavoriteService.js"></script>
+<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+<script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
+<script type="application/javascript" src="scripts/services/AuditLogService.js"></script>
+<script type="application/javascript" src="scripts/services/EventManager.js"></script>
+<script type="application/javascript" src="scripts/AppUtils.js"></script>
+
+<script type="application/javascript" src="scripts/controller/AuditLogMenuController.js"></script>
+
+<script type="application/javascript" src="scripts/PageCommon.js"></script>
+<script type="application/javascript" src="scripts/directive/directive.js"></script>
+<script type="application/javascript" src="scripts/directive/show-text-modal-directive.js"></script>
+<script type="application/javascript" src="scripts/directive/diff-directive.js"></script>
+<script type="application/javascript" src="scripts/directive/rollback-modal-directive.js"></script>
+</body>
+
+</html>
