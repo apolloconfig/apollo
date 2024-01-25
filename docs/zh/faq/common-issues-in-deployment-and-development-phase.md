@@ -26,7 +26,7 @@
 
 > 注2：如果是为已经运行了一段时间的Apollo配置中心增加环境，别忘了参考[2.1.2.4 从别的环境导入ApolloConfigDB的项目数据](zh/deployment/distributed-deployment-guide?id=_2124-从别的环境导入apolloconfigdb的项目数据)对新的环境做初始化
 
-> 注3：如果自定义的环境名称为 PROD,会被强制转换为 PRO。FWS 会被强制转换为 FAT。
+> 注3：如果自定义的环境名称为 PROD，会被强制转换为 PRO。FWS 会被强制转换为 FAT。
 
 #### 4.2 1.5.1及之前的版本
 ##### 4.2.1 添加Apollo预先定义好的环境
