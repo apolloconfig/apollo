@@ -4,7 +4,7 @@ If you are familiar with Docker, you can refer to [Apollo Quick Start Docker Dep
 
 However, it should be noted that Quick Start is only for local testing, if you want to deploy to production environment, please refer to [distributed-deployment-guide](en/deployment/distributed-deployment-guide) separately.
 
-> Note: Quick Start requires a bash environment, Windows users please install [Git Bash](https://git-for-windows.github.io/), we recommend using the latest version, older versions may encounter unknown problems. You can also start directly through the IDE environment, see [Apollo Development Guide](en/development/apollo-development-guide) for details.
+> Note: Quick Start requires a bash environment, Windows users please install [Git Bash](https://git-for-windows.github.io/), we recommend using the latest version, older versions may encounter unknown problems. You can also start directly through the IDE environment, see [Apollo Development Guide](en/contribution/apollo-development-guide) for details.
 
 # &nbsp;
 # I. Preparation
@@ -174,7 +174,7 @@ It should be noted that Quick Start does not support adding environments, but on
 ### 4.1.1 Viewing the sample configuration
 1. Open http://localhost:8070
 
-> Quick Start integrates with [Spring Security simple authentication](en/development/portal-how-to-implement-user-login-function?id=implementation-1-simple-authentication-using-spring-security-provided-by-apollo), for more information you can refer to [Portal implementing user login function](en/development/portal-how-to-implement-user-login-function)
+> Quick Start integrates with [Spring Security simple authentication](en/extension/portal-how-to-implement-user-login-function?id=implementation-1-simple-authentication-using-spring-security-provided-by-apollo), for more information you can refer to [Portal implementing user login function](en/extension/portal-how-to-implement-user-login-function)
 
 <img src="https://github.com/apolloconfig/apollo-quick-start/raw/master/images/apollo-login.png" alt="login" width="640px">
 
@@ -244,7 +244,7 @@ Type ``timeout`` again to see the corresponding value and you will see the follo
 
 ## 4.2 Using the new project
 ### 4.2.1 App access to Apollo
-This part can be found in [Java Application Access Guide](en/usage/java-sdk-user-guide)
+This part can be found in [Java Application Access Guide](en/client/java-sdk-user-guide)
 
 ### 4.2.2 Run the client application
 Since a new project is used, the client needs to modify the appId information.

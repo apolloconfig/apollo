@@ -1,4 +1,4 @@
-> Note: This document is intended for users of Apollo systems. If you are a developer/maintainer of Apollo systems in your company, it is recommended to refer to [Apollo Development Guide](en/development/apollo-development-guide) first.
+> Note: This document is intended for users of Apollo systems. If you are a developer/maintainer of Apollo systems in your company, it is recommended to refer to [Apollo Development Guide](en/contribution/apollo-development-guide) first.
 
 # &nbsp;
 
@@ -173,7 +173,7 @@ string value = config.GetProperty(someKey, someDefaultValue);
 
 ## 3.4 Demo
 
-There is a sample client project in apollo.net project: `ApolloDemo`, you can refer to [2.4 .Net sample client startup](en/development/apollo-development-guide?id=_24-net-sample-client-startup) for more information. 
+There is a sample client project in apollo.net project: `ApolloDemo`, you can refer to [2.4 .Net sample client startup](en/contribution/apollo-development-guide?id=_24-net-sample-client-startup) for more information. 
 
 >Net client open source version will output logs directly to the Console by default, you can implement your own logging-related features.
 >

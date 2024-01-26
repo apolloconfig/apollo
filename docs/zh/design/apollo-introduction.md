@@ -114,7 +114,7 @@ Apollo支持4个维度管理Key-Value格式的配置：
 
 ## 3.3 添加/修改配置项
 
-用户可以通过配置中心界面方便的添加/修改配置项，更多使用说明请参见[应用接入指南](zh/usage/apollo-user-guide)
+用户可以通过配置中心界面方便的添加/修改配置项，更多使用说明请参见[应用接入指南](zh/portal/apollo-user-guide)
 
 ![edit-item-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/edit-item-entry.png)
 
@@ -134,7 +134,7 @@ Apollo支持4个维度管理Key-Value格式的配置：
 
 ## 3.5 客户端获取配置（Java API样例）
 
-配置发布后，就能在客户端获取到了，以Java为例，获取配置的示例代码如下。Apollo客户端还支持和Spring整合，更多客户端使用说明请参见[Java客户端使用指南](zh/usage/java-sdk-user-guide)和[.Net客户端使用指南](zh/usage/dotnet-sdk-user-guide)。
+配置发布后，就能在客户端获取到了，以Java为例，获取配置的示例代码如下。Apollo客户端还支持和Spring整合，更多客户端使用说明请参见[Java客户端使用指南](zh/client/java-sdk-user-guide)和[.Net客户端使用指南](zh/client/java-sdk-user-guide)。
 
 ```java
 Config config = ConfigService.getAppConfig();
@@ -195,17 +195,17 @@ public class SomeBean {
 
 1. **application (应用)**
 	* 这个很好理解，就是实际使用配置的应用，Apollo客户端在运行时需要知道当前应用是谁，从而可以去获取对应的配置
-	* 每个应用都需要有唯一的身份标识 -- appId，我们认为应用身份是跟着代码走的，所以需要在代码中配置，具体信息请参见[Java客户端使用指南](zh/usage/java-sdk-user-guide)。
+	* 每个应用都需要有唯一的身份标识 -- appId，我们认为应用身份是跟着代码走的，所以需要在代码中配置，具体信息请参见[Java客户端使用指南](zh/client/java-sdk-user-guide)。
 
 2. **environment (环境)**
 	* 配置对应的环境，Apollo客户端在运行时需要知道当前应用处于哪个环境，从而可以去获取应用的配置
 	* 我们认为环境和代码无关，同一份代码部署在不同的环境就应该能够获取到不同环境的配置
-	* 所以环境默认是通过读取机器上的配置（server.properties中的env属性）指定的，不过为了开发方便，我们也支持运行时通过System Property等指定，具体信息请参见[Java客户端使用指南](zh/usage/java-sdk-user-guide)。
+	* 所以环境默认是通过读取机器上的配置（server.properties中的env属性）指定的，不过为了开发方便，我们也支持运行时通过System Property等指定，具体信息请参见[Java客户端使用指南](zh/client/java-sdk-user-guide)。
 
 3. **cluster (集群)**
 	* 一个应用下不同实例的分组，比如典型的可以按照数据中心分，把上海机房的应用实例分为一个集群，把北京机房的应用实例分为另一个集群。
 	* 对不同的cluster，同一个配置可以有不一样的值，如zookeeper地址。
-	* 集群默认是通过读取机器上的配置（server.properties中的idc属性）指定的，不过也支持运行时通过System Property指定，具体信息请参见[Java客户端使用指南](zh/usage/java-sdk-user-guide)。
+	* 集群默认是通过读取机器上的配置（server.properties中的idc属性）指定的，不过也支持运行时通过System Property指定，具体信息请参见[Java客户端使用指南](zh/client/java-sdk-user-guide)。
 
 4. **namespace (命名空间)**
 	* 一个应用下不同配置的分组，可以简单地把namespace类比为文件，不同类型的配置存放在不同的文件中，如数据库配置文件，RPC配置文件，应用自身的配置文件等
@@ -281,7 +281,7 @@ Namespace创建完，需要选择在哪些环境和集群下使用
 
 ### 4.3.5 客户端获取Namespace配置
 
-对自定义namespace的配置获取，稍有不同，需要程序传入namespace的名字。Apollo客户端还支持和Spring整合，更多客户端使用说明请参见[Java客户端使用指南](zh/usage/java-sdk-user-guide)和[.Net客户端使用指南](zh/usage/dotnet-sdk-user-guide)。
+对自定义namespace的配置获取，稍有不同，需要程序传入namespace的名字。Apollo客户端还支持和Spring整合，更多客户端使用说明请参见[Java客户端使用指南](zh/client/java-sdk-user-guide)和[.Net客户端使用指南](zh/client/java-sdk-user-guide)。
 
 ```java
 Config config = ConfigService.getConfig("FX.Hermes.Producer");

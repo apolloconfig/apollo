@@ -111,9 +111,9 @@ Apollo除了支持表格模式，逐个添加、修改配置外，还提供文�
 ## 1.5 应用读取配置
 配置发布成功后，应用就可以通过Apollo客户端读取到配置了。
 
-Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](zh/usage/java-sdk-user-guide)：
+Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](zh/client/java-sdk-user-guide)：
 
-如果应用使用了其它语言，也可以通过直接访问Http接口获取配置，具体可以参考[其它语言客户端接入指南](zh/usage/other-language-client-user-guide)
+如果应用使用了其它语言，也可以通过直接访问Http接口获取配置，具体可以参考[其它语言客户端接入指南](zh/client/other-language-client-user-guide)
 
 ## 1.6 回滚已发布配置
 
@@ -203,9 +203,9 @@ Apollo中的回滚也是类似的机制，点击回滚后是将发布到客户�
 
 配置发布成功后，应用就可以通过Apollo客户端读取到配置了。
 
-Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](zh/usage/java-sdk-user-guide)：
+Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文档](zh/client/java-sdk-user-guide)：
 
-如果应用使用了其它语言，也可以通过直接访问Http接口获取配置，具体可以参考[其它语言客户端接入指南](zh/usage/other-language-client-user-guide)
+如果应用使用了其它语言，也可以通过直接访问Http接口获取配置，具体可以参考[其它语言客户端接入指南](zh/client/other-language-client-user-guide)
 
 对于公共组件的配置读取，可以参考上述文档中的“获取公共Namespace的配置”部分。
 
@@ -367,7 +367,7 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 上述规则配置后，灰度配置会对AppId为`100004458`，IP为`10.32.21.22`或者`Label`标记为`myLabel`或`appLabel`的实例生效。
 
-> 关于`Label`如何标记，可以参考[ApolloLabel](zh/usage/java-sdk-user-guide?id=_1247-apollolabel)的配置说明。
+> 关于`Label`如何标记，可以参考[ApolloLabel](zh/client/java-sdk-user-guide?id=_1247-apollolabel)的配置说明。
 
 如果下拉框中没找到需要的IP，说明机器还没从Apollo取过配置，可以点击手动输入IP来输入，输入完后点击添加按钮
 
@@ -453,7 +453,7 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 2. 为项目的每个环境生成访问密钥，注意默认是禁用的，建议在客户端都配置完成后再开启
 ![密钥配置页面](https://user-images.githubusercontent.com/837658/94990150-788dba00-05ac-11eb-9a12-727fdb872e42.png)
 
-3. 客户端侧[配置访问密钥](zh/usage/java-sdk-user-guide#_1244-配置访问密钥)
+3. 客户端侧[配置访问密钥](zh/client/java-sdk-user-guide#_1244-配置访问密钥)
 
 # 七、最佳实践
 
@@ -463,7 +463,7 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 ### 7.1.1 认证
 
-建议接入公司统一的身份认证系统，如 SSO、LDAP 等，接入方式可以参考[Portal 实现用户登录功能](zh/development/portal-how-to-implement-user-login-function)
+建议接入公司统一的身份认证系统，如 SSO、LDAP 等，接入方式可以参考[Portal 实现用户登录功能](zh/extension/portal-how-to-implement-user-login-function)
 
 > 如果使用Apollo提供的Spring Security简单认证，务必记得要修改超级管理员apollo的密码
 

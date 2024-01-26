@@ -1,4 +1,4 @@
->注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/development/apollo-development-guide)。
+>注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/contribution/apollo-development-guide)。
 
 # &nbsp;
 # 一、准备工作
@@ -1063,7 +1063,7 @@ eureka.instance.preferIpAddress = true
 ![text-mode-spring-boot-config-sample](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-spring-boot-config-sample.png)
 
 ## 3.3 Demo
-项目中有一个样例客户端的项目：`apollo-demo`，具体信息可以参考[Apollo开发指南](zh/development/apollo-development-guide)中的[2.3 Java样例客户端启动](zh/development/apollo-development-guide?id=_23-java样例客户端启动)部分。
+项目中有一个样例客户端的项目：`apollo-demo`，具体信息可以参考[Apollo开发指南](zh/contribution/apollo-development-guide)中的[2.3 Java样例客户端启动](zh/contribution/apollo-development-guide?id=_23-java样例客户端启动)部分。
 
 更多使用案例Demo可以参考[Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)。
 

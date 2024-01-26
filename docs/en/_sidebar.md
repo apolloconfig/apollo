@@ -6,35 +6,45 @@
   - [Apollo Core Concept Namespace](en/design/apollo-core-concept-namespace.md)
   - [Apollo Source Code Analysis](http://www.iocoder.cn/categories/Apollo/)
 
-- Deployment Document
+- Deployment Guide
   - [Quick Start](en/deployment/quick-start.md)
   - [Deployment Quick Start By Docker](en/deployment/quick-start-docker.md)
   - [Deployment Architecture](en/deployment/deployment-architecture.md)
   - [Distributed Deployment Guide](en/deployment/distributed-deployment-guide.md)
   - Deployment By Third-party Tool 
     - [Install the HA Apollo cluster in Rainbond with one-click](en/deployment/third-party-tool-rainbond.md)
-  - [Release New Version Guide](en/development/apollo-release-guide.md)
 
-- Development Document
-  - [Apollo Development Guide](en/development/apollo-development-guide.md)
+- Admin Guide
+  - [Apollo Usage Guide](en/portal/apollo-user-guide.md)
+  - [Apollo Openapi Guide](en/portal/apollo-open-api-platform.md)
+  - [Apollo Security Best Practices](en/portal/apollo-user-guide?id=_71-security-related)
+  - [Apollo User Practices](en/portal/apollo-user-practices.md)
+  - [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
+  
+- SDK Guide
+  - [Java Client Usage Guide](en/client/java-sdk-user-guide.md)
+  - [.Net Client Usage Guide](en/client/dotnet-sdk-user-guide.md)
+  - [Golang Client Usage Guide](en/client/golang-sdks-user-guide.md)
+  - [Python Client Usage Guide](en/client/python-sdks-user-guide.md)
+  - [NodeJS Client Usage Guide](en/client/nodejs-sdks-user-guide.md)
+  - [PHP Client Usage Guide](en/client/php-sdks-user-guide.md)
+  - [C Client Usage Guide](en/client/c-sdks-user-guide.md)
+  - [Rust Client Usage Guide](en/client/rust-sdks-user-guide.md)
+  - [HTTP API Guide](en/usage/other-language-client-user-guide.md)
+
+- Extension Guide
+  - [Portal Implement User Login Function](en/extension/portal-how-to-implement-user-login-function.md)
+  - [Portal Enable Email Service](en/extension/portal-how-to-enable-email-service.md)
+  - [Portal Enable Session Store](en/extension/portal-how-to-enable-session-store.md)
+  - [Portal Enable Webhook Notification](en/extension/portal-how-to-enable-webhook-notification.md)
+
+- Contributor Guide
+  - [Apollo Development Guide](en/contribution/apollo-development-guide.md)
   - Code Styles
     - [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     - [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
-  - [Portal Implement User Login Function](en/development/portal-how-to-implement-user-login-function.md)
-  - [Portal Enable Email Service](en/development/portal-how-to-enable-email-service.md)
-  - [Portal Enable Session Store](en/development/portal-how-to-enable-session-store.md)
-  - [Portal Enable Webhook Notification](en/development/portal-how-to-enable-webhook-notification.md)
-
-- Usage Document
-  - [Apollo Usage Guide](en/usage/apollo-user-guide.md)
-  - [Java Client Usage Guide](en/usage/java-sdk-user-guide.md)
-  - [.Net Client Usage Guide](en/usage/dotnet-sdk-user-guide.md)
-  - [Go、Python、NodeJS、PHP etc. Client Usage Guide](en/usage/third-party-sdks-user-guide.md)
-  - [Other Language Client User Guide](en/usage/other-language-client-user-guide.md)
-  - [Apollo Openapi Guide](en/usage/apollo-open-api-platform.md)
-  - [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
-  - [Apollo User Practices](en/usage/apollo-user-practices.md)
-  - [Apollo Security Best Practices](en/usage/apollo-user-guide?id=_71-security-related)
+  - [Release New Version Guide](en/contribution/apollo-release-guide.md)
+  - [Contributing Guide](en/contributing.md)
 
 - FAQ
   - [Frequently Asked Question](en/faq/faq.md)
@@ -47,5 +57,4 @@
 - Community
   - [Team](en/community/team.md)
   - [Community Governance](en/governance.md)
-  - [Contributing Guide](en/contributing.md)
   - [Acknowledgements](en/community/thank-you.md)

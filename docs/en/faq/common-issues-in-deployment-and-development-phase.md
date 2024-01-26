@@ -20,7 +20,7 @@ Please refer to [network policy](en/deployment/distributed-deployment-guide?id=_
 Version 1.6.0 adds the ability to customize the environment, which allows you to add an environment without modifying the code
 
 1. add environment for protaldb, refer to [3.1 Adjusting ApolloPortalDB configuration](en/deployment/distributed-deployment-guide?id=_31-adjusting-apolloportaldb-configuration)
-2. add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
+2. add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
 
 >Note 1: A set of Portal can manage multiple environments, but each environment needs to deploy a set of Config Service, Admin Service and ApolloConfigDB independently, please refer to: [2.1.2 Creating ApolloConfigDB](en/deployment/distributed-deployment-guide?id=_212-creating-apolloconfigdb), [3.2 Adjusting ApolloConfigDB configuration](en/deployment/distributed-deployment-guide?id=_32-adjusting-apolloconfigdb-configuration), [2.2.1.1.2 Configuring database connection information](en/deployment/distributed-deployment-guide?id=_22112-configuring-database-connection-information)
 
@@ -31,7 +31,7 @@ Version 1.6.0 adds the ability to customize the environment, which allows you to
 
 If the environment to be added is an Apollo pre-defined environment (DEV, FAT, UAT, PRO), two steps are required.
 1. protaldb add environment, refer to [3.1 Adjusting ApolloPortalDB configuration](en/deployment/distributed-deployment-guide?id=_31-adjusting-apolloportaldb-configuration)
-2. add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
+2. add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
 
 >Note 1: A set of Portal can manage multiple environments, but each environment needs to deploy a set of Config Service, Admin Service and ApolloConfigDB independently, please refer to: [2.1.2 Creating ApolloConfigDB](en/deployment/distributed-deployment-guide?id=_212-creating-apolloconfigdb), [3.2 Adjusting ApolloConfigDB configuration](en/deployment/distributed-deployment-guide?id=_32-adjusting-apolloconfigdb-configuration), [2.2.1.1.2 Configuring database connection information](en/deployment/distributed-deployment-guide?id=_22112-configuring-database-connection-information)
 
@@ -90,7 +90,7 @@ public class LegacyMetaServerProvider {
 ```
 
 6. Add `BETA` environment for protaldb, refer to [3.1 Adjusting ApolloPortalDB configuration](en/deployment/distributed-deployment-guide?id=_31-adjusting-apolloportaldb-configuration)
-7. Add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
+7. Add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring meta service information for apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured properly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
 
 >Note 1: A set of Portal can manage multiple environments, but each environment needs to deploy a set of Config Service, Admin Service and ApolloConfigDB independently, please refer to: [2.1.2 Creating ApolloConfigDB](en/deployment/distributed-deployment-guide?id=_212-creating-apolloconfigdb), [3.2 Adjusting ApolloConfigDB configuration](en/deployment/distributed-deployment-guide?id=_32-adjusting-apolloconfigdb-configuration), [2.2.1.1.2 Configuring database connection information](en/deployment/distributed-deployment-guide?id=_22112-configuring-database-connection-information)
 
@@ -180,7 +180,7 @@ Note that changing the Eureka address only requires changing the `eureka.service
 
 ### 9. Using `ConditionalOnProperty` in Spring Boot does not read the configuration
 
-The `@ConditionalOnProperty` feature is supported since version 0.10.0, see [Spring Boot integration method](en/usage/java-sdk-user-guide?id=_3213-spring-boot-integration-methods-recommended)
+The `@ConditionalOnProperty` feature is supported since version 0.10.0, see [Spring Boot integration method](en/client/java-sdk-user-guide?id=_3213-spring-boot-integration-methods-recommended)
 
 ### 10. How to achieve the client in room A reads the config service of room A nearby and the client in room B reads the config service of room B nearby in multiple rooms?
 

@@ -116,7 +116,7 @@ The picture above is the configuration home page of a project in the Apollo Conf
 
 ## 3.3 Add or modify configuration items
 
-Users can easily add/modify configuration items through the configuration center interface. For more usage instructions, please refer to [Application Access Guide](en/usage/apollo-user-guide)
+Users can easily add/modify configuration items through the configuration center interface. For more usage instructions, please refer to [Application Access Guide](en/portal/apollo-user-guide)
 
 ![edit-item-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/edit-item-entry.png)
 
@@ -136,7 +136,7 @@ Fill in the release information:
 
 ## 3.5 Client get configuration (Java API sample)
 
-After the configuration is released, it can be obtained on the client side. Taking Java as an example, the sample code for obtaining the configuration is as follows. Apollo client also supports integration with Spring. For more client usage instructions, please refer to [Java Client Usage Guide](en/usage/java-sdk-user-guide) and [.Net Client Usage Guide](en/usage/dotnet-sdk-user-guide).
+After the configuration is released, it can be obtained on the client side. Taking Java as an example, the sample code for obtaining the configuration is as follows. Apollo client also supports integration with Spring. For more client usage instructions, please refer to [Java Client Usage Guide](en/client/java-sdk-user-guide) and [.Net Client Usage Guide](en/client/dotnet-sdk-user-guide).
 
 ```java
 Config config = ConfigService.getAppConfig();
@@ -197,17 +197,17 @@ Before introducing advanced features, we need to understand a few core concepts 
 
 1. **application (application)**
    * Apollo clients need to know who the current application is at runtime, so they can go get the corresponding configuration.
-   * Each application needs to have a unique identity -- appId, we believe that the application identity follows the code, so it needs to be configured in the code, see [Java Client Usage Guide](en/usage/java-sdk-user-guide) for more information.
+   * Each application needs to have a unique identity -- appId, we believe that the application identity follows the code, so it needs to be configured in the code, see [Java Client Usage Guide](en/client/java-sdk-user-guide) for more information.
 
 2. **environment (environment)**
    * Configure the corresponding environment, Apollo client needs to know which environment the current application is in at runtime, so that it can go get the application configuration
    * We believe that the environment is independent of the code, the same code deployed in different environments should be able to access the configuration of different environments
-   * So the environment is specified by default by reading the configuration on the machine (the env property in server.properties), but for development convenience, we also support runtime specification by System Property, etc. For more information, see [Java Client User Guide](en/usage/java-sdk-user-guide). 
+   * So the environment is specified by default by reading the configuration on the machine (the env property in server.properties), but for development convenience, we also support runtime specification by System Property, etc. For more information, see [Java Client User Guide](en/client/java-sdk-user-guide). 
 
 3. **cluster (cluster)**
    * Grouping of different instances of an application, for example, typically by data center, dividing the application instances in the Shanghai server room into one cluster, and dividing the application instances in the Beijing server room into another cluster.
    * For different clusters, the same configuration can have different values, such as zookeeper address.
-   * Clusters are specified by default by reading the configuration on the machine (idc property in server.properties), but they are also supported at runtime by System Property, see [Java Client Usage Guide](en/usage/java-sdk-user-guide) for more information.
+   * Clusters are specified by default by reading the configuration on the machine (idc property in server.properties), but they are also supported at runtime by System Property, see [Java Client Usage Guide](en/client/java-sdk-user-guide) for more information.
 
 4. **namespace (namespace)**
    * A grouping of different configurations under an application. Namespace can be simply compared to a file, where different types of configurations are stored in different files, such as database configuration files, RPC configuration files, the application's own configuration files, etc.
@@ -285,7 +285,7 @@ Once added, you can see the configuration in the FX.Hermes.Producer namespace.
 
 ### 4.3.5 Client-side fetching of Namespace configuration
 
-Apollo client also supports integration with Spring, see [Java Client User Guide](en/usage/java-sdk-user-guide) and [Net Client Net client](en/usage/dotnet-sdk-user-guide).
+Apollo client also supports integration with Spring, see [Java Client User Guide](en/client/java-sdk-user-guide) and [Net Client Net client](en/client/dotnet-sdk-user-guide).
 
 ```java
 Config config = ConfigService.getConfig("FX.Hermes.Producer");

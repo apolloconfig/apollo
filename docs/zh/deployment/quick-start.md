@@ -4,7 +4,7 @@
 
 不过这里需要注意的是，Quick Start只针对本地测试使用，如果要部署到生产环境，还请另行参考[分布式部署指南](zh/deployment/distributed-deployment-guide)。
 
-> 注：Quick Start需要有bash环境，Windows用户请安装[Git Bash](https://git-for-windows.github.io/)，建议使用最新版本，老版本可能会遇到未知问题。也可以直接通过IDE环境启动，详见[Apollo开发指南](zh/development/apollo-development-guide)。
+> 注：Quick Start需要有bash环境，Windows用户请安装[Git Bash](https://git-for-windows.github.io/)，建议使用最新版本，老版本可能会遇到未知问题。也可以直接通过IDE环境启动，详见[Apollo开发指南](zh/contribution/apollo-development-guide)。
 
 # &nbsp;
 # 一、准备工作
@@ -170,7 +170,7 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 ### 4.1.1 查看样例配置
 1. 打开http://localhost:8070
 
-> Quick Start集成了[Spring Security简单认证](zh/development/portal-how-to-implement-user-login-function#实现方式一：使用apollo提供的spring-security简单认证)，更多信息可以参考[Portal 实现用户登录功能](zh/development/portal-how-to-implement-user-login-function)
+> Quick Start集成了[Spring Security简单认证](zh/extension/portal-how-to-implement-user-login-function#实现方式一：使用apollo提供的spring-security简单认证)，更多信息可以参考[Portal 实现用户登录功能](zh/extension/portal-how-to-implement-user-login-function)
 
 <img src="https://github.com/apolloconfig/apollo-quick-start/raw/master/images/apollo-login.png" alt="登录" width="640px">
 
@@ -238,7 +238,7 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 
 ## 4.2 使用新的项目
 ### 4.2.1 应用接入Apollo
-这部分可以参考[Java应用接入指南](zh/usage/java-sdk-user-guide)
+这部分可以参考[Java应用接入指南](zh/client/java-sdk-user-guide)
 
 ### 4.2.2 运行客户端程序
 由于使用了新的项目，所以客户端需要修改appId信息。

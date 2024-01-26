@@ -121,7 +121,7 @@ If you find that there is no publish button, you can ask the project administrat
 
 After the configuration is successfully published, the application can read the configuration through the Apollo client.
 
-Apollo currently provides a Java client. For more information, please click [Java Client Usage Documentation](en/usage/java-sdk-user-guide).
+Apollo currently provides a Java client. For more information, please click [Java Client Usage Documentation](en/client/java-sdk-user-guide).
 
 If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/usage/other-language-client-user-guide)
 
@@ -149,8 +149,8 @@ The access steps for public components are almost identical to those for normal 
 
 So, first perform the following steps in the common application access document, and then follow the steps later in this section.
 
-1. [Create Project](en/usage/apollo-user-guide?id=_11-creating-a-project)
-2. [Project administrator privileges](en/usage/apollo-user-guide?id=_121-project-administrator-privileges)
+1. [Create Project](en/portal/apollo-user-guide?id=_11-creating-a-project)
+2. [Project administrator privileges](en/portal/apollo-user-guide?id=_121-project-administrator-privileges)
 
 ### 2.2.1 Creating Namespace
 
@@ -199,7 +199,7 @@ To edit the configuration, you need to have the edit permission of this Namespac
 
 #### 2.2.2.2 Edit by text mode
 
-This part is the same as normal application, please refer to [1.3.2 Editing via text mode](en/usage/apollo-user-guide?id=_132-editing-via-text-mode) for the detailed steps.
+This part is the same as normal application, please refer to [1.3.2 Editing via text mode](en/portal/apollo-user-guide?id=_132-editing-via-text-mode) for the detailed steps.
 
 ### 2.2.3 Publish configuration
 
@@ -217,7 +217,7 @@ If you find that there is no publish button, you can ask the project administrat
 
 Once the configuration is successfully published, the application can read the configuration through the Apollo client.
 
-Apollo currently provides a Java client. For more information, click [Java Client Usage Documentation](en/usage/java-sdk-user-guide).
+Apollo currently provides a Java client. For more information, click [Java Client Usage Documentation](en/client/java-sdk-user-guide).
 
 If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/usage/other-language-client-user-guide)
 
@@ -305,7 +305,7 @@ Specifically, we create a namespace under one of the AppId, write the public con
 
 If an AppId needs to override the public configuration information, then associate a public namespace under that AppId and write the configuration that needs to be overridden.
 
-The specific steps can be referred to [Public Component Access Guide](en/usage/apollo-user-guide?id=ii-public-component-access-guide).
+The specific steps can be referred to [Public Component Access Guide](en/portal/apollo-user-guide?id=ii-public-component-access-guide).
 
 # V. Grayscale publishing usage guide
 
@@ -387,7 +387,7 @@ Manually enter the label you want to set, and click the Add button when you're d
 
 After the above rules are configured, the grayed configuration will take effect for instances with AppId `100004458`, IP `10.32.21.22` or `Label` marked as `myLabel` or `appLabel`.
 
-> For more information on how to label `Label`, you can refer to the configuration instructions in [ApolloLabel](en/usage/java-sdk-user-guide?id=_1247-apollo-label).
+> For more information on how to label `Label`, you can refer to the configuration instructions in [ApolloLabel](en/client/java-sdk-user-guide?id=_1247-apollo-label).
 
 If the required IP is not found in the drop-down box, it means that the machine has not yet taken the configuration from Apollo, you can enter it by clicking Enter IP manually, and click the Add button after entering the IP.
 
@@ -480,7 +480,7 @@ Apollo has added an access key mechanism since version 1.6.0, so that only authe
 2. Generate an access key for each environment of the project, note that it is disabled by default, and it is recommended to turn it on after the clients are all configured
    ![Key Configuration Page](https://user-images.githubusercontent.com/837658/94990150-788dba00-05ac-11eb-9a12-727fdb872e42.png)
 
-3. Client-side [configure access key](en/usage/java-sdk-user-guide?id=_1244-configuring-access-keys) .
+3. Client-side [configure access key](en/client/java-sdk-user-guide?id=_1244-configuring-access-keys) .
 
 # VII. Best practices
 
@@ -490,7 +490,7 @@ As a basic service, the configuration center stores very important configuration
 
 ### 7.1.1 Authentication
 
-It is recommended to access the company's unified authentication system, such as SSO, LDAP, etc. The access method can be found in [Portal to implement user login function](en/development/portal-how-to-implement-user-login-function)
+It is recommended to access the company's unified authentication system, such as SSO, LDAP, etc. The access method can be found in [Portal to implement user login function](en/extension/portal-how-to-implement-user-login-function)
 
 > If you use Spring Security simple authentication provided by Apollo, you must remember to change the password of super administrator apollo
 
@@ -498,12 +498,12 @@ It is recommended to access the company's unified authentication system, such as
 
 Apollo supports fine-grained permissions control, so please make sure to control the permissions according to the actual situation: 1.
 
-1. [Project administrator privileges](en/usage/apollo-user-guide?id=_121-project-administrator-privileges)
+1. [Project administrator privileges](en/portal/apollo-user-guide?id=_121-project-administrator-privileges)
    * Apollo allows all logged-in users to create projects by default. If you only allow some users to create projects, you can turn on [Create project permission control](en/deployment/distributed-deployment-guide?id=_3110-rolecreate-applicationenabled-whether-to-enable-control-over-creating-project-permissions)
-2. [Configure editing and publishing privileges](en/usage/apollo-user-guide?id=_122-configuring-editing-and-publishing-permissions)
+2. [Configure editing and publishing privileges](en/portal/apollo-user-guide?id=_122-configuring-editing-and-publishing-permissions)
    * Configuration editing and publishing privileges support configuration by environment, for example, the development environment developers can complete the process of configuration editing and publishing by themselves, but the production environment publishing privileges to the test or operation and maintenance personnel
    * It is recommended to turn on [release audit](en/deployment/distributed-deployment-guide?id=_322-namespacelockswitch-only-one-person-can-modify-the-switch-at-a-time-for-release-review) at the same time for production environment, so as to control that only one person can modify a configuration release and another person can release it. This ensures that configuration changes are adequately checked.
-3. [Configuration view permissions](en/usage/apollo-user-guide?id=_61-configure-view-permissions)
+3. [Configuration view permissions](en/portal/apollo-user-guide?id=_61-configure-view-permissions)
    * You can specify that only project members of an environment are allowed to view the configuration of a private Namespace, thus avoiding sensitive configuration leaks, such as production environments
 
 ### 7.1.3 System access
@@ -511,6 +511,6 @@ Apollo supports fine-grained permissions control, so please make sure to control
 In addition to user permissions, system access also needs to be considered in terms of.
 
 1. `apollo-configservice` and `apollo-adminservice` are designed based on the intranet trusted network, so for security reasons, `apollo-configservice` and `apollo-adminservice` are prohibited from being exposed directly to the public network
-2. For sensitive configurations, consider enabling [access secret key](en/usage/apollo-user-guide?id=_62-configuring-access-keys) so that only authenticated clients can access sensitive configurations
+2. For sensitive configurations, consider enabling [access secret key](en/portal/apollo-user-guide?id=_62-configuring-access-keys) so that only authenticated clients can access sensitive configurations
 3. version 1.7.1 and above can consider enabling [access control](en/deployment/distributed-deployment-guide?id=_326-admin-servicesaccesscontrolenabled-configure-whether-apollo-adminservice-has-access-control-enabled) for `apollo-adminservice`, so that only [controlled](en/deployment/distributed-deployment-guide?id=_3112-admin-servicesaccesstokens-set-the-access-token-required-by-apollo-portal-to-access-the-apollo-adminservice-for-each-environment) `apollo-portal` can access the corresponding interface to enhance security
 4. version 2.1.0 and above can consider enabling [access control](en/deployment/distributed-deployment-guide?id=_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication) for `eureka`, so that only controlled `apollo-configservice` and `apollo-adminservice` can be registered to `eureka` to enhance security

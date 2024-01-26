@@ -113,7 +113,7 @@ The following is an example of how to start `apollo-portal` locally with Intelli
 	-Dspring.datasource.username=root
 	-Dspring.datasource.password=
 
->Note 1: apollo_profile is specified here as `github` and `auth`, where `github` is a profile required by Apollo for database configuration, and `auth` is added from 0.9.0 to support simple authentication using Spring Security provided by apollo. For more information you can refer to [Portal-implement-user-login-function](en/development/portal-how-to-implement-user-login-function)
+>Note 1: apollo_profile is specified here as `github` and `auth`, where `github` is a profile required by Apollo for database configuration, and `auth` is added from 0.9.0 to support simple authentication using Spring Security provided by apollo. For more information you can refer to [Portal-implement-user-login-function](en/extension/portal-how-to-implement-user-login-function)
 >
 >Note 2: spring.datasource related configuration replaced with your own database connection information, note that the database is `ApolloPortalDB `.
 >
@@ -141,7 +141,7 @@ After starting, open [http://localhost:8070](http://localhost:8070) to see the A
 
 For better development and debugging, we usually create a demo project for our own use. 
 
-You can refer to [General Application Access Guide](en/usage/apollo-user-guide?id=i-general-application-access-guide) to create your own demo project.
+You can refer to [General Application Access Guide](en/portal/apollo-user-guide?id=i-general-application-access-guide) to create your own demo project.
 
 ## 2.3 Java sample client startup
 
@@ -161,7 +161,7 @@ If our own demo project uses an AppId of 100004458, then the file content would 
 
 > For public Namespace configurations, you can get the configuration without the AppId, but then you lose the ability for the application to override the public Namespace configuration.
 
-> More ways to configure AppId can be found in [1.2.1 AppId](en/usage/java-sdk-user-guide?id=_121-appid)
+> More ways to configure AppId can be found in [1.2.1 AppId](en/client/java-sdk-user-guide?id=_121-appid)
 
 ### 2.3.2 New run configuration
 
@@ -179,7 +179,7 @@ If our own demo project uses an AppId of 100004458, then the file content would 
 
 > Note: Here the current environment's meta server address is `http://localhost:8080`, which is also the address of `apollo-configservice`.
 
-> For more ways to configure Apollo Meta Server, please refer to [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server)
+> For more ways to configure Apollo Meta Server, please refer to [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server)
 
 ### 2.3.5 Overview
 
@@ -260,12 +260,12 @@ Enter the value you configured on the Portal, such as `timeout` in our demo proj
 
 ## 3.1 Portal implementation for user login
 
-Please refer to [Portal implementation of user login function](en/development/portal-how-to-implement-user-login-function)
+Please refer to [Portal implementation of user login function](en/extension/portal-how-to-implement-user-login-function)
 
 ## 3.2 Portal access to mail service
 
-Please refer to [Portal Enabling Email Service](en/development/portal-how-to-enable-email-service)
+Please refer to [Portal Enabling Email Service](en/extension/portal-how-to-enable-email-service)
 
 ## 3.3 Shared session for Portal cluster deployment
 
-Please refer to [Portal Shared Session](en/development/portal-how-to-enable-session-store)
+Please refer to [Portal Shared Session](en/extension/portal-how-to-enable-session-store)

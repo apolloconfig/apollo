@@ -65,15 +65,15 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   * Apollo还提供了打包脚本，一键就可以生成所有需要的安装包，并且支持自定义运行时参数
 
 # Usage
-  1. [应用接入指南](zh/usage/apollo-user-guide)
-  2. [Java客户端使用指南](zh/usage/java-sdk-user-guide)
-  3. [.Net客户端使用指南](zh/usage/dotnet-sdk-user-guide)
+  1. [应用接入指南](zh/portal/apollo-user-guide)
+  2. [Java客户端使用指南](zh/client/java-sdk-user-guide)
+  3. [.Net客户端使用指南](zh/client/java-sdk-user-guide)
   4. [Go、Python、NodeJS、PHP等客户端使用指南](zh/usage/third-party-sdks-user-guide)
-  5. [其它语言客户端接入指南](zh/usage/other-language-client-user-guide)
-  6. [Apollo开放平台接入指南](zh/usage/apollo-open-api-platform)
+  5. [其它语言客户端接入指南](zh/client/other-language-client-user-guide)
+  6. [Apollo开放平台接入指南](zh/portal/apollo-open-api-platform)
   7. [Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)
-  8. [Apollo实践案例](zh/usage/apollo-user-practices)
-  9. [Apollo安全相关最佳实践](zh/usage/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
+  8. [Apollo实践案例](zh/portal/apollo-user-practices)
+  9. [Apollo安全相关最佳实践](zh/portal/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
 
 # Design
   - [Apollo配置中心设计](zh/design/apollo-design.md)
@@ -82,14 +82,14 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   - [Apollo源码解析](http://www.iocoder.cn/categories/Apollo/)（据说Apollo非常适合作为初学者第一个通读源码学习的分布式中间件产品）
 
 # Development
-  - [Apollo开发指南](zh/development/apollo-development-guide.md)
+  - [Apollo开发指南](zh/contribution/apollo-development-guide.md)
   - Code Styles
     - [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     - [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
-  - [Portal实现用户登录功能](zh/development/portal-how-to-implement-user-login-function.md)
-  - [Portal接入邮件服务](zh/development/portal-how-to-enable-email-service.md)
-  - [Portal启用webhook通知](zh/development/portal-how-to-enable-webhook-notification.md)
-  - [Apollo 版本发布操作手册](zh/development/apollo-release-guide.md)
+  - [Portal实现用户登录功能](zh/extension/portal-how-to-implement-user-login-function.md)
+  - [Portal接入邮件服务](zh/extension/portal-how-to-enable-email-service.md)
+  - [Portal启用webhook通知](zh/extension/portal-how-to-enable-webhook-notification.md)
+  - [Apollo 版本发布操作手册](zh/contribution/apollo-release-guide.md)
 
 # Deployment
   - [Quick Start](zh/deployment/quick-start.md)

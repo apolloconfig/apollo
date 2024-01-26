@@ -71,15 +71,15 @@ Demo Environment:
   * Apollo also provides a packaging script, which can generate all required installation packages with just one click, and supports customization of runtime parameters
 
 # Usage
-  1. [Apollo User Guide](https://www.apolloconfig.com/#/zh/usage/apollo-user-guide)
-  2. [Java SDK User Guide](https://www.apolloconfig.com/#/zh/usage/java-sdk-user-guide)
-  3. [.Net SDK user Guide](https://www.apolloconfig.com/#/zh/usage/dotnet-sdk-user-guide)
+  1. [Apollo User Guide](https://www.apolloconfig.com/#/zh/portal/apollo-user-guide)
+  2. [Java SDK User Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
+  3. [.Net SDK user Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
   4. [Third Party SDK User Guide](https://www.apolloconfig.com/#/zh/usage/third-party-sdks-user-guide)
-  5. [Other Language Client User Guide](https://www.apolloconfig.com/#/zh/usage/other-language-client-user-guide)
-  6. [Apollo Open APIs](https://www.apolloconfig.com/#/zh/usage/apollo-open-api-platform)
+  5. [Other Language Client User Guide](https://www.apolloconfig.com/#/zh/client/other-language-client-user-guide)
+  6. [Apollo Open APIs](https://www.apolloconfig.com/#/zh/portal/apollo-open-api-platform)
   7. [Apollo Use Cases](https://github.com/apolloconfig/apollo-use-cases)
-  8. [Apollo User Practices](https://www.apolloconfig.com/#/zh/usage/apollo-user-practices)
-  9. [Apollo Security Best Practices](https://www.apolloconfig.com/#/zh/usage/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
+  8. [Apollo User Practices](https://www.apolloconfig.com/#/zh/portal/apollo-user-practices)
+  9. [Apollo Security Best Practices](https://www.apolloconfig.com/#/zh/portal/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
 
 # Design
   * [Apollo Design](https://www.apolloconfig.com/#/zh/design/apollo-design)
@@ -88,7 +88,7 @@ Demo Environment:
   * [Apollo Source Code Explanation](http://www.iocoder.cn/categories/Apollo/)
 
 # Development
-  * [Apollo Development Guide](https://www.apolloconfig.com/#/zh/development/apollo-development-guide)
+  * [Apollo Development Guide](https://www.apolloconfig.com/#/zh/contribution/apollo-development-guide)
   * Code Styles
     * [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     * [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)

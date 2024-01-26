@@ -63,15 +63,15 @@ Demo Environment:
     * Apollo also provides a packaging script, which can generate all required installation packages with just one click, and supports customization of runtime parameters
 
 # Usage
-1. [Apollo User Guide](en/usage/apollo-user-guide)
-2. [Java SDK User Guide](en/usage/java-sdk-user-guide)
-3. [.Net SDK user Guide](en/usage/dotnet-sdk-user-guide)
+1. [Apollo User Guide](en/portal/apollo-user-guide)
+2. [Java SDK User Guide](en/client/java-sdk-user-guide)
+3. [.Net SDK user Guide](en/client/dotnet-sdk-user-guide)
 4. [Third Party SDK User Guide](en/usage/third-party-sdks-user-guide)
 5. [Other Language Client User Guide](en/usage/other-language-client-user-guide)
-6. [Apollo Open APIs](en/usage/apollo-open-api-platform)
+6. [Apollo Open APIs](en/portal/apollo-open-api-platform)
 7. [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
-8. [Apollo User Practices](en/usage/apollo-user-practices)
-9. [Apollo Security Best Practices](en/usage/apollo-user-guide?id=_71-security-related)
+8. [Apollo User Practices](en/portal/apollo-user-practices)
+9. [Apollo Security Best Practices](en/portal/apollo-user-guide?id=_71-security-related)
 
 # Design
 * [Apollo Design](en/design/apollo-design)
@@ -80,7 +80,7 @@ Demo Environment:
 * [Apollo Source Code Explanation](http://www.iocoder.cn/categories/Apollo/)
 
 # Development
-* [Apollo Development Guide](en/development/apollo-development-guide)
+* [Apollo Development Guide](en/contribution/apollo-development-guide)
 * Code Styles
     * [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
     * [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)

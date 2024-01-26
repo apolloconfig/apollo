@@ -1,4 +1,4 @@
-> Note: This document is intended for users of Apollo systems. If you are a developer/maintainer of Apollo systems in your company, it is recommended to refer to [Apollo Development Guide](en/development/apollo-development-guide) first.
+> Note: This document is intended for users of Apollo systems. If you are a developer/maintainer of Apollo systems in your company, it is recommended to refer to [Apollo Development Guide](en/contribution/apollo-development-guide) first.
 
 # &nbsp;
 
@@ -90,14 +90,14 @@ The following ways to configure apollo meta server information are supported sin
    * You can specify `apollo.meta=http://config-service-url` in `classpath:/META-INF/app.properties`
 6. Via Java system property `${env}_meta`
    * If the current [env](#_1241-environment) is `dev`, then the user can configure `-Ddev_meta=http://config-service-url`
-   * Using this configuration method, then the Environment must be configured correctly, see [1.2.4.1 Environment](en/usage/java-sdk-user-guide?id=_1241-environment) for details
+   * Using this configuration method, then the Environment must be configured correctly, see [1.2.4.1 Environment](en/client/java-sdk-user-guide?id=_1241-environment) for details
 7. Via the OS System Environment `${ENV}_META` (supported since version 1.2.0)
    * If the current [env](#_1241-environment) is `dev`, then the user can configure the OS System Environment `DEV_META=http://config-service-url`
    * Note that the key is all-caps
-   * Using this configuration method, then the Environment must be configured correctly, see [1.2.4.1 Environment](en/usage/java-sdk-user-guide?id=_1241-environment) for details
+   * Using this configuration method, then the Environment must be configured correctly, see [1.2.4.1 Environment](en/client/java-sdk-user-guide?id=_1241-environment) for details
 8. Via the `apollo-env.properties` file
    * The user can also create an `apollo-env.properties` and put it under the classpath of the application or under the config directory of the spring boot application
-   * If you use this configuration, then you must configure the Environment correctly, see [1.2.4.1 Environment](en/usage/java-sdk-user-guide?id=_1241-environment)
+   * If you use this configuration, then you must configure the Environment correctly, see [1.2.4.1 Environment](en/client/java-sdk-user-guide?id=_1241-environment)
    * The contents of the file look like this.
 
 ```properties
@@ -439,7 +439,7 @@ Apollo supports API approach and Spring integration approach, how to choose whic
     * Replace the placeholder in the configuration file, e.g.: `spring.datasource.url: ${someKeyFromApollo:someDefaultValue}`
     * Directly hosting spring's configuration, such as directly configuring `spring.datasource.url=jdbc:mysql://localhost:3306/somedb?characterEncoding=utf8` in apollo
   * Spring boot's [@ConfigurationProperties](http://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html) method
-  * Versions from v0.10.0 onwards support automatic update of placeholder at runtime, see [PR #972](https://github.com/apolloconfig/apollo/pull/972) for details. (Versions prior to v0.10.0 do not re-inject after configuration changes and require a restart to update. If you need real-time updates of configuration values, you can refer to the subsequent description in [3.2.2 Use of Spring Placeholder](en/usage/java-sdk-user-guide?id=_322-use-of-spring-placeholder)
+  * Versions from v0.10.0 onwards support automatic update of placeholder at runtime, see [PR #972](https://github.com/apolloconfig/apollo/pull/972) for details. (Versions prior to v0.10.0 do not re-inject after configuration changes and require a restart to update. If you need real-time updates of configuration values, you can refer to the subsequent description in [3.2.2 Use of Spring Placeholder](en/client/java-sdk-user-guide?id=_322-use-of-spring-placeholder)
 
 * The Spring approach can also be used in combination with the API approach, such as injecting Apollo's Config object, you can get the configuration as usual through the API approach: 
 
@@ -528,7 +528,7 @@ Apollo also supports integration with Spring (Spring 3.1.1+), and only requires 
 
 Apollo currently supports both the more traditional `XML-based` configuration and the currently more popular `Java-based (recommended)` configuration.
 
-In case of Spring Boot environments, it is recommended to refer to [3.2.1.3 Spring Boot integration methods (recommended)](en/usage/java-sdk-user-guide?id=_3213-spring-boot-integration-methods-recommended) for configuration.
+In case of Spring Boot environments, it is recommended to refer to [3.2.1.3 Spring Boot integration methods (recommended)](en/client/java-sdk-user-guide?id=_3213-spring-boot-integration-methods-recommended) for configuration.
 
 Note that if you have previously used `org.springframework.beans.factory.config.PropertyPlaceholderConfigurer`, please replace it with `org.springframework.context.support.PropertySourcesPlaceholderConfigurer`. It is not recommended to use PropertyPlaceholderConfigurer after Spring 3.1, use PropertySourcesPlaceholderConfigurer instead.
 
@@ -1118,7 +1118,7 @@ eureka.instance.preferIpAddress = true
 
 ## 3.3 Demo
 
-There is a sample client project in the project: `apollo-demo`, for details, please refer to [2.3 Java Sample Client Start](en/development/apollo-development-guide?id=_23-java-sample-client-startup) in [Apollo Development Guide](en/development/apollo-development-guide) section.
+There is a sample client project in the project: `apollo-demo`, for details, please refer to [2.3 Java Sample Client Start](en/contribution/apollo-development-guide?id=_23-java-sample-client-startup) in [Apollo Development Guide](en/contribution/apollo-development-guide) section.
 
 For more use case demos, please refer to [Apollo usage scenarios and sample code](https://github.com/ctripcorp/apollo-use-cases).
 
@@ -1153,7 +1153,7 @@ Modify the `/opt/settings/server.properties` (Mac/Linux) or `C:\opt\settings\ser
 env=Local
 ```
 
-For more ways to configure the environment, please refer to [1.2.4.1 Environment](en/usage/java-sdk-user-guide?id=_1241-environment)
+For more ways to configure the environment, please refer to [1.2.4.1 Environment](en/client/java-sdk-user-guide?id=_1241-environment)
 
 ## 5.2 Preparing local configuration files
 
