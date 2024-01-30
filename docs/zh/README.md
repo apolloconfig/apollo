@@ -68,7 +68,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   1. [应用接入指南](zh/portal/apollo-user-guide)
   2. [Java客户端使用指南](zh/client/java-sdk-user-guide)
   3. [.Net客户端使用指南](zh/client/java-sdk-user-guide)
-  4. [Go、Python、NodeJS、PHP等客户端使用指南](zh/usage/third-party-sdks-user-guide)
+  4. [Go、Python、NodeJS、PHP等客户端使用指南](zh/client/third-party-sdks-user-guide)
   5. [其它语言客户端接入指南](zh/client/other-language-client-user-guide)
   6. [Apollo开放平台接入指南](zh/portal/apollo-open-api-platform)
   7. [Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)

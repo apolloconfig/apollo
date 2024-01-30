@@ -22,7 +22,7 @@ When Apollo creates a project, it creates an `application` namespace by default.
 
 Configuration files come in various formats such as properties, xml, yml, yaml, json, etc. Similarly Namespace also has these formats. In the Portal UI, you can see that the Namespace for `application` has a `properties` tag, indicating that `application` is in properties format.
 
->Note1: For the namespace in non-properties format, you need to call `ConfigService.getConfigFile(String namespace, ConfigFileFormat configFileFormat)` to get it when you use the client, if you use the [Http interface direct call](en/usage/other-language-client-user-guide), the corresponding namespace parameter needs to be passed in the namespace name plus the suffix name, such as datasources.json.
+>Note1: For the namespace in non-properties format, you need to call `ConfigService.getConfigFile(String namespace, ConfigFileFormat configFileFormat)` to get it when you use the client, if you use the [Http interface direct call](en/client/other-language-client-user-guide), the corresponding namespace parameter needs to be passed in the namespace name plus the suffix name, such as datasources.json.
 
 >Note 2: apollo-client version 1.3.0 has better support for yaml/yml, which is consistent with the properties format: `Config config = ConfigService.getConfig("application.yml");`, Spring's The Spring injection is also consistent with properties.
 

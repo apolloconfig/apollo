@@ -30,7 +30,7 @@
   - [PHP Client Usage Guide](en/client/php-sdks-user-guide.md)
   - [C Client Usage Guide](en/client/c-sdks-user-guide.md)
   - [Rust Client Usage Guide](en/client/rust-sdks-user-guide.md)
-  - [HTTP API Guide](en/usage/other-language-client-user-guide.md)
+  - [HTTP API Guide](en/client/other-language-client-user-guide.md)
 
 - Extension Guide
   - [Portal Implement User Login Function](en/extension/portal-how-to-implement-user-login-function.md)

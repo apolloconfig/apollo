@@ -25,7 +25,7 @@
   - [Java 客户端使用指南](zh/client/java-sdk-user-guide.md)
   - [.Net 客户端使用指南](zh/client/dotnet-sdk-user-guide.md)
   - [Golang 客户端使用指南](zh/client/golang-sdks-user-guide.md)
-  - [Python 户端使用指南](zh/client/python-sdks-user-guide.md)
+  - [Python 客户端使用指南](zh/client/python-sdks-user-guide.md)
   - [NodeJS 客户端使用指南](zh/client/nodejs-sdks-user-guide.md)
   - [PHP 客户端使用指南](zh/client/php-sdks-user-guide.md)
   - [C 客户端使用指南](zh/client/c-sdks-user-guide.md)

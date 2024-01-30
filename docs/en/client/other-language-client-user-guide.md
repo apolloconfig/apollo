@@ -2,7 +2,7 @@ At present, Apollo team only provides Java and .Net clients due to manpower cons
 
 Also, if any team/individual is interested, they are welcome to help us to implement the client in other languages, please contact @nobodyiam and @lepdou for details.
 
->Note: There are already clients for Go, Python, NodeJS, PHP, C++ contributed by enthusiastic users, for more information you can refer to [Go, Python, NodeJS, PHP and other clients usage guide](en/usage/third-party-sdks-user-guide)
+>Note: There are already clients for Go, Python, NodeJS, PHP, C++ contributed by enthusiastic users, for more information you can refer to [Go, Python, NodeJS, PHP and other clients usage guide](en/client/third-party-sdks-user-guide)
 
 ## 1.1 Application access to Apollo
 
@@ -12,7 +12,7 @@ First you need to access your application in Apollo, you can refer to [applicati
 
 This interface will fetch the configuration from the cache and is suitable for more frequent configuration pull requests, such as a simple polling of the configuration every 30 seconds.
 
-Since the cache has a delay of at most one second, if you need to work with configuration push notifications to achieve real-time configuration updates, please refer to [1.3 Reading configuration from Apollo via Http interface without cache](en/usage/other-language-client-user-guide?id=_13-reading-configuration-from-apollo-via-http-interface-without-cache).
+Since the cache has a delay of at most one second, if you need to work with configuration push notifications to achieve real-time configuration updates, please refer to [1.3 Reading configuration from Apollo via Http interface without cache](en/client/other-language-client-user-guide?id=_13-reading-configuration-from-apollo-via-http-interface-without-cache).
 
 ### 1.2.1 Http interface description
 
@@ -129,7 +129,7 @@ Once you have the notifications Map, you can request services. Here we describe 
 If the notificationId is found to be older than the server, the latest notificationId of the corresponding namespace, HttpStatus 200, will be returned directly. 
 5. After the client gets the server side return, determine the return HttpStatus .
 6. If the returned HttpStatus is 304, that the configuration has not changed, re-execute step 1.
-7. If the returned HttpStauts is 200, the configuration has changed, for the change of namespace to pull configuration from the server again, see [1.3 Read configuration from Apollo through the Http interface without cache](en/usage/other-language-client-user-guide?id=_13-reading-configuration-from-apollo-via-http-interface-without-cache). Also update the notificationId in the notifications map. re-run step 1.
+7. If the returned HttpStauts is 200, the configuration has changed, for the change of namespace to pull configuration from the server again, see [1.3 Read configuration from Apollo through the Http interface without cache](en/client/other-language-client-user-guide?id=_13-reading-configuration-from-apollo-via-http-interface-without-cache). Also update the notificationId in the notifications map. re-run step 1.
 
 
 ### 1.4.2 Http interface description

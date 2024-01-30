@@ -74,7 +74,7 @@ Demo Environment:
   1. [Apollo User Guide](https://www.apolloconfig.com/#/zh/portal/apollo-user-guide)
   2. [Java SDK User Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
   3. [.Net SDK user Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
-  4. [Third Party SDK User Guide](https://www.apolloconfig.com/#/zh/usage/third-party-sdks-user-guide)
+  4. [Third Party SDK User Guide](https://www.apolloconfig.com/#/zh/client/third-party-sdks-user-guide)
   5. [Other Language Client User Guide](https://www.apolloconfig.com/#/zh/client/other-language-client-user-guide)
   6. [Apollo Open APIs](https://www.apolloconfig.com/#/zh/portal/apollo-open-api-platform)
   7. [Apollo Use Cases](https://github.com/apolloconfig/apollo-use-cases)

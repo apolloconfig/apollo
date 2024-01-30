@@ -123,7 +123,7 @@ After the configuration is successfully published, the application can read the 
 
 Apollo currently provides a Java client. For more information, please click [Java Client Usage Documentation](en/client/java-sdk-user-guide).
 
-If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/usage/other-language-client-user-guide)
+If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/client/other-language-client-user-guide)
 
 ## 1.6 Rollback published configuration
 
@@ -219,7 +219,7 @@ Once the configuration is successfully published, the application can read the c
 
 Apollo currently provides a Java client. For more information, click [Java Client Usage Documentation](en/client/java-sdk-user-guide).
 
-If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/usage/other-language-client-user-guide)
+If the application uses other languages, you can also get the configuration by directly accessing the Http interface, for details, please refer to [other-language-client-access-guide](en/client/other-language-client-user-guide)
 
 For reading the configuration of public components, you can refer to the "Getting the Configuration of Public Namespace" section in the above document.
 
