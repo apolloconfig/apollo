@@ -64,44 +64,8 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
   * 目前唯一的外部依赖是MySQL，所以部署非常简单，只要安装好Java和MySQL就可以让Apollo跑起来
   * Apollo还提供了打包脚本，一键就可以生成所有需要的安装包，并且支持自定义运行时参数
 
-# Usage
-  1. [应用接入指南](zh/portal/apollo-user-guide)
-  2. [Java客户端使用指南](zh/client/java-sdk-user-guide)
-  3. [.Net客户端使用指南](zh/client/java-sdk-user-guide)
-  4. [Go、Python、NodeJS、PHP等客户端使用指南](zh/client/third-party-sdks-user-guide)
-  5. [其它语言客户端接入指南](zh/client/other-language-client-user-guide)
-  6. [Apollo开放平台接入指南](zh/portal/apollo-open-api-platform)
-  7. [Apollo使用场景和示例代码](https://github.com/ctripcorp/apollo-use-cases)
-  8. [Apollo实践案例](zh/portal/apollo-user-practices)
-  9. [Apollo安全相关最佳实践](zh/portal/apollo-user-guide?id=_71-%e5%ae%89%e5%85%a8%e7%9b%b8%e5%85%b3)
-
-# Design
-  - [Apollo配置中心设计](zh/design/apollo-design.md)
-  - [Apollo配置中心介绍](zh/design/apollo-introduction.md)
-  - [Apollo核心概念之“Namespace”](zh/design/apollo-core-concept-namespace.md)
-  - [Apollo源码解析](http://www.iocoder.cn/categories/Apollo/)（据说Apollo非常适合作为初学者第一个通读源码学习的分布式中间件产品）
-
-# Development
-  - [Apollo开发指南](zh/contribution/apollo-development-guide.md)
-  - Code Styles
-    - [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
-    - [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
-  - [Portal实现用户登录功能](zh/extension/portal-how-to-implement-user-login-function.md)
-  - [Portal接入邮件服务](zh/extension/portal-how-to-enable-email-service.md)
-  - [Portal启用webhook通知](zh/extension/portal-how-to-enable-webhook-notification.md)
-  - [Apollo 版本发布操作手册](zh/contribution/apollo-release-guide.md)
-
-# Deployment
-  - [Quick Start](zh/deployment/quick-start.md)
-  - [Docker方式部署Quick Start](zh/deployment/quick-start-docker.md)
-  - [分布式部署指南](zh/deployment/distributed-deployment-guide.md)
-
 # Release Notes
   * [版本发布历史](https://github.com/apolloconfig/apollo/releases)
-
-# FAQ
-  * [常见问题回答](zh/faq/faq.md)
-  * [部署&开发遇到的常见问题](zh/faq/common-issues-in-deployment-and-development-phase.md)
 
 # Presentation
   * [开源配置中心Apollo的设计与实现](http://www.itdks.com/dakalive/detail/3420)
@@ -132,11 +96,6 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
     </tr>
   </tbody>
 </table>
-
-# 社区
-  * [团队](zh/community/team)
-  * [社区治理](https://github.com/apolloconfig/apollo/blob/master/GOVERNANCE.md)
-  * [贡献指南](https://github.com/apolloconfig/apollo/blob/master/CONTRIBUTING.md)
 
 # License
 The project is licensed under the [Apache 2 license](https://github.com/apolloconfig/apollo/blob/master/LICENSE).

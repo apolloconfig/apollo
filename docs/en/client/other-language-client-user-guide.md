@@ -2,7 +2,7 @@ At present, Apollo team only provides Java and .Net clients due to manpower cons
 
 Also, if any team/individual is interested, they are welcome to help us to implement the client in other languages, please contact @nobodyiam and @lepdou for details.
 
->Note: There are already clients for Go, Python, NodeJS, PHP, C++ contributed by enthusiastic users, for more information you can refer to [Go, Python, NodeJS, PHP and other clients usage guide](en/client/third-party-sdks-user-guide)
+>Note: There are already clients for Go, Python, NodeJS, PHP, C++ contributed by enthusiastic users, for more information you can refer to "SDK Guide"
 
 ## 1.1 Application access to Apollo
 

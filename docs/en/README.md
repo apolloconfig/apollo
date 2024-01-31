@@ -62,39 +62,8 @@ Demo Environment:
     * Currently, the only external dependency is MySQL, so the deployment is very simple. Apollo can run as long as Java and MySQL are installed
     * Apollo also provides a packaging script, which can generate all required installation packages with just one click, and supports customization of runtime parameters
 
-# Usage
-1. [Apollo User Guide](en/portal/apollo-user-guide)
-2. [Java SDK User Guide](en/client/java-sdk-user-guide)
-3. [.Net SDK user Guide](en/client/dotnet-sdk-user-guide)
-4. [Third Party SDK User Guide](en/client/third-party-sdks-user-guide)
-5. [Other Language Client User Guide](en/client/other-language-client-user-guide)
-6. [Apollo Open APIs](en/portal/apollo-open-api-platform)
-7. [Apollo Use Cases](https://github.com/ctripcorp/apollo-use-cases)
-8. [Apollo User Practices](en/portal/apollo-user-practices)
-9. [Apollo Security Best Practices](en/portal/apollo-user-guide?id=_71-security-related)
-
-# Design
-* [Apollo Design](en/design/apollo-design)
-* [Apollo Core Concept - Namespace](en/design/apollo-core-concept-namespace)
-* [Apollo Architecture Analysis](https://mp.weixin.qq.com/s/-hUaQPzfsl9Lm3IqQW3VDQ)
-* [Apollo Source Code Explanation](http://www.iocoder.cn/categories/Apollo/)
-
-# Development
-* [Apollo Development Guide](en/contribution/apollo-development-guide)
-* Code Styles
-    * [Eclipse Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/eclipse-java-google-style.xml)
-    * [Intellij Code Style](https://github.com/apolloconfig/apollo/blob/master/apollo-buildtools/style/intellij-java-google-style.xml)
-
-# Deployment
-* [Quick Start](en/deployment/quick-start)
-* [Distributed Deployment Guide](en/deployment/distributed-deployment-guide)
-
 # Release Notes
 * [Releases](https://github.com/apolloconfig/apollo/releases)
-
-# FAQ
-* [FAQ](en/faq/faq)
-* [Common Issues in Deployment & Development Phase](en/faq/common-issues-in-deployment-and-development-phase)
 
 # Presentation
 * [Design and Implementation Details of Apollo](http://www.itdks.com/dakalive/detail/3420)
@@ -105,11 +74,6 @@ Demo Environment:
 # Publication
 * [Design and Implementation Details of Apollo](https://www.infoq.cn/article/open-source-configuration-center-apollo)
 * [Configuration Center Makes Microservices Smart](https://mp.weixin.qq.com/s/iDmYJre_ULEIxuliu1EbIQ)
-
-# Community
-  * [Apollo Team](en/community/team)
-  * [Community Governance](https://github.com/apolloconfig/apollo/blob/master/GOVERNANCE.md)
-  * [Contributing Guide](https://github.com/apolloconfig/apollo/blob/master/CONTRIBUTING.md)
 
 # License
 The project is licensed under the [Apache 2 license](https://github.com/apolloconfig/apollo/blob/master/LICENSE).

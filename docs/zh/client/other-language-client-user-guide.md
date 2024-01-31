@@ -2,7 +2,7 @@
 
 另外，如果有团队/个人有兴趣的话，也欢迎帮助我们来实现其它语言的客户端，具体细节可以联系@nobodyiam和@lepdou。
 
->注：目前已有热心用户贡献了Go、Python、NodeJS、PHP、C++的客户端，更多信息可以参考[Go、Python、NodeJS、PHP等客户端使用指南](zh/client/third-party-sdks-user-guide)
+>注：目前已有热心用户贡献了Go、Python、NodeJS、PHP、C++的客户端，更多信息可以参考"客户端指南"
 
 ## 1.1 应用接入Apollo
 首先需要在Apollo中接入你的应用，具体步骤可以参考[应用接入文档](zh/portal/apollo-user-guide?id=一、普通应用接入指南)。
