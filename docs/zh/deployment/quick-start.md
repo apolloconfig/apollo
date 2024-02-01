@@ -66,60 +66,26 @@ Quick Start只针对本地测试使用，所以一般用户不需要自己下载
 2. 在根目录下执行`mvn clean package -pl apollo-assembly -am -DskipTests=true`
 3. 复制apollo-assembly/target下的jar包，rename为apollo-all-in-one.jar
 
-# 二、安装步骤
-## 2.1 创建数据库
-Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，我们把数据库、表的创建和样例数据都分别准备了sql文件，只需要导入数据库即可。
+# 二、数据库初始化及配置
 
-> 注意：如果你本地已经创建过Apollo数据库，请注意备份数据。我们准备的sql文件会清空Apollo相关的表。
+本部分以h2数据库为例（h2数据库在**2.2.0**版本后开始支持），介绍如何初始化数据库及配置数据库连接信息。由于h2数据库是内存数据库，数据的初始化和访问都是在内存中进行的，所以不需要安装和导入。并且，由于h2数据库是内存数据库，所以重启机器后，数据会丢失，不推荐在生产环境使用。 如果需要使用其他数据库，如MySQL，可以参考[使用其他数据库](#五使用其它数据库)
 
-### 2.1.1 创建ApolloPortalDB
-通过各种MySQL客户端导入[sql/apolloportaldb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloportaldb.sql)即可。
-
-下面以MySQL原生客户端为例：
-```sql
-source /your_local_path/sql/apolloportaldb.sql
-```
-
-导入成功后，可以通过执行以下sql语句来验证：
-```sql
-select `Id`, `AppId`, `Name` from ApolloPortalDB.App;
-```
-
-| Id | AppId     | Name       |
-|----|-----------|------------|
-| 1  | SampleApp | Sample App |
-
-### 2.1.2 创建ApolloConfigDB
-通过各种MySQL客户端导入[sql/apolloconfigdb.sql](https://github.com/apolloconfig/apollo-quick-start/blob/master/sql/apolloconfigdb.sql)即可。
-
-下面以MySQL原生客户端为例：
-```sql
-source /your_local_path/sql/apolloconfigdb.sql
-```
-
-导入成功后，可以通过执行以下sql语句来验证：
-```sql
-select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;
-```
-| NamespaceId | Key     | Value | Comment            |
-|-------------|---------|-------|--------------------|
-| 1           | timeout | 100   | sample timeout配置 |
-
-## 2.2 配置数据库连接信息
 Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
 
 > 注意：填入的用户需要具备对ApolloPortalDB和ApolloConfigDB数据的读写权限。
 
 ```sh
-#apollo config db info
-apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-apollo_config_db_username=用户名
-apollo_config_db_password=密码（如果没有密码，留空即可）
+# apollo config db info
+spring_profiles_group_github=h2
+apollo_config_db_url=jdbc:h2:mem:testdb;mode=mysql;DATABASE_TO_UPPER=FALSE;BUILTIN_ALIAS_OVERRIDE=TRUE;
+apollo_config_db_username=sa
+apollo_config_db_password=
 
 # apollo portal db info
-apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-apollo_portal_db_username=用户名
-apollo_portal_db_password=密码（如果没有密码，留空即可）
+spring_profiles_group_github=h2
+apollo_portal_db_url=jdbc:h2:mem:testdb;mode=mysql;DATABASE_TO_UPPER=FALSE;BUILTIN_ALIAS_OVERRIDE=TRUE;
+apollo_portal_db_username=sa
+apollo_portal_db_password=
 ```
 
 > 注意：不要修改demo.sh的其它部分
@@ -248,3 +214,58 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 app.id=你的appId
 ```
 运行`./demo.sh client`启动Demo客户端即可。
+
+# 五、使用其它数据库
+
+## 5.1 MySQL
+
+### 5.1.1 初始化ApolloPortalDB数据库及表结构。
+
+方式一: 通过各种MySQL客户端导入sql/apolloportaldb.sql即可。
+
+方式二: 下面以MySQL原生客户端为例：
+
+```source /your_local_path/sql/apolloportaldb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```select `Id`, `AppId`, `Name` from ApolloPortalDB.App;```
+
+
+| Id | AppId     | Name       |
+|----|-----------|------------|
+| 1  | SampleApp | Sample App |
+
+#### 5.1.2 初始化ApolloConfigDB数据库及表结构
+
+方式一: 通过各种MySQL客户端导入sql/apolloconfigdb.sql即可。
+
+方式二: 下面以MySQL原生客户端为例：
+
+```source /your_local_path/sql/apolloconfigdb.sql```
+
+导入成功后，可以通过执行以下sql语句来验证：
+
+```select `NamespaceId`, `Key`, `Value`, `Comment` from ApolloConfigDB.Item;```
+
+| NamespaceId | Key     | Value | Comment          |
+|-------------|---------|-------|------------------|
+| 1           | timeout | 100   | sample timeout配置 |
+
+#### 5.1.3 配置数据库连接信息
+
+Apollo服务端需要知道如何连接到你前面创建的数据库，所以需要编辑[demo.sh](https://github.com/apolloconfig/apollo-quick-start/blob/master/demo.sh)，修改ApolloPortalDB和ApolloConfigDB相关的数据库连接串信息。
+
+``` 
+# apollo config db info
+spring_profiles_group_github=mysql
+apollo_config_db_url="jdbc:mysql://localhost:3306/ApolloConfigDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_config_db_username=用户名
+apollo_config_db_password=密码（如果没有密码，留空即可）
+
+# apollo portal db info
+spring_profiles_group_github=mysql
+apollo_portal_db_url="jdbc:mysql://localhost:3306/ApolloPortalDB?characterEncoding=utf8&serverTimezone=Asia/Shanghai"
+apollo_portal_db_username=用户名
+apollo_portal_db_password=密码（如果没有密码，留空即可） 
+```
