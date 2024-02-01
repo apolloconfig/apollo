@@ -83,8 +83,8 @@ Demo Environment:
 # SDK
 
 * [Java SDK User Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
-* [.Net SDK user Guide](https://www.apolloconfig.com/#/zh/client/java-sdk-user-guide)
-* [Golang SDK User Guide](https://www.apolloconfig.com/#/zh/client/goland-sdks-user-guide)
+* [.Net SDK user Guide](https://www.apolloconfig.com/#/zh/client/dotnet-sdk-user-guide)
+* [Golang SDK User Guide](https://www.apolloconfig.com/#/zh/client/golang-sdks-user-guide)
 * [Python SDK User Guide](https://www.apolloconfig.com/#/zh/client/python-sdks-user-guide)
 * [NodeJS SDK User Guide](https://www.apolloconfig.com/#/zh/client/nodejs-sdks-user-guide)
 * [PHP SDK User Guide](https://www.apolloconfig.com/#/zh/client/php-sdks-user-guide)
