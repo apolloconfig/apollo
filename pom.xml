@@ -79,7 +79,7 @@
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
 		<!-- database driver -->
 		<mysql-connector-j.version>8.0.32</mysql-connector-j.version>
-		<postgre.version>42.5.3</postgre.version>
+		<postgre.version>42.7.2</postgre.version>
 		<!-- Plugins Version sort by alphabet -->
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
