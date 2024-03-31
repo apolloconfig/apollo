@@ -1,4 +1,4 @@
-为了让大家更快的上手了解Apollo配置中心，我们这里准备了一个Quick Start，能够在几分钟内在本地环境部署、启动Apollo配置中心。
+为了让大家更快地上手了解Apollo配置中心，我们这里准备了一个Quick Start，能够在几分钟内在本地环境部署、启动Apollo配置中心。
 
 考虑到Docker的便捷性，我们还提供了Quick Start的Docker版本，如果你对Docker比较熟悉的话，可以参考[Apollo Quick Start Docker部署](zh/deployment/quick-start-docker)通过Docker快速部署Apollo。
 
@@ -49,7 +49,7 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 安装包共50M，如果访问github网速不给力的话，可以从百度网盘下载。
 
 1. 从GitHub下载
-    * checkout或下载[apollo-build-scripts项目](https://github.com/apolloconfig/apollo-quick-start)
+    * checkout或下载[apollo-quick-start项目](https://github.com/apolloconfig/apollo-quick-start)
     * **由于Quick Start项目比较大，所以放在了另外的repository，请注意项目地址**
         * https://github.com/apolloconfig/apollo-quick-start
 2. 从百度网盘下载
@@ -69,13 +69,13 @@ Quick Start只针对本地测试使用，所以一般用户不需要自己下载
 # 二、数据库初始化及启动
 #### 注意事项
 1. apollo 服务端进程需要分别使用8070, 8080, 8090端口，请确保这3个端口当前没有被使用。
-2. 脚本中的 SPRING_PROFILES_ACTIVE 环境变量中的 `github` 是必须的 profile，`auth` 是 portal 提供简单认证的 profile，不需要认证或者使用其它认证方式时可以去掉
+2. 脚本中的 SPRING_PROFILES_ACTIVE 环境变量中的 `github` 是必须的 profile，`database-discovery` 指定使用数据库服务发现， `auth` 是 portal 提供简单认证的 profile，不需要认证或者使用其它认证方式时可以去掉
 
 ## 2.1 使用 H2 内存数据库，自动初始化
 无需任何配置，直接使用如下命令启动即可
 > 注：使用内存数据库时，任何操作都会在 apollo 进程重启后丢失
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 unset SPRING_SQL_CONFIG_INIT_MODE
 unset SPRING_SQL_PORTAL_INIT_MODE
 java -jar apollo-all-in-one.jar
@@ -89,7 +89,7 @@ java -jar apollo-all-in-one.jar
 ### 2.2.1 首次启动
 首次启动使用 SPRING_SQL_CONFIG_INIT_MODE="always" 和 SPRING_SQL_PORTAL_INIT_MODE="always" 环境变量来进行初始化
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -103,7 +103,7 @@ java -jar apollo-all-in-one.jar
 ### 2.2.2 后续启动
 后续启动去掉 SPRING_SQL_CONFIG_INIT_MODE 和 SPRING_SQL_PORTAL_INIT_MODE 环境变量来避免重复初始化
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -122,7 +122,7 @@ java -jar apollo-all-in-one.jar
 ### 2.3.1 首次启动
 首次启动使用 SPRING_SQL_INIT_MODE="always" 环境变量来进行初始化
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -140,7 +140,7 @@ java -jar apollo-all-in-one.jar
 ### 2.3.2 后续启动
 后续启动去掉 SPRING_SQL_CONFIG_INIT_MODE 和 SPRING_SQL_PORTAL_INIT_MODE 环境变量来避免重复初始化
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -167,7 +167,7 @@ ApolloPortalDB 通过各种MySQL客户端导入[apolloportaldb.sql](https://gith
 2. 脚本环境变量中的 "apollo-username" 和 "apollo-password" 需要填写实际的用户名和密码
 
 ```bash
-export SPRING_PROFILES_ACTIVE="github,auth"
+export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -182,13 +182,8 @@ java -jar apollo-all-in-one.jar
 
 ```
 
-# 三、启动额外说明
-## 3.1 异常排查
-如果启动遇到了异常，可以分别查看service和portal目录下的log文件排查问题。
+# 三、注意
 
-> 注：在启动的过程中会在日志中输出eureka注册失败的信息，如`com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused`。需要注意的是，这个是预期的情况，因为apollo-configservice需要向Meta Server（它自己）注册服务，但是因为在启动过程中，自己还没起来，所以会报这个错。后面会进行重试的动作，所以等自己服务起来后就会注册正常了。
-
-## 3.2 注意
 Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用时请参考：[分布式部署指南](zh/deployment/distributed-deployment-guide)。
 
 另外需要注意的是Quick Start不支持增加环境，只有通过分布式部署才可以新增环境，同样请参考：[分布式部署指南](zh/deployment/distributed-deployment-guide)
@@ -196,21 +191,30 @@ Quick Start只是用来帮助大家快速体验Apollo项目，具体实际使用
 # 四、使用Apollo配置中心
 ## 4.1 使用样例项目
 
-### 4.1.1 查看样例配置
+### 4.1.1 初始化样例配置
 1. 打开http://localhost:8070
 
 > Quick Start集成了[Spring Security简单认证](zh/extension/portal-how-to-implement-user-login-function#实现方式一：使用apollo提供的spring-security简单认证)，更多信息可以参考[Portal 实现用户登录功能](zh/extension/portal-how-to-implement-user-login-function)
 
-<img src="https://github.com/apolloconfig/apollo-quick-start/raw/master/images/apollo-login.png" alt="登录" width="640px">
+<img src="https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-login.jpg" alt="登录" width="640px">
 
 2. 输入用户名apollo，密码admin后登录
 
-![首页](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/apollo-sample-home.png)
+![首页](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-sample-home.jpg)
 
-3. 点击SampleApp进入配置界面，可以看到当前有一个配置timeout=100
-![配置界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-config.png)
+3. 点击创建应用，输入`SampleApp`信息并提交
 
-> 如果提示`系统出错，请重试或联系系统负责人`，请稍后几秒钟重试一下，因为通过Eureka注册的服务有一个刷新的延时。
+![创建应用](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-app.jpg)
+
+4. 进入SampleApp配置界面，点击新增配置，输入`timeout`信息并提交
+
+![创建配置](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/apollo-create-sample-config.jpg)
+
+5. 点击发布按钮，并填写发布信息
+
+![配置界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/sample-app-config.jpg)
+
+![发布界面](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/sample-app-release-detail.jpg)
 
 ### 4.1.2 运行客户端程序
 我们准备了一个简单的[Demo客户端](https://github.com/apolloconfig/apollo-demo-java/blob/main/api-demo/src/main/java/com/apolloconfig/apollo/demo/api/SimpleApolloConfigDemo.java)来演示从Apollo配置中心获取配置。
@@ -229,7 +233,7 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 输入`timeout`，会看到如下信息：
 ```sh
 > timeout
-> [SimpleApolloConfigDemo] Loading key : timeout with value: 100
+Loading key : timeout with value: 1000
 ```
 
 > 如果运行客户端遇到问题，可以通过修改`client/log4j2.xml`中的level为DEBUG来查看更详细日志信息
@@ -241,28 +245,21 @@ Apollo Config Demo. Please input key to get the value. Input quit to exit.
 
 ### 4.1.3 修改配置并发布
 
-1. 在配置界面点击timeout这一项的编辑按钮
-![编辑配置](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-modify-config.png)
+回到配置界面，修改`timeout`配置项的值为2000，并发布配置。
 
-2. 在弹出框中把值改成200并提交
-![配置修改](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-submit-config.png)
-
-3. 点击发布按钮，并填写发布信息
-![发布](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-release-config.png)
-
-![发布信息](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-build-scripts@master/images/sample-app-release-detail.png)
+![修改配置](https://cdn.jsdelivr.net/gh/apolloconfig/apollo-quick-start@master/images/sample-app-modify-config.jpg)
 
 ### 4.1.4 客户端查看修改后的值
 如果客户端一直在运行的话，在配置发布后就会监听到配置变化，并输出修改的配置信息：
 ```sh
-[SimpleApolloConfigDemo] Changes for namespace application
-[SimpleApolloConfigDemo] Change - key: timeout, oldValue: 100, newValue: 200, changeType: MODIFIED
+Changes for namespace application
+Change - key: timeout, oldValue: 1000, newValue: 2000, changeType: MODIFIED
 ```
 
 再次输入`timeout`查看对应的值，会看到如下信息：
 ```sh
 > timeout
-> [SimpleApolloConfigDemo] Loading key : timeout with value: 200
+Loading key : timeout with value: 2000
 ```
 
 ## 4.2 使用新的项目
