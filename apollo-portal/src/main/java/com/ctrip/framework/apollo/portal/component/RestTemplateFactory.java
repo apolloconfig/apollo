@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
 
 @Component
 public class RestTemplateFactory implements FactoryBean<RestTemplate>, InitializingBean {
@@ -58,7 +59,9 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   }
 
   public void afterPropertiesSet() throws UnsupportedEncodingException {
-    CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+    CloseableHttpClient httpClient = HttpClientBuilder.create()
+        .setConnectionTimeToLive(portalConfig.connectionTimeToLive(), TimeUnit.MILLISECONDS)
+        .build();
 
     restTemplate = new RestTemplate(httpMessageConverters.getConverters());
     HttpComponentsClientHttpRequestFactory requestFactory =

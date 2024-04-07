@@ -169,6 +169,10 @@ public class PortalConfig extends RefreshableConfig {
     return getIntProperty("api.readTimeout", 10000);
   }
 
+  public int connectionTimeToLive() {
+    return getIntProperty("api.connectionTimeToLive", -1);
+  }
+
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");
