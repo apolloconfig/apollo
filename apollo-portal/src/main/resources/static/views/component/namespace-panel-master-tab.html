@@ -332,7 +332,7 @@
                                         title="{{'Component.Namespace.Master.Items.Body.PublishedTitle' | translate }}"
                                         ng-if="!config.isModified">{{'Component.Namespace.Master.Items.Body.Published' | translate }}</span>
                                 </td>
-                                <td width="15%" class="cursor-pointer"
+                                <td width="20%" class="cursor-pointer"
                                     title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
                                     ng-click="showText(config.item.key)">
                                     <span ng-bind="config.item.key | limitTo: 250"></span>
@@ -352,7 +352,7 @@
                                         data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.DeletedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Deleted' | translate }}</span>
                                 </td>
-                                <td width="7%" class="text-center">
+                                <td width="6%" class="text-center">
                                     <span ng-if="config.item.type == '0'"
                                     >{{'Component.ConfigItem.ItemTypeString' | translate }}</span>
                                     <span ng-if="config.item.type == '1'"
@@ -368,17 +368,18 @@
                                     <span ng-bind="config.item.value | limitTo: 250"></span>
                                     <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
                                 </td>
-                                <td width="11%" title="{{config.item.comment}}">
+                                <td width="15%" title="{{config.item.comment}}">
                                     <span ng-bind="config.item.comment | limitTo: 250"></span>
                                     <span ng-bind="config.item.comment.length > 250 ?'...' : ''"></span>
                                 </td>
-                                <td width="10%" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
+                                <td width="10%" class="text-center"
+                                    ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'">
                                 </td>
-                                <td width="16%"
+                                <td width="10%" class="text-center"
                                     ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
                                 </td>
 
-                                <td width="8%" class="text-center" ng-if="!config.isDeleted">
+                                <td width="6%" class="text-center" ng-if="!config.isDeleted">
                                     <img src="img/edit.png" data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.ModifyTips' | translate }}"
                                         ng-click="editItem(namespace, config.item)"
