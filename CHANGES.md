@@ -9,6 +9,7 @@ Apollo 2.3.0
 * [Add comment for clusters and UI display](https://github.com/apolloconfig/apollo/pull/5072)
 * [Fix the issue that the length of private namespaces are mis-calculated](https://github.com/apolloconfig/apollo/pull/5078)
 * [apollo assembly optimization](https://github.com/apolloconfig/apollo/pull/5035)
+* [update the config item table column width](https://github.com/apolloconfig/apollo/pull/5131)
 
 
 ------------------
