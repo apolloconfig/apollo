@@ -58,3 +58,14 @@ eureka:
     eurekaServiceUrlPollIntervalSeconds: 60
     fetch-registry: false
     registerWithEureka: false
+
+server:
+  compression:
+    enabled: true
+  tomcat:
+    use-relative-redirects: true
+  servlet:
+    session:
+      cookie:
+        # prevent csrf
+        same-site: Lax

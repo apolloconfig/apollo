@@ -10,7 +10,7 @@ Apollo 2.3.0
 * [Fix the issue that the length of private namespaces are mis-calculated](https://github.com/apolloconfig/apollo/pull/5078)
 * [apollo assembly optimization](https://github.com/apolloconfig/apollo/pull/5035)
 * [update the config item table column width](https://github.com/apolloconfig/apollo/pull/5131)
-
+* [sync apollo portal server config to apollo quick start server](https://github.com/apolloconfig/apollo/pull/5134)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/14?closed=1)
