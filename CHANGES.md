@@ -11,6 +11,6 @@ Apollo 2.3.0
 * [apollo assembly optimization](https://github.com/apolloconfig/apollo/pull/5035)
 * [update the config item table column width](https://github.com/apolloconfig/apollo/pull/5131)
 * [sync apollo portal server config to apollo quick start server](https://github.com/apolloconfig/apollo/pull/5134)
-
+* [Fix missing **prefix path** of some URLs in Apollo Portal](https://github.com/apolloconfig/apollo/pull/5138)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/14?closed=1)

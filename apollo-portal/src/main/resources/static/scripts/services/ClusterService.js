@@ -14,19 +14,19 @@
  * limitations under the License.
  *
  */
-appService.service('ClusterService', ['$resource', '$q', function ($resource, $q) {
+appService.service('ClusterService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
     var cluster_resource = $resource('', {}, {
         create_cluster: {
             method: 'POST',
-            url: 'apps/:appId/envs/:env/clusters'
+            url: AppUtil.prefixPath() + 'apps/:appId/envs/:env/clusters'
         },
         load_cluster: {
             method: 'GET',
-            url: 'apps/:appId/envs/:env/clusters/:clusterName'
+            url: AppUtil.prefixPath() + 'apps/:appId/envs/:env/clusters/:clusterName'
         },
         delete_cluster: {
             method: 'DELETE',
-            url: 'apps/:appId/envs/:env/clusters/:clusterName'
+            url: AppUtil.prefixPath() + 'apps/:appId/envs/:env/clusters/:clusterName'
         }
     });
     return {
