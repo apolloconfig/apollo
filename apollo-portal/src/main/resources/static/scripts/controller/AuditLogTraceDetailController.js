@@ -16,22 +16,21 @@
  */
 audit_log_trace_detail_module.controller('AuditLogTraceDetailController',
     ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'AppUtil', 'EventManager', 'AuditLogService',
-      auditLogTraceDetailController]
+          auditLogTraceDetailController]
 );
 function auditLogTraceDetailController($scope, $location, $window, $translate, toastr, AppService, AppUtil, EventManager, AuditLogService) {
       var params = AppUtil.parseParams($location.$$url);
       $scope.traceId = params.traceId;
 
       $scope.traceDetails = [];
+      $scope.traceDetailsTree = [];
       $scope.showingDetail = {};
       $scope.dataInfluenceEntities = [];
       $scope.relatedDataInfluences = [];
       $scope.relatedDataInfluencePage = 0;
       $scope.relatedDataInfluenceHasLoadAll = true;
       var RelatedDataInfluencePageSize = 10;
-      $scope.setShowingDetail = setShowingDetail;
       $scope.showText = showText;
-      $scope.removeInClassFromLogDropDownExceptId = removeInClassFromLogDropDownExceptId;
       $scope.findMoreRelatedDataInfluence = findMoreRelatedDataInfluence;
       $scope.showRelatedDataInfluence = showRelatedDataInfluence;
       $scope.findOpNameBySpanId = findOpNameBySpanId;
@@ -40,34 +39,82 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
       init();
 
       function init() {
-            getTraceDetails();
+            buildTraceDetailsTree();
       }
 
-      function getTraceDetails() {
+      function buildTraceDetailsTree() {
             AuditLogService.find_trace_details($scope.traceId).then(
                 function (result) {
                       $scope.traceDetails = result;
+                      $scope.traceDetailsTree = buildTree($scope.traceDetails);
+                      // 初始化 Bootstrap Treeview
+                      $(document).ready(function() {
+                            $('#treeview').treeview({
+                                  color: "#252525",
+                                  showBorder: false,
+                                  data: $scope.traceDetailsTree,
+                                  levels: 99,
+                                  showTags: true,
+                                  onNodeSelected: function (event, data) {
+                                        changeShowingDetail(data.metaDetail);
+                                  }
+                            });
+
+                      });
                 }
             );
-      }
 
-      function setShowingDetail(detail) {
-            $scope.showingDetail = detail;
-            refreshDataInfluenceEntities();
-      }
+            function buildTree(data) {
+                  // 构建 spanId 到节点的映射
+                  var nodeMap = new Map();
+                  data.forEach(item => {
+                        nodeMap.set(item.logDTO.spanId, item);
+                  });
 
-      function removeInClassFromLogDropDownExceptId(id) {
-            $scope.relatedDataInfluences = [];
-            $scope.relatedDataInfluenceHasLoadAll = true;
+                  // 构建图的根节点列表
+                  var roots = [];
 
-            var elements = document.querySelectorAll('[id^="detail"]');
+                  data.forEach(item => {
+                        const log = item.logDTO;
+                        const parentSpanId = log.parentSpanId;
 
-            elements.forEach(function (element) {
-                  if(element.id !== 'detail'+id) {
-                        element.classList.remove('in');
+                        if (parentSpanId && nodeMap.has(parentSpanId)) {
+                              const parent = nodeMap.get(parentSpanId);
+                              if (!parent.children) {
+                                    parent.children = [];
+                              }
+                              parent.children.push(item);
+                        } else {
+                              roots.push(item);
+                        }
+                  });
+
+                  // 递归生成 Treeview 格式的节点
+                  function buildTreeNode(node) {
+                        var log = node.logDTO;
+                        var treeNode = {
+                              text: log.opName,
+                              nodes: [],
+                              metaDetail: node
+                        };
+                        if (node.children) {
+                              node.children.forEach(child => {
+                                    treeNode.nodes.push(buildTreeNode(child));
+                              });
+                        }
+                        if (treeNode.nodes.length === 0) {
+                              delete treeNode.nodes;
+                        }
+                        return treeNode;
                   }
 
-            });
+                  return roots.map(root => buildTreeNode(root));
+            }
+
+            function changeShowingDetail(data) {
+                  $scope.showingDetail = data;
+                  refreshDataInfluenceEntities();
+            }
       }
 
       function showRelatedDataInfluence(entityName, entityId, fieldName) {
@@ -128,7 +175,7 @@ function auditLogTraceDetailController($scope, $location, $window, $translate, t
             });
             return res;
       }
-      
+
       function refreshDataInfluenceEntities() {
             var entityMap = new Map();
             $scope.showingDetail.dataInfluenceDTOList.forEach(function (dto) {
