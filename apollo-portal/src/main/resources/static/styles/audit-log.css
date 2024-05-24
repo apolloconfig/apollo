@@ -112,7 +112,7 @@
   padding: 8px;
   margin-top: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .09);
-  border-radius: 3%;
+  border-radius: 0%;
 }
 
 .options-container {
@@ -137,4 +137,30 @@
 
 .options-list li:hover {
   background-color: #f0f0f0;
+}
+
+.treeview {
+  background-color: #ffffff;
+  font-size: 14px;
+}
+
+.node-treeview {
+  padding: 5px 0px;
+  transition: background-color 0.5s;
+  word-break: break-all;
+}
+
+.node-treeview:last-child {
+  border-bottom: none;
+}
+
+.node-treeview:hover {
+  background-color: #f0f0f0; /* 悬停时的背景颜色 */
+}
+
+#treeview .list-group .list-group-item {
+  border: 0;
+  border-top: 1px solid #eff2f7;
+  border-top-width: 0px;
+  color: #797979;
 }
