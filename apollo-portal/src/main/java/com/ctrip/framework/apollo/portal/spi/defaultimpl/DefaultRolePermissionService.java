@@ -41,6 +41,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import org.springframework.data.jpa.repository.query.EscapeCharacter;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -286,6 +287,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     @Transactional
     @Override
     public void deleteRolePermissionsByAppId(String appId, String operator) {
+        appId = EscapeCharacter.DEFAULT.escape(appId);
         List<Long> permissionIds = permissionRepository.findPermissionIdsByAppId(appId);
 
         if (!permissionIds.isEmpty()) {
@@ -313,6 +315,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     @Transactional
     @Override
     public void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName, String operator) {
+        appId = EscapeCharacter.DEFAULT.escape(appId);
         List<Long> permissionIds = permissionRepository.findPermissionIdsByAppIdAndNamespace(appId, namespaceName);
 
         if (!permissionIds.isEmpty()) {

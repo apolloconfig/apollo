@@ -40,10 +40,11 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   List<Permission> findByPermissionTypeInAndTargetId(Collection<String> permissionTypes,
                                                      String targetId);
 
-  @Query("SELECT p.id from Permission p where p.targetId = ?1 or p.targetId like CONCAT(?1, '+%')")
+  @Query("SELECT p.id from Permission p where p.targetId like ?1 or p.targetId like CONCAT(?1, '+%')")
   List<Long> findPermissionIdsByAppId(String appId);
 
-  @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2)")
+  @Query("SELECT p.id from Permission p where p.targetId like CONCAT(?1, '+', ?2) "
+      + "OR p.targetId like CONCAT(?1, '+', ?2, '+%')")
   List<Long> findPermissionIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
