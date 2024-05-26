@@ -14,11 +14,11 @@
  * limitations under the License.
  *
  */
-appService.service('NamespaceLockService', ['$resource', '$q', function ($resource, $q) {
+appService.service('NamespaceLockService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
     var resource = $resource('', {}, {
         get_namespace_lock: {
             method: 'GET',
-            url: 'apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info'
+            url: AppUtil.prefixPath() + 'apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info'
         }
     });
 
