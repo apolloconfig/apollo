@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.audit.spi.defaultimpl;
 
 import com.ctrip.framework.apollo.audit.constants.ApolloAuditConstants;
+import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
 import org.springframework.web.context.request.RequestAttributes;
@@ -31,7 +32,8 @@ public class ApolloAuditOperatorDefaultSupplier implements ApolloAuditOperatorSu
       Object tracer = requestAttributes.getAttribute(ApolloAuditConstants.TRACER,
           RequestAttributes.SCOPE_REQUEST);
       if (tracer != null) {
-        return ((ApolloAuditTracer) tracer).scopeManager().activeSpan().operator();
+        ApolloAuditSpan activeSpan = ((ApolloAuditTracer) tracer).scopeManager().activeSpan();
+        return activeSpan != null ? activeSpan.operator() : "anonymous";
       } else {
         return null;
       }
