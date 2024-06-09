@@ -32,7 +32,7 @@ public class ApolloAuditOperatorDefaultSupplier implements ApolloAuditOperatorSu
       Object tracer = requestAttributes.getAttribute(ApolloAuditConstants.TRACER,
           RequestAttributes.SCOPE_REQUEST);
       if (tracer != null) {
-        ApolloAuditSpan activeSpan = ((ApolloAuditTracer) tracer).scopeManager().activeSpan();
+        ApolloAuditSpan activeSpan = ((ApolloAuditTracer) tracer).getActiveSpan();
         return activeSpan != null ? activeSpan.operator() : "anonymous";
       } else {
         return null;

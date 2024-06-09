@@ -43,7 +43,7 @@ public class ApolloAuditTracer {
     this.operatorSupplier = operatorSupplier;
   }
 
-  public ApolloAuditScopeManager scopeManager() {
+  protected ApolloAuditScopeManager scopeManager() {
     return manager;
   }
 
