@@ -22,6 +22,8 @@ SERVER_PORT=${SERVER_PORT:=8090}
 
 ## Create log directory if not existed because JDK 8+ won't do that
 mkdir -p $LOG_DIR
+# Create directory of -XX:HeapDumpPath
+mkdir -p $LOG_DIR/HeapDumpOnOutOfMemoryError/
 
 ## Adjust memory settings if necessary
 #export JAVA_OPTS="-Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=8"
