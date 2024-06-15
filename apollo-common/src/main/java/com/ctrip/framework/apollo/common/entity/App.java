@@ -30,7 +30,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "`App`")
-@SQLDelete(sql = "Update App set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@SQLDelete(sql = "Update `App` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
 @ApolloAuditLogDataInfluenceTable(tableName = "App")
 public class App extends BaseEntity {
