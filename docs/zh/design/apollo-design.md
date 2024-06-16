@@ -78,8 +78,8 @@ sequenceDiagram
 	Meta Server -->> Portal: Admin Service's instances(Multiple IP+Port)
 	loop until success
 		Portal ->> Portal: load balance choose a Admin Service instance
-		Portal ->> Config Service: request
-		Config Service -->> Portal: ack
+		Portal ->> Admin Service: request
+		Admin Service -->> Portal: ack
 	end
 ```
 
