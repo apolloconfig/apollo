@@ -47,6 +47,8 @@ public interface ReleaseRepository extends PagingAndSortingRepository<Release, L
 
   List<Release> findByIdIn(Set<Long> releaseIds);
 
+  List<Release> findAll();
+
   @Modifying
   @Query("update Release set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?4 where AppId=?1 and ClusterName=?2 and NamespaceName = ?3 and IsDeleted = false")
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);

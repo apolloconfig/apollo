@@ -21,7 +21,10 @@ import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
+import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.repository.ItemRepository;
+import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
+import com.ctrip.framework.apollo.common.dto.ItemInfoDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
@@ -33,10 +36,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,16 +49,19 @@ public class ItemService {
   private final NamespaceService namespaceService;
   private final AuditService auditService;
   private final BizConfig bizConfig;
+  private final ReleaseRepository releaseRepository;
 
   public ItemService(
       final ItemRepository itemRepository,
       final @Lazy NamespaceService namespaceService,
       final AuditService auditService,
-      final BizConfig bizConfig) {
+      final BizConfig bizConfig,
+      final ReleaseRepository releaseRepository) {
     this.itemRepository = itemRepository;
     this.namespaceService = namespaceService;
     this.auditService = auditService;
     this.bizConfig = bizConfig;
+    this.releaseRepository = releaseRepository;
   }
 
 
@@ -144,6 +147,48 @@ public class ItemService {
   public Page<Item> findItemsByNamespace(String appId, String clusterName, String namespaceName, Pageable pageable) {
     Namespace namespace = findNamespaceByAppIdAndClusterNameAndNamespaceName(appId, clusterName, namespaceName);
     return itemRepository.findByNamespaceId(namespace.getId(), pageable);
+  }
+
+  public List<ItemInfoDTO> getItemInfoBySearch(String key, String value) {
+    List<ItemInfoDTO> itemInfoDTOs = new ArrayList<>();
+    List<Object[]> infos;
+    if (key.isEmpty() && value.isEmpty()) {
+      infos = itemRepository.findAllItems();
+    } else if (key.isEmpty() && !value.isEmpty()) {
+      infos = itemRepository.findItemsByValueLike(value);
+    } else if (value.isEmpty() && !key.isEmpty()) {
+      infos = itemRepository.findItemsByKeyLike(key);
+    } else {
+      infos = itemRepository.findItemsByKeyAndValueLike(key, value);
+    }
+
+    for (Object[] row : infos) {
+      ItemInfoDTO itemInfoDTO = new ItemInfoDTO();
+      itemInfoDTO.setAppId((String) row[0]);
+      itemInfoDTO.setAppName((String) row[1]);
+      itemInfoDTO.setClusterName((String) row[2]);
+      itemInfoDTO.setNamespaceName((String) row[3]);
+      itemInfoDTO.setStatus("0");
+      itemInfoDTO.setKey((String) row[4]);
+      itemInfoDTO.setValue((String) row[5]);
+      itemInfoDTOs.add(itemInfoDTO);
+    }
+
+    List<Release> releaseItems = releaseRepository.findAll();
+    for (ItemInfoDTO itemInfoDTO : itemInfoDTOs) {
+      boolean isIncluded = false;
+      for (Release releaseItem : releaseItems) {
+        if (releaseItem.getConfigurations().contains(itemInfoDTO.getKey()) && releaseItem.getConfigurations().contains(itemInfoDTO.getValue())) {
+          itemInfoDTO.setStatus("1");
+          isIncluded = true;
+          break;
+        }
+      }
+      if (!isIncluded) {
+        itemInfoDTO.setStatus("0");
+      }
+    }
+    return itemInfoDTOs;
   }
 
   @Transactional

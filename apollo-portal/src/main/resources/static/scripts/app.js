@@ -64,6 +64,8 @@ var diff_item_module = angular.module('diff_item', ['app.service', 'apollo.direc
 var namespace_module = angular.module('namespace', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar', 'valdr']);
 //server config
 var server_config_manage_module = angular.module('server_config_manage', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar']);
+// Value的全局检索
+var global_search_value_module = angular.module('global_search_value', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar', 'ngSanitize']);
 //setting
 var setting_module = angular.module('setting', ['app.service', 'apollo.directive', 'app.util', 'toastr', 'angular-loading-bar', 'valdr']);
 //role
