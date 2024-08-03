@@ -41,6 +41,17 @@ public class NamespaceSyncModel implements Verifiable {
     return false;
   }
 
+  public boolean syncToNamespacesValid(String appId, String namespaceName) {
+    for (NamespaceIdentifier namespaceIdentifier : syncToNamespaces) {
+      if (appId.equals(namespaceIdentifier.getAppId()) && namespaceName.equals(
+          namespaceIdentifier.getNamespaceName())) {
+        continue;
+      }
+      return false;
+    }
+    return true;
+  }
+
   public List<NamespaceIdentifier> getSyncToNamespaces() {
     return syncToNamespaces;
   }
