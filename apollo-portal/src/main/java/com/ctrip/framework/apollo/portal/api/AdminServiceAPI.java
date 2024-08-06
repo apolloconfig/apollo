@@ -198,6 +198,13 @@ public class AdminServiceAPI {
       return Arrays.asList(itemDTOs);
     }
 
+    public List<ItemInfoDTO> getPerEnvItemInfoBySearch(Env env, String key, String value){
+      ItemInfoDTO[] perEnvItemInfoDTOs =
+              restTemplate.get(env, "items-search/key-and-value?key={key}&value={value}",
+                      ItemInfoDTO[].class, key, value);
+      return Arrays.asList(perEnvItemInfoDTOs);
+    }
+
     public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
       return restTemplate.get(env, "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}",
           ItemDTO.class, appId, clusterName, namespaceName, key);
