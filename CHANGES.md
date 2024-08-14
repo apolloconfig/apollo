@@ -14,6 +14,7 @@ Apollo 2.3.0
 * [Fix the role permission deletion issue when appid contains '_'](https://github.com/apolloconfig/apollo/pull/5150)
 * [fix: -XX:HeapDumpPath doesn't ready when meet OOM](https://github.com/apolloconfig/apollo/pull/5157)
 * [Fix the error occurred when using configuration retention feature](https://github.com/apolloconfig/apollo/pull/5162)
+* [Feature support portal restTemplate Client connection pool config](https://github.com/apolloconfig/apollo/pull/5200)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/14?closed=1)
