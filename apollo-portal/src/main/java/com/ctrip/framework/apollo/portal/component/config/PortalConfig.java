@@ -173,6 +173,14 @@ public class PortalConfig extends RefreshableConfig {
     return getIntProperty("api.connectionTimeToLive", -1);
   }
 
+  public int connectPoolMaxTotal() {
+    return getIntProperty("api.pool.max.total", 20);
+  }
+
+  public int connectPoolMaxPerRoute() {
+    return getIntProperty("api.pool.max.per.route", 2);
+  }
+
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");

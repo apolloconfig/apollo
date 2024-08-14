@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -59,8 +60,14 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   }
 
   public void afterPropertiesSet() throws UnsupportedEncodingException {
+
+    PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
+    connectionManager.setMaxTotal(portalConfig.connectPoolMaxTotal()); //最大连接数
+    connectionManager.setDefaultMaxPerRoute(portalConfig.connectPoolMaxPerRoute()); //每个路由（域名）最大连接数
+
     CloseableHttpClient httpClient = HttpClientBuilder.create()
         .setConnectionTimeToLive(portalConfig.connectionTimeToLive(), TimeUnit.MILLISECONDS)
+        .setConnectionManager(connectionManager)
         .build();
 
     restTemplate = new RestTemplate(httpMessageConverters.getConverters());
