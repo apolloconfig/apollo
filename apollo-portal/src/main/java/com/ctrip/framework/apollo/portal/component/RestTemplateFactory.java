@@ -62,8 +62,8 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   public void afterPropertiesSet() throws UnsupportedEncodingException {
 
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-    connectionManager.setMaxTotal(portalConfig.connectPoolMaxTotal()); //最大连接数
-    connectionManager.setDefaultMaxPerRoute(portalConfig.connectPoolMaxPerRoute()); //每个路由（域名）最大连接数
+    connectionManager.setMaxTotal(portalConfig.connectPoolMaxTotal());
+    connectionManager.setDefaultMaxPerRoute(portalConfig.connectPoolMaxPerRoute());
 
     CloseableHttpClient httpClient = HttpClientBuilder.create()
         .setConnectionTimeToLive(portalConfig.connectionTimeToLive(), TimeUnit.MILLISECONDS)
