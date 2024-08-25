@@ -398,6 +398,26 @@ apollo.label=YOUR-APOLLO-LABEL
 3. 通过`app.properties`配置文件
     * 可以在`classpath:/META-INF/app.properties`指定`apollo.override-system-properties=true`
 
+
+#### 1.2.4.9 Monitor相关配置
+
+> 适用于2.4.0及以上版本
+在2.4.0版本开始，客户端的可观测性得到了加强，用户可以通过ConfigService获取到ConfigMonitor直接获得客户端状态信息以及将状态信息以指标形式上报给监控系统，以下是一些相关配置
+
+`apollo.client.monitor.enabled`：是否启动Monitor机制, 即ConfigMonitor是否启用，默认false
+
+`apollo.client.monitor.jmx.enabled`：是否将Monitor数据以Jmx形式暴露，开启后可以通过J-console,Jprofiler等工具查看相关信息，默认为false
+
+![](https://cdn.jsdelivr.net/gh/Rawven/image@main/2024-08-24-14-59-01-image.png)
+
+`apollo.client.monitor.exception-queue-size`：设置Monitor存储Exception的最大数量，默认值为25
+
+`apollo.client.monitor.external.type`:**非常规配置项**,用于导出指标数据时启用对应监控系统的Exporter，如引入apollo-plugin-client-prometheus则可填写prometheus进行启用,可填配置取决于用户引入的MetricsExporter的SPI使可用官方提供的或自己实现)，这种设计是为了用户能更方便的扩展。多填，错填和不填则不启用任何Exporter。
+
+具体使用：TODO-LINK
+
+`apollo.client.monitor.external.export-period`：Exporter从Monitor中导出状态信息(如线程池等)并转为指标数据是通过定时任务的方式，export-period可以控制定时任务的频率，默认为10秒
+
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
 ```xml
@@ -1220,3 +1240,17 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 输入是meta server返回的多个ConfigService，输出是1个ConfigService。
 
 默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。
+
+
+## 7.2 MetricsExporter扩展
+
+> from version 2.4.0
+为了满足用户使用apollo-client时，对指标导出的系统有不同的系统需求（Prometheus,Skywalking...）
+
+我们在2.4.0版本增强的可观测性中提供了**spi**
+
+interface是`com.ctrip.framework.apollo.monitor.internal.exporter.ApolloClientMetricsExporter`。
+
+我们提供了通用指标导出框架抽象类 `com.ctrip.framework.apollo.monitor.internal.exporter.AbstractApolloClientMetricsExporter`，只需继承该类实现相关方法即可自定义接入其它监控系统，可参考apollo-plugin-client-prometheus的实现
+
+默认无服务提供，即不会导出指标数据
