@@ -1,10 +1,10 @@
-在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，用户可以自行扩展接入不同的监控系统。
+In version 2.4.0 and above of the Java client, support for metrics collection and export has been added, allowing users to extend and integrate with different monitoring systems.
 
-## 以接入Prometheus为例
+## Taking Prometheus Integration as an Example
 
-创建PrometheusApolloClientMetricsExporter类，继承AbstractApoolloClientMetircsExporter(通用指标导出框架)
+Create the `PrometheusApolloClientMetricsExporter` class, which extends `AbstractApolloClientMetricsExporter` (the generic metrics export framework).
 
-继承后大致代码如下
+The code after extending is roughly as follows:
 
 ```java
 
@@ -41,7 +41,7 @@ public class PrometheusApolloClientMetricsExporter extends
 
 ```
 
-doInit方法是供用户在初始化时自行做扩展的，会在AbstractApoolloClientMetircsExporter里的init方法被调用
+The doInit method is provided for users to extend during initialization and will be called in the init method of AbstractApolloClientMetricsExporter.
 
 ```java
   @Override
@@ -55,7 +55,7 @@ doInit方法是供用户在初始化时自行做扩展的，会在AbstractApooll
   }
 ```
 
-这里引入了prometheus的java客户端，需要对CollectorRegistry和缓存map做初始化
+Here, the Prometheus Java client is introduced, and the CollectorRegistry and cache map need to be initialized.
 
 ```java
   private CollectorRegistry registry;
@@ -68,9 +68,9 @@ doInit方法是供用户在初始化时自行做扩展的，会在AbstractApooll
   }
 ```
 
-isSupport方法将会在DefaultApolloClientMetricsExporterFactory通过SPI读取MetricsExporter时被调用做判断，用于实现在有多个SPI实现时可以准确启用用户所配置的那一个Exporter
+The isSupport method will be called in DefaultApolloClientMetricsExporterFactory via SPI to check which MetricsExporter to enable, allowing accurate activation of the configured exporter when multiple SPI implementations exist.
 
-比如配置时候你希望启用prometheus，你规定的值为prometheus，那这里就同步
+For example, if you want to enable Prometheus and specify the value as "prometheus," it should synchronize here:
 
 ```java
   @Override
@@ -79,7 +79,7 @@ isSupport方法将会在DefaultApolloClientMetricsExporterFactory通过SPI读取
   }
 ```
 
-registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Counter,Gauge类型指标的方法，只需要根据传来的参数正常注册即可
+The methods registerOrUpdateCounterSample and registerOrUpdateGaugeSample are used to register Counter and Gauge type metrics, simply registering based on the provided parameters.
 
 ```java
   @Override
@@ -120,7 +120,7 @@ registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Count
   }
 ```
 
-最后需要实现response方法，该方法用于导出你接入的监控系统格式的数据，最终会在ConfigMonitor的getExporterData方法里得到，用于用户自行暴露端口然后供监控系统拉取
+Finally, you need to implement the response method, which is used to export data in the format of the integrated monitoring system. It will ultimately be obtained in the getExporterData method of ConfigMonitor, allowing users to expose an endpoint for monitoring systems to pull data.
 
 ```java
   @Override
@@ -136,6 +136,6 @@ registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Count
   }
 ```
 
-至此，已经将Client的指标数据接入Prometheus。
+At this point, the client's metric data has been integrated with Prometheus.
 
-完整代码：[code]https://github.com/apolloconfig/apollo-java/main/master/apollo-plugin/apollo-plugin-client-prometheus/src/main/java/com/ctrip/framework/apollo/monitor/internal/exporter/impl/PrometheusApolloClientMetricsExporter.java
+Full code：[code](https://github.com/apolloconfig/apollo-java/main/master/apollo-plugin/apollo-plugin-client-prometheus/src/main/java/com/ctrip/framework/apollo/monitor/internal/exporter/impl/PrometheusApolloClientMetricsExporter.java)
