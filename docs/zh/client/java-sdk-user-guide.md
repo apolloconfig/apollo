@@ -511,6 +511,58 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
+### 3.1.5 使用Monitor-API
+
+apollo-client在2.4.0版本里提供了Monitor-API，供用户可以对client有更强的可观测性
+
+#### 3.1.5.1 获取ConfigMonitor
+
+```java
+ ConfigMonitor configMonitor = ConfigService.getConfigMonitor(); 
+ //错误相关监控API  
+ ApolloClientExceptionMonitorApi exceptionMonitorApi = configMonitor.getExceptionMonitorApi(); 
+ List<Exception> apolloConfigExceptionList = exceptionMonitorApi.getApolloConfigExceptionList();
+ //命名空间相关监控API  
+ ApolloClientNamespaceMonitorApi namespaceMonitorApi = configMonitor.getNamespaceMonitorApi(); 
+ List<String> namespace404 = namespaceMonitorApi.getNotFoundNamespaces();
+ //启动参数相关监控API  
+ ApolloClientBootstrapArgsMonitorApi runningParamsMonitorApi = configMonitor.getRunningParamsMonitorApi(); 
+ String bootstrapNamespaces = runningParamsMonitorApi.getBootstrapNamespaces();
+ //线程池相关监控API  
+ ApolloClientThreadPoolMonitorApi threadPoolMonitorApi = configMonitor.getThreadPoolMonitorApi(); 
+ ApolloThreadPoolInfo remoteConfigRepositoryThreadPoolInfo = threadPoolMonitorApi.getRemoteConfigRepositoryThreadPoolInfo();
+```
+
+#### 3.1.5.2 指标数据表格
+
+```java
+ //用户配置的监控系统形式的指标数据  
+ String exporterData = configMonitor.getExporterData();  
+```
+
+| 指标名称                                     | 类型  | 描述  | 标签  |
+|------------------------------------------| --- | --- | --- |
+| apollo_client_exception_num              | counter | Apollo异常计数 |     |
+| apollo_client_exception_num_total        | counter | 总异常计数 |     |
+| apollo_client_exception_num_created      | counter | 创建时间戳 |     |
+| apollo_client_queueSize                  | gauge | Apollo队列大小 | ThreadPoolName |
+| apollo_client_config_file_num            | gauge | 配置文件数量 | namespace |
+| apollo_client_poolSize                   | gauge | 线程池大小 | ThreadPoolName |
+| apollo_client_currentLoad                | gauge | 当前负载 | ThreadPoolName |
+| apollo_client_namespace_first_load_spend | gauge | 首次加载时间 | namespace |
+| apollo_client_namespace_item_num         | gauge | 命名空间项数量 | namespace |
+| apollo_client_namespace_usage            | counter | 命名空间使用计数 | namespace |
+| apollo_client_largestPoolSize            | gauge | 最大线程池大小 | ThreadPoolName |
+| apollo_client_maximumPoolSize            | gauge | 最大线程池容量 | ThreadPoolName |
+| apollo_client_corePoolSize               | gauge | 核心线程池大小 | ThreadPoolName |
+| apollo_client_queueRemainingCapacity     | gauge | 队列剩余容量 | ThreadPoolName |
+| apollo_client_namespace_not_found        | gauge | 未找到的命名空间计数 |     |
+| apollo_client_namespace_timeout          | gauge | 命名空间超时计数 |     |
+| apollo_client_activeTaskCount            | gauge | 活动任务计数 | ThreadPoolName |
+| apollo_client_queueCapacity              | gauge | 队列容量 | ThreadPoolName |
+| apollo_client_totalTaskCount             | gauge | 总任务计数 | ThreadPoolName |
+| apollo_client_completedTaskCount         | gauge | 完成任务计数 | ThreadPoolName |
+
 ## 3.2 Spring整合方式
 
 ### 3.2.1 配置
