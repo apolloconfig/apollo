@@ -65,10 +65,10 @@
                                         <h5>{{'SystemRole.AuthorizedUser' | translate }}</h5>
                                         <div class="btn-group item-info"
                                             ng-repeat="user in hasCreateApplicationPermissionUserList">
-                                            <button type="button" class="btn btn-default" ng-bind="user"></button>
+                                            <button type="button" class="btn btn-default" ng-bind="user.name"></button>
                                             <button type="button" class="btn btn-default dropdown-toggle"
                                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                                                ng-click="deleteCreateApplicationRoleFromUser(user)">
+                                                ng-click="deleteCreateApplicationRoleFromUser(user.userId)">
                                                 <span class="glyphicon glyphicon-remove"></span>
                                             </button>
                                         </div>
