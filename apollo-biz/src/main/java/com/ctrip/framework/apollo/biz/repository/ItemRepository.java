@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -46,5 +47,8 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   @Modifying
   @Query("update Item set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 where NamespaceId = ?1 and IsDeleted = false")
   int deleteByNamespaceId(long namespaceId, String operator);
+
+  @Query("select count(*) from Item where namespaceId = :namespaceId and key <>''")
+  int countByNamespaceIdAndFilterKeyEmpty(@Param("namespaceId")long namespaceId) ;
 
 }

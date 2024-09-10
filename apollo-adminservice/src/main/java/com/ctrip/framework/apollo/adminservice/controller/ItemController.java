@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.adminservice.aop.PreAcquireNamespaceLock;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
@@ -57,13 +58,14 @@ public class ItemController {
   private final NamespaceService namespaceService;
   private final CommitService commitService;
   private final ReleaseService releaseService;
+  private final BizConfig bizConfig;
 
-
-  public ItemController(final ItemService itemService, final NamespaceService namespaceService, final CommitService commitService, final ReleaseService releaseService) {
+  public ItemController(final ItemService itemService, final NamespaceService namespaceService, final CommitService commitService, final ReleaseService releaseService, final BizConfig bizConfig) {
     this.itemService = itemService;
     this.namespaceService = namespaceService;
     this.commitService = commitService;
     this.releaseService = releaseService;
+    this.bizConfig = bizConfig;
   }
 
   @PreAcquireNamespaceLock
@@ -77,6 +79,12 @@ public class ItemController {
     if (managedEntity != null) {
       throw BadRequestException.itemAlreadyExists(entity.getKey());
     }
+
+    int itemCount = itemService.findNonEmptyItemCount(entity.getNamespaceId()) ;
+    if(itemCount >= bizConfig.itemNumLimit()) {
+      throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ "+ bizConfig.itemNumLimit() + "]");
+    }
+
     entity = itemService.save(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
     commitService.createCommit(appId, clusterName, namespaceName, new ConfigChangeContentBuilder().createItem(entity).build(),

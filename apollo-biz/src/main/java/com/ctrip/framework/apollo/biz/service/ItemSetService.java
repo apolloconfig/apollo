@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
@@ -38,16 +39,19 @@ public class ItemSetService {
   private final CommitService commitService;
   private final ItemService itemService;
   private final NamespaceService namespaceService;
+  private final BizConfig bizConfig;
 
   public ItemSetService(
       final AuditService auditService,
       final CommitService commitService,
       final ItemService itemService,
-      final NamespaceService namespaceService) {
+      final NamespaceService namespaceService,
+      final BizConfig bizConfig) {
     this.auditService = auditService;
     this.commitService = commitService;
     this.itemService = itemService;
     this.namespaceService = namespaceService;
+    this.bizConfig = bizConfig;
   }
 
   @Transactional
@@ -62,6 +66,14 @@ public class ItemSetService {
 
     if (namespace == null) {
       throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
+    }
+
+    int itemCount = itemService.findNonEmptyItemCount(namespace.getId());
+    int createItemCount = (int) changeSet.getCreateItems().stream().filter(item -> !"".equals(item.getKey())).count();
+    int deleteItemCount = (int) changeSet.getDeleteItems().stream().filter(item -> !"".equals(item.getKey())).count();
+    itemCount = itemCount + createItemCount - deleteItemCount;
+    if(itemCount >= bizConfig.itemNumLimit()) {
+      throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ "+ bizConfig.itemNumLimit() + "]");
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
