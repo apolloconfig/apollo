@@ -309,7 +309,6 @@ public class NamespaceService {
     //latest Release
     ReleaseDTO latestRelease;
     Map<String, String> releaseItems = new HashMap<>();
-    Map<String, ItemDTO> deletedItemDTOs = new HashMap<>();
     latestRelease = releaseService.loadLatestRelease(appId, env, clusterName, namespaceName);
     if (latestRelease != null) {
       releaseItems = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
@@ -333,9 +332,9 @@ public class NamespaceService {
 
     if (includeDeletedItems) {
       //deleted items
-      itemService.findDeletedItems(appId, env, clusterName, namespaceName).forEach(item -> {
-        deletedItemDTOs.put(item.getKey(), item);
-      });
+      Map<String, ItemDTO> deletedItemDTOs = itemService.findDeletedItems(appId, env, clusterName, namespaceName).stream()
+              .filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
+              .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
 
       List<ItemBO> deletedItems = parseDeletedItems(items, releaseItems, deletedItemDTOs);
       itemBOs.addAll(deletedItems);
@@ -385,6 +384,8 @@ public class NamespaceService {
 
   private List<ItemBO> parseDeletedItems(List<ItemDTO> newItems, Map<String, String> releaseItems, Map<String, ItemDTO> deletedItemDTOs) {
     Map<String, ItemDTO> newItemMap = BeanUtils.mapByKey("key", newItems);
+    //remove comment and blank item map.
+    newItemMap.remove("");
 
     List<ItemBO> deletedItems = new LinkedList<>();
     for (Map.Entry<String, String> entry : releaseItems.entrySet()) {
