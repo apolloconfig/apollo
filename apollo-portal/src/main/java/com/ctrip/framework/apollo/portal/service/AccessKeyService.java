@@ -49,8 +49,8 @@ public class AccessKeyService {
     accessKeyAPI.delete(env, appId, id, operator);
   }
 
-  public void enable(Env env, String appId, long id, String operator) {
-    accessKeyAPI.enable(env, appId, id, operator);
+  public void enable(Env env, String appId, long id, int mode, String operator) {
+    accessKeyAPI.enable(env, appId, id, mode, operator);
   }
 
   public void disable(Env env, String appId, long id, String operator) {

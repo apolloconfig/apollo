@@ -17,9 +17,11 @@
 package com.ctrip.framework.apollo.configservice.filter;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
+import com.ctrip.framework.apollo.common.utils.WebUtils;
 import com.ctrip.framework.apollo.configservice.util.AccessKeyUtil;
 import com.ctrip.framework.apollo.core.signature.Signature;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.net.HttpHeaders;
 import java.io.IOException;
 import java.util.List;
@@ -68,25 +70,48 @@ public class ClientAuthenticationFilter implements Filter {
       return;
     }
 
+    // check timestamp and signature
     List<String> availableSecrets = accessKeyUtil.findAvailableSecret(appId);
     if (!CollectionUtils.isEmpty(availableSecrets)) {
       String timestamp = request.getHeader(Signature.HTTP_HEADER_TIMESTAMP);
       String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+      String ip = WebUtils.tryToGetClientIp(request);
 
       // check timestamp, valid within 1 minute
       if (!checkTimestamp(timestamp)) {
-        logger.warn("Invalid timestamp. appId={},timestamp={}", appId, timestamp);
+        logger.warn("Invalid timestamp. appId={},clientIp={},timestamp={}", appId, ip, timestamp);
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
         return;
       }
 
       // check signature
-      String uri = request.getRequestURI();
-      String query = request.getQueryString();
-      if (!checkAuthorization(authorization, availableSecrets, timestamp, uri, query)) {
-        logger.warn("Invalid authorization. appId={},authorization={}", appId, authorization);
+      if (!checkAuthorization(authorization, availableSecrets, timestamp,
+          request.getRequestURI(), request.getQueryString())) {
+        logger.warn("Invalid authorization. appId={},clientIp={},authorization={}",
+            appId, ip, authorization);
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
         return;
+      }
+    } else {
+      // pre-check timestamp and signature
+      List<String> observableSecrets = accessKeyUtil.findObservableSecrets(appId);
+      if (!CollectionUtils.isEmpty(observableSecrets)) {
+        String timestamp = request.getHeader(Signature.HTTP_HEADER_TIMESTAMP);
+        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String ip = WebUtils.tryToGetClientIp(request);
+
+        // pre-check timestamp, valid within 1 minute
+        if (!checkTimestamp(timestamp)) {
+          preCheckInvalidLogging(String.format("Invalid timestamp in pre-check. "
+              + "appId=%s,clientIp=%s,timestamp=%s", appId, ip, timestamp));
+        }
+
+        // pre-check signature
+        if (!checkAuthorization(authorization, observableSecrets, timestamp,
+            request.getRequestURI(), request.getQueryString())) {
+          preCheckInvalidLogging(String.format("Invalid authorization in pre-check. "
+              + "appId=%s,clientIp=%s,authorization=%s", appId, ip, authorization));
+        }
       }
     }
 
@@ -129,5 +154,12 @@ public class ClientAuthenticationFilter implements Filter {
       }
     }
     return false;
+  }
+
+  private void preCheckInvalidLogging(String message) {
+    logger.warn(message);
+    Tracer.logEvent("Apollo.AccessKey.PreCheck", message);
+    // only for test mock
+    accessKeyUtil.preCheckInvalid();
   }
 }

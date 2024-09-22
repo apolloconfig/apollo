@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
 import com.ctrip.framework.apollo.biz.service.AccessKeyService;
+import com.ctrip.framework.apollo.common.constants.AccessKeyMode;
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import java.util.List;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -61,9 +63,11 @@ public class AccessKeyController {
   }
 
   @PutMapping(value = "/apps/{appId}/accesskeys/{id}/enable")
-  public void enable(@PathVariable String appId, @PathVariable long id, String operator) {
+  public void enable(@PathVariable String appId, @PathVariable long id,
+      @RequestParam(required = false, defaultValue = "0") int mode, String operator) {
     AccessKey entity = new AccessKey();
     entity.setId(id);
+    entity.setMode(mode);
     entity.setEnabled(true);
     entity.setDataChangeLastModifiedBy(operator);
 
@@ -74,6 +78,7 @@ public class AccessKeyController {
   public void disable(@PathVariable String appId, @PathVariable long id, String operator) {
     AccessKey entity = new AccessKey();
     entity.setId(id);
+    entity.setMode(AccessKeyMode.FILTER);
     entity.setEnabled(false);
     entity.setDataChangeLastModifiedBy(operator);
 

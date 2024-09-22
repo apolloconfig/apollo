@@ -136,17 +136,19 @@ function AccessKeyController($scope, $location, $translate, toastr,
         }
     }
 
-    function enable(id, env) {
-        var confirmTips = $translate.instant('AccessKey.Operator.EnabledTips', {
+    function enable(id, env, mode) {
+        mode = (mode === 1) ? 1 : 0;
+        var tipsPrefix = mode === 1 ? 'AccessKey.Operator.Observed' : 'AccessKey.Operator.Enabled';
+        var confirmTips = $translate.instant(tipsPrefix + 'Tips', {
             appId: $scope.pageContext.appId
         });
         if (confirm(confirmTips)) {
-            AccessKeyService.enable_access_key($scope.pageContext.appId, env, id)
+            AccessKeyService.enable_access_key($scope.pageContext.appId, env, id, mode)
                 .then(function () {
-                    toastr.success($translate.instant('AccessKey.Operator.EnabledSuccess', {env}));
+                    toastr.success($translate.instant(tipsPrefix + 'Success', {env}));
                     loadAccessKeys(env);
                 }, function (result) {
-                    toastr.error(AppUtil.errorMsg(result), $translate.instant('AccessKey.Operator.EnabledError', {env}));
+                    toastr.error(AppUtil.errorMsg(result), $translate.instant(tipsPrefix + 'Error', {env}));
                 });
         }
     }
