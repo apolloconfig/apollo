@@ -18,10 +18,13 @@ package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.entity.Item;
+import com.ctrip.framework.apollo.common.dto.ItemInfoDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 
 public class ItemServiceTest extends AbstractIntegrationTest {
@@ -69,6 +72,28 @@ public class ItemServiceTest extends AbstractIntegrationTest {
         Item dbItem = itemService.update(item);
         Assert.assertEquals(2, dbItem.getType());
         Assert.assertEquals("v1-new", dbItem.getValue());
+    }
+
+    @Test
+    @Sql(scripts = {"/sql/namespace-test.sql","/sql/item-test.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+    @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+    public void testSearchItem() {
+        ItemInfoDTO itemInfoDTO = new ItemInfoDTO();
+        itemInfoDTO.setAppId("testApp");
+        itemInfoDTO.setClusterName("default");
+        itemInfoDTO.setNamespaceName("application");
+        itemInfoDTO.setKey("k1");
+        itemInfoDTO.setValue("v1");
+
+        String itemKey = "k1";
+        String itemValue = "v1";
+        Page<ItemInfoDTO> ExpectedItemInfoDTOSByKeyAndValue = itemService.getItemInfoBySearch(itemKey, itemValue, PageRequest.of(0,200));
+        Page<ItemInfoDTO> ExpectedItemInfoDTOSByKey = itemService.getItemInfoBySearch(itemKey,"", PageRequest.of(0,200));
+        Page<ItemInfoDTO> ExpectedItemInfoDTOSByValue = itemService.getItemInfoBySearch("", itemValue, PageRequest.of(0,200));
+        Assert.assertEquals(itemInfoDTO.toString(), ExpectedItemInfoDTOSByKeyAndValue.getContent().get(0).toString());
+        Assert.assertEquals(itemInfoDTO.toString(), ExpectedItemInfoDTOSByKey.getContent().get(0).toString());
+        Assert.assertEquals(itemInfoDTO.toString(), ExpectedItemInfoDTOSByValue.getContent().get(0).toString());
+
     }
 
 }

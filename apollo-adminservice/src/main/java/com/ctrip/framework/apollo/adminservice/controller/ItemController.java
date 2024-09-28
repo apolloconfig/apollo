@@ -27,6 +27,7 @@ import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ConfigChangeContentBuilder;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.ItemInfoDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
@@ -199,6 +200,14 @@ public class ItemController {
       return BeanUtils.batchTransform(ItemDTO.class, deletedItems);
     }
     return Collections.emptyList();
+  }
+
+  @GetMapping("/items-search/key-and-value")
+  public PageDTO<ItemInfoDTO> getItemInfoBySearch(@RequestParam(value = "key", required = false) String key,
+                                                  @RequestParam(value = "value", required = false) String value,
+                                                  Pageable limit) {
+    Page<ItemInfoDTO> pageItemInfoDTO = itemService.getItemInfoBySearch(key, value, limit);
+    return new PageDTO<>(pageItemInfoDTO.getContent(), limit, pageItemInfoDTO.getTotalElements());
   }
 
   @GetMapping("/items/{itemId}")
