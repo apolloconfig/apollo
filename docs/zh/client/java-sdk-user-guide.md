@@ -464,7 +464,7 @@ value:内容为对应的配置信息的json格式字符串
      name: configmap-reader
      apiGroup: rbac.authorization.k8s.io
    ```
-1. 在Pod配置中指定Service Account: 确保Pod的配置中使用了上面创建的Service Account。
+4. 在Pod配置中指定Service Account: 确保Pod的配置中使用了上面创建的Service Account。
    ```
    apiVersion: v1
    kind: Pod
@@ -477,7 +477,7 @@ value:内容为对应的配置信息的json格式字符串
    - name: my-container
      image: my-image
    ```
-1. 应用配置: 使用kubectl命令行工具应用这些配置。
+5. 应用配置: 使用kubectl命令行工具应用这些配置。
    ```
    kubectl apply -f service-account.yaml
    kubectl apply -f role.yaml
@@ -487,6 +487,7 @@ value:内容为对应的配置信息的json格式字符串
    这些步骤使Pod中的Service Account具有对指定ConfigMap的读写权限。
 
    如果ConfigMap是跨Namespace的，使用ClusterRole和ClusterRoleBinding代替Role和RoleBinding，并确保在所有需要访问ConfigMap的Namespace中应用这些配置。
+
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
 ```xml
