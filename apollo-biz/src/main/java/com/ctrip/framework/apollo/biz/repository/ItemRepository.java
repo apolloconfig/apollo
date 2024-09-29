@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Item;
 
+import com.ctrip.framework.apollo.common.dto.ItemInfoDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
@@ -43,6 +44,21 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   Page<Item> findByNamespaceId(Long namespaceId, Pageable pageable);
   
   Item findFirst1ByNamespaceIdOrderByLineNumDesc(Long namespaceId);
+
+  @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) " +
+          "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id " +
+          "WHERE i.key LIKE %:key% AND i.value LIKE %:value% AND i.isDeleted = 0")
+  Page<ItemInfoDTO> findItemsByKeyAndValueLike(@Param("key") String key, @Param("value") String value, Pageable pageable);
+
+  @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) " +
+          "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id " +
+          "WHERE i.key LIKE %:key% AND i.isDeleted = 0")
+  Page<ItemInfoDTO> findItemsByKeyLike(@Param("key") String key, Pageable pageable);
+
+  @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) " +
+          "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id " +
+          "WHERE i.value LIKE %:value% AND i.isDeleted = 0")
+  Page<ItemInfoDTO> findItemsByValueLike(@Param("value") String value, Pageable pageable);
 
   @Modifying
   @Query("update Item set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 where NamespaceId = ?1 and IsDeleted = false")

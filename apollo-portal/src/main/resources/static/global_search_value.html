@@ -1,0 +1,196 @@
+<!--
+  ~ Copyright 2024 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="global_search_value">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="./img/config.png">
+    <!-- styles -->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+    <title>{{'Global.Title' | translate }}</title>
+</head>
+
+<body>
+<apollonav></apollonav>
+<div class="container-fluid apollo-container" ng-controller="GlobalSearchValueController">
+    <div class="col-md-10 col-md-offset-1 panel">
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="value_search" style="background-color:#fff">
+                <section class="panel-body">
+                    <div class="row">
+                        <div>
+                            <header class="panel-heading">
+                                {{'Global.Title' | translate }}
+                                <small>{{'Global.ValueSearch.Tips' | translate }}</small>
+                            </header>
+                        </div>
+                        <div style="height: 15px"></div>
+                        <div class="row">
+                            <div class="col-md-10">
+                                <form class="form-inline" style="display:inline">
+                                    <label for="searchUserInputKey" class="form-label">{{'Global.Key' | translate}}{{ ':' }}{{ '&nbsp;' }}</label>
+                                    <input type="text" class="form-control" id="searchUserInputKey"
+                                           placeholder="{{'Item.GlobalSearchByKey' | translate }}"
+                                           ng-model="itemInfoSearchKey"
+                                           style="margin-right: 10px;"
+                                           autocomplete="off"/>
+                                    <label for="searchUserInputValue" class="form-label">{{'Global.Value' | translate}}{{ ':' }}{{ '&nbsp;' }}</label>
+                                    <input type="text" class="form-control" id="searchUserInputValue"
+                                           placeholder="{{'Item.GlobalSearchByValue' | translate }}"
+                                           ng-model="itemInfoSearchValue"
+                                           style="margin-right: 10px;"
+                                           autocomplete="off"/>
+                                    <button type="submit" class="btn btn-primary" ng-click="getItemInfoByKeyAndValue(itemInfoSearchKey, itemInfoSearchValue)">
+                                        {{'Item.GlobalSearch' | translate }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div style="height: 15px"></div>
+                        <table class="table table-bordered table-striped table-hover" style="width: 100%;table-layout: fixed;word-wrap: break-word;overflow-x: auto;">
+                            <tr>
+                                <th style="text-align: left;width: 10%">{{'Global.App' | translate }}</th>
+                                <th style="text-align: left;width: 10%">{{'Global.Env' | translate }}</th>
+                                <th style="text-align: left;width: 10%">{{'Global.Cluster' | translate }}</th>
+                                <th style="text-align: left;width: 10%">{{'Global.NameSpace' | translate }}</th>
+                                <th style="text-align: left;width: 15%">{{'Global.Key' | translate }}</th>
+                                <th style="text-align: left;width: 35%" id="valueColumn">{{'Global.Value' | translate }}</th>
+                                <th style="text-align: left;width: 10%">{{'Global.Operate' | translate }}</th>
+                            </tr>
+                            <tr ng-repeat="item in pageItemInfo track by $index"  href="#" class="hover cursor-pointer">
+                                <td>{{ item.appId }}</td>
+                                <td>{{ item.envName }}</td>
+                                <td>{{ item.clusterName }}</td>
+                                <td>{{ item.namespaceName }}</td>
+                                <td>
+                                    <span ng-if="isPageItemInfoDirectlyDisplayKeyWithoutShowHighlightKeyword[$index] == '0'">{{ item.key }}</span>
+                                    <span ng-if="!(isPageItemInfoDirectlyDisplayKeyWithoutShowHighlightKeyword[$index] == '0')" ng-bind-html="highlightKeyword(item.key,needToBeHighlightedKey)"></span>
+                                </td>
+                                <td>
+                                    <span ng-if="isPageItemInfoDirectlyDisplayValueWithoutShowHighlightKeyword[$index] == '0'">{{ item.value }}</span>
+                                    <span ng-if="!(isPageItemInfoDirectlyDisplayValueWithoutShowHighlightKeyword[$index] == '0')">
+                                        <span ng-if="isPageItemInfoDisplayValueInARow[$index] == '0'" ng-bind-html="highlightKeyword(item.value,needToBeHighlightedValue)">{{ item.value }}</span>
+                                        <span ng-if="!(isPageItemInfoDisplayValueInARow[$index] == '0')">
+                                            <span ng-show="(isPageItemInfoDisplayValueInARow[$index] == '1') && (!isShowHighlightKeyword[$index])" ng-model="needToBeHighlightedValue">{{ needToBeHighlightedValue }}...</span>
+                                            <span ng-show="(isPageItemInfoDisplayValueInARow[$index] == '2') && (!isShowHighlightKeyword[$index])" ng-model="needToBeHighlightedValue">...{{ needToBeHighlightedValue }}</span>
+                                            <span ng-show="(isPageItemInfoDisplayValueInARow[$index] == '3') && (!isShowHighlightKeyword[$index])" ng-model="needToBeHighlightedValue">...{{ needToBeHighlightedValue }}...</span>
+                                            <a ng-show="!isShowHighlightKeyword[$index]" href="#" ng-click="isShowAllValue($index)">| {{'Global.Expand' | translate }}</a>
+                                            <span ng-show="isShowHighlightKeyword[$index]" ng-bind-html="highlightKeyword(item.value,needToBeHighlightedValue)"></span>
+                                            <a ng-show="isShowHighlightKeyword[$index]" href="#" ng-click="isShowAllValue($index)">| {{'Global.Abbreviate' | translate }}</a>
+                                        </span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="#" ng-click="jumpToTheEditingPage(item.appId,item.envName,item.clusterName)">{{'Global.JumpToEditPage' | translate }}</a>
+                                </td>
+                            </tr>
+                        </table>
+                        <div ng-show="!(pageItemInfo.length === 0)">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <div class="form-inline" style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="margin-right: auto; font-weight: bold;">{{'Paging.TotalItems.part1' | translate }}{{ '&nbsp;' }}{{totalItems}}{{ '&nbsp;' }}{{'Paging.TotalItems.part2' | translate }}</div>
+                                        <select class="form-control" style="margin-right: 10px;" ng-model="pageSize" ng-change="convertPageSizeToInt()">
+                                            <option value="10" selected>10{{ '&nbsp;' }}{{'Paging.DisplayNumber' | translate }}</option>
+                                            <option ng-repeat="size in [20, 50]" value="{{size}}" >{{size}}{{ '&nbsp;' }}{{'Paging.DisplayNumber' | translate }}</option>
+                                        </select>
+                                        <ul class="pagination" style="list-style: none; display: flex; align-items: center;">
+                                            <li style="margin-right: 5px;" ng-class="{disabled: currentPage == 1}">
+                                                <a href="#" ng-click="changePage(1)" style="cursor: pointer;">{{'Paging.PageNumberOne' | translate }}</a>
+                                            </li>
+                                            <li style="margin-right: 5px;" ng-class="{disabled: currentPage == 1}">
+                                                <a href="#" ng-click="changePage(currentPage - 1)" style="cursor: pointer;"><b>«</b></a>
+                                            </li>
+                                            <li ng-repeat="page in pagesArray track by $index" ng-class="{active: page == currentPage, disabled: page === '...'}" style="margin-right: 5px;">
+                                                <a href="#" ng-click="page !== '...' && changePage(page)" style="cursor: pointer;">{{page}}</a>
+                                            </li>
+                                            <li style="margin-right: 5px;" ng-class="{disabled: currentPage == totalPages}">
+                                                <a href="#" ng-click="changePage(currentPage + 1)" style="cursor: pointer;"><b>»</b></a>
+                                            </li>
+                                            <li ng-class="{disabled: currentPage == totalPages}">
+                                                <a href="#" ng-click="changePage(totalPages)" style="cursor: pointer;">{{'Paging.PageNumberLast' | translate }}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: end;"></div>
+                        <div style="height: 15px"></div>
+                        <div style="background-color: white;" ng-show="allItemInfo.length === 0">
+                            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                                <div><img src="img/nodata.png" /></div>
+                                <div style="margin-left: 5px; color: grey;"><h5>{{'ApolloGlobalSearch.NoData' | translate }}</h5></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div ng-include="'views/common/footer.html'"></div>
+
+<!--angular-->
+<script src="vendor/angular/angular.min.js"></script>
+<script src="vendor/angular/angular-resource.min.js"></script>
+<script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+<script src="vendor/angular/loading-bar.min.js"></script>
+<script src="vendor/angular/angular-cookies.min.js"></script>
+
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+<script src="vendor/angular/angular-sanitize.min.js"></script>
+
+<!-- jquery.js -->
+<script src="vendor/jquery.min.js" type="text/javascript"></script>
+<script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+
+<!-- bootstrap.js -->
+<script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="vendor/diff.min.js" type="text/javascript"></script>
+
+<!--valdr-->
+<script src="vendor/valdr/valdr.min.js" type="text/javascript"></script>
+<script src="vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+
+<script type="application/javascript" src="scripts/app.js"></script>
+<script type="application/javascript" src="scripts/services/AppService.js"></script>
+<script type="application/javascript" src="scripts/services/EnvService.js"></script>
+<script type="application/javascript" src="scripts/services/GlobalSearchValueService.js"></script>
+<script type="application/javascript" src="scripts/services/UserService.js"></script>
+<script type="application/javascript" src="scripts/services/CommonService.js"></script>
+<script type="application/javascript" src="scripts/AppUtils.js"></script>
+<script type="application/javascript" src="scripts/services/OrganizationService.js"></script>
+<script type="application/javascript" src="scripts/directive/directive.js"></script>
+<script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+
+<script type="application/javascript" src="scripts/controller/GlobalSearchValueController.js"></script>
+
+<script src="scripts/valdr.js" type="text/javascript"></script>
+
+</body>
+
+</html>

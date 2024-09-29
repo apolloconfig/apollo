@@ -1392,6 +1392,14 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 如果设置为 false，则关闭此功能
 
+### 3.1.14 apollo.portal.search.perEnvMaxResults - 设置管理员工具-value的全局搜索功能单次单独环境最大搜索结果的数量
+
+> 适用于2.4.0及以上版本
+
+默认为200，意味着每个环境在单次搜索操作中最多返回200条结果
+
+修改该参数可能会影响搜索功能的性能，因此在修改之前应该进行充分的测试，根据实际业务需求和系统资源情况，适当调整`apollo.portal.search.perEnvMaxResults`的值，以平衡性能和搜索结果的数量
+
 
 ## 3.2 调整ApolloConfigDB配置
 配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。
