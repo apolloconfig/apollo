@@ -37,6 +37,10 @@ Demo Environment:
 * **Grayscale release**
     * Support grayscale configuration release, for example, after clicking release, it will only take effect for some application instances. After a period of observation, we could push the configurations to all application instances if there is no problem
 
+- **Global Search Configuration Items**
+  - A fuzzy search of the key and value of a configuration item finds in which application, environment, cluster, namespace the configuration item with the corresponding value is used
+  - It is easy for administrators and SRE roles to quickly and easily find and change the configuration values of resources by highlighting, paging and jumping through configurations
+
 * **Authorization management, release approval and operation audit**
     * Great authorization mechanism is designed for applications and configurations management, and the management of configurations is divided into two operations: editing and publishing, therefore greatly reducing human errors
     * All operations have audit logs for easy tracking of problems

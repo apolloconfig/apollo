@@ -769,9 +769,9 @@ apollo.service.registry.cluster=same name with apollo Cluster
 ```
 
 2. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
-for example when deploying on the intranet, 
-if you don't want to expose the intranet ip, 
-you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
+   for example when deploying on the intranet, 
+   if you don't want to expose the intranet ip, 
+   you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
     ```properties
     apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/
     ```
@@ -1446,6 +1446,14 @@ The format is json, as follows.
 The default is true, which makes it easy to quickly search for configurations by configuration item
 
 If set to false, this feature is disabled
+
+### 3.1.14 apollo.portal.search.perEnvMaxResults - set the Administrator Tool-Global Search for Value function's maximum number of search results for a single individual environment 
+
+> For versions 2.4.0 and above
+
+Default is 200, which means that each environment will return up to 200 results in a single search operation.
+
+Modifying this parameter may affect the performance of the search function, so before modifying it, you should conduct sufficient testing and adjust the value of `apollo.portal.search.perEnvMaxResults` appropriately according to the actual business requirements and system resources to balance the performance and the number of search results.
 
 ## 3.2 Adjusting ApolloConfigDB configuration
 

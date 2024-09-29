@@ -21,18 +21,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.repository.CommitRepository;
 import com.ctrip.framework.apollo.biz.repository.ItemRepository;
-import com.ctrip.framework.apollo.common.dto.AppDTO;
-import com.ctrip.framework.apollo.common.dto.ClusterDTO;
-import com.ctrip.framework.apollo.common.dto.ItemDTO;
-import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.biz.service.ItemService;
+import com.ctrip.framework.apollo.common.dto.*;
+
 import java.util.List;
 import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -48,6 +49,9 @@ public class ItemControllerTest extends AbstractControllerTest {
   @Autowired
   private ItemRepository itemRepository;
 
+  @Autowired
+  private ItemService itemService;
+
   @Test
   @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
@@ -58,7 +62,7 @@ public class ItemControllerTest extends AbstractControllerTest {
     ClusterDTO cluster = restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
     assert cluster != null;
     NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(),
-        NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
+            NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
 
     String itemKey = "test-key";
     String itemValue = "test-value";
@@ -68,12 +72,12 @@ public class ItemControllerTest extends AbstractControllerTest {
     item.setDataChangeLastModifiedBy("apollo");
 
     ResponseEntity<ItemDTO> response = restTemplate.postForEntity(itemBaseUrl(),
-        item, ItemDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+            item, ItemDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     Assert.assertEquals(itemKey, Objects.requireNonNull(response.getBody()).getKey());
 
     List<Commit> commitList = commitRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(app.getAppId(), cluster.getName(), namespace.getNamespaceName(),
-        Pageable.ofSize(10));
+            Pageable.ofSize(10));
     Assert.assertEquals(1, commitList.size());
 
     Commit commit = commitList.get(0);
@@ -93,15 +97,15 @@ public class ItemControllerTest extends AbstractControllerTest {
     ClusterDTO cluster = restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
     assert cluster != null;
     NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(),
-        NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
+            NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
 
     String itemKey = "test-key";
     String itemValue = "test-value-updated";
 
     long itemId = itemRepository.findByKey(itemKey, Pageable.ofSize(1))
-        .getContent()
-        .get(0)
-        .getId();
+            .getContent()
+            .get(0)
+            .getId();
     ItemDTO item = new ItemDTO(itemKey, itemValue, "", 1);
     item.setDataChangeLastModifiedBy("apollo");
 
@@ -115,7 +119,7 @@ public class ItemControllerTest extends AbstractControllerTest {
     });
 
     List<Commit> commitList = commitRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(app.getAppId(), cluster.getName(), namespace.getNamespaceName(),
-        Pageable.ofSize(10));
+            Pageable.ofSize(10));
     assertThat(commitList).hasSize(2);
   }
 
@@ -131,23 +135,44 @@ public class ItemControllerTest extends AbstractControllerTest {
     ClusterDTO cluster = restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
     assert cluster != null;
     NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(),
-        NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
+            NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
 
     String itemKey = "test-key";
 
     long itemId = itemRepository.findByKey(itemKey, Pageable.ofSize(1))
-        .getContent()
-        .get(0)
-        .getId();
+            .getContent()
+            .get(0)
+            .getId();
 
     String deleteUrl = url(  "/items/{itemId}?operator=apollo");
     restTemplate.delete(deleteUrl, itemId);
     assertThat(itemRepository.findById(itemId).isPresent())
-        .isFalse();
+            .isFalse();
 
     assert namespace != null;
     List<Commit> commitList = commitRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(app.getAppId(), cluster.getName(), namespace.getNamespaceName(),
-        Pageable.ofSize(10));
+            Pageable.ofSize(10));
     assertThat(commitList).hasSize(2);
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testSearch() {
+    this.testCreate();
+
+    String itemKey = "test-key";
+    String itemValue = "test-value";
+    Page<ItemInfoDTO> itemInfoDTOS = itemService.getItemInfoBySearch(itemKey, itemValue, PageRequest.of(0, 200));
+    HttpHeaders headers = new HttpHeaders();
+    HttpEntity<Void> entity = new HttpEntity<>(headers);
+    ResponseEntity<PageDTO<ItemInfoDTO>> response = restTemplate.exchange(
+            url("/items-search/key-and-value?key={key}&value={value}&page={page}&size={size}"),
+            HttpMethod.GET,
+            entity,
+            new ParameterizedTypeReference<PageDTO<ItemInfoDTO>>() {},
+            itemKey, itemValue, 0, 200
+    );
+    assertThat(itemInfoDTOS.getContent().toString()).isEqualTo(response.getBody().getContent().toString());
   }
 }

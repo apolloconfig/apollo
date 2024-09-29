@@ -86,6 +86,8 @@ public class PortalConfig extends RefreshableConfig {
     return envs;
   }
 
+  public int getPerEnvSearchMaxResults() {return getIntProperty("apollo.portal.search.perEnvMaxResults", 200);}
+
   /**
    * @return the relationship between environment and its meta server. empty if meet exception
    */

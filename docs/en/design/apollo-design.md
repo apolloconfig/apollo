@@ -130,7 +130,7 @@ Why do we use Eureka as a service registry instead of the traditional zk and etc
 ### 1.3.2 Admin Service
 
 * Provide configuration management interface
-* Provides interfaces for configuration modification, publishing, etc.
+* Provides interfaces for configuration modification, publishing, retrieval, etc.
 * Interface service object is Portal
 
 ### 1.3.3 Meta Server
