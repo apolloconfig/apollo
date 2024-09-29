@@ -27,10 +27,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,14 +55,14 @@ public class PropertyResolver implements ConfigTextResolver {
     oldKeyMapItem.remove("");
 
     // comment items
-    List<ItemDTO> baseCommentItems = new ArrayList<>();
+    List<ItemDTO> baseCommentItems = new LinkedList<>();
     // blank items
-    List<ItemDTO> baseBlankItems = new ArrayList<>();
+    List<ItemDTO> baseBlankItems = new LinkedList<>();
     if (!CollectionUtils.isEmpty(baseItems)) {
 
-      baseCommentItems = baseItems.stream().filter(itemDTO -> isCommentItem(itemDTO)).sorted(Comparator.comparing(ItemDTO::getLineNum)).collect(Collectors.toList());
+      baseCommentItems = baseItems.stream().filter(itemDTO -> isCommentItem(itemDTO)).sorted(Comparator.comparing(ItemDTO::getLineNum)).collect(Collectors.toCollection(LinkedList::new));
 
-      baseBlankItems = baseItems.stream().filter(itemDTO -> isBlankItem(itemDTO)).sorted(Comparator.comparing(ItemDTO::getLineNum)).collect(Collectors.toList());
+      baseBlankItems = baseItems.stream().filter(itemDTO -> isBlankItem(itemDTO)).sorted(Comparator.comparing(ItemDTO::getLineNum)).collect(Collectors.toCollection(LinkedList::new));
     }
 
     String[] newItems = configText.split(ITEM_SEPARATOR);
@@ -177,7 +177,7 @@ public class PropertyResolver implements ConfigTextResolver {
     if (oldItem == null) {
       changeSets.addCreateItem(buildNormalItem(0L, namespaceId, newKey, newValue, "", lineCounter));
       //update item
-    } else if (!newValue.equals(oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {
+    } else if (!StringUtils.equals(newValue, oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {
       changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(), lineCounter));
     }
     keyMapOldItem.remove(newKey);
