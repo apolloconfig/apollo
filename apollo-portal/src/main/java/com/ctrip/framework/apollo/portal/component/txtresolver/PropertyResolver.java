@@ -58,7 +58,7 @@ public class PropertyResolver implements ConfigTextResolver {
     List<ItemDTO> baseCommentItems = new ArrayList<>();
     // blank items
     List<ItemDTO> baseBlankItems = new ArrayList<>();
-    if(!CollectionUtils.isEmpty(baseItems)) {
+    if (!CollectionUtils.isEmpty(baseItems)) {
 
       baseCommentItems = baseItems.stream().filter(itemDTO -> isCommentItem(itemDTO)).sorted(Comparator.comparing(ItemDTO::getLineNum)).collect(Collectors.toList());
 
@@ -81,7 +81,7 @@ public class PropertyResolver implements ConfigTextResolver {
       //comment item
       if (isCommentItem(newItem)) {
         ItemDTO oldItemDTO = null;
-        if(!CollectionUtils.isEmpty(baseCommentItems)) {
+        if (!CollectionUtils.isEmpty(baseCommentItems)) {
           oldItemDTO = baseCommentItems.remove(0);
         }
 
@@ -91,7 +91,7 @@ public class PropertyResolver implements ConfigTextResolver {
       } else if (isBlankItem(newItem)) {
 
         ItemDTO oldItemDTO = null;
-        if(!CollectionUtils.isEmpty(baseBlankItems)) {
+        if (!CollectionUtils.isEmpty(baseBlankItems)) {
           oldItemDTO = baseBlankItems.remove(0);
         }
 
@@ -119,7 +119,7 @@ public class PropertyResolver implements ConfigTextResolver {
         String[] kv = parseKeyValueFromItem(item);
         if (kv != null) {
           String key = kv[0].toLowerCase();
-          if(!keys.add(key)){
+          if (!keys.add(key)) {
             repeatKeys.add(key);
           }
         } else {
@@ -144,17 +144,17 @@ public class PropertyResolver implements ConfigTextResolver {
   }
 
   private void handleCommentLine(Long namespaceId, ItemDTO oldItemByLine, String newItem, int lineCounter, ItemChangeSets changeSets) {
-    if(null == oldItemByLine ){
+    if (null == oldItemByLine) {
       changeSets.addCreateItem(buildCommentItem(0L, namespaceId, newItem, lineCounter));
-    }else if(!StringUtils.equals(oldItemByLine.getComment(), newItem) || lineCounter != oldItemByLine.getLineNum()) {
+    } else if (!StringUtils.equals(oldItemByLine.getComment(), newItem) || lineCounter != oldItemByLine.getLineNum()) {
       changeSets.addUpdateItem(buildCommentItem(oldItemByLine.getId(), namespaceId, newItem, lineCounter));
     }
   }
 
   private void handleBlankLine(Long namespaceId, ItemDTO oldItem, int lineCounter, ItemChangeSets changeSets) {
-    if(null == oldItem ){
+    if (null == oldItem) {
       changeSets.addCreateItem(buildBlankItem(0L, namespaceId, lineCounter));
-    }else if (lineCounter != oldItem.getLineNum()) {
+    } else if (lineCounter != oldItem.getLineNum()) {
       changeSets.addUpdateItem(buildBlankItem(oldItem.getId(), namespaceId, lineCounter));
     }
   }
@@ -173,12 +173,12 @@ public class PropertyResolver implements ConfigTextResolver {
 
     ItemDTO oldItem = keyMapOldItem.get(newKey);
 
-    if (oldItem == null) {//new item
+    //new item
+    if (oldItem == null) {
       changeSets.addCreateItem(buildNormalItem(0L, namespaceId, newKey, newValue, "", lineCounter));
-    } else if (!newValue.equals(oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {//update item
-      changeSets.addUpdateItem(
-          buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(),
-              lineCounter));
+      //update item
+    } else if (!newValue.equals(oldItem.getValue()) || lineCounter != oldItem.getLineNum()) {
+      changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue, oldItem.getComment(), lineCounter));
     }
     keyMapOldItem.remove(newKey);
   }
@@ -197,7 +197,7 @@ public class PropertyResolver implements ConfigTextResolver {
   }
 
   private boolean isBlankItem(String line) {
-    return  Strings.nullToEmpty(line).trim().isEmpty();
+    return Strings.nullToEmpty(line).trim().isEmpty();
   }
 
   private void deleteNormalKVItem(Map<String, ItemDTO> baseKeyMapItem, ItemChangeSets changeSets) {
@@ -210,8 +210,8 @@ public class PropertyResolver implements ConfigTextResolver {
   private void deleteCommentAndBlankItem(List<ItemDTO> baseCommentItems,
                                          List<ItemDTO> baseBlankItems,
                                          ItemChangeSets changeSets) {
-    baseCommentItems.forEach(oldItemDTO-> changeSets.addDeleteItem(oldItemDTO));
-    baseBlankItems.forEach(oldItemDTO-> changeSets.addDeleteItem(oldItemDTO));
+    baseCommentItems.forEach(oldItemDTO -> changeSets.addDeleteItem(oldItemDTO));
+    baseBlankItems.forEach(oldItemDTO -> changeSets.addDeleteItem(oldItemDTO));
   }
 
   private ItemDTO buildCommentItem(Long id, Long namespaceId, String comment, int lineNum) {
