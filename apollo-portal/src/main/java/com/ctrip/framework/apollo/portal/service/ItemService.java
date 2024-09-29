@@ -233,7 +233,7 @@ public class ItemService {
         ItemDTO deletedItemDto = deletedItemDTOs.computeIfAbsent(key, k -> new ItemDTO());
         int newLineNum = 0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
         changeSets.addCreateItem(buildNormalItem(0L, namespaceId, key, value, deletedItemDto.getComment(), newLineNum));
-      } else if (!oldItem.getValue().equals(value) || lineNum.get() != oldItem.getLineNum()) {
+      } else if (!StringUtils.equals(oldItem.getValue(), value) || lineNum.get() != oldItem.getLineNum()) {
         changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key, value, oldItem.getComment(), oldItem.getLineNum()));
       }
       oldKeyMapItem.remove(key);
