@@ -37,7 +37,7 @@ public class BizConfig extends RefreshableConfig {
   private static final int DEFAULT_ITEM_KEY_LENGTH = 128;
   private static final int DEFAULT_ITEM_VALUE_LENGTH = 20000;
 
-  private static final int DEFAULT_MAX_ITEM_NUM = 10000;
+  private static final int DEFAULT_MAX_ITEM_NUM = 1000;
 
   private static final int DEFAULT_APPNAMESPACE_CACHE_REBUILD_INTERVAL = 60; //60s
   private static final int DEFAULT_GRAY_RELEASE_RULE_SCAN_INTERVAL = 60; //60s
@@ -100,6 +100,10 @@ public class BizConfig extends RefreshableConfig {
   public int itemValueLengthLimit() {
     int limit = getIntProperty("item.value.length.limit", DEFAULT_ITEM_VALUE_LENGTH);
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_ITEM_VALUE_LENGTH);
+  }
+
+  public boolean isItemNumLimitEnabled() {
+    return getBooleanProperty("item.num.limit.enabled", false);
   }
 
   public int itemNumLimit() {

@@ -65,6 +65,6 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   int deleteByNamespaceId(long namespaceId, String operator);
 
   @Query("select count(*) from Item where namespaceId = :namespaceId and key <>''")
-  int countByNamespaceIdAndFilterKeyEmpty(@Param("namespaceId")long namespaceId) ;
+  int countByNamespaceIdAndFilterKeyEmpty(@Param("namespaceId") long namespaceId);
 
 }

@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +56,7 @@ public class ItemSetService {
   }
 
   @Transactional
-  public ItemChangeSets updateSet(Namespace namespace, ItemChangeSets changeSets){
+  public ItemChangeSets updateSet(Namespace namespace, ItemChangeSets changeSets) {
     return updateSet(namespace.getAppId(), namespace.getClusterName(), namespace.getNamespaceName(), changeSets);
   }
 
@@ -68,12 +69,14 @@ public class ItemSetService {
       throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
-    int itemCount = itemService.findNonEmptyItemCount(namespace.getId());
-    int createItemCount = (int) changeSet.getCreateItems().stream().filter(item -> !"".equals(item.getKey())).count();
-    int deleteItemCount = (int) changeSet.getDeleteItems().stream().filter(item -> !"".equals(item.getKey())).count();
-    itemCount = itemCount + createItemCount - deleteItemCount;
-    if(itemCount >= bizConfig.itemNumLimit()) {
-      throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ "+ bizConfig.itemNumLimit() + "]");
+    if (bizConfig.isItemNumLimitEnabled()) {
+      int itemCount = itemService.findNonEmptyItemCount(namespace.getId());
+      int createItemCount = (int) changeSet.getCreateItems().stream().filter(item -> !StringUtils.isEmpty(item.getKey())).count();
+      int deleteItemCount = (int) changeSet.getDeleteItems().stream().filter(item -> !StringUtils.isEmpty(item.getKey())).count();
+      itemCount = itemCount + createItemCount - deleteItemCount;
+      if (itemCount > bizConfig.itemNumLimit()) {
+        throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ " + bizConfig.itemNumLimit() + "]");
+      }
     }
 
     String operator = changeSet.getDataChangeLastModifiedBy();
@@ -96,7 +99,7 @@ public class ItemSetService {
 
     if (configChangeContentBuilder.hasContent()) {
       commitService.createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
-                   changeSet.getDataChangeLastModifiedBy());
+                                 changeSet.getDataChangeLastModifiedBy());
     }
 
     return changeSet;

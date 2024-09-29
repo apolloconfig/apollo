@@ -81,9 +81,11 @@ public class ItemController {
       throw BadRequestException.itemAlreadyExists(entity.getKey());
     }
 
-    int itemCount = itemService.findNonEmptyItemCount(entity.getNamespaceId()) ;
-    if(itemCount >= bizConfig.itemNumLimit()) {
-      throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ "+ bizConfig.itemNumLimit() + "]");
+    if (bizConfig.isItemNumLimitEnabled()) {
+      int itemCount = itemService.findNonEmptyItemCount(entity.getNamespaceId());
+      if (itemCount >= bizConfig.itemNumLimit()) {
+        throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ " + bizConfig.itemNumLimit() + "]");
+      }
     }
 
     entity = itemService.save(entity);
