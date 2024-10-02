@@ -37,8 +37,8 @@ import java.util.Date;
 import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
@@ -74,7 +74,7 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Autowired
   private NamespaceRepository namespaceRepository;
 
-  @Mock
+  @MockBean
   private BizConfig bizConfig;
 
   private String testApp = "testApp";
@@ -153,10 +153,8 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testNamespaceNumLimit() {
 
-    ReflectionTestUtils.setField(namespaceService, "bizConfig", bizConfig);
     when(bizConfig.isNamespaceNumLimitEnabled()).thenReturn(true);
     when(bizConfig.namespaceNumLimit()).thenReturn(2);
-
 
     Namespace namespace = new Namespace();
     namespace.setAppId(testApp);
@@ -195,15 +193,11 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
     namespace.setNamespaceName("demo-namespace");
     namespaceService.save(namespace);
 
-    try {
-      Namespace namespace2 = new Namespace();
-      namespace2.setAppId(testApp);
-      namespace2.setClusterName(testCluster);
-      namespace2.setNamespaceName("demo-namespace2");
-      namespaceService.save(namespace2);
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof ServiceException);
-    }
+    Namespace namespace2 = new Namespace();
+    namespace2.setAppId(testApp);
+    namespace2.setClusterName(testCluster);
+    namespace2.setNamespaceName("demo-namespace2");
+    namespaceService.save(namespace2);
 
     int nowCount = namespaceRepository.countByAppIdAndClusterName(testApp, testCluster);
     Assert.assertEquals(3, nowCount);
@@ -226,15 +220,11 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
     namespace.setNamespaceName("demo-namespace");
     namespaceService.save(namespace);
 
-    try {
-      Namespace namespace2 = new Namespace();
-      namespace2.setAppId(testApp);
-      namespace2.setClusterName(testCluster);
-      namespace2.setNamespaceName("demo-namespace2");
-      namespaceService.save(namespace2);
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof ServiceException);
-    }
+    Namespace namespace2 = new Namespace();
+    namespace2.setAppId(testApp);
+    namespace2.setClusterName(testCluster);
+    namespace2.setNamespaceName("demo-namespace2");
+    namespaceService.save(namespace2);
 
     int nowCount = namespaceRepository.countByAppIdAndClusterName(testApp, testCluster);
     Assert.assertEquals(3, nowCount);
