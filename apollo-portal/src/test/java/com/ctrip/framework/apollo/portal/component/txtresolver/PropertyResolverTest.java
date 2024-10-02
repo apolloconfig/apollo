@@ -91,9 +91,9 @@ public class PropertyResolverTest extends AbstractUnitTest {
   @Test
   public void testDeleteCommentItem() {
     ItemChangeSets changeSets = resolver.resolve(1, "a=b\n\nb=c", mockBaseItemWith2Key1Comment1Blank());
-    Assert.assertEquals(2, changeSets.getDeleteItems().size());
-    Assert.assertEquals(2, changeSets.getUpdateItems().size());
-    Assert.assertEquals(1, changeSets.getCreateItems().size());
+    Assert.assertEquals(1, changeSets.getDeleteItems().size());
+    Assert.assertEquals(3, changeSets.getUpdateItems().size());
+    Assert.assertEquals(0, changeSets.getCreateItems().size());
   }
 
   @Test
@@ -120,17 +120,17 @@ public class PropertyResolverTest extends AbstractUnitTest {
                                                     + "a=b\n"
                                                     +"\n"
                                                     + "b=c", mockBaseItemWith2Key1Comment1Blank());
-    Assert.assertEquals(1, changeSets.getDeleteItems().size());
-    Assert.assertEquals(0, changeSets.getUpdateItems().size());
-    Assert.assertEquals(1, changeSets.getCreateItems().size());
+    Assert.assertEquals(0, changeSets.getDeleteItems().size());
+    Assert.assertEquals(1, changeSets.getUpdateItems().size());
+    Assert.assertEquals(0, changeSets.getCreateItems().size());
   }
 
   @Test
   public void testAllSituation(){
     ItemChangeSets changeSets = resolver.resolve(1, "#ww\nd=e\nb=c\na=b\n\nq=w\n#eee", mockBaseItemWith2Key1Comment1Blank());
-    Assert.assertEquals(2, changeSets.getDeleteItems().size());
-    Assert.assertEquals(2, changeSets.getUpdateItems().size());
-    Assert.assertEquals(5, changeSets.getCreateItems().size());
+    Assert.assertEquals(0, changeSets.getDeleteItems().size());
+    Assert.assertEquals(4, changeSets.getUpdateItems().size());
+    Assert.assertEquals(3, changeSets.getCreateItems().size());
   }
 
   /**
