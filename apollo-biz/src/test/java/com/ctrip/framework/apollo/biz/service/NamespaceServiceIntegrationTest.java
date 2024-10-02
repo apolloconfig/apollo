@@ -184,7 +184,6 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testNamespaceNumLimitFalse() {
 
-    ReflectionTestUtils.setField(namespaceService, "bizConfig", bizConfig);
     when(bizConfig.namespaceNumLimit()).thenReturn(2);
 
     Namespace namespace = new Namespace();
@@ -209,7 +208,6 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testNamespaceNumLimitWhite() {
 
-    ReflectionTestUtils.setField(namespaceService, "bizConfig", bizConfig);
     when(bizConfig.isNamespaceNumLimitEnabled()).thenReturn(true);
     when(bizConfig.namespaceNumLimit()).thenReturn(2);
     when(bizConfig.namespaceNumLimitWhite()).thenReturn(new HashSet<>(Arrays.asList(testApp)));
