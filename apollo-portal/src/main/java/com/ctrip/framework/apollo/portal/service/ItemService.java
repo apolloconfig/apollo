@@ -50,6 +50,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemService {
@@ -216,12 +217,13 @@ public class ItemService {
     }
     List<ItemDTO> baseItems = itemAPI.findItems(appId, env, clusterName, namespaceName);
     Map<String, ItemDTO> oldKeyMapItem = BeanUtils.mapByKey("key", baseItems);
-    Map<String, ItemDTO> deletedItemDTOs = new HashMap<>();
+    //remove comment and blank item map.
+    oldKeyMapItem.remove("");
 
     //deleted items for comment
-    findDeletedItems(appId, env, clusterName, namespaceName).forEach(item -> {
-      deletedItemDTOs.put(item.getKey(),item);
-    });
+    Map<String, ItemDTO> deletedItemDTOs = findDeletedItems(appId, env, clusterName, namespaceName).stream()
+            .filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
+            .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
 
     ItemChangeSets changeSets = new ItemChangeSets();
     AtomicInteger lineNum = new AtomicInteger(1);
@@ -229,16 +231,15 @@ public class ItemService {
       ItemDTO oldItem = oldKeyMapItem.get(key);
       if (oldItem == null) {
         ItemDTO deletedItemDto = deletedItemDTOs.computeIfAbsent(key, k -> new ItemDTO());
-        changeSets.addCreateItem(buildNormalItem(0L, namespaceId,key,value,deletedItemDto.getComment(),lineNum.get()));
-      } else if (!oldItem.getValue().equals(value) || lineNum.get() != oldItem
-          .getLineNum()) {
-        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key,
-            value, oldItem.getComment(), lineNum.get()));
+        int newLineNum = 0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
+        changeSets.addCreateItem(buildNormalItem(0L, namespaceId, key, value, deletedItemDto.getComment(), newLineNum));
+      } else if (!StringUtils.equals(oldItem.getValue(), value) || lineNum.get() != oldItem.getLineNum()) {
+        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key, value, oldItem.getComment(), oldItem.getLineNum()));
       }
       oldKeyMapItem.remove(key);
       lineNum.set(lineNum.get() + 1);
     });
-    oldKeyMapItem.forEach((key, value) -> changeSets.addDeleteItem(oldKeyMapItem.get(key)));
+    oldKeyMapItem.forEach((key, value) -> changeSets.addDeleteItem(value));
     changeSets.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
 
     updateItems(appId, env, clusterName, namespaceName, changeSets);

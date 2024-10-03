@@ -624,7 +624,7 @@
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="config in namespace.publicNamespace.viewItems |orderBy:col:desc"
-                                        ng-if="config.item.key && !config.isModified && !config.isDeleted">
+                                        ng-if="config.item.key && ((!config.isModified && !config.isDeleted) || config.oldValue)">
                                         <td width="15%" class="cursor-pointer"
                                             title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
                                             ng-click="showText(config.item.key)">
@@ -643,9 +643,11 @@
                                         </td>
                                         <td width="30%" class="cursor-pointer"
                                             title="{{'Component.Namespace.Master.Items.Body.ClickToSee' | translate }}"
-                                            ng-click="showText(config.item.value)">
-                                            <span ng-bind="config.item.value | limitTo: 250"></span>
-                                            <span ng-bind="config.item.value.length > 250 ? '...': ''"></span>
+                                            ng-click="(config.isModified || config.isDeleted) ? showText(config.oldValue) : showText(config.item.value)">
+                                            <span ng-if="config.isModified || config.isDeleted" ng-bind="config.oldValue | limitTo: 250"></span>
+                                            <span ng-if="config.isModified || config.isDeleted" ng-bind="config.oldValue.length > 250 ? '...': ''"></span>
+                                            <span ng-if="!config.isModified && !config.isDeleted" ng-bind="config.item.value | limitTo: 250"></span>
+                                            <span ng-if="!config.isModified && !config.isDeleted" ng-bind="config.item.value.length > 250 ? '...': ''"></span>
                                         </td>
                                         <td width="13%" title="{{config.item.comment}}">
                                             <span ng-bind="config.item.comment | limitTo: 250"></span>
