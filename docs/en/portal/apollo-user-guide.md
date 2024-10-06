@@ -509,6 +509,29 @@ Please note that modifications to system parameters may affect the performance o
 
 ![System-parameterization-of-global-search-configuration-items](../images/System-parameterization-of-global-search-configuration-items.png)
 
+
+
+## 6.4 Parameter settings for limiting the number of namespaces in the appld+cluster dimension
+
+Starting from version 2.4.0, apollo-portal provides the function of checking the upper limit of the number of namespaces that can be created under the appld+cluster dimension. This function is disabled by default and needs to be enabled by configuring the system `namespace.num.limit.enabled`. At the same time, the system parameter `namespace.num.limit` is provided to dynamically configure the upper limit of the number of Namespaces under the appld+cluster dimension. The default value is 200. Considering that some basic components such as gateways, message queues, Redis, and databases require special processing, a new system parameter `namespace.num.limit.white` is added to configure the verification whitelist, which is not affected by the upper limit of the number of Namespaces.
+
+**Setting method：**
+
+1. Log in to the Apollo Configuration Center interface with a super administrator account.
+2. Go to the `Administrator Tools - System Parameters - ConfigDB Configuration Management` page and add or modify the `namespace.num.limit.enabled` configuration item to true/false to enable/disable this function. It is disabled by default.
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-enabled.png)
+
+3. Go to the `Administrator Tools - System Parameters - ConfigDB Configuration Management` page to add or modify the `namespace.num.limit` configuration item to configure the upper limit of the number of namespaces under a single appld+cluster. The default value is 200
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit.png)
+
+4. Go to `Administrator Tools - System Parameters - ConfigDB Configuration Management` page to add or modify the `namespace.num.limit.white` configuration item to configure the whitelist for namespace quantity limit verification. Multiple AppIds are separated by English commas.
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-white.png)
+
+
+
 # VII. Best practices
 
 ## 7.1 Security Related

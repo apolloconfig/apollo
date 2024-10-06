@@ -21,12 +21,14 @@ import com.ctrip.framework.apollo.common.config.RefreshableConfig;
 import com.ctrip.framework.apollo.common.config.RefreshablePropertySource;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,9 @@ public class BizConfig extends RefreshableConfig {
 
   private static final int DEFAULT_ITEM_KEY_LENGTH = 128;
   private static final int DEFAULT_ITEM_VALUE_LENGTH = 20000;
+
+  private static final int DEFAULT_MAX_NAMESPACE_NUM = 200;
+
   private static final int DEFAULT_APPNAMESPACE_CACHE_REBUILD_INTERVAL = 60; //60s
   private static final int DEFAULT_GRAY_RELEASE_RULE_SCAN_INTERVAL = 60; //60s
   private static final int DEFAULT_APPNAMESPACE_CACHE_SCAN_INTERVAL = 1; //1s
@@ -97,6 +102,19 @@ public class BizConfig extends RefreshableConfig {
   public int itemValueLengthLimit() {
     int limit = getIntProperty("item.value.length.limit", DEFAULT_ITEM_VALUE_LENGTH);
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_ITEM_VALUE_LENGTH);
+  }
+
+  public boolean isNamespaceNumLimitEnabled() {
+    return getBooleanProperty("namespace.num.limit.enabled", false);
+  }
+
+  public int namespaceNumLimit() {
+    int limit = getIntProperty("namespace.num.limit", DEFAULT_MAX_NAMESPACE_NUM);
+    return checkInt(limit, 0, Integer.MAX_VALUE, DEFAULT_MAX_NAMESPACE_NUM);
+  }
+
+  public Set<String> namespaceNumLimitWhite() {
+    return Sets.newHashSet(getArrayProperty("namespace.num.limit.white", new String[0]));
   }
 
   public Map<Long, Integer> namespaceValueLengthLimitOverride() {

@@ -44,4 +44,6 @@ public interface NamespaceRepository extends PagingAndSortingRepository<Namespac
 
   int countByNamespaceNameAndAppIdNot(String namespaceName, String appId);
 
+  int countByAppIdAndClusterName(String appId, String clusterName);
+
 }

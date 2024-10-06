@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.entity.InstanceConfig;
@@ -25,23 +26,31 @@ import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.biz.repository.InstanceConfigRepository;
+import com.ctrip.framework.apollo.biz.repository.NamespaceRepository;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 
+import com.ctrip.framework.apollo.common.exception.ServiceException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
 
@@ -62,6 +71,11 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   private ReleaseHistoryService releaseHistoryService;
   @Autowired
   private InstanceConfigRepository instanceConfigRepository;
+  @Autowired
+  private NamespaceRepository namespaceRepository;
+
+  @MockBean
+  private BizConfig bizConfig;
 
   private String testApp = "testApp";
   private String testCluster = "default";
@@ -133,5 +147,86 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
 
   }
 
+
+  @Test
+  @Sql(scripts = "/sql/namespace-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testNamespaceNumLimit() {
+
+    when(bizConfig.isNamespaceNumLimitEnabled()).thenReturn(true);
+    when(bizConfig.namespaceNumLimit()).thenReturn(2);
+
+    Namespace namespace = new Namespace();
+    namespace.setAppId(testApp);
+    namespace.setClusterName(testCluster);
+    namespace.setNamespaceName("demo-namespace");
+    namespaceService.save(namespace);
+
+    try {
+      Namespace namespace2 = new Namespace();
+      namespace2.setAppId(testApp);
+      namespace2.setClusterName(testCluster);
+      namespace2.setNamespaceName("demo-namespace2");
+      namespaceService.save(namespace2);
+
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof ServiceException);
+    }
+
+    int nowCount = namespaceRepository.countByAppIdAndClusterName(testApp, testCluster);
+    Assert.assertEquals(2, nowCount);
+
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testNamespaceNumLimitFalse() {
+
+    when(bizConfig.namespaceNumLimit()).thenReturn(2);
+
+    Namespace namespace = new Namespace();
+    namespace.setAppId(testApp);
+    namespace.setClusterName(testCluster);
+    namespace.setNamespaceName("demo-namespace");
+    namespaceService.save(namespace);
+
+    Namespace namespace2 = new Namespace();
+    namespace2.setAppId(testApp);
+    namespace2.setClusterName(testCluster);
+    namespace2.setNamespaceName("demo-namespace2");
+    namespaceService.save(namespace2);
+
+    int nowCount = namespaceRepository.countByAppIdAndClusterName(testApp, testCluster);
+    Assert.assertEquals(3, nowCount);
+
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testNamespaceNumLimitWhite() {
+
+    when(bizConfig.isNamespaceNumLimitEnabled()).thenReturn(true);
+    when(bizConfig.namespaceNumLimit()).thenReturn(2);
+    when(bizConfig.namespaceNumLimitWhite()).thenReturn(new HashSet<>(Arrays.asList(testApp)));
+
+    Namespace namespace = new Namespace();
+    namespace.setAppId(testApp);
+    namespace.setClusterName(testCluster);
+    namespace.setNamespaceName("demo-namespace");
+    namespaceService.save(namespace);
+
+    Namespace namespace2 = new Namespace();
+    namespace2.setAppId(testApp);
+    namespace2.setClusterName(testCluster);
+    namespace2.setNamespaceName("demo-namespace2");
+    namespaceService.save(namespace2);
+
+    int nowCount = namespaceRepository.countByAppIdAndClusterName(testApp, testCluster);
+    Assert.assertEquals(3, nowCount);
+
+  }
 
 }
