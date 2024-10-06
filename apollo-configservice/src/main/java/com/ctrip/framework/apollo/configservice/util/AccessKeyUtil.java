@@ -75,8 +75,4 @@ public class AccessKeyUtil {
 
     return Signature.signature(timestampString, pathWithQuery, secret);
   }
-
-  public void preCheckInvalid() {
-    // nothing, only for test mock
-  }
 }

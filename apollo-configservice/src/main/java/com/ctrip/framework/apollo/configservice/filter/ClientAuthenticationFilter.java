@@ -70,52 +70,60 @@ public class ClientAuthenticationFilter implements Filter {
       return;
     }
 
-    // check timestamp and signature
     List<String> availableSecrets = accessKeyUtil.findAvailableSecret(appId);
     if (!CollectionUtils.isEmpty(availableSecrets)) {
-      String timestamp = request.getHeader(Signature.HTTP_HEADER_TIMESTAMP);
-      String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-      String ip = WebUtils.tryToGetClientIp(request);
-
-      // check timestamp, valid within 1 minute
-      if (!checkTimestamp(timestamp)) {
-        logger.warn("Invalid timestamp. appId={},clientIp={},timestamp={}", appId, ip, timestamp);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
-        return;
-      }
-
-      // check signature
-      if (!checkAuthorization(authorization, availableSecrets, timestamp,
-          request.getRequestURI(), request.getQueryString())) {
-        logger.warn("Invalid authorization. appId={},clientIp={},authorization={}",
-            appId, ip, authorization);
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+      if (!doCheck(request, response, appId, availableSecrets, false)) {
         return;
       }
     } else {
-      // pre-check timestamp and signature
+      // pre-check for observable secrets
       List<String> observableSecrets = accessKeyUtil.findObservableSecrets(appId);
       if (!CollectionUtils.isEmpty(observableSecrets)) {
-        String timestamp = request.getHeader(Signature.HTTP_HEADER_TIMESTAMP);
-        String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String ip = WebUtils.tryToGetClientIp(request);
-
-        // pre-check timestamp, valid within 1 minute
-        if (!checkTimestamp(timestamp)) {
-          preCheckInvalidLogging(String.format("Invalid timestamp in pre-check. "
-              + "appId=%s,clientIp=%s,timestamp=%s", appId, ip, timestamp));
-        }
-
-        // pre-check signature
-        if (!checkAuthorization(authorization, observableSecrets, timestamp,
-            request.getRequestURI(), request.getQueryString())) {
-          preCheckInvalidLogging(String.format("Invalid authorization in pre-check. "
-              + "appId=%s,clientIp=%s,authorization=%s", appId, ip, authorization));
-        }
+        doCheck(request, response, appId, observableSecrets, true);
       }
     }
 
     chain.doFilter(request, response);
+  }
+
+  /**
+   * Performs authentication checks(timestamp and signature) for the request.
+   *
+   * @param preCheck Boolean flag indicating whether this is a pre-check
+   * @return true if authentication checks is successful, false otherwise
+   */
+  private boolean doCheck(HttpServletRequest req, HttpServletResponse resp,
+      String appId, List<String> secrets, boolean preCheck) throws IOException {
+
+    String timestamp = req.getHeader(Signature.HTTP_HEADER_TIMESTAMP);
+    String authorization = req.getHeader(HttpHeaders.AUTHORIZATION);
+    String ip = WebUtils.tryToGetClientIp(req);
+
+    // check timestamp, valid within 1 minute
+    if (!checkTimestamp(timestamp)) {
+      if (preCheck) {
+        preCheckInvalidLogging(String.format("Invalid timestamp in pre-check. "
+            + "appId=%s,clientIp=%s,timestamp=%s", appId, ip, timestamp));
+      } else {
+        logger.warn("Invalid timestamp. appId={},clientIp={},timestamp={}", appId, ip, timestamp);
+        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
+        return false;
+      }
+    }
+
+    // check signature
+    if (!checkAuthorization(authorization, secrets, timestamp, req.getRequestURI(), req.getQueryString())) {
+      if (preCheck) {
+        preCheckInvalidLogging(String.format("Invalid authorization in pre-check. "
+            + "appId=%s,clientIp=%s,authorization=%s", appId, ip, authorization));
+      } else {
+        logger.warn("Invalid authorization. appId={},clientIp={},authorization={}", appId, ip, authorization);
+        resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Override
@@ -156,10 +164,8 @@ public class ClientAuthenticationFilter implements Filter {
     return false;
   }
 
-  private void preCheckInvalidLogging(String message) {
+  protected void preCheckInvalidLogging(String message) {
     logger.warn(message);
     Tracer.logEvent("Apollo.AccessKey.PreCheck", message);
-    // only for test mock
-    accessKeyUtil.preCheckInvalid();
   }
 }

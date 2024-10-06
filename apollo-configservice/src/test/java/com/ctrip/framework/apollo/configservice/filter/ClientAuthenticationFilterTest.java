@@ -17,7 +17,9 @@
 package com.ctrip.framework.apollo.configservice.filter;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,7 +61,7 @@ public class ClientAuthenticationFilterTest {
 
   @Before
   public void setUp() {
-    clientAuthenticationFilter = new ClientAuthenticationFilter(bizConfig, accessKeyUtil);
+    clientAuthenticationFilter = spy(new ClientAuthenticationFilter(bizConfig, accessKeyUtil));
   }
 
   @Test
@@ -170,7 +172,7 @@ public class ClientAuthenticationFilterTest {
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(accessKeyUtil, times(2)).preCheckInvalid();
+    verify(clientAuthenticationFilter, times(2)).preCheckInvalidLogging(anyString());
   }
 
   @Test
@@ -195,6 +197,6 @@ public class ClientAuthenticationFilterTest {
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(accessKeyUtil, never()).preCheckInvalid();
+    verify(clientAuthenticationFilter, never()).preCheckInvalidLogging(anyString());
   }
 }

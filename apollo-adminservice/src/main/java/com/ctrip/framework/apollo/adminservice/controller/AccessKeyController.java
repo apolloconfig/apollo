@@ -16,9 +16,10 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static com.ctrip.framework.apollo.common.constants.AccessKeyMode.FILTER;
+
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
 import com.ctrip.framework.apollo.biz.service.AccessKeyService;
-import com.ctrip.framework.apollo.common.constants.AccessKeyMode;
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import java.util.List;
@@ -64,7 +65,7 @@ public class AccessKeyController {
 
   @PutMapping(value = "/apps/{appId}/accesskeys/{id}/enable")
   public void enable(@PathVariable String appId, @PathVariable long id,
-      @RequestParam(required = false, defaultValue = "0") int mode, String operator) {
+      @RequestParam(required = false, defaultValue = "" + FILTER) int mode, String operator) {
     AccessKey entity = new AccessKey();
     entity.setId(id);
     entity.setMode(mode);
@@ -78,7 +79,7 @@ public class AccessKeyController {
   public void disable(@PathVariable String appId, @PathVariable long id, String operator) {
     AccessKey entity = new AccessKey();
     entity.setId(id);
-    entity.setMode(AccessKeyMode.FILTER);
+    entity.setMode(FILTER);
     entity.setEnabled(false);
     entity.setDataChangeLastModifiedBy(operator);
 
