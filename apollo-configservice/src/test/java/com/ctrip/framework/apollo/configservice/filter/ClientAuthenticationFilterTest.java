@@ -144,10 +144,7 @@ public class ClientAuthenticationFilterTest {
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
-    verify(response, never()).sendError(HttpServletResponse.SC_BAD_REQUEST, "InvalidAppId");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-    verify(filterChain, times(1)).doFilter(request, response);
+    verifySuccessAndDoFilter();
   }
 
   @Test
@@ -168,10 +165,7 @@ public class ClientAuthenticationFilterTest {
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
-    verify(response, never()).sendError(HttpServletResponse.SC_BAD_REQUEST, "InvalidAppId");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-    verify(filterChain, times(1)).doFilter(request, response);
+    verifySuccessAndDoFilter();
     verify(clientAuthenticationFilter, times(2)).preCheckInvalidLogging(anyString());
   }
 
@@ -193,10 +187,14 @@ public class ClientAuthenticationFilterTest {
 
     clientAuthenticationFilter.doFilter(request, response, filterChain);
 
+    verifySuccessAndDoFilter();
+    verify(clientAuthenticationFilter, never()).preCheckInvalidLogging(anyString());
+  }
+
+  private void verifySuccessAndDoFilter() throws Exception {
     verify(response, never()).sendError(HttpServletResponse.SC_BAD_REQUEST, "InvalidAppId");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, times(1)).doFilter(request, response);
-    verify(clientAuthenticationFilter, never()).preCheckInvalidLogging(anyString());
   }
 }
