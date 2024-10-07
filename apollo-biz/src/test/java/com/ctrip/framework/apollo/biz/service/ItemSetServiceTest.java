@@ -27,14 +27,13 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.util.ReflectionTestUtils;
 
 public class ItemSetServiceTest extends AbstractIntegrationTest {
 
-  @Mock
+  @MockBean
   private BizConfig bizConfig;
 
   @Autowired
@@ -50,7 +49,6 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithoutItemNumLimit() {
 
-    ReflectionTestUtils.setField(itemSetService, "bizConfig", bizConfig);
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(false);
     when(bizConfig.itemNumLimit()).thenReturn(5);
 
@@ -76,7 +74,6 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithItemNumLimit() {
 
-    ReflectionTestUtils.setField(itemSetService, "bizConfig", bizConfig);
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(true);
     when(bizConfig.itemNumLimit()).thenReturn(5);
 
@@ -107,7 +104,6 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithItemNumLimit2() {
 
-    ReflectionTestUtils.setField(itemSetService, "bizConfig", bizConfig);
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(true);
     when(bizConfig.itemNumLimit()).thenReturn(5);
 

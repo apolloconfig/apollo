@@ -84,7 +84,7 @@ public class ItemController {
     if (bizConfig.isItemNumLimitEnabled()) {
       int itemCount = itemService.findNonEmptyItemCount(entity.getNamespaceId());
       if (itemCount >= bizConfig.itemNumLimit()) {
-        throw new BadRequestException("current namespace item count=[" + itemCount + "], single namespace max allow count=[ " + bizConfig.itemNumLimit() + "]");
+        throw new BadRequestException("The maximum number of items (" + bizConfig.itemNumLimit() + ") for this namespace has been reached. Current item count is " + itemCount + ".");
       }
     }
 

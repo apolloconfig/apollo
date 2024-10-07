@@ -531,21 +531,17 @@ Starting from version 2.4.0, apollo-portal provides the function of checking the
    ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-white.png)
 
 
-
-## 6.4 单个命名空间下的配置项数量限制
+## 6.5 Limitation on the number of configuration items in a single namespace
 Starting from version 2.4.0, apollo-portal provides the function of limiting the number of configuration items in a single namespace. This function is disabled by default and needs to be enabled by configuring the system `item.num.limit.enabled`. At the same time, the system parameter `item.num.limit` is provided to dynamically configure the upper limit of the number of items in a single Namespace.
 
 **Setting method：**
 1. Log in to the Apollo Configuration Center interface with a super administrator account
 2. Go to the `Administrator Tools - System Parameters - ConfigDB Configuration Management` page and add or modify the `item.num.limit.enabled` configuration item to true/false to enable/disable this function.
 
-[//]: # (   ![item-num-limit-enabled]&#40;https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit-enabled.png&#41;)
-![item-num-limit-enabled](../../../doc/images/item-num-limit-enabled.png)
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit-enabled.png)
 3. Go to the `Admin Tools - System Parameters - ConfigDB Configuration Management` page and add or modify the `item.num.limit` configuration item to configure the upper limit of the number of items under a single Namespace.
 
-[//]: # (   ![item-num-limit]&#40;https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit.png&#41;)
-![item-num-limit](../../../doc/images/item-num-limit.png)
-
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit.png)
 
 
 # VII. Best practices
