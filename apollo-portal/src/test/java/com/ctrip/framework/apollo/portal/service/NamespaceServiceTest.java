@@ -265,7 +265,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     assertThat(namespaceBO1.getItems().size()).isEqualTo(3);
     assertThat(namespaceKey1).isEqualTo(Arrays.asList("k1", "k2", "k3"));
 
-    NamespaceBO namespaceBO2 = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, false);
+    NamespaceBO namespaceBO2 = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, false);
     List<String> namespaceKey2 = namespaceBO2.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
     assertThat(namespaceBO2.getItemModifiedCnt()).isEqualTo(2);
     assertThat(namespaceBO2.getItems().size()).isEqualTo(2);
