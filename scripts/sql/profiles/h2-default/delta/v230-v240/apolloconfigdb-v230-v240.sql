@@ -31,7 +31,7 @@ CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR "com.ctrip.framework.apollo.common
 
 -- 
 
-ALTER TABLE `AccessKey` ADD COLUMN `Mode` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '密钥模式，0: filter，1: observer' AFTER `Secret`;
+ALTER TABLE `AccessKey` ADD COLUMN `Mode` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '密钥模式，0: filter，1: observer' AFTER `Secret`;
 
 -- 
 -- ===============================================================================
