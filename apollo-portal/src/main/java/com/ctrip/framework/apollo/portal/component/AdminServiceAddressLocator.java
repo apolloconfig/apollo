@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -42,8 +43,6 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class AdminServiceAddressLocator {
 
-  private static final long NORMAL_REFRESH_INTERVAL = 5 * 60 * 1000;
-  private static final long OFFLINE_REFRESH_INTERVAL = 10 * 1000;
   private static final int RETRY_TIMES = 3;
   private static final String ADMIN_SERVICE_URL_PATH = "/services/admin";
   private static final Logger logger = LoggerFactory.getLogger(AdminServiceAddressLocator.class);
@@ -56,16 +55,19 @@ public class AdminServiceAddressLocator {
   private final PortalSettings portalSettings;
   private final RestTemplateFactory restTemplateFactory;
   private final PortalMetaDomainService portalMetaDomainService;
+  private final PortalConfig portalConfig;
 
   public AdminServiceAddressLocator(
       final HttpMessageConverters httpMessageConverters,
       final PortalSettings portalSettings,
       final RestTemplateFactory restTemplateFactory,
-      final PortalMetaDomainService portalMetaDomainService
+      final PortalMetaDomainService portalMetaDomainService,
+      final PortalConfig portalConfig
   ) {
     this.portalSettings = portalSettings;
     this.restTemplateFactory = restTemplateFactory;
     this.portalMetaDomainService = portalMetaDomainService;
+    this.portalConfig = portalConfig;
   }
 
   @PostConstruct
@@ -105,10 +107,10 @@ public class AdminServiceAddressLocator {
 
       if (refreshSuccess) {
         refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), NORMAL_REFRESH_INTERVAL, TimeUnit.MILLISECONDS);
+            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskNormalIntervalInMilli(), TimeUnit.MILLISECONDS);
       } else {
         refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), OFFLINE_REFRESH_INTERVAL, TimeUnit.MILLISECONDS);
+            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskOfflineIntervalInMilli(), TimeUnit.MILLISECONDS);
       }
     }
   }
