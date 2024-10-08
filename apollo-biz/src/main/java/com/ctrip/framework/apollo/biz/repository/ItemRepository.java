@@ -64,4 +64,7 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
   @Query("update Item set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 where NamespaceId = ?1 and IsDeleted = false")
   int deleteByNamespaceId(long namespaceId, String operator);
 
+  @Query("select count(*) from Item where namespaceId = :namespaceId and key <>''")
+  int countByNamespaceIdAndFilterKeyEmpty(@Param("namespaceId") long namespaceId);
+
 }
