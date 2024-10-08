@@ -146,10 +146,10 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(permissionValidator.isAppAdmin(any())).thenReturn(true);
     when(clusterService.findClusters(env, appId1)).thenReturn(app1Clusters);
     when(clusterService.findClusters(env, appId2)).thenReturn(app2Clusters);
-    when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName1, false)).thenReturn(app1Cluster1Namespace);
-    when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName2, false)).thenReturn(app1Cluster2Namespace);
-    when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName1, false)).thenReturn(app2Cluster1Namespace);
-    when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName2, false)).thenReturn(app2Cluster2Namespace);
+    when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName1, true, false)).thenReturn(app1Cluster1Namespace);
+    when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName2, true, false)).thenReturn(app1Cluster2Namespace);
+    when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName1, true, false)).thenReturn(app2Cluster1Namespace);
+    when(namespaceService.findNamespaceBOs(appId2, Env.DEV, clusterName2, true, false)).thenReturn(app2Cluster2Namespace);
 
     FileOutputStream fileOutputStream = new FileOutputStream(filePath);
 
