@@ -31,7 +31,7 @@ appService.service('AccessKeyService', ['$resource', '$q', 'AppUtil', function (
         },
         enable_access_key: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys/:id/enable'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys/:id/enable?mode=:mode'
         },
         disable_access_key: {
             method: 'PUT',
@@ -79,12 +79,13 @@ appService.service('AccessKeyService', ['$resource', '$q', 'AppUtil', function (
                 });
             return d.promise;
         },
-        enable_access_key: function (appId, env, id) {
+        enable_access_key: function (appId, env, id, mode) {
             var d = $q.defer();
             access_key_resource.enable_access_key({
                     appId: appId,
                     env: env,
-                    id: id
+                    id: id,
+                    mode: mode
                 }, {},
                 function (result) {
                     d.resolve(result);
