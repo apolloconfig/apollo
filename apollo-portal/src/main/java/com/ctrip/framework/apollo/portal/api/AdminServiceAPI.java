@@ -317,9 +317,9 @@ public class AdminServiceAPI {
     }
 
     @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.enableInRemote")
-    public void enable(Env env, String appId, long id, String operator) {
-      restTemplate.put(env, "apps/{appId}/accesskeys/{id}/enable?operator={operator}",
-          null, appId, id, operator);
+    public void enable(Env env, String appId, long id, int mode, String operator) {
+      restTemplate.put(env, "apps/{appId}/accesskeys/{id}/enable?mode={mode}&operator={operator}",
+          null, appId, id, mode, operator);
     }
 
     @ApolloAuditLog(type = OpType.RPC, name = "AccessKey.disableInRemote")

@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import static com.ctrip.framework.apollo.common.constants.AccessKeyMode.FILTER;
+
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
@@ -77,9 +79,10 @@ public class AccessKeyController {
   @ApolloAuditLog(type = OpType.UPDATE, name = "AccessKey.enable")
   public void enable(@PathVariable String appId,
       @PathVariable String env,
-      @PathVariable long id) {
+      @PathVariable long id,
+      @RequestParam(required = false, defaultValue = "" + FILTER) int mode) {
     String operator = userInfoHolder.getUser().getUserId();
-    accessKeyService.enable(Env.valueOf(env), appId, id, operator);
+    accessKeyService.enable(Env.valueOf(env), appId, id, mode, operator);
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
