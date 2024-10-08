@@ -11,6 +11,7 @@ Apollo 2.4.0
 * [Fix: Resolve issues with duplicate comments and blank lines in configuration management](https://github.com/apolloconfig/apollo/pull/5232)
 * [Fix link namespace published items show missing some items](https://github.com/apolloconfig/apollo/pull/5240)
 * [Feature: Add limit and whitelist for namespace count per appid+cluster](https://github.com/apolloconfig/apollo/pull/5228)
+* [Feature support the observe status access-key for pre-check and logging only](https://github.com/apolloconfig/apollo/pull/5236)
 * [Feature add limit for items count per namespace](https://github.com/apolloconfig/apollo/pull/5227)
 
 ------------------
