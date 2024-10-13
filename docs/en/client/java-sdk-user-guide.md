@@ -421,11 +421,9 @@ The configuration methods, in descending order of priority, are
 
 Starting from version 2.4.0, the availability of the client in the Kubernetes environment has been enhanced. After enabling the ConfigMap cache, the client will cache a copy of the configuration information fetched from the server in the ConfigMap. In the case of service unavailability, network issues, and loss of local cache files, the configuration can still be restored from the ConfigMap. Here are the relevant configurations:
 
-> Since read and write operations on the ConfigMap are required, the pod where the client is located must have the corresponding permissions. The specific configuration method can be referred to below.
-
 `apollo.cache.kubernetes.enable`：Whether to enable the ConfigMap cache mechanism, the default is false.
 
-`apollo.configmap-namespace`：The namespace of the ConfigMap to be used (the namespace in Kubernetes), the default value is "default".
+`apollo.cache.kubernetes.configmap-namespace`：The namespace of the ConfigMap to be used (the namespace in Kubernetes), the default value is "default".
 
 The configuration information will be placed in the specified ConfigMap according to the following correspondence:
 
@@ -443,42 +441,44 @@ value: The content is the JSON format string of the corresponding configuration 
 > 
 > namespace is the configuration namespace used by the application, which is generally application
 
+> Since read and write operations on the ConfigMap are required, the pod where the client is located must have the corresponding permissions. The specific configuration method can be referred to below.
+
 How to authorize a Pod's Service Account to have read and write permissions for ConfigMap:
 
-
 1. Create a Service Account: If there is no Service Account, you need to create one.
-   ```apiVersion: v1
+   ```
+   apiVersion: v1
    kind: ServiceAccount
    metadata:
    name: my-service-account
-   namespace: my-namespace
+   namespace: default
    ```
 2. Create a Role or ClusterRole: Define a Role or ClusterRole to grant read and write permissions for a specific ConfigMap. If the ConfigMap is used across multiple Namespaces, a ClusterRole should be used.
    ```
    apiVersion: rbac.authorization.k8s.io/v1
    kind: Role
    metadata:
-   namespace: my-namespace
-   name: configmap-reader
+   namespace: default
+   name: configmap-role
    rules:
    - apiGroups: [""]
      resources: ["configmaps"]
-     verbs: ["get", "watch", "list", "update", "patch"]
+     verbs: ["get", "list", "watch", "create", "update", "delete"]
    ```
 3. Bind the Service Account to the Role or ClusterRole: Use RoleBinding or ClusterRoleBinding to bind the Service Account to the Role or ClusterRole created above.
    ```
    apiVersion: rbac.authorization.k8s.io/v1
    kind: RoleBinding
    metadata:
-   name: configmap-reader-binding
-   namespace: my-namespace
+     name: configmap-reader-binding
+     namespace: dafault
    subjects:
    - kind: ServiceAccount
      name: my-service-account
-     namespace: my-namespace
-     roleRef:
+     namespace: dafault
+   roleRef:
      kind: Role
-     name: configmap-reader
+     name: configmap-role
      apiGroup: rbac.authorization.k8s.io
    ```
 4. Specify the Service Account in the Pod configuration: Ensure that the Pod's configuration uses the Service Account created above.
@@ -487,7 +487,7 @@ How to authorize a Pod's Service Account to have read and write permissions for 
    kind: Pod
    metadata:
    name: my-pod
-   namespace: my-namespace
+   namespace: default
    spec:
    serviceAccountName: my-service-account
    containers:
