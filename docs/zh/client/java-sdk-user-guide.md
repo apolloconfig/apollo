@@ -429,29 +429,27 @@ value:内容为对应的配置信息的json格式字符串
 
 如何授权一个Pod的Service Account具有对ConfigMap的读写权限：
 1. 创建Service Account: 如果还没有Service Account，你需要创建一个。
-   ```
+   ```yaml
    apiVersion: v1
    kind: ServiceAccount
    metadata:
-   name: my-service-account
-   namespace: default
+     name: my-service-account
+     namespace: default
    ```
 2. 创建Role或ClusterRole: 定义一个Role或ClusterRole，授予对特定ConfigMap的读写权限。如果ConfigMap是跨多个Namespace使用的，应该使用ClusterRole。
-
-   ```
+   ```yaml
    apiVersion: rbac.authorization.k8s.io/v1
    kind: Role
    metadata:
-   namespace: default
-   name: configmap-role
+     namespace: default
+     name: configmap-role
    rules:
    - apiGroups: [""]
      resources: ["configmaps"]
      verbs: ["get", "list", "watch", "create", "update", "delete"]
    ```
-
 3. 绑定Service Account到Role或ClusterRole: 使用RoleBinding或ClusterRoleBinding将Service Account绑定到上面创建的Role或ClusterRole。
-   ```
+   ```yaml
    apiVersion: rbac.authorization.k8s.io/v1
    kind: RoleBinding
    metadata:
@@ -467,20 +465,20 @@ value:内容为对应的配置信息的json格式字符串
      apiGroup: rbac.authorization.k8s.io
    ```
 4. 在Pod配置中指定Service Account: 确保Pod的配置中使用了上面创建的Service Account。
-   ```
+   ```yaml
    apiVersion: v1
    kind: Pod
    metadata:
-   name: my-pod
-   namespace: default
+     name: my-pod
+     namespace: default
    spec:
-   serviceAccountName: my-service-account
-   containers:
-   - name: my-container
-     image: my-image
+     serviceAccountName: my-service-account
+     containers:
+       - name: my-container
+         image: my-image
    ```
 5. 应用配置: 使用kubectl命令行工具应用这些配置。
-   ```
+   ```yaml
    kubectl apply -f service-account.yaml
    kubectl apply -f role.yaml
    kubectl apply -f role-binding.yaml

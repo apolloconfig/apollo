@@ -446,27 +446,27 @@ value: The content is the JSON format string of the corresponding configuration 
 How to authorize a Pod's Service Account to have read and write permissions for ConfigMap:
 
 1. Create a Service Account: If there is no Service Account, you need to create one.
-   ```
+   ```yaml
    apiVersion: v1
    kind: ServiceAccount
    metadata:
-   name: my-service-account
-   namespace: default
+     name: my-service-account
+     namespace: default
    ```
 2. Create a Role or ClusterRole: Define a Role or ClusterRole to grant read and write permissions for a specific ConfigMap. If the ConfigMap is used across multiple Namespaces, a ClusterRole should be used.
-   ```
+   ```yaml
    apiVersion: rbac.authorization.k8s.io/v1
    kind: Role
    metadata:
-   namespace: default
-   name: configmap-role
+     namespace: default
+     name: configmap-role
    rules:
    - apiGroups: [""]
      resources: ["configmaps"]
      verbs: ["get", "list", "watch", "create", "update", "delete"]
    ```
 3. Bind the Service Account to the Role or ClusterRole: Use RoleBinding or ClusterRoleBinding to bind the Service Account to the Role or ClusterRole created above.
-   ```
+   ```yaml
    apiVersion: rbac.authorization.k8s.io/v1
    kind: RoleBinding
    metadata:
@@ -482,25 +482,26 @@ How to authorize a Pod's Service Account to have read and write permissions for 
      apiGroup: rbac.authorization.k8s.io
    ```
 4. Specify the Service Account in the Pod configuration: Ensure that the Pod's configuration uses the Service Account created above.
-   ```
+   ```yaml
    apiVersion: v1
    kind: Pod
    metadata:
-   name: my-pod
-   namespace: default
+     name: my-pod
+     namespace: default
    spec:
-   serviceAccountName: my-service-account
-   containers:
-   - name: my-container
-     image: my-image
+     serviceAccountName: my-service-account
+     containers:
+       - name: my-container
+         image: my-image
    ```
 5. Apply the configuration: Use the kubectl command-line tool to apply these configurations.
-   ```
+   ```yaml
    kubectl apply -f service-account.yaml
    kubectl apply -f role.yaml
    kubectl apply -f role-binding.yaml
    kubectl apply -f pod.yaml
    ```
+   
    These steps give the Service Account in the Pod read and write permissions for the specified ConfigMap.
    If the ConfigMap is cross-namespace, use ClusterRole and ClusterRoleBinding instead of Role and RoleBinding, and ensure that these configurations are applied in all Namespaces that need to access the ConfigMap.
 
