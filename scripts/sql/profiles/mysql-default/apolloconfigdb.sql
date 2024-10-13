@@ -409,6 +409,7 @@ CREATE TABLE `AccessKey` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
   `Secret` varchar(128) NOT NULL DEFAULT '' COMMENT 'Secret',
+  `Mode` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '密钥模式，0: filter，1: observer',
   `IsEnabled` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: enabled, 0: disabled',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',

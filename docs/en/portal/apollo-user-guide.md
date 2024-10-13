@@ -133,6 +133,20 @@ The rollback mechanism here is similar to the release system, where the rollback
 
 The rollback in Apollo is a similar mechanism. Clicking rollback rolls back the configuration published to the client to the previous published version, which means that the configuration read by the client will be restored to the previous version, but the configuration in the edited state on the page will not be rolled back, so that the developer can re-publish after fixing the configuration.
 
+## 1.7 Configuration queries (administrator privileges)
+
+After a configuration has been added or modified, the administrator user can make a query for the configuration item it belongs to as well as jump to modifications by going to the `Administrator Tools - Global Search for Value` page.
+
+The query here is a fuzzy search, where at least one of the key and value of the configuration item is searched to find out in which application, environment, cluster, namespace the configuration is used.
+
+- Properties format configuration can be retrieved directly from the key and value
+
+![Configuration query-properties](../images/Configuration query-properties.png)
+
+- xml, json, yml, yaml, txt and other formats configuration, because the storage of content-value storage, so you can key = content, value = configuration item content, retrieval
+
+![Configuration query-Non properties](../images/Configuration query-Non properties.png)
+
 # II. Public component access guide
 
 ## 2.1 Difference between public components and common applications
@@ -481,6 +495,42 @@ Apollo has added an access key mechanism since version 1.6.0, so that only authe
    ![Key Configuration Page](https://user-images.githubusercontent.com/837658/94990150-788dba00-05ac-11eb-9a12-727fdb872e42.png)
 
 3. Client-side [configure access key](en/client/java-sdk-user-guide?id=_1244-configuring-access-keys) .
+
+## 6.3 System parameterization of global search configuration items
+
+Starting from version 2.4.0, apollo-portal adds the ability to globally search for configuration items by fuzzy retrieval of the key and value of a configuration item to find out which application, environment, cluster, or namespace the configuration item with the corresponding value is used in. In order to prevent memory overflow (OOM) problems when performing global view searches of configuration items, we introduce a system parameter `apollo.portal.search.perEnvMaxResults`, which is used to limit the number of maximum search results per environment configuration item in a single search. By default, this value is set to `200`, but administrators can adjust it to suit their actual needs.
+
+**Setting method：**
+
+1. Log in to the Apollo Configuration Center interface with a super administrator account.
+2. Just go to the `Administrator Tools - System Parameters` page and add or modify the `apollo.portal.search.perEnvMaxResults` configuration item.
+
+Please note that modifications to system parameters may affect the performance of the search function, so you should perform adequate testing and ensure that you understand exactly what the parameters do before making changes.
+
+![System-parameterization-of-global-search-configuration-items](../images/System-parameterization-of-global-search-configuration-items.png)
+
+
+
+## 6.4 Parameter settings for limiting the number of namespaces in the appld+cluster dimension
+
+Starting from version 2.4.0, apollo-portal provides the function of checking the upper limit of the number of namespaces that can be created under the appld+cluster dimension. This function is disabled by default and needs to be enabled by configuring the system `namespace.num.limit.enabled`. At the same time, the system parameter `namespace.num.limit` is provided to dynamically configure the upper limit of the number of Namespaces under the appld+cluster dimension. The default value is 200. Considering that some basic components such as gateways, message queues, Redis, and databases require special processing, a new system parameter `namespace.num.limit.white` is added to configure the verification whitelist, which is not affected by the upper limit of the number of Namespaces.
+
+**Setting method：**
+
+1. Log in to the Apollo Configuration Center interface with a super administrator account.
+2. Go to the `Administrator Tools - System Parameters - ConfigDB Configuration Management` page and add or modify the `namespace.num.limit.enabled` configuration item to true/false to enable/disable this function. It is disabled by default.
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-enabled.png)
+
+3. Go to the `Administrator Tools - System Parameters - ConfigDB Configuration Management` page to add or modify the `namespace.num.limit` configuration item to configure the upper limit of the number of namespaces under a single appld+cluster. The default value is 200
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit.png)
+
+4. Go to `Administrator Tools - System Parameters - ConfigDB Configuration Management` page to add or modify the `namespace.num.limit.white` configuration item to configure the whitelist for namespace quantity limit verification. Multiple AppIds are separated by English commas.
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-white.png)
+
+
 
 # VII. Best practices
 
