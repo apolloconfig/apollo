@@ -43,8 +43,8 @@ public class PortalConfig extends RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
-  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_MILLI = 5 * 60 * 1000; //5min
-  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_MILLI = 10 * 1000; //10s
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND = 5 * 60; //5min
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND = 10; //10s
 
   private static final Gson GSON = new Gson();
   private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
@@ -196,14 +196,14 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("apollo.portal.address");
   }
 
-  public int refreshAdminServerAddressTaskNormalIntervalInMilli() {
-    int interval = getIntProperty("refresh.admin.server.address.task.normal.interval.ms", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_MILLI);
-    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_MILLI);
+  public int refreshAdminServerAddressTaskNormalIntervalSecond() {
+    int interval = getIntProperty("refresh.admin.server.address.task.normal.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
   }
 
-  public int refreshAdminServerAddressTaskOfflineIntervalInMilli() {
-    int interval = getIntProperty("refresh.admin.server.address.task.offline.interval.ms", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_MILLI);
-    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_MILLI);
+  public int refreshAdminServerAddressTaskOfflineIntervalSecond() {
+    int interval = getIntProperty("refresh.admin.server.address.task.offline.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {

@@ -107,10 +107,10 @@ public class AdminServiceAddressLocator {
 
       if (refreshSuccess) {
         refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskNormalIntervalInMilli(), TimeUnit.MILLISECONDS);
+            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskNormalIntervalSecond(), TimeUnit.SECONDS);
       } else {
         refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskOfflineIntervalInMilli(), TimeUnit.MILLISECONDS);
+            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskOfflineIntervalSecond(), TimeUnit.SECONDS);
       }
     }
   }
