@@ -49,6 +49,9 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithoutItemNumLimit() {
 
+    when(bizConfig.itemKeyLengthLimit()).thenReturn(128);
+    when(bizConfig.itemValueLengthLimit()).thenReturn(20000);
+
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(false);
     when(bizConfig.itemNumLimit()).thenReturn(5);
 
@@ -73,6 +76,9 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/itemset-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithItemNumLimit() {
+
+    when(bizConfig.itemKeyLengthLimit()).thenReturn(128);
+    when(bizConfig.itemValueLengthLimit()).thenReturn(20000);
 
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(true);
     when(bizConfig.itemNumLimit()).thenReturn(5);
@@ -103,6 +109,9 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/itemset-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdateSetWithItemNumLimit2() {
+
+    when(bizConfig.itemKeyLengthLimit()).thenReturn(128);
+    when(bizConfig.itemValueLengthLimit()).thenReturn(20000);
 
     when(bizConfig.isItemNumLimitEnabled()).thenReturn(true);
     when(bizConfig.itemNumLimit()).thenReturn(5);
