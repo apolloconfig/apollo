@@ -66,9 +66,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
   private final BizConfig bizConfig;
-
-  @Autowired
-  private MeterRegistry meterRegistry;
+  private final MeterRegistry meterRegistry;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -79,11 +77,13 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   public ConfigServiceWithCache(final ReleaseService releaseService,
       final ReleaseMessageService releaseMessageService,
       final GrayReleaseRulesHolder grayReleaseRulesHolder,
-      final BizConfig bizConfig) {
+      final BizConfig bizConfig,
+      final MeterRegistry meterRegistry) {
     super(grayReleaseRulesHolder);
     this.releaseService = releaseService;
     this.releaseMessageService = releaseMessageService;
     this.bizConfig = bizConfig;
+    this.meterRegistry = meterRegistry;
     nullConfigCacheEntry = new ConfigCacheEntry(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, null);
   }
 

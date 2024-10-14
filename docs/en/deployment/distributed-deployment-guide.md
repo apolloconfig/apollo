@@ -1528,9 +1528,8 @@ This configuration takes effect when config-service.cache.enabled is set to true
 > `config-service.cache.stats.enabled` The adjustment configuration must be restarted config service to take effect.
 
 This configuration works when `config-service.cache.stats.enabled` is true, it is used to control the opening of the cache statistics function.  
-The default is false, that is, it will not enable the cache statistics function, when it is set to true, it will enable the cache metric statistics function, see the reference index[Monitoring related-5.2 Metrics](en/design/apollo-design#5.2-Metrics)
-
-
+The default is false, that is, it will not enable the cache statistics function, when it is set to true, it will enable the cache metric statistics function.  
+View metric reference index[Monitoring related-5.2 Metrics](en/design/apollo-design#5.2-Metrics),such as `http://${someIp:somePort}/prometheus`
 
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 
