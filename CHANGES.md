@@ -13,6 +13,5 @@ Apollo 2.4.0
 * [Feature: Add limit and whitelist for namespace count per appid+cluster](https://github.com/apolloconfig/apollo/pull/5228)
 * [Feature support the observe status access-key for pre-check and logging only](https://github.com/apolloconfig/apollo/pull/5236)
 * [Feature add limit for items count per namespace](https://github.com/apolloconfig/apollo/pull/5227)
-
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
