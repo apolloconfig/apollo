@@ -318,10 +318,11 @@ public class PortalConfig extends RefreshableConfig {
     return Arrays.asList(value);
   }
 
-  int checkInt(int value, int min, int max, int defaultValue) {
+  private int checkInt(int value, int min, int max, int defaultValue) {
     if (value >= min && value <= max) {
       return value;
     }
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.", value, min, max, defaultValue);
     return defaultValue;
   }
 }
