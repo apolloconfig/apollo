@@ -502,6 +502,22 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 
 
+## 6.5 单个命名空间下的配置项数量限制
+从2.4.0版本开始，apollo-portal提供了限制单个命名空间下的配置项数量的功能，此功能默认关闭，需要配置系统 `item.num.limit.enabled` 开启，同时提供了系统参数`item.num.limit`来动态配置单个Namespace下的item数量上限值
+
+**设置方法：**
+1. 用超级管理员账号登录到Apollo配置中心的界面
+2. 进入`管理员工具 - 系统参数 - ConfigDB 配置管理`页面新增或修改`item.num.limit.enabled`配置项为true/false 即可开启/关闭此功能
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit-enabled.png)
+
+3. 进入`管理员工具 - 系统参数 - ConfigDB 配置管理`页面新增或修改`item.num.limit`配置项来配置单个Namespace下的item数量上限值
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit.png)
+
+
+
+
 # 七、最佳实践
 
 ## 7.1 安全相关
