@@ -431,7 +431,7 @@ namespace: Use the specified value, if not specified, the default is "default"
 
 configMapName: {appId}
 
-key: {cluster} + {namespace}
+key: {cluster} - {namespace}
 
 value: The content is the JSON format string of the corresponding configuration information.
 

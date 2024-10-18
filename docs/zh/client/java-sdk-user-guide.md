@@ -416,7 +416,7 @@ namespace：使用指定的值，若未指定默认为"default"
 
 configMapName:{appId}
 
-key:{cluster}+{namespace}
+key:{cluster}-{namespace}
 
 value:内容为对应的配置信息的json格式字符串
 
