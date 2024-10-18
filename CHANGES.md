@@ -13,6 +13,7 @@ Apollo 2.4.0
 * [Feature: Add limit and whitelist for namespace count per appid+cluster](https://github.com/apolloconfig/apollo/pull/5228)
 * [Feature support the observe status access-key for pre-check and logging only](https://github.com/apolloconfig/apollo/pull/5236)
 * [Feature add limit for items count per namespace](https://github.com/apolloconfig/apollo/pull/5227)
+* [Feature: Add ConfigService cache record stats function](https://github.com/apolloconfig/apollo/pull/5247)
 * [RefreshAdminServerAddressTask supports dynamic configuration of time interval](https://github.com/apolloconfig/apollo/pull/5248)
 
 ------------------

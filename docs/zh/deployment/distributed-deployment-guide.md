@@ -1464,6 +1464,15 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 > 这个配置用于兼容未开启缓存时的配置获取逻辑，因为 MySQL 数据库查询默认字符串匹配大小写不敏感。如果开启了缓存，且用了 MySQL，建议配置 true。如果你 Apollo 使用的数据库字符串匹配大小写敏感，那么必须保持默认配置 false，否则将获取不到配置。
 
+#### 3.2.3.2 config-service.cache.stats.enabled - 是否开启缓存metric统计功能
+> 适用于2.4.0及以上版本
+
+> `config-service.cache.stats.enabled` 配置调整必须重启 config service 才能生效
+
+该配置作用于`config-service.cache.stats.enabled`为 true 时，用于控制开启缓存统计功能。  
+默认为 false，即不会开启缓存统计功能，当配置为 true 时，开启缓存metric统计功能  
+指标查看参考[监控相关-5.2 Metrics](zh/design/apollo-design#5.2-Metrics)，如`http://${someIp:somePort}/prometheus`
+
 ### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
 
 默认配置是128。

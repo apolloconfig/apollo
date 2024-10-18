@@ -35,6 +35,8 @@ import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -63,6 +65,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
   private final BizConfig bizConfig;
+  private final MeterRegistry meterRegistry;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
@@ -73,73 +76,20 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   public ConfigServiceWithCache(final ReleaseService releaseService,
       final ReleaseMessageService releaseMessageService,
       final GrayReleaseRulesHolder grayReleaseRulesHolder,
-      final BizConfig bizConfig) {
+      final BizConfig bizConfig,
+      final MeterRegistry meterRegistry) {
     super(grayReleaseRulesHolder);
     this.releaseService = releaseService;
     this.releaseMessageService = releaseMessageService;
     this.bizConfig = bizConfig;
+    this.meterRegistry = meterRegistry;
     nullConfigCacheEntry = new ConfigCacheEntry(ConfigConsts.NOTIFICATION_ID_PLACEHOLDER, null);
   }
 
   @PostConstruct
   void initialize() {
-    configCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES)
-        .build(new CacheLoader<String, ConfigCacheEntry>() {
-          @Override
-          public ConfigCacheEntry load(String key) throws Exception {
-            List<String> namespaceInfo = ReleaseMessageKeyGenerator.messageToList(key);
-            if (CollectionUtils.isEmpty(namespaceInfo)) {
-              Tracer.logError(
-                  new IllegalArgumentException(String.format("Invalid cache load key %s", key)));
-              return nullConfigCacheEntry;
-            }
-
-            Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD, key);
-            try {
-              ReleaseMessage latestReleaseMessage = releaseMessageService.findLatestReleaseMessageForMessages(Lists
-                  .newArrayList(key));
-              Release latestRelease = releaseService.findLatestActiveRelease(namespaceInfo.get(0), namespaceInfo.get(1),
-                  namespaceInfo.get(2));
-
-              transaction.setStatus(Transaction.SUCCESS);
-
-              long notificationId = latestReleaseMessage == null ? ConfigConsts.NOTIFICATION_ID_PLACEHOLDER : latestReleaseMessage
-                  .getId();
-
-              if (notificationId == ConfigConsts.NOTIFICATION_ID_PLACEHOLDER && latestRelease == null) {
-                return nullConfigCacheEntry;
-              }
-
-              return new ConfigCacheEntry(notificationId, latestRelease);
-            } catch (Throwable ex) {
-              transaction.setStatus(ex);
-              throw ex;
-            } finally {
-              transaction.complete();
-            }
-          }
-        });
-    configIdCache = CacheBuilder.newBuilder()
-        .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES)
-        .build(new CacheLoader<Long, Optional<Release>>() {
-          @Override
-          public Optional<Release> load(Long key) throws Exception {
-            Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID, String.valueOf(key));
-            try {
-              Release release = releaseService.findActiveOne(key);
-
-              transaction.setStatus(Transaction.SUCCESS);
-
-              return Optional.ofNullable(release);
-            } catch (Throwable ex) {
-              transaction.setStatus(ex);
-              throw ex;
-            } finally {
-              transaction.complete();
-            }
-          }
-        });
+    buildConfigCache();
+    buildConfigIdCache();
   }
 
   @Override
@@ -197,6 +147,86 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     } catch (Throwable ex) {
       //ignore
     }
+  }
+
+  private void buildConfigCache() {
+    CacheBuilder configCacheBuilder = CacheBuilder.newBuilder()
+        .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      configCacheBuilder.recordStats();
+    }
+
+    configCache = configCacheBuilder.build(new CacheLoader<String, ConfigCacheEntry>() {
+      @Override
+      public ConfigCacheEntry load(String key) throws Exception {
+        List<String> namespaceInfo = ReleaseMessageKeyGenerator.messageToList(key);
+        if (CollectionUtils.isEmpty(namespaceInfo)) {
+          Tracer.logError(
+              new IllegalArgumentException(String.format("Invalid cache load key %s", key)));
+          return nullConfigCacheEntry;
+        }
+
+        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD, key);
+        try {
+          ReleaseMessage latestReleaseMessage = releaseMessageService.findLatestReleaseMessageForMessages(Lists
+                                                                                                              .newArrayList(key));
+          Release latestRelease = releaseService.findLatestActiveRelease(namespaceInfo.get(0), namespaceInfo.get(1),
+                                                                         namespaceInfo.get(2));
+
+          transaction.setStatus(Transaction.SUCCESS);
+
+          long notificationId = latestReleaseMessage == null ? ConfigConsts.NOTIFICATION_ID_PLACEHOLDER : latestReleaseMessage
+              .getId();
+
+          if (notificationId == ConfigConsts.NOTIFICATION_ID_PLACEHOLDER && latestRelease == null) {
+            return nullConfigCacheEntry;
+          }
+
+          return new ConfigCacheEntry(notificationId, latestRelease);
+        } catch (Throwable ex) {
+          transaction.setStatus(ex);
+          throw ex;
+        } finally {
+          transaction.complete();
+        }
+      }
+    });
+
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      GuavaCacheMetrics.monitor(meterRegistry, configCache, "config_cache");
+    }
+
+  }
+
+  private void buildConfigIdCache() {
+    CacheBuilder configIdCacheBuilder = CacheBuilder.newBuilder()
+        .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      configIdCacheBuilder.recordStats();
+    }
+    configIdCache = configIdCacheBuilder.build(new CacheLoader<Long, Optional<Release>>() {
+      @Override
+      public Optional<Release> load(Long key) throws Exception {
+        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID, String.valueOf(key));
+        try {
+          Release release = releaseService.findActiveOne(key);
+
+          transaction.setStatus(Transaction.SUCCESS);
+
+          return Optional.ofNullable(release);
+        } catch (Throwable ex) {
+          transaction.setStatus(ex);
+          throw ex;
+        } finally {
+          transaction.complete();
+        }
+      }
+    });
+
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      GuavaCacheMetrics.monitor(meterRegistry, configIdCache, "config_id_cache");
+    }
+
   }
 
   private static class ConfigCacheEntry {
