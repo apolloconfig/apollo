@@ -234,6 +234,10 @@ public class BizConfig extends RefreshableConfig {
     return getBooleanProperty("config-service.cache.enabled", false);
   }
 
+  public boolean isConfigServiceCacheStatsEnabled() {
+    return getBooleanProperty("config-service.cache.stats.enabled", false);
+  }
+
   public boolean isConfigServiceCacheKeyIgnoreCase() {
     return getBooleanProperty("config-service.cache.key.ignore-case", false);
   }
