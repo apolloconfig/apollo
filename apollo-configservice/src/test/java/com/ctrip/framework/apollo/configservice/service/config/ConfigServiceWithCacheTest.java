@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +60,8 @@ public class ConfigServiceWithCacheTest {
   @Mock
   private BizConfig bizConfig;
   @Mock
+  private MeterRegistry meterRegistry;
+  @Mock
   private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someAppId;
@@ -71,7 +74,7 @@ public class ConfigServiceWithCacheTest {
   @Before
   public void setUp() throws Exception {
     configServiceWithCache = new ConfigServiceWithCache(releaseService, releaseMessageService,
-        grayReleaseRulesHolder, bizConfig);
+        grayReleaseRulesHolder, bizConfig, meterRegistry);
 
     configServiceWithCache.initialize();
 
