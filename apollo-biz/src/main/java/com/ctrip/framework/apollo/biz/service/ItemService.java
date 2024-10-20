@@ -135,6 +135,10 @@ public class ItemService {
     return itemRepository.findByNamespaceIdAndDataChangeLastModifiedTimeGreaterThan(namespaceId, date);
   }
 
+  public int findNonEmptyItemCount(long namespaceId) {
+    return itemRepository.countByNamespaceIdAndFilterKeyEmpty(namespaceId);
+  }
+
   public Page<Item> findItemsByKey(String key, Pageable pageable) {
     return itemRepository.findByKey(key, pageable);
   }

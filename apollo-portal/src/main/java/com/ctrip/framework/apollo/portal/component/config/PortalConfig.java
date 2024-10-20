@@ -43,6 +43,9 @@ public class PortalConfig extends RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND = 5 * 60; //5min
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND = 10; //10s
+
   private static final Gson GSON = new Gson();
   private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
   }.getType();
@@ -193,6 +196,16 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("apollo.portal.address");
   }
 
+  public int refreshAdminServerAddressTaskNormalIntervalSecond() {
+    int interval = getIntProperty("refresh.admin.server.address.task.normal.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
+  }
+
+  public int refreshAdminServerAddressTaskOfflineIntervalSecond() {
+    int interval = getIntProperty("refresh.admin.server.address.task.offline.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
+  }
+
   public boolean isEmergencyPublishAllowed(Env env) {
     String targetEnv = env.getName();
 
@@ -303,5 +316,13 @@ public class PortalConfig extends RefreshableConfig {
       return DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST;
     }
     return Arrays.asList(value);
+  }
+
+  private int checkInt(int value, int min, int max, int defaultValue) {
+    if (value >= min && value <= max) {
+      return value;
+    }
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.", value, min, max, defaultValue);
+    return defaultValue;
   }
 }
