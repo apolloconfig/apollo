@@ -408,8 +408,6 @@ apollo.label=YOUR-APOLLO-LABEL
 
 `apollo.client.monitor.jmx.enabled`：是否将Monitor数据以Jmx形式暴露，开启后可以通过J-console,Jprofiler等工具查看相关信息，默认为false
 
-![](https://cdn.jsdelivr.net/gh/Rawven/image@main/2024-08-24-14-59-01-image.png)
-
 `apollo.client.monitor.exception-queue-size`：设置Monitor存储Exception的最大数量，默认值为25
 
 `apollo.client.monitor.external.type`:**非常规配置项**,用于导出指标数据时启用对应监控系统的Exporter，如引入apollo-plugin-client-prometheus则可填写prometheus进行启用,可填配置取决于用户引入的MetricsExporter的SPI使可用官方提供的或自己实现)，这种设计是为了用户能更方便的扩展。多填，错填和不填则不启用任何Exporter。
@@ -539,7 +537,7 @@ apollo:
 
 启动应用后，开启J-console或J-profiler即可查看，这里用J-profiler做例子
 
-![](https://raw.githubusercontent.com/Rawven/image/main/20240828003803.png)
+![](https://raw.githubusercontent.com/Rawven/image/main/20241020224657.png)
 
 #### 3.1.5.2 以Prometheus形式导出指标
 引入提供的官方依赖包
@@ -580,71 +578,6 @@ public class TestController {
 启动应用后让Prometheus监听该接口，打印请求日志即可发现如下类似格式信息
 
 ```
-# TYPE apollo_client_thread_pool_queue_remaining_capacity gauge
-# HELP apollo_client_thread_pool_queue_remaining_capacity apollo gauge metrics
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_core_pool_size gauge
-# HELP apollo_client_thread_pool_core_pool_size apollo gauge metrics
-apollo_client_thread_pool_core_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_largest_pool_size gauge
-# HELP apollo_client_thread_pool_largest_pool_size apollo gauge metrics
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_queue_size gauge
-# HELP apollo_client_thread_pool_queue_size apollo gauge metrics
-apollo_client_thread_pool_queue_size{thread_pool_name="RemoteConfigRepository"} 2.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 0.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_pool_size gauge
-# HELP apollo_client_thread_pool_pool_size apollo gauge metrics
-apollo_client_thread_pool_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_item_num gauge
-# HELP apollo_client_namespace_item_num apollo gauge metrics
-apollo_client_namespace_item_num{namespace="application"} 8.0
-apollo_client_namespace_item_num{namespace="application1"} 2.0
-# TYPE apollo_client_thread_pool_completed_task_count gauge
-# HELP apollo_client_thread_pool_completed_task_count apollo gauge metrics
-apollo_client_thread_pool_completed_task_count{thread_pool_name="RemoteConfigRepository"} 2.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 0.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_not_found gauge
-# HELP apollo_client_namespace_not_found apollo gauge metrics
-apollo_client_namespace_not_found 0.0
-# TYPE apollo_client_thread_pool_total_task_count gauge
-# HELP apollo_client_thread_pool_total_task_count apollo gauge metrics
-apollo_client_thread_pool_total_task_count{thread_pool_name="RemoteConfigRepository"} 4.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_usage counter
-# HELP apollo_client_namespace_usage apollo counter metrics
-apollo_client_namespace_usage_total{namespace="application"} 1.0
-apollo_client_namespace_usage_created{namespace="application"} 1.725899226271E9
-apollo_client_namespace_usage_total{namespace="application1"} 1.0
-apollo_client_namespace_usage_created{namespace="application1"} 1.72589922627E9
-# TYPE apollo_client_thread_pool_maximum_pool_size gauge
-# HELP apollo_client_thread_pool_maximum_pool_size apollo gauge metrics
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfigFile"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfig"} 2.147483647E9
-# TYPE apollo_client_namespace_first_load_time_spend_in_ms gauge
-# HELP apollo_client_namespace_first_load_time_spend_in_ms apollo gauge metrics
-apollo_client_namespace_first_load_time_spend_in_ms{namespace="application"} 99.0
-apollo_client_namespace_first_load_time_spend_in_ms{namespace="application1"} 40.0
 # TYPE apollo_client_thread_pool_active_task_count gauge
 # HELP apollo_client_thread_pool_active_task_count apollo gauge metrics
 apollo_client_thread_pool_active_task_count{thread_pool_name="RemoteConfigRepository"} 0.0
@@ -654,6 +587,71 @@ apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractConfig"} 0
 # TYPE apollo_client_namespace_timeout gauge
 # HELP apollo_client_namespace_timeout apollo gauge metrics
 apollo_client_namespace_timeout 0.0
+# TYPE apollo_client_thread_pool_pool_size gauge
+# HELP apollo_client_thread_pool_pool_size apollo gauge metrics
+apollo_client_thread_pool_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_thread_pool_queue_remaining_capacity gauge
+# HELP apollo_client_thread_pool_queue_remaining_capacity apollo gauge metrics
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_exception_num counter
+# HELP apollo_client_exception_num apollo counter metrics
+apollo_client_exception_num_total 1404.0
+apollo_client_exception_num_created 1.729435502796E9
+# TYPE apollo_client_thread_pool_largest_pool_size gauge
+# HELP apollo_client_thread_pool_largest_pool_size apollo gauge metrics
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_thread_pool_queue_size gauge
+# HELP apollo_client_thread_pool_queue_size apollo gauge metrics
+apollo_client_thread_pool_queue_size{thread_pool_name="RemoteConfigRepository"} 352.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 0.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_usage counter
+# HELP apollo_client_namespace_usage apollo counter metrics
+apollo_client_namespace_usage_total{namespace="application"} 11.0
+apollo_client_namespace_usage_created{namespace="application"} 1.729435502791E9
+# TYPE apollo_client_thread_pool_core_pool_size gauge
+# HELP apollo_client_thread_pool_core_pool_size apollo gauge metrics
+apollo_client_thread_pool_core_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_not_found gauge
+# HELP apollo_client_namespace_not_found apollo gauge metrics
+apollo_client_namespace_not_found 351.0
+# TYPE apollo_client_thread_pool_total_task_count gauge
+# HELP apollo_client_thread_pool_total_task_count apollo gauge metrics
+apollo_client_thread_pool_total_task_count{thread_pool_name="RemoteConfigRepository"} 353.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 4.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_first_load_time_spend_in_ms gauge
+# HELP apollo_client_namespace_first_load_time_spend_in_ms apollo gauge metrics
+apollo_client_namespace_first_load_time_spend_in_ms{namespace="application"} 108.0
+# TYPE apollo_client_thread_pool_maximum_pool_size gauge
+# HELP apollo_client_thread_pool_maximum_pool_size apollo gauge metrics
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfigFile"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfig"} 2.147483647E9
+# TYPE apollo_client_namespace_item_num gauge
+# HELP apollo_client_namespace_item_num apollo gauge metrics
+apollo_client_namespace_item_num{namespace="application"} 9.0
+# TYPE apollo_client_thread_pool_completed_task_count gauge
+# HELP apollo_client_thread_pool_completed_task_count apollo gauge metrics
+apollo_client_thread_pool_completed_task_count{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 3.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"} 0.0
 # EOF
 ```
 

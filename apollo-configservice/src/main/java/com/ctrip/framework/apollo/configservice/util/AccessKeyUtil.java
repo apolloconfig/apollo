@@ -46,6 +46,10 @@ public class AccessKeyUtil {
     return accessKeyServiceWithCache.getAvailableSecrets(appId);
   }
 
+  public List<String> findObservableSecrets(String appId) {
+    return accessKeyServiceWithCache.getObservableSecrets(appId);
+  }
+
   public String extractAppIdFromRequest(HttpServletRequest request) {
     String appId = null;
     String servletPath = request.getServletPath();

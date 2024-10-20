@@ -78,7 +78,13 @@ It is precisely based on the particularity of configuration that Apollo has been
 * **Client configuration information monitoring**
   * You can easily see which instances the configuration is being used on the interface
 
+**Global Search Configuration Items**
+
+- A fuzzy search of the key and value of a configuration item finds in which application, environment, cluster, namespace the configuration item with the corresponding value is used
+- It is easy for administrators and SRE roles to quickly and easily find and change the configuration values of resources by highlighting, paging and jumping through configurations
+
 **Java and .Net native clients available**
+
   * Provides native clients of Java and .Net for easy application integration
   * Support Spring Placeholder, Annotation and Spring Boot's ConfigurationProperties for easy application use (requires Spring 3.1.1+)
   * Also provides Http interface, non-Java and .Net applications can also be easily used

@@ -136,7 +136,7 @@ sequenceDiagram
 ### 1.3.2 Admin Service
 
 * 提供配置管理接口
-* 提供配置修改、发布等接口
+* 提供配置修改、发布、检索等接口
 * 接口服务对象为Portal
 
 ### 1.3.3 Meta Server

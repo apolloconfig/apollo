@@ -123,6 +123,20 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 Apollo中的回滚也是类似的机制，点击回滚后是将发布到客户端的配置回滚到上一个已发布版本，也就是说客户端读取到的配置会恢复到上一个版本，但页面上编辑状态的配置是不会回滚的，从而开发可以在修复配置后重新发布。
 
+## 1.7 配置查询（管理员权限）
+
+在配置添加或修改后，管理员用户可以通过进入 `管理员工具 - Value的全局搜索` 页面，来对配置项进行所属查询以及跳转修改。
+
+这里的查询为模糊检索，通过对配置项的key与value至少一项进行检索，找到该配置在哪个应用、环境、集群、命名空间中被使用。
+
+- properties格式配置可以直接通过对key与value进行检索
+
+![Configuration query-properties](../images/Configuration query-properties.png)
+
+- xml、json、yml、yaml、txt等格式配置，由于存储时以content-value进行存储，故可以通过key=content、value=配置项内容，进行检索
+
+![Configuration query-Non properties](../images/Configuration query-Non properties.png)
+
 # 二、公共组件接入指南
 ## 2.1 公共组件和普通应用的区别
 
@@ -226,9 +240,9 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 
 3. 关联成功后，页面会自动跳转到Namespace权限管理页面
     1. 分配修改权限
-![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
+    ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
     2. 分配发布权限
-![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
+    ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
 4. 点击“返回”回到项目页面
 
@@ -448,12 +462,45 @@ Apollo目前提供Java客户端，具体信息请点击[Java客户端使用文�
 Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验证的客户端才能访问敏感配置。如果应用开启了访问密钥，客户端需要配置密钥，否则无法获取配置。
 
 1. 项目管理员打开管理密钥页面
-![管理密钥入口](https://user-images.githubusercontent.com/837658/94990081-f4d3cd80-05ab-11eb-9470-fed5ec6de92e.png)
+    ![管理密钥入口](https://user-images.githubusercontent.com/837658/94990081-f4d3cd80-05ab-11eb-9470-fed5ec6de92e.png)
 
 2. 为项目的每个环境生成访问密钥，注意默认是禁用的，建议在客户端都配置完成后再开启
-![密钥配置页面](https://user-images.githubusercontent.com/837658/94990150-788dba00-05ac-11eb-9a12-727fdb872e42.png)
+    ![密钥配置页面](https://user-images.githubusercontent.com/837658/94990150-788dba00-05ac-11eb-9a12-727fdb872e42.png)
 
 3. 客户端侧[配置访问密钥](zh/client/java-sdk-user-guide#_1244-配置访问密钥)
+
+## 6.3 全局搜索配置项的系统参数设置
+
+从2.4.0版本开始，apollo-portal增加了全局搜索配置项的功能，通过对配置项的key与value进行的模糊检索，找到拥有对应值的配置项在哪个应用、环境、集群、命名空间中被使用。为了防止在进行配置项的全局视角搜索时出现内存溢出（OOM）的问题，我们引入了一个系统参数`apollo.portal.search.perEnvMaxResults`。这个参数用于限制每个环境配置项单次最大搜索结果的数量。默认情况下，这个值被设置为`200`，但管理员可以根据实际需求进行调整。
+
+**设置方法：**
+
+1. 用超级管理员账号登录到Apollo配置中心的界面
+2. 进入`管理员工具 - 系统参数`页面新增或修改`apollo.portal.search.perEnvMaxResults`配置项即可
+
+请注意，修改系统参数可能会影响搜索功能的性能，因此在修改之前应该进行充分的测试，并确保理解参数的具体作用。
+
+![System-parameterization-of-global-search-configuration-items](../images/System-parameterization-of-global-search-configuration-items.png)
+
+
+## 6.4 appld+cluster维度下命名空间数量限制功能参数设置
+从2.4.0版本开始，apollo-portal提供了appld+cluster维度下可以创建的命名空间数量上限校验的功能，此功能默认关闭，需要配置系统 `namespace.num.limit.enabled` 开启，同时提供了系统参数`namespace.num.limit`来动态配置appld+cluster维度下的Namespace数量上限值，默认为200个，考虑到一些基础组件如网关、消息队列、Redis、数据库等需要特殊处理，新增了系统参数`namespace.num.limit.white` 来配置校验白名单，不受Namespace数量上限的影响
+
+**设置方法：**
+1. 用超级管理员账号登录到Apollo配置中心的界面
+2. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit.enabled` 配置项为true/false 即可开启/关闭此功能，默认关闭
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-enabled.png)
+
+3. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit` 配置项来配置单个appld+cluster下的namespace数量上限值，默认为200
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit.png)
+
+4. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit.white` 配置项来配置namespace数量上限校验的白名单，多个AppId使用英文逗号分隔
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-white.png)
+
+
 
 # 七、最佳实践
 
