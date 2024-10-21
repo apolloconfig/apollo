@@ -30,8 +30,7 @@ spring:
 
 logging:
   file:
-    path: /opt/logs
-    name: apollo-assembly.log
+    name: /opt/logs/apollo-assembly.log
 
 management:
   health:
