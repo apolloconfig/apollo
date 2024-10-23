@@ -509,157 +509,28 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
-### 3.1.5 使用Monitor功能
+### 3.1.5 获取客户端监控指标
 
 apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonitor-API以及JMX,Prometheus的指标导出方式
+详见 [1.2.4.1 开启客户端监控](#_1241-开启客户端监控)
+相关配置开启请参照 1.2.4.9 小节
 
-若启用monitor功能，前提需要配置apollo.client.monitor.enabled为true
-
-```yaml
-apollo:
-  client:
-    monitor:
-      enabled: true
-```
 
 #### 3.1.5.1 以JMX形式暴露状态信息
 
-在配置中对apollo.client.monitor.jmx.enabled进行启用
+启用相关配置
 
-```yaml
-apollo:
-  client:
-    monitor:
-      enabled: true
-      jmx:
-        enabled: true
+```properties
+apollo.client.monitor.enabled = true
+apollo.client.monitor.jmx.enabled = true
 ```
 
 启动应用后，开启J-console或J-profiler即可查看，这里用J-profiler做例子
 
-![](https://raw.githubusercontent.com/Rawven/image/main/20241020224657.png)
+![JProfiler showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.png)
 
-#### 3.1.5.2 以Prometheus形式导出指标
-引入提供的官方依赖包
-```xml
-      <dependency>
-        <groupId>com.ctrip.framework.apollo</groupId>
-        <artifactId>apollo-plugin-client-prometheus</artifactId>
-        <version>2.4.0-SNAPSHOT</version>
-      </dependency>
-```
-调整配置apollo.client.monitor.external.type=prometheus
-```yaml
-apollo:
-  client:
-    monitor:
-      enabled: true
-      external:
-        type: prometheus
-```
 
-这样就可以通过ConfigMonitor拿到ExporterData(格式取决于你配置的监控系统)，然后暴露端点给Prometheus即可
-
-示例代码
-
-```java
-@RestController
-@ResponseBody
-public class TestController {
-
-  @GetMapping("/metrics")
-  public String metrics() {
-    ConfigMonitor configMonitor = ConfigService.getConfigMonitor();
-    return configMonitor.getExporterData();
-  }
-}   
-```
-
-启动应用后让Prometheus监听该接口，打印请求日志即可发现如下类似格式信息
-
-```
-# TYPE apollo_client_thread_pool_active_task_count gauge
-# HELP apollo_client_thread_pool_active_task_count apollo gauge metrics
-apollo_client_thread_pool_active_task_count{thread_pool_name="RemoteConfigRepository"} 0.0
-apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_timeout gauge
-# HELP apollo_client_namespace_timeout apollo gauge metrics
-apollo_client_namespace_timeout 0.0
-# TYPE apollo_client_thread_pool_pool_size gauge
-# HELP apollo_client_thread_pool_pool_size apollo gauge metrics
-apollo_client_thread_pool_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_queue_remaining_capacity gauge
-# HELP apollo_client_thread_pool_queue_remaining_capacity apollo gauge metrics
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_exception_num counter
-# HELP apollo_client_exception_num apollo counter metrics
-apollo_client_exception_num_total 1404.0
-apollo_client_exception_num_created 1.729435502796E9
-# TYPE apollo_client_thread_pool_largest_pool_size gauge
-# HELP apollo_client_thread_pool_largest_pool_size apollo gauge metrics
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_thread_pool_queue_size gauge
-# HELP apollo_client_thread_pool_queue_size apollo gauge metrics
-apollo_client_thread_pool_queue_size{thread_pool_name="RemoteConfigRepository"} 352.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 0.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_usage counter
-# HELP apollo_client_namespace_usage apollo counter metrics
-apollo_client_namespace_usage_total{namespace="application"} 11.0
-apollo_client_namespace_usage_created{namespace="application"} 1.729435502791E9
-# TYPE apollo_client_thread_pool_core_pool_size gauge
-# HELP apollo_client_thread_pool_core_pool_size apollo gauge metrics
-apollo_client_thread_pool_core_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_not_found gauge
-# HELP apollo_client_namespace_not_found apollo gauge metrics
-apollo_client_namespace_not_found 351.0
-# TYPE apollo_client_thread_pool_total_task_count gauge
-# HELP apollo_client_thread_pool_total_task_count apollo gauge metrics
-apollo_client_thread_pool_total_task_count{thread_pool_name="RemoteConfigRepository"} 353.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 4.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfig"} 0.0
-# TYPE apollo_client_namespace_first_load_time_spend_in_ms gauge
-# HELP apollo_client_namespace_first_load_time_spend_in_ms apollo gauge metrics
-apollo_client_namespace_first_load_time_spend_in_ms{namespace="application"} 108.0
-# TYPE apollo_client_thread_pool_maximum_pool_size gauge
-# HELP apollo_client_thread_pool_maximum_pool_size apollo gauge metrics
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfigFile"} 2.147483647E9
-apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfig"} 2.147483647E9
-# TYPE apollo_client_namespace_item_num gauge
-# HELP apollo_client_namespace_item_num apollo gauge metrics
-apollo_client_namespace_item_num{namespace="application"} 9.0
-# TYPE apollo_client_thread_pool_completed_task_count gauge
-# HELP apollo_client_thread_pool_completed_task_count apollo gauge metrics
-apollo_client_thread_pool_completed_task_count{thread_pool_name="RemoteConfigRepository"} 1.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 3.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfigFile"} 0.0
-apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"} 0.0
-# EOF
-```
-
-同时查看Prometheus控制台也能看到如下信息
-
-![](https://raw.githubusercontent.com/Rawven/image/main/20240922125033.png)
-
-#### 3.1.5.3 用户手动调用ConfigMonitor-API获取相关数据(比如当用户需要手动加工数据上报到监控系统时)
+#### 3.1.5.2 用户手动调用ConfigMonitor-API获取相关数据(比如当用户需要手动加工数据上报到监控系统时)
 
 ```java
  ConfigMonitor configMonitor = ConfigService.getConfigMonitor(); 
@@ -677,7 +548,7 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
  ApolloThreadPoolInfo remoteConfigRepositoryThreadPoolInfo = threadPoolMonitorApi.getRemoteConfigRepositoryThreadPoolInfo();
 ```
 
-#### 3.1.5.4 指标数据表格
+#### 3.1.5.3 指标数据表格
 
 ## Namespace Metrics
 
@@ -708,6 +579,9 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 | 指标名称                          | 标签 |
 | --------------------------------- | ---- |
 | apollo_client_exception_num_total |      |
+
+#### 3.1.5.4 客户端对接外部监控系统
+详见 [7.2 MetricsExporter扩展](#_7.2_MetricsExporter扩展)
 
 ## 3.2 Spring整合方式
 
@@ -1440,15 +1314,263 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。
 
 
+
 ## 7.2 MetricsExporter扩展
 
-> from version 2.4.0
-为了满足用户使用apollo-client时，对指标导出的系统有不同的系统需求（Prometheus,Skywalking...）
+在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，用户可以自行扩展接入不同的监控系统。
 
-我们在2.4.0版本增强的可观测性中提供了**spi**
+### 客户端对接Prometheus
+引入提供的官方依赖包
+```xml
+      <dependency>
+        <groupId>com.ctrip.framework.apollo</groupId>
+        <artifactId>apollo-plugin-client-prometheus</artifactId>
+        <version>2.4.0-SNAPSHOT</version>
+      </dependency>
+```
+调整配置apollo.client.monitor.external.type=prometheus
+```properties
+apollo.client.monitor.external.type= prometheus
+```
 
-interface是`com.ctrip.framework.apollo.monitor.internal.exporter.ApolloClientMetricsExporter`。
+这样就可以通过ConfigMonitor拿到ExporterData(格式取决于你配置的监控系统)，然后暴露端点给Prometheus即可
 
-我们提供了通用指标导出框架抽象类 `com.ctrip.framework.apollo.monitor.internal.exporter.AbstractApolloClientMetricsExporter`，只需继承该类实现相关方法即可自定义接入其它监控系统，可参考apollo-plugin-client-prometheus的实现
+示例代码
 
-默认无服务提供，即不会导出指标数据
+```java
+@RestController
+@ResponseBody
+public class TestController {
+
+  @GetMapping("/metrics")
+  public String metrics() {
+    ConfigMonitor configMonitor = ConfigService.getConfigMonitor();
+    return configMonitor.getExporterData();
+  }
+}   
+```
+
+启动应用后让Prometheus监听该接口，打印请求日志即可发现如下类似格式信息
+
+```
+# TYPE apollo_client_thread_pool_active_task_count gauge
+# HELP apollo_client_thread_pool_active_task_count apollo gauge metrics
+apollo_client_thread_pool_active_task_count{thread_pool_name="RemoteConfigRepository"} 0.0
+apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_active_task_count{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_timeout gauge
+# HELP apollo_client_namespace_timeout apollo gauge metrics
+apollo_client_namespace_timeout 0.0
+# TYPE apollo_client_thread_pool_pool_size gauge
+# HELP apollo_client_thread_pool_pool_size apollo gauge metrics
+apollo_client_thread_pool_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_thread_pool_queue_remaining_capacity gauge
+# HELP apollo_client_thread_pool_queue_remaining_capacity apollo gauge metrics
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_queue_remaining_capacity{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_exception_num counter
+# HELP apollo_client_exception_num apollo counter metrics
+apollo_client_exception_num_total 1404.0
+apollo_client_exception_num_created 1.729435502796E9
+# TYPE apollo_client_thread_pool_largest_pool_size gauge
+# HELP apollo_client_thread_pool_largest_pool_size apollo gauge metrics
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_largest_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_thread_pool_queue_size gauge
+# HELP apollo_client_thread_pool_queue_size apollo gauge metrics
+apollo_client_thread_pool_queue_size{thread_pool_name="RemoteConfigRepository"} 352.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 0.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_queue_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_usage counter
+# HELP apollo_client_namespace_usage apollo counter metrics
+apollo_client_namespace_usage_total{namespace="application"} 11.0
+apollo_client_namespace_usage_created{namespace="application"} 1.729435502791E9
+# TYPE apollo_client_thread_pool_core_pool_size gauge
+# HELP apollo_client_thread_pool_core_pool_size apollo gauge metrics
+apollo_client_thread_pool_core_pool_size{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 1.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_core_pool_size{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_not_found gauge
+# HELP apollo_client_namespace_not_found apollo gauge metrics
+apollo_client_namespace_not_found 351.0
+# TYPE apollo_client_thread_pool_total_task_count gauge
+# HELP apollo_client_thread_pool_total_task_count apollo gauge metrics
+apollo_client_thread_pool_total_task_count{thread_pool_name="RemoteConfigRepository"} 353.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 4.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_total_task_count{thread_pool_name="AbstractConfig"} 0.0
+# TYPE apollo_client_namespace_first_load_time_spend_in_ms gauge
+# HELP apollo_client_namespace_first_load_time_spend_in_ms apollo gauge metrics
+apollo_client_namespace_first_load_time_spend_in_ms{namespace="application"} 108.0
+# TYPE apollo_client_thread_pool_maximum_pool_size gauge
+# HELP apollo_client_thread_pool_maximum_pool_size apollo gauge metrics
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="RemoteConfigRepository"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractApolloClientMetricsExporter"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfigFile"} 2.147483647E9
+apollo_client_thread_pool_maximum_pool_size{thread_pool_name="AbstractConfig"} 2.147483647E9
+# TYPE apollo_client_namespace_item_num gauge
+# HELP apollo_client_namespace_item_num apollo gauge metrics
+apollo_client_namespace_item_num{namespace="application"} 9.0
+# TYPE apollo_client_thread_pool_completed_task_count gauge
+# HELP apollo_client_thread_pool_completed_task_count apollo gauge metrics
+apollo_client_thread_pool_completed_task_count{thread_pool_name="RemoteConfigRepository"} 1.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractApolloClientMetricsExporter"} 3.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfigFile"} 0.0
+apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"} 0.0
+# EOF
+```
+
+同时查看Prometheus控制台也能看到如下信息
+
+![Prometheus console showing Apollo client metrics](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-prometheus.png)
+
+
+### 自定义实现案例: 以接入Prometheus为例
+
+创建PrometheusApolloClientMetricsExporter类，继承AbstractApoolloClientMetircsExporter(通用指标导出框架)
+
+继承后大致代码如下
+
+```java
+
+public class PrometheusApolloClientMetricsExporter extends
+    AbstractApolloClientMetricsExporter implements ApolloClientMetricsExporter {
+
+ @Override
+ public void doInit() {
+
+ }
+
+ @Override
+ public boolean isSupport(String form) {
+
+ }
+
+
+ @Override
+ public void registerOrUpdateCounterSample(String name, Map<String, String> tags, double incrValue) {
+
+ }
+
+
+ @Override
+ public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
+
+ }
+
+  @Override
+ public String response() {
+
+ }
+}
+
+```
+
+doInit方法是供用户在初始化时自行做扩展的，会在AbstractApoolloClientMetircsExporter里的init方法被调用
+
+```java
+  @Override
+  public void init(List<ApolloClientMonitorEventListener> collectors, long collectPeriod) {
+    log.info("Initializing metrics exporter with {} collectors and collect period of {} seconds.",
+        collectors.size(), collectPeriod);
+    doInit();
+    this.collectors = collectors;
+    initScheduleMetricsCollectSync(collectPeriod);
+    log.info("Metrics collection scheduled with a period of {} seconds.", collectPeriod);
+  }
+```
+
+这里引入了prometheus的java客户端，需要对CollectorRegistry和缓存map做初始化
+
+```java
+  private CollectorRegistry registry;
+  private  Map<String, Collector.Describable> map;
+
+  @Override
+  public void doInit() {
+    registry = new CollectorRegistry();
+    map = new HashMap<>();
+  }
+```
+
+isSupport方法将会在DefaultApolloClientMetricsExporterFactory通过SPI读取MetricsExporter时被调用做判断，用于实现在有多个SPI实现时可以准确启用用户所配置的那一个Exporter
+
+比如配置时候你希望启用prometheus，你规定的值为prometheus，那这里就同步
+
+```java
+  @Override
+  public boolean isSupport(String form) {
+    return PROMETHEUS.equals(form);
+  }
+```
+
+registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Counter,Gauge类型指标的方法，只需要根据传来的参数正常注册即可
+
+```java
+  @Override
+  public void registerOrUpdateCounterSample(String name, Map<String, String> tags,
+      double incrValue) {
+    Counter counter = (Counter) map.get(name);
+    if (counter == null) {
+      counter = createCounter(name, tags);
+      map.put(name, counter);
+    }
+    counter.labels(tags.values().toArray(new String[0])).inc(incrValue);
+  }
+
+  private Counter createCounter(String name, Map<String, String> tags) {
+    return Counter.build()
+        .name(name)
+        .help("apollo")
+        .labelNames(tags.keySet().toArray(new String[0]))
+        .register(registry);
+  }
+
+  @Override
+  public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
+    Gauge gauge = (Gauge) map.get(name);
+    if (gauge == null) {
+      gauge = createGauge(name, tags);
+      map.put(name, gauge);
+    }
+    gauge.labels(tags.values().toArray(new String[0])).set(value);
+  }
+
+  private Gauge createGauge(String name, Map<String, String> tags) {
+    return Gauge.build()
+        .name(name)
+        .help("apollo")
+        .labelNames(tags.keySet().toArray(new String[0]))
+        .register(registry);
+  }
+```
+
+最后需要实现response方法，该方法用于导出你接入的监控系统格式的数据，最终会在ConfigMonitor的getExporterData方法里得到，用于用户自行暴露端口然后供监控系统拉取
+
+```java
+  @Override
+  public String response() {
+    try (StringWriter writer = new StringWriter()) {
+      TextFormat.writeFormat(TextFormat.CONTENT_TYPE_OPENMETRICS_100, writer,
+          registry.metricFamilySamples());
+      return writer.toString();
+    } catch (IOException e) {
+      logger.error("Write metrics to Prometheus format failed", e);
+      return "";
+    }
+  }
+```
+
+至此，已经将Client的指标数据接入Prometheus。
+
+完整代码:[PrometheusApolloClientMetricsExporter.java]https://github.com/apolloconfig/apollo-java/main/master/apollo-plugin/apollo-plugin-client-prometheus/src/main/java/com/ctrip/framework/apollo/monitor/internal/exporter/impl/PrometheusApolloClientMetricsExporter.java
