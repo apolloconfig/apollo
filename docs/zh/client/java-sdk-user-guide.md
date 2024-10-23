@@ -399,7 +399,7 @@ apollo.label=YOUR-APOLLO-LABEL
     * 可以在`classpath:/META-INF/app.properties`指定`apollo.override-system-properties=true`
 
 
-#### 1.2.4.9 Monitor相关配置
+#### 1.2.4.9 开启客户端监控
 
 > 适用于2.4.0及以上版本
 在2.4.0版本开始，客户端的可观测性得到了加强，用户可以通过ConfigService获取到ConfigMonitor直接获得客户端状态信息以及将状态信息以指标形式上报给监控系统，以下是一些相关配置
