@@ -402,19 +402,28 @@ apollo.label=YOUR-APOLLO-LABEL
 #### 1.2.4.9 开启客户端监控
 
 > 适用于2.4.0及以上版本
-在2.4.0版本开始，客户端的可观测性得到了加强，用户可以通过ConfigService获取到ConfigMonitor直接获得客户端状态信息以及将状态信息以指标形式上报给监控系统，以下是一些相关配置
+> 
+在开启下方配置后, 可使用 ConfigService.getConfigMonitor() 获取客户端监控信息,以及自动上报
 
-`apollo.client.monitor.enabled`：是否启动Monitor机制, 即ConfigMonitor是否启用，默认false
+```properties
+#1.是否启动Monitor机制, 即ConfigMonitor是否启用，默认false
+apollo.client.monitor.enabled = true
 
-`apollo.client.monitor.jmx.enabled`：是否将Monitor数据以Jmx形式暴露，开启后可以通过J-console,Jprofiler等工具查看相关信息，默认为false
+#2.是否将Monitor数据以Jmx形式暴露，开启后可以通过J-console等工具查看相关信息，默认为false
+apollo.client.monitor.jmx.enabled = true
 
-`apollo.client.monitor.exception-queue-size`：设置Monitor存储Exception的最大数量，默认值为25
+#3.Monitor存储异常信息的最大数量,默认为25,符合先进先出原则
+apollo.client.monitor.exception-queue-size= 30
 
-`apollo.client.monitor.external.type`:**非常规配置项**,用于导出指标数据时启用对应监控系统的Exporter，如引入apollo-plugin-client-prometheus则可填写prometheus进行启用,可填配置取决于用户引入的MetricsExporter的SPI使可用官方提供的或自己实现)，这种设计是为了用户能更方便的扩展。多填，错填和不填则不启用任何Exporter。
+#4.指定导出指标数据使用的对应监控系统的Exporter类型，如引入apollo-plugin-client-prometheus则可填写prometheus进行启用,
+#可填配置取决于用户引入的MetricsExporter的SPI
+apollo.client.monitor.external.type= prometheus
 
-具体使用见 扩展开发-java客户端接入不同监控系统
+#5.指定Exporter从Monitor中导出状态信息转为指标数据的频率,默认为10秒导出一次,
+apollo.client.monitor.external.export-period= 20
+```
 
-`apollo.client.monitor.external.export-period`：Exporter从Monitor中导出状态信息(如线程池等)并转为指标数据是通过定时任务的方式，export-period可以控制定时任务的频率，默认为10秒
+
 
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
@@ -510,27 +519,12 @@ String content = configFile.getContent();
 ```
 
 ### 3.1.5 获取客户端监控指标
-
-apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonitor-API以及JMX,Prometheus的指标导出方式
-详见 [1.2.4.1 开启客户端监控](#_1241-开启客户端监控)
-相关配置开启请参照 1.2.4.9 小节
-
-
-#### 3.1.5.1 以JMX形式暴露状态信息
-
-启用相关配置
-
-```properties
-apollo.client.monitor.enabled = true
-apollo.client.monitor.jmx.enabled = true
-```
-
-启动应用后，开启J-console或J-profiler即可查看，这里用J-profiler做例子
-
-![JProfiler showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.png)
+> 适用于2.4.0及以上版本
+> 
+apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonitor-API以及JMX,Prometheus的指标导出方式,相关启用配置详见 [1.2.4.9 开启客户端监控](#_1249-开启客户端监控)
 
 
-#### 3.1.5.2 用户手动调用ConfigMonitor-API获取相关数据(比如当用户需要手动加工数据上报到监控系统时)
+#### 3.1.5.1 通过ConfigMonitor获取监控数据
 
 ```java
  ConfigMonitor configMonitor = ConfigService.getConfigMonitor(); 
@@ -541,47 +535,69 @@ apollo.client.monitor.jmx.enabled = true
  ApolloClientNamespaceMonitorApi namespaceMonitorApi = configMonitor.getNamespaceMonitorApi(); 
  List<String> namespace404 = namespaceMonitorApi.getNotFoundNamespaces();
  //启动参数相关监控API  
- ApolloClientBootstrapArgsMonitorApi runningParamsMonitorApi = configMonitor.getRunningParamsMonitorApi(); 
+ ApolloClientBootstrapArgsMonitorApi runningParamsMonitorApi = configMonitor.getBootstrapArgsMonitorApi(); 
  String bootstrapNamespaces = runningParamsMonitorApi.getBootstrapNamespaces();
  //线程池相关监控API  
  ApolloClientThreadPoolMonitorApi threadPoolMonitorApi = configMonitor.getThreadPoolMonitorApi(); 
  ApolloThreadPoolInfo remoteConfigRepositoryThreadPoolInfo = threadPoolMonitorApi.getRemoteConfigRepositoryThreadPoolInfo();
 ```
 
-#### 3.1.5.3 指标数据表格
+#### 3.1.5.2 以JMX形式暴露状态信息
 
-## Namespace Metrics
+启用相关配置
 
-| 指标名称                                 | 标签      |
-| ---------------------------------------- | --------- |
-| apollo_client_namespace_usage_total      | namespace |
-| apollo_client_namespace_item_num         | namespace |
-| apollo_client_namespace_not_found        |           |
-| apollo_client_namespace_timeout          |           |
-| apollo_client_namespace_first_load_time_spend_in_ms | namespace |
+```properties
+apollo.client.monitor.enabled = true
+apollo.client.monitor.jmx.enabled = true
+```
 
-## Thread Pool Metrics
+启动应用后，开启J-console或类似工具即可查看，这里用J-console做例子
 
-| 指标名称                                           | 标签             |
-| -------------------------------------------------- | ---------------- |
-| apollo_client_thread_pool_pool_size                | thread_pool_name |
-| apollo_client_thread_pool_maximum_pool_size        | thread_pool_name |
-| apollo_client_thread_pool_largest_pool_size        | thread_pool_name |
-| apollo_client_thread_pool_completed_task_count     | thread_pool_name |
-| apollo_client_thread_pool_queue_remaining_capacity | thread_pool_name |
-| apollo_client_thread_pool_total_task_count         | thread_pool_name |
-| apollo_client_thread_pool_active_task_count        | thread_pool_name |
-| apollo_client_thread_pool_core_pool_size           | thread_pool_name |
-| apollo_client_thread_pool_queue_size               | thread_pool_name |
+![showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.jpg)
 
-## Exception Metrics
+#### 3.1.5.3 客户端导出指标上报到外部监控系统
 
-| 指标名称                          | 标签 |
-| --------------------------------- | ---- |
-| apollo_client_exception_num_total |      |
+用户可以根据需求自定义接入Prometheus等监控系统,客户端提供了SPI,详见 [7.2 MetricsExporter扩展](#_7.2_MetricsExporter扩展)
 
-#### 3.1.5.4 客户端对接外部监控系统
-详见 [7.2 MetricsExporter扩展](#_72_metricsExporter扩展)
+*相关指标数据表格*
+
+**Namespace Metrics**
+
+指标对应API : ApolloClientNamespaceMonitorApi
+
+| 指标名称                                            | 标签      | 对应Monitor-API                              |
+| --------------------------------------------------- | --------- | -------------------------------------------- |
+| apollo_client_namespace_usage_total                 | namespace | namespaceMetrics.getUsageCount()             |
+| apollo_client_namespace_item_num                    | namespace | namespaceMetrics.getFirstLoadTimeSpendInMs() |
+| apollo_client_namespace_not_found                   |           | namespaceMonitorApi.getNotFoundNamespaces()  |
+| apollo_client_namespace_timeout                     |           | namespaceMonitorApi.getTimeoutNamespaces()   |
+| apollo_client_namespace_first_load_time_spend_in_ms | namespace | namespaceMetrics.getLatestUpdateTime         |
+
+**Thread Pool Metrics**
+
+指标对应API：ApolloClientThreadPoolMonitorApi
+
+| 指标名称                                           | 标签             | 对应Monitor-API                              |
+| -------------------------------------------------- | ---------------- |--------------------------------------------|
+| apollo_client_thread_pool_pool_size                | thread_pool_name | threadPoolInfo.getPoolSize()               |
+| apollo_client_thread_pool_maximum_pool_size        | thread_pool_name | threadPoolInfo.getMaximumPoolSize()        |
+| apollo_client_thread_pool_largest_pool_size        | thread_pool_name | threadPoolInfo.getLargestPoolSize()        |
+| apollo_client_thread_pool_completed_task_count     | thread_pool_name | threadPoolInfo.getCompletedTaskCount()     |
+| apollo_client_thread_pool_queue_remaining_capacity | thread_pool_name | threadPoolInfo.getQueueRemainingCapacity() |
+| apollo_client_thread_pool_total_task_count         | thread_pool_name | threadPoolInfo.getTotalTaskCount()         |
+| apollo_client_thread_pool_active_task_count        | thread_pool_name | threadPoolInfo.getActiveTaskCount()        |
+| apollo_client_thread_pool_core_pool_size           | thread_pool_name | threadPoolInfo.getCorePoolSize()           |
+| apollo_client_thread_pool_queue_size               | thread_pool_name | threadPoolInfo.getQueueSize()              |
+
+**Exception Metrics**
+
+指标对应API：ApolloClientExceptionMonitorApi
+
+| 指标名称                          | 标签                                               |
+| --------------------------------- | -------------------------------------------------- |
+| apollo_client_exception_num_total | exceptionMonitorApi.getExceptionCountFromStartup() |
+
+
 
 ## 3.2 Spring整合方式
 
@@ -1315,25 +1331,27 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 
 
 
-## 7.2 MetricsExporter扩展
+## 7.2 指标输出到Prometheus
+> 适用于2.4.0及以上版本
+> 
+在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，默认支持Prometheus，用户可以自行扩展接入不同的监控系统。
 
-在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，用户可以自行扩展接入不同的监控系统。
-
-### 客户端对接Prometheus
-引入提供的官方依赖包
+引入客户端插件
 ```xml
       <dependency>
         <groupId>com.ctrip.framework.apollo</groupId>
         <artifactId>apollo-plugin-client-prometheus</artifactId>
-        <version>2.4.0-SNAPSHOT</version>
+        <version>2.4.0</version>
       </dependency>
 ```
-调整配置apollo.client.monitor.external.type=prometheus
+调整配置
 ```properties
-apollo.client.monitor.external.type= prometheus
+apollo.client.monitor.enabled=true
+apollo.client.monitor.external.type=prometheus
 ```
+可以通过ConfigMonitor拿到ExporterData(格式取决于你配置的监控系统,这里是支持prometheus格式)
 
-这样就可以通过ConfigMonitor拿到ExporterData(格式取决于你配置的监控系统)，然后暴露端点给Prometheus即可
+由于Prometheus通过拉取形式获取指标,用户需要自行暴露端点,实现一个类似如下的controller
 
 示例代码
 
@@ -1434,44 +1452,98 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 
 ![Prometheus console showing Apollo client metrics](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-prometheus.png)
 
+## 7.3 指标输出到自定义监控系统
+> 适用于2.4.0及以上版本
+> 
+需要写1个Exporter, 继承AbstractApolloClientMetricsExporter, 并实现里面的
+doInit (初始化方法),
+isSupport (external-type配置调用方法),
+registerOrUpdateCounterSample (注册更新Counter指标方法),
+registerOrUpdateGaugeSample (注册更新Gauge指标方法),
+response (导出所需类型指标数据方法)
 
-### 自定义实现案例: 以接入Prometheus为例
+### skyWalking为例
+通过配置
+```properties
+apollo.client.monitor.enabled=true
+#exporter内定义
+apollo.client.monitor.external.type=skywalking
+```
+开启
 
-创建PrometheusApolloClientMetricsExporter类，继承AbstractApoolloClientMetircsExporter(通用指标导出框架)
+创建SkyWalkingMetricsExporter类，继承AbstractApolloClientMetricsExporter
 
 继承后大致代码如下
 
 ```java
+public class SkyWalkingMetricsExporter extends AbstractApolloClientMetricsExporter {
 
-public class PrometheusApolloClientMetricsExporter extends
-    AbstractApolloClientMetricsExporter implements ApolloClientMetricsExporter {
-
- @Override
- public void doInit() {
-
- }
-
- @Override
- public boolean isSupport(String form) {
-
- }
-
-
- @Override
- public void registerOrUpdateCounterSample(String name, Map<String, String> tags, double incrValue) {
-
- }
-
-
- @Override
- public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
-
- }
+  private static final String SKYWALKING = "skywalking";
+  protected SkywalkingMeterRegistry registry;
+  protected Map<String, Counter> counterMap;
+  private Map<String, Gauge> gaugeMap;
+  private Map<String, AtomicReference<Double>> gaugeValues;
 
   @Override
- public String response() {
+  public void doInit() {
+    registry = new SkywalkingMeterRegistry();
+    counterMap = new ConcurrentHashMap<>();
+    gaugeValues = new ConcurrentHashMap<>();
+    gaugeMap = new ConcurrentHashMap<>();
+  }
 
- }
+  @Override
+  public boolean isSupport(String form) {
+    return SKYWALKING.equals(form);
+  }
+
+  @Override
+  public void registerOrUpdateCounterSample(String name, Map<String, String> tags, double incrValue) {
+    String key = name + tags.toString();
+    Counter counter = counterMap.get(key);
+
+    if (counter == null) {
+      counter = createCounter(name, tags);
+      counterMap.put(key, counter);
+    }
+
+    counter.increment(incrValue);
+  }
+
+  private Counter createCounter(String name, Map<String, String> tags) {
+    return Counter.builder(name)
+      .tags(tags.entrySet().stream()
+        .map(entry -> Tag.of(entry.getKey(), entry.getValue()))
+        .collect(Collectors.toList()))
+      .register(registry);
+  }
+
+  @Override
+  public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
+    String key = name + tags.toString();
+    Gauge gauge = gaugeMap.get(key);
+    if (gauge == null) {
+      createGauge(name, tags, value);
+    } else {
+      gaugeValues.get(key).set(value);
+    }
+  }
+
+  public void createGauge(String name, Map<String, String> tags, double value) {
+    String key = name + tags.toString();
+    AtomicReference<Double> valueHolder = gaugeValues.computeIfAbsent(key, k -> new AtomicReference<>(value));
+    gaugeMap.computeIfAbsent(key, k -> Gauge.builder(name, valueHolder::get)
+      .tags(tags.entrySet().stream()
+        .map(entry -> Tag.of(entry.getKey(), entry.getValue()))
+        .collect(Collectors.toList()))
+      .register(registry));
+  }
+
+  @Override
+  public String response() {
+    // 返回需要的响应内容
+    return "该方法在skyWalking的推送模式中不需要实现";
+  }
 }
 
 ```
@@ -1479,98 +1551,107 @@ public class PrometheusApolloClientMetricsExporter extends
 doInit方法是供用户在初始化时自行做扩展的，会在AbstractApoolloClientMetircsExporter里的init方法被调用
 
 ```java
-  @Override
-  public void init(List<ApolloClientMonitorEventListener> collectors, long collectPeriod) {
-    log.info("Initializing metrics exporter with {} collectors and collect period of {} seconds.",
-        collectors.size(), collectPeriod);
-    doInit();
-    this.collectors = collectors;
-    initScheduleMetricsCollectSync(collectPeriod);
-    log.info("Metrics collection scheduled with a period of {} seconds.", collectPeriod);
-  }
+@Override
+public void init(List<ApolloClientMonitorEventListener> collectors, long collectPeriod) {
+  // code
+  doInit(); 
+  // code
+}
 ```
 
-这里引入了prometheus的java客户端，需要对CollectorRegistry和缓存map做初始化
 
+引入micrometer
+```xml
+<dependency>
+  <groupId>org.apache.skywalking</groupId>
+  <artifactId>apm-toolkit-micrometer-1.10</artifactId>
+</dependency>
+```
+根据Micrometer的机制初始化SkywalkingMeterRegistry，以及一些map用于存储指标数据
 ```java
-  private CollectorRegistry registry;
-  private  Map<String, Collector.Describable> map;
+private static final String SKYWALKING = "skywalking";
+private SkywalkingMeterRegistry registry;
+private Map<String, Counter> counterMap;
+private Map<String, Gauge> gaugeMap;
+private Map<String, AtomicReference<Double>> gaugeValues;
 
-  @Override
-  public void doInit() {
-    registry = new CollectorRegistry();
-    map = new HashMap<>();
-  }
+@Override
+public void doInit() {
+  registry = new SkywalkingMeterRegistry();
+  counterMap = new ConcurrentHashMap<>();
+  gaugeValues = new ConcurrentHashMap<>();
+  gaugeMap = new ConcurrentHashMap<>();
+}
+
 ```
 
 isSupport方法将会在DefaultApolloClientMetricsExporterFactory通过SPI读取MetricsExporter时被调用做判断，用于实现在有多个SPI实现时可以准确启用用户所配置的那一个Exporter
 
-比如配置时候你希望启用prometheus，你规定的值为prometheus，那这里就同步
+比如配置时候你希望启用skyWalking，你规定的apollo.client.monitor.external.type配置值为skyWalking，那这里就实现如下方法
 
 ```java
-  @Override
-  public boolean isSupport(String form) {
-    return PROMETHEUS.equals(form);
-  }
+@Override
+public boolean isSupport(String form) {
+  return SKYWALKING.equals(form);
+}
 ```
 
-registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Counter,Gauge类型指标的方法，只需要根据传来的参数正常注册即可
+registerOrUpdateCounterSample,registerOrUpdateGaugeSample即是用来注册Counter,Gauge类型指标的方法，只需要根据传来的参数正常注册以及更新数据即可
 
 ```java
-  @Override
-  public void registerOrUpdateCounterSample(String name, Map<String, String> tags,
-      double incrValue) {
-    Counter counter = (Counter) map.get(name);
-    if (counter == null) {
-      counter = createCounter(name, tags);
-      map.put(name, counter);
-    }
-    counter.labels(tags.values().toArray(new String[0])).inc(incrValue);
+@Override
+public void registerOrUpdateCounterSample(String name, Map<String, String> tags, double incrValue) {
+  String key = name + tags.toString();
+  Counter counter = counterMap.get(key);
+
+  if (counter == null) {
+    counter = createCounter(name, tags);
+    counterMap.put(key, counter);
   }
 
-  private Counter createCounter(String name, Map<String, String> tags) {
-    return Counter.build()
-        .name(name)
-        .help("apollo")
-        .labelNames(tags.keySet().toArray(new String[0]))
-        .register(registry);
-  }
+  counter.increment(incrValue);
+}
 
-  @Override
-  public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
-    Gauge gauge = (Gauge) map.get(name);
-    if (gauge == null) {
-      gauge = createGauge(name, tags);
-      map.put(name, gauge);
-    }
-    gauge.labels(tags.values().toArray(new String[0])).set(value);
-  }
+private Counter createCounter(String name, Map<String, String> tags) {
+  return Counter.builder(name)
+    .tags(tags.entrySet().stream()
+      .map(entry -> Tag.of(entry.getKey(), entry.getValue()))
+      .collect(Collectors.toList()))
+    .register(registry);
+}
 
-  private Gauge createGauge(String name, Map<String, String> tags) {
-    return Gauge.build()
-        .name(name)
-        .help("apollo")
-        .labelNames(tags.keySet().toArray(new String[0]))
-        .register(registry);
+@Override
+public void registerOrUpdateGaugeSample(String name, Map<String, String> tags, double value) {
+  String key = name + tags.toString();
+  Gauge gauge = gaugeMap.get(key);
+
+  if (gauge == null) {
+    createGauge(name, tags, value);
+  } else {
+    gaugeValues.get(key).set(value);
   }
+}
+
+public void createGauge(String name, Map<String, String> tags, double value) {
+  String key = name + tags.toString();
+  AtomicReference<Double> valueHolder = gaugeValues.computeIfAbsent(key, k -> new AtomicReference<>(value));
+
+  gaugeMap.computeIfAbsent(key, k -> Gauge.builder(name, valueHolder::get)
+    .tags(tags.entrySet().stream()
+      .map(entry -> Tag.of(entry.getKey(), entry.getValue()))
+      .collect(Collectors.toList()))
+    .register(registry));
+}
 ```
 
-最后需要实现response方法，该方法用于导出你接入的监控系统格式的数据，最终会在ConfigMonitor的getExporterData方法里得到，用于用户自行暴露端口然后供监控系统拉取
+response是用于方便指标获取模式为拉取的监控系统，如Prometheus,但是SkyWalking用推送更常见,这里就不需要实现,用户自行配置SkyWalking即可
 
 ```java
-  @Override
-  public String response() {
-    try (StringWriter writer = new StringWriter()) {
-      TextFormat.writeFormat(TextFormat.CONTENT_TYPE_OPENMETRICS_100, writer,
-          registry.metricFamilySamples());
-      return writer.toString();
-    } catch (IOException e) {
-      logger.error("Write metrics to Prometheus format failed", e);
-      return "";
-    }
-  }
+@Override
+public String response() {
+  // 返回需要的响应内容
+  return "该方法在skyWalking的推送模式中不需要实现";
+}
 ```
 
-至此，已经将Client的指标数据接入Prometheus。
-
-完整代码:[PrometheusApolloClientMetricsExporter.java]https://github.com/apolloconfig/apollo-java/main/master/apollo-plugin/apollo-plugin-client-prometheus/src/main/java/com/ctrip/framework/apollo/monitor/internal/exporter/impl/PrometheusApolloClientMetricsExporter.java
+至此，已经将Client的指标数据接入SkyWalking。
