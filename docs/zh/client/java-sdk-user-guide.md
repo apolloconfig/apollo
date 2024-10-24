@@ -408,13 +408,13 @@ apollo.label=YOUR-APOLLO-LABEL
 
 `apollo.cache.kubernetes.enable`：是否开启configMap缓存机制，默认false
 
-`apollo.cache.kubernetes.configmap-namespace`：将使用的configMap所在的namespace（Kubernetes中的namespace），默认值为"default"
+`apollo.cache.kubernetes.namespace`：将使用的configMap所在的namespace（Kubernetes中的namespace），默认值为"default"
 
 配置信息会以下面的对应关系放置于指定的configmap中：
 
 namespace：使用指定的值，若未指定默认为"default"
 
-configMapName:{appId}
+configMapName: apollo-configcache-{appId}
 
 key:{cluster}-{namespace}
 

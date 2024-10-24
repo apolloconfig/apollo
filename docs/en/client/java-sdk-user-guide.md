@@ -423,13 +423,13 @@ Starting from version 2.4.0, the availability of the client in the Kubernetes en
 
 `apollo.cache.kubernetes.enable`：Whether to enable the ConfigMap cache mechanism, the default is false.
 
-`apollo.cache.kubernetes.configmap-namespace`：The namespace of the ConfigMap to be used (the namespace in Kubernetes), the default value is "default".
+`apollo.cache.kubernetes.namespace`：The namespace of the ConfigMap to be used (the namespace in Kubernetes), the default value is "default".
 
 The configuration information will be placed in the specified ConfigMap according to the following correspondence:
 
 namespace: Use the specified value, if not specified, the default is "default"
 
-configMapName: {appId}
+configMapName: apollo-configcache-{appId}
 
 key: {cluster} - {namespace}
 
