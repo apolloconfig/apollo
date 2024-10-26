@@ -48,15 +48,15 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # Configure administrator account for searching and matching users
     password: "password"
-    searchFilter: "(uid={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(uid={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "inetOrgPerson" # ldap user objectClass configuration
-    loginId: "uid" # ldap user unique id, used as the login id
-    userDisplayName: "cn" # ldap user name, used as display name
+    object-class: "inetOrgPerson" # ldap user objectClass configuration
+    login-id: "uid" # ldap user unique id, used as the login id
+    user-display-name: "cn" # ldap user name, used as display name
     email: "mail" # ldap mailbox attribute
 ```
 
@@ -70,15 +70,15 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # Configure admin account for searching and matching users
     password: "password"
-    searchFilter: "(uid={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(uid={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "inetOrgPerson" # ldap user objectClass configuration
-    loginId: "uid" # ldap user unique id, used as the login id
-    userDisplayName: "cn" # ldap user name, used as display name
+    object-class: "inetOrgPerson" # ldap user objectClass configuration
+    login-id: "uid" # ldap user unique id, used as the login id
+    user-display-name: "cn" # ldap user name, used as display name
     email: "mail" # ldap mailbox attribute
   filter: # Configuration filter, currently only memberOf is supported
     memberOf: "cn=ServiceDEV,ou=DEV,dc=example,dc=org|cn=WebDEV,ou=DEV,dc=example,dc=org" # Only allow users with memberOf attribute of ServiceDEV and WebDEV to access
@@ -94,22 +94,22 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # Configure admin account for searching and matching users
     password: "password"
-    searchFilter: "(uid={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(uid={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "inetOrgPerson" # ldap user objectClass configuration
-    loginId: "uid" # ldap user unique id, used as login id
+    object-class: "inetOrgPerson" # ldap user objectClass configuration
+    login-id: "uid" # ldap user unique id, used as login id
     rdnKey: "uid" # ldap rdn key
-    userDisplayName: "cn" # ldap user name, used as display name
+    user-display-name: "cn" # ldap user name, used as display name
     email: "mail" # ldap mailbox attribute
   group: # enable group search, only users of a specific group can login to apollo after enabling
-    objectClass: "posixGroup" # Configure groupClassName
-    groupBase: "ou=group" # group search base
-    groupSearch: "(&(cn=dev))" # group filter
-    groupMembership: "memberUid" # group memberShip eg. member or memberUid
+    object-class: "posixGroup" # Configure groupClassName
+    group-base: "ou=group" # group search base
+    group-search: "(&(cn=dev))" # group filter
+    group-membership: "memberUid" # group memberShip eg. member or memberUid
 ```
 
 #### 1.2 Configure `startup.sh`
@@ -138,15 +138,15 @@ spring:
     base: "dc=example,dc=com"
     username: "admin" # Configure administrator account for searching and matching users
     password: "password"
-    searchFilter: "(sAMAccountName={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(sAMAccountName={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://1.1.1.1:389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "user" # ldap user objectClass configuration
-    loginId: "sAMAccountName" # the unique id of the ldap user, used as the login id
-    userDisplayName: "cn" # ldap user name, used as display name
+    object-class: "user" # ldap user objectClass configuration
+    login-id: "sAMAccountName" # the unique id of the ldap user, used as the login id
+    user-display-name: "cn" # ldap user name, used as display name
     email: "userPrincipalName" # ldap mailbox attribute
   filter: # optional, configure filter, currently only support memberOf
     memberOf: "CN=ServiceDEV,OU=test,DC=example,DC=com|CN=WebDEV,OU=test,DC=example,DC=com" # Only allow users with memberOf attribute of ServiceDEV and WebDEV to access
@@ -178,15 +178,15 @@ spring:
     base: "dc=example,dc=com"
     username: "uid=admin,ou=system" # Configure administrator account for searching and matching users
     password: "password"
-    searchFilter: "(uid={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(uid={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://localhost:10389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "inetOrgPerson" # ldap user objectClass configuration
-    loginId: "uid" # ldap user unique id, used as the login id
-    userDisplayName: "displayName" # ldap user name, used as display name
+    object-class: "inetOrgPerson" # ldap user objectClass configuration
+    login-id: "uid" # ldap user unique id, used as the login id
+    user-display-name: "displayName" # ldap user name, used as display name
     email: "mail" # ldap mailbox attribute
 ```
 
@@ -200,22 +200,22 @@ spring:
     base: "dc=example,dc=com"
     username: "uid=admin,ou=system" # Configure admin account for searching and matching users
     password: "password"
-    searchFilter: "(uid={0})" # user filter, use this filter to search for users when logging in
+    search-filter: "(uid={0})" # user filter, use this filter to search for users when logging in
     urls:
     - "ldap://localhost:10389"
 
 ldap:
   mapping: # Configure the ldap attribute
-    objectClass: "inetOrgPerson" # ldap user objectClass configuration
-    loginId: "uid" # ldap user unique id, used as the login id
+    object-class: "inetOrgPerson" # ldap user objectClass configuration
+    login-id: "uid" # ldap user unique id, used as the login id
     rdnKey: "cn" # ldap rdn key
-    userDisplayName: "displayName" # ldap user name, used as display name
+    user-display-name: "displayName" # ldap user name, used as display name
     email: "mail" # ldap mailbox attribute
   group: # Configure ldap group, only users of specific group can login apollo after enabled
-    objectClass: "groupOfNames" # Configure groupClassName
-    groupBase: "ou=group" # group search base
-    groupSearch: "(&(cn=dev))" # group filter
-    groupMembership: "member" # group memberShip eg. member or memberUid
+    object-class: "groupOfNames" # Configure groupClassName
+    group-base: "ou=group" # group search base
+    group-search: "(&(cn=dev))" # group filter
+    group-membership: "member" # group memberShip eg. member or memberUid
 ```
 
 #### 3.2 Configuring `startup.sh`

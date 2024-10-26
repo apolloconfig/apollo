@@ -23,7 +23,7 @@ server:
 eureka:
   instance:
     hostname: ${hostname:localhost}
-    preferIpAddress: true
+    prefer-ip-address: true
     status-page-url-path: /info
     health-check-url-path: /health
   client:
