@@ -27,7 +27,7 @@ eureka:
     status-page-url-path: /info
     health-check-url-path: /health
   client:
-    serviceUrl:
+    service-url:
       defaultZone: http://${eureka.instance.hostname}:8080/eureka/
     healthcheck:
       enabled: true

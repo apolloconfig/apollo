@@ -53,7 +53,7 @@ eureka:
       enabled: true
     eureka-service-url-poll-interval-seconds: 60
     fetch-registry: false
-    registe-with-eureka: false
+    register-with-eureka: false
 
 management:
   health:
