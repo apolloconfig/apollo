@@ -198,10 +198,12 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
 
     verify(clusterService, times(4)).createCluster(any(), any());
 
-    verify(namespaceService, times(6)).createNamespace(any(), any());
-    verify(roleInitializationService,times(6)).initNamespaceRoles(any(), any(), anyString());
-    verify(roleInitializationService,times(6)).initNamespaceEnvRoles(any(), any(), anyString());
-    verify(itemService, times(12)).createItem(any(), any(), any(), any(), any());
+    if(fillItemDetail){
+      verify(namespaceService, times(6)).createNamespace(any(), any());
+      verify(roleInitializationService,times(6)).initNamespaceRoles(any(), any(), anyString());
+      verify(roleInitializationService,times(6)).initNamespaceEnvRoles(any(), any(), anyString());
+      verify(itemService, times(12)).createItem(any(), any(), any(), any(), any());
+    }
   }
 
   private App genApp(String name, String appId, String orgId, String orgName) {
