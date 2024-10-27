@@ -245,37 +245,10 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   }
 
   private NamespaceBO loadNamespaceBO(boolean fillItemDetail) {
-    String branchName = "branch";
-    NamespaceDTO namespaceDTO = createNamespace(testAppId, branchName, testNamespaceName);
-    when(namespaceAPI.loadNamespace(any(), any(), any(), any())).thenReturn(namespaceDTO);
-
-    ReleaseDTO releaseDTO = new ReleaseDTO();
-    releaseDTO.setConfigurations("{\"k1\":\"k1\",\"k2\":\"k2\", \"k3\":\"\"}");
-    when(releaseService.loadLatestRelease(any(), any(), any(), any())).thenReturn(releaseDTO);
-
-    List<ItemDTO> itemDTOList = Lists.newArrayList();
-    ItemDTO itemDTO1 = new ItemDTO();
-    itemDTO1.setId(1);
-    itemDTO1.setNamespaceId(1);
-    itemDTO1.setKey("k1");
-    itemDTO1.setValue(String.valueOf(1));
-    itemDTOList.add(itemDTO1);
-
-    ItemDTO itemDTO2 = new ItemDTO();
-    itemDTO2.setId(2);
-    itemDTO2.setNamespaceId(2);
-    itemDTO2.setKey("k2");
-    itemDTO2.setValue(String.valueOf(2));
-    itemDTOList.add(itemDTO2);
-    when(itemService.findItems(any(), any(), any(), any())).thenReturn(itemDTOList);
-
-    List<ItemDTO> deletedItemDTOList = Lists.newArrayList();
-    ItemDTO deletedItemDTO = new ItemDTO();
-    deletedItemDTO.setId(3);
-    deletedItemDTO.setNamespaceId(3);
-    deletedItemDTO.setKey("k3");
-    deletedItemDTOList.add(deletedItemDTO);
-    when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(deletedItemDTOList);
+    when(namespaceAPI.loadNamespace(any(), any(), any(), any())).thenReturn(createNamespace(testAppId, "branch", testNamespaceName));
+    when(releaseService.loadLatestRelease(any(), any(), any(), any())).thenReturn(createReleaseDTO());
+    when(itemService.findItems(any(), any(), any(), any())).thenReturn(createItems());
+    when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(createDeletedItems());
 
     NamespaceBO namespaceBO1 = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
     List<String> namespaceKey1 = namespaceBO1.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
@@ -288,14 +261,26 @@ public class NamespaceServiceTest extends AbstractUnitTest {
 
   @Test
   public void testFindPublicNamespaceForAssociatedNamespace() {
-    String branchName = "branch";
-    NamespaceDTO namespaceDTO = createNamespace(testAppId, branchName, testNamespaceName);
-    when(namespaceAPI.findPublicNamespaceForAssociatedNamespace(any(), any(), any(), any())).thenReturn(namespaceDTO);
+    when(namespaceAPI.findPublicNamespaceForAssociatedNamespace(any(), any(), any(), any())).thenReturn(createNamespace(testAppId, "branch", testNamespaceName));
+    when(releaseService.loadLatestRelease(any(), any(), any(), any())).thenReturn(createReleaseDTO());
+    when(itemService.findItems(any(), any(), any(), any())).thenReturn(createItems());
+    when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(createDeletedItems());
 
+    NamespaceBO namespaceBO = namespaceService.findPublicNamespaceForAssociatedNamespace(testEnv, testAppId, testClusterName, testNamespaceName);
+
+    List<String> namespaceKey2 = namespaceBO.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
+    assertThat(namespaceBO.getItemModifiedCnt()).isEqualTo(3);
+    assertThat(namespaceBO.getItems().size()).isEqualTo(3);
+    assertThat(namespaceKey2).isEqualTo(Arrays.asList("k1", "k2", "k3"));
+  }
+
+  private ReleaseDTO createReleaseDTO() {
     ReleaseDTO releaseDTO = new ReleaseDTO();
     releaseDTO.setConfigurations("{\"k1\":\"k1\",\"k2\":\"k2\", \"k3\":\"\"}");
-    when(releaseService.loadLatestRelease(any(), any(), any(), any())).thenReturn(releaseDTO);
+    return releaseDTO;
+  }
 
+  private List<ItemDTO> createItems() {
     List<ItemDTO> itemDTOList = Lists.newArrayList();
     ItemDTO itemDTO1 = new ItemDTO();
     itemDTO1.setId(1);
@@ -310,22 +295,18 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     itemDTO2.setKey("k2");
     itemDTO2.setValue(String.valueOf(2));
     itemDTOList.add(itemDTO2);
-    when(itemService.findItems(any(), any(), any(), any())).thenReturn(itemDTOList);
 
+    return itemDTOList;
+  }
+
+  private List<ItemDTO> createDeletedItems() {
     List<ItemDTO> deletedItemDTOList = Lists.newArrayList();
     ItemDTO deletedItemDTO = new ItemDTO();
     deletedItemDTO.setId(3);
     deletedItemDTO.setNamespaceId(3);
     deletedItemDTO.setKey("k3");
     deletedItemDTOList.add(deletedItemDTO);
-    when(itemService.findDeletedItems(any(), any(), any(), any())).thenReturn(deletedItemDTOList);
-
-    NamespaceBO namespaceBO = namespaceService.findPublicNamespaceForAssociatedNamespace(testEnv, testAppId, testClusterName, testNamespaceName);
-
-    List<String> namespaceKey2 = namespaceBO.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
-    assertThat(namespaceBO.getItemModifiedCnt()).isEqualTo(3);
-    assertThat(namespaceBO.getItems().size()).isEqualTo(3);
-    assertThat(namespaceKey2).isEqualTo(Arrays.asList("k1", "k2", "k3"));
+    return deletedItemDTOList;
   }
 
   private AppNamespace createAppNamespace(String appId, String name, boolean isPublic) {
