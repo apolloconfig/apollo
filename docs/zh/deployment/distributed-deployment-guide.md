@@ -1251,14 +1251,14 @@ config:
           base: "dc=example,dc=org"
           username: "cn=admin,dc=example,dc=org"
           password: "password"
-          searchFilter: "(uid={0})"
+          search-filter: "(uid={0})"
           urls:
           - "ldap://xxx.somedomain.com:389"
       ldap:
         mapping:
-          objectClass: "inetOrgPerson"
-          loginId: "uid"
-          userDisplayName: "cn"
+          object-class: "inetOrgPerson"
+          login-id: "uid"
+          user-display-name: "cn"
           email: "mail"
 ```
 

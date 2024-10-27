@@ -1105,13 +1105,13 @@ server.port = 8080
 
 logging.level = ERROR
 
-eureka.client.serviceUrl.defaultZone = http://127.0.0.1:8761/eureka/
+eureka.client.service-url.defaultZone = http://127.0.0.1:8761/eureka/
 eureka.client.healthcheck.enabled=true
-eureka.client.registerWithEureka = true
-eureka.client.fetchRegistry = true
-eureka.client.eurekaServiceUrlPollIntervalSeconds = 60
+eureka.client.register-with-eureka = true
+eureka.client.fetch-registry = true
+eureka.client.eureka-service-url-poll-interval-seconds = 60
 
-eureka.instance.preferIpAddress = true
+eureka.instance.prefer-ip-address = true
 ```
 
 ![text-mode-spring-boot-config-sample](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-spring-boot-config-sample.png )
