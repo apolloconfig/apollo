@@ -15,6 +15,7 @@ Apollo 2.4.0
 * [Feature add limit for items count per namespace](https://github.com/apolloconfig/apollo/pull/5227)
 * [Feature: Add ConfigService cache record stats function](https://github.com/apolloconfig/apollo/pull/5247)
 * [RefreshAdminServerAddressTask supports dynamic configuration of time interval](https://github.com/apolloconfig/apollo/pull/5248)
+* [Refactor: align database ClusterName and NamespaceName fields lengths](https://github.com/apolloconfig/apollo/pull/5263)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
