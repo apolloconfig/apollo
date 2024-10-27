@@ -17,6 +17,5 @@ Apollo 2.4.0
 * [RefreshAdminServerAddressTask supports dynamic configuration of time interval](https://github.com/apolloconfig/apollo/pull/5248)
 * [Feature: Added the value length limit function for AppId-level configuration items](https://github.com/apolloconfig/apollo/pull/5264)
 
-
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
