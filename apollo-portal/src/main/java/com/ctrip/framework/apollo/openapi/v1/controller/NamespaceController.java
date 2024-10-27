@@ -83,21 +83,21 @@ public class NamespaceController {
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces")
   public List<OpenNamespaceDTO> findNamespaces(@PathVariable String appId, @PathVariable String env,
                                                @PathVariable String clusterName,
-                                               @RequestParam(defaultValue="true") boolean fillItemDetail) {
+                                               @RequestParam(defaultValue = "true") boolean fillItemDetail) {
     return this.namespaceOpenApiService.getNamespaces(appId, env, clusterName, fillItemDetail);
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
   public OpenNamespaceDTO loadNamespace(@PathVariable String appId, @PathVariable String env,
                                         @PathVariable String clusterName, @PathVariable String namespaceName,
-                                        @RequestParam(defaultValue="true") boolean fillItemDetail) {
+                                        @RequestParam(defaultValue = "true") boolean fillItemDetail) {
     return this.namespaceOpenApiService.getNamespace(appId, env, clusterName, namespaceName, fillItemDetail);
   }
 
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
   public OpenNamespaceLockDTO getNamespaceLock(@PathVariable String appId, @PathVariable String env,
                                                @PathVariable String clusterName, @PathVariable
-                                                   String namespaceName) {
+                                               String namespaceName) {
     return this.namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName);
   }
 
