@@ -15,6 +15,7 @@ Apollo 2.4.0
 * [Feature add limit for items count per namespace](https://github.com/apolloconfig/apollo/pull/5227)
 * [Feature: Add ConfigService cache record stats function](https://github.com/apolloconfig/apollo/pull/5247)
 * [RefreshAdminServerAddressTask supports dynamic configuration of time interval](https://github.com/apolloconfig/apollo/pull/5248)
+* [Refactor: Configuration files uniformly use Kebab style](https://github.com/apolloconfig/apollo/pull/5262)
 * [Feature: openapi query namespace support not fill item](https://github.com/apolloconfig/apollo/pull/5249)
 
 ------------------
