@@ -31,6 +31,19 @@ Use ApolloConfigDB;
 ALTER TABLE `AccessKey`
     ADD COLUMN `Mode` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '密钥模式，0: filter，1: observer' AFTER `Secret`;
 
+ALTER TABLE `Commit`
+    MODIFY COLUMN `ClusterName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name';
+ALTER TABLE `Commit`
+    MODIFY COLUMN `NamespaceName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name';
+ALTER TABLE `Namespace`
+    MODIFY COLUMN `ClusterName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name';
+ALTER TABLE `Namespace`
+    MODIFY COLUMN `NamespaceName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name';
+ALTER TABLE `Release`
+    MODIFY COLUMN `ClusterName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name';
+ALTER TABLE `Release`
+    MODIFY COLUMN `NamespaceName` VARCHAR(32) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name';
+
 -- 
 -- ===============================================================================
 -- ==                                                                           ==
