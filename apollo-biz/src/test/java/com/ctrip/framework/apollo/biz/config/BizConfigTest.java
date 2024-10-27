@@ -18,9 +18,7 @@ package com.ctrip.framework.apollo.biz.config;
 
 import com.ctrip.framework.apollo.biz.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.biz.service.BizDBPropertySource;
-import com.google.gson.JsonSyntaxException;
 import java.util.Map;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -120,14 +118,10 @@ public class BizConfigTest {
     result = bizConfig.appIdValueLengthLimitOverride();
     assertTrue(result.isEmpty());
 
-    try {
-      input = "invalid json";
-      when(environment.getProperty("appid.value.length.limit.override")).thenReturn(input);
-      bizConfig.appIdValueLengthLimitOverride();
-      Assert.fail();
-    } catch (Exception e) {
-      Assert.assertTrue(e instanceof JsonSyntaxException);
-    }
+    input = "invalid json";
+    when(environment.getProperty("appid.value.length.limit.override")).thenReturn(input);
+    result = bizConfig.appIdValueLengthLimitOverride();
+    assertTrue(result.isEmpty());
 
     input = "{'appid1':555}";
     when(environment.getProperty("appid.value.length.limit.override")).thenReturn(input);
@@ -140,6 +134,13 @@ public class BizConfigTest {
     overrideValue = bizConfig.appIdValueLengthLimitOverride().get("appid2");
     assertEquals(2, bizConfig.appIdValueLengthLimitOverride().size());
     assertEquals(666, overrideValue);
+
+    input = "{'appid1':555,'appid2':666,'appid3':0,'appid4':-1}";
+    when(environment.getProperty("appid.value.length.limit.override")).thenReturn(input);
+    overrideValue = bizConfig.appIdValueLengthLimitOverride().get("appid2");
+    assertEquals(2, bizConfig.appIdValueLengthLimitOverride().size());
+    assertEquals(666, overrideValue);
+
   }
 
   @Test

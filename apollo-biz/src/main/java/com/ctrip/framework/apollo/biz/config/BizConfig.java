@@ -31,10 +31,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BizConfig extends RefreshableConfig {
+
+  private final static Logger logger = LoggerFactory.getLogger(BizConfig.class);
 
   private static final int DEFAULT_ITEM_KEY_LENGTH = 128;
   private static final int DEFAULT_ITEM_VALUE_LENGTH = 20000;
@@ -111,24 +115,12 @@ public class BizConfig extends RefreshableConfig {
 
   public Map<String, Integer> appIdValueLengthLimitOverride() {
     String appIdValueLengthOverrideString = getValue("appid.value.length.limit.override");
-    Map<String, Integer> appIdValueLengthOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(appIdValueLengthOverrideString)) {
-      appIdValueLengthOverride =
-          GSON.fromJson(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference);
-    }
-
-    return appIdValueLengthOverride;
+    return parseOverrideConfig(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference);
   }
 
   public Map<Long, Integer> namespaceValueLengthLimitOverride() {
     String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
-    Map<Long, Integer> namespaceValueLengthOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(namespaceValueLengthOverrideString)) {
-      namespaceValueLengthOverride =
-          GSON.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
-    }
-
-    return namespaceValueLengthOverride;
+    return parseOverrideConfig(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
   }
 
   public boolean isNamespaceNumLimitEnabled() {
@@ -209,15 +201,7 @@ public class BizConfig extends RefreshableConfig {
 
   public Map<String, Integer> releaseHistoryRetentionSizeOverride() {
     String overrideString = getValue("apollo.release-history.retention.size.override");
-    Map<String, Integer> releaseHistoryRetentionSizeOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(overrideString)) {
-      releaseHistoryRetentionSizeOverride =
-          GSON.fromJson(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
-    }
-    return releaseHistoryRetentionSizeOverride.entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() >= 1)
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return parseOverrideConfig(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
   }
 
   public int releaseMessageCacheScanInterval() {
@@ -270,4 +254,20 @@ public class BizConfig extends RefreshableConfig {
   public String getAdminServiceAccessTokens() {
     return getValue("admin-service.access.tokens");
   }
+
+  private <K, V> Map<K, V> parseOverrideConfig(String configValue, Type typeReference) {
+    Map<K, V> result = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(configValue)) {
+      try {
+        Map<K, V> parsed = GSON.fromJson(configValue, typeReference);
+        result = parsed.entrySet().stream()
+            .filter(e -> e.getValue() != null && ((Integer) e.getValue()) > 0)
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      } catch (Exception e) {
+        logger.error("Invalid override config value: {}", configValue, e);
+      }
+    }
+    return Collections.unmodifiableMap(result);
+  }
+
 }

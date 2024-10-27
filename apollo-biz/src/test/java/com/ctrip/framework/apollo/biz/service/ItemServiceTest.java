@@ -61,14 +61,7 @@ public class ItemServiceTest extends AbstractIntegrationTest {
     @Sql(scripts = {"/sql/namespace-test.sql","/sql/item-test.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void testSaveItem() {
-        Item item = new Item();
-        item.setNamespaceId(1);
-        item.setKey("k3");
-        item.setType(-1);
-        item.setValue("v3");
-        item.setComment("");
-        item.setLineNum(3);
-
+        Item item = createItem(1L, "k3", "v3", -1);
         try {
             itemService.save(item);
             Assert.fail();
@@ -94,13 +87,7 @@ public class ItemServiceTest extends AbstractIntegrationTest {
         when(bizConfig.namespaceValueLengthLimitOverride()).thenReturn(namespaceValueLengthOverride);
         when(bizConfig.itemKeyLengthLimit()).thenReturn(100);
 
-        Item item = new Item();
-        item.setNamespaceId(namespaceId);
-        item.setKey("k3");
-        item.setType(2);
-        item.setValue(itemValue);
-        item.setComment("");
-        item.setLineNum(3);
+        Item item = createItem(namespaceId, "k3", itemValue, 2);
         try {
             itemService2.save(item);
             Assert.fail();
@@ -123,13 +110,7 @@ public class ItemServiceTest extends AbstractIntegrationTest {
         when(bizConfig.appIdValueLengthLimitOverride()).thenReturn(appIdValueLengthOverride);
         when(bizConfig.itemKeyLengthLimit()).thenReturn(100);
 
-        Item item = new Item();
-        item.setNamespaceId(namespaceId);
-        item.setKey("k3");
-        item.setType(2);
-        item.setValue(itemValue);
-        item.setComment("");
-        item.setLineNum(3);
+        Item item = createItem(namespaceId, "k3", itemValue, 2);
         try {
             itemService2.save(item);
             Assert.fail();
@@ -142,13 +123,8 @@ public class ItemServiceTest extends AbstractIntegrationTest {
     @Sql(scripts = {"/sql/namespace-test.sql","/sql/item-test.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     public void testUpdateItem() {
-        Item item = new Item();
+        Item item = createItem(1, "k1", "v1-new", 2);
         item.setId(9901);
-        item.setNamespaceId(1);
-        item.setKey("k1");
-        item.setType(2);
-        item.setValue("v1-new");
-        item.setComment("");
         item.setLineNum(1);
 
         Item dbItem = itemService.update(item);
@@ -176,6 +152,17 @@ public class ItemServiceTest extends AbstractIntegrationTest {
         Assert.assertEquals(itemInfoDTO.toString(), ExpectedItemInfoDTOSByKey.getContent().get(0).toString());
         Assert.assertEquals(itemInfoDTO.toString(), ExpectedItemInfoDTOSByValue.getContent().get(0).toString());
 
+    }
+
+    private Item createItem(long namespaceId, String key, String value, int type) {
+        Item item = new Item();
+        item.setNamespaceId(namespaceId);
+        item.setKey(key);
+        item.setValue(value);
+        item.setType(type);
+        item.setComment("");
+        item.setLineNum(3);
+        return item;
     }
 
 }
