@@ -52,8 +52,8 @@ ALTER TABLE `Namespace` DROP INDEX `Namespace_IX_NamespaceName`;
 ALTER TABLE `Namespace` ADD UNIQUE INDEX `Namespace_UK_AppId_ClusterName_NamespaceName_DeletedAt`  (`AppId`,`ClusterName`,`NamespaceName`,`DeletedAt`);
 ALTER TABLE `Namespace` ADD INDEX `Namespace_IX_NamespaceName`  (`NamespaceName`);
 
-ALTER TABLE `Namespace` DROP INDEX `Namespace_AppId_ClusterName_GroupName`;
-ALTER TABLE `Namespace` ADD INDEX `Namespace_AppId_ClusterName_GroupName`  (`AppId`,`ClusterName`,`NamespaceName`);
+ALTER TABLE `Release` DROP INDEX `Release_AppId_ClusterName_GroupName`;
+ALTER TABLE `Release` ADD INDEX `Release_AppId_ClusterName_GroupName`  (`AppId`,`ClusterName`,`NamespaceName`);
 
 -- 
 -- ===============================================================================
