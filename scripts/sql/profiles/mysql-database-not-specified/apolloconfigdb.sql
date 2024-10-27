@@ -154,8 +154,8 @@ CREATE TABLE `Commit` (
   PRIMARY KEY (`Id`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
   KEY `AppId` (`AppId`),
-  KEY `ClusterName` (`ClusterName`(191)),
-  KEY `NamespaceName` (`NamespaceName`(191))
+  KEY `ClusterName` (`ClusterName`),
+  KEY `NamespaceName` (`NamespaceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='commit 历史表';
 
 -- Dump of table grayreleaserule
@@ -272,9 +272,9 @@ CREATE TABLE `Namespace` (
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
+  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`,`NamespaceName`,`DeletedAt`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
-  KEY `IX_NamespaceName` (`NamespaceName`(191))
+  KEY `IX_NamespaceName` (`NamespaceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='命名空间';
 
 
@@ -323,7 +323,7 @@ CREATE TABLE `Release` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UK_ReleaseKey_DeletedAt` (`ReleaseKey`,`DeletedAt`),
-  KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191)),
+  KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`,`NamespaceName`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='发布';
 
