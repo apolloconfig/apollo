@@ -137,10 +137,16 @@ public class BizConfigTest {
 
     input = "{'appid1':555,'appid2':666,'appid3':0,'appid4':-1}";
     when(environment.getProperty("appid.value.length.limit.override")).thenReturn(input);
-    overrideValue = bizConfig.appIdValueLengthLimitOverride().get("appid2");
-    assertEquals(2, bizConfig.appIdValueLengthLimitOverride().size());
-    assertEquals(666, overrideValue);
+    result = bizConfig.appIdValueLengthLimitOverride();
 
+    assertTrue(result.containsKey("appid1"));
+    assertTrue(result.containsKey("appid2"));
+    assertFalse(result.containsKey("appid3"));
+    assertFalse(result.containsKey("appid4"));
+    assertEquals(2, result.size());
+
+    overrideValue = result.get("appid2");
+    assertEquals(666, overrideValue);
   }
 
   @Test
