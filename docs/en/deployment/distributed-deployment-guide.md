@@ -1539,9 +1539,19 @@ The default configuration is 128.
 
 The default configuration is 20000.
 
-#### 3.2.5.1 `namespace.value.length.limit.override` - Maximum length limit for namespace's configuration item value
+#### 3.2.5.1 appid.value.length.limit.override - The maximum length limit of the configuration item value of the appId dimension
 
-This configuration is used to override the `item.value.length.limit` configuration to achieve fine-grained control of the namespace's value maximum length limit, the configured value is a json format, the key of the json is the id value of the namespace in the database, the format is as follows.
+This configuration is used to override the configuration of `item.value.length.limit` to control the maximum length limit of the value at the appId granularity. The configured value is in a json format, and the key of the json is appId. The format is as follows:
+```
+appid.value.length.limit.override = {appId-demo1:200,aappId-demo2:300}
+```
+The above configuration specifies that the maximum length limit of the value in all namespaces under `appId-demo1` is 200, and the maximum length limit of the value in all namespaces under `appId-demo2` is 300
+
+When a new namespace is created under `appId-demo1` or `appId-demo2`, it will automatically inherit the maximum length limit of the value of the namespace, unless the maximum length limit of the value of the configuration item of the namespace is overridden by `namespace.value.length.limit.override`.
+
+#### 3.2.5.2 `namespace.value.length.limit.override` - Maximum length limit for namespace's configuration item value
+
+This configuration is used to override the `item.value.length.limit` or `appid.value.length.limit.override` configuration to achieve fine-grained control of the namespace's value maximum length limit, the configured value is a json format, the key of the json is the id value of the namespace in the database, the format is as follows.
 
 ```
 namespace.value.length.limit.override = {1:200,3:20}

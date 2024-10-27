@@ -58,6 +58,9 @@ public class BizConfig extends RefreshableConfig {
 
   private static final Gson GSON = new Gson();
 
+  private static final Type appIdValueLengthOverrideTypeReference =
+      new TypeToken<Map<String, Integer>>() {
+      }.getType();
   private static final Type namespaceValueLengthOverrideTypeReference =
       new TypeToken<Map<Long, Integer>>() {
       }.getType();
@@ -106,6 +109,28 @@ public class BizConfig extends RefreshableConfig {
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_ITEM_VALUE_LENGTH);
   }
 
+  public Map<String, Integer> appIdValueLengthLimitOverride() {
+    String appIdValueLengthOverrideString = getValue("appid.value.length.limit.override");
+    Map<String, Integer> appIdValueLengthOverride = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(appIdValueLengthOverrideString)) {
+      appIdValueLengthOverride =
+          GSON.fromJson(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference);
+    }
+
+    return appIdValueLengthOverride;
+  }
+
+  public Map<Long, Integer> namespaceValueLengthLimitOverride() {
+    String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
+    Map<Long, Integer> namespaceValueLengthOverride = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(namespaceValueLengthOverrideString)) {
+      namespaceValueLengthOverride =
+          GSON.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
+    }
+
+    return namespaceValueLengthOverride;
+  }
+
   public boolean isNamespaceNumLimitEnabled() {
     return getBooleanProperty("namespace.num.limit.enabled", false);
   }
@@ -126,17 +151,6 @@ public class BizConfig extends RefreshableConfig {
   public int itemNumLimit() {
     int limit = getIntProperty("item.num.limit", DEFAULT_MAX_ITEM_NUM);
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_MAX_ITEM_NUM);
-  }
-
-  public Map<Long, Integer> namespaceValueLengthLimitOverride() {
-    String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
-    Map<Long, Integer> namespaceValueLengthOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(namespaceValueLengthOverrideString)) {
-      namespaceValueLengthOverride =
-          GSON.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
-    }
-
-    return namespaceValueLengthOverride;
   }
 
   public boolean isNamespaceLockSwitchOff() {
