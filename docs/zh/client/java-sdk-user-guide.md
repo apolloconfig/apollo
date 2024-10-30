@@ -456,11 +456,11 @@ value:内容为对应的配置信息的json格式字符串
    kind: RoleBinding
    metadata:
      name: configmap-reader-binding
-     namespace: dafault
+     namespace: default
    subjects:
    - kind: ServiceAccount
      name: my-service-account
-     namespace: dafault
+     namespace: default
    roleRef:
      kind: Role
      name: configmap-role
