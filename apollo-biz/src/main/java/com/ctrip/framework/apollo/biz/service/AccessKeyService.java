@@ -74,6 +74,7 @@ public class AccessKeyService {
       throw BadRequestException.accessKeyNotExists();
     }
 
+    accessKey.setMode(entity.getMode());
     accessKey.setEnabled(entity.isEnabled());
     accessKey.setDataChangeLastModifiedBy(operator);
     accessKeyRepository.save(accessKey);

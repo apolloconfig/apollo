@@ -75,7 +75,7 @@ The initialization script for the MySQL database can be found in the scripts/sql
 [apolloconfigdb.sql](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)
 [apolloportaldb.sql](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)
 
->Note 3: The default log output of the program is /opt/logs/100003171/apollo-assembly.log, if you need to modify the log file path, you can add the `logging.file.name` parameter, as follows.
+>Note 3: The default log output of the program is /opt/logs/apollo-assembly.log, if you need to modify the log file path, you can add the `logging.file.name` parameter, as follows.
 >
 >-Dlogging.file.name=/your-path/apollo-assembly.log
 

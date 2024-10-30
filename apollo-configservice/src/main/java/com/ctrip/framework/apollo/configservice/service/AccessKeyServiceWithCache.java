@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.configservice.service;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
 import com.ctrip.framework.apollo.biz.repository.AccessKeyRepository;
+import com.ctrip.framework.apollo.common.constants.AccessKeyMode;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.ctrip.framework.apollo.tracer.spi.Transaction;
@@ -37,11 +38,11 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -86,13 +87,21 @@ public class AccessKeyServiceWithCache implements InitializingBean {
   }
 
   public List<String> getAvailableSecrets(String appId) {
+    return getSecrets(appId, key -> key.isEnabled() && key.getMode() == AccessKeyMode.FILTER);
+  }
+
+  public List<String> getObservableSecrets(String appId) {
+    return getSecrets(appId, key -> key.isEnabled() && key.getMode() == AccessKeyMode.OBSERVER);
+  }
+
+  public List<String> getSecrets(String appId, Predicate<AccessKey> filter) {
     List<AccessKey> accessKeys = accessKeyCache.get(appId);
     if (CollectionUtils.isEmpty(accessKeys)) {
       return Collections.emptyList();
     }
 
     return accessKeys.stream()
-        .filter(AccessKey::isEnabled)
+        .filter(filter)
         .map(AccessKey::getSecret)
         .collect(Collectors.toList());
   }
