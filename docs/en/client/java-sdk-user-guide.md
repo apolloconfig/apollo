@@ -431,7 +431,7 @@ namespace: Use the specified value, if not specified, the default is "default"
 
 configMapName: apollo-configcache-{appId}
 
-key: {cluster} - {namespace}
+key:{cluster}___{namespace}
 
 value: The content is the JSON format string of the corresponding configuration information.
 
@@ -439,7 +439,9 @@ value: The content is the JSON format string of the corresponding configuration 
 > 
 > cluster is the cluster used by the application, which is usually default if not configured locally 
 > 
-> namespace is the configuration namespace used by the application, which is generally application
+> namespace Indicates the configuration namespace used by the application. If '_' appears in the namespace, it will be escaped to '__' when the key is concatenated.
+
+> Since this feature is extended, so the client-java dependency is set to optional. You need to import the matching version
 
 > Since read and write operations on the ConfigMap are required, the pod where the client is located must have the corresponding permissions. The specific configuration method can be referred to below.
 

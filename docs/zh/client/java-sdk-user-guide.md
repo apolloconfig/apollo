@@ -416,14 +416,16 @@ namespace：使用指定的值，若未指定默认为"default"
 
 configMapName: apollo-configcache-{appId}
 
-key:{cluster}-{namespace}
+key:{cluster}___{namespace}
 
 value:内容为对应的配置信息的json格式字符串
 
 
 > appId是应用自己的appId，如100004458    
 > cluster是应用使用的集群，一般在本地模式下没有做过配置的话，是default  
-> namespace就是应用使用的配置namespace，一般是application
+> namespace就是应用使用的配置namespace。 如果namespace中出现‘_’ , 将会在拼接key时被转义为‘__’
+
+> 由于此功能为拓展功能，所以对于client-java的依赖设为了optional。需用户自行导入匹配的版本
 
 > 由于需要对configmap进行读写操作，所以客户端所在pod必须有相应读写权限，具体配置方法可参考下文
 
