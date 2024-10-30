@@ -60,10 +60,11 @@
                                 <li>{{'AccessKey.Tips.1' | translate }}</li>
                                 <li>{{'AccessKey.Tips.2' | translate }}</li>
                                 <li>{{'AccessKey.Tips.3' | translate }}</li>
+                                <li>{{'AccessKey.Tips.4' | translate }}</li>
                                 <ul>
-                                    <li>{{'AccessKey.Tips.3.1' | translate }}</li>
-                                    <li>{{'AccessKey.Tips.3.2' | translate }}</li>
-                                    <li>{{'AccessKey.Tips.3.3' | translate }}</li>
+                                    <li>{{'AccessKey.Tips.4.1' | translate }}</li>
+                                    <li>{{'AccessKey.Tips.4.2' | translate }}</li>
+                                    <li>{{'AccessKey.Tips.4.3' | translate }}</li>
                                 </ul>
                             </ul>
                         </div>
@@ -107,16 +108,20 @@
                                 <tr ng-show="accessKeys[env] && accessKeys[env].length > 0"
                                     ng-repeat="accessKey in accessKeys[env]">
                                     <td style="text-align: center;">{{accessKey.secret}}</td>
-                                    <td style="text-align: center;" ng-style="{'color': accessKey.enabled ? '#5cb85c' : '#d20707'}">{{accessKey.enabled ? ('AccessKey.Operator.Enabled' | translate) : ('AccessKey.Operator.Disabled' | translate) }}</td>
+                                    <td style="text-align: center; color: #5cb85c" ng-if="accessKey.enabled && accessKey.mode == 0">{{'AccessKey.Operator.Enabled' | translate}}</td>
+                                    <td style="text-align: center; color: #337ab7" ng-if="accessKey.enabled && accessKey.mode == 1">{{'AccessKey.Operator.Observed' | translate}}</td>
+                                    <td style="text-align: center; color: #d20707" ng-if="!accessKey.enabled">{{'AccessKey.Operator.Disabled' | translate}}</td>
                                     <td style="text-align: center;">{{accessKey.dataChangeLastModifiedBy}}</td>
                                     <td style="text-align: center;">{{accessKey.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'}}</td>
                                     <td style="text-align: center;">
-                                        <a href="javascript:;"
-                                           ng-click="enable(accessKey.id, env)" ng-if="!accessKey.enabled">{{'AccessKey.Operator.Enable' | translate}}</a>
-                                        <a href="javascript:;"
-                                           ng-click="disable(accessKey.id, env)" ng-if="accessKey.enabled">{{'AccessKey.Operator.Disable' | translate}}</a>
-                                        <a href="javascript:;"
-                                           ng-click="remove(accessKey.id, env)" ng-if="!accessKey.enabled">{{'AccessKey.Operator.Remove' | translate }}</a>
+                                        <a href="javascript:;" ng-click="enable(accessKey.id, env, 0)"
+                                           ng-if="!accessKey.enabled || (accessKey.enabled && accessKey.mode != 0)">{{'AccessKey.Operator.Enable' | translate}}</a>
+                                        <a href="javascript:;" ng-click="enable(accessKey.id, env, 1)"
+                                           ng-if="!accessKey.enabled || (accessKey.enabled && accessKey.mode != 1)">{{'AccessKey.Operator.Observe' | translate}}</a>
+                                        <a href="javascript:;" ng-click="disable(accessKey.id, env)"
+                                           ng-if="accessKey.enabled">{{'AccessKey.Operator.Disable' | translate}}</a>
+                                        <a href="javascript:;" ng-click="remove(accessKey.id, env)"
+                                           ng-if="!accessKey.enabled">{{'AccessKey.Operator.Remove' | translate }}</a>
                                     </td>
                                 </tr>
                             </tbody>

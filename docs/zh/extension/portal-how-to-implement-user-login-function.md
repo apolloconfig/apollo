@@ -44,15 +44,15 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "inetOrgPerson" # ldap 用户 objectClass 配置
-    loginId: "uid" # ldap 用户惟一 id，用来作为登录的 id
-    userDisplayName: "cn" # ldap 用户名，用来作为显示名
+    object-class: "inetOrgPerson" # ldap 用户 objectClass 配置
+    login-id: "uid" # ldap 用户惟一 id，用来作为登录的 id
+    user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
 ```
 
@@ -66,15 +66,15 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "inetOrgPerson" # ldap 用户 objectClass 配置
-    loginId: "uid" # ldap 用户惟一 id，用来作为登录的 id
-    userDisplayName: "cn" # ldap 用户名，用来作为显示名
+    object-class: "inetOrgPerson" # ldap 用户 objectClass 配置
+    login-id: "uid" # ldap 用户惟一 id，用来作为登录的 id
+    user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
   filter: # 配置过滤，目前只支持 memberOf
     memberOf: "cn=ServiceDEV,ou=DEV,dc=example,dc=org|cn=WebDEV,ou=DEV,dc=example,dc=org" # 只允许 memberOf 属性为 ServiceDEV 和 WebDEV 的用户访问
@@ -90,22 +90,22 @@ spring:
     base: "dc=example,dc=org"
     username: "cn=admin,dc=example,dc=org" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://localhost:389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "inetOrgPerson" # ldap 用户 objectClass 配置
-    loginId: "uid" # ldap 用户惟一 id，用来作为登录的 id
+    object-class: "inetOrgPerson" # ldap 用户 objectClass 配置
+    login-id: "uid" # ldap 用户惟一 id，用来作为登录的 id
     rdnKey: "uid" # ldap rdn key
-    userDisplayName: "cn" # ldap 用户名，用来作为显示名
+    user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
   group: # 启用group search，启用后只有特定group的用户可以登录apollo
-    objectClass: "posixGroup"  # 配置groupClassName
-    groupBase: "ou=group" # group search base
-    groupSearch: "(&(cn=dev))" # group filter
-    groupMembership: "memberUid" # group memberShip eg. member or memberUid
+    object-class: "posixGroup"  # 配置groupClassName
+    group-base: "ou=group" # group search base
+    group-search: "(&(cn=dev))" # group filter
+    group-membership: "memberUid" # group memberShip eg. member or memberUid
 ```
 
 #### 1.2 配置`startup.sh`
@@ -134,15 +134,15 @@ spring:
     base: "dc=example,dc=com"
     username: "admin" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(sAMAccountName={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(sAMAccountName={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://1.1.1.1:389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "user" # ldap 用户 objectClass 配置
-    loginId: "sAMAccountName" # ldap 用户惟一 id，用来作为登录的 id
-    userDisplayName: "cn" # ldap 用户名，用来作为显示名
+    object-class: "user" # ldap 用户 objectClass 配置
+    login-id: "sAMAccountName" # ldap 用户惟一 id，用来作为登录的 id
+    user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "userPrincipalName" # ldap 邮箱属性
   filter: # 可选项，配置过滤，目前只支持 memberOf
     memberOf: "CN=ServiceDEV,OU=test,DC=example,DC=com|CN=WebDEV,OU=test,DC=example,DC=com" # 只允许 memberOf 属性为 ServiceDEV 和 WebDEV 的用户访问
@@ -174,15 +174,15 @@ spring:
     base: "dc=example,dc=com"
     username: "uid=admin,ou=system" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://localhost:10389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "inetOrgPerson" # ldap 用户 objectClass 配置
-    loginId: "uid" # ldap 用户惟一 id，用来作为登录的 id
-    userDisplayName: "displayName" # ldap 用户名，用来作为显示名
+    object-class: "inetOrgPerson" # ldap 用户 objectClass 配置
+    login-id: "uid" # ldap 用户惟一 id，用来作为登录的 id
+    user-display-name: "displayName" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
 ```
 
@@ -196,22 +196,22 @@ spring:
     base: "dc=example,dc=com"
     username: "uid=admin,ou=system" # 配置管理员账号，用于搜索、匹配用户
     password: "password"
-    searchFilter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
+    search-filter: "(uid={0})"  # 用户过滤器，登录的时候用这个过滤器来搜索用户
     urls:
     - "ldap://localhost:10389"
 
 ldap:
   mapping: # 配置 ldap 属性
-    objectClass: "inetOrgPerson" # ldap 用户 objectClass 配置
-    loginId: "uid" # ldap 用户惟一 id，用来作为登录的 id
+    object-class: "inetOrgPerson" # ldap 用户 objectClass 配置
+    login-id: "uid" # ldap 用户惟一 id，用来作为登录的 id
     rdnKey: "cn" # ldap rdn key
-    userDisplayName: "displayName" # ldap 用户名，用来作为显示名
+    user-display-name: "displayName" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
   group: # 配置ldap group，启用后只有特定group的用户可以登录apollo
-    objectClass: "groupOfNames"  # 配置groupClassName
-    groupBase: "ou=group" # group search base
-    groupSearch: "(&(cn=dev))" # group filter
-    groupMembership: "member" # group memberShip eg. member or memberUid
+    object-class: "groupOfNames"  # 配置groupClassName
+    group-base: "ou=group" # group search base
+    group-search: "(&(cn=dev))" # group filter
+    group-membership: "member" # group memberShip eg. member or memberUid
 ```
 
 #### 3.2 配置`startup.sh`

@@ -24,6 +24,8 @@ public class AccessKeyDTO extends BaseDTO {
 
   private String appId;
 
+  private Integer mode;
+
   private Boolean enabled;
 
   public Long getId() {
@@ -48,6 +50,14 @@ public class AccessKeyDTO extends BaseDTO {
 
   public void setAppId(String appId) {
     this.appId = appId;
+  }
+
+  public Integer getMode() {
+    return mode;
+  }
+
+  public void setMode(Integer mode) {
+    this.mode = mode;
   }
 
   public Boolean getEnabled() {

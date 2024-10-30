@@ -34,6 +34,7 @@ import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import com.google.common.collect.Lists;
+import io.micrometer.core.instrument.MeterRegistry;
 import java.util.regex.Pattern;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +63,8 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   @Mock
   private BizConfig bizConfig;
   @Mock
+  private MeterRegistry meterRegistry;
+  @Mock
   private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someAppId;
@@ -75,7 +78,7 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
   @Before
   public void setUp() throws Exception {
     configServiceWithCache = new ConfigServiceWithCache(releaseService, releaseMessageService,
-        grayReleaseRulesHolder, bizConfig);
+        grayReleaseRulesHolder, bizConfig, meterRegistry);
 
     when(bizConfig.isConfigServiceCacheKeyIgnoreCase()).thenReturn(true);
 

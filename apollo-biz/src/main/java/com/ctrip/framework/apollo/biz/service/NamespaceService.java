@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.biz.entity.Item;
@@ -68,6 +69,7 @@ public class NamespaceService {
   private final NamespaceLockService namespaceLockService;
   private final InstanceService instanceService;
   private final MessageSender messageSender;
+  private final BizConfig bizConfig;
 
   public NamespaceService(
       final ReleaseHistoryService releaseHistoryService,
@@ -81,7 +83,8 @@ public class NamespaceService {
       final @Lazy ClusterService clusterService,
       final @Lazy NamespaceBranchService namespaceBranchService,
       final NamespaceLockService namespaceLockService,
-      final InstanceService instanceService) {
+      final InstanceService instanceService,
+      final BizConfig bizConfig) {
     this.releaseHistoryService = releaseHistoryService;
     this.namespaceRepository = namespaceRepository;
     this.auditService = auditService;
@@ -94,6 +97,7 @@ public class NamespaceService {
     this.namespaceBranchService = namespaceBranchService;
     this.namespaceLockService = namespaceLockService;
     this.instanceService = instanceService;
+    this.bizConfig = bizConfig;
   }
 
 
@@ -349,6 +353,14 @@ public class NamespaceService {
     if (!isNamespaceUnique(entity.getAppId(), entity.getClusterName(), entity.getNamespaceName())) {
       throw new ServiceException("namespace not unique");
     }
+
+    if (bizConfig.isNamespaceNumLimitEnabled() && !bizConfig.namespaceNumLimitWhite().contains(entity.getAppId())) {
+      int nowCount = namespaceRepository.countByAppIdAndClusterName(entity.getAppId(), entity.getClusterName());
+      if (nowCount >= bizConfig.namespaceNumLimit()) {
+        throw new ServiceException("namespace[appId = " + entity.getAppId() + ", cluster= " + entity.getClusterName() + "] nowCount= " + nowCount + ", maxCount =" + bizConfig.namespaceNumLimit());
+      }
+    }
+
     entity.setId(0);//protection
     Namespace namespace = namespaceRepository.save(entity);
 

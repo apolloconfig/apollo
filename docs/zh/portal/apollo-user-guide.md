@@ -482,6 +482,42 @@ Apollo从1.6.0版本开始增加访问密钥机制，从而只有经过身份验
 
 ![System-parameterization-of-global-search-configuration-items](../images/System-parameterization-of-global-search-configuration-items.png)
 
+
+## 6.4 appld+cluster维度下命名空间数量限制功能参数设置
+从2.4.0版本开始，apollo-portal提供了appld+cluster维度下可以创建的命名空间数量上限校验的功能，此功能默认关闭，需要配置系统 `namespace.num.limit.enabled` 开启，同时提供了系统参数`namespace.num.limit`来动态配置appld+cluster维度下的Namespace数量上限值，默认为200个，考虑到一些基础组件如网关、消息队列、Redis、数据库等需要特殊处理，新增了系统参数`namespace.num.limit.white` 来配置校验白名单，不受Namespace数量上限的影响
+
+**设置方法：**
+1. 用超级管理员账号登录到Apollo配置中心的界面
+2. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit.enabled` 配置项为true/false 即可开启/关闭此功能，默认关闭
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-enabled.png)
+
+3. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit` 配置项来配置单个appld+cluster下的namespace数量上限值，默认为200
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit.png)
+
+4. 进入 `管理员工具 - 系统参数 - ConfigDB 配置管理` 页面新增或修改 `namespace.num.limit.white` 配置项来配置namespace数量上限校验的白名单，多个AppId使用英文逗号分隔
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-num-limit-white.png)
+
+
+
+## 6.5 单个命名空间下的配置项数量限制
+从2.4.0版本开始，apollo-portal提供了限制单个命名空间下的配置项数量的功能，此功能默认关闭，需要配置系统 `item.num.limit.enabled` 开启，同时提供了系统参数`item.num.limit`来动态配置单个Namespace下的item数量上限值
+
+**设置方法：**
+1. 用超级管理员账号登录到Apollo配置中心的界面
+2. 进入`管理员工具 - 系统参数 - ConfigDB 配置管理`页面新增或修改`item.num.limit.enabled`配置项为true/false 即可开启/关闭此功能
+
+   ![item-num-limit-enabled](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit-enabled.png)
+
+3. 进入`管理员工具 - 系统参数 - ConfigDB 配置管理`页面新增或修改`item.num.limit`配置项来配置单个Namespace下的item数量上限值
+
+   ![item-num-limit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/item-num-limit.png)
+
+
+
+
 # 七、最佳实践
 
 ## 7.1 安全相关

@@ -38,17 +38,17 @@ logging:
 eureka:
   instance:
     hostname: ${hostname:localhost}
-    preferIpAddress: true
+    prefer-ip-address: true
     status-page-url-path: /info
     health-check-url-path: /health
   client:
-    serviceUrl:
+    service-url:
       # This setting will be overridden by eureka.service.url setting from ApolloConfigDB.ServerConfig or System Property
       # see com.ctrip.framework.apollo.biz.eureka.ApolloEurekaClientConfig
       defaultZone: http://${eureka.instance.hostname}:8080/eureka/
     healthcheck:
       enabled: true
-    eurekaServiceUrlPollIntervalSeconds: 60
+    eureka-service-url-poll-interval-seconds: 60
 
 management:
   health:
