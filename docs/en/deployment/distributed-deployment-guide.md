@@ -1543,7 +1543,7 @@ The default configuration is 20000.
 
 This configuration is used to override the configuration of `item.value.length.limit` to control the maximum length limit of the value at the appId granularity. The configured value is in a json format, and the key of the json is appId. The format is as follows:
 ```
-appid.value.length.limit.override = {appId-demo1:200,aappId-demo2:300}
+appid.value.length.limit.override = {"appId-demo1":200,"appId-demo2":300}
 ```
 The above configuration specifies that the maximum length limit of the value in all namespaces under `appId-demo1` is 200, and the maximum length limit of the value in all namespaces under `appId-demo2` is 300
 

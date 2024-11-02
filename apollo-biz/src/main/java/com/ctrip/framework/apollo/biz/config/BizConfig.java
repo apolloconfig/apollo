@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -115,12 +115,12 @@ public class BizConfig extends RefreshableConfig {
 
   public Map<String, Integer> appIdValueLengthLimitOverride() {
     String appIdValueLengthOverrideString = getValue("appid.value.length.limit.override");
-    return parseOverrideConfig(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference);
+    return parseOverrideConfig(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference, value -> value > 0);
   }
 
   public Map<Long, Integer> namespaceValueLengthLimitOverride() {
     String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
-    return parseOverrideConfig(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
+    return parseOverrideConfig(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference, value -> value > 0);
   }
 
   public boolean isNamespaceNumLimitEnabled() {
@@ -201,7 +201,7 @@ public class BizConfig extends RefreshableConfig {
 
   public Map<String, Integer> releaseHistoryRetentionSizeOverride() {
     String overrideString = getValue("apollo.release-history.retention.size.override");
-    return parseOverrideConfig(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
+    return parseOverrideConfig(overrideString, releaseHistoryRetentionSizeOverrideTypeReference, value -> value > 0);
   }
 
   public int releaseMessageCacheScanInterval() {
@@ -255,14 +255,16 @@ public class BizConfig extends RefreshableConfig {
     return getValue("admin-service.access.tokens");
   }
 
-  private <K, V> Map<K, V> parseOverrideConfig(String configValue, Type typeReference) {
+  private <K, V> Map<K, V> parseOverrideConfig(String configValue, Type typeReference, Predicate<V> valueFilter) {
     Map<K, V> result = Maps.newHashMap();
     if (!Strings.isNullOrEmpty(configValue)) {
       try {
         Map<K, V> parsed = GSON.fromJson(configValue, typeReference);
-        result = parsed.entrySet().stream()
-            .filter(e -> e.getValue() != null && ((Integer) e.getValue()) > 0)
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        for (Map.Entry<K, V> entry : parsed.entrySet()) {
+          if (entry.getValue() != null && valueFilter.test(entry.getValue())) {
+            result.put(entry.getKey(), entry.getValue());
+          }
+        }
       } catch (Exception e) {
         logger.error("Invalid override config value: {}", configValue, e);
       }

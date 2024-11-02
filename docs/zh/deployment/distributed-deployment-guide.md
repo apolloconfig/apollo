@@ -1484,7 +1484,7 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 #### 3.2.5.1 appid.value.length.limit.override - appId 维度的配置项 value 最大长度限制
 此配置用来覆盖 `item.value.length.limit` 的配置，做到控制 appId 粒度下的 value 最大长度限制，配置的值是一个 json 格式，json 的 key 为 appId，格式如下：
 ```
-appid.value.length.limit.override = {appId-demo1:200,aappId-demo2:300}
+appid.value.length.limit.override = {"appId-demo1":200,"appId-demo2":300}
 ```
 以上配置指定了 `appId-demo1` 下的所有 namespace 中的 value 最大长度限制为 200，`appId-demo2` 下的所有 namespace 中的 value 最大长度限制为 300
 
