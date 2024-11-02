@@ -171,6 +171,7 @@ The content of the file is stored in properties format, for example, if there ar
 request.timeout=2000
 batch=2000
 ```
+> Note: If deployed in a Kubernetes environment, you can also enable the configMap cache to further improve availability
 
 #### 1.2.3.1 Customizing the cache path
 
@@ -413,6 +414,96 @@ The configuration methods, in descending order of priority, are
     * You can specify `apollo.override-system-properties=true` in Spring Boot's `application.properties` or `bootstrap.properties`
 3. Via the `app.properties` configuration file
     * You can specify `apollo.override-system-properties=true` in `classpath:/META-INF/app.properties`
+
+#### 1.2.4.10 ConfigMap cache
+
+> For version 2.4.0 and above
+
+Starting from version 2.4.0, the availability of the client in the Kubernetes environment has been enhanced. After enabling the ConfigMap cache, the client will cache a copy of the configuration information fetched from the server in the ConfigMap. In the case of service unavailability, network issues, and loss of local cache files, the configuration can still be restored from the ConfigMap. Here are the relevant configurations:
+
+`apollo.cache.kubernetes.enable`：Whether to enable the ConfigMap cache mechanism, the default is false.
+
+`apollo.cache.kubernetes.namespace`：The namespace of the ConfigMap to be used (the namespace in Kubernetes), the default value is "default".
+
+The configuration information will be placed in the specified ConfigMap according to the following correspondence:
+
+namespace: Use the specified value, if not specified, the default is "default"
+
+configMapName: apollo-configcache-{appId}
+
+key:{cluster}___{namespace}
+
+value: The content is the JSON format string of the corresponding configuration information.
+
+> appId is the application's own appId, such as 100004458.
+> 
+> cluster is the cluster used by the application, which is usually default if not configured locally 
+> 
+> namespace Indicates the configuration namespace used by the application. If '_' appears in the namespace, it will be escaped to '__' when the key is concatenated.
+> Since this feature is extended, so the client-java dependency is set to optional. You need to import the matching version
+> Since read and write operations on the ConfigMap are required, the pod where the client is located must have the corresponding permissions. The specific configuration method can be referred to below.
+
+How to authorize a Pod's Service Account to have read and write permissions for ConfigMap:
+
+1. Create a Service Account: If there is no Service Account, you need to create one.
+   ```yaml
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: my-service-account
+     namespace: default
+   ```
+2. Create a Role or ClusterRole: Define a Role or ClusterRole to grant read and write permissions for a specific ConfigMap. If the ConfigMap is used across multiple Namespaces, a ClusterRole should be used.
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: Role
+   metadata:
+     namespace: default
+     name: configmap-role
+   rules:
+   - apiGroups: [""]
+     resources: ["configmaps"]
+     verbs: ["get", "list", "watch", "create", "update", "delete"]
+   ```
+3. Bind the Service Account to the Role or ClusterRole: Use RoleBinding or ClusterRoleBinding to bind the Service Account to the Role or ClusterRole created above.
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: RoleBinding
+   metadata:
+     name: configmap-reader-binding
+     namespace: default
+   subjects:
+   - kind: ServiceAccount
+     name: my-service-account
+     namespace: default
+   roleRef:
+     kind: Role
+     name: configmap-role
+     apiGroup: rbac.authorization.k8s.io
+   ```
+4. Specify the Service Account in the Pod configuration: Ensure that the Pod's configuration uses the Service Account created above.
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+     namespace: default
+   spec:
+     serviceAccountName: my-service-account
+     containers:
+       - name: my-container
+         image: my-image
+   ```
+5. Apply the configuration: Use the kubectl command-line tool to apply these configurations.
+   ```yaml
+   kubectl apply -f service-account.yaml
+   kubectl apply -f role.yaml
+   kubectl apply -f role-binding.yaml
+   kubectl apply -f pod.yaml
+   ```
+   
+   These steps give the Service Account in the Pod read and write permissions for the specified ConfigMap.
+   If the ConfigMap is cross-namespace, use ClusterRole and ClusterRoleBinding instead of Role and RoleBinding, and ensure that these configurations are applied in all Namespaces that need to access the ConfigMap.
 
 # II. Maven Dependency
 
