@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo;
 
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +51,11 @@ public class SkipAuthorizationConfiguration {
   public ConsumerAuthUtil consumerAuthUtil() {
     final ConsumerAuthUtil mock = mock(ConsumerAuthUtil.class);
     when(mock.getConsumerId(any())).thenReturn(1L);
+
+    ConsumerToken someConsumerToken = new ConsumerToken();
+    someConsumerToken.setConsumerId(1L);
+    someConsumerToken.setLimitCount(20);
+    when(mock.getConsumerToken(any())).thenReturn(someConsumerToken);
     return mock;
   }
 

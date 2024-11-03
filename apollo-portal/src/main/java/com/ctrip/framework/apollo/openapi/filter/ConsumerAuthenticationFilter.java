@@ -24,7 +24,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
-
+import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -49,8 +49,12 @@ public class ConsumerAuthenticationFilter implements Filter {
   private final ConsumerAuditUtil consumerAuditUtil;
   private final PortalConfig portalConfig;
 
-  private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder().build();
   private static final int WARMUP_MILLIS = 1000; // ms
+  private static final int RATE_LIMITER_CACHE_MAX_SIZE = 50000;
+
+  private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder()
+      .expireAfterWrite(1, TimeUnit.DAYS)
+      .maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
 
   public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil, PortalConfig portalConfig) {
     this.consumerAuthUtil = consumerAuthUtil;
@@ -78,6 +82,9 @@ public class ConsumerAuthenticationFilter implements Filter {
     }
 
     Integer limitCount = consumerToken.getLimitCount();
+    if (limitCount == null) {
+      limitCount = 0;
+    }
     if (portalConfig.isOpenApiLimitEnabled() && limitCount > 0) {
       try {
         ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(token, limitCount);
@@ -88,6 +95,8 @@ public class ConsumerAuthenticationFilter implements Filter {
         }
       } catch (Exception e) {
         logger.error("ConsumerAuthenticationFilter ratelimit error", e);
+        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Rate limiting failed");
+        return;
       }
     }
 

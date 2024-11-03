@@ -78,8 +78,11 @@ public class ConsumerAuthenticationFilterTest {
     String someToken = "someToken";
     Long someConsumerId = 1L;
 
+    ConsumerToken someConsumerToken = new ConsumerToken();
+    someConsumerToken.setConsumerId(someConsumerId);
+
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
-    when(consumerAuthUtil.getConsumerId(someToken)).thenReturn(someConsumerId);
+    when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
 
     authenticationFilter.doFilter(request, response, filterChain);
 
@@ -93,7 +96,7 @@ public class ConsumerAuthenticationFilterTest {
     String someInvalidToken = "someInvalidToken";
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someInvalidToken);
-    when(consumerAuthUtil.getConsumerId(someInvalidToken)).thenReturn(null);
+    when(consumerAuthUtil.getConsumerToken(someInvalidToken)).thenReturn(null);
 
     authenticationFilter.doFilter(request, response, filterChain);
 
@@ -176,7 +179,6 @@ public class ConsumerAuthenticationFilterTest {
     someConsumerToken.setLimitCount(qps);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
-    when(consumerAuthUtil.getConsumerId(someToken)).thenReturn(someConsumerId);
     when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
     when(portalConfig.isOpenApiLimitEnabled()).thenReturn(true);
   }
