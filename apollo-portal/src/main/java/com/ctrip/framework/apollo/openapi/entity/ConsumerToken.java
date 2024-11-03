@@ -41,6 +41,9 @@ public class ConsumerToken extends BaseEntity {
   @Column(name = "`Token`", nullable = false)
   private String token;
 
+  @Column(name = "LimitCount")
+  private Integer limitCount;
+
   @Column(name = "`Expires`", nullable = false)
   private Date expires;
 
@@ -60,6 +63,14 @@ public class ConsumerToken extends BaseEntity {
     this.token = token;
   }
 
+  public Integer getLimitCount() {
+    return limitCount;
+  }
+
+  public void setLimitCount(Integer limitCount) {
+    this.limitCount = limitCount;
+  }
+
   public Date getExpires() {
     return expires;
   }
@@ -71,6 +82,7 @@ public class ConsumerToken extends BaseEntity {
   @Override
   public String toString() {
     return toStringHelper().add("consumerId", consumerId).add("token", token)
+        .add("limitCount", limitCount)
         .add("expires", expires).toString();
   }
 }

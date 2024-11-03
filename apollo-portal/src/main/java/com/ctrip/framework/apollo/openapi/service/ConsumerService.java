@@ -138,12 +138,15 @@ public class ConsumerService {
     return consumerTokenRepository.findByConsumerId(consumer.getId());
   }
 
-  public Long getConsumerIdByToken(String token) {
+  public ConsumerToken getConsumerTokenByToken(String token) {
     if (Strings.isNullOrEmpty(token)) {
       return null;
     }
-    ConsumerToken consumerToken = consumerTokenRepository.findTopByTokenAndExpiresAfter(token,
-                                                                                        new Date());
+    return consumerTokenRepository.findTopByTokenAndExpiresAfter(token, new Date());
+  }
+
+  public Long getConsumerIdByToken(String token) {
+    ConsumerToken consumerToken = getConsumerTokenByToken(token);
     return consumerToken == null ? null : consumerToken.getConsumerId();
   }
 
@@ -311,7 +314,9 @@ public class ConsumerService {
   @Transactional
   public ConsumerToken createConsumerToken(ConsumerToken entity) {
     entity.setId(0); //for protection
-
+    if (entity.getLimitCount() <= 0) {
+      entity.setLimitCount(portalConfig.openApiLimitCount());
+    }
     return consumerTokenRepository.save(entity);
   }
 
@@ -322,6 +327,7 @@ public class ConsumerService {
 
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setConsumerId(consumerId);
+    consumerToken.setLimitCount(portalConfig.openApiLimitCount());
     consumerToken.setExpires(expires);
     consumerToken.setDataChangeCreatedBy(createdBy);
     consumerToken.setDataChangeCreatedTime(createdTime);

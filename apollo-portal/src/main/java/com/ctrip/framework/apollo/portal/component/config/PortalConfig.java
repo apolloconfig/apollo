@@ -242,6 +242,14 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("consumer.token.salt", "apollo-portal");
   }
 
+  public int openApiLimitCount() {
+    return getIntProperty("open.api.limit.count", 20);
+  }
+
+  public boolean isOpenApiLimitEnabled() {
+    return getBooleanProperty("open.api.limit.enabled", false);
+  }
+
   public boolean isEmailEnabled() {
     return getBooleanProperty("email.enabled", false);
   }

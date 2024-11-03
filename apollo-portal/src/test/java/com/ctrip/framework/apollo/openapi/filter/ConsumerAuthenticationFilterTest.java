@@ -16,9 +16,16 @@
  */
 package com.ctrip.framework.apollo.openapi.filter;
 
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import javax.servlet.ServletException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +40,9 @@ import org.springframework.http.HttpHeaders;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,6 +59,9 @@ public class ConsumerAuthenticationFilterTest {
   @Mock
   private ConsumerAuditUtil consumerAuditUtil;
   @Mock
+  private PortalConfig portalConfig;
+
+  @Mock
   private HttpServletRequest request;
   @Mock
   private HttpServletResponse response;
@@ -57,7 +70,7 @@ public class ConsumerAuthenticationFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    authenticationFilter = new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil);
+    authenticationFilter = new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil, portalConfig);
   }
 
   @Test
@@ -89,4 +102,101 @@ public class ConsumerAuthenticationFilterTest {
     verify(consumerAuditUtil, never()).audit(eq(request), anyLong());
     verify(filterChain, never()).doFilter(request, response);
   }
+
+
+  @Test
+  public void testRateLimitSuccessfully() throws Exception {
+    String someToken = "someToken";
+    Long someConsumerId = 1L;
+    int qps = 5;
+    int durationInSeconds = 10;
+
+    setupRateLimitMocks(someToken, someConsumerId, qps);
+
+    Runnable task = () -> {
+      try {
+        authenticationFilter.doFilter(request, response, filterChain);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      } catch (ServletException e) {
+        throw new RuntimeException(e);
+      }
+    };
+
+    executeWithQps(qps, task, durationInSeconds);
+
+    int total = qps * durationInSeconds;
+
+    verify(consumerAuthUtil, times(total)).storeConsumerId(request, someConsumerId);
+    verify(consumerAuditUtil, times(total)).audit(request, someConsumerId);
+    verify(filterChain, times(total)).doFilter(request, response);
+
+  }
+
+
+  @Test
+  public void testRateLimitPartFailure() throws Exception {
+    String someToken = "someToken";
+    Long someConsumerId = 1L;
+    int qps = 5;
+    int durationInSeconds = 10;
+
+    setupRateLimitMocks(someToken, someConsumerId, qps);
+
+    Runnable task = () -> {
+      try {
+        authenticationFilter.doFilter(request, response, filterChain);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      } catch (ServletException e) {
+        throw new RuntimeException(e);
+      }
+    };
+
+    executeWithQps(qps + 1, task, durationInSeconds);
+
+    int leastTimes = qps * durationInSeconds;
+    int mostTimes = (qps + 1) * durationInSeconds;
+
+    verify(response, atLeastOnce()).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
+
+    verify(consumerAuthUtil, atLeast(leastTimes)).storeConsumerId(request, someConsumerId);
+    verify(consumerAuthUtil, atMost(mostTimes)).storeConsumerId(request, someConsumerId);
+    verify(consumerAuditUtil, atLeast(leastTimes)).audit(request, someConsumerId);
+    verify(consumerAuditUtil, atMost(mostTimes)).audit(request, someConsumerId);
+    verify(filterChain, atLeast(leastTimes)).doFilter(request, response);
+    verify(filterChain, atMost(mostTimes)).doFilter(request, response);
+
+  }
+
+
+  private void setupRateLimitMocks(String someToken, Long someConsumerId, int qps) {
+    ConsumerToken someConsumerToken = new ConsumerToken();
+    someConsumerToken.setConsumerId(someConsumerId);
+    someConsumerToken.setLimitCount(qps);
+
+    when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
+    when(consumerAuthUtil.getConsumerId(someToken)).thenReturn(someConsumerId);
+    when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
+    when(portalConfig.isOpenApiLimitEnabled()).thenReturn(true);
+  }
+
+
+  public static void executeWithQps(int qps, Runnable task, int durationInSeconds) {
+    ExecutorService executor = Executors.newFixedThreadPool(qps);
+    long totalTasks = qps * durationInSeconds;
+
+    for (int i = 0; i < totalTasks; i++) {
+      executor.submit(task);
+      try {
+        TimeUnit.MILLISECONDS.sleep(1000 / qps); // Control QPS
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        break;
+      }
+    }
+
+    executor.shutdown();
+  }
+
 }

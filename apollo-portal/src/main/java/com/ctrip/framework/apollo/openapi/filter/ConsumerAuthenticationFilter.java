@@ -16,9 +16,13 @@
  */
 package com.ctrip.framework.apollo.openapi.filter;
 
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
 
 import javax.servlet.Filter;
@@ -29,18 +33,29 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConsumerAuthenticationFilter implements Filter {
+
+  private static final Logger logger = LoggerFactory.getLogger(ConsumerAuthenticationFilter.class);
+
   private final ConsumerAuthUtil consumerAuthUtil;
   private final ConsumerAuditUtil consumerAuditUtil;
+  private final PortalConfig portalConfig;
 
-  public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
+  private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder().build();
+  private static final int WARMUP_MILLIS = 1000; // ms
+
+  public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil, PortalConfig portalConfig) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerAuditUtil = consumerAuditUtil;
+    this.portalConfig = portalConfig;
   }
 
   @Override
@@ -55,14 +70,28 @@ public class ConsumerAuthenticationFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) resp;
 
     String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+    ConsumerToken consumerToken = consumerAuthUtil.getConsumerToken(token);
 
-    Long consumerId = consumerAuthUtil.getConsumerId(token);
-
-    if (consumerId == null) {
+    if (null == consumerToken || consumerToken.getConsumerId() <= 0) {
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
       return;
     }
 
+    Integer limitCount = consumerToken.getLimitCount();
+    if (portalConfig.isOpenApiLimitEnabled() && limitCount > 0) {
+      try {
+        ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(token, limitCount);
+        long warmupToMillis = rateLimiterPair.getLeft() + WARMUP_MILLIS;
+        if (System.currentTimeMillis() > warmupToMillis && !rateLimiterPair.getRight().tryAcquire()) {
+          response.sendError(HttpServletResponse.SC_FORBIDDEN, "Too many call requests, the flow is limited");
+          return;
+        }
+      } catch (Exception e) {
+        logger.error("ConsumerAuthenticationFilter ratelimit error", e);
+      }
+    }
+
+    long consumerId = consumerToken.getConsumerId();
     consumerAuthUtil.storeConsumerId(request, consumerId);
     consumerAuditUtil.audit(request, consumerId);
 
@@ -73,4 +102,14 @@ public class ConsumerAuthenticationFilter implements Filter {
   public void destroy() {
     //nothing
   }
+
+  private ImmutablePair<Long, RateLimiter> getOrCreateRateLimiterPair(String key, Integer limitCount) {
+    ImmutablePair<Long, RateLimiter> rateLimiterPair = LIMITER.getIfPresent(key);
+    if (rateLimiterPair == null) {
+      rateLimiterPair = ImmutablePair.of(System.currentTimeMillis(), RateLimiter.create(limitCount));
+      LIMITER.put(key, rateLimiterPair);
+    }
+    return rateLimiterPair;
+  }
+
 }
