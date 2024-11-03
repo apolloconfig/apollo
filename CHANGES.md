@@ -18,6 +18,7 @@ Apollo 2.4.0
 * [Refactor: Configuration files uniformly use Kebab style](https://github.com/apolloconfig/apollo/pull/5262)
 * [Feature: openapi query namespace support not fill item](https://github.com/apolloconfig/apollo/pull/5249)
 * [Refactor: align database ClusterName and NamespaceName fields lengths](https://github.com/apolloconfig/apollo/pull/5263)
+* [Feature: Added the value length limit function for AppId-level configuration items](https://github.com/apolloconfig/apollo/pull/5264)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
