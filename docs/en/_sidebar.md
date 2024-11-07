@@ -13,6 +13,7 @@
   - [Distributed Deployment Guide](en/deployment/distributed-deployment-guide.md)
   - Deployment By Third-party Tool 
     - [Install the HA Apollo cluster in Rainbond with one-click](en/deployment/third-party-tool-rainbond.md)
+    - [Quickly deploy Apollo based on the aaPanel](en/deployment/third-party-tool-btpanel.md)
 
 - Admin Guide
   - [Apollo Usage Guide](en/portal/apollo-user-guide.md)
