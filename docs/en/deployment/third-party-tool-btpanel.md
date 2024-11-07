@@ -54,3 +54,5 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 
 ![console](https://github.com/user-attachments/assets/6dd66f69-4c4d-4352-82aa-2eab0a5db33e)
 
+> Default credentials: username `apollo`, password `admin`
+
