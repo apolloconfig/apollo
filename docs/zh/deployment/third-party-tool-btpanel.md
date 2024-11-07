@@ -1,21 +1,35 @@
+# 基于宝塔面板部署 Apollo
 
-# 宝塔面板(适用9.2.0及以上的版本)快速部署Apollo
+## 前提
 
-## 一、 准备工作
-前往[宝塔面板官网](https://www.bt.cn/new/download.html)，选择正式版的脚本下载安装（如果已安装，请跳过此步）
+- 仅适用于宝塔面板9.2.0及以上版本
+- 安装宝塔面板，前往[宝塔面板](https://www.bt.cn/new/index.html)官网，选择正式版的脚本下载安装
 
-### 1.1 登陆面板安装docker环境
-安装后登录宝塔面板，在左侧导航栏点击Docker，首先进入会提示安装Docker服务，点击立即安装，按提示完成安装
-![install-docker-tip](https://github.com/user-attachments/assets/6642c5b8-892e-4703-84c2-f82fcc841ceb)
-![install-docker](https://github.com/user-attachments/assets/c63bda9b-eb07-4352-be7e-c12dbf457018)
+## 部署
 
-### 1.2 通过docker应用商店部署
-在应用商店中找到Apollo，点击安装，配置域名、端口等基本信息即可完成安装
-![install](https://github.com/user-attachments/assets/93486f4f-0ba8-4098-88d7-ea1cf546a0a1)
+1. 登录宝塔面板，在左侧菜单栏中点击 `Docker`
+![Docker](https://github.com/user-attachments/assets/6642c5b8-892e-4703-84c2-f82fcc841ceb)
 
-注意：
-域名为非必填，如果填写了域名则通过【网站】--> 【反向代理】来管理，填写域名后不需要勾选【允许外部访问】，否则需要勾选后才可以通过端口访问
+3. 首次会提示安装`Docker`和`Docker Compose`服务，点击立即安装，若已安装请忽略。
+![安装环境](https://github.com/user-attachments/assets/c63bda9b-eb07-4352-be7e-c12dbf457018)
+
+4. 安装完成后在`Docker-应用商店`中找到 `Apollo`，点击`安装`
+![安装](https://github.com/user-attachments/assets/21591d93-ecd9-470d-9590-f0e1938d9012)
+
+5. 设置域名等基本信息，点击`确定`
+- 名称：应用名称，默认`apollo_随机字符`
+- 版本选择：默认`latest`
+- 允许外部访问：如您需通过`IP+Port`直接访问，请勾选，如您已经设置了域名，请不要勾选此处
+- WEB 端口：默认`8070`，可自行修改
+- 通信端口：默认`8080`，可自行修改
+- 元数据端口：默认`8090`，可自行修改
+
+6. 提交后面板会自动进行应用初始化，大概需要`1-3`分钟，初始化完成后即可访问
 
 
-## 二、访问Apollo
-安装后在浏览器输入上一步设置的域名或者IP+端口即可访问
+
+## 访问 Apollo
+- 请在浏览器地址栏中输入域名访问 `http://<宝塔面板IP>:8070`，即可访问 `Apollo` 控制台。
+![控制台](https://github.com/user-attachments/assets/6dd66f69-4c4d-4352-82aa-2eab0a5db33e)
+
+> 默认登录信息: username `apollo`, password `admin`
