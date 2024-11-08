@@ -8,13 +8,13 @@
 ## 部署
 
 1. 登录宝塔面板，在左侧菜单栏中点击 `Docker`
-![Docker](https://github.com/user-attachments/assets/6642c5b8-892e-4703-84c2-f82fcc841ceb)
+![Docker](/docs/zh/images/deployment/btpanel/docker-menu.png)
 
 2. 首次会提示安装`Docker`和`Docker Compose`服务，点击立即安装，若已安装请忽略。
-![安装环境](https://github.com/user-attachments/assets/c63bda9b-eb07-4352-be7e-c12dbf457018)
+![安装环境](/docs/zh/images/deployment/btpanel/install-docker.png)
 
 3. 安装完成后在`Docker-应用商店`中找到 `Apollo`，点击`安装`
-![安装](https://github.com/user-attachments/assets/21591d93-ecd9-470d-9590-f0e1938d9012)
+![安装](/docs/zh/images/deployment/btpanel/search-apollo.png)
 
 4. 设置域名等基本信息，点击`确定`
 - 名称：应用名称，默认`apollo_随机字符`
@@ -30,6 +30,6 @@
 
 ## 访问 Apollo
 - 请在浏览器地址栏中输入域名访问 `http://<宝塔面板IP>:8070`，即可访问 `Apollo` 控制台。
-![控制台](https://github.com/user-attachments/assets/6dd66f69-4c4d-4352-82aa-2eab0a5db33e)
+![控制台](/docs/zh/images/deployment/btpanel/search-apollo.png)
 
 > 默认登录信息: username `apollo`, password `admin`
