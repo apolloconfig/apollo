@@ -1,4 +1,4 @@
-##  aaPanel  Docker  One-ClickInstall
+##  aaPanel  Docker  One-Click Install
 
 <Steps>
   Go to [aaPanel official website](https://www.aapanel.com/new/download.html), Select the script to download and install
@@ -16,22 +16,22 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 
 1. Log in to aaPanel and click `Docker` in the menu bar
 
-   ![Docker](https://github.com/user-attachments/assets/a4aeb715-9e28-49b0-bb1d-3dd63d1394a2)
+   ![Docker](/docs/en/images/deployment/btpanel/install.png)
 
 2. The first time you will be prompted to install the `Docker` and `Docker Compose` services, click Install Now. If it is already installed, please ignore it.
 
-   ![install](https://github.com/user-attachments/assets/d48a83b7-eea4-43ec-a07e-bce6442c6fec)
+   ![install](/docs/en/images/deployment/btpanel/install2.png)
 
 3. After the installation is complete, find `Apollo` in `One-Click Install` and click `install`  
 
-   ![install-Apollo](https://github.com/user-attachments/assets/e80dc7c0-e469-49b0-bd7f-225df36cdcab)
+   ![install-Apollo](/docs/en/images/deployment/btpanel/install-Apollo.png)
 
 4. configure basic information such as the domain name, ports to complete the installation
 
    Note:
    The domain is optional. If a domain is provided, it can be managed through [Website] --> [Proxy Project]. In this case, you do not need to check [Allow external access]. However, if no domain is provided, you must check [Allow external access] to enable port-based access.
 
-   ![addApollo](https://github.com/user-attachments/assets/9623c6d9-d0e5-4f87-adea-e5a95133cf3c)
+   ![addApollo](/docs/en/images/deployment/btpanel/addApollo.png)
 
 5. After installation, enter the domain name or IP+ port set in the previous step in the browser to access.
 - Name: application name, default `Apollo-characters`
@@ -49,7 +49,7 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 - If you have set a domain name, please directly enter the domain name in the browser address bar, such as `http://demo.apollo.org`, to access the `Apollo` console.
 - If you choose to access through `IP+Port`, please enter the domain name in the browser address bar to access `http://<aaPanelIP>:8070` to access the `Apollo` console.
 
-![console](https://github.com/user-attachments/assets/6dd66f69-4c4d-4352-82aa-2eab0a5db33e)
+![console](/docs/en/images/deployment/btpanel/console.png)
 
 > Default credentials: username `apollo`, password `admin`
 
