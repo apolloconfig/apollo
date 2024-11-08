@@ -51,5 +51,5 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 
 ![console](/docs/en/images/deployment/btpanel/console.png)
 
-> Default credentials: username `apollo`, password `admin`
+> Default credentials: username `apollo`, password `admin`, please change the default password immediately.
 
