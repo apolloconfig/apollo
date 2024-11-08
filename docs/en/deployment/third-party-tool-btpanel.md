@@ -1,4 +1,4 @@
-##  aaPanel  Docker  One-Click Install
+##  aaPanel Docker One-Click Install
 
 <Steps>
   Go to [aaPanel official website](https://www.aapanel.com/new/download.html), Select the script to download and install
@@ -45,9 +45,15 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 6. After submission, the panel will automatically initialize the application, which will take about `1-3` minutes. It can be accessed after the initialization is completed.
 
 
-## Visit Apollo
-- If you have set a domain name, please directly enter the domain name in the browser address bar, such as `http://demo.apollo.org`, to access the `Apollo` console.
-- If you choose to access through `IP+Port`, please enter the domain name in the browser address bar to access `http://<aaPanelIP>:8070` to access the `Apollo` console.
+## Access Methods
+
+1. **Domain Name Access**
+   - URL Format: `http://<your-domain>`
+   - Example: `http://demo.apollo.org`
+
+2. **IP and Port Access**
+   - URL Format: `http://<aaPanelIP>:8070`
+   - Note: Requires "Allow external access" to be enabled
 
 ![console](/docs/en/images/deployment/btpanel/console.png)
 
