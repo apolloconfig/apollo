@@ -10,13 +10,13 @@
 1. 登录宝塔面板，在左侧菜单栏中点击 `Docker`
 ![Docker](https://github.com/user-attachments/assets/6642c5b8-892e-4703-84c2-f82fcc841ceb)
 
-3. 首次会提示安装`Docker`和`Docker Compose`服务，点击立即安装，若已安装请忽略。
+2. 首次会提示安装`Docker`和`Docker Compose`服务，点击立即安装，若已安装请忽略。
 ![安装环境](https://github.com/user-attachments/assets/c63bda9b-eb07-4352-be7e-c12dbf457018)
 
-4. 安装完成后在`Docker-应用商店`中找到 `Apollo`，点击`安装`
+3. 安装完成后在`Docker-应用商店`中找到 `Apollo`，点击`安装`
 ![安装](https://github.com/user-attachments/assets/21591d93-ecd9-470d-9590-f0e1938d9012)
 
-5. 设置域名等基本信息，点击`确定`
+4. 设置域名等基本信息，点击`确定`
 - 名称：应用名称，默认`apollo_随机字符`
 - 版本选择：默认`latest`
 - 允许外部访问：如您需通过`IP+Port`直接访问，请勾选，如您已经设置了域名，请不要勾选此处
@@ -24,7 +24,7 @@
 - 通信端口：默认`8080`，可自行修改
 - 元数据端口：默认`8090`，可自行修改
 
-6. 提交后面板会自动进行应用初始化，大概需要`1-3`分钟，初始化完成后即可访问
+5. 提交后面板会自动进行应用初始化，大概需要`1-3`分钟，初始化完成后即可访问
 
 
 
