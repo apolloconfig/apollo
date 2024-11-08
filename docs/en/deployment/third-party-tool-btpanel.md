@@ -1,5 +1,3 @@
-# aaPanel (Applicable versions 7.0.11 and above) Deployment guidelines
-
 ##  aaPanel  Docker  One-ClickInstall
 
 <Steps>
@@ -31,19 +29,18 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 4. configure basic information such as the domain name, ports to complete the installation
 
    Note:
-   The domain name is optional, if the domain name is filled, it can be managed through [Website]--> [Proxy Project], and you do not need to check [Allow external access] after filling in the domain name, otherwise you need to check it before you can access it through the port
+   The domain is optional. If a domain is provided, it can be managed through [Website] --> [Proxy Project]. In this case, you do not need to check [Allow external access]. However, if no domain is provided, you must check [Allow external access] to enable port-based access.
 
    ![addApollo](https://github.com/user-attachments/assets/9623c6d9-d0e5-4f87-adea-e5a95133cf3c)
 
 5. After installation, enter the domain name or IP+ port set in the previous step in the browser to access.
-
-  - Name: application name, default `Apollo-characters`
-  - Version selection: default `latest`
-  - Domain name: If you need to access directly through the domain name, please configure the domain name here and resolve the domain name to the server
-  - Allow external access: If you need direct access through `IP+Port`, please check. If you have set up a domain name, please do not check here.
-  - Web port: Default `8070`, can be modified by yourself
-  - Communication port: Default `8080`, can be modified by yourself
-  - Metadata port: Default `8090`, can be modified by yourself
+- Name: application name, default `Apollo-characters`
+- Version selection: default `latest`
+- Domain name: If you need to access directly through the domain name, please configure the domain name here and resolve the domain name to the server
+- Allow external access: If you need direct access through `IP+Port`, please check. If you have set up a domain name, please do not check here.
+- Web port: Default `8070`, can be modified by yourself
+- Communication port: Default `8080`, can be modified by yourself
+- Metadata port: Default `8090`, can be modified by yourself
 
 6. After submission, the panel will automatically initialize the application, which will take about `1-3` minutes. It can be accessed after the initialization is completed.
 
