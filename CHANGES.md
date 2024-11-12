@@ -19,6 +19,7 @@ Apollo 2.4.0
 * [Feature: openapi query namespace support not fill item](https://github.com/apolloconfig/apollo/pull/5249)
 * [Refactor: align database ClusterName and NamespaceName fields lengths](https://github.com/apolloconfig/apollo/pull/5263)
 * [Feature: Added the value length limit function for AppId-level configuration items](https://github.com/apolloconfig/apollo/pull/5264)
+* [Fix: ensure clusters order in envClusters open api](https://github.com/apolloconfig/apollo/pull/5277)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
