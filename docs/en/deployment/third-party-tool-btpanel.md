@@ -15,22 +15,22 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 
 1. Log in to aaPanel and click `Docker` in the menu bar
 
-   ![Docker](/docs/en/images/deployment/btpanel/install.png)
+   ![Docker](en/images/deployment/btpanel/install.png)
 
 2. The first time you will be prompted to install the `Docker` and `Docker Compose` services, click Install Now. If it is already installed, please ignore it.
 
-   ![install](/docs/en/images/deployment/btpanel/install2.png)
+   ![install](en/images/deployment/btpanel/install2.png)
 
 3. After the installation is complete, find `Apollo` in `One-Click Install` and click `install`  
 
-   ![install-Apollo](/docs/en/images/deployment/btpanel/install-Apollo.png)
+   ![install-Apollo](en/images/deployment/btpanel/install-Apollo.png)
 
 4. configure basic information such as the domain name, ports to complete the installation
 
    Note:
    The domain is optional. If a domain is provided, it can be managed through [Website] --> [Proxy Project]. In this case, you do not need to check [Allow external access]. However, if no domain is provided, you must check [Allow external access] to enable port-based access.
 
-   ![addApollo](/docs/en/images/deployment/btpanel/addApollo.png)
+   ![addApollo](en/images/deployment/btpanel/addApollo.png)
 
 5. After installation, enter the domain name or IP+ port set in the previous step in the browser to access.
 - Name: application name, default `Apollo-characters`
