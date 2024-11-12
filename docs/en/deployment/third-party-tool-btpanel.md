@@ -55,6 +55,16 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
    - URL Format: `http://<your-domain>`
    - Example: `http://demo.apollo.org`
 
+   **Enable HTTPS (Suggestion):**
+   1. Obtain an SSL certificate (recommended providers: Let's Encrypt, Certbot)
+   2. In aaPanel, go to [Website] -> [SSL]
+   3. Install your SSL certificate
+   4. Force HTTPS redirect for enhanced security
+
+   After SSL configuration:
+   - URL Format: `https://<your-domain>`
+   - Example: `https://demo.apollo.org`
+
 2. **IP and Port Access**
    - URL Format: `http://<aaPanelIP>:8070`
    - Note: Requires "Allow external access" to be enabled
