@@ -41,6 +41,10 @@ aaPanel(Applicable versions 7.0.11 and above) Deployment guidelines
 - Web port: Default `8070`, can be modified by yourself
 - Communication port: Default `8080`, can be modified by yourself
 - Metadata port: Default `8090`, can be modified by yourself
+- **Security Note:**
+  - Ensure these ports are not exposed directly to the internet
+  - Configure your firewall to restrict access to these ports
+  - Verify that these ports are not already in use by other services
 
 6. After submission, the panel will automatically initialize the application, which will take about `1-3` minutes. It can be accessed after the initialization is completed.
 
