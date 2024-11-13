@@ -1,7 +1,6 @@
-##  aaPanel Docker One-Click Install
+## aaPanel Docker One-Click Install
 
-  Go to [aaPanel official website](https://www.aapanel.com/new/download.html), Select the script to download and install
-  (Skip this step if you already have it installed)
+Go to [aaPanel official website](https://www.aapanel.com/new/download.html), Select the script to download and install(Skip this step if you already have it installed)
 
 # Deploy Apollo using aaPanel
 
