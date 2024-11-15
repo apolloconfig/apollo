@@ -164,17 +164,19 @@ diff_item_module.controller("DiffItemController",
             function parseSyncSourceData() {
                 var syncData = {
                     syncToNamespaces: [],
-                    syncItems: []
+                    syncItems: [],
+                    firstClusterKey: "",
                 };
                 var namespaceName = $scope.pageContext.namespaceName;
                 selectedClusters.forEach(function (cluster) {
                     if (cluster.checked) {
                         cluster.clusterName = cluster.name;
                         cluster.namespaceName = namespaceName;
+                        cluster.compositedKey = cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName;
                         syncData.syncToNamespaces.push(cluster);
                     }
                 });
-
+                syncData.firstClusterKey = selectedClusters[0].compositedKey;
                 return syncData;
             }
 

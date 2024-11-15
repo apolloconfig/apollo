@@ -127,10 +127,11 @@
                                 </label>
                             </div>
                             <div class="col-sm-12 diff-content">
-                                <table class="table table-bordered table-striped table-hover" ng-show="isTableDiff">
-                                    <thead>
+                                <!--表格对比 properties mode-->
+                                <table class="table table-bordered table-striped table-hover table-fixed" ng-show="isTableDiff">
+                                <thead>
                                         <tr>
-                                            <td>Key</td>
+                                            <td width="10%">Key</td>
                                             <td ng-repeat="cluster in syncData.syncToNamespaces">
                                                 Value ( {{'Common.Environment' | translate }} : <label ng-bind="cluster.env"></label> , {{'Common.Cluster' | translate }} : <label ng-bind="cluster.clusterName"></label> )
                                             </td>
@@ -142,16 +143,24 @@
                                     <tbody>
                                         <tr ng-repeat="(key, itemsKeyedByCluster) in itemsKeyedByKey" ng-if="(searchKey === '' || key.indexOf(searchKey) !== -1 ) && (!onlyShowDiffKeys || (onlyShowDiffKeys && !allNamespaceValueEqualed[key]))">
                                             <td width="15%" ng-bind="key"></td>
-                                            <td ng-repeat="cluster in syncData.syncToNamespaces"
-                                                ng-bind="(itemsKeyedByCluster[cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName] || {}).value">
+                                            <td ng-bind="(itemsKeyedByCluster[syncData.firstClusterKey] || {}).value"></td>
+                                            <td ng-repeat="cluster in syncData.syncToNamespaces.slice(1)">
+                                                <span ng-if="itemsKeyedByCluster[cluster.compositedKey]" >
+                                                    <apollodiff  old-str="(itemsKeyedByCluster[syncData.firstClusterKey] || {}).value"
+                                                                 new-str="(itemsKeyedByCluster[cluster.compositedKey] || {}).value"
+                                                                 apollo-id="'clusterDiff:' + key + ':' + cluster.compositedKey">
+                                                    </apollodiff>
+                                                </span>
                                             </td>
                                             <td ng-show="showCommentDiff"
                                                 ng-repeat="cluster in syncData.syncToNamespaces"
-                                                ng-bind="(itemsKeyedByCluster[cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName] || {}).comment">
+                                                ng-bind="(itemsKeyedByCluster[cluster.compositedKey] || {}).comment">
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <!--纯文本对比 text mode-->
                                 <apollodiff  ng-show="!isTableDiff" old-str="syncData.syncToNamespaces[0].originTextInfo"
                                              new-str="syncData.syncToNamespaces[1].originTextInfo" apollo-id="'releaseStrDiff'">
                                 </apollodiff>
