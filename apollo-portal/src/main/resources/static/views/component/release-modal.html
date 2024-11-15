@@ -68,7 +68,8 @@
 
                         <!--properties format-->
                         <!--normal release-->
-                        <table class="table table-bordered table-striped text-center table-hover"
+                        <!--主版本发布-->
+                        <table class="table table-bordered table-striped text-center table-hover table-fixed"
                             ng-if="toReleaseNamespace.isPropertiesFormat && !toReleaseNamespace.isBranch">
                             <thead>
                                 <tr>
@@ -78,7 +79,7 @@
                                     <th>
                                         {{'Component.Publish.PublishedValue' | translate }}
                                     </th>
-                                    <th>
+                                    <th width="40%">
                                         {{'Component.Publish.NoPublishedValue' | translate }}
                                     </th>
                                     <th>
@@ -108,8 +109,8 @@
                                     <td width="25%" title="{{config.oldValue}}">
                                         <span ng-bind="config.oldValue"></span>
                                     </td>
-                                    <td width="25%" title="{{config.newValue}}">
-                                        <span ng-bind="config.newValue"></span>
+                                    <td width="25%" title="{{config.newValue}}" class="left-overflow">
+                                        <apollodiff old-str="config.oldValue" new-str="config.newValue" apollo-id="'unpublishedDiffPublished:'+config.item.key"></apollodiff>
                                     </td>
                                     <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
                                     </td>
@@ -121,6 +122,7 @@
                         </table>
 
                         <!--branch gray release-->
+                        <!--灰度发布-->
                         <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish">
                             <thead>
@@ -172,7 +174,8 @@
                         </table>
 
                         <!--branch updateAndPublish and publish-->
-                        <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
+                        <!--灰度推全-->
+                        <table class="table table-bordered table-striped text-center table-hover table-fixed" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
                             <thead>
                                 <tr>
@@ -182,7 +185,7 @@
                                     <th ng-if="toReleaseNamespace.isBranch">
                                         {{'Component.Publish.MasterValue' | translate }}
                                     </th>
-                                    <th ng-if="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
+                                    <th width="40%" ng-if="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
                                         {{'Component.Publish.GrayValue' | translate }}
                                     </th>
                                     <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
@@ -207,8 +210,8 @@
                                     <td width="25%" title="{{config.masterReleaseValue}}">
                                         <span ng-bind="config.masterReleaseValue"></span>
                                     </td>
-                                    <td width="25%" title="{{config.item.value}}">
-                                        <span ng-bind="config.item.value"></span>
+                                    <td width="25%" title="{{config.item.value}}" class="left-overflow">
+                                        <apollodiff old-str="config.masterReleaseValue" new-str="config.item.value" apollo-id="'grayDiffMaster:' + config.item.key"></apollodiff>
                                     </td>
                                     <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
                                     </td>
