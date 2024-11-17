@@ -41,8 +41,8 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
     $scope.preDeleteConsumer = preDeleteConsumer;
     $scope.deleteConsumer = deleteConsumer;
     $scope.preGrantPermission = preGrantPermission;
-    $scope.toggleRateLimitEenabledInput = function() {
-        if (!$scope.consumer.rateLimitEenabled) {
+    $scope.toggleRateLimitEnabledInput = function() {
+        if (!$scope.consumer.rateLimitEnabled) {
             $scope.consumer.rateLimit = 0;
         }
     };
@@ -169,7 +169,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
             return;
         }
 
-        if ($scope.consumer.rateLimitEenabled) {
+        if ($scope.consumer.rateLimitEnabled) {
             if ($scope.consumer.rateLimit < 1) {
                 toastr.warning($translate.instant('Open.Manage.Consumer.RateLimitValue.Error'));
                 $scope.submitBtnDisabled = false;

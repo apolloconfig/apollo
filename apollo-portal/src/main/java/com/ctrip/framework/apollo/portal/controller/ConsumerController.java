@@ -81,7 +81,7 @@ public class ConsumerController {
       throw BadRequestException.orgIdIsBlank();
     }
 
-    if (requestVO.isRateLimitEenabled()) {
+    if (requestVO.isRateLimitEnabled()) {
       if (requestVO.getRateLimit() <= 0) {
         throw BadRequestException.rateLimitIsInvalid();
       }

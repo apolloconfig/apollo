@@ -38,7 +38,7 @@ public class BadRequestException extends AbstractApolloHttpException {
   }
 
   public static BadRequestException rateLimitIsInvalid() {
-    return new BadRequestException("Ratelimit must be greater than 1");
+    return new BadRequestException("rate limit must be greater than 1");
   }
 
   public static BadRequestException itemAlreadyExists(String itemKey) {

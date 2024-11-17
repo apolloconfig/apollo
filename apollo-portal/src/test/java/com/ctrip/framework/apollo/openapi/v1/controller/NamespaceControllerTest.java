@@ -39,7 +39,7 @@ import static org.hamcrest.Matchers.containsString;
 public class NamespaceControllerTest extends AbstractControllerTest {
 
   static final HttpHeaders HTTP_HEADERS_WITH_TOKEN = new HttpHeaders() {{
-    set(HttpHeaders.AUTHORIZATION, "3c16bf5b1f44b465179253442460e8c0ad845289");
+    set(HttpHeaders.AUTHORIZATION, "test-token");
   }};
   @Autowired
   private ConsumerPermissionValidator consumerPermissionValidator;

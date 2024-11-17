@@ -122,6 +122,7 @@ public class ConsumerService {
 
   public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     Preconditions.checkArgument(consumer != null, "Consumer can not be null");
+    Preconditions.checkArgument(rateLimit != null && rateLimit >= 0, "Rate limit must be non-negative");
 
     ConsumerToken consumerToken = generateConsumerToken(consumer, rateLimit, expires);
     consumerToken.setId(0);
@@ -322,6 +323,10 @@ public class ConsumerService {
     String createdBy = userInfoHolder.getUser().getUserId();
     Date createdTime = new Date();
 
+    if (rateLimit == null || rateLimit < 0) {
+      rateLimit = 0;
+    }
+
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setConsumerId(consumerId);
     consumerToken.setRateLimit(rateLimit);
@@ -353,7 +358,7 @@ public class ConsumerService {
         (generationTime), consumerTokenSalt), Charsets.UTF_8).toString();
   }
 
-    ConsumerRole createConsumerRole(Long consumerId, Long roleId, String operator) {
+  ConsumerRole createConsumerRole(Long consumerId, Long roleId, String operator) {
     ConsumerRole consumerRole = new ConsumerRole();
 
     consumerRole.setConsumerId(consumerId);
@@ -392,7 +397,7 @@ public class ConsumerService {
     return appIds;
   }
 
-  List<Consumer> findAllConsumer(Pageable page){
+  List<Consumer> findAllConsumer(Pageable page) {
     return this.consumerRepository.findAll(page).getContent();
   }
 
@@ -417,7 +422,7 @@ public class ConsumerService {
   }
 
   @Transactional
-  public void deleteConsumer(String appId){
+  public void deleteConsumer(String appId) {
     Consumer consumer = consumerRepository.findByAppId(appId);
     if (consumer == null) {
       throw new BadRequestException("ConsumerApp not exist");
