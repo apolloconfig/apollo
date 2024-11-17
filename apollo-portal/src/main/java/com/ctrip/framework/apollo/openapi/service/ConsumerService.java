@@ -120,10 +120,10 @@ public class ConsumerService {
     return consumerRepository.save(consumer);
   }
 
-  public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Date expires) {
+  public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     Preconditions.checkArgument(consumer != null, "Consumer can not be null");
 
-    ConsumerToken consumerToken = generateConsumerToken(consumer, expires);
+    ConsumerToken consumerToken = generateConsumerToken(consumer, rateLimit, expires);
     consumerToken.setId(0);
 
     return consumerTokenRepository.save(consumerToken);
@@ -314,20 +314,17 @@ public class ConsumerService {
   @Transactional
   public ConsumerToken createConsumerToken(ConsumerToken entity) {
     entity.setId(0); //for protection
-    if (entity.getLimitCount() <= 0) {
-      entity.setLimitCount(portalConfig.openApiLimitCount());
-    }
     return consumerTokenRepository.save(entity);
   }
 
-  private ConsumerToken generateConsumerToken(Consumer consumer, Date expires) {
+  private ConsumerToken generateConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     long consumerId = consumer.getId();
     String createdBy = userInfoHolder.getUser().getUserId();
     Date createdTime = new Date();
 
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setConsumerId(consumerId);
-    consumerToken.setLimitCount(portalConfig.openApiLimitCount());
+    consumerToken.setRateLimit(rateLimit);
     consumerToken.setExpires(expires);
     consumerToken.setDataChangeCreatedBy(createdBy);
     consumerToken.setDataChangeCreatedTime(createdTime);

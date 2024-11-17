@@ -24,6 +24,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -52,6 +53,8 @@ public class ConsumerAuthenticationFilter implements Filter {
   private static final int WARMUP_MILLIS = 1000; // ms
   private static final int RATE_LIMITER_CACHE_MAX_SIZE = 50000;
 
+  private static final int TOO_MANY_REQUESTS = 429;
+
   private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder()
       .expireAfterWrite(1, TimeUnit.DAYS)
       .maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
@@ -76,21 +79,18 @@ public class ConsumerAuthenticationFilter implements Filter {
     String token = request.getHeader(HttpHeaders.AUTHORIZATION);
     ConsumerToken consumerToken = consumerAuthUtil.getConsumerToken(token);
 
-    if (null == consumerToken || consumerToken.getConsumerId() <= 0) {
+    if (null == consumerToken) {
       response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
       return;
     }
 
-    Integer limitCount = consumerToken.getLimitCount();
-    if (limitCount == null) {
-      limitCount = 0;
-    }
-    if (portalConfig.isOpenApiLimitEnabled() && limitCount > 0) {
+    Integer rateLimit = consumerToken.getRateLimit();
+    if (null != rateLimit && rateLimit > 0) {
       try {
-        ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(token, limitCount);
+        ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(token, rateLimit);
         long warmupToMillis = rateLimiterPair.getLeft() + WARMUP_MILLIS;
         if (System.currentTimeMillis() > warmupToMillis && !rateLimiterPair.getRight().tryAcquire()) {
-          response.sendError(HttpServletResponse.SC_FORBIDDEN, "Too many call requests, the flow is limited");
+          response.sendError(TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
           return;
         }
       } catch (Exception e) {
@@ -113,12 +113,12 @@ public class ConsumerAuthenticationFilter implements Filter {
   }
 
   private ImmutablePair<Long, RateLimiter> getOrCreateRateLimiterPair(String key, Integer limitCount) {
-    ImmutablePair<Long, RateLimiter> rateLimiterPair = LIMITER.getIfPresent(key);
-    if (rateLimiterPair == null) {
-      rateLimiterPair = ImmutablePair.of(System.currentTimeMillis(), RateLimiter.create(limitCount));
-      LIMITER.put(key, rateLimiterPair);
+    try{
+      return LIMITER.get(key, () ->
+          ImmutablePair.of(System.currentTimeMillis(), RateLimiter.create(limitCount)));
+    } catch (ExecutionException e) {
+      throw new RuntimeException("Failed to create rate limiter", e);
     }
-    return rateLimiterPair;
   }
 
 }

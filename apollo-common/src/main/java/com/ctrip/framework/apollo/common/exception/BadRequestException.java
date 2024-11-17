@@ -37,6 +37,10 @@ public class BadRequestException extends AbstractApolloHttpException {
     return new BadRequestException("orgId can not be blank");
   }
 
+  public static BadRequestException rateLimitIsInvalid() {
+    return new BadRequestException("Ratelimit must be greater than 1");
+  }
+
   public static BadRequestException itemAlreadyExists(String itemKey) {
     return new BadRequestException("item already exists for itemKey:%s", itemKey);
   }

@@ -1455,18 +1455,6 @@ Default is 200, which means that each environment will return up to 200 results 
 
 Modifying this parameter may affect the performance of the search function, so before modifying it, you should conduct sufficient testing and adjust the value of `apollo.portal.search.perEnvMaxResults` appropriately according to the actual business requirements and system resources to balance the performance and the number of search results.
 
-### 3.1.15 open.api.limit.count - Default value of ConsumerToken current limit value
-
-> For versions 2.4.0 and above
-
-The default value is 20. When creating a third-party application in the Open Platform Authorization Management, the default current limit value of the created ConsumerToken is this value.
-
-### 3.1.16 open.api.limit.enabled - Whether to enable the ConsumerToken current limiting function
-
-> For versions 2.4.0 and above
-
-The default value is `false`. When set to `true`, it means that each ConsumerToken request to the Apollo OpenAPI interface will be limited to a specific QPS, and the current limit value is the value of the `limitCount` field in the `ConsumerToken` table.
-
 ## 3.2 Adjusting ApolloConfigDB configuration
 
 Configuration items are uniformly stored in the ApolloConfigDB.ServerConfig table. It should be noted that each environment's ApolloConfigDB.ServerConfig needs to be configured separately, and the modification takes effect in real time for one minute afterwards.

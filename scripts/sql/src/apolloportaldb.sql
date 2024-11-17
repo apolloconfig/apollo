@@ -155,7 +155,7 @@ CREATE TABLE `ConsumerToken` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
   `ConsumerId` int(11) unsigned DEFAULT NULL COMMENT 'ConsumerId',
   `Token` varchar(128) NOT NULL DEFAULT '' COMMENT 'token',
-  `LimitCount` int NOT NULL DEFAULT 20 COMMENT '限流值',
+  `RateLimit` int NOT NULL DEFAULT '0' COMMENT '限流值',
   `Expires` datetime NOT NULL DEFAULT '2099-01-01 00:00:00' COMMENT 'token失效时间',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',

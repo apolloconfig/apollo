@@ -23,6 +23,9 @@ import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
 import static org.hamcrest.Matchers.containsString;
@@ -34,6 +37,10 @@ import static org.hamcrest.Matchers.containsString;
  */
 @ActiveProfiles("skipAuthorization")
 public class NamespaceControllerTest extends AbstractControllerTest {
+
+  static final HttpHeaders HTTP_HEADERS_WITH_TOKEN = new HttpHeaders() {{
+    set(HttpHeaders.AUTHORIZATION, "3c16bf5b1f44b465179253442460e8c0ad845289");
+  }};
   @Autowired
   private ConsumerPermissionValidator consumerPermissionValidator;
 
@@ -47,9 +54,11 @@ public class NamespaceControllerTest extends AbstractControllerTest {
     dto.setFormat(ConfigFileFormat.Properties.getValue());
     dto.setDataChangeCreatedBy("apollo");
     try {
-      restTemplate.postForEntity(
+      restTemplate.exchange(
           url("/openapi/v1/apps/{appId}/appnamespaces"),
-          dto, OpenAppNamespaceDTO.class, dto.getAppId()
+          HttpMethod.POST,
+          new HttpEntity<>(dto, HTTP_HEADERS_WITH_TOKEN),
+          OpenAppNamespaceDTO.class, dto.getAppId()
       );
       Assert.fail("should throw");
     } catch (HttpClientErrorException e) {

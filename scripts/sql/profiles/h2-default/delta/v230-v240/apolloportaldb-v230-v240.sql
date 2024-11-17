@@ -31,7 +31,7 @@ CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR "com.ctrip.framework.apollo.common
 
 -- 
 
-ALTER TABLE `ConsumerToken` ADD COLUMN `LimitCount` int NOT NULL DEFAULT 20 COMMENT '限流值' AFTER `Token`;
+ALTER TABLE `ConsumerToken` ADD COLUMN `RateLimit` int NOT NULL DEFAULT '0' COMMENT '限流值' AFTER `Token`;
 
 -- 
 -- ===============================================================================

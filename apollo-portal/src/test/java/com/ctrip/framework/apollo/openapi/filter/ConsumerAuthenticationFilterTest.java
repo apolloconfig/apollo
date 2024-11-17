@@ -53,6 +53,9 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConsumerAuthenticationFilterTest {
+
+  private static final int TOO_MANY_REQUESTS = 429;
+
   private ConsumerAuthenticationFilter authenticationFilter;
   @Mock
   private ConsumerAuthUtil consumerAuthUtil;
@@ -161,7 +164,7 @@ public class ConsumerAuthenticationFilterTest {
     int leastTimes = qps * durationInSeconds;
     int mostTimes = (qps + 1) * durationInSeconds;
 
-    verify(response, atLeastOnce()).sendError(eq(HttpServletResponse.SC_FORBIDDEN), anyString());
+    verify(response, atLeastOnce()).sendError(eq(TOO_MANY_REQUESTS), anyString());
 
     verify(consumerAuthUtil, atLeast(leastTimes)).storeConsumerId(request, someConsumerId);
     verify(consumerAuthUtil, atMost(mostTimes)).storeConsumerId(request, someConsumerId);
@@ -176,11 +179,10 @@ public class ConsumerAuthenticationFilterTest {
   private void setupRateLimitMocks(String someToken, Long someConsumerId, int qps) {
     ConsumerToken someConsumerToken = new ConsumerToken();
     someConsumerToken.setConsumerId(someConsumerId);
-    someConsumerToken.setLimitCount(qps);
+    someConsumerToken.setRateLimit(qps);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
     when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
-    when(portalConfig.isOpenApiLimitEnabled()).thenReturn(true);
   }
 
 

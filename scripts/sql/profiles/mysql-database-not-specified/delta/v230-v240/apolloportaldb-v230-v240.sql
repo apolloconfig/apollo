@@ -27,7 +27,7 @@
 -- 
 
 ALTER TABLE `ConsumerToken`
-    ADD COLUMN `LimitCount` int NOT NULL DEFAULT 20 COMMENT '限流值' AFTER `Token`;
+    ADD COLUMN `RateLimit` int NOT NULL DEFAULT '0' COMMENT '限流值' AFTER `Token`;
 
 -- 
 -- ===============================================================================

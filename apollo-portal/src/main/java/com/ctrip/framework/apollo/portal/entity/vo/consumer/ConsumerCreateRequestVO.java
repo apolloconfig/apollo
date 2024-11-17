@@ -26,6 +26,8 @@ public class ConsumerCreateRequestVO {
   private String orgId;
   private String orgName;
   private String ownerName;
+  private boolean rateLimitEenabled;
+  private int rateLimit;
 
   public String getAppId() {
     return appId;
@@ -73,6 +75,22 @@ public class ConsumerCreateRequestVO {
 
   public void setOwnerName(String ownerName) {
     this.ownerName = ownerName;
+  }
+
+  public boolean isRateLimitEenabled() {
+    return rateLimitEenabled;
+  }
+
+  public void setRateLimitEenabled(boolean rateLimitEenabled) {
+    this.rateLimitEenabled = rateLimitEenabled;
+  }
+
+  public int getRateLimit() {
+    return rateLimit;
+  }
+
+  public void setRateLimit(int rateLimit) {
+    this.rateLimit = rateLimit;
   }
 
 }
