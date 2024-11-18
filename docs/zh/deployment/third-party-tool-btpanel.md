@@ -8,13 +8,13 @@
 ## 部署
 
 1. 登录宝塔面板，在左侧菜单栏中点击 `Docker`
-![Docker](zh/images/deployment/btpanel/docker-menu.png)
+![Docker](../images/deployment/btpanel/docker-menu.png)
 
 2. 首次会提示安装`Docker`和`Docker Compose`服务，点击立即安装，若已安装请忽略。
-![安装环境](zh/images/deployment/btpanel/install-docker.png)
+![安装环境](../images/deployment/btpanel/install-docker.png)
 
 3. 安装完成后在`Docker-应用商店`中找到 `Apollo`，点击`安装`
-![安装](zh/images/deployment/btpanel/search-apollo.png)
+![安装](../images/deployment/btpanel/search-apollo.png)
 
 4. 设置域名等基本信息，点击`确定`
 - 名称：应用名称，默认`apollo_随机字符`
