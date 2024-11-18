@@ -60,7 +60,7 @@ directive_module.directive('apollodiff',
                             part.removed ? 'red' : 'grey';
                         span = document.createElement('span');
                         span.style.color = color;
-                        span.style.display = 'block'
+                        span.style.display = 'block';
                         pre = part.added ? '+' :
                             part.removed ? '-' : '';
                         span.appendChild(document.createTextNode(pre + part.value));
