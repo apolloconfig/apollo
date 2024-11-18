@@ -200,11 +200,11 @@
 				<artifactId>commons-lang3</artifactId>
 				<version>${common-lang3.version}</version>
 			</dependency>
-			<!-- to fix CVE-2022-41966 -->
+			<!-- to fix CVE-2024-47072 -->
 			<dependency>
 				<groupId>com.thoughtworks.xstream</groupId>
 				<artifactId>xstream</artifactId>
-				<version>1.4.20</version>
+				<version>1.4.21</version>
 			</dependency>
 			<!--for test -->
 			<dependency>
