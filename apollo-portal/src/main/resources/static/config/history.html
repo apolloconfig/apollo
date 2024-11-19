@@ -157,11 +157,11 @@
                         <section ng-show="history.viewType=='diff'">
                             <h4 class="section-title">{{'Config.History.ChangedItem' | translate }}</h4>
                             <div ng-show="history.changes && history.changes.length > 0">
-                                <table class="no-margin table table-striped table-hover table-bordered">
+                                <table class="no-margin table table-striped table-hover table-bordered table-fixed">
                                     <thead>
                                         <tr>
-                                            <th>{{'Config.History.ChangeType' | translate }}</th>
-                                            <th>{{'Config.History.ChangeKey' | translate }}</th>
+                                            <th width="10%">{{'Config.History.ChangeType' | translate }}</th>
+                                            <th width="12%">{{'Config.History.ChangeKey' | translate }}</th>
                                             <th>{{'Config.History.ChangeOldValue' | translate }}</th>
                                             <th>{{'Config.History.ChangeNewValue' | translate }}</th>
                                         </tr>
@@ -188,11 +188,14 @@
                                                 <span
                                                     ng-bind="change.entity.firstEntity.value.length > 250 ? '...' :''"></span>
                                             </td>
-                                            <td class="cursor-pointer" width="35%"
+                                            <td class="cursor-pointer left-overflow" width="35%"
                                                 ng-click="showText(change.entity.secondEntity.value)">
-                                                <span ng-bind="change.entity.secondEntity.value | limitTo: 250"></span>
-                                                <span
-                                                    ng-bind="change.entity.secondEntity.value.length > 250 ? '...' :''"></span>
+                                                <span>
+                                                    <apollodiff  old-str="change.entity.firstEntity.value"
+                                                                 new-str="change.entity.secondEntity.value"
+                                                                 apollo-id="'diff:' + change.entity.firstEntity.key">
+                                                    </apollodiff>
+                                                </span>
                                             </td>
                                         </tr>
                                     </tbody>
