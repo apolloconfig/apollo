@@ -20,6 +20,7 @@ Apollo 2.4.0
 * [Refactor: align database ClusterName and NamespaceName fields lengths](https://github.com/apolloconfig/apollo/pull/5263)
 * [Feature: Added the value length limit function for AppId-level configuration items](https://github.com/apolloconfig/apollo/pull/5264)
 * [Fix: ensure clusters order in envClusters open api](https://github.com/apolloconfig/apollo/pull/5277)
+* [Fix: bump xstream from 1.4.20 to 1.4.21 to fix CVE-2024-47072](https://github.com/apolloconfig/apollo/pull/5280)
 * [Feature: Added current limiting function to ConsumerToken](https://github.com/apolloconfig/apollo/pull/5267)
 
 ------------------
