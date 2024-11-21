@@ -34,7 +34,7 @@
 
 ## 访问 Apollo
 - 请在浏览器地址栏中输入域名访问 `http://<宝塔面板IP>:8070`，即可访问 `Apollo` 控制台。
-![控制台](zh/images/deployment/btpanel/search-apollo.png)
+![控制台](../images/deployment/btpanel/search-apollo.png)
 
 > 默认登录信息: username `apollo`, password `admin`，为了服务器安全，请在登陆后立即修改密码。
 
