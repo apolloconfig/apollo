@@ -63,7 +63,7 @@ class ConsumerControllerTest {
 
     Mockito.verify(consumerService, Mockito.times(1)).createConsumer(Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1))
-        .generateAndSaveConsumerToken(Mockito.any(), Mockito.any(),Mockito.any());
+        .generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any());
     Mockito.verify(consumerService, Mockito.times(0))
         .assignCreateApplicationRoleToConsumer(Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());

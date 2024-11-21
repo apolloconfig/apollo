@@ -54,6 +54,7 @@ public class SkipAuthorizationConfiguration {
 
     ConsumerToken someConsumerToken = new ConsumerToken();
     someConsumerToken.setConsumerId(1L);
+    someConsumerToken.setToken("some-token");
     someConsumerToken.setRateLimit(20);
     when(mock.getConsumerToken(any())).thenReturn(someConsumerToken);
     return mock;

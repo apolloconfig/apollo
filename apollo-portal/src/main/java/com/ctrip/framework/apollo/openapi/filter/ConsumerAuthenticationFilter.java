@@ -19,13 +19,11 @@ package com.ctrip.framework.apollo.openapi.filter;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -48,21 +46,18 @@ public class ConsumerAuthenticationFilter implements Filter {
 
   private final ConsumerAuthUtil consumerAuthUtil;
   private final ConsumerAuditUtil consumerAuditUtil;
-  private final PortalConfig portalConfig;
 
   private static final int WARMUP_MILLIS = 1000; // ms
-  private static final int RATE_LIMITER_CACHE_MAX_SIZE = 50000;
+  private static final int RATE_LIMITER_CACHE_MAX_SIZE = 20000;
 
   private static final int TOO_MANY_REQUESTS = 429;
 
   private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder()
-      .expireAfterWrite(1, TimeUnit.DAYS)
       .maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
 
-  public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil, PortalConfig portalConfig) {
+  public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerAuditUtil = consumerAuditUtil;
-    this.portalConfig = portalConfig;
   }
 
   @Override
@@ -87,7 +82,7 @@ public class ConsumerAuthenticationFilter implements Filter {
     Integer rateLimit = consumerToken.getRateLimit();
     if (null != rateLimit && rateLimit > 0) {
       try {
-        ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(token, rateLimit);
+        ImmutablePair<Long, RateLimiter> rateLimiterPair = getOrCreateRateLimiterPair(consumerToken.getToken(), rateLimit);
         long warmupToMillis = rateLimiterPair.getLeft() + WARMUP_MILLIS;
         if (System.currentTimeMillis() > warmupToMillis && !rateLimiterPair.getRight().tryAcquire()) {
           response.sendError(TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");

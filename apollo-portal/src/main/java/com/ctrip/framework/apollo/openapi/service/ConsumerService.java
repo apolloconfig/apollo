@@ -122,7 +122,6 @@ public class ConsumerService {
 
   public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     Preconditions.checkArgument(consumer != null, "Consumer can not be null");
-    Preconditions.checkArgument(rateLimit != null && rateLimit >= 0, "Rate limit must be non-negative");
 
     ConsumerToken consumerToken = generateConsumerToken(consumer, rateLimit, expires);
     consumerToken.setId(0);

@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 
-import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,8 +60,6 @@ public class ConsumerAuthenticationFilterTest {
   private ConsumerAuthUtil consumerAuthUtil;
   @Mock
   private ConsumerAuditUtil consumerAuditUtil;
-  @Mock
-  private PortalConfig portalConfig;
 
   @Mock
   private HttpServletRequest request;
@@ -73,7 +70,7 @@ public class ConsumerAuthenticationFilterTest {
 
   @Before
   public void setUp() throws Exception {
-    authenticationFilter = new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil, portalConfig);
+    authenticationFilter = new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil);
   }
 
   @Test
@@ -115,7 +112,7 @@ public class ConsumerAuthenticationFilterTest {
     String someToken = "someToken";
     Long someConsumerId = 1L;
     int qps = 5;
-    int durationInSeconds = 10;
+    int durationInSeconds = 3;
 
     setupRateLimitMocks(someToken, someConsumerId, qps);
 
@@ -145,7 +142,7 @@ public class ConsumerAuthenticationFilterTest {
     String someToken = "someToken";
     Long someConsumerId = 1L;
     int qps = 5;
-    int durationInSeconds = 10;
+    int durationInSeconds = 3;
 
     setupRateLimitMocks(someToken, someConsumerId, qps);
 
@@ -159,10 +156,11 @@ public class ConsumerAuthenticationFilterTest {
       }
     };
 
-    executeWithQps(qps + 1, task, durationInSeconds);
+    int realQps = qps + 10;
+    executeWithQps(realQps, task, durationInSeconds);
 
     int leastTimes = qps * durationInSeconds;
-    int mostTimes = (qps + 1) * durationInSeconds;
+    int mostTimes = realQps * durationInSeconds;
 
     verify(response, atLeastOnce()).sendError(eq(TOO_MANY_REQUESTS), anyString());
 
@@ -180,6 +178,7 @@ public class ConsumerAuthenticationFilterTest {
     ConsumerToken someConsumerToken = new ConsumerToken();
     someConsumerToken.setConsumerId(someConsumerId);
     someConsumerToken.setRateLimit(qps);
+    someConsumerToken.setToken(someToken);
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
     when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
