@@ -109,7 +109,7 @@ public class ConsumerAuthenticationFilterTest {
 
   @Test
   public void testRateLimitSuccessfully() throws Exception {
-    String someToken = "someToken";
+    String someToken = "some-ratelimit-success-token";
     Long someConsumerId = 1L;
     int qps = 5;
     int durationInSeconds = 3;
@@ -126,9 +126,10 @@ public class ConsumerAuthenticationFilterTest {
       }
     };
 
-    executeWithQps(qps, task, durationInSeconds);
+    int realQps = qps - 1;
+    executeWithQps(realQps, task, durationInSeconds);
 
-    int total = qps * durationInSeconds;
+    int total = realQps * durationInSeconds;
 
     verify(consumerAuthUtil, times(total)).storeConsumerId(request, someConsumerId);
     verify(consumerAuditUtil, times(total)).audit(request, someConsumerId);
@@ -139,7 +140,7 @@ public class ConsumerAuthenticationFilterTest {
 
   @Test
   public void testRateLimitPartFailure() throws Exception {
-    String someToken = "someToken";
+     String someToken = "some-ratelimit-fail-token";
     Long someConsumerId = 1L;
     int qps = 5;
     int durationInSeconds = 3;
@@ -156,7 +157,7 @@ public class ConsumerAuthenticationFilterTest {
       }
     };
 
-    int realQps = qps + 10;
+    int realQps = qps + 3;
     executeWithQps(realQps, task, durationInSeconds);
 
     int leastTimes = qps * durationInSeconds;
