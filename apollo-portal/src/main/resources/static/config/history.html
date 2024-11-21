@@ -188,14 +188,10 @@
                                                 <span
                                                     ng-bind="change.entity.firstEntity.value.length > 250 ? '...' :''"></span>
                                             </td>
-                                            <td class="cursor-pointer left-overflow" width="35%"
-                                                ng-click="showText(change.entity.secondEntity.value)">
-                                                <span>
-                                                    <apollodiff  old-str="change.entity.firstEntity.value"
-                                                                 new-str="change.entity.secondEntity.value"
-                                                                 apollo-id="'diff:' + change.entity.firstEntity.key">
-                                                    </apollodiff>
-                                                </span>
+                                            <td class="cursor-pointer" width="35%"
+                                                ng-click="showTextDiff(change.entity.firstEntity.value, change.entity.secondEntity.value)">
+                                                <span ng-bind="change.entity.secondEntity.value | limitTo: 250"></span>
+                                                <span ng-bind="change.entity.secondEntity.value.length > 250 ? '...' :''"></span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -313,7 +309,7 @@
             </div>
         </section>
 
-        <showtextmodal text="text"></showtextmodal>
+        <showtextmodal text="text" new-str="newStr" old-str="oldStr" enable-text-diff="enableTextDiff"></showtextmodal>
 
         <rollbackmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
         </rollbackmodal>

@@ -297,6 +297,7 @@
   "Component.Publish.NoPublishedValue": "Unreleased values",
   "Component.Publish.ModifyUser": "Modifier",
   "Component.Publish.ModifyTime": "Modified Time",
+  "Component.Publish.ModifyRecord": "Record",
   "Component.Publish.NewAdded": "New",
   "Component.Publish.NewAddedTips": "New Configuration",
   "Component.Publish.Modified": "Modified",

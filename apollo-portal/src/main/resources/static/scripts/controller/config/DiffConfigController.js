@@ -38,7 +38,7 @@ diff_item_module.controller("DiffItemController",
             $scope.backToAppHomePage = backToAppHomePage;
             $scope.switchSelect = switchSelect;
 
-            $scope.showText = showText;
+            $scope.showTextDiff = showTextDiff;
 
             $scope.itemsKeyedByKey = {};
             $scope.allNamespaceValueEqualed = {};
@@ -195,8 +195,9 @@ diff_item_module.controller("DiffItemController",
                 o.checked = !o.checked;
             }
 
-            function showText(text) {
-                $scope.text = text;
+            function showTextDiff(oldStr, newStr) {
+                $scope.oldStr = oldStr;
+                $scope.newStr = newStr;
                 AppUtil.showModal('#showTextModal');
             }
         }]);

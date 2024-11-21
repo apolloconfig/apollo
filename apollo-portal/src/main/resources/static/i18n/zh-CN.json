@@ -297,6 +297,7 @@
   "Component.Publish.NoPublishedValue": "待发布的值",
   "Component.Publish.ModifyUser": "修改人",
   "Component.Publish.ModifyTime": "修改时间",
+  "Component.Publish.ModifyRecord": "修改记录",
   "Component.Publish.NewAdded": "新",
   "Component.Publish.NewAddedTips": "新增的配置",
   "Component.Publish.Modified": "改",

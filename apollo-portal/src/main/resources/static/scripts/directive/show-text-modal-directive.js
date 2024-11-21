@@ -74,7 +74,10 @@ function showTextModalDirective(AppUtil) {
         transclude: true,
         replace: true,
         scope: {
-            text: '='
+            text: '=',
+            oldStr: '=',
+            newStr: '=',
+            enableTextDiff: '='
         },
         link: function (scope) {
             scope.$watch('text', init);
