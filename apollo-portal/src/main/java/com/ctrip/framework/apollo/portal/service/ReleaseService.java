@@ -17,8 +17,10 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.common.constants.GsonType;
+import com.ctrip.framework.apollo.common.constants.ReleaseOperation;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -215,5 +217,20 @@ public class ReleaseService {
     }
 
     return compareResult;
+  }
+
+  public ReleaseCompareResult compareReleaseHistory(Env env, ReleaseHistoryBO releaseHistory) {
+    if (releaseHistory.getOperation() == ReleaseOperation.GRAY_RELEASE
+            && releaseHistory.getPreviousReleaseId() == 0) {
+      // Load the latest master release and branch release
+      ReleaseDTO masterLatestActiveRelease = loadLatestRelease(
+              releaseHistory.getAppId(), env, releaseHistory.getClusterName(), releaseHistory.getNamespaceName());
+      ReleaseDTO branchLatestActiveRelease = findReleaseById(env, releaseHistory.getReleaseId());
+
+      return compare(masterLatestActiveRelease, branchLatestActiveRelease);
+    }
+
+    // Compare based on previous release and current release
+    return compare(env, releaseHistory.getPreviousReleaseId(), releaseHistory.getReleaseId());
   }
 }

@@ -179,7 +179,7 @@ public abstract class ConfigPublishEmailBuilder {
       return bodyTemplate.replaceAll(EMAIL_CONTENT_DIFF_MODULE, "<br><h4>变更内容请点击链接到Apollo上查看</h4>");
     }
 
-    ReleaseCompareResult result = getReleaseCompareResult(env, releaseHistory);
+    ReleaseCompareResult result = releaseService.compareReleaseHistory(env, releaseHistory);
 
     if (!result.hasContent()) {
       return bodyTemplate.replaceAll(EMAIL_CONTENT_DIFF_MODULE, "<br><h4>无配置变更</h4>");
@@ -206,19 +206,6 @@ public abstract class ConfigPublishEmailBuilder {
     String diffModuleTemplate = getDiffModuleTemplate();
     String diffModuleRenderResult = diffModuleTemplate.replaceAll(EMAIL_CONTENT_FIELD_DIFF_CONTENT, diffContent);
     return bodyTemplate.replaceAll(EMAIL_CONTENT_DIFF_MODULE, diffModuleRenderResult);
-  }
-
-  private ReleaseCompareResult getReleaseCompareResult(Env env, ReleaseHistoryBO releaseHistory) {
-    if (releaseHistory.getOperation() == ReleaseOperation.GRAY_RELEASE
-            && releaseHistory.getPreviousReleaseId() == 0) {
-      ReleaseDTO masterLatestActiveRelease = releaseService.loadLatestRelease(
-              releaseHistory.getAppId(), env, releaseHistory.getClusterName(), releaseHistory.getNamespaceName());
-      ReleaseDTO branchLatestActiveRelease = releaseService.findReleaseById(env, releaseHistory.getReleaseId());
-
-      return releaseService.compare(masterLatestActiveRelease, branchLatestActiveRelease);
-    }
-
-    return releaseService.compare(env, releaseHistory.getPreviousReleaseId(), releaseHistory.getReleaseId());
   }
 
   private List<String> recipients(String appId, String namespaceName, String env) {

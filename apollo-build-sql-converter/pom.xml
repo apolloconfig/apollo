@@ -42,7 +42,7 @@
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 		<profile>

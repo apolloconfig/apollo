@@ -32,6 +32,7 @@ import com.ctrip.framework.apollo.portal.spi.EmailService;
 import com.ctrip.framework.apollo.portal.spi.MQService;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;

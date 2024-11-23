@@ -75,9 +75,8 @@ public class ReleaseController {
                                       @PathVariable String namespaceName,
                                       @RequestBody NamespaceReleaseDTO model,
                                       HttpServletRequest request) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-            .getReleaseTitle()),
-        "Params(releaseTitle and releasedBy) can not be empty");
+      boolean doesContainEmpty = StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle());
+      RequestPrecondition.checkArguments(!doesContainEmpty, "Params(releaseTitle and releasedBy) can not be empty");
 
     if (userService.findByUserId(model.getReleasedBy()) == null) {
       throw BadRequestException.userNotExists(model.getReleasedBy());
@@ -99,9 +98,8 @@ public class ReleaseController {
                             @PathVariable String clusterName, @PathVariable String namespaceName,
                             @PathVariable String branchName, @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
                             @RequestBody NamespaceReleaseDTO model, HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
+        boolean doesContainEmpty = StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle());
+        RequestPrecondition.checkArguments(!doesContainEmpty, "Params(releaseTitle and releasedBy) can not be empty");
 
         if (userService.findByUserId(model.getReleasedBy()) == null) {
             throw BadRequestException.userNotExists(model.getReleasedBy());
@@ -121,20 +119,15 @@ public class ReleaseController {
                                         @PathVariable String namespaceName, @PathVariable String branchName,
                                         @RequestBody NamespaceReleaseDTO model,
                                         HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
+        boolean doesContainEmpty = StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle());
+        RequestPrecondition.checkArguments(!doesContainEmpty, "Params(releaseTitle and releasedBy) can not be empty");
 
         if (userService.findByUserId(model.getReleasedBy()) == null) {
             throw BadRequestException.userNotExists(model.getReleasedBy());
         }
 
         NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
-
-        releaseModel.setAppId(appId);
-        releaseModel.setEnv(Env.valueOf(env).toString());
-        releaseModel.setClusterName(branchName);
-        releaseModel.setNamespaceName(namespaceName);
+        populateReleaseModel(releaseModel, appId, Env.valueOf(env).toString(), branchName, namespaceName);
 
         return OpenApiBeanUtils.transformFromReleaseDTO(releaseService.publish(releaseModel));
     }
@@ -146,9 +139,9 @@ public class ReleaseController {
                                                @PathVariable String namespaceName, @PathVariable String branchName,
                                                @RequestBody NamespaceGrayDelReleaseDTO model,
                                                HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
+        boolean doesContainEmpty = StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle());
+        RequestPrecondition.checkArguments(!doesContainEmpty, "Params(releaseTitle and releasedBy) can not be empty");
+
         RequestPrecondition.checkArguments(model.getGrayDelKeys() != null,
                 "Params(grayDelKeys) can not be null");
 
@@ -157,19 +150,17 @@ public class ReleaseController {
         }
 
         NamespaceGrayDelReleaseModel releaseModel = BeanUtils.transform(NamespaceGrayDelReleaseModel.class, model);
-        releaseModel.setAppId(appId);
-        releaseModel.setEnv(env.toUpperCase());
-        releaseModel.setClusterName(branchName);
-        releaseModel.setNamespaceName(namespaceName);
+        populateReleaseModel(releaseModel, appId, env.toUpperCase(), branchName, namespaceName);
 
-        return OpenApiBeanUtils.transformFromReleaseDTO(releaseService.publish(releaseModel, releaseModel.getReleasedBy()));
+        ReleaseDTO publish = releaseService.publish(releaseModel, releaseModel.getReleasedBy());
+        return OpenApiBeanUtils.transformFromReleaseDTO(publish);
     }
 
   @PutMapping(path = "/releases/{releaseId}/rollback")
   public void rollback(@PathVariable String env,
       @PathVariable long releaseId, @RequestParam String operator, HttpServletRequest request) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
-        "Param operator can not be empty");
+     boolean doesContainEmpty = StringUtils.isContainEmpty(operator);
+     RequestPrecondition.checkArguments(!doesContainEmpty, "Param operator can not be empty");
 
     if (userService.findByUserId(operator) == null) {
       throw BadRequestException.userNotExists(operator);
@@ -187,5 +178,12 @@ public class ReleaseController {
 
     this.releaseOpenApiService.rollbackRelease(env, releaseId, operator);
   }
+
+    private void populateReleaseModel(NamespaceReleaseModel releaseModel, String appId, String env, String branchName, String namespaceName) {
+        releaseModel.setAppId(appId);
+        releaseModel.setEnv(env.toUpperCase());
+        releaseModel.setClusterName(branchName);
+        releaseModel.setNamespaceName(namespaceName);
+    }
 
 }

@@ -157,10 +157,17 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
    * load gray releases. Because gray release rules actually apply to one more dimension - cluster.
    */
   public boolean hasGrayReleaseRule(String clientAppId, String clientIp, String namespaceName) {
-    return reversedGrayReleaseRuleCache.containsKey(assembleReversedGrayReleaseRuleKey(clientAppId,
-        namespaceName, clientIp)) || reversedGrayReleaseRuleCache.containsKey
-        (assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, GrayReleaseRuleItemDTO
-            .ALL_IP));
+
+    String ruleKeyViaClientIp = assembleReversedGrayReleaseRuleKey(clientAppId,
+            namespaceName, clientIp);
+    String ruleKeyViaItemDTO = assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, GrayReleaseRuleItemDTO
+            .ALL_IP);
+
+    boolean hasScheduleForThisKey = reversedGrayReleaseRuleCache.containsKey(ruleKeyViaClientIp);
+    boolean hasScheduleForThatKey = reversedGrayReleaseRuleCache.containsKey
+            (ruleKeyViaItemDTO);
+
+    return hasScheduleForThisKey || hasScheduleForThatKey;
   }
 
   private void scanGrayReleaseRules() {
