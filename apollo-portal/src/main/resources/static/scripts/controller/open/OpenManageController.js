@@ -170,7 +170,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
         }
 
         if ($scope.consumer.rateLimitEnabled) {
-            if ($scope.consumer.rateLimit < 1) {
+            if (!$scope.consumer.rateLimit || $scope.consumer.rateLimit < 1) {
                 toastr.warning($translate.instant('Open.Manage.Consumer.RateLimitValue.Error'));
                 $scope.submitBtnDisabled = false;
                 return;

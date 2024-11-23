@@ -24,6 +24,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -53,6 +54,7 @@ public class ConsumerAuthenticationFilter implements Filter {
   private static final int TOO_MANY_REQUESTS = 429;
 
   private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER = CacheBuilder.newBuilder()
+      .expireAfterAccess(1, TimeUnit.HOURS)
       .maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
 
   public ConsumerAuthenticationFilter(ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
@@ -108,7 +110,7 @@ public class ConsumerAuthenticationFilter implements Filter {
   }
 
   private ImmutablePair<Long, RateLimiter> getOrCreateRateLimiterPair(String key, Integer limitCount) {
-    try{
+    try {
       return LIMITER.get(key, () ->
           ImmutablePair.of(System.currentTimeMillis(), RateLimiter.create(limitCount)));
     } catch (ExecutionException e) {

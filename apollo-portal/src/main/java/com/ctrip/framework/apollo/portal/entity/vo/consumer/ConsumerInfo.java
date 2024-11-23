@@ -33,6 +33,8 @@ public class ConsumerInfo {
   private String token;
   private boolean allowCreateApplication;
 
+  private Integer rateLimit;
+
   public String getAppId() {
     return appId;
   }
@@ -104,4 +106,13 @@ public class ConsumerInfo {
   public void setAllowCreateApplication(boolean allowCreateApplication) {
     this.allowCreateApplication = allowCreateApplication;
   }
+
+  public Integer getRateLimit() {
+    return rateLimit;
+  }
+
+  public void setRateLimit(Integer rateLimit) {
+    this.rateLimit = rateLimit;
+  }
+
 }

@@ -198,7 +198,8 @@ public class ConsumerService {
   private ConsumerInfo convert(
       Consumer consumer,
       String token,
-      boolean allowCreateApplication
+      boolean allowCreateApplication,
+      Integer rateLimit
   ) {
     ConsumerInfo consumerInfo = new ConsumerInfo();
     consumerInfo.setConsumerId(consumer.getId());
@@ -208,6 +209,7 @@ public class ConsumerService {
     consumerInfo.setOwnerEmail(consumer.getOwnerEmail());
     consumerInfo.setOrgId(consumer.getOrgId());
     consumerInfo.setOrgName(consumer.getOrgName());
+    consumerInfo.setRateLimit(rateLimit);
 
     consumerInfo.setToken(token);
     consumerInfo.setAllowCreateApplication(allowCreateApplication);
@@ -223,11 +225,15 @@ public class ConsumerService {
     if (consumer == null) {
       return null;
     }
-    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()));
+    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()), getRateLimit(consumer.getId()));
   }
 
   private boolean isAllowCreateApplication(Long consumerId) {
     return isAllowCreateApplication(Collections.singletonList(consumerId)).get(0);
+  }
+
+  private Integer getRateLimit(Long consumerId) {
+    return getRateLimit(Collections.singletonList(consumerId)).get(0);
   }
 
   private List<Boolean> isAllowCreateApplication(List<Long> consumerIdList) {
@@ -247,6 +253,17 @@ public class ConsumerService {
           consumerId, roleId
       );
       list.add(createAppConsumerRole != null);
+    }
+
+    return list;
+  }
+
+  private List<Integer> getRateLimit(List<Long> consumerIdList) {
+    List<Integer> list = new ArrayList<>(consumerIdList.size());
+    for (Long consumerId : consumerIdList) {
+      ConsumerToken consumerToken = consumerTokenRepository.findByConsumerId(consumerId);
+      Integer rateLimit = consumerToken.getRateLimit();
+      list.add(rateLimit);
     }
 
     return list;
@@ -405,6 +422,7 @@ public class ConsumerService {
     List<Long> consumerIdList = consumerList.stream()
         .map(Consumer::getId).collect(Collectors.toList());
     List<Boolean> allowCreateApplicationList = isAllowCreateApplication(consumerIdList);
+    List<Integer> rateLimitList = getRateLimit(consumerIdList);
 
     List<ConsumerInfo> consumerInfoList = new ArrayList<>(consumerList.size());
 
@@ -412,7 +430,7 @@ public class ConsumerService {
       Consumer consumer = consumerList.get(i);
       // without token
       ConsumerInfo consumerInfo = convert(
-          consumer, null, allowCreateApplicationList.get(i)
+          consumer, null, allowCreateApplicationList.get(i), rateLimitList.get(i)
       );
       consumerInfoList.add(consumerInfo);
     }

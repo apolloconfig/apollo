@@ -62,7 +62,8 @@
                                 <th style="width: 10%">{{'Common.AppId' | translate }}</th>
                                 <th style="width: 15%">{{'Common.AppName' | translate }}</th>
                                 <th style="width: 10%">{{'Open.Manage.Consumer.AllowCreateApplication' | translate }}</th>
-                                <th style="width: 20%">{{'Common.Department' | translate }}</th>
+                                <th style="width: 10%">{{'Open.Manage.Consumer.RateLimitValue' | translate }}</th>
+                                <th style="width: 15%">{{'Common.Department' | translate }}</th>
                                 <th style="width: 20%">{{'Common.AppOwner' | translate }}/{{'Common.Email' | translate }}</th>
                                 <th style="width: 20%">{{'Common.Operation' | translate}}</th>
                             </tr>
@@ -78,8 +79,9 @@
                                         {{'Open.Manage.Consumer.AllowCreateApplication.No' | translate}}
                                     </div>
                                 </td>
+                                <td style="width: 10%">{{ consumer.rateLimit }}</td>
 
-                                <td style="width: 20%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
+                                <td style="width: 15%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
                                 <td style="width: 20%"><b>{{ consumer.ownerName }}</b>/{{ consumer.ownerEmail }}</td>
                                 <td style="width: 20%;">
                                     <button class="btn btn-default btn-md" ng-click="preGrantPermission(consumer)">
