@@ -251,6 +251,7 @@ public class ConsumerServiceTest {
 
       ConsumerToken consumerToken = new ConsumerToken();
       consumerToken.setToken(token);
+      consumerToken.setRateLimit(0);
       when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
           .thenReturn(consumerToken);
     }
@@ -276,6 +277,7 @@ public class ConsumerServiceTest {
 
       ConsumerToken consumerToken = new ConsumerToken();
       consumerToken.setToken(token);
+      consumerToken.setRateLimit(0);
       when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
           .thenReturn(consumerToken);
     }
