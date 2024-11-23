@@ -5,6 +5,7 @@ Release Notes.
 Apollo 2.4.0
 
 ------------------
+* [Refactor: removed few of the code smells and refactored the code to improve readability](https://github.com/apolloconfig/apollo/pull/5284)
 * [Update the server config link in system info page](https://github.com/apolloconfig/apollo/pull/5204)
 * [Feature support portal restTemplate Client connection pool config](https://github.com/apolloconfig/apollo/pull/5200)
 * [Feature added the ability for administrators to globally search for Value](https://github.com/apolloconfig/apollo/pull/5182)
