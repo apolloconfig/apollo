@@ -262,7 +262,7 @@ public class ConsumerService {
     List<Integer> list = new ArrayList<>(consumerIdList.size());
     for (Long consumerId : consumerIdList) {
       ConsumerToken consumerToken = consumerTokenRepository.findByConsumerId(consumerId);
-      Integer rateLimit = consumerToken.getRateLimit();
+      Integer rateLimit = consumerToken != null ? consumerToken.getRateLimit() : 0;
       list.add(rateLimit);
     }
 
