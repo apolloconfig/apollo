@@ -13,6 +13,7 @@
   - [部署架构](zh/deployment/deployment-architecture.md)
   - 第三方工具部署
     - [基于Rainbond一键安装高可用Apollo集群](zh/deployment/third-party-tool-rainbond.md)
+    - [基于宝塔面板快速部署 Apollo](zh/deployment/third-party-tool-btpanel.md)
 
 - 管理端指南
   - [Apollo使用指南](zh/portal/apollo-user-guide.md)
