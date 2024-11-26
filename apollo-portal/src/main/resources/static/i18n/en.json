@@ -72,6 +72,7 @@
   "Component.ConfigItem.ItemValueTips": "Note: Special characters (Spaces, Newline, Tab, Chinese comma) easily cause configuration errors. If you want to check special characters in Value, please click",
   "Component.ConfigItem.ItemValueShowDetection": "Check Special Characters",
   "Component.ConfigItem.ItemValueNotHiddenChars": "No Special Characters",
+  "Component.ConfigItem.FormatItemValue": "Format Content",
   "Component.ConfigItem.ItemComment": "Comment",
   "Component.ConfigItem.ChooseCluster": "Select Cluster",
   "Component.ConfigItem.ItemTypeName": "Type",

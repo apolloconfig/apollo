@@ -72,6 +72,7 @@
   "Component.ConfigItem.ItemValueTips": "注意: 特殊字符(空格、换行符、制表符Tab、中文逗号)容易导致配置出错，如果需要检测 Value 中特殊字符，请点击",
   "Component.ConfigItem.ItemValueShowDetection": "检测特殊字符",
   "Component.ConfigItem.ItemValueNotHiddenChars": "无特殊字符",
+  "Component.ConfigItem.FormatItemValue": "格式化",
   "Component.ConfigItem.ItemComment": "Comment",
   "Component.ConfigItem.ChooseCluster": "选择集群",
   "Component.ConfigItem.ItemTypeName": "类型",
