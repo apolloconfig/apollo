@@ -660,6 +660,7 @@
   "Open.Manage.Consumer.RateLimitValue": "限流QPS",
   "Open.Manage.Consumer.RateLimitValueTips": "（单位:次/秒，例如: 100 表示每秒最多发布 100 次配置）",
   "Open.Manage.Consumer.RateLimitValue.Error": "限流QPS最小为1",
+  "Open.Manage.Consumer.RateLimitValue.Display": "无限制",
   "Namespace.Role.Title": "权限管理",
   "Namespace.Role.GrantModifyTo": "修改权",
   "Namespace.Role.GrantModifyTo2": "（可以修改配置）",

@@ -258,14 +258,13 @@ public class ConsumerService {
     return list;
   }
 
-  private List<Integer> getRateLimit(List<Long> consumerIdList) {
-    List<Integer> list = new ArrayList<>(consumerIdList.size());
-    for (Long consumerId : consumerIdList) {
-      ConsumerToken consumerToken = consumerTokenRepository.findByConsumerId(consumerId);
+  private List<Integer> getRateLimit(List<Long> consumerIds) {
+    List<Integer> list = new ArrayList<>(consumerIds.size());
+    List<ConsumerToken> consumerTokens = consumerTokenRepository.findByConsumerIdIn(consumerIds);
+    for (ConsumerToken consumerToken : consumerTokens) {
       Integer rateLimit = consumerToken != null ? consumerToken.getRateLimit() : 0;
       list.add(rateLimit);
     }
-
     return list;
   }
 

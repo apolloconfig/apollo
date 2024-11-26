@@ -660,6 +660,7 @@
   "Open.Manage.Consumer.RateLimitValue": "Rate limiting QPS",
   "Open.Manage.Consumer.RateLimitValueTips": "(Unit: times/second, for example: 100 means that the configuration is published at most 100 times per second)",
   "Open.Manage.Consumer.RateLimitValue.Error": "The minimum rate limiting QPS is 1",
+  "Open.Manage.Consumer.RateLimitValue.Display": "Unlimited",
   "Namespace.Role.Title": "Permission Management",
   "Namespace.Role.GrantModifyTo": "Permission to edit",
   "Namespace.Role.GrantModifyTo2": "(Can edit the configuration)",
