@@ -34,6 +34,7 @@ function releaseModalDirective($translate, toastr, AppUtil, EventManager, Releas
 
             scope.releaseBtnDisabled = false;
             scope.releaseChangeViewType = 'compareWithPublishedValue';
+            scope.isComparePublished = true;
             scope.releaseComment = '';
             scope.isEmergencyPublish = false;
 
@@ -170,6 +171,9 @@ function releaseModalDirective($translate, toastr, AppUtil, EventManager, Releas
 
             function switchReleaseChangeViewType(type) {
                 scope.releaseChangeViewType = type;
+                scope.isCompareMaster = type === 'compareWithMasterValue';
+                scope.isComparePublished = type === 'compareWithPublishedValue';
+                scope.isNoCompare = type === 'release';
             }
         }
     }

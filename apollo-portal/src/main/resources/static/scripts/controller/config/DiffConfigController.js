@@ -38,7 +38,7 @@ diff_item_module.controller("DiffItemController",
             $scope.backToAppHomePage = backToAppHomePage;
             $scope.switchSelect = switchSelect;
 
-            $scope.showText = showText;
+            $scope.showTextDiff = showTextDiff;
 
             $scope.itemsKeyedByKey = {};
             $scope.allNamespaceValueEqualed = {};
@@ -164,17 +164,19 @@ diff_item_module.controller("DiffItemController",
             function parseSyncSourceData() {
                 var syncData = {
                     syncToNamespaces: [],
-                    syncItems: []
+                    syncItems: [],
+                    firstClusterKey: "",
                 };
                 var namespaceName = $scope.pageContext.namespaceName;
                 selectedClusters.forEach(function (cluster) {
                     if (cluster.checked) {
                         cluster.clusterName = cluster.name;
                         cluster.namespaceName = namespaceName;
+                        cluster.compositedKey = cluster.env + ':' + cluster.clusterName + ':' + cluster.namespaceName;
                         syncData.syncToNamespaces.push(cluster);
                     }
                 });
-
+                syncData.firstClusterKey = selectedClusters[0].compositedKey;
                 return syncData;
             }
 
@@ -193,8 +195,9 @@ diff_item_module.controller("DiffItemController",
                 o.checked = !o.checked;
             }
 
-            function showText(text) {
-                $scope.text = text;
+            function showTextDiff(oldStr, newStr) {
+                $scope.oldStr = oldStr;
+                $scope.newStr = newStr;
                 AppUtil.showModal('#showTextModal');
             }
         }]);

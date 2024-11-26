@@ -157,11 +157,11 @@
                         <section ng-show="history.viewType=='diff'">
                             <h4 class="section-title">{{'Config.History.ChangedItem' | translate }}</h4>
                             <div ng-show="history.changes && history.changes.length > 0">
-                                <table class="no-margin table table-striped table-hover table-bordered">
+                                <table class="no-margin table table-striped table-hover table-bordered table-fixed">
                                     <thead>
                                         <tr>
-                                            <th>{{'Config.History.ChangeType' | translate }}</th>
-                                            <th>{{'Config.History.ChangeKey' | translate }}</th>
+                                            <th width="10%">{{'Config.History.ChangeType' | translate }}</th>
+                                            <th width="12%">{{'Config.History.ChangeKey' | translate }}</th>
                                             <th>{{'Config.History.ChangeOldValue' | translate }}</th>
                                             <th>{{'Config.History.ChangeNewValue' | translate }}</th>
                                         </tr>
@@ -189,10 +189,9 @@
                                                     ng-bind="change.entity.firstEntity.value.length > 250 ? '...' :''"></span>
                                             </td>
                                             <td class="cursor-pointer" width="35%"
-                                                ng-click="showText(change.entity.secondEntity.value)">
+                                                ng-click="showTextDiff(change.entity.firstEntity.value, change.entity.secondEntity.value)">
                                                 <span ng-bind="change.entity.secondEntity.value | limitTo: 250"></span>
-                                                <span
-                                                    ng-bind="change.entity.secondEntity.value.length > 250 ? '...' :''"></span>
+                                                <span ng-bind="change.entity.secondEntity.value.length > 250 ? '...' :''"></span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -310,7 +309,7 @@
             </div>
         </section>
 
-        <showtextmodal text="text"></showtextmodal>
+        <showtextmodal text="text" new-str="newStr" old-str="oldStr" enable-text-diff="enableTextDiff"></showtextmodal>
 
         <rollbackmodal app-id="pageContext.appId" env="pageContext.env" cluster="pageContext.clusterName">
         </rollbackmodal>

@@ -39,8 +39,8 @@
             <div class="release modal-body">
 
                 <div class="form-group pre-scrollable">
-                    <div class="col-sm-2 control-label" ng-if="!toReleaseNamespace.isPropertiesFormat">
-                        <div class="btn-group-vertical">
+                    <div class="col-sm-2 control-label">
+                        <div class="btn-group-vertical" ng-if="!toReleaseNamespace.isPropertiesFormat || (toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish)">
                             <div class="btn-group btn-group-xs" role="group">
                                 <button type="button" class="btn btn-default" ng-if="toReleaseNamespace.isBranch"
                                         ng-class="{active:releaseChangeViewType=='compareWithMasterValue'}"
@@ -56,9 +56,8 @@
                                 </button>
                             </div>
                         </div>
+                        <label ng-if="toReleaseNamespace.isPropertiesFormat" style="display: block">{{'Component.Publish.Changes' | translate }}</label>
                     </div>
-                    <label class="col-sm-2 control-label"
-                        ng-if="toReleaseNamespace.isPropertiesFormat">{{'Component.Publish.Changes' | translate }}</label>
 
                     <div class="col-sm-10"
                         ng-if="(!toReleaseNamespace.isBranch && toReleaseNamespace.itemModifiedCnt)
@@ -68,24 +67,22 @@
 
                         <!--properties format-->
                         <!--normal release-->
-                        <table class="table table-bordered table-striped text-center table-hover"
+                        <!--主版本发布-->
+                        <table class="table table-bordered table-striped text-center table-hover table-fixed"
                             ng-if="toReleaseNamespace.isPropertiesFormat && !toReleaseNamespace.isBranch">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th width="12%">
                                         {{'Component.Publish.Key' | translate }}
                                     </th>
                                     <th>
                                         {{'Component.Publish.PublishedValue' | translate }}
                                     </th>
-                                    <th>
+                                    <th width="50%">
                                         {{'Component.Publish.NoPublishedValue' | translate }}
                                     </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyUser' | translate }}
-                                    </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    <th width="12%">
+                                        {{'Component.Publish.ModifyRecord' | translate }}
                                     </th>
                                 </tr>
                             </thead>
@@ -108,40 +105,37 @@
                                     <td width="25%" title="{{config.oldValue}}">
                                         <span ng-bind="config.oldValue"></span>
                                     </td>
-                                    <td width="25%" title="{{config.newValue}}">
-                                        <span ng-bind="config.newValue"></span>
+                                    <td width="25%" title="{{config.newValue}}" class="left-overflow">
+                                        <apollodiff old-str="config.oldValue" new-str="config.newValue" apollo-id="'diffWithPublished:'+config.item.key"></apollodiff>
                                     </td>
-                                    <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                    </td>
-                                    <td width="15%"
-                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    <td width="15%">
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block"  ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
+                                        <span class="block"  ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
 
                         <!--branch gray release-->
-                        <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
+                        <!--灰度发布-->
+                        <table class="table table-bordered table-striped text-center table-hover table-fixed" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && !toReleaseNamespace.mergeAndPublish">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th width="12%">
                                         {{'Component.Publish.Key' | translate }}
                                     </th>
-                                    <th>
+                                    <th ng-if="isCompareMaster || isNoCompare">
                                         {{'Component.Publish.MasterValue' | translate }}
                                     </th>
-                                    <th>
+                                    <th ng-if="isComparePublished || isNoCompare">
                                         {{'Component.Publish.GrayPublishedValue' | translate }}
                                     </th>
-                                    <th>
-                                        {{'Component.Publish.GrayNoPublishedValue' | translate }}
-                                    </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyUser' | translate }}
-                                    </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    <th ng-if="isNoCompare">{{'Component.Publish.GrayNoPublishedValue' | translate }}</th>
+                                    <th ng-if="!isNoCompare" width="50%">{{'Component.Publish.GrayNoPublishedValue' | translate }}</th>
+                                    <th width="12%">
+                                        {{'Component.Publish.ModifyRecord' | translate }}
                                     </th>
                                 </tr>
                             </thead>
@@ -153,49 +147,47 @@
                                         <span class="label label-danger"
                                             ng-show="config.isDeleted">{{'Component.Publish.Deleted' | translate }}</span>
                                     </td>
-                                    <td width="20%" title="{{config.masterReleaseValue}}">
+                                    <td width="20%" title="{{config.masterReleaseValue}}" ng-if="isCompareMaster || isNoCompare">
                                         <span ng-bind="config.masterReleaseValue"></span>
                                     </td>
-                                    <td width="20%" title="{{config.oldValue}}">
+                                    <td width="20%" title="{{config.oldValue}}" ng-if="isComparePublished || isNoCompare">
                                         <span ng-bind="config.oldValue"></span>
                                     </td>
-                                    <td width="20%" title="{{config.newValue}}">
-                                        <span ng-bind="config.newValue"></span>
+                                    <td width="20%" title="{{config.newValue}}" class="left-overflow">
+                                        <span ng-if="isCompareMaster">
+                                            <apollodiff old-str="config.masterReleaseValue" new-str="config.newValue" apollo-id="'grayDiffWithMaster:' + config.item.key"></apollodiff>
+                                        </span>
+                                        <span ng-if="isComparePublished">
+                                            <apollodiff old-str="config.oldValue" new-str="config.newValue" apollo-id="'grayDiffWithPublished:' + config.item.key"></apollodiff>
+                                        </span>
+                                        <span ng-if="isNoCompare" ng-bind="config.newValue"></span>
                                     </td>
-                                    <td width="10%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                    </td>
-                                    <td width="15%"
-                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    <td>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
 
                         <!--branch updateAndPublish and publish-->
-                        <table class="table table-bordered table-striped text-center table-hover" ng-if="toReleaseNamespace.isPropertiesFormat &&
+                        <!--灰度推全-->
+                        <table class="table table-bordered table-striped text-center table-hover table-fixed" ng-if="toReleaseNamespace.isPropertiesFormat &&
                                toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th width="12%">
                                         {{'Component.Publish.Key' | translate }}
                                     </th>
-                                    <th ng-if="toReleaseNamespace.isBranch">
+                                    <th>
                                         {{'Component.Publish.MasterValue' | translate }}
                                     </th>
-                                    <th ng-if="toReleaseNamespace.isBranch && toReleaseNamespace.mergeAndPublish">
+                                    <th width="50%">
                                         {{'Component.Publish.GrayValue' | translate }}
                                     </th>
-                                    <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
-                                        {{'Component.Publish.PublishedValue' | translate }}
-                                    </th>
-                                    <th ng-if="!toReleaseNamespace.isBranch || !toReleaseNamespace.mergeAndPublish">
-                                        {{'Component.Publish.NoPublishedValue' | translate }}
-                                    </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyUser' | translate }}
-                                    </th>
-                                    <th>
-                                        {{'Component.Publish.ModifyTime' | translate }}
+                                    <th width="12%">
+                                        {{'Component.Publish.ModifyRecord' | translate }}
                                     </th>
                                 </tr>
                             </thead>
@@ -207,13 +199,13 @@
                                     <td width="25%" title="{{config.masterReleaseValue}}">
                                         <span ng-bind="config.masterReleaseValue"></span>
                                     </td>
-                                    <td width="25%" title="{{config.item.value}}">
-                                        <span ng-bind="config.item.value"></span>
+                                    <td width="25%" title="{{config.item.value}}" class="left-overflow">
+                                        <apollodiff old-str="config.masterReleaseValue" new-str="config.item.value" apollo-id="'grayDiffMasterReleased:' + config.item.key"></apollodiff>
                                     </td>
-                                    <td width="15%" ng-bind="config.item.dataChangeLastModifiedBy">
-                                    </td>
-                                    <td width="15%"
-                                        ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd HH:mm:ss'">
+                                    <td width="15%">
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
                                 </tr>
                             </tbody>
@@ -274,7 +266,7 @@
                 <div class="form-group">
                     <label class="col-sm-2 control-label">{{'Component.Publish.ReleaseComment' | translate }}</label>
                     <div class="col-sm-10" valdr-form-group>
-                        <textarea rows="4" name="comment" class="form-control" style="margin-top: 15px;"
+                        <textarea rows="2" name="comment" class="form-control"
                             ng-model="releaseComment" placeholder="Add an optional extended description..."></textarea>
                     </div>
                 </div>
