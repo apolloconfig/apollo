@@ -737,8 +737,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             // 格式化
             function formatContent(namespace) {
-                if (namespace.format === 'json') {
-                    namespace.editText = JSON.stringify(JSON.parse(namespace.editText), null, 4);
+                try {
+                    if (namespace.format === 'json') {
+                        namespace.editText = JSON.stringify(JSON.parse(namespace.editText), null, 4);
+                    }
+                } catch (e) {
+                    console.log(e)
                 }
             }
 
