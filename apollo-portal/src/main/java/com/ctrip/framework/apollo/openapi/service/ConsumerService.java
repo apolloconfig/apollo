@@ -56,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -233,7 +234,11 @@ public class ConsumerService {
   }
 
   private Integer getRateLimit(Long consumerId) {
-    return getRateLimit(Collections.singletonList(consumerId)).get(0);
+    List<Integer> list = getRateLimit(Collections.singletonList(consumerId));
+    if(CollectionUtils.isEmpty(list)){
+      return 0;
+    }
+    return list.get(0);
   }
 
   private List<Boolean> isAllowCreateApplication(List<Long> consumerIdList) {
