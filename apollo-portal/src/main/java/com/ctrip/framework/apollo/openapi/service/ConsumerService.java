@@ -44,6 +44,7 @@ import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.data.domain.Pageable;
@@ -235,7 +236,7 @@ public class ConsumerService {
 
   private Integer getRateLimit(Long consumerId) {
     List<Integer> list = getRateLimit(Collections.singletonList(consumerId));
-    if(CollectionUtils.isEmpty(list)){
+    if (CollectionUtils.isEmpty(list)) {
       return 0;
     }
     return list.get(0);
@@ -264,13 +265,16 @@ public class ConsumerService {
   }
 
   private List<Integer> getRateLimit(List<Long> consumerIds) {
-    List<Integer> list = new ArrayList<>(consumerIds.size());
     List<ConsumerToken> consumerTokens = consumerTokenRepository.findByConsumerIdIn(consumerIds);
-    for (ConsumerToken consumerToken : consumerTokens) {
-      Integer rateLimit = consumerToken != null ? consumerToken.getRateLimit() : 0;
-      list.add(rateLimit);
-    }
-    return list;
+    Map<Long, Integer> consumerRateLimits = consumerTokens.stream()
+        .collect(Collectors.toMap(
+            ConsumerToken::getConsumerId,
+            consumerToken -> consumerToken.getRateLimit() != null ? consumerToken.getRateLimit() : 0
+        ));
+
+    return consumerIds.stream()
+        .map(id -> consumerRateLimits.getOrDefault(id, 0))
+        .collect(Collectors.toList());
   }
 
   private Role getCreateAppRole() {
