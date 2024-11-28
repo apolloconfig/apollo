@@ -44,6 +44,7 @@ import com.google.common.base.Strings;
 import com.google.common.hash.Hashing;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.data.domain.Pageable;
@@ -56,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -120,10 +122,10 @@ public class ConsumerService {
     return consumerRepository.save(consumer);
   }
 
-  public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Date expires) {
+  public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     Preconditions.checkArgument(consumer != null, "Consumer can not be null");
 
-    ConsumerToken consumerToken = generateConsumerToken(consumer, expires);
+    ConsumerToken consumerToken = generateConsumerToken(consumer, rateLimit, expires);
     consumerToken.setId(0);
 
     return consumerTokenRepository.save(consumerToken);
@@ -138,12 +140,15 @@ public class ConsumerService {
     return consumerTokenRepository.findByConsumerId(consumer.getId());
   }
 
-  public Long getConsumerIdByToken(String token) {
+  public ConsumerToken getConsumerTokenByToken(String token) {
     if (Strings.isNullOrEmpty(token)) {
       return null;
     }
-    ConsumerToken consumerToken = consumerTokenRepository.findTopByTokenAndExpiresAfter(token,
-                                                                                        new Date());
+    return consumerTokenRepository.findTopByTokenAndExpiresAfter(token, new Date());
+  }
+
+  public Long getConsumerIdByToken(String token) {
+    ConsumerToken consumerToken = getConsumerTokenByToken(token);
     return consumerToken == null ? null : consumerToken.getConsumerId();
   }
 
@@ -195,7 +200,8 @@ public class ConsumerService {
   private ConsumerInfo convert(
       Consumer consumer,
       String token,
-      boolean allowCreateApplication
+      boolean allowCreateApplication,
+      Integer rateLimit
   ) {
     ConsumerInfo consumerInfo = new ConsumerInfo();
     consumerInfo.setConsumerId(consumer.getId());
@@ -205,6 +211,7 @@ public class ConsumerService {
     consumerInfo.setOwnerEmail(consumer.getOwnerEmail());
     consumerInfo.setOrgId(consumer.getOrgId());
     consumerInfo.setOrgName(consumer.getOrgName());
+    consumerInfo.setRateLimit(rateLimit);
 
     consumerInfo.setToken(token);
     consumerInfo.setAllowCreateApplication(allowCreateApplication);
@@ -220,11 +227,19 @@ public class ConsumerService {
     if (consumer == null) {
       return null;
     }
-    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()));
+    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()), getRateLimit(consumer.getId()));
   }
 
   private boolean isAllowCreateApplication(Long consumerId) {
     return isAllowCreateApplication(Collections.singletonList(consumerId)).get(0);
+  }
+
+  private Integer getRateLimit(Long consumerId) {
+    List<Integer> list = getRateLimit(Collections.singletonList(consumerId));
+    if (CollectionUtils.isEmpty(list)) {
+      return 0;
+    }
+    return list.get(0);
   }
 
   private List<Boolean> isAllowCreateApplication(List<Long> consumerIdList) {
@@ -247,6 +262,19 @@ public class ConsumerService {
     }
 
     return list;
+  }
+
+  private List<Integer> getRateLimit(List<Long> consumerIds) {
+    List<ConsumerToken> consumerTokens = consumerTokenRepository.findByConsumerIdIn(consumerIds);
+    Map<Long, Integer> consumerRateLimits = consumerTokens.stream()
+        .collect(Collectors.toMap(
+            ConsumerToken::getConsumerId,
+            consumerToken -> consumerToken.getRateLimit() != null ? consumerToken.getRateLimit() : 0
+        ));
+
+    return consumerIds.stream()
+        .map(id -> consumerRateLimits.getOrDefault(id, 0))
+        .collect(Collectors.toList());
   }
 
   private Role getCreateAppRole() {
@@ -311,17 +339,21 @@ public class ConsumerService {
   @Transactional
   public ConsumerToken createConsumerToken(ConsumerToken entity) {
     entity.setId(0); //for protection
-
     return consumerTokenRepository.save(entity);
   }
 
-  private ConsumerToken generateConsumerToken(Consumer consumer, Date expires) {
+  private ConsumerToken generateConsumerToken(Consumer consumer, Integer rateLimit, Date expires) {
     long consumerId = consumer.getId();
     String createdBy = userInfoHolder.getUser().getUserId();
     Date createdTime = new Date();
 
+    if (rateLimit == null || rateLimit < 0) {
+      rateLimit = 0;
+    }
+
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setConsumerId(consumerId);
+    consumerToken.setRateLimit(rateLimit);
     consumerToken.setExpires(expires);
     consumerToken.setDataChangeCreatedBy(createdBy);
     consumerToken.setDataChangeCreatedTime(createdTime);
@@ -350,7 +382,7 @@ public class ConsumerService {
         (generationTime), consumerTokenSalt), Charsets.UTF_8).toString();
   }
 
-    ConsumerRole createConsumerRole(Long consumerId, Long roleId, String operator) {
+  ConsumerRole createConsumerRole(Long consumerId, Long roleId, String operator) {
     ConsumerRole consumerRole = new ConsumerRole();
 
     consumerRole.setConsumerId(consumerId);
@@ -389,7 +421,7 @@ public class ConsumerService {
     return appIds;
   }
 
-  List<Consumer> findAllConsumer(Pageable page){
+  List<Consumer> findAllConsumer(Pageable page) {
     return this.consumerRepository.findAll(page).getContent();
   }
 
@@ -398,6 +430,7 @@ public class ConsumerService {
     List<Long> consumerIdList = consumerList.stream()
         .map(Consumer::getId).collect(Collectors.toList());
     List<Boolean> allowCreateApplicationList = isAllowCreateApplication(consumerIdList);
+    List<Integer> rateLimitList = getRateLimit(consumerIdList);
 
     List<ConsumerInfo> consumerInfoList = new ArrayList<>(consumerList.size());
 
@@ -405,7 +438,7 @@ public class ConsumerService {
       Consumer consumer = consumerList.get(i);
       // without token
       ConsumerInfo consumerInfo = convert(
-          consumer, null, allowCreateApplicationList.get(i)
+          consumer, null, allowCreateApplicationList.get(i), rateLimitList.get(i)
       );
       consumerInfoList.add(consumerInfo);
     }
@@ -414,7 +447,7 @@ public class ConsumerService {
   }
 
   @Transactional
-  public void deleteConsumer(String appId){
+  public void deleteConsumer(String appId) {
     Consumer consumer = consumerRepository.findByAppId(appId);
     if (consumer == null) {
       throw new BadRequestException("ConsumerApp not exist");
