@@ -28,8 +28,8 @@ public class AuthFilterConfiguration {
 
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
-          ConsumerAuthUtil consumerAuthUtil,
-          ConsumerAuditUtil consumerAuditUtil) {
+      ConsumerAuthUtil consumerAuthUtil,
+      ConsumerAuditUtil consumerAuditUtil) {
 
     FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter = new FilterRegistrationBean<>();
 
@@ -38,6 +38,5 @@ public class AuthFilterConfiguration {
 
     return openApiFilter;
   }
-
 
 }

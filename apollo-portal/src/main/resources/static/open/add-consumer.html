@@ -80,6 +80,33 @@
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
+                                {{ 'Open.Manage.Consumer.RateLimit.Enabled' | translate }}
+                            </label>
+                            <div class="col-sm-3">
+                                <input type="checkbox"
+                                       ng-model="consumer.rateLimitEnabled"
+                                       name="rateLimitEnabled"
+                                       ng-change="toggleRateLimitEnabledInput()"
+                                />
+                                <small>{{ 'Open.Manage.Consumer.RateLimit.Enabled.Tips' | translate }}</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group" ng-show="consumer.rateLimitEnabled">
+                            <label class="col-sm-2 control-label">
+                                {{ 'Open.Manage.Consumer.RateLimitValue' | translate }}
+                            </label>
+                            <div class="col-sm-3">
+                                <input type="number"
+                                       ng-model="consumer.rateLimit"
+                                       name="rateLimit"
+                                />
+                                <small>{{'Open.Manage.Consumer.RateLimitValueTips' | translate }}</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
                                 <apollorequiredfield></apollorequiredfield>
                                 {{'Common.Department' | translate }}
                             </label>

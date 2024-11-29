@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.util;
 
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,10 @@ public class ConsumerAuthUtil {
 
   public Long getConsumerId(String token) {
     return consumerService.getConsumerIdByToken(token);
+  }
+
+  public ConsumerToken getConsumerToken(String token) {
+    return consumerService.getConsumerTokenByToken(token);
   }
 
   public void storeConsumerId(HttpServletRequest request, Long consumerId) {
