@@ -742,7 +742,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                         namespace.editText = JSON.stringify(JSON.parse(namespace.editText), null, 4);
                     }
                 } catch (e) {
-                    console.log(e)
+                    toastr.error('format content failed: ' + e.message);
                 }
             }
 

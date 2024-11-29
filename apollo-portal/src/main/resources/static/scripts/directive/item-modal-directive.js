@@ -248,7 +248,7 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             // 格式化
             function formatContent() {
                 if (scope.showJsonError) {
-                    return
+                    return;
                 }
                 var raw = scope.item.value;
                 if (scope.item.type === '3') {
