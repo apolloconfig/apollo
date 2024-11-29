@@ -152,15 +152,36 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
   }
 
   /**
-   * Check whether there are gray release rules for the clientAppId, clientIp, namespace
+   * Check whether there are gray release rules for the clientAppId, clusterName, clientIp, clientLabel, namespace
    * combination. Please note that even there are gray release rules, it doesn't mean it will always
    * load gray releases. Because gray release rules actually apply to one more dimension - cluster.
    */
-  public boolean hasGrayReleaseRule(String clientAppId, String clientIp, String namespaceName) {
-    return reversedGrayReleaseRuleCache.containsKey(assembleReversedGrayReleaseRuleKey(clientAppId,
-        namespaceName, clientIp)) || reversedGrayReleaseRuleCache.containsKey
-        (assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, GrayReleaseRuleItemDTO
-            .ALL_IP));
+  public boolean hasGrayReleaseRule(String clientAppId, String clusterName, String clientIp, String clientLabel, String namespaceName) {
+    // check ip gray rule
+    if (reversedGrayReleaseRuleCache.containsKey(assembleReversedGrayReleaseRuleKey(clientAppId,
+            namespaceName, clientIp)) || reversedGrayReleaseRuleCache.containsKey
+            (assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, GrayReleaseRuleItemDTO
+                    .ALL_IP))) {
+      return true;
+    }
+
+    // check label gray rule
+    String key = assembleGrayReleaseRuleKey(clientAppId, clusterName, namespaceName);
+    if (!grayReleaseRuleCache.containsKey(key)) {
+      return false;
+    }
+    List<GrayReleaseRuleCache> rules = Lists.newArrayList(grayReleaseRuleCache.get(key));
+    for (GrayReleaseRuleCache rule : rules) {
+      //check branch status
+      if (rule.getBranchStatus() != NamespaceBranchStatus.ACTIVE) {
+        continue;
+      }
+      if (rule.matches(clientAppId, clientIp, clientLabel)) {
+        return true;
+      }
+    };
+
+    return false;
   }
 
   private void scanGrayReleaseRules() {

@@ -95,7 +95,7 @@ public class ConfigFileControllerTest {
 
     when(namespaceUtil.filterNamespaceName(someNamespace)).thenReturn(someNamespace);
     when(namespaceUtil.normalizeNamespace(someAppId, someNamespace)).thenReturn(someNamespace);
-    when(grayReleaseRulesHolder.hasGrayReleaseRule(anyString(), anyString(), anyString()))
+    when(grayReleaseRulesHolder.hasGrayReleaseRule(anyString(), anyString(), anyString(), anyString(), anyString()))
         .thenReturn(false);
 
     watchedKeys2CacheKey =
@@ -199,7 +199,7 @@ public class ConfigFileControllerTest {
     Map<String, String> configurations =
         ImmutableMap.of(someKey, someValue);
 
-    when(grayReleaseRulesHolder.hasGrayReleaseRule(someAppId, someClientIp, someNamespace))
+    when(grayReleaseRulesHolder.hasGrayReleaseRule(someAppId, someClusterName, someClientIp, someClientLabel, someNamespace))
         .thenReturn(true);
 
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
