@@ -173,76 +173,39 @@ public class ConfigsImportService {
     }
   }
 
-  private void doImport(List<Env> importEnvs, List<String> toImportApps, List<String> toImportAppNSs,
-                        List<ImportClusterData> toImportClusters, List<ImportNamespaceData> toImportNSs)
-      throws InterruptedException {
-    LOGGER.info("Start to import app. size = {}", toImportApps.size());
-
+  private void doImport(List<Env> importEnvs,
+                        List<String> toImportApps,
+                        List<String> toImportAppNSs,
+                        List<ImportClusterData> toImportClusters,
+                        List<ImportNamespaceData> toImportNSs) throws InterruptedException {
     String operator = userInfoHolder.getUser().getUserId();
 
+    importEntities("app", toImportApps, app -> importApp(app, importEnvs, operator));
+    importEntities("appnamespace", toImportAppNSs, appNS -> importAppNamespace(appNS, operator));
+    importEntities("cluster", toImportClusters, cluster -> importCluster(cluster, operator));
+    importEntities("namespace", toImportNSs, namespace ->
+            importNamespaceFromText(namespace.getEnv(), namespace.getFileName(), namespace.getContent(),
+                    namespace.isIgnoreConflictNamespace(), operator));
+  }
+
+  private <T> void importEntities(String entityName, List<T> entities, ImportTaskService<T> importTask) throws InterruptedException {
+    LOGGER.info("Start to import {}. size = {}", entityName, entities.size());
+
     long startTime = System.currentTimeMillis();
-    CountDownLatch appLatch = new CountDownLatch(toImportApps.size());
-    toImportApps.parallelStream().forEach(app -> {
+    CountDownLatch latch = new CountDownLatch(entities.size());
+
+    entities.parallelStream().forEach(entity -> {
       try {
-        importApp(app, importEnvs, operator);
+        importTask.execute(entity);
       } catch (Exception e) {
-        LOGGER.error("import app error. app = {}", app, e);
+        LOGGER.error("Import {} error. entity = {}", entityName, entity, e);
       } finally {
-        appLatch.countDown();
+        latch.countDown();
       }
     });
-    appLatch.await();
 
-    LOGGER.info("Finish to import app. duration = {}", System.currentTimeMillis() - startTime);
-    LOGGER.info("Start to import appnamespace. size = {}", toImportAppNSs.size());
-
-    startTime = System.currentTimeMillis();
-    CountDownLatch appNSLatch = new CountDownLatch(toImportAppNSs.size());
-    toImportAppNSs.parallelStream().forEach(appNS -> {
-      try {
-        importAppNamespace(appNS, operator);
-      } catch (Exception e) {
-        LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
-      } finally {
-        appNSLatch.countDown();
-      }
-    });
-    appNSLatch.await();
-
-    LOGGER.info("Finish to import appnamespace. duration = {}", System.currentTimeMillis() - startTime);
-    LOGGER.info("Start to import cluster. size = {}", toImportClusters.size());
-
-    startTime = System.currentTimeMillis();
-    CountDownLatch clusterLatch = new CountDownLatch(toImportClusters.size());
-    toImportClusters.parallelStream().forEach(cluster -> {
-      try {
-        importCluster(cluster, operator);
-      } catch (Exception e) {
-        LOGGER.error("import cluster error. cluster = {}", cluster, e);
-      } finally {
-        clusterLatch.countDown();
-      }
-    });
-    clusterLatch.await();
-
-    LOGGER.info("Finish to import cluster. duration = {}", System.currentTimeMillis() - startTime);
-    LOGGER.info("Start to import namespace. size = {}", toImportNSs.size());
-
-    startTime = System.currentTimeMillis();
-    CountDownLatch nsLatch = new CountDownLatch(toImportNSs.size());
-    toImportNSs.parallelStream().forEach(namespace -> {
-      try {
-        importNamespaceFromText(namespace.getEnv(), namespace.getFileName(), namespace.getContent(),
-                                namespace.isIgnoreConflictNamespace(), operator);
-      } catch (Exception e) {
-        LOGGER.error("import namespace error. namespace = {}", namespace, e);
-      } finally {
-        nsLatch.countDown();
-      }
-    });
-    nsLatch.await();
-
-    LOGGER.info("Finish to import namespace. duration = {}", System.currentTimeMillis() - startTime);
+    latch.await();
+    LOGGER.info("Finish to import {}. duration = {}", entityName, System.currentTimeMillis() - startTime);
   }
 
   private void importApp(String appInfo, List<Env> importEnvs, String operator) {
