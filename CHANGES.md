@@ -24,6 +24,7 @@ Apollo 2.4.0
 * [Feature: highlight diffs for properties](https://github.com/apolloconfig/apollo/pull/5282)
 * [Feature: Add rate limiting function to ConsumerToken](https://github.com/apolloconfig/apollo/pull/5267)
 * [Feature: add JSON formatting function in apollo-portal](https://github.com/apolloconfig/apollo/pull/5287)
+* [Fix: add missing url patterns for AdminServiceAuthenticationFilter](https://github.com/apolloconfig/apollo/pull/5291)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
