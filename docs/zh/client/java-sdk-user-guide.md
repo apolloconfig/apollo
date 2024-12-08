@@ -163,6 +163,8 @@ request.timeout=2000
 batch=2000
 ```
 
+> 注：如果部署在Kubernetes环境中，您还可以启用configMap缓存来进一步提高可用性
+
 #### 1.2.3.1 自定义缓存路径
 
 1.0.0版本开始支持以下方式自定义缓存路径，按照优先级从高到低分别为：
@@ -399,6 +401,7 @@ apollo.label=YOUR-APOLLO-LABEL
     * 可以在`classpath:/META-INF/app.properties`指定`apollo.override-system-properties=true`
 
 
+
 #### 1.2.4.9 开启客户端监控
 
 > 适用于2.4.0及以上版本
@@ -424,6 +427,96 @@ apollo.client.monitor.external.export-period= 20
 ```
 
 
+=======
+#### 1.2.4.10 ConfigMap缓存设置
+
+> 适用于2.4.0及以上版本
+
+在2.4.0版本开始，客户端在Kubernetes环境下的可用性得到了加强，开启configMap缓存后，客户端会将从服务端拉取到的配置信息在configMap中缓存一份，在服务不可用，或网络不通，且本地缓存文件丢失的情况下，依然能从configMap恢复配置。以下是相关配置
+
+`apollo.cache.kubernetes.enable`：是否开启configMap缓存机制，默认false
+
+`apollo.cache.kubernetes.namespace`：将使用的configMap所在的namespace（Kubernetes中的namespace），默认值为"default"
+
+配置信息会以下面的对应关系放置于指定的configmap中：
+
+namespace：使用指定的值，若未指定默认为"default"
+
+configMapName: apollo-configcache-{appId}
+
+key:{cluster}___{namespace}
+
+value:内容为对应的配置信息的json格式字符串
+
+
+> appId是应用自己的appId，如100004458    
+> cluster是应用使用的集群，一般在本地模式下没有做过配置的话，是default  
+> namespace就是应用使用的配置namespace。 如果namespace中出现‘_’ , 将会在拼接key时被转义为‘__’
+
+> 由于此功能为拓展功能，所以对于client-java的依赖设为了optional。需用户自行导入匹配的版本
+
+> 由于需要对configmap进行读写操作，所以客户端所在pod必须有相应读写权限，具体配置方法可参考下文
+
+如何授权一个Pod的Service Account具有对ConfigMap的读写权限：
+1. 创建Service Account: 如果还没有Service Account，你需要创建一个。
+   ```yaml
+   apiVersion: v1
+   kind: ServiceAccount
+   metadata:
+     name: my-service-account
+     namespace: default
+   ```
+2. 创建Role或ClusterRole: 定义一个Role或ClusterRole，授予对特定ConfigMap的读写权限。如果ConfigMap是跨多个Namespace使用的，应该使用ClusterRole。
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: Role
+   metadata:
+     namespace: default
+     name: configmap-role
+   rules:
+   - apiGroups: [""]
+     resources: ["configmaps"]
+     verbs: ["get", "list", "watch", "create", "update", "delete"]
+   ```
+3. 绑定Service Account到Role或ClusterRole: 使用RoleBinding或ClusterRoleBinding将Service Account绑定到上面创建的Role或ClusterRole。
+   ```yaml
+   apiVersion: rbac.authorization.k8s.io/v1
+   kind: RoleBinding
+   metadata:
+     name: configmap-reader-binding
+     namespace: default
+   subjects:
+   - kind: ServiceAccount
+     name: my-service-account
+     namespace: default
+   roleRef:
+     kind: Role
+     name: configmap-role
+     apiGroup: rbac.authorization.k8s.io
+   ```
+4. 在Pod配置中指定Service Account: 确保Pod的配置中使用了上面创建的Service Account。
+   ```yaml
+   apiVersion: v1
+   kind: Pod
+   metadata:
+     name: my-pod
+     namespace: default
+   spec:
+     serviceAccountName: my-service-account
+     containers:
+       - name: my-container
+         image: my-image
+   ```
+5. 应用配置: 使用kubectl命令行工具应用这些配置。
+   ```yaml
+   kubectl apply -f service-account.yaml
+   kubectl apply -f role.yaml
+   kubectl apply -f role-binding.yaml
+   kubectl apply -f pod.yaml
+   ```
+   这些步骤使Pod中的Service Account具有对指定ConfigMap的读写权限。
+
+   如果ConfigMap是跨Namespace的，使用ClusterRole和ClusterRoleBinding代替Role和RoleBinding，并确保在所有需要访问ConfigMap的Namespace中应用这些配置。
 
 # 二、Maven Dependency
 Apollo的客户端jar包已经上传到中央仓库，应用在实际使用时只需要按照如下方式引入即可。
@@ -520,7 +613,7 @@ String content = configFile.getContent();
 
 ### 3.1.5 获取客户端监控指标
 > 适用于2.4.0及以上版本
-> 
+ 
 apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonitor-API以及JMX,Prometheus的指标导出方式,相关启用配置详见 [1.2.4.9 开启客户端监控](#_1249-开启客户端监控)
 
 
@@ -1159,13 +1252,13 @@ server.port = 8080
 
 logging.level = ERROR
 
-eureka.client.serviceUrl.defaultZone = http://127.0.0.1:8761/eureka/
+eureka.client.service-url.defaultZone = http://127.0.0.1:8761/eureka/
 eureka.client.healthcheck.enabled = true
-eureka.client.registerWithEureka = true
-eureka.client.fetchRegistry = true
-eureka.client.eurekaServiceUrlPollIntervalSeconds = 60
+eureka.client.register-with-eureka = true
+eureka.client.fetch-registry = true
+eureka.client.eureka-service-url-poll-interval-seconds = 60
 
-eureka.instance.preferIpAddress = true
+eureka.instance.prefer-ip-address = true
 ```
 
 ![text-mode-spring-boot-config-sample](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/text-mode-spring-boot-config-sample.png)
@@ -1333,7 +1426,7 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 
 ## 7.2 指标输出到Prometheus
 > 适用于2.4.0及以上版本
-> 
+ 
 在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，默认支持Prometheus，用户可以自行扩展接入不同的监控系统。
 
 引入客户端插件
@@ -1454,7 +1547,7 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 
 ## 7.3 指标输出到自定义监控系统
 > 适用于2.4.0及以上版本
-> 
+
 需要写1个Exporter, 继承AbstractApolloClientMetricsExporter, 并实现里面的
 doInit (初始化方法),
 isSupport (external-type配置调用方法),

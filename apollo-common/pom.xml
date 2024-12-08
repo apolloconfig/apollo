@@ -94,7 +94,7 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
-        <!-- Micrometer core dependecy -->
+        <!-- Micrometer core dependency -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>

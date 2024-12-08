@@ -186,7 +186,7 @@ public class NamespaceService {
   /**
    * load cluster all namespace info with items
    */
-  public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName, boolean includeDeletedItems) {
+  public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName, boolean fillItemDetail, boolean includeDeletedItems) {
 
     List<NamespaceDTO> namespaces = namespaceAPI.findNamespaceByCluster(appId, env, clusterName);
     if (namespaces == null || namespaces.size() == 0) {
@@ -200,7 +200,7 @@ public class NamespaceService {
       executorService.submit(() -> {
         NamespaceBO namespaceBO;
         try {
-          namespaceBO = transformNamespace2BO(env, namespace, includeDeletedItems);
+          namespaceBO = transformNamespace2BO(env, namespace, fillItemDetail, includeDeletedItems);
           namespaceBOs.add(namespaceBO);
         } catch (Exception e) {
           LOGGER.error("parse namespace error. app id:{}, env:{}, clusterName:{}, namespace:{}",
@@ -229,7 +229,7 @@ public class NamespaceService {
   }
 
   public List<NamespaceBO> findNamespaceBOs(String appId, Env env, String clusterName) {
-    return findNamespaceBOs(appId, env, clusterName, true);
+    return findNamespaceBOs(appId, env, clusterName, true, true);
   }
 
   public List<NamespaceDTO> findNamespaces(String appId, Env env, String clusterName) {
@@ -250,17 +250,17 @@ public class NamespaceService {
   }
 
   public NamespaceBO loadNamespaceBO(String appId, Env env, String clusterName,
-      String namespaceName, boolean includeDeletedItems) {
+      String namespaceName, boolean fillItemDetail, boolean includeDeletedItems) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
       throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
     }
-    return transformNamespace2BO(env, namespace, includeDeletedItems);
+    return transformNamespace2BO(env, namespace, fillItemDetail, includeDeletedItems);
   }
 
   public NamespaceBO loadNamespaceBO(String appId, Env env, String clusterName,
       String namespaceName) {
-    return loadNamespaceBO(appId, env, clusterName, namespaceName, true);
+    return loadNamespaceBO(appId, env, clusterName, namespaceName, true, true);
   }
 
   public boolean publicAppNamespaceHasAssociatedNamespace(String publicNamespaceName, Env env) {
@@ -293,7 +293,7 @@ public class NamespaceService {
     return result;
   }
 
-  private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace, boolean includeDeletedItems) {
+  private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace, boolean fillItemDetail, boolean includeDeletedItems) {
     NamespaceBO namespaceBO = new NamespaceBO();
     namespaceBO.setBaseInfo(namespace);
 
@@ -305,6 +305,10 @@ public class NamespaceService {
 
     List<ItemBO> itemBOs = new LinkedList<>();
     namespaceBO.setItems(itemBOs);
+
+    if (!fillItemDetail) {
+      return namespaceBO;
+    }
 
     //latest Release
     ReleaseDTO latestRelease;
@@ -347,7 +351,7 @@ public class NamespaceService {
   }
 
   private NamespaceBO transformNamespace2BO(Env env, NamespaceDTO namespace) {
-    return transformNamespace2BO(env, namespace, true);
+    return transformNamespace2BO(env, namespace, true, true);
   }
 
   private void fillAppNamespaceProperties(NamespaceBO namespace) {

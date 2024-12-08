@@ -190,6 +190,13 @@
                         ng-show="namespace.isTextEditing && namespace.viewType == 'text' && namespace.isSyntaxCheckable"
                         ng-click="syntaxCheck(namespace)">
                     &nbsp;
+                    <!-- 格式化按钮 -->
+                    <img src="img/brush.png" class="ns_btn cursor-pointer" data-tooltip="tooltip"
+                         data-placement="bottom"
+                         title="{{'Component.ConfigItem.FormatItemValue' | translate }}"
+                         ng-show="namespace.isTextEditing && namespace.viewType == 'text' && namespace.format == 'json'"
+                         ng-click="formatContent(namespace)">
+                    &nbsp;
                     <img src="img/cancel.png" class="ns_btn cursor-pointer" data-tooltip="tooltip"
                         data-placement="bottom"
                         title="{{'Component.Namespace.Master.Items.CancelChanged' | translate }}"

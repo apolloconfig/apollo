@@ -65,6 +65,9 @@
                         {{'Component.ConfigItem.ItemValueTips' | translate }} <a
                             ng-click="showHiddenChars()">{{'Component.ConfigItem.ItemValueShowDetection' | translate }}</a>
                         <br>
+                        <!-- 格式化 -->
+                        <a ng-show="item.type == '3'" ng-click="formatContent()">{{'Component.ConfigItem.FormatItemValue' | translate }}</a>
+                        <br>
                         <div ng-show="showNumberError" ng-model="showNumberError" style="color:red">
                             {{'Component.ConfigItem.ItemNumberError' | translate }}
                         </div>

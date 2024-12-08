@@ -142,8 +142,8 @@ CREATE TABLE `Commit` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ChangeSets` longtext NOT NULL COMMENT '修改变更集',
   `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
-  `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
-  `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
+  `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
+  `NamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
   `Comment` varchar(500) DEFAULT NULL COMMENT '备注',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
@@ -154,8 +154,8 @@ CREATE TABLE `Commit` (
   PRIMARY KEY (`Id`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
   KEY `AppId` (`AppId`),
-  KEY `ClusterName` (`ClusterName`(191)),
-  KEY `NamespaceName` (`NamespaceName`(191))
+  KEY `ClusterName` (`ClusterName`),
+  KEY `NamespaceName` (`NamespaceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='commit 历史表';
 
 -- Dump of table grayreleaserule
@@ -263,8 +263,8 @@ DROP TABLE IF EXISTS `Namespace`;
 CREATE TABLE `Namespace` (
   `Id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
   `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
-  `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name',
-  `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name',
+  `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Cluster Name',
+  `NamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'Namespace Name',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
   `DeletedAt` BIGINT(20) NOT NULL DEFAULT '0' COMMENT 'Delete timestamp based on milliseconds',
   `DataChange_CreatedBy` varchar(64) NOT NULL DEFAULT 'default' COMMENT '创建人邮箱前缀',
@@ -272,9 +272,9 @@ CREATE TABLE `Namespace` (
   `DataChange_LastModifiedBy` varchar(64) DEFAULT '' COMMENT '最后修改人邮箱前缀',
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`(191),`NamespaceName`(191),`DeletedAt`),
+  UNIQUE KEY `UK_AppId_ClusterName_NamespaceName_DeletedAt` (`AppId`,`ClusterName`,`NamespaceName`,`DeletedAt`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`),
-  KEY `IX_NamespaceName` (`NamespaceName`(191))
+  KEY `IX_NamespaceName` (`NamespaceName`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='命名空间';
 
 
@@ -311,8 +311,8 @@ CREATE TABLE `Release` (
   `Name` varchar(64) NOT NULL DEFAULT 'default' COMMENT '发布名字',
   `Comment` varchar(256) DEFAULT NULL COMMENT '发布说明',
   `AppId` varchar(64) NOT NULL DEFAULT 'default' COMMENT 'AppID',
-  `ClusterName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
-  `NamespaceName` varchar(500) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
+  `ClusterName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'ClusterName',
+  `NamespaceName` varchar(32) NOT NULL DEFAULT 'default' COMMENT 'namespaceName',
   `Configurations` longtext NOT NULL COMMENT '发布配置',
   `IsAbandoned` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否废弃',
   `IsDeleted` bit(1) NOT NULL DEFAULT b'0' COMMENT '1: deleted, 0: normal',
@@ -323,7 +323,7 @@ CREATE TABLE `Release` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UK_ReleaseKey_DeletedAt` (`ReleaseKey`,`DeletedAt`),
-  KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191)),
+  KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`,`NamespaceName`),
   KEY `DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='发布';
 

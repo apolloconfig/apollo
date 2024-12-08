@@ -30,11 +30,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class BizConfig extends RefreshableConfig {
+
+  private final static Logger logger = LoggerFactory.getLogger(BizConfig.class);
 
   private static final int DEFAULT_ITEM_KEY_LENGTH = 128;
   private static final int DEFAULT_ITEM_VALUE_LENGTH = 20000;
@@ -58,6 +62,9 @@ public class BizConfig extends RefreshableConfig {
 
   private static final Gson GSON = new Gson();
 
+  private static final Type appIdValueLengthOverrideTypeReference =
+      new TypeToken<Map<String, Integer>>() {
+      }.getType();
   private static final Type namespaceValueLengthOverrideTypeReference =
       new TypeToken<Map<Long, Integer>>() {
       }.getType();
@@ -106,6 +113,16 @@ public class BizConfig extends RefreshableConfig {
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_ITEM_VALUE_LENGTH);
   }
 
+  public Map<String, Integer> appIdValueLengthLimitOverride() {
+    String appIdValueLengthOverrideString = getValue("appid.value.length.limit.override");
+    return parseOverrideConfig(appIdValueLengthOverrideString, appIdValueLengthOverrideTypeReference, value -> value > 0);
+  }
+
+  public Map<Long, Integer> namespaceValueLengthLimitOverride() {
+    String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
+    return parseOverrideConfig(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference, value -> value > 0);
+  }
+
   public boolean isNamespaceNumLimitEnabled() {
     return getBooleanProperty("namespace.num.limit.enabled", false);
   }
@@ -126,17 +143,6 @@ public class BizConfig extends RefreshableConfig {
   public int itemNumLimit() {
     int limit = getIntProperty("item.num.limit", DEFAULT_MAX_ITEM_NUM);
     return checkInt(limit, 5, Integer.MAX_VALUE, DEFAULT_MAX_ITEM_NUM);
-  }
-
-  public Map<Long, Integer> namespaceValueLengthLimitOverride() {
-    String namespaceValueLengthOverrideString = getValue("namespace.value.length.limit.override");
-    Map<Long, Integer> namespaceValueLengthOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(namespaceValueLengthOverrideString)) {
-      namespaceValueLengthOverride =
-          GSON.fromJson(namespaceValueLengthOverrideString, namespaceValueLengthOverrideTypeReference);
-    }
-
-    return namespaceValueLengthOverride;
   }
 
   public boolean isNamespaceLockSwitchOff() {
@@ -195,15 +201,7 @@ public class BizConfig extends RefreshableConfig {
 
   public Map<String, Integer> releaseHistoryRetentionSizeOverride() {
     String overrideString = getValue("apollo.release-history.retention.size.override");
-    Map<String, Integer> releaseHistoryRetentionSizeOverride = Maps.newHashMap();
-    if (!Strings.isNullOrEmpty(overrideString)) {
-      releaseHistoryRetentionSizeOverride =
-          GSON.fromJson(overrideString, releaseHistoryRetentionSizeOverrideTypeReference);
-    }
-    return releaseHistoryRetentionSizeOverride.entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() >= 1)
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    return parseOverrideConfig(overrideString, releaseHistoryRetentionSizeOverrideTypeReference, value -> value > 0);
   }
 
   public int releaseMessageCacheScanInterval() {
@@ -256,4 +254,22 @@ public class BizConfig extends RefreshableConfig {
   public String getAdminServiceAccessTokens() {
     return getValue("admin-service.access.tokens");
   }
+
+  private <K, V> Map<K, V> parseOverrideConfig(String configValue, Type typeReference, Predicate<V> valueFilter) {
+    Map<K, V> result = Maps.newHashMap();
+    if (!Strings.isNullOrEmpty(configValue)) {
+      try {
+        Map<K, V> parsed = GSON.fromJson(configValue, typeReference);
+        for (Map.Entry<K, V> entry : parsed.entrySet()) {
+          if (entry.getValue() != null && valueFilter.test(entry.getValue())) {
+            result.put(entry.getKey(), entry.getValue());
+          }
+        }
+      } catch (Exception e) {
+        logger.error("Invalid override config value: {}", configValue, e);
+      }
+    }
+    return Collections.unmodifiableMap(result);
+  }
+
 }

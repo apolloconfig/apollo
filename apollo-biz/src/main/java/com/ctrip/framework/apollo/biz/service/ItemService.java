@@ -217,8 +217,8 @@ public class ItemService {
   }
 
   private boolean checkItemValueLength(long namespaceId, String value) {
-    int limit = getItemValueLengthLimit(namespaceId);
     Namespace currentNamespace = namespaceService.findOne(namespaceId);
+    int limit = getItemValueLengthLimit(currentNamespace);
     if(currentNamespace != null) {
       Matcher m = clusterPattern.matcher(currentNamespace.getClusterName());
       boolean isGray = m.matches();
@@ -235,7 +235,7 @@ public class ItemService {
   private int getGrayNamespaceItemValueLengthLimit(Namespace grayNamespace, int grayNamespaceLimit) {
     Namespace parentNamespace = namespaceService.findParentNamespace(grayNamespace);
     if (parentNamespace != null) {
-      int parentLimit = getItemValueLengthLimit(parentNamespace.getId());
+      int parentLimit = getItemValueLengthLimit(grayNamespace);
       if (parentLimit > grayNamespaceLimit) {
         return parentLimit;
       }
@@ -257,11 +257,17 @@ public class ItemService {
     return true;
   }
 
-  private int getItemValueLengthLimit(long namespaceId) {
+  private int getItemValueLengthLimit(Namespace namespace) {
     Map<Long, Integer> namespaceValueLengthOverride = bizConfig.namespaceValueLengthLimitOverride();
-    if (namespaceValueLengthOverride != null && namespaceValueLengthOverride.containsKey(namespaceId)) {
-      return namespaceValueLengthOverride.get(namespaceId);
+    if (namespaceValueLengthOverride != null && namespaceValueLengthOverride.containsKey(namespace.getId())) {
+      return namespaceValueLengthOverride.get(namespace.getId());
     }
+
+    Map<String, Integer> appIdValueLengthOverride = bizConfig.appIdValueLengthLimitOverride();
+    if (appIdValueLengthOverride != null && appIdValueLengthOverride.containsKey(namespace.getAppId())) {
+      return appIdValueLengthOverride.get(namespace.getAppId());
+    }
+
     return bizConfig.itemValueLengthLimit();
   }
 

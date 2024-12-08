@@ -23,11 +23,13 @@
 
                 <h4 class="modal-title">{{'Component.ShowText.Title' | translate }}</h4>
             </div>
-            <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="!jsonObject" ng-bind="text">
-            </pre>
-            <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="jsonObject"
-                ng-bind="jsonObject | json:4 | jsonBigIntFilter">
-            </pre>
+            <div ng-show="!enableTextDiff">
+                <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="!jsonObject" ng-bind="text"></pre>
+                <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="jsonObject" ng-bind="jsonObject | json:4 | jsonBigIntFilter"></pre>
+            </div>
+            <span ng-show="enableTextDiff">
+                <apollodiff old-str="oldStr" new-str="newStr" apollo-id="'textDiff'"> </apollodiff>
+            </span>
         </div>
     </div>
 </div>

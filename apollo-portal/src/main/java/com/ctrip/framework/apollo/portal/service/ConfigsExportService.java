@@ -235,7 +235,7 @@ public class ConfigsExportService {
                                 ZipOutputStream zipOutputStream) {
     String clusterName = exportCluster.getName();
 
-    List<NamespaceBO> namespaceBOS = namespaceService.findNamespaceBOs(exportApp.getAppId(), env, clusterName, false);
+    List<NamespaceBO> namespaceBOS = namespaceService.findNamespaceBOs(exportApp.getAppId(), env, clusterName, true, false);
 
     if (CollectionUtils.isEmpty(namespaceBOS)) {
       return;

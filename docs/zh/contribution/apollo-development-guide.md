@@ -66,7 +66,7 @@ mysql 数据库初始化脚本见 本项目 scripts/sql/profiles/mysql-default �
 [apolloconfigdb.sql](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)
 [apolloportaldb.sql](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)
 
->注3：程序默认日志输出为/opt/logs/100003171/apollo-assembly.log，如果需要修改日志文件路径，可以增加`logging.file.name`参数，如下：
+>注3：程序默认日志输出为/opt/logs/apollo-assembly.log，如果需要修改日志文件路径，可以增加`logging.file.name`参数，如下：
 >
 >-Dlogging.file.name=/your-path/apollo-assembly.log
 

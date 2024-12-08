@@ -284,7 +284,7 @@ BODY
 }
 
 #######################################
-# Update an item of a namespace, if item doesn's exist, create it.
+# Update an item of a namespace, if item doesn't exist, create it.
 # 修改配置，当配置不存在时自动创建
 # Arguments:
 #   env
