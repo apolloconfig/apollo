@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface ConfigService extends ReleaseMessageListener {
+public interface ConfigService extends ReleaseMessageListener, IncrementalSyncConfigService {
 
   /**
    * Load config

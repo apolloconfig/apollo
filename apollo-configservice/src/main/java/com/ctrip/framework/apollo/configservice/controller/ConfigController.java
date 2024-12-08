@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.controller;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.WebUtils;
@@ -26,10 +27,13 @@ import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
+import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
+import com.ctrip.framework.apollo.core.enums.ConfigSyncType;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +46,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -59,6 +66,8 @@ public class ConfigController {
   private final NamespaceUtil namespaceUtil;
   private final InstanceConfigAuditUtil instanceConfigAuditUtil;
   private final Gson gson;
+  private final BizConfig bizConfig;
+
 
   private static final Type configurationTypeReference = new TypeToken<Map<String, String>>() {
       }.getType();
@@ -68,12 +77,14 @@ public class ConfigController {
       final AppNamespaceServiceWithCache appNamespaceService,
       final NamespaceUtil namespaceUtil,
       final InstanceConfigAuditUtil instanceConfigAuditUtil,
-      final Gson gson) {
+      final Gson gson,
+      final BizConfig bizConfig) {
     this.configService = configService;
     this.appNamespaceService = appNamespaceService;
     this.namespaceUtil = namespaceUtil;
     this.instanceConfigAuditUtil = instanceConfigAuditUtil;
     this.gson = gson;
+    this.bizConfig=bizConfig;
   }
 
   @GetMapping(value = "/{appId}/{clusterName}/{namespace:.+}")
@@ -132,10 +143,10 @@ public class ConfigController {
 
     auditReleases(appId, clusterName, dataCenter, clientIp, releases);
 
-    String mergedReleaseKey = releases.stream().map(Release::getReleaseKey)
+    String latestMergedReleaseKey = releases.stream().map(Release::getReleaseKey)
             .collect(Collectors.joining(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR));
 
-    if (mergedReleaseKey.equals(clientSideReleaseKey)) {
+    if (latestMergedReleaseKey.equals(clientSideReleaseKey)) {
       // Client side configuration is the same with server side, return 304
       response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
       Tracer.logEvent("Apollo.Config.NotModified",
@@ -144,8 +155,42 @@ public class ConfigController {
     }
 
     ApolloConfig apolloConfig = new ApolloConfig(appId, appClusterNameLoaded, originalNamespace,
-        mergedReleaseKey);
-    apolloConfig.setConfigurations(mergeReleaseConfigurations(releases));
+        latestMergedReleaseKey);
+
+    Map<String, String> latestConfigurations=mergeReleaseConfigurations(releases);
+
+    if(bizConfig.isConfigServiceChangeCacheEnabled()){
+      LinkedHashSet<String> clientSideReleaseKeys = Sets.newLinkedHashSet(
+          Arrays.stream(clientSideReleaseKey.split("\\+")).collect(Collectors.toList()));
+
+      Map<String, Release> historyReleases = configService.findReleasesByReleaseKeys(
+          clientSideReleaseKeys);
+      //find history releases
+      if (historyReleases != null) {
+        //order by clientSideReleaseKeys
+        List<Release> historyReleasesWithOrder = new ArrayList<>();
+        for (String item : clientSideReleaseKeys) {
+          Release release = historyReleases.get(item);
+          if(release!=null){
+            historyReleasesWithOrder.add(release);
+          }
+        }
+
+        Map<String, String> historyConfigurations = mergeReleaseConfigurations
+            (historyReleasesWithOrder);
+
+        List<ConfigurationChange> configurationChanges = configService.calcConfigurationChanges
+            (latestConfigurations, historyConfigurations);
+
+        apolloConfig.setConfigurationChanges(configurationChanges);
+
+        apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTALSYNC.getValue());
+        return apolloConfig;
+      }
+
+    }
+
+    apolloConfig.setConfigurations(latestConfigurations);
 
     Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
         originalNamespace, dataCenter));
