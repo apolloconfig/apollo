@@ -149,6 +149,7 @@ public abstract class BaseEntity {
         .add("dataChangeLastModifiedTime", dataChangeLastModifiedTime);
   }
 
+  @Override
   public String toString(){
     return toStringHelper().toString();
   }

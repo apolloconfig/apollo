@@ -86,6 +86,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
      * Create role with permissions, note that role name should be unique
      */
     @Transactional
+    @Override
     public Role createRoleWithPermissions(Role role, Set<Long> permissionIds) {
         Role current = findRoleByRoleName(role.getRoleName());
         Preconditions.checkState(current == null, "Role %s already exists!", role.getRoleName());
@@ -114,6 +115,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
      */
     @Transactional
     @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignRoleToUsers")
+    @Override
     public Set<String> assignRoleToUsers(String roleName, Set<String> userIds,
                                          String operatorUserId) {
         Role role = findRoleByRoleName(roleName);
@@ -144,6 +146,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
      */
     @Transactional
     @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeRoleFromUsers")
+    @Override
     public void removeRoleFromUsers(
         @ApolloAuditLogDataInfluence
         @ApolloAuditLogDataInfluenceTable(tableName = "UserRole")
@@ -169,6 +172,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     /**
      * Query users with role
      */
+    @Override
     public Set<UserInfo> queryUsersWithRole(String roleName) {
         Role role = findRoleByRoleName(roleName);
 
@@ -191,6 +195,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     /**
      * Find role by role name, note that roleName should be unique
      */
+    @Override
     public Role findRoleByRoleName(String roleName) {
         return roleRepository.findTopByRoleName(roleName);
     }
@@ -198,6 +203,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     /**
      * Check whether user has the permission
      */
+    @Override
     public boolean userHasPermission(String userId, String permissionType, String targetId) {
         Permission permission =
                 permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
@@ -242,6 +248,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
         return Lists.newLinkedList(roleRepository.findAllById(roleIds));
     }
 
+    @Override
     public boolean isSuperAdmin(String userId) {
         return portalConfig.superAdmins().contains(userId);
     }
@@ -250,6 +257,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
      * Create permission, note that permissionType + targetId should be unique
      */
     @Transactional
+    @Override
     public Permission createPermission(Permission permission) {
         String permissionType = permission.getPermissionType();
         String targetId = permission.getTargetId();
@@ -265,6 +273,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
      * Create permissions, note that permissionType + targetId should be unique
      */
     @Transactional
+    @Override
     public Set<Permission> createPermissions(Set<Permission> permissions) {
         Multimap<String, String> targetIdPermissionTypes = HashMultimap.create();
         for (Permission permission : permissions) {
