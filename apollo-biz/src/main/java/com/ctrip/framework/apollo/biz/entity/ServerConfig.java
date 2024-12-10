@@ -79,6 +79,6 @@ public class ServerConfig extends BaseEntity {
 
   @Override
   public String toString() {
-    return toStringHelper().add("key", key).add("value", value).add("comment", comment).toString();
+    return toStringHelper().add("key", key).add("value", value).add("cluster", cluster).add("comment", comment).toString();
   }
 }
