@@ -23,8 +23,6 @@ import com.ctrip.framework.apollo.biz.entity.Namespace;
 
 import java.util.List;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -33,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -80,7 +77,8 @@ public class ReleaseKeyGeneratorTest {
 
     message = "appId+cluster";
     keys = ReleaseMessageKeyGenerator.messageToList(message);
-    assertNull(keys);
+    assert keys != null;
+    assertEquals(0, keys.size());
   }
 
   private Runnable generateReleaseKeysTask(Namespace namespace, Set<String> releaseKeys,
