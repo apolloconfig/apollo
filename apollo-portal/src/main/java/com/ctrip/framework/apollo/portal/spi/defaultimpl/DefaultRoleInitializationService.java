@@ -57,6 +57,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
   public void initAppRoles(App app) {
     String appId = app.getAppId();
 
@@ -91,6 +92,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
   public void initNamespaceRoles(String appId, String namespaceName, String operator) {
 
     String modifyNamespaceRoleName = RoleUtils.buildModifyNamespaceRoleName(appId, namespaceName);
@@ -107,6 +109,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
   public void initNamespaceEnvRoles(String appId, String namespaceName, String operator) {
     List<Env> portalEnvs = portalConfig.portalSupportedEnvs();
 
@@ -116,6 +119,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
   public void initNamespaceSpecificEnvRoles(String appId, String namespaceName, String env, String operator) {
     String modifyNamespaceEnvRoleName = RoleUtils.buildModifyNamespaceRoleName(appId, namespaceName, env);
     if (rolePermissionService.findRoleByRoleName(modifyNamespaceEnvRoleName) == null) {
@@ -131,6 +135,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
   public void initCreateAppRole() {
     if (rolePermissionService.findRoleByRoleName(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME) != null) {
       return;
@@ -158,6 +163,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
 
   // fix historical data
   @Transactional
+  @Override
   public void initManageAppMasterRole(String appId, String operator) {
     String manageAppMasterRoleName = RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER);
     if (rolePermissionService.findRoleByRoleName(manageAppMasterRoleName) != null) {

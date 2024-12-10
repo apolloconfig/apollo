@@ -37,11 +37,13 @@ public class DatabaseServiceRegistryImpl implements DatabaseServiceRegistry {
     return serviceRegistry;
   }
 
+  @Override
   public void register(ServiceInstance instance) {
     ServiceRegistry serviceRegistry = convert(instance);
     this.serviceRegistryService.saveIfNotExistByServiceNameAndUri(serviceRegistry);
   }
 
+  @Override
   public void deregister(ServiceInstance instance) {
     ServiceRegistry serviceRegistry = convert(instance);
     this.serviceRegistryService.delete(serviceRegistry);

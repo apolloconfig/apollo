@@ -64,6 +64,7 @@ public class Privilege extends BaseEntity {
     this.privilType = privilType;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("namespaceId", namespaceId).add("privilType", privilType)
         .add("name", name).toString();

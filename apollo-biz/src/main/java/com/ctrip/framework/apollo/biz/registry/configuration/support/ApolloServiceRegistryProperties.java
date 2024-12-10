@@ -97,6 +97,7 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
     this.enabled = enabled;
   }
 
+  @Override
   public String getServiceName() {
     return serviceName;
   }

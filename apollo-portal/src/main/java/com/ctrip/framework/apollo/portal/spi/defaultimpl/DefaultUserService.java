@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -36,7 +37,7 @@ public class DefaultUserService implements UserService {
 
   @Override
   public UserInfo findByUserId(String userId) {
-    if (userId.equals("apollo")) {
+    if (Objects.equals(userId, "apollo")) {
       return assembleDefaultUser();
     }
     return null;
