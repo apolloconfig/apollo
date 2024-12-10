@@ -79,6 +79,7 @@ public class Audit extends BaseEntity {
     this.opName = opName;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("entityName", entityName).add("entityId", entityId)
         .add("opName", opName).add("comment", comment).toString();

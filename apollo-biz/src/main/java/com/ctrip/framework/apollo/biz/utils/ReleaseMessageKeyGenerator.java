@@ -21,6 +21,7 @@ import com.google.common.base.Joiner;
 
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.base.Splitter;
+import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class ReleaseMessageKeyGenerator {
     //message should be appId+cluster+namespace
     if (keys.size() != 3) {
       logger.error("message format invalid - {}", message);
-      return null;
+      return Collections.emptyList();
     }
     return keys;
   }

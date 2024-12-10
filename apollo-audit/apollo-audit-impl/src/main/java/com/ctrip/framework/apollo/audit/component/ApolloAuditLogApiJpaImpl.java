@@ -95,7 +95,7 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   @Override
   public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
     String tableName = ApolloAuditUtil.getApolloAuditLogTableName(beanDefinition);
-    if (Objects.isNull(tableName) || tableName.equals("")) {
+    if (Objects.isNull(tableName) || Objects.equals(tableName, "")) {
       return;
     }
     List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
