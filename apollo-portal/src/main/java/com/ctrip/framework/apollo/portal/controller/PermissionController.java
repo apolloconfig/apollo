@@ -323,9 +323,8 @@ public class PermissionController {
 
   @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
   @GetMapping("/system/role/createApplication")
-  public List<String> getCreateApplicationRoleUsers() {
-    return rolePermissionService.queryUsersWithRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME)
-            .stream().map(UserInfo::getUserId).collect(Collectors.toList());
+  public Set<UserInfo> getCreateApplicationRoleUsers() {
+    return rolePermissionService.queryUsersWithRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME);
   }
 
   @GetMapping("/system/role/createApplication/{userId}")
