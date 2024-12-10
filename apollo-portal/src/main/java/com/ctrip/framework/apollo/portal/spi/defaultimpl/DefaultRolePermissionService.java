@@ -183,7 +183,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
         List<UserRole> userRoles = userRoleRepository.findByRoleId(role.getId());
         List<UserInfo> userInfos = userService.findByUserIds(userRoles.stream().map(UserRole::getUserId).collect(Collectors.toList()));
 
-        if(userInfos == null){
+        if (CollectionUtils.isEmpty(userInfos)) {
             return Collections.emptySet();
         }
 
