@@ -109,7 +109,7 @@
                                         <apollodiff old-str="config.oldValue" new-str="config.newValue" apollo-id="'diffWithPublished:'+config.item.key"></apollodiff>
                                     </td>
                                     <td width="15%">
-                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'"></span>
                                         <span class="block"  ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
                                         <span class="block"  ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
@@ -163,7 +163,7 @@
                                         <span ng-if="isNoCompare" ng-bind="config.newValue"></span>
                                     </td>
                                     <td>
-                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'"></span>
                                         <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
                                         <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
@@ -203,7 +203,7 @@
                                         <apollodiff old-str="config.masterReleaseValue" new-str="config.item.value" apollo-id="'grayDiffMasterReleased:' + config.item.key"></apollodiff>
                                     </td>
                                     <td width="15%">
-                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedBy"></span>
+                                        <span class="block" ng-bind="config.item.dataChangeLastModifiedByDisplayName + '(' + config.item.dataChangeLastModifiedBy + ')'"></span>
                                         <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'yyyy-MM-dd'"></span>
                                         <span class="block" ng-bind="config.item.dataChangeLastModifiedTime | date: 'HH:mm:ss'"></span>
                                     </td>
