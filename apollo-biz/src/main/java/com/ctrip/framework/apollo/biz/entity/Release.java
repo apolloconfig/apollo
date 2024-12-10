@@ -123,6 +123,7 @@ public class Release extends BaseEntity {
     isAbandoned = abandoned;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("name", name).add("appId", appId).add("clusterName", clusterName)
         .add("namespaceName", namespaceName).add("configurations", configurations)

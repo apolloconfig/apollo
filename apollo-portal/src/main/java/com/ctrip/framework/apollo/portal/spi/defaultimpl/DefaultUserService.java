@@ -23,11 +23,15 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DefaultUserService implements UserService {
+
+  private static final String DEFAULT_USER_ID = "apollo";
 
   @Override
   public List<UserInfo> searchUsers(String keyword, int offset, int limit, boolean includeInactiveUsers) {
@@ -36,7 +40,7 @@ public class DefaultUserService implements UserService {
 
   @Override
   public UserInfo findByUserId(String userId) {
-    if (userId.equals("apollo")) {
+    if (Objects.equals(userId, DEFAULT_USER_ID)) {
       return assembleDefaultUser();
     }
     return null;
@@ -44,16 +48,20 @@ public class DefaultUserService implements UserService {
 
   @Override
   public List<UserInfo> findByUserIds(List<String> userIds) {
-    if (userIds.contains("apollo")) {
+    if (CollectionUtils.isEmpty(userIds)) {
+      return Collections.emptyList();
+    }
+
+    if (userIds.contains(DEFAULT_USER_ID)) {
       return Lists.newArrayList(assembleDefaultUser());
     }
-    return null;
+    return Collections.emptyList();
   }
 
   private UserInfo assembleDefaultUser() {
     UserInfo defaultUser = new UserInfo();
-    defaultUser.setUserId("apollo");
-    defaultUser.setName("apollo");
+    defaultUser.setUserId(DEFAULT_USER_ID);
+    defaultUser.setName(DEFAULT_USER_ID);
     defaultUser.setEmail("apollo@acme.com");
 
     return defaultUser;

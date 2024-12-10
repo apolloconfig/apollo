@@ -74,6 +74,7 @@ public class ServerConfig extends BaseEntity {
     this.comment = comment;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("key", key).add("value", value).add("comment", comment).toString();
   }
