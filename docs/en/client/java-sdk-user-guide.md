@@ -611,6 +611,17 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
+### 3.1.5 Read the configuration corresponding to multiple appid and their namespaces.(added in version 2.4.0)
+Specify the corresponding appid and namespace to retrieve the config, and then obtain the properties.
+```java
+String someAppId = "Animal";
+String somePublicNamespace = "CAT";
+Config config = ConfigService.getConfig(someAppId, somePublicNamespace);
+String someKey = "someKeyFromPublicNamespace";
+String someDefaultValue = "someDefaultValueForTheKey";
+String value = config.getProperty(someKey, someDefaultValue);
+```
+
 ## 3.2 Spring integration approach
 
 ### 3.2.1 Configuration
@@ -747,6 +758,18 @@ public class SomeAppConfig {
 @Configuration
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"}, order = 1)
 public class AnotherAppConfig {}
+```
+
+4.Support for multiple appid (added in version 2.4.0)
+```java
+// Added support for loading multiple appid their corresponding namespaces. 
+// Note that when using multiple appid, if there are keys that are the same, 
+// only the key from the prioritized loaded appid will be retrieved
+@Configuration
+@EnableApolloConfig(value = {"FX.apollo", "application.yml"},
+        multipleConfigs = {@MultipleConfig( appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+)
+public class SomeAppConfig {}
 ```
 
 #### 3.2.1.3 Spring Boot integration methods (recommended)
