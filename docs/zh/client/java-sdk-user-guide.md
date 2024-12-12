@@ -1,4 +1,4 @@
-~~>注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/contribution/apollo-development-guide)。
+>注意：本文档适用对象是Apollo系统的使用者，如果你是公司内Apollo系统的开发者/维护人员，建议先参考[Apollo开发指南](zh/contribution/apollo-development-guide)。
 
 # &nbsp;
 # 一、准备工作
@@ -1333,4 +1333,4 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 
 输入是meta server返回的多个ConfigService，输出是1个ConfigService。
 
-默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。~~
+默认服务提供是`com.ctrip.framework.apollo.spi.RandomConfigServiceLoadBalancerClient`，使用random策略，也就是随机从多个ConfigService中选择1个ConfigService。
