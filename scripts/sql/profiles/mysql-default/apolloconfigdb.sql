@@ -502,7 +502,8 @@ VALUES
     ('namespace.lock.switch', 'default', 'false', '一次发布只能有一个人修改开关'),
     ('item.key.length.limit', 'default', '128', 'item key 最大长度限制'),
     ('item.value.length.limit', 'default', '20000', 'item value最大长度限制'),
-    ('config-service.cache.enabled', 'default', 'false', 'ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！');
+    ('config-service.cache.enabled', 'default', 'false', 'ConfigService是否开启缓存，开启后能提高性能，但是会增大内存消耗！'),
+    ('config-service.change.cache.enabled', 'default', 'false', 'ConfigService是否开启增量配置同步客户端，开启后能提高性能，但是会增大内存消耗！');
 
 -- 
 -- ===============================================================================

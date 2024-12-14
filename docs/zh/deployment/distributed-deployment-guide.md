@@ -1573,3 +1573,16 @@ json
 }
 ```
 以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
+
+### 3.2.14 config-service.change.cache.enabled - 是否开启增量配置同步客户端
+
+> 适用于服务端2.4.0及以上版本 && 客户端2.3.0及以上版本
+
+这是一个功能开关，如果配置为true的话，config service会缓存加载过的配置信息，发送给客户端增量配置，减少客户端对服务端的网络压力。
+
+默认为false，开启前请先评估总配置大小并调整config service内存配置。
+
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`
+> 大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
+
+> `config-service.change.cache.enabled` 配置调整必须重启 config service 才能生效
