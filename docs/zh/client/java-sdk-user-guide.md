@@ -735,7 +735,7 @@ public class AnotherAppConfig {}
 // 新增支持了多appId和对应namespace的加载，注意使用多appId的情况下，key相同的情况，只会取优先加载appId的那一个key
 @Configuration
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"},
-        multipleConfigs = {@MultipleConfig( appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+        multipleConfigs = {@MultipleConfig(appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
 )
 public class SomeAppConfig {}
 ```

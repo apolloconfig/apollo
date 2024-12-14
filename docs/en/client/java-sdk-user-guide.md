@@ -767,7 +767,7 @@ public class AnotherAppConfig {}
 // only the key from the prioritized loaded appid will be retrieved
 @Configuration
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"},
-        multipleConfigs = {@MultipleConfig( appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+        multipleConfigs = {@MultipleConfig(appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
 )
 public class SomeAppConfig {}
 ```
