@@ -47,18 +47,22 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
     this.apolloAuditHttpInterceptor = apolloAuditHttpInterceptor;
   }
 
+  @Override
   public RestTemplate getObject() {
     return restTemplate;
   }
 
+  @Override
   public Class<RestTemplate> getObjectType() {
     return RestTemplate.class;
   }
 
+  @Override
   public boolean isSingleton() {
     return true;
   }
 
+  @Override
   public void afterPropertiesSet() throws UnsupportedEncodingException {
 
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();

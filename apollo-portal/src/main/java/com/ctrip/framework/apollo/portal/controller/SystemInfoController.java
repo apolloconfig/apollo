@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.SystemInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +146,6 @@ public class SystemInfoController {
   }
 
   private boolean isValidVersion(String version) {
-    return !version.equals("java-null");
+    return !Objects.equals(version, "java-null");
   }
 }

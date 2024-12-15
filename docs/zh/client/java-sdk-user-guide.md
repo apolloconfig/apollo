@@ -583,6 +583,17 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
+### 3.1.5 读取多AppId对应namespace的配置
+指定对应的AppId和namespace来获取Config，再获取属性
+```java
+String someAppId = "Animal";
+String somePublicNamespace = "CAT";
+Config config = ConfigService.getConfig(someAppId, somePublicNamespace);
+String someKey = "someKeyFromPublicNamespace";
+String someDefaultValue = "someDefaultValueForTheKey";
+String value = config.getProperty(someKey, someDefaultValue);
+```
+
 ## 3.2 Spring整合方式
 
 ### 3.2.1 配置
@@ -718,6 +729,17 @@ public class SomeAppConfig {
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"}, order = 1)
 public class AnotherAppConfig {}
 ```
+
+4.多appId的支持(新增于2.4.0版本)
+```java
+// 新增支持了多appId和对应namespace的加载，注意使用多appId的情况下，key相同的情况，只会取优先加载appId的那一个key
+@Configuration
+@EnableApolloConfig(value = {"FX.apollo", "application.yml"},
+        multipleConfigs = {@MultipleConfig(appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+)
+public class SomeAppConfig {}
+```
+
 
 #### 3.2.1.3 Spring Boot集成方式（推荐）
 

@@ -107,6 +107,7 @@ public class AppNamespace extends BaseEntity {
     this.format = format;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("name", name).add("appId", appId).add("comment", comment)
         .add("format", format).add("isPublic", isPublic).toString();
