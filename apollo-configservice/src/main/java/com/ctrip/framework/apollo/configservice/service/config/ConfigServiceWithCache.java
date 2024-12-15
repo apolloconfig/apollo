@@ -112,15 +112,21 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
     ConfigCacheEntry cacheEntry = configCache.getUnchecked(cacheKey);
 
-    //cache is out-dated
-    if (clientMessages != null && clientMessages.has(messageKey) &&
-        clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
+    // Checking if the cache is out-dated
+    boolean isCacheOutdated = outdatedCacheCheck(clientMessages, messageKey, cacheEntry);
+    if (isCacheOutdated) {
       //invalidate the cache and try to load from db again
       invalidate(cacheKey);
       cacheEntry = configCache.getUnchecked(cacheKey);
     }
 
     return cacheEntry.getRelease();
+  }
+
+  private static boolean outdatedCacheCheck(ApolloNotificationMessages clientMessages, String messageKey, ConfigCacheEntry cacheEntry) {
+    boolean clientMessagesHasMessageKey = clientMessages != null && clientMessages.has(messageKey);
+    return  clientMessagesHasMessageKey &&
+            clientMessages.get(messageKey) > cacheEntry.getNotificationId();
   }
 
   private void invalidate(String key) {
