@@ -75,7 +75,7 @@
                             <div class="item-container">
 
                                 <div class="btn-group item-info" ng-repeat="user in appRoleUsers.masterUsers">
-                                    <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
+                                    <button type="button" class="btn btn-default" ng-bind="user.name"></button>
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                                         aria-haspopup="true" aria-expanded="false"
                                         ng-click="removeMasterRoleFromUser(user.userId)">
