@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.AppRolesAssignedUsers;
+import com.ctrip.framework.apollo.portal.entity.vo.ClusterRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceEnvRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
@@ -191,6 +192,76 @@ public class PermissionController {
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
+
+
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/role_users")
+  public ClusterRolesAssignedUsers getClusterRoles(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
+
+    // validate env parameter
+    if (Env.UNKNOWN == Env.transformEnv(env)) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+
+    ClusterRolesAssignedUsers assignedUsers = new ClusterRolesAssignedUsers();
+    assignedUsers.setAppId(appId);
+    assignedUsers.setEnv(Env.valueOf(env));
+    assignedUsers.setCluster(clusterName);
+
+    Set<UserInfo> releaseClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseClusterRoleName(appId, env, clusterName));
+    assignedUsers.setReleaseRoleUsers(releaseClusterUsers);
+
+    Set<UserInfo> modifyClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildModifyClusterRoleName(appId, env, clusterName));
+    assignedUsers.setModifyRoleUsers(modifyClusterUsers);
+
+    return assignedUsers;
+  }
+
+  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignClusterRoleToUser")
+  public ResponseEntity<Void> assignClusterRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+      @PathVariable String roleType, @RequestBody String user) {
+    checkUserExists(user);
+    RequestPrecondition.checkArgumentsNotEmpty(user);
+
+    if (!RoleType.isValidRoleType(roleType)) {
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
+    }
+
+    // validate env parameter
+    if (Env.UNKNOWN == Env.transformEnv(env)) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    Set<String> assignedUser = rolePermissionService.assignRoleToUsers(RoleUtils.buildClusterRoleName(appId, env, clusterName, roleType),
+        Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
+    if (CollectionUtils.isEmpty(assignedUser)) {
+      throw BadRequestException.userAlreadyAuthorized(user);
+    }
+
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/roles/{roleType}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeClusterRoleFromUser")
+  public ResponseEntity<Void> removeClusterRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+      @PathVariable String roleType, @RequestParam String user) {
+    RequestPrecondition.checkArgumentsNotEmpty(user);
+
+    if (!RoleType.isValidRoleType(roleType)) {
+      throw BadRequestException.invalidRoleTypeFormat(roleType);
+    }
+    // validate env parameter
+    if (Env.UNKNOWN == Env.transformEnv(env)) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    rolePermissionService.removeRoleFromUsers(RoleUtils.buildClusterRoleName(appId, env, clusterName, roleType),
+        Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
+    return ResponseEntity.ok().build();
+  }
+
 
   @GetMapping("/apps/{appId}/namespaces/{namespaceName}/role_users")
   public NamespaceRolesAssignedUsers getNamespaceRoles(@PathVariable String appId, @PathVariable String namespaceName) {
