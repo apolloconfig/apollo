@@ -174,6 +174,20 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
     }
   }
 
+  @Transactional
+  @Override
+  public void initClusterRoles(String appId, String env, String clusterName, String operator) {
+    String modifyClusterRoleName = RoleUtils.buildModifyClusterRoleName(appId, env, clusterName);
+    if (rolePermissionService.findRoleByRoleName(modifyClusterRoleName) == null) {
+      createClusterRole(appId, env, clusterName, PermissionType.MODIFY_CLUSTER, modifyClusterRoleName, operator);
+    }
+
+    String releaseClusterRoleName = RoleUtils.buildReleaseClusterRoleName(appId, env, clusterName);
+    if (rolePermissionService.findRoleByRoleName(releaseClusterRoleName) == null) {
+      createClusterRole(appId, env, clusterName, PermissionType.RELEASE_CLUSTER, releaseClusterRoleName, operator);
+    }
+  }
+
   private void createAppMasterRole(String appId, String operator) {
     Set<Permission> appPermissions =
         Stream.of(PermissionType.CREATE_CLUSTER, PermissionType.CREATE_NAMESPACE, PermissionType.ASSIGN_ROLE)
@@ -222,6 +236,17 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
                                       String roleName, String operator) {
     Permission permission =
         createPermission(RoleUtils.buildNamespaceTargetId(appId, namespaceName, env), permissionType, operator);
+    Permission createdPermission = rolePermissionService.createPermission(permission);
+
+    Role role = createRole(roleName, operator);
+    rolePermissionService
+        .createRoleWithPermissions(role, Sets.newHashSet(createdPermission.getId()));
+  }
+
+  private void createClusterRole(String appId, String env, String clusterName, String permissionType,
+                                 String roleName, String operator) {
+    Permission permission =
+        createPermission(RoleUtils.buildClusterTargetId(appId, env, clusterName), permissionType, operator);
     Permission createdPermission = rolePermissionService.createPermission(permission);
 
     Role role = createRole(roleName, operator);

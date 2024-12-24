@@ -125,7 +125,14 @@ public class AppController {
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
-    return appService.createAppAndAddRolePermission(app, appModel.getAdmins());
+    App created = appService.createAppAndAddRolePermission(app,
+        appModel.getAdmins());
+    List<Env> envs = portalSettings.getActiveEnvs();
+    for (Env env : envs) {
+      roleInitializationService.initClusterRoles(created.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
+          env.getName(), userInfoHolder.getUser().getUserId());
+    }
+    return created;
   }
 
   @PreAuthorize(value = "@permissionValidator.isAppAdmin(#appId)")
@@ -166,6 +173,8 @@ public class AppController {
     appService.createAppInRemote(Env.valueOf(env), app);
 
     roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION,
+            env, userInfoHolder.getUser().getUserId());
+    roleInitializationService.initClusterRoles(app.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
             env, userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();

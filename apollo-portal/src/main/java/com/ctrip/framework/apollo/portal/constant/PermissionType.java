@@ -45,5 +45,12 @@ public interface PermissionType {
 
   String RELEASE_NAMESPACE = "ReleaseNamespace";
 
+  /**
+   * cluster level permission
+   */
+
+  String MODIFY_CLUSTER = "ModifyCluster";
+
+  String RELEASE_CLUSTER = "ReleaseCluster";
 
 }

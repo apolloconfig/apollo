@@ -60,6 +60,12 @@ public class PermissionValidator {
             PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
+  public boolean hasModifyClusterPermission(String appId, String env, String clusterName) {
+    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
+        PermissionType.MODIFY_CLUSTER,
+        RoleUtils.buildClusterTargetId(appId, env, clusterName));
+  }
+
   public boolean hasReleaseNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.RELEASE_NAMESPACE,
@@ -70,6 +76,12 @@ public class PermissionValidator {
     return hasReleaseNamespacePermission(appId, namespaceName) ||
         rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
+  }
+
+  public boolean hasReleaseClusterPermission(String appId, String env, String clusterName) {
+    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
+        PermissionType.RELEASE_CLUSTER,
+        RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
   public boolean hasDeleteNamespacePermission(String appId) {

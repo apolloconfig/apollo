@@ -110,6 +110,10 @@ public class RoleUtils {
     return STRING_JOINER.join(appId, namespaceName, env);
   }
 
+  public static String buildClusterTargetId(String appId, String env, String clusterName) {
+    return STRING_JOINER.join(appId, env, clusterName);
+  }
+
   public static String buildDefaultNamespaceTargetId(String appId) {
     return STRING_JOINER.join(appId, ConfigConsts.NAMESPACE_APPLICATION);
   }
