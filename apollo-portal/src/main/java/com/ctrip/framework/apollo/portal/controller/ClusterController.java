@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
+import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,10 +39,13 @@ public class ClusterController {
 
   private final ClusterService clusterService;
   private final UserInfoHolder userInfoHolder;
+  private final RoleInitializationService roleInitializationService;
 
-  public ClusterController(final ClusterService clusterService, final UserInfoHolder userInfoHolder) {
+  public ClusterController(final ClusterService clusterService, final UserInfoHolder userInfoHolder,
+      RoleInitializationService roleInitializationService) {
     this.clusterService = clusterService;
     this.userInfoHolder = userInfoHolder;
+    this.roleInitializationService = roleInitializationService;
   }
 
   @PreAuthorize(value = "@permissionValidator.hasCreateClusterPermission(#appId)")
@@ -52,6 +56,7 @@ public class ClusterController {
     String operator = userInfoHolder.getUser().getUserId();
     cluster.setDataChangeLastModifiedBy(operator);
     cluster.setDataChangeCreatedBy(operator);
+    roleInitializationService.initClusterRoles(appId, env, cluster.getName(), operator);
 
     return clusterService.createCluster(Env.valueOf(env), cluster);
   }
