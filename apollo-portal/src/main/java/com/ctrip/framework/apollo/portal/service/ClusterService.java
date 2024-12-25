@@ -32,10 +32,13 @@ public class ClusterService {
 
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ClusterAPI clusterAPI;
+  private final RoleInitializationService roleInitializationService;
 
-  public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI) {
+  public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI,
+      RoleInitializationService roleInitializationService) {
     this.userInfoHolder = userInfoHolder;
     this.clusterAPI = clusterAPI;
+    this.roleInitializationService = roleInitializationService;
   }
 
   public List<ClusterDTO> findClusters(Env env, String appId) {
@@ -47,6 +50,9 @@ public class ClusterService {
       throw BadRequestException.clusterAlreadyExists(cluster.getName());
     }
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
+
+    roleInitializationService.initClusterRoles(cluster.getAppId(), env.getName(), cluster.getName(),
+        userInfoHolder.getUser().getUserId());
 
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());
 

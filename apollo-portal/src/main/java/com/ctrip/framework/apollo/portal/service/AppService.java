@@ -25,8 +25,10 @@ import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AppAPI;
+import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
@@ -63,6 +65,7 @@ public class AppService {
   private final FavoriteService favoriteService;
   private final UserService userService;
   private final ApolloAuditLogApi apolloAuditLogApi;
+  private final PortalSettings portalSettings;
 
   private final ApplicationEventPublisher publisher;
 
@@ -76,7 +79,7 @@ public class AppService {
       final RolePermissionService rolePermissionService,
       final FavoriteService favoriteService,
       final UserService userService, ApplicationEventPublisher publisher,
-      final ApolloAuditLogApi apolloAuditLogApi) {
+      final ApolloAuditLogApi apolloAuditLogApi, PortalSettings portalSettings) {
     this.userInfoHolder = userInfoHolder;
     this.appAPI = appAPI;
     this.appRepository = appRepository;
@@ -88,6 +91,7 @@ public class AppService {
     this.userService = userService;
     this.apolloAuditLogApi = apolloAuditLogApi;
     this.publisher = publisher;
+    this.portalSettings = portalSettings;
   }
 
 
@@ -138,6 +142,9 @@ public class AppService {
 
     AppDTO appDTO = BeanUtils.transform(AppDTO.class, app);
     appAPI.createApp(env, appDTO);
+
+    roleInitializationService.initClusterRoles(app.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
+        env.getName(), userInfoHolder.getUser().getUserId());
   }
 
   private App createAppInLocal(App app) {
@@ -162,6 +169,11 @@ public class AppService {
 
     appNamespaceService.createDefaultAppNamespace(appId);
     roleInitializationService.initAppRoles(createdApp);
+    List<Env> envs = portalSettings.getActiveEnvs();
+    for (Env env : envs) {
+      roleInitializationService.initClusterRoles(appId, ConfigConsts.CLUSTER_NAME_DEFAULT,
+          env.getName(), userInfoHolder.getUser().getUserId());
+    }
 
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);
 
