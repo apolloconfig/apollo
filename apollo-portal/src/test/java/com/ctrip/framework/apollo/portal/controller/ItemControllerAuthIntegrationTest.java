@@ -38,8 +38,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PortalApplication.class,
-    ItemControllerIntegrationTest.TestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ItemControllerIntegrationTest {
+    ItemControllerAuthIntegrationTest.TestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
+public class ItemControllerAuthIntegrationTest {
 
   protected final Gson GSON = new Gson();
   private final String appId = "testApp";
