@@ -204,7 +204,7 @@ public class PermissionController {
 
     ClusterRolesAssignedUsers assignedUsers = new ClusterRolesAssignedUsers();
     assignedUsers.setAppId(appId);
-    assignedUsers.setEnv(Env.valueOf(env));
+    assignedUsers.setEnv(env);
     assignedUsers.setCluster(clusterName);
 
     Set<UserInfo> releaseClusterUsers =

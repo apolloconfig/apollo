@@ -65,6 +65,7 @@ public class SkipAuthorizationConfiguration {
   public PermissionValidator permissionValidator() {
     final PermissionValidator mock = mock(PermissionValidator.class);
     when(mock.isSuperAdmin()).thenReturn(true);
+    when(mock.hasAssignRolePermission(any())).thenReturn(true);
     return mock;
   }
 }
