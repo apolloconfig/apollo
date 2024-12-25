@@ -1,7 +1,6 @@
 package com.ctrip.framework.apollo.portal.entity.vo;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import java.util.Set;
 
 public class ClusterRolesAssignedUsers {
@@ -12,12 +11,12 @@ public class ClusterRolesAssignedUsers {
   private Set<UserInfo> modifyRoleUsers;
   private Set<UserInfo> releaseRoleUsers;
 
-  public Env getEnv() {
-    return Env.valueOf(env);
+  public String getEnv() {
+    return env;
   }
 
-  public void setEnv(Env env) {
-    this.env = env.toString();
+  public void setEnv(String env) {
+    this.env = env;
   }
 
   public String getAppId() {
@@ -50,5 +49,16 @@ public class ClusterRolesAssignedUsers {
 
   public void setReleaseRoleUsers(Set<UserInfo> releaseRoleUsers) {
     this.releaseRoleUsers = releaseRoleUsers;
+  }
+
+  @Override
+  public String toString() {
+    return "ClusterRolesAssignedUsers{" +
+        "appId='" + appId + '\'' +
+        ", env='" + env + '\'' +
+        ", cluster='" + cluster + '\'' +
+        ", modifyRoleUsers=" + modifyRoleUsers +
+        ", releaseRoleUsers=" + releaseRoleUsers +
+        '}';
   }
 }

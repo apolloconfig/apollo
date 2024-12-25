@@ -4,16 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.AuthorizationConfiguration;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.portal.PortalApplication;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
-import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.gson.Gson;
 import javax.annotation.PostConstruct;
@@ -24,9 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,10 +34,10 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PortalApplication.class,
-    ItemControllerAuthIntegrationTest.TestConfig.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
+    AuthorizationConfiguration.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ItemControllerAuthIntegrationTest {
 
-  protected final Gson GSON = new Gson();
+  private final Gson GSON = new Gson();
   private final String appId = "testApp";
   private final String env = "LOCAL";
   private final String clusterName = "default";
@@ -102,38 +98,13 @@ public class ItemControllerAuthIntegrationTest {
         entity, String.class, appId, env, clusterName, namespaceName);
 
     // Verify that the createItem method was called with the correct parameters
-    verify(itemService).createItem(eq(appId), eq(Env.valueOf(env)), eq(clusterName), eq(namespaceName), any(
-        ItemDTO.class));
+    verify(itemService).createItem(eq(appId), eq(Env.valueOf(env)), eq(clusterName),
+        eq(namespaceName), any(ItemDTO.class));
   }
 
   void setUserId(String userId) {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(userId);
     when(userInfoHolder.getUser()).thenReturn(userInfo);
-  }
-
-  @Configuration
-  static class TestConfig {
-
-    @Primary
-    @Bean
-    public UserInfoHolder userInfoHolder() {
-      return mock(UserInfoHolder.class);
-    }
-
-    @Primary
-    @Bean
-    public RolePermissionService rolePermissionService() {
-      final RolePermissionService mock = mock(RolePermissionService.class);
-      when(mock.userHasPermission(eq("luke"), any(), any())).thenReturn(true);
-      return mock;
-    }
-
-    @Primary
-    @Bean
-    public ItemService itemService() {
-
-      return mock(ItemService.class);
-    }
   }
 }
