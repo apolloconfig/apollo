@@ -187,10 +187,27 @@
         <div class="config-item-container hide" ng-class="{'view-mode-1': viewMode == 1, 'view-mode-2': viewMode == 2}"
             ng-controller="ConfigNamespaceController">
 
-            <h4 class="text-center" ng-show="viewMode == 2">
-                {{'Config.CurrentlyOperatorEnv' | translate }}:{{pageContext.env}}，
-                {{'Common.Cluster' | translate }}:{{pageContext.clusterName}}
-            </h4>
+            <section class="panel cluster-info-panel">
+                <header class="panel-heading">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 header-namespace">
+                            <b class="namespace-name" data-tooltip="tooltip" data-placement="bottom">
+                                {{'Config.CurrentlyOperatorEnv' | translate }}:{{pageContext.env}},
+                                {{'Common.Cluster' | translate }}:{{pageContext.clusterName}}
+                            </b>
+                        </div>
+                        <div class="col-md-6 col-sm-6 text-right header-buttons">
+                            <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                               title="{{'Component.Cluster.GrantTips' | translate }}"
+                               href="{{ '/cluster/role.html' | prefixPath }}?#/appid={{pageContext.appId}}&env={{pageContext.env}}&clusterName={{pageContext.clusterName}}">
+                                <img src="img/assign.png">
+                                {{'Component.Cluster.Grant' | translate }}
+                            </a>
+                        </div>
+                    </div>
+                </header>
+            </section>
+
             <div class="alert alert-info alert-dismissible" role="alert"
                 ng-show="(!hideTip || !hideTip[pageContext.appId][pageContext.clusterName]) && envMapClusters[pageContext.env]">
 
