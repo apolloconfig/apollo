@@ -81,6 +81,12 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
+  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/initPermission")
+  public ResponseEntity<Void> initClusterPermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
+    roleInitializationService.initClusterRoles(appId, env, clusterName, userInfoHolder.getUser().getUserId());
+    return ResponseEntity.ok().build();
+  }
+
   @GetMapping("/apps/{appId}/permissions/{permissionType}")
   public ResponseEntity<PermissionCondition> hasPermission(@PathVariable String appId, @PathVariable String permissionType) {
     PermissionCondition permissionCondition = new PermissionCondition();

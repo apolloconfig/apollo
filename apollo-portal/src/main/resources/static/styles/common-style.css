@@ -1190,3 +1190,7 @@ table th {
 .block {
     display: block;
 }
+
+.cluster-info-panel {
+    margin: 20px 0px;
+}
