@@ -115,6 +115,18 @@ public class PermissionController {
     return ResponseEntity.ok().body(permissionCondition);
   }
 
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/permissions/{permissionType}")
+  public ResponseEntity<PermissionCondition> hasClusterPermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+                                                           @PathVariable String permissionType) {
+    PermissionCondition permissionCondition = new PermissionCondition();
+
+    permissionCondition.setHasPermission(
+        rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(), permissionType,
+            RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+
+    return ResponseEntity.ok().body(permissionCondition);
+  }
+
   @GetMapping("/permissions/root")
   public ResponseEntity<PermissionCondition> hasRootPermission() {
     PermissionCondition permissionCondition = new PermissionCondition();
