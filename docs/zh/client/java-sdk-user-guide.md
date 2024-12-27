@@ -405,8 +405,8 @@ apollo.label=YOUR-APOLLO-LABEL
 #### 1.2.4.9 开启客户端监控
 
 > 适用于2.4.0及以上版本
-> 
-在开启下方配置后, 可使用 ConfigService.getConfigMonitor() 获取客户端监控信息,以及自动上报
+
+在开启下方配置后, 可使用 `ConfigService.getConfigMonitor()` 获取客户端监控信息,以及自动上报
 
 ```properties
 #1.是否启动Monitor机制, 即ConfigMonitor是否启用，默认false
@@ -610,6 +610,17 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
+### 3.1.5 读取多AppId对应namespace的配置
+指定对应的AppId和namespace来获取Config，再获取属性
+```java
+String someAppId = "Animal";
+String somePublicNamespace = "CAT";
+Config config = ConfigService.getConfig(someAppId, somePublicNamespace);
+String someKey = "someKeyFromPublicNamespace";
+String someDefaultValue = "someDefaultValueForTheKey";
+String value = config.getProperty(someKey, someDefaultValue);
+```
+
 ### 3.1.6 获取客户端监控指标
 > 适用于2.4.0及以上版本
  
@@ -688,7 +699,6 @@ apollo.client.monitor.jmx.enabled = true
 | 指标名称                          | 标签                                               |
 | --------------------------------- | -------------------------------------------------- |
 | apollo_client_exception_num_total | exceptionMonitorApi.getExceptionCountFromStartup() |
-
 
 
 ## 3.2 Spring整合方式
@@ -826,6 +836,17 @@ public class SomeAppConfig {
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"}, order = 1)
 public class AnotherAppConfig {}
 ```
+
+4.多appId的支持(新增于2.4.0版本)
+```java
+// 新增支持了多appId和对应namespace的加载，注意使用多appId的情况下，key相同的情况，只会取优先加载appId的那一个key
+@Configuration
+@EnableApolloConfig(value = {"FX.apollo", "application.yml"},
+        multipleConfigs = {@MultipleConfig(appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+)
+public class SomeAppConfig {}
+```
+
 
 #### 3.2.1.3 Spring Boot集成方式（推荐）
 
@@ -1547,12 +1568,14 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 ## 7.3 指标输出到自定义监控系统
 > 适用于2.4.0及以上版本
 
-用户需要自行编写MetricsExporter, 继承AbstractApolloClientMetricsExporter, 实现里面的
-- `doInit` (初始化方法)
-- `isSupport` (external-type配置调用方法)
-- `registerOrUpdateCounterSample` (注册更新Counter指标方法)
-- `registerOrUpdateGaugeSample` (注册更新Gauge指标方法)
-- `response` (导出所需类型指标数据方法)
+用户需要自行编写 MetricsExporter，继承 AbstractApolloClientMetricsExporter，实现以下方法：
+
+- doInit（初始化方法）
+- isSupport（external-type 配置调用方法）
+- registerOrUpdateCounterSample（注册更新 Counter 指标方法）
+- registerOrUpdateGaugeSample（注册更新 Gauge 指标方法）
+- response（导出所需类型指标数据方法）
+
 
 并配置相关SPI文件
 

@@ -25,6 +25,7 @@ Apollo 2.4.0
 * [Feature: Add rate limiting function to ConsumerToken](https://github.com/apolloconfig/apollo/pull/5267)
 * [Feature: add JSON formatting function in apollo-portal](https://github.com/apolloconfig/apollo/pull/5287)
 * [Fix: add missing url patterns for AdminServiceAuthenticationFilter](https://github.com/apolloconfig/apollo/pull/5291)
+* [Fix: support java.time.Instant serialization with gson](https://github.com/apolloconfig/apollo/pull/5298)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)

@@ -99,6 +99,7 @@ public class Item extends BaseEntity {
     this.type = type;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("namespaceId", namespaceId).add("key", key)
             .add("type", type).add("value", value)

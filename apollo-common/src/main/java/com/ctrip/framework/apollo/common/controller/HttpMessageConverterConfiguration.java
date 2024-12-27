@@ -19,6 +19,11 @@ package com.ctrip.framework.apollo.common.controller;
 import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
+import java.time.Instant;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,9 +42,23 @@ import java.util.List;
 public class HttpMessageConverterConfiguration {
   @Bean
   public HttpMessageConverters messageConverters() {
+    // Custom Gson TypeAdapter for Instant
+    JsonSerializer<Instant> instantJsonSerializer = (src, typeOfSrc, context) ->
+        src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString()); // Serialize Instant as ISO-8601 string
+
+    JsonDeserializer<Instant> instantJsonDeserializer = (json, typeOfT, context) -> {
+      if (json == null || json.isJsonNull()) {
+        return null;
+      }
+      return Instant.parse(json.getAsString()); // Deserialize from ISO-8601 string
+    };
+
     GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
     gsonHttpMessageConverter.setGson(
-            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create());
+            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+                .registerTypeAdapter(Instant.class, instantJsonSerializer)
+                .registerTypeAdapter(Instant.class, instantJsonDeserializer)
+                .create());
     final List<HttpMessageConverter<?>> converters = Lists.newArrayList(
             new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
             new AllEncompassingFormHttpMessageConverter(), gsonHttpMessageConverter);

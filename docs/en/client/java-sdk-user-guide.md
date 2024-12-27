@@ -439,7 +439,7 @@ apollo.client.monitor.external.type = prometheus
 # 5. Specify the frequency at which the Exporter exports status information from Monitor as metric data. 
 # The default is once every 10 seconds.
 apollo.client.monitor.external.export-period = 20
-
+```
 
 #### 1.2.4.10 ConfigMap cache
 
@@ -637,6 +637,17 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
+### 3.1.5 Read the configuration corresponding to multiple appid and their namespaces.(added in version 2.4.0)
+Specify the corresponding appid and namespace to retrieve the config, and then obtain the properties.
+```java
+String someAppId = "Animal";
+String somePublicNamespace = "CAT";
+Config config = ConfigService.getConfig(someAppId, somePublicNamespace);
+String someKey = "someKeyFromPublicNamespace";
+String someDefaultValue = "someDefaultValueForTheKey";
+String value = config.getProperty(someKey, someDefaultValue);
+```
+
 ### 3.1.6 Retrieve Client Monitoring Metrics
 > Applicable to version 2.4.0 and above
 
@@ -714,6 +725,7 @@ Metric corresponding API: ApolloClientExceptionMonitorApi
 | Metric Name                         | Tag                                                   |
 | ----------------------------------- | ----------------------------------------------------- |
 | apollo_client_exception_num_total   | exceptionMonitorApi.getExceptionCountFromStartup()    |
+
 
 ## 3.2 Spring integration approach
 
@@ -851,6 +863,18 @@ public class SomeAppConfig {
 @Configuration
 @EnableApolloConfig(value = {"FX.apollo", "application.yml"}, order = 1)
 public class AnotherAppConfig {}
+```
+
+4.Support for multiple appid (added in version 2.4.0)
+```java
+// Added support for loading multiple appid their corresponding namespaces. 
+// Note that when using multiple appid, if there are keys that are the same, 
+// only the key from the prioritized loaded appid will be retrieved
+@Configuration
+@EnableApolloConfig(value = {"FX.apollo", "application.yml"},
+        multipleConfigs = {@MultipleConfig(appid = "ORDER_SERVICE", namespaces = {"ORDER.apollo"})}
+)
+public class SomeAppConfig {}
 ```
 
 #### 3.2.1.3 Spring Boot integration methods (recommended)
@@ -1604,11 +1628,11 @@ At the same time, you can also view the following information on the Prometheus 
 > Applicable to version 2.4.0 and above
 
 Users need to implement a MetricsExporter by extending `AbstractApolloClientMetricsExporter` and implement the following methods:
-- `doInit` (Initialization method)
-- `isSupport` (Method to check if the external-type configuration is supported)
-- `registerOrUpdateCounterSample` (Method to register or update Counter metrics)
-- `registerOrUpdateGaugeSample` (Method to register or update Gauge metrics)
-- `response` (Method to export the required metric data)
+- doInit (Initialization method)
+- isSupport (Method to check if the external-type configuration is supported)
+- registerOrUpdateCounterSample (Method to register or update Counter metrics)
+- registerOrUpdateGaugeSample (Method to register or update Gauge metrics)
+- response (Method to export the required metric data)
 
 Additionally, you need to configure the corresponding SPI files.
 

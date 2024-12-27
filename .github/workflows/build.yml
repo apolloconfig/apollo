@@ -37,11 +37,12 @@ jobs:
       with:
         java-version: ${{ matrix.jdk }}
     - name: Cache Maven packages
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - name: JDK 8
       if: matrix.jdk == '8'
       run: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true

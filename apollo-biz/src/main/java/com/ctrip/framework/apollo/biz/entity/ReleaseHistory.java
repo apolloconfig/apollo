@@ -121,6 +121,7 @@ public class ReleaseHistory extends BaseEntity {
     this.operationContext = operationContext;
   }
 
+  @Override
   public String toString() {
     return toStringHelper().add("appId", appId).add("clusterName", clusterName)
         .add("namespaceName", namespaceName).add("branchName", branchName)

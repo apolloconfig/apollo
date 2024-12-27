@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDataInfluenceDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDetailsDTO;
 import com.ctrip.framework.apollo.audit.dto.ApolloAuditLogDTO;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -50,28 +51,28 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
 
   @Override
   public List<ApolloAuditLogDTO> queryLogs(int page, int size) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<ApolloAuditLogDTO> queryLogsByOpName(String opName, Date startDate,
       Date endDate, int page, int size) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<ApolloAuditLogDetailsDTO> queryTraceDetails(String traceId) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size) {
-    return null;
+    return Collections.emptyList();
   }
 
   @Override
   public List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size) {
-    return null;
+    return Collections.emptyList();
   }
 }

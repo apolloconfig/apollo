@@ -20,6 +20,7 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -101,7 +102,7 @@ public class ApolloDataSourceScriptDatabaseInitializerFactory {
   private static Collection<String> convertRepositoryLocations(Collection<String> locations,
       DataSource dataSource) {
     if (CollectionUtils.isEmpty(locations)) {
-      return null;
+      return Collections.emptyList();
     }
     String repositoryDir = findRepositoryDirectory();
     String suffix = findSuffix(dataSource);
