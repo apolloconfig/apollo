@@ -417,7 +417,7 @@ The configuration methods, in descending order of priority, are
 
 #### 1.2.4.9 Enable Client Monitoring
 
-> Applicable to version 2.4.0 and above
+> For version 2.4.0 and above
 
 After enabling the following configurations, you can use `ConfigService.getConfigMonitor()` to retrieve client monitoring information and enable automatic reporting.
 
@@ -425,7 +425,7 @@ After enabling the following configurations, you can use `ConfigService.getConfi
 # 1. Whether to enable the Monitor mechanism, i.e., whether ConfigMonitor is enabled. Default is false.
 apollo.client.monitor.enabled = true
 
-# 2. Whether to expose Monitor data in JMX format. When enabled, you can view related information through tools like J-console. Default is false.
+# 2. Whether to expose Monitor data by JMX. When enabled, you can view related information through tools like J-console. Default is false.
 apollo.client.monitor.jmx.enabled = true
 
 # 3. The maximum number of exception logs that Monitor can store. The default is 25, following the FIFO principle.
@@ -649,9 +649,9 @@ String value = config.getProperty(someKey, someDefaultValue);
 ```
 
 ### 3.1.6 Retrieve Client Monitoring Metrics
-> Applicable to version 2.4.0 and above
+> For version 2.4.0 and above
 
-Apollo Client significantly enhanced observability in version 2.4.0, providing the ConfigMonitor API as well as metric export options via JMX and Prometheus. For configuration details, see [1.2.4.9 Enable Client Monitoring](#_1249-开启客户端监控).
+Apollo Client significantly enhanced observability since version 2.4.0, providing the ConfigMonitor API as well as metric export options via JMX and Prometheus. For configuration details, see [1.2.4.9 Enable Client Monitoring](#_1249-enable-client-monitoring).
 
 #### 3.1.6.1 Retrieve Monitoring Data via ConfigMonitor
 
@@ -686,7 +686,7 @@ After starting the application, use J-console or similar tools to view the metri
 ![showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.jpg)
 #### 3.1.6.3 Client Export Metrics to External Monitoring Systems
 
-Users can customize the integration with monitoring systems such as Prometheus as needed. The client provides an SPI, see [7.2 MetricsExporter Extension](#_7.2_MetricsExporter-extension) for details.
+Users can customize the integration with monitoring systems such as Prometheus as needed. The client provides an SPI, see [7.3 Exporting Metrics to Custom Monitoring Systems](#73-exporting-metrics-to-custom-monitoring-systems). for details.
 
 *Related Metrics Data Tables*
 
@@ -1504,7 +1504,7 @@ The default service provider is `com.ctrip.framework.apollo.spi.RandomConfigServ
 
 
 ## 7.2 Exporting Metrics to Prometheus
-> Applicable to version 2.4.0 and above
+> For 2.4.0 and above
 
 Metrics can be exported to Prometheus, or different implementations can be written based on SPI to integrate with various monitoring systems.
 
@@ -1637,13 +1637,35 @@ Users need to implement a MetricsExporter by extending `AbstractApolloClientMetr
 Additionally, you need to configure the corresponding SPI files.
 
 MetricsExporter Loading Flowchart:
-![Exporter load by apollo client](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-exporter-load.jpg)
+```mermaid
+sequenceDiagram
+    participant Factory as DefaultMetricsExporterFactory
+    participant Exporter as MetricsExporter
+    participant SPI as SPI Loader
+
+    %% Step 1: Factory loads all Exporters using SPI
+    Factory->>SPI: loadAllOrdered(MetricsExporter)
+    SPI-->>Factory: List<MetricsExporter>
+
+    %% Step 2: Factory checks for supported Exporter
+    Factory->>Exporter: isSupport(externalSystemType)
+    Exporter-->>Factory: true / false
+
+    alt Exporter Found
+        %% Step 3: Factory initializes the Exporter
+        Factory->>Exporter: init(listeners, exportPeriod)
+        Factory-->>Client: Exporter Instance
+    else No Exporter Found
+        %% Step 4: Factory returns null
+        Factory-->>Client: null
+    end
+```
 
 ### 7.3.1 SkyWalking Example
 By configuring:
 ```properties
 apollo.client.monitor.enabled=true
-#exporter内定义
+# Defined within the exporter
 apollo.client.monitor.external.type=skywalking
 ```
 

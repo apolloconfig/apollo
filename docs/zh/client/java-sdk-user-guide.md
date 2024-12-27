@@ -660,7 +660,7 @@ apollo.client.monitor.jmx.enabled = true
 
 #### 3.1.6.3 客户端导出指标上报到外部监控系统
 
-用户可以根据需求自定义接入Prometheus等监控系统,客户端提供了SPI,详见 [7.2 MetricsExporter扩展](#_7.2_MetricsExporter扩展)
+用户可以根据需求自定义接入Prometheus等监控系统,客户端提供了SPI,详见 [7.3 指标输出到自定义监控系统](#73-指标输出到自定义监控系统)。
 
 *相关指标数据表格*
 
@@ -1580,7 +1580,29 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 并配置相关SPI文件
 
 MetricsExporter加载流程图
-![Exporter load by apollo client](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-exporter-load.jpg)
+```mermaid
+sequenceDiagram
+    participant Factory as DefaultMetricsExporterFactory
+    participant Exporter as MetricsExporter
+    participant SPI as SPI Loader
+
+    %% 步骤 1: Factory 从 SPI 加载所有 Exporters
+    Factory->>SPI: loadAllOrdered(MetricsExporter)
+    SPI-->>Factory: List<MetricsExporter>
+
+    %% 步骤 2: Factory 查找支持的 Exporter
+    Factory->>Exporter: isSupport(externalSystemType)
+    Exporter-->>Factory: true / false
+
+    alt Exporter Found
+        %% 步骤 3: Factory 初始化 Exporter
+        Factory->>Exporter: init(listeners, exportPeriod)
+        Factory-->>Client: Exporter Instance
+    else No Exporter Found
+        %% 步骤 4: Factory 返回 null
+        Factory-->>Client: null
+    end
+```
 
 
 
