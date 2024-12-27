@@ -78,7 +78,8 @@ public class NamespaceBranchController {
     return namespaceBO;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
   @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
   public NamespaceDTO createBranch(@PathVariable String appId,
@@ -97,9 +98,12 @@ public class NamespaceBranchController {
                            @PathVariable String namespaceName,
                            @PathVariable String branchName) {
 
-    boolean canDelete = permissionValidator.hasReleaseNamespacePermission(appId, namespaceName, env) ||
-            (permissionValidator.hasModifyNamespacePermission(appId, namespaceName, env) &&
-                      releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
+    boolean hasModifyPermission = permissionValidator.hasModifyNamespacePermission(appId, namespaceName, env)
+        || permissionValidator.hasModifyClusterPermission(appId, env, clusterName);
+    boolean hasReleasePermission = permissionValidator.hasReleaseNamespacePermission(appId, namespaceName, env)
+        || permissionValidator.hasReleaseClusterPermission(appId, env, clusterName);
+    boolean canDelete = hasReleasePermission
+        || (hasModifyPermission && releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
 
 
     if (!canDelete) {
@@ -115,7 +119,8 @@ public class NamespaceBranchController {
 
 
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
   @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
   public ReleaseDTO merge(@PathVariable String appId, @PathVariable String env,

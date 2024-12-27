@@ -277,20 +277,33 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                 )
                                     .then(function (result) {
                                         //branch has same permission
-                                        namespace.hasModifyPermission = result.hasPermission;
+                                        namespace.hasModifyPermission = namespace.hasModifyPermission || result.hasPermission;
                                         if (namespace.branch) {
-                                            namespace.branch.hasModifyPermission = result.hasPermission;
+                                            namespace.branch.hasModifyPermission = namespace.branch.hasModifyPermission || result.hasPermission;
                                         }
                                     });
                             }
                             else {
                                 //branch has same permission
-                                namespace.hasModifyPermission = result.hasPermission;
+                                namespace.hasModifyPermission = namespace.hasModifyPermission || result.hasPermission;
                                 if (namespace.branch) {
-                                    namespace.branch.hasModifyPermission = result.hasPermission;
+                                    namespace.branch.hasModifyPermission = namespace.branch.hasModifyPermission || result.hasPermission;
                                 }
                             }
                         });
+
+                    PermissionService.has_modify_cluster_permission(
+                        scope.appId,
+                        scope.env,
+                        scope.cluster
+                    ).then(function (result) {
+                        if (result.hasPermission) {
+                            namespace.hasModifyPermission = namespace.hasModifyPermission || result.hasPermission;
+                            if (namespace.branch) {
+                                namespace.branch.hasModifyPermission = namespace.branch.hasModifyPermission || result.hasPermission;
+                            }
+                        }
+                    });
 
                     PermissionService.has_release_namespace_permission(
                         scope.appId,
@@ -304,20 +317,34 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                 )
                                     .then(function (result) {
                                         //branch has same permission
-                                        namespace.hasReleasePermission = result.hasPermission;
+                                        namespace.hasReleasePermission |= result.hasPermission;
                                         if (namespace.branch) {
-                                            namespace.branch.hasReleasePermission = result.hasPermission;
+                                            namespace.branch.hasReleasePermission |= result.hasPermission;
                                         }
                                     });
                             }
                             else {
                                 //branch has same permission
-                                namespace.hasReleasePermission = result.hasPermission;
+                                namespace.hasReleasePermission |= result.hasPermission;
                                 if (namespace.branch) {
-                                    namespace.branch.hasReleasePermission = result.hasPermission;
+                                    namespace.branch.hasReleasePermission |= result.hasPermission;
                                 }
                             }
                         });
+
+                    PermissionService.has_release_cluster_permission(
+                        scope.appId,
+                        scope.env,
+                        scope.cluster
+                    ).then(function (result) {
+                        if (result.hasPermission) {
+                            namespace.hasReleasePermission |= result.hasPermission;
+                            if (namespace.branch) {
+                                namespace.branch.hasReleasePermission |= result.hasPermission;
+                            }
+                        }
+                    });
+
                 }
 
                 function initLinkedNamespace(namespace) {

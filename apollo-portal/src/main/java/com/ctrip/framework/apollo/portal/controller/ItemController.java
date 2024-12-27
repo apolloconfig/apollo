@@ -73,7 +73,8 @@ public class ItemController {
     this.namespaceService = namespaceService;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items", consumes = {
       "application/json"})
   public void modifyItemsByText(@PathVariable String appId, @PathVariable String env,
@@ -122,7 +123,8 @@ public class ItemController {
   }
 
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env) ")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env) "
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -206,7 +208,8 @@ public class ItemController {
       hasPermission = true;
       for (NamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
         // once user has not one of the env's ModifyNamespace permission, then break the loop
-        hasPermission &= permissionValidator.hasModifyNamespacePermission(namespaceIdentifier.getAppId(), namespaceIdentifier.getNamespaceName(), namespaceIdentifier.getEnv().toString());
+        hasPermission &= permissionValidator.hasModifyNamespacePermission(namespaceIdentifier.getAppId(), namespaceIdentifier.getNamespaceName(), namespaceIdentifier.getEnv().toString())
+        || permissionValidator.hasModifyClusterPermission(namespaceIdentifier.getAppId(), namespaceIdentifier.getEnv().toString(), namespaceIdentifier.getClusterName());
         if (!hasPermission) {
           envNoPermission = namespaceIdentifier.getEnv();
           break;
@@ -220,7 +223,8 @@ public class ItemController {
     throw new AccessDeniedException(String.format("You don't have the permission to modify environment: %s", envNoPermission));
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/syntax-check", consumes = {
       "application/json"})
   public ResponseEntity<Void> syntaxCheckText(@PathVariable String appId, @PathVariable String env,
@@ -231,7 +235,8 @@ public class ItemController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/revoke-items")
   public void revokeItems(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName) {
