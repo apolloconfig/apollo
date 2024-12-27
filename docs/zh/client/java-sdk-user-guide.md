@@ -419,7 +419,7 @@ apollo.client.monitor.jmx.enabled = true
 apollo.client.monitor.exception-queue-size= 30
 
 #4.指定导出指标数据使用的对应监控系统的Exporter类型，如引入apollo-plugin-client-prometheus则可填写prometheus进行启用,
-#可填配置取决于用户引入的MetricsExporter的SPI
+# 取决于SPI MetricsExporter的实现
 apollo.client.monitor.external.type= prometheus
 
 #5.指定Exporter从Monitor中导出状态信息转为指标数据的频率,默认为10秒导出一次,
@@ -427,7 +427,6 @@ apollo.client.monitor.external.export-period= 20
 ```
 
 
-=======
 #### 1.2.4.10 ConfigMap缓存设置
 
 > 适用于2.4.0及以上版本
@@ -1427,7 +1426,7 @@ interface是`com.ctrip.framework.apollo.spi.ConfigServiceLoadBalancerClient`。
 ## 7.2 指标输出到Prometheus
 > 适用于2.4.0及以上版本
  
-在2.4.0版本及以上的java客户端中，增加了指标收集,导出的支持，默认支持Prometheus，用户可以自行扩展接入不同的监控系统。
+可支持导出指标到Prometheus，或者基于SPI编写不同的实现来接入不同的监控系统。
 
 引入客户端插件
 ```xml
@@ -1548,14 +1547,20 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 ## 7.3 指标输出到自定义监控系统
 > 适用于2.4.0及以上版本
 
-需要写1个Exporter, 继承AbstractApolloClientMetricsExporter, 并实现里面的
+用户需要自行编写MetricsExporter, 继承AbstractApolloClientMetricsExporter, 实现里面的
 doInit (初始化方法),
 isSupport (external-type配置调用方法),
 registerOrUpdateCounterSample (注册更新Counter指标方法),
 registerOrUpdateGaugeSample (注册更新Gauge指标方法),
 response (导出所需类型指标数据方法)
+并配置相关SPI文件
 
-### skyWalking为例
+MetricsExporter加载流程图
+![Exporter load by apollo client](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-exporter-load.jpg)
+
+
+
+### 7.3.1 SkyWalking案例
 通过配置
 ```properties
 apollo.client.monitor.enabled=true
@@ -1566,13 +1571,15 @@ apollo.client.monitor.external.type=skywalking
 
 创建SkyWalkingMetricsExporter类，继承AbstractApolloClientMetricsExporter
 
-继承后大致代码如下
+继承后大致代码如下 
+注意: 样例演示,切勿直接到生产直接使用,请根据公司内具体情况来实现
 
 ```java
 public class SkyWalkingMetricsExporter extends AbstractApolloClientMetricsExporter {
 
   private static final String SKYWALKING = "skywalking";
   protected SkywalkingMeterRegistry registry;
+  //用户设计时,需考虑存储指标的数据结构是否有内存占用过多问题
   protected Map<String, Counter> counterMap;
   private Map<String, Gauge> gaugeMap;
   private Map<String, AtomicReference<Double>> gaugeValues;
@@ -1660,10 +1667,13 @@ public void init(List<ApolloClientMonitorEventListener> collectors, long collect
   <artifactId>apm-toolkit-micrometer-1.10</artifactId>
 </dependency>
 ```
-根据Micrometer的机制初始化SkywalkingMeterRegistry，以及一些map用于存储指标数据
+根据Micrometer的机制初始化SkywalkingMeterRegistry，
+以及一些map用于存储指标数据
+
 ```java
 private static final String SKYWALKING = "skywalking";
 private SkywalkingMeterRegistry registry;
+//用户设计时,需考虑存储指标的数据结构是否有内存占用过多问题
 private Map<String, Counter> counterMap;
 private Map<String, Gauge> gaugeMap;
 private Map<String, AtomicReference<Double>> gaugeValues;
@@ -1747,4 +1757,13 @@ public String response() {
 }
 ```
 
+最后在项目目录下resources/META-INF/services编写对应的spi文件,告诉框架来加载这个类
+文件名为com.ctrip.framework.apollo.monitor.internal.exporter.ApolloClientMetricsExporter
+```text
+your.package.SkyWalkingMetricsExporter
+```
 至此，已经将Client的指标数据接入SkyWalking。
+
+### 7.3.2 Prometheus案例
+
+[PrometheusApolloClientMetricsExporter.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-plugin/apollo-plugin-client-prometheus/src/main/java/com/ctrip/framework/apollo/monitor/internal/exporter/impl/PrometheusApolloClientMetricsExporter.java)
