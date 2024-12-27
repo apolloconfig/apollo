@@ -349,7 +349,7 @@ public class ConfigControllerIntegrationTest extends AbstractBaseIntegrationTest
     periodicSendMessage(executorService, assembleKey(somePublicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace),
         stop);
 
-    TimeUnit.MILLISECONDS.sleep(500);
+    TimeUnit.MILLISECONDS.sleep(2000);
 
     stop.set(true);
 
