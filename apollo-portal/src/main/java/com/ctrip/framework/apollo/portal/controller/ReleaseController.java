@@ -69,7 +69,8 @@ public class ReleaseController {
     this.userInfoHolder = userInfoHolder;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasReleaseClusterPermission(#appId, #env, #clusterName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public ReleaseDTO createRelease(@PathVariable String appId,
                                   @PathVariable String env, @PathVariable String clusterName,
@@ -98,7 +99,8 @@ public class ReleaseController {
     return createdRelease;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)"
+      + "or @permissionValidator.hasReleaseClusterPermission(#appId, #env, #clusterName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
   public ReleaseDTO createGrayRelease(@PathVariable String appId,
                                       @PathVariable String env, @PathVariable String clusterName,
@@ -187,7 +189,13 @@ public class ReleaseController {
       throw NotFoundException.releaseNotFound(releaseId);
     }
 
-    if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), release.getNamespaceName(), env)) {
+    boolean releaseNamespacePermission = permissionValidator.hasReleaseNamespacePermission(release.getAppId(),
+        release.getNamespaceName(), env);
+    boolean releaseClusterPermission = permissionValidator.hasReleaseClusterPermission(release.getAppId(), env,
+        release.getClusterName());
+
+    // if neither no permission
+    if (!releaseClusterPermission && !releaseNamespacePermission) {
       throw new AccessDeniedException("Access is denied");
     }
 
