@@ -1548,11 +1548,12 @@ apollo_client_thread_pool_completed_task_count{thread_pool_name="AbstractConfig"
 > 适用于2.4.0及以上版本
 
 用户需要自行编写MetricsExporter, 继承AbstractApolloClientMetricsExporter, 实现里面的
-doInit (初始化方法),
-isSupport (external-type配置调用方法),
-registerOrUpdateCounterSample (注册更新Counter指标方法),
-registerOrUpdateGaugeSample (注册更新Gauge指标方法),
-response (导出所需类型指标数据方法)
+- `doInit` (初始化方法)
+- `isSupport` (external-type配置调用方法)
+- `registerOrUpdateCounterSample` (注册更新Counter指标方法)
+- `registerOrUpdateGaugeSample` (注册更新Gauge指标方法)
+- `response` (导出所需类型指标数据方法)
+
 并配置相关SPI文件
 
 MetricsExporter加载流程图
@@ -1561,13 +1562,12 @@ MetricsExporter加载流程图
 
 
 ### 7.3.1 SkyWalking案例
-通过配置
+通过配置开启
 ```properties
 apollo.client.monitor.enabled=true
 #exporter内定义
 apollo.client.monitor.external.type=skywalking
 ```
-开启
 
 创建SkyWalkingMetricsExporter类，继承AbstractApolloClientMetricsExporter
 
