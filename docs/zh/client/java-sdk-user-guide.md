@@ -610,13 +610,13 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
-### 3.1.5 获取客户端监控指标
+### 3.1.6 获取客户端监控指标
 > 适用于2.4.0及以上版本
  
 apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonitor-API以及JMX,Prometheus的指标导出方式,相关启用配置详见 [1.2.4.9 开启客户端监控](#_1249-开启客户端监控)
 
 
-#### 3.1.5.1 通过ConfigMonitor获取监控数据
+#### 3.1.6.1 通过ConfigMonitor获取监控数据
 
 ```java
  ConfigMonitor configMonitor = ConfigService.getConfigMonitor(); 
@@ -634,7 +634,7 @@ apollo-client在2.4.0版本里大幅增强了可观测性，提供了ConfigMonit
  ApolloThreadPoolInfo remoteConfigRepositoryThreadPoolInfo = threadPoolMonitorApi.getRemoteConfigRepositoryThreadPoolInfo();
 ```
 
-#### 3.1.5.2 以JMX形式暴露状态信息
+#### 3.1.6.2 以JMX形式暴露状态信息
 
 启用相关配置
 
@@ -647,7 +647,7 @@ apollo.client.monitor.jmx.enabled = true
 
 ![showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.jpg)
 
-#### 3.1.5.3 客户端导出指标上报到外部监控系统
+#### 3.1.6.3 客户端导出指标上报到外部监控系统
 
 用户可以根据需求自定义接入Prometheus等监控系统,客户端提供了SPI,详见 [7.2 MetricsExporter扩展](#_7.2_MetricsExporter扩展)
 

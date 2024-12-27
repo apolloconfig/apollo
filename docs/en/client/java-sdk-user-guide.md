@@ -637,12 +637,12 @@ ConfigFile configFile = ConfigService.getConfigFile("test", ConfigFileFormat.XML
 String content = configFile.getContent();
 ```
 
-### 3.1.5 Retrieve Client Monitoring Metrics
+### 3.1.6 Retrieve Client Monitoring Metrics
 > Applicable to version 2.4.0 and above
 
 Apollo Client significantly enhanced observability in version 2.4.0, providing the ConfigMonitor API as well as metric export options via JMX and Prometheus. For configuration details, see [1.2.4.9 Enable Client Monitoring](#_1249-开启客户端监控).
 
-#### 3.1.5.1 Retrieve Monitoring Data via ConfigMonitor
+#### 3.1.6.1 Retrieve Monitoring Data via ConfigMonitor
 
 ```java
 ConfigMonitor configMonitor = ConfigService.getConfigMonitor();
@@ -661,7 +661,7 @@ ApolloThreadPoolInfo remoteConfigRepositoryThreadPoolInfo = threadPoolMonitorApi
 ```
 
 
-#### 3.1.5.2 Expose Status Information via JMX
+#### 3.1.6.2 Expose Status Information via JMX
 
 Enable the relevant configuration:
 
@@ -673,7 +673,7 @@ apollo.client.monitor.jmx.enabled = true
 After starting the application, use J-console or similar tools to view the metrics. Below is an example using J-console:
 
 ![showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.jpg)
-#### 3.1.5.3 Client Export Metrics to External Monitoring Systems
+#### 3.1.6.3 Client Export Metrics to External Monitoring Systems
 
 Users can customize the integration with monitoring systems such as Prometheus as needed. The client provides an SPI, see [7.2 MetricsExporter Extension](#_7.2_MetricsExporter-extension) for details.
 
