@@ -67,7 +67,7 @@ role_module.controller('ClusterNamespaceRoleController',
 
             var assignReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.assign_release_cluster_ns_role(appId, env, clusterName, user);
-            }
+            };
 
             assignReleaseNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
@@ -85,17 +85,17 @@ role_module.controller('ClusterNamespaceRoleController',
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Cluster.Role.AddFailed'));
             });
           } else if ("ModifyNamespaceInCluster" === roleType) {
-            var user = $('.' + $scope.modifyRoleWidgetId).select2('data')[0];
-            if (!user) {
+            var user1 = $('.' + $scope.modifyRoleWidgetId).select2('data')[0];
+            if (!user1) {
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
             $scope.modifyRoleSubmitBtnDisabled = true;
-            var toAssignModifyNamespaceInClusterRoleUser = user.id;
+            var toAssignModifyNamespaceInClusterRoleUser = user1.id;
 
             var assignModifyNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.assign_modify_cluster_ns_role(appId, env, clusterName, user);
-            }
+            };
 
             assignModifyNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
@@ -119,7 +119,7 @@ role_module.controller('ClusterNamespaceRoleController',
           if ("ReleaseNamespaceInCluster" === roleType) {
             var removeReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.remove_release_cluster_ns_role(appId, env, clusterName, user);
-            }
+            };
             removeReleaseNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
@@ -134,7 +134,7 @@ role_module.controller('ClusterNamespaceRoleController',
           } else if ("ModifyNamespaceInCluster" === roleType) {
             var removeModifyNamespaceInClusterRoleFunc = function (appId, namespaceName, user) {
               return PermissionService.remove_modify_cluster_ns_role(appId, namespaceName, user);
-            }
+            };
 
             removeModifyNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
