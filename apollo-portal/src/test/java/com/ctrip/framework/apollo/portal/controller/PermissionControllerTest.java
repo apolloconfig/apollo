@@ -76,7 +76,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
 
     // check role assigned
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> afterAssign = restTemplate.getForEntity(
-        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/role_users"),
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, env, clusterName);
     assertEquals(200, afterAssign.getStatusCodeValue());
     body = afterAssign.getBody();
