@@ -125,7 +125,6 @@ public class AppController {
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
-
     return appService.createAppAndAddRolePermission(app, appModel.getAdmins());
   }
 

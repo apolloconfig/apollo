@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-role_module.controller('ClusterRoleController',
+role_module.controller('ClusterNamespaceRoleController',
     ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'UserService', 'AppUtil', 'EnvService',
       'PermissionService',
       function ($scope, $location, $window, $translate, toastr, AppService, UserService, AppUtil, EnvService,
@@ -47,7 +47,7 @@ role_module.controller('ClusterRoleController',
 
         });
 
-        PermissionService.get_cluster_role_users($scope.pageContext.appId,
+        PermissionService.get_cluster_ns_role_users($scope.pageContext.appId,
             $scope.pageContext.env, $scope.pageContext.clusterName)
         .then(function (result) {
           $scope.rolesAssignedUsers = result;
@@ -56,56 +56,56 @@ role_module.controller('ClusterRoleController',
         });
 
         $scope.assignRoleToUser = function (roleType) {
-          if ("ReleaseCluster" === roleType) {
+          if ("ReleaseNamespaceInCluster" === roleType) {
             var user = $('.' + $scope.releaseRoleWidgetId).select2('data')[0];
             if (!user) {
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
             $scope.ReleaseRoleSubmitBtnDisabled = true;
-            var toAssignReleaseClusterRoleUser = user.id;
+            var toAssignReleaseNamespaceInClusterRoleUser = user.id;
 
-            var assignReleaseClusterRoleFunc = function (appId, env, clusterName, user) {
-              return PermissionService.assign_release_cluster_role(appId, env, clusterName, user);
+            var assignReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+              return PermissionService.assign_release_cluster_ns_role(appId, env, clusterName, user);
             }
 
-            assignReleaseClusterRoleFunc(
+            assignReleaseNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
-                toAssignReleaseClusterRoleUser
+                toAssignReleaseNamespaceInClusterRoleUser
             ).then(function () {
               toastr.success($translate.instant('Cluster.Role.Added'));
               $scope.ReleaseRoleSubmitBtnDisabled = false;
-              $scope.rolesAssignedUsers.releaseRoleUsers.push({ userId: toAssignReleaseClusterRoleUser });
+              $scope.rolesAssignedUsers.releaseRoleUsers.push({ userId: toAssignReleaseNamespaceInClusterRoleUser });
 
               $('.' + $scope.releaseRoleWidgetId).select2("val", "");
             }, function (result) {
               $scope.ReleaseRoleSubmitBtnDisabled = false;
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Cluster.Role.AddFailed'));
             });
-          } else if ("ModifyCluster" === roleType) {
+          } else if ("ModifyNamespaceInCluster" === roleType) {
             var user = $('.' + $scope.modifyRoleWidgetId).select2('data')[0];
             if (!user) {
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
             $scope.modifyRoleSubmitBtnDisabled = true;
-            var toAssignModifyClusterRoleUser = user.id;
+            var toAssignModifyNamespaceInClusterRoleUser = user.id;
 
-            var assignModifyClusterRoleFunc = function (appId, env, clusterName, user) {
-              return PermissionService.assign_modify_cluster_role(appId, env, clusterName, user);
+            var assignModifyNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+              return PermissionService.assign_modify_cluster_ns_role(appId, env, clusterName, user);
             }
 
-            assignModifyClusterRoleFunc(
+            assignModifyNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
-                toAssignModifyClusterRoleUser
+                toAssignModifyNamespaceInClusterRoleUser
             ).then(function () {
               toastr.success($translate.instant('Cluster.Role.Added'));
               $scope.modifyRoleSubmitBtnDisabled = false;
-              $scope.rolesAssignedUsers.modifyRoleUsers.push({ userId: toAssignModifyClusterRoleUser });
+              $scope.rolesAssignedUsers.modifyRoleUsers.push({ userId: toAssignModifyNamespaceInClusterRoleUser });
 
               $('.' + $scope.modifyRoleWidgetId).select2("val", "");
             }, function (result) {
@@ -116,11 +116,11 @@ role_module.controller('ClusterRoleController',
         };
 
         $scope.removeUserRole = function (roleType, user) {
-          if ("ReleaseCluster" === roleType) {
-            var removeReleaseClusterRoleFunc = function (appId, env, clusterName, user) {
-              return PermissionService.remove_release_cluster_role(appId, env, clusterName, user);
+          if ("ReleaseNamespaceInCluster" === roleType) {
+            var removeReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+              return PermissionService.remove_release_cluster_ns_role(appId, env, clusterName, user);
             }
-            removeReleaseClusterRoleFunc(
+            removeReleaseNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
@@ -131,12 +131,12 @@ role_module.controller('ClusterRoleController',
             }, function (result) {
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.DeleteFailed'));
             });
-          } else {
-            var removeModifyClusterRoleFunc = function (appId, namespaceName, user) {
-              return PermissionService.remove_modify_cluster_role(appId, namespaceName, user);
+          } else if ("ModifyNamespaceInCluster" === roleType) {
+            var removeModifyNamespaceInClusterRoleFunc = function (appId, namespaceName, user) {
+              return PermissionService.remove_modify_cluster_ns_role(appId, namespaceName, user);
             }
 
-            removeModifyClusterRoleFunc(
+            removeModifyNamespaceInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,

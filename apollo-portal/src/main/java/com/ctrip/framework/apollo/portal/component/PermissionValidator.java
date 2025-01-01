@@ -48,54 +48,75 @@ public class PermissionValidator {
     this.systemRoleManagerService = systemRoleManagerService;
   }
 
-  public boolean hasModifyNamespacePermission(String appId, String namespaceName) {
+  private boolean hasModifyNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.MODIFY_NAMESPACE,
         RoleUtils.buildNamespaceTargetId(appId, namespaceName));
   }
 
-  public boolean hasModifyNamespacePermission(String appId, String namespaceName, String env) {
-    return hasModifyNamespacePermission(appId, namespaceName) ||
-        rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-            PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
+  private boolean hasModifyNamespacePermission(String appId, String namespaceName, String env) {
+    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
+        PermissionType.MODIFY_NAMESPACE,
+        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  public boolean hasModifyClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasModifyNamespaceInClusterPermission(String appId, String env, String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_CLUSTER,
+        PermissionType.MODIFY_NAMESPACE_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
-  public boolean hasReleaseNamespacePermission(String appId, String namespaceName) {
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+    if (hasModifyNamespacePermission(appId, namespaceName)) {
+      return true;
+    }
+    if (hasModifyNamespacePermission(appId, namespaceName, env)) {
+      return true;
+    }
+    if (hasModifyNamespaceInClusterPermission(appId, env, clusterName)) {
+      return true;
+    }
+    return false;
+  }
+
+  private boolean hasReleaseNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.RELEASE_NAMESPACE,
         RoleUtils.buildNamespaceTargetId(appId, namespaceName));
   }
 
-  public boolean hasReleaseNamespacePermission(String appId, String namespaceName, String env) {
-    return hasReleaseNamespacePermission(appId, namespaceName) ||
-        rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
+  private boolean hasReleaseNamespacePermission(String appId, String namespaceName, String env) {
+    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
+        PermissionType.RELEASE_NAMESPACE,
+        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  public boolean hasReleaseClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasReleaseNamespaceInClusterPermission(String appId, String env, String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_CLUSTER,
+        PermissionType.RELEASE_NAMESPACE_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
+  }
+
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+    if (hasReleaseNamespacePermission(appId, namespaceName)) {
+      return true;
+    }
+    if (hasReleaseNamespacePermission(appId, namespaceName, env)) {
+      return true;
+    }
+    if (hasReleaseNamespaceInClusterPermission(appId, env, clusterName)) {
+      return true;
+    }
+    return false;
   }
 
   public boolean hasDeleteNamespacePermission(String appId) {
     return hasAssignRolePermission(appId) || isSuperAdmin();
   }
 
-  public boolean hasOperateNamespacePermission(String appId, String namespaceName) {
-    return hasModifyNamespacePermission(appId, namespaceName) || hasReleaseNamespacePermission(appId, namespaceName);
-  }
-
-  public boolean hasOperateNamespacePermission(String appId, String namespaceName, String env) {
-    return hasOperateNamespacePermission(appId, namespaceName) ||
-        hasModifyNamespacePermission(appId, namespaceName, env) ||
-        hasReleaseNamespacePermission(appId, namespaceName, env);
+  public boolean hasOperateNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+    return hasModifyNamespacePermission(appId, env, clusterName, namespaceName)
+        || hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   public boolean hasAssignRolePermission(String appId) {
@@ -136,7 +157,8 @@ public class PermissionValidator {
     return rolePermissionService.isSuperAdmin(userInfoHolder.getUser().getUserId());
   }
 
-  public boolean shouldHideConfigToCurrentUser(String appId, String env, String namespaceName) {
+  public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
     // 1. check whether the current environment enables member only function
     if (!portalConfig.isConfigViewMemberOnly(env)) {
       return false;
@@ -149,7 +171,7 @@ public class PermissionValidator {
     }
 
     // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, namespaceName, env);
+    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   public boolean hasCreateApplicationPermission() {

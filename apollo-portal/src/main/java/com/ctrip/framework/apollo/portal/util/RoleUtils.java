@@ -66,8 +66,8 @@ public class RoleUtils {
     return STRING_JOINER.join(RoleType.MODIFY_NAMESPACE, appId, namespaceName, env);
   }
 
-  public static String buildModifyClusterRoleName(String appId, String env, String clusterName) {
-    return STRING_JOINER.join(RoleType.MODIFY_CLUSTER, appId, env, clusterName);
+  public static String buildModifyNamespaceInClusterRoleName(String appId, String env, String clusterName) {
+    return STRING_JOINER.join(RoleType.MODIFY_NAMESPACE_IN_CLUSTER, appId, env, clusterName);
   }
 
   public static String buildModifyDefaultNamespaceRoleName(String appId) {
@@ -82,8 +82,8 @@ public class RoleUtils {
     return STRING_JOINER.join(RoleType.RELEASE_NAMESPACE, appId, namespaceName, env);
   }
 
-  public static String buildReleaseClusterRoleName(String appId, String env, String clusterName) {
-    return STRING_JOINER.join(RoleType.RELEASE_CLUSTER, appId, env, clusterName);
+  public static String buildReleaseNamespaceInClusterRoleName(String appId, String env, String clusterName) {
+    return STRING_JOINER.join(RoleType.RELEASE_NAMESPACE_IN_CLUSTER, appId, env, clusterName);
   }
 
   public static String buildNamespaceRoleName(String appId, String namespaceName, String roleType) {

@@ -25,7 +25,7 @@ import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.AppRolesAssignedUsers;
-import com.ctrip.framework.apollo.portal.entity.vo.ClusterRolesAssignedUsers;
+import com.ctrip.framework.apollo.portal.entity.vo.ClusterNamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceEnvRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
@@ -38,7 +38,6 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
@@ -81,9 +80,9 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/initPermission")
-  public ResponseEntity<Void> initClusterPermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
-    roleInitializationService.initClusterRoles(appId, env, clusterName, userInfoHolder.getUser().getUserId());
+  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/initNsPermission")
+  public ResponseEntity<Void> initClusterNamespacePermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
+    roleInitializationService.initClusterNamespaceRoles(appId, env, clusterName, userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
 
@@ -121,8 +120,8 @@ public class PermissionController {
     return ResponseEntity.ok().body(permissionCondition);
   }
 
-  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/permissions/{permissionType}")
-  public ResponseEntity<PermissionCondition> hasClusterPermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_permissions/{permissionType}")
+  public ResponseEntity<PermissionCondition> hasClusterNamespacePermission(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
                                                            @PathVariable String permissionType) {
     PermissionCondition permissionCondition = new PermissionCondition();
 
@@ -211,35 +210,33 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-
-  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/role_users")
-  public ClusterRolesAssignedUsers getClusterRoles(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users")
+  public ClusterNamespaceRolesAssignedUsers getClusterNamespaceRoles(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName) {
 
     // validate env parameter
     if (Env.UNKNOWN == Env.transformEnv(env)) {
       throw BadRequestException.invalidEnvFormat(env);
     }
 
-    ClusterRolesAssignedUsers assignedUsers = new ClusterRolesAssignedUsers();
+    ClusterNamespaceRolesAssignedUsers assignedUsers = new ClusterNamespaceRolesAssignedUsers();
     assignedUsers.setAppId(appId);
     assignedUsers.setEnv(env);
     assignedUsers.setCluster(clusterName);
 
-    Set<UserInfo> releaseClusterUsers =
-        rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseClusterRoleName(appId, env, clusterName));
-    assignedUsers.setReleaseRoleUsers(releaseClusterUsers);
+    Set<UserInfo> releaseNamespaceInClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseNamespaceInClusterRoleName(appId, env, clusterName));
+    assignedUsers.setReleaseRoleUsers(releaseNamespaceInClusterUsers);
 
-    Set<UserInfo> modifyClusterUsers =
-        rolePermissionService.queryUsersWithRole(RoleUtils.buildModifyClusterRoleName(appId, env, clusterName));
-    assignedUsers.setModifyRoleUsers(modifyClusterUsers);
+    Set<UserInfo> modifyNamespaceInClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildModifyNamespaceInClusterRoleName(appId, env, clusterName));
+    assignedUsers.setModifyRoleUsers(modifyNamespaceInClusterUsers);
 
     return assignedUsers;
   }
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
-  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/roles/{roleType}")
-  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignClusterRoleToUser")
-  public ResponseEntity<Void> assignClusterRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+  @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}")
+  public ResponseEntity<Void> assignClusterNamespaceRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String roleType, @RequestBody String user) {
     checkUserExists(user);
     RequestPrecondition.checkArgumentsNotEmpty(user);
@@ -262,9 +259,8 @@ public class PermissionController {
   }
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
-  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/roles/{roleType}")
-  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeClusterRoleFromUser")
-  public ResponseEntity<Void> removeClusterRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns _roles/{roleType}")
+  public ResponseEntity<Void> removeClusterNamespaceRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String roleType, @RequestParam String user) {
     RequestPrecondition.checkArgumentsNotEmpty(user);
 
@@ -279,7 +275,6 @@ public class PermissionController {
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
-
 
   @GetMapping("/apps/{appId}/namespaces/{namespaceName}/role_users")
   public NamespaceRolesAssignedUsers getNamespaceRoles(@PathVariable String appId, @PathVariable String namespaceName) {

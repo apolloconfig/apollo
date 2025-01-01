@@ -111,7 +111,7 @@ public class NamespaceController {
     List<NamespaceBO> namespaceBOs = namespaceService.findNamespaceBOs(appId, Env.valueOf(env), clusterName);
 
     for (NamespaceBO namespaceBO : namespaceBOs) {
-      if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, namespaceBO.getBaseInfo().getNamespaceName())) {
+      if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceBO.getBaseInfo().getNamespaceName())) {
         namespaceBO.hideItems();
       }
     }
@@ -125,7 +125,7 @@ public class NamespaceController {
 
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf(env), clusterName, namespaceName);
 
-    if (namespaceBO != null && permissionValidator.shouldHideConfigToCurrentUser(appId, env, namespaceName)) {
+    if (namespaceBO != null && permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       namespaceBO.hideItems();
     }
 

@@ -33,6 +33,6 @@ public interface RoleInitializationService {
 
   void initManageAppMasterRole(String appId, String operator);
 
-  void initClusterRoles(String appId, String env, String clusterName, String operator);
+  void initClusterNamespaceRoles(String appId, String env, String clusterName, String operator);
 
 }
