@@ -51,7 +51,7 @@ public class ClusterService {
     }
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
 
-    roleInitializationService.initClusterRoles(cluster.getAppId(), env.getName(), cluster.getName(),
+    roleInitializationService.initClusterNamespaceRoles(cluster.getAppId(), env.getName(), cluster.getName(),
         userInfoHolder.getUser().getUserId());
 
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());

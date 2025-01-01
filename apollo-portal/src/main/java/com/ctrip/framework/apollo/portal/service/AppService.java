@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
-import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluence;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
@@ -143,7 +142,7 @@ public class AppService {
     AppDTO appDTO = BeanUtils.transform(AppDTO.class, app);
     appAPI.createApp(env, appDTO);
 
-    roleInitializationService.initClusterRoles(app.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
+    roleInitializationService.initClusterNamespaceRoles(app.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
         env.getName(), userInfoHolder.getUser().getUserId());
   }
 
@@ -171,7 +170,7 @@ public class AppService {
     roleInitializationService.initAppRoles(createdApp);
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
-      roleInitializationService.initClusterRoles(appId, ConfigConsts.CLUSTER_NAME_DEFAULT,
+      roleInitializationService.initClusterNamespaceRoles(appId, ConfigConsts.CLUSTER_NAME_DEFAULT,
           env.getName(), userInfoHolder.getUser().getUserId());
     }
 

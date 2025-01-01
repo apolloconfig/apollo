@@ -292,7 +292,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                             }
                         });
 
-                    PermissionService.has_modify_cluster_permission(
+                    PermissionService.has_modify_cluster_ns_permission(
                         scope.appId,
                         scope.env,
                         scope.cluster
@@ -332,7 +332,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                             }
                         });
 
-                    PermissionService.has_release_cluster_permission(
+                    PermissionService.has_release_cluster_ns_permission(
                         scope.appId,
                         scope.env,
                         scope.cluster

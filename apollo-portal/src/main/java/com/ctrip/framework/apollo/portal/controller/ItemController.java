@@ -73,8 +73,7 @@ public class ItemController {
     this.namespaceService = namespaceService;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items", consumes = {
       "application/json"})
   public void modifyItemsByText(@PathVariable String appId, @PathVariable String env,
@@ -88,8 +87,7 @@ public class ItemController {
     configService.updateConfigItemByText(model);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item")
   public ItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                             @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -108,8 +106,7 @@ public class ItemController {
     return configService.createItem(appId, Env.valueOf(env), clusterName, namespaceName, item);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env) "
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item")
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -123,8 +120,7 @@ public class ItemController {
   }
 
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env) "
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -146,7 +142,7 @@ public class ItemController {
                                  @PathVariable String clusterName, @PathVariable String namespaceName,
                                  @RequestParam(defaultValue = "lineNum") String orderBy) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, namespaceName)) {
+    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -187,9 +183,10 @@ public class ItemController {
       }
 
       if (permissionValidator
-          .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(), namespace.getNamespaceName())) {
+          .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(),
+              namespace.getClusterName(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
-        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace in environment: " + namespace.getEnv());
+        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace:" + namespace);
       }
     }
 
@@ -200,31 +197,30 @@ public class ItemController {
   public ResponseEntity<Void> update(@PathVariable String appId, @PathVariable String namespaceName,
                                      @RequestBody NamespaceSyncModel model) {
     checkModel(!model.isInvalid() && model.syncToNamespacesValid(appId, namespaceName));
-    boolean hasPermission = permissionValidator.hasModifyNamespacePermission(appId, namespaceName);
-    Env envNoPermission = null;
-    // if uses has ModifyNamespace permission then he has permission
-    if (!hasPermission) {
-      // else check if user has every env's ModifyNamespace permission
-      hasPermission = true;
-      for (NamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
-        // once user has not one of the env's ModifyNamespace permission, then break the loop
-        hasPermission &= permissionValidator.hasModifyNamespacePermission(namespaceIdentifier.getAppId(), namespaceIdentifier.getNamespaceName(), namespaceIdentifier.getEnv().toString())
-        || permissionValidator.hasModifyClusterPermission(namespaceIdentifier.getAppId(), namespaceIdentifier.getEnv().toString(), namespaceIdentifier.getClusterName());
-        if (!hasPermission) {
-          envNoPermission = namespaceIdentifier.getEnv();
-          break;
-        }
+    NamespaceIdentifier noPermissionNamespace = null;
+    // check if user has every namespace's ModifyNamespace permission
+    boolean hasPermission = true;
+    for (NamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
+      // once user has not one of the namespace's ModifyNamespace permission, then break the loop
+      hasPermission = permissionValidator.hasModifyNamespacePermission(
+          namespaceIdentifier.getAppId(),
+          namespaceIdentifier.getEnv().getName(),
+          namespaceIdentifier.getClusterName(),
+          namespaceIdentifier.getNamespaceName()
+      );
+      if (!hasPermission) {
+        noPermissionNamespace = namespaceIdentifier;
+        break;
       }
     }
     if (hasPermission) {
       configService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
       return ResponseEntity.status(HttpStatus.OK).build();
     }
-    throw new AccessDeniedException(String.format("You don't have the permission to modify environment: %s", envNoPermission));
+    throw new AccessDeniedException(String.format("You don't have the permission to modify namespace: %s", noPermissionNamespace));
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/syntax-check", consumes = {
       "application/json"})
   public ResponseEntity<Void> syntaxCheckText(@PathVariable String appId, @PathVariable String env,
@@ -235,8 +231,7 @@ public class ItemController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #namespaceName, #env)"
-      + "or @permissionValidator.hasModifyClusterPermission(#appId, #env, #clusterName)")
+  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/revoke-items")
   public void revokeItems(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName) {
