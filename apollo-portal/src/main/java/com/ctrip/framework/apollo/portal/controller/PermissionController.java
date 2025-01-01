@@ -259,7 +259,7 @@ public class PermissionController {
   }
 
   @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
-  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns _roles/{roleType}")
+  @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}")
   public ResponseEntity<Void> removeClusterNamespaceRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String roleType, @RequestParam String user) {
     RequestPrecondition.checkArgumentsNotEmpty(user);
