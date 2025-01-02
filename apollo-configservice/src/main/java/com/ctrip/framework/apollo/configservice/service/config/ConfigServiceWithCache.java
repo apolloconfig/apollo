@@ -62,9 +62,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
 
-  private final ReleaseService releaseService;
+  protected final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
-  private final BizConfig bizConfig;
+  protected final BizConfig bizConfig;
   private final MeterRegistry meterRegistry;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
