@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.config;
 
 
+import com.ctrip.framework.apollo.common.config.RefreshableConfig;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 
@@ -33,7 +34,7 @@ public class ConfigTest extends AbstractUnitTest{
   @Mock
   private ConfigurableEnvironment environment;
   @InjectMocks
-  private PortalConfig config;
+  private RefreshableConfig config;
 
 
   @Test

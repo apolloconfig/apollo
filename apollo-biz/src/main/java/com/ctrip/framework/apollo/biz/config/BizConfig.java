@@ -72,15 +72,8 @@ public class BizConfig extends RefreshableConfig {
       new TypeToken<Map<String, Integer>>() {
       }.getType();
 
-  private final BizDBPropertySource propertySource;
-
   public BizConfig(final BizDBPropertySource propertySource) {
-    this.propertySource = propertySource;
-  }
-
-  @Override
-  protected List<RefreshablePropertySource> getRefreshablePropertySources() {
-    return Collections.singletonList(propertySource);
+    super(propertySource);
   }
 
   public List<String> eurekaServiceUrls() {

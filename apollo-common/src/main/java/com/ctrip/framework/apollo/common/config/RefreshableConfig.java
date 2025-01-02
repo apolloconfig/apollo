@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 
 
-public abstract class RefreshableConfig {
+public class RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(RefreshableConfig.class);
 
@@ -49,18 +50,24 @@ public abstract class RefreshableConfig {
   @Autowired
   private ConfigurableEnvironment environment;
 
-  private List<RefreshablePropertySource> propertySources;
-
   /**
    * register refreshable property source.
    * Notice: The front property source has higher priority.
    */
-  protected abstract List<RefreshablePropertySource> getRefreshablePropertySources();
+  private List<RefreshablePropertySource> propertySources;
+
+  public RefreshableConfig(RefreshablePropertySource propertySources) {
+    this.propertySources = Collections.singletonList(propertySources);
+  }
+
+  private List<RefreshablePropertySource> getPropertySources() {
+    return propertySources;
+  }
 
   @PostConstruct
   public void setup() {
 
-    propertySources = getRefreshablePropertySources();
+    propertySources = getPropertySources();
     if (CollectionUtils.isEmpty(propertySources)) {
       throw new IllegalStateException("Property sources can not be empty.");
     }
