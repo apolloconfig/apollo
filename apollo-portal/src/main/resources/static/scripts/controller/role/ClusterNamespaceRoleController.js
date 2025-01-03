@@ -132,8 +132,8 @@ role_module.controller('ClusterNamespaceRoleController',
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.DeleteFailed'));
             });
           } else if ("ModifyNamespacesInCluster" === roleType) {
-            var removeModifyNamespacesInClusterRoleFunc = function (appId, namespaceName, user) {
-              return PermissionService.remove_modify_cluster_ns_role(appId, namespaceName, user);
+            var removeModifyNamespacesInClusterRoleFunc = function (appId, env, clusterName, user) {
+              return PermissionService.remove_modify_cluster_ns_role(appId, env, clusterName, user);
             };
 
             removeModifyNamespacesInClusterRoleFunc(

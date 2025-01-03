@@ -186,7 +186,7 @@ public class ItemController {
           .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(),
               namespace.getClusterName(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
-        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace:" + namespace);
+        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace: " + namespace);
       }
     }
 
