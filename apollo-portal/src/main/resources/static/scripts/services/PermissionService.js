@@ -446,10 +446,10 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
             return d.promise;
         },
         has_modify_cluster_ns_permission: function (appId, env, clusterName) {
-            return hasClusterNsPermission(appId, env, clusterName, 'ModifyNamespaceInCluster');
+            return hasClusterNsPermission(appId, env, clusterName, 'ModifyNamespacesInCluster');
         },
         has_release_cluster_ns_permission: function (appId, env, clusterName) {
-            return hasClusterNsPermission(appId, env, clusterName, 'ReleaseNamespaceInCluster');
+            return hasClusterNsPermission(appId, env, clusterName, 'ReleaseNamespacesInCluster');
         },
         get_cluster_ns_role_users: function (appId, env, clusterName) {
             var d = $q.defer();
@@ -463,16 +463,16 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
             return d.promise;
         },
         assign_modify_cluster_ns_role: function (appId, env, clusterName, user) {
-            return assignClusterNsRoleToUser(appId, env, clusterName, 'ModifyNamespaceInCluster', user);
+            return assignClusterNsRoleToUser(appId, env, clusterName, 'ModifyNamespacesInCluster', user);
         },
         assign_release_cluster_ns_role: function (appId, env, clusterName, user) {
-            return assignClusterNsRoleToUser(appId, env, clusterName, 'ReleaseNamespaceInCluster', user);
+            return assignClusterNsRoleToUser(appId, env, clusterName, 'ReleaseNamespacesInCluster', user);
         },
         remove_modify_cluster_ns_role: function (appId, env, clusterName, user) {
-            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ModifyNamespaceInCluster', user);
+            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ModifyNamespacesInCluster', user);
         },
         remove_release_cluster_ns_role: function (appId, env, clusterName, user) {
-            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ReleaseNamespaceInCluster', user);
+            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ReleaseNamespacesInCluster', user);
         },
     }
 }]);

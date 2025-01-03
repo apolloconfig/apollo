@@ -56,56 +56,56 @@ role_module.controller('ClusterNamespaceRoleController',
         });
 
         $scope.assignRoleToUser = function (roleType) {
-          if ("ReleaseNamespaceInCluster" === roleType) {
+          if ("ReleaseNamespacesInCluster" === roleType) {
             var user = $('.' + $scope.releaseRoleWidgetId).select2('data')[0];
             if (!user) {
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
             $scope.ReleaseRoleSubmitBtnDisabled = true;
-            var toAssignReleaseNamespaceInClusterRoleUser = user.id;
+            var toAssignReleaseNamespacesInClusterRoleUser = user.id;
 
-            var assignReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+            var assignReleaseNamespacesInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.assign_release_cluster_ns_role(appId, env, clusterName, user);
             };
 
-            assignReleaseNamespaceInClusterRoleFunc(
+            assignReleaseNamespacesInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
-                toAssignReleaseNamespaceInClusterRoleUser
+                toAssignReleaseNamespacesInClusterRoleUser
             ).then(function () {
               toastr.success($translate.instant('Cluster.Role.Added'));
               $scope.ReleaseRoleSubmitBtnDisabled = false;
-              $scope.rolesAssignedUsers.releaseRoleUsers.push({ userId: toAssignReleaseNamespaceInClusterRoleUser });
+              $scope.rolesAssignedUsers.releaseRoleUsers.push({ userId: toAssignReleaseNamespacesInClusterRoleUser });
 
               $('.' + $scope.releaseRoleWidgetId).select2("val", "");
             }, function (result) {
               $scope.ReleaseRoleSubmitBtnDisabled = false;
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Cluster.Role.AddFailed'));
             });
-          } else if ("ModifyNamespaceInCluster" === roleType) {
+          } else if ("ModifyNamespacesInCluster" === roleType) {
             var user1 = $('.' + $scope.modifyRoleWidgetId).select2('data')[0];
             if (!user1) {
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
             $scope.modifyRoleSubmitBtnDisabled = true;
-            var toAssignModifyNamespaceInClusterRoleUser = user1.id;
+            var toAssignModifyNamespacesInClusterRoleUser = user1.id;
 
-            var assignModifyNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+            var assignModifyNamespacesInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.assign_modify_cluster_ns_role(appId, env, clusterName, user);
             };
 
-            assignModifyNamespaceInClusterRoleFunc(
+            assignModifyNamespacesInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
-                toAssignModifyNamespaceInClusterRoleUser
+                toAssignModifyNamespacesInClusterRoleUser
             ).then(function () {
               toastr.success($translate.instant('Cluster.Role.Added'));
               $scope.modifyRoleSubmitBtnDisabled = false;
-              $scope.rolesAssignedUsers.modifyRoleUsers.push({ userId: toAssignModifyNamespaceInClusterRoleUser });
+              $scope.rolesAssignedUsers.modifyRoleUsers.push({ userId: toAssignModifyNamespacesInClusterRoleUser });
 
               $('.' + $scope.modifyRoleWidgetId).select2("val", "");
             }, function (result) {
@@ -116,11 +116,11 @@ role_module.controller('ClusterNamespaceRoleController',
         };
 
         $scope.removeUserRole = function (roleType, user) {
-          if ("ReleaseNamespaceInCluster" === roleType) {
-            var removeReleaseNamespaceInClusterRoleFunc = function (appId, env, clusterName, user) {
+          if ("ReleaseNamespacesInCluster" === roleType) {
+            var removeReleaseNamespacesInClusterRoleFunc = function (appId, env, clusterName, user) {
               return PermissionService.remove_release_cluster_ns_role(appId, env, clusterName, user);
             };
-            removeReleaseNamespaceInClusterRoleFunc(
+            removeReleaseNamespacesInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,
@@ -131,12 +131,12 @@ role_module.controller('ClusterNamespaceRoleController',
             }, function (result) {
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Namespace.Role.DeleteFailed'));
             });
-          } else if ("ModifyNamespaceInCluster" === roleType) {
-            var removeModifyNamespaceInClusterRoleFunc = function (appId, namespaceName, user) {
+          } else if ("ModifyNamespacesInCluster" === roleType) {
+            var removeModifyNamespacesInClusterRoleFunc = function (appId, namespaceName, user) {
               return PermissionService.remove_modify_cluster_ns_role(appId, namespaceName, user);
             };
 
-            removeModifyNamespaceInClusterRoleFunc(
+            removeModifyNamespacesInClusterRoleFunc(
                 $scope.pageContext.appId,
                 $scope.pageContext.env,
                 $scope.pageContext.clusterName,

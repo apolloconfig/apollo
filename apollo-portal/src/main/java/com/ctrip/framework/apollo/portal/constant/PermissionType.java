@@ -45,8 +45,8 @@ public interface PermissionType {
 
   String RELEASE_NAMESPACE = "ReleaseNamespace";
 
-  String MODIFY_NAMESPACE_IN_CLUSTER = "ModifyNamespaceInCluster";
+  String MODIFY_NAMESPACES_IN_CLUSTER = "ModifyNamespacesInCluster";
 
-  String RELEASE_NAMESPACE_IN_CLUSTER = "ReleaseNamespaceInCluster";
+  String RELEASE_NAMESPACES_IN_CLUSTER = "ReleaseNamespacesInCluster";
 
 }

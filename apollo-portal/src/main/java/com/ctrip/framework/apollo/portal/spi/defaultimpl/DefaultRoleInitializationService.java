@@ -177,14 +177,14 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   @Transactional
   @Override
   public void initClusterNamespaceRoles(String appId, String env, String clusterName, String operator) {
-    String modifyNamespaceInClusterRoleName = RoleUtils.buildModifyNamespaceInClusterRoleName(appId, env, clusterName);
-    if (rolePermissionService.findRoleByRoleName(modifyNamespaceInClusterRoleName) == null) {
-      createClusterRole(appId, env, clusterName, PermissionType.MODIFY_NAMESPACE_IN_CLUSTER, modifyNamespaceInClusterRoleName, operator);
+    String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(appId, env, clusterName);
+    if (rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName) == null) {
+      createClusterRole(appId, env, clusterName, PermissionType.MODIFY_NAMESPACES_IN_CLUSTER, modifyNamespacesInClusterRoleName, operator);
     }
 
-    String releaseNamespaceInClusterRoleName = RoleUtils.buildReleaseNamespaceInClusterRoleName(appId, env, clusterName);
-    if (rolePermissionService.findRoleByRoleName(releaseNamespaceInClusterRoleName) == null) {
-      createClusterRole(appId, env, clusterName, PermissionType.RELEASE_NAMESPACE_IN_CLUSTER, releaseNamespaceInClusterRoleName, operator);
+    String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, env, clusterName);
+    if (rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName) == null) {
+      createClusterRole(appId, env, clusterName, PermissionType.RELEASE_NAMESPACES_IN_CLUSTER, releaseNamespacesInClusterRoleName, operator);
     }
   }
 
