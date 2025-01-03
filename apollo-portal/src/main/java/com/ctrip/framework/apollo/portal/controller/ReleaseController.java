@@ -69,7 +69,7 @@ public class ReleaseController {
     this.userInfoHolder = userInfoHolder;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public ReleaseDTO createRelease(@PathVariable String appId,
                                   @PathVariable String env, @PathVariable String clusterName,
@@ -98,7 +98,7 @@ public class ReleaseController {
     return createdRelease;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
   public ReleaseDTO createGrayRelease(@PathVariable String appId,
                                       @PathVariable String env, @PathVariable String clusterName,
@@ -146,7 +146,7 @@ public class ReleaseController {
                                          @PathVariable String namespaceName,
                                          @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
                                          @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, namespaceName)) {
+    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -161,7 +161,7 @@ public class ReleaseController {
                                              @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
                                              @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, namespaceName)) {
+    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -187,7 +187,7 @@ public class ReleaseController {
       throw NotFoundException.releaseNotFound(releaseId);
     }
 
-    if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), release.getNamespaceName(), env)) {
+    if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
 

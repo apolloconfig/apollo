@@ -24,8 +24,13 @@ public class RoleType {
 
   public static final String RELEASE_NAMESPACE = "ReleaseNamespace";
 
+  public static final String MODIFY_NAMESPACES_IN_CLUSTER = "ModifyNamespacesInCluster";
+
+  public static final String RELEASE_NAMESPACES_IN_CLUSTER = "ReleaseNamespacesInCluster";
+
   public static boolean isValidRoleType(String roleType) {
-    return MASTER.equals(roleType) || MODIFY_NAMESPACE.equals(roleType) || RELEASE_NAMESPACE.equals(roleType);
+    return MASTER.equals(roleType) || MODIFY_NAMESPACE.equals(roleType) || RELEASE_NAMESPACE.equals(
+        roleType) || MODIFY_NAMESPACES_IN_CLUSTER.equals(roleType) || RELEASE_NAMESPACES_IN_CLUSTER.equals(roleType);
   }
 
 }

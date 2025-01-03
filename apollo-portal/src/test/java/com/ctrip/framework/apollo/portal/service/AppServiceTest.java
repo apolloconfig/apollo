@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
+import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.repository.AppRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -77,6 +78,8 @@ class AppServiceTest {
   ApplicationEventPublisher publisher;
   @MockBean
   ApolloAuditLogApi apolloAuditLogApi;
+  @MockBean
+  PortalSettings portalSettings;
 
   @BeforeEach
   void beforeEach() {

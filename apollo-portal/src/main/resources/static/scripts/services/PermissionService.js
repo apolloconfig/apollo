@@ -23,6 +23,13 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
                  'Content-Type': 'text/plain;charset=UTF-8'
             }
         },
+        init_cluster_ns_permission: {
+            method: 'POST',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/initNsPermission',
+            headers: {
+                 'Content-Type': 'text/plain;charset=UTF-8'
+            }
+        },
         has_app_permission: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/apps/:appId/permissions/:permissionType'
@@ -34,6 +41,10 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
         has_namespace_env_permission: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/namespaces/:namespaceName/permissions/:permissionType'
+        },
+        has_cluster_ns_permission: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/ns_permissions/:permissionType'
         },
         has_root_permission:{
             method: 'GET',
@@ -87,6 +98,21 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
         has_open_manage_app_master_role_limit: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/system/role/manageAppMaster'
+        },
+        get_cluster_ns_role_users: {
+            method: 'GET',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/ns_role_users'
+        },
+        assign_cluster_ns_role_to_user: {
+            method: 'POST',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType',
+            headers: {
+                 'Content-Type': 'text/plain;charset=UTF-8'
+            }
+        },
+        remove_cluster_ns_role_from_user: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType?user=:user'
         }
     });
 
@@ -95,6 +121,21 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
         permission_resource.init_app_namespace_permission({
                 appId: appId
             }, namespace,
+            function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
+    function initClusterNsPermission(appId, env, clusterName) {
+        var d = $q.defer();
+        permission_resource.init_cluster_ns_permission({
+                appId: appId,
+                env: env,
+                clusterName: clusterName
+            }, {},
             function (result) {
                 d.resolve(result);
             }, function (result) {
@@ -139,6 +180,22 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
                 namespaceName: namespaceName,
                 permissionType: permissionType,
                 env: env
+            },
+            function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
+    function hasClusterNsPermission(appId, env, clusterName, permissionType) {
+        var d = $q.defer();
+        permission_resource.has_cluster_ns_permission({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                permissionType: permissionType
             },
             function (result) {
                 d.resolve(result);
@@ -212,9 +269,45 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
         return d.promise;
     }
 
+    function assignClusterNsRoleToUser(appId, env, clusterName, roleType, user) {
+        var d = $q.defer();
+        permission_resource.assign_cluster_ns_role_to_user({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                roleType: roleType
+            }, user,
+            function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
+    function removeClusterNsRoleFromUser(appId, env, clusterName, roleType, user) {
+        var d = $q.defer();
+        permission_resource.remove_cluster_ns_role_from_user({
+                appId: appId,
+                env: env,
+                clusterName: clusterName,
+                roleType: roleType,
+                user: user
+            },
+            function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+        return d.promise;
+    }
+
     return {
         init_app_namespace_permission: function (appId, namespace) {
             return initAppNamespacePermission(appId, namespace);
+        },
+        init_cluster_ns_permission: function (appId, env, clusterName) {
+            return initClusterNsPermission(appId, env, clusterName);
         },
         has_manage_app_master_permission: function (appId) {
             return hasAppPermission(appId, 'ManageAppMaster');
@@ -351,6 +444,35 @@ appService.service('PermissionService', ['$resource', '$q', 'AppUtil', function 
                     d.reject(result);
                 });
             return d.promise;
-        }
+        },
+        has_modify_cluster_ns_permission: function (appId, env, clusterName) {
+            return hasClusterNsPermission(appId, env, clusterName, 'ModifyNamespacesInCluster');
+        },
+        has_release_cluster_ns_permission: function (appId, env, clusterName) {
+            return hasClusterNsPermission(appId, env, clusterName, 'ReleaseNamespacesInCluster');
+        },
+        get_cluster_ns_role_users: function (appId, env, clusterName) {
+            var d = $q.defer();
+            permission_resource.get_cluster_ns_role_users({
+                appId: appId, env: env, clusterName: clusterName
+            }, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        assign_modify_cluster_ns_role: function (appId, env, clusterName, user) {
+            return assignClusterNsRoleToUser(appId, env, clusterName, 'ModifyNamespacesInCluster', user);
+        },
+        assign_release_cluster_ns_role: function (appId, env, clusterName, user) {
+            return assignClusterNsRoleToUser(appId, env, clusterName, 'ReleaseNamespacesInCluster', user);
+        },
+        remove_modify_cluster_ns_role: function (appId, env, clusterName, user) {
+            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ModifyNamespacesInCluster', user);
+        },
+        remove_release_cluster_ns_role: function (appId, env, clusterName, user) {
+            return removeClusterNsRoleFromUser(appId, env, clusterName, 'ReleaseNamespacesInCluster', user);
+        },
     }
 }]);
