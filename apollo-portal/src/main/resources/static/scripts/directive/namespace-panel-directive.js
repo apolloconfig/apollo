@@ -317,17 +317,17 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                                 )
                                     .then(function (result) {
                                         //branch has same permission
-                                        namespace.hasReleasePermission |= result.hasPermission;
+                                        namespace.hasReleasePermission ||= result.hasPermission;
                                         if (namespace.branch) {
-                                            namespace.branch.hasReleasePermission |= result.hasPermission;
+                                            namespace.branch.hasReleasePermission ||= result.hasPermission;
                                         }
                                     });
                             }
                             else {
                                 //branch has same permission
-                                namespace.hasReleasePermission |= result.hasPermission;
+                                namespace.hasReleasePermission ||= result.hasPermission;
                                 if (namespace.branch) {
-                                    namespace.branch.hasReleasePermission |= result.hasPermission;
+                                    namespace.branch.hasReleasePermission ||= result.hasPermission;
                                 }
                             }
                         });
@@ -338,9 +338,9 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                         scope.cluster
                     ).then(function (result) {
                         if (result.hasPermission) {
-                            namespace.hasReleasePermission |= result.hasPermission;
+                            namespace.hasReleasePermission ||= result.hasPermission;
                             if (namespace.branch) {
-                                namespace.branch.hasReleasePermission |= result.hasPermission;
+                                namespace.branch.hasReleasePermission ||= result.hasPermission;
                             }
                         }
                     });

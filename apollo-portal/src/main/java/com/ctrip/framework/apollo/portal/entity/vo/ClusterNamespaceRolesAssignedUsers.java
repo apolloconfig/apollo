@@ -69,7 +69,7 @@ public class ClusterNamespaceRolesAssignedUsers {
 
   @Override
   public String toString() {
-    return "ClusterRolesAssignedUsers{" +
+    return "ClusterNamespaceRolesAssignedUsers{" +
         "appId='" + appId + '\'' +
         ", env='" + env + '\'' +
         ", cluster='" + cluster + '\'' +
