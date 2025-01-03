@@ -33,7 +33,7 @@ role_module.controller('ClusterNamespaceRoleController',
         $scope.releaseRoleWidgetId = 'releaseRoleWidgetId';
         $scope.modifyRoleWidgetId = 'modifyRoleWidgetId';
 
-        PermissionService.init_cluster_permission($scope.pageContext.appId, $scope.pageContext.env, $scope.pageContext.clusterName)
+        PermissionService.init_cluster_ns_permission($scope.pageContext.appId, $scope.pageContext.env, $scope.pageContext.clusterName)
         .then(function (result) {
 
         }, function (result) {
