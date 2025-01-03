@@ -60,9 +60,9 @@ public class PermissionValidator {
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  private boolean hasModifyNamespaceInClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasModifyNamespacesInClusterPermission(String appId, String env, String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_NAMESPACE_IN_CLUSTER,
+        PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
@@ -73,7 +73,7 @@ public class PermissionValidator {
     if (hasModifyNamespacePermission(appId, namespaceName, env)) {
       return true;
     }
-    if (hasModifyNamespaceInClusterPermission(appId, env, clusterName)) {
+    if (hasModifyNamespacesInClusterPermission(appId, env, clusterName)) {
       return true;
     }
     return false;
@@ -91,9 +91,9 @@ public class PermissionValidator {
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  private boolean hasReleaseNamespaceInClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasReleaseNamespacesInClusterPermission(String appId, String env, String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACE_IN_CLUSTER,
+        PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
@@ -104,7 +104,7 @@ public class PermissionValidator {
     if (hasReleaseNamespacePermission(appId, namespaceName, env)) {
       return true;
     }
-    if (hasReleaseNamespaceInClusterPermission(appId, env, clusterName)) {
+    if (hasReleaseNamespacesInClusterPermission(appId, env, clusterName)) {
       return true;
     }
     return false;

@@ -223,13 +223,13 @@ public class PermissionController {
     assignedUsers.setEnv(env);
     assignedUsers.setCluster(clusterName);
 
-    Set<UserInfo> releaseNamespaceInClusterUsers =
-        rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseNamespaceInClusterRoleName(appId, env, clusterName));
-    assignedUsers.setReleaseRoleUsers(releaseNamespaceInClusterUsers);
+    Set<UserInfo> releaseNamespacesInClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, env, clusterName));
+    assignedUsers.setReleaseRoleUsers(releaseNamespacesInClusterUsers);
 
-    Set<UserInfo> modifyNamespaceInClusterUsers =
-        rolePermissionService.queryUsersWithRole(RoleUtils.buildModifyNamespaceInClusterRoleName(appId, env, clusterName));
-    assignedUsers.setModifyRoleUsers(modifyNamespaceInClusterUsers);
+    Set<UserInfo> modifyNamespacesInClusterUsers =
+        rolePermissionService.queryUsersWithRole(RoleUtils.buildModifyNamespacesInClusterRoleName(appId, env, clusterName));
+    assignedUsers.setModifyRoleUsers(modifyNamespacesInClusterUsers);
 
     return assignedUsers;
   }

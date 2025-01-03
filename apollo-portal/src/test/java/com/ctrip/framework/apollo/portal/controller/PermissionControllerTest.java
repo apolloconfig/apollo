@@ -38,7 +38,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
   private final String appId = "testApp";
   private final String env = "LOCAL";
   private final String clusterName = "testCluster";
-  private final String roleType = "ModifyNamespaceInCluster";
+  private final String roleType = "ModifyNamespacesInCluster";
   private final String user = "apollo";
 
   @Autowired

@@ -66,7 +66,7 @@
             <label
                 class="col-sm-2 control-label">{{'Cluster.Role.GrantModifyTo' | translate }}<br><small>{{'Cluster.Role.GrantModifyTo2' | translate }}</small></label>
             <div class="col-sm-8">
-              <form class="form-inline" ng-submit="assignRoleToUser('ModifyNamespaceInCluster')">
+              <form class="form-inline" ng-submit="assignRoleToUser('ModifyNamespacesInCluster')">
                 <div class="form-group">
                   <apollouserselector apollo-id="modifyRoleWidgetId"></apollouserselector>
                 </div>
@@ -80,7 +80,7 @@
                   <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
                   <button type="button" class="btn btn-default dropdown-toggle"
                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                          ng-click="removeUserRole('ModifyNamespaceInCluster', user.userId)">
+                          ng-click="removeUserRole('ModifyNamespacesInCluster', user.userId)">
                     <span class="glyphicon glyphicon-remove"></span>
                   </button>
                 </div>
@@ -97,7 +97,7 @@
                   class="control-label">{{'Cluster.Role.GrantPublishTo' | translate }}<br><small>{{'Cluster.Role.GrantPublishTo2' | translate }}</small></label>
             </div>
             <div class="col-sm-8">
-              <form class="form-inline" ng-submit="assignRoleToUser('ReleaseNamespaceInCluster')">
+              <form class="form-inline" ng-submit="assignRoleToUser('ReleaseNamespacesInCluster')">
                 <div class="form-group">
                   <apollouserselector apollo-id="releaseRoleWidgetId"></apollouserselector>
                 </div>
@@ -111,7 +111,7 @@
                   <button type="button" class="btn btn-default" ng-bind="user.userId"></button>
                   <button type="button" class="btn btn-default dropdown-toggle"
                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                          ng-click="removeUserRole('ReleaseNamespaceInCluster', user.userId)">
+                          ng-click="removeUserRole('ReleaseNamespacesInCluster', user.userId)">
                     <span class="glyphicon glyphicon-remove"></span>
                   </button>
                 </div>
