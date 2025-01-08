@@ -1,0 +1,146 @@
+<!--
+  ~ Copyright 2024 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="cluster_manage">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="icon" href="../img/config.png">
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
+  <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
+  <title>{{'Config.ClusterManage' | translate }}</title>
+</head>
+
+<body>
+
+<apollonav></apollonav>
+
+<div class="container-fluid apollo-container project-setting" ng-controller="ClusterManageController">
+  <section class="col-md-10 col-md-offset-1 panel">
+    <header class="panel-heading">
+      <div class="row">
+        <div class="col-md-9">
+          <h4 class="modal-title">{{'Config.ClusterManage' | translate }} (
+            {{'Common.AppId' | translate }}:<label ng-bind="appId"></label> )
+          </h4>
+        </div>
+        <div class="col-md-3 text-right">
+          <a type="button" class="btn btn-info" data-dismiss="modal"
+             href="{{ '/config.html' | prefixPath }}?#appid={{pageContext.appId}}">{{'Common.ReturnToIndex' | translate }}
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="panel-body row" >
+
+      <section class="context">
+<!--        <section class="form-horizontal">-->
+<!--          <div class="alert alert-info no-radius" role="alert">-->
+<!--            <strong>Tips:</strong>-->
+<!--            <ul>-->
+<!--              <li>{{'AccessKey.Tips.1' | translate }}</li>-->
+<!--              <li>{{'AccessKey.Tips.2' | translate }}</li>-->
+<!--              <li>{{'AccessKey.Tips.3' | translate }}</li>-->
+<!--              <li>{{'AccessKey.Tips.4' | translate }}</li>-->
+<!--              <ul>-->
+<!--                <li>{{'AccessKey.Tips.4.1' | translate }}</li>-->
+<!--                <li>{{'AccessKey.Tips.4.2' | translate }}</li>-->
+<!--                <li>{{'AccessKey.Tips.4.3' | translate }}</li>-->
+<!--              </ul>-->
+<!--            </ul>-->
+<!--          </div>-->
+<!--        </section>-->
+
+        <!--application info-->
+        <section ng-repeat="env in envs">
+          <hr>
+          <h4>{{'Common.Environment' | translate }}: {{env.name}}
+          </h4>
+          <section class="panel cluster-info-panel config-item-container" ng-repeat="cluster in env.clusters">
+            <header class="panel-heading">
+              <div class="row">
+                <div class="col-md-6 col-sm-6 header-namespace">
+                  <b class="namespace-name" data-tooltip="tooltip" data-placement="bottom">
+                    {{'Common.Cluster' | translate }}:{{cluster.name}}
+                  </b>
+                </div>
+                <div class="col-md-6 col-sm-6 text-right header-buttons">
+                  <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
+                     title="{{'Cluster.GrantTips' | translate }}"
+                     href="{{ '/cluster/ns_role.html' | prefixPath }}?#/appid={{appId}}&env={{env.name}}&clusterName={{cluster.name}}">
+                    <img src="/img/assign.png">
+                    {{'Cluster.Grant' | translate }}
+                  </a>
+                </div>
+              </div>
+            </header>
+          </section>
+
+        </section>
+      </section>
+
+    </div>
+  </section>
+</div>
+
+<div ng-include="'../views/common/footer.html'"></div>
+
+<!-- jquery.js -->
+<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+
+<!--angular-->
+<script src="../vendor/angular/angular.min.js"></script>
+<script src="../vendor/angular/angular-route.min.js"></script>
+<script src="../vendor/angular/angular-resource.min.js"></script>
+<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+<script src="../vendor/angular/loading-bar.min.js"></script>
+<script src="../vendor/angular/angular-cookies.min.js"></script>
+
+<script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+<!--valdr-->
+<script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
+<script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+<!-- bootstrap.js -->
+<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="../vendor/lodash.min.js"></script>
+
+<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+<!--biz-->
+<!--must import-->
+<script type="application/javascript" src="../scripts/app.js"></script>
+<script type="application/javascript" src="../scripts/services/AppService.js"></script>
+<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+<script type="application/javascript" src="../scripts/services/UserService.js"></script>
+<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+<script type="application/javascript" src="../scripts/services/ClusterService.js"></script>
+<script type="application/javascript" src="../scripts/AppUtils.js"></script>
+<script type="application/javascript" src="../scripts/directive/directive.js"></script>
+<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+
+<script type="application/javascript" src="../scripts/controller/ClusterManageController.js"></script>
+</body>
+
+</html>

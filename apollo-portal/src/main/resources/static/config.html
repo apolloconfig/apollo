@@ -140,6 +140,10 @@
                                         apollo-img-src="'accesskey-manage'"
                                         apollo-href="'app/access_key.html?#/appid=' + pageContext.appId"></apolloentrance>
 
+                        <apolloentrance apollo-title="'Config.ClusterManage' | translate"
+                                        apollo-img-src="'project-manage'"
+                                        apollo-href="'app/cluster_manage.html?#/appid=' + pageContext.appId"></apolloentrance>
+
                         <a class="list-group-item" ng-show="missEnvs.length > 0" ng-click="createAppInMissEnv()">
                             <div class="row icon-text icon-plus-orange">
                                 <p class="btn-title ng-binding">{{'Config.CreateAppMissEnv' | translate }}</p>
@@ -186,27 +190,6 @@
         <!--namespaces-->
         <div class="config-item-container hide" ng-class="{'view-mode-1': viewMode == 1, 'view-mode-2': viewMode == 2}"
             ng-controller="ConfigNamespaceController">
-
-            <section class="panel cluster-info-panel">
-                <header class="panel-heading">
-                    <div class="row">
-                        <div class="col-md-6 col-sm-6 header-namespace">
-                            <b class="namespace-name" data-tooltip="tooltip" data-placement="bottom">
-                                {{'Config.CurrentlyOperatorEnv' | translate }}:{{pageContext.env}},
-                                {{'Common.Cluster' | translate }}:{{pageContext.clusterName}}
-                            </b>
-                        </div>
-                        <div class="col-md-6 col-sm-6 text-right header-buttons">
-                            <a type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
-                               title="{{'Cluster.GrantTips' | translate }}"
-                               href="{{ '/cluster/ns_role.html' | prefixPath }}?#/appid={{pageContext.appId}}&env={{pageContext.env}}&clusterName={{pageContext.clusterName}}">
-                                <img src="img/assign.png">
-                                {{'Cluster.Grant' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                </header>
-            </section>
 
             <div class="alert alert-info alert-dismissible" role="alert"
                 ng-show="(!hideTip || !hideTip[pageContext.appId][pageContext.clusterName]) && envMapClusters[pageContext.env]">
