@@ -963,6 +963,7 @@ The following table lists the configurable parameters of the apollo-service-char
 | `configService.image.pullPolicy`                | Image pull policy of apollo-configservice                    | `IfNotPresent`                      |
 | `configService.imagePullSecrets`                | Image pull secrets of apollo-configservice                   | `[]`                                |
 | `configService.service.fullNameOverride`        | Override the service name for apollo-configservice           | `nil`                               |
+| `configService.service.annotations`             | The annotations of the service for apollo-configservice. _(chart version >= 0.9.0)_ | `{}`                                |
 | `configService.service.port`                    | The port for the service of apollo-configservice             | `8080`                              |
 | `configService.service.targetPort`              | The target port for the service of apollo-configservice      | `8080`                              |
 | `configService.service.type`                    | The service type of apollo-configservice                     | `ClusterIP`                         |
@@ -993,6 +994,7 @@ The following table lists the configurable parameters of the apollo-service-char
 | `adminService.image.pullPolicy`                 | Image pull policy of apollo-adminservice                     | `IfNotPresent`                      |
 | `adminService.imagePullSecrets`                 | Image pull secrets of apollo-adminservice                    | `[]`                                |
 | `adminService.service.fullNameOverride`         | Override the service name for apollo-adminservice            | `nil`                               |
+| `adminService.service.annotations`             | The annotations of the service for apollo-adminservice. _(chart version >= 0.9.0)_ | `{}`                                |
 | `adminService.service.port`                     | The port for the service of apollo-adminservice              | `8090`                              |
 | `adminService.service.targetPort`               | The target port for the service of apollo-adminservice       | `8090`                              |
 | `adminService.service.type`                     | The service type of apollo-adminservice                      | `ClusterIP`                         |
@@ -1152,6 +1154,7 @@ The following table lists the configurable parameters of the apollo-portal chart
 | `image.pullPolicy`                    | Image pull policy of apollo-portal                           | `IfNotPresent`               |
 | `imagePullSecrets`                    | Image pull secrets of apollo-portal                          | `[]`                         |
 | `service.fullNameOverride`            | Override the service name for apollo-portal                  | `nil`                        |
+| `service.annotations`                 | The annotations of the service for apollo-portal. _(chart version >= 0.9.0)_ | `{}` |
 | `service.port`                        | The port for the service of apollo-portal                    | `8070`                       |
 | `service.targetPort`                  | The target port for the service of apollo-portal             | `8070`                       |
 | `service.type`                        | The service type of apollo-portal                            | `ClusterIP`                  |
