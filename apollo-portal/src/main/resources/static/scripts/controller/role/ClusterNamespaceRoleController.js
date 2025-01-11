@@ -28,7 +28,7 @@ role_module.controller('ClusterNamespaceRoleController',
         };
 
         $scope.modifyRoleSubmitBtnDisabled = false;
-        $scope.ReleaseRoleSubmitBtnDisabled = false;
+        $scope.releaseRoleSubmitBtnDisabled = false;
 
         $scope.releaseRoleWidgetId = 'releaseRoleWidgetId';
         $scope.modifyRoleWidgetId = 'modifyRoleWidgetId';
@@ -62,7 +62,7 @@ role_module.controller('ClusterNamespaceRoleController',
               toastr.warning($translate.instant('Cluster.Role.PleaseChooseUser'));
               return;
             }
-            $scope.ReleaseRoleSubmitBtnDisabled = true;
+            $scope.releaseRoleSubmitBtnDisabled = true;
             var toAssignReleaseNamespacesInClusterRoleUser = user.id;
 
             var assignReleaseNamespacesInClusterRoleFunc = function (appId, env, clusterName, user) {
@@ -76,12 +76,12 @@ role_module.controller('ClusterNamespaceRoleController',
                 toAssignReleaseNamespacesInClusterRoleUser
             ).then(function () {
               toastr.success($translate.instant('Cluster.Role.Added'));
-              $scope.ReleaseRoleSubmitBtnDisabled = false;
+              $scope.releaseRoleSubmitBtnDisabled = false;
               $scope.rolesAssignedUsers.releaseRoleUsers.push({ userId: toAssignReleaseNamespacesInClusterRoleUser });
 
               $('.' + $scope.releaseRoleWidgetId).select2("val", "");
             }, function (result) {
-              $scope.ReleaseRoleSubmitBtnDisabled = false;
+              $scope.releaseRoleSubmitBtnDisabled = false;
               toastr.error(AppUtil.errorMsg(result), $translate.instant('Cluster.Role.AddFailed'));
             });
           } else if ("ModifyNamespacesInCluster" === roleType) {

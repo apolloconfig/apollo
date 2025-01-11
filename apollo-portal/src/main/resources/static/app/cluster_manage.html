@@ -26,7 +26,7 @@
   <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
   <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
   <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-  <title>{{'Config.ClusterManage' | translate }}</title>
+  <title>{{'Config.ManageCluster' | translate }}</title>
 </head>
 
 <body>
@@ -38,13 +38,13 @@
     <header class="panel-heading">
       <div class="row">
         <div class="col-md-9">
-          <h4 class="modal-title">{{'Config.ClusterManage' | translate }} (
-            {{'Common.AppId' | translate }}:<label ng-bind="appId"></label> )
+          <h4 class="modal-title">{{'Config.ManageCluster' | translate }} (
+            {{'Common.AppId' | translate }}: <label ng-bind="appId"></label> )
           </h4>
         </div>
         <div class="col-md-3 text-right">
           <a type="button" class="btn btn-info" data-dismiss="modal"
-             href="{{ '/config.html' | prefixPath }}?#appid={{pageContext.appId}}">{{'Common.ReturnToIndex' | translate }}
+             href="{{ '/config.html' | prefixPath }}?#appid={{appId}}">{{'Common.ReturnToIndex' | translate }}
           </a>
         </div>
       </div>
@@ -53,24 +53,8 @@
     <div class="panel-body row" >
 
       <section class="context">
-<!--        <section class="form-horizontal">-->
-<!--          <div class="alert alert-info no-radius" role="alert">-->
-<!--            <strong>Tips:</strong>-->
-<!--            <ul>-->
-<!--              <li>{{'AccessKey.Tips.1' | translate }}</li>-->
-<!--              <li>{{'AccessKey.Tips.2' | translate }}</li>-->
-<!--              <li>{{'AccessKey.Tips.3' | translate }}</li>-->
-<!--              <li>{{'AccessKey.Tips.4' | translate }}</li>-->
-<!--              <ul>-->
-<!--                <li>{{'AccessKey.Tips.4.1' | translate }}</li>-->
-<!--                <li>{{'AccessKey.Tips.4.2' | translate }}</li>-->
-<!--                <li>{{'AccessKey.Tips.4.3' | translate }}</li>-->
-<!--              </ul>-->
-<!--            </ul>-->
-<!--          </div>-->
-<!--        </section>-->
 
-        <!--application info-->
+        <!--env-cluster info-->
         <section ng-repeat="env in envs">
           <hr>
           <h4>{{'Common.Environment' | translate }}: {{env.name}}
@@ -80,7 +64,7 @@
               <div class="row">
                 <div class="col-md-6 col-sm-6 header-namespace">
                   <b class="namespace-name" data-tooltip="tooltip" data-placement="bottom">
-                    {{'Common.Cluster' | translate }}:{{cluster.name}}
+                    {{'Common.Cluster' | translate }}: {{cluster.name}}
                   </b>
                 </div>
                 <div class="col-md-6 col-sm-6 text-right header-buttons">
