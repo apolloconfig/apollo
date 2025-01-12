@@ -76,6 +76,72 @@ After the project is created, there are no editing and publishing permissions as
 3. Assign publish privileges
    * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
+### 1.2.3 Configuring permissions for different dimensions
+
+Regarding Apollo's configuration permissions, the permissions were bound to the namespace during the initial design. Because Apollo's permission management itself is relatively flexible, it can be expanded on this basis.
+Design of main entity classes based on Apollo [E-R Diagram](/docs/en/design/apollo-design.md?id=_14-e-r-diagram)，
+We can think of Namespace as the smallest unit of permissions, and App as the largest unit of permissions.
+In the middle are Env and Cluster, so we can manage permissions in different dimensions.
+
+| App | Env | Cluster | Namespace | Model | Impl |
+| --- | --- | --- | --- | --- |------|
+| ☑️ |  |  |  | App → * | no   |
+| ☑️ |  |  | ☑️ | App → Namespace | yes  |
+| ☑️ | ☑️ |  |  | App + Env → * | no   |
+| ☑️ | ☑️ |  | ☑️ | App + Env → Namespace | yes  |
+| ☑️ | ☑️ | ☑️ |  | App + Env + Cluster → * | yes  |
+| ☑️ | ☑️ | ☑️ | ☑️ | App + Env + Cluster → Namespace | no    |
+
+Explanation of different permission models：
+
+| Model | Target | PermissionType (e.g. Modify) | TargetId |
+| --- | --- | --- | --- |
+| App → * | All namespaces of App |  |  |
+| App → Namespace | All namespaces with specified names under App | ModifyNamespace | App+Namespace |
+| App + Env → * | All namespaces under App's env |  |  |
+| App + Env → Namespace | All namespaces with specified names under App's env | ModifyNamespace | App+Namespace+Env |
+| App + Env + Cluster → * | All namespaces of the cluster in App's env | ModifyNamespaceInCluster | App+Env+ClusterName |
+| App + Env + Cluster → Namespace | The namespace with the specified name under the cluster in App's env |  |  |
+
+#### 1.2.3.1 All namespaces of App
+
+1. Click the authorization button of the application
+   * ![ns-permission-app-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-entry.png)
+
+2. Select "All environments"
+   * ![ns-permission-app-allns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-select.png)
+
+3. Assign the modify permission
+   * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
+
+4. Assign publish privileges
+   * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
+
+#### 1.2.3.2 All namespaces of App's env
+
+1. Click the authorization button of the application
+   * ![ns-permission-app-env-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-allns-entry.png)
+
+2. Select the env
+   * ![ns-permission-app-env-ns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-ns-select.png)
+
+3. Assign the modify permission
+   * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
+
+4. Assign publish privileges
+   * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
+
+#### 1.2.3.3 All namespaces of the cluster in App's env
+
+1. Click "Manage Cluster" to enter the management cluster page
+   * ![manage-cluster-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/manage-cluster-entry.png)
+
+2. Click the authorization button of the Cluster you want to manage
+   * ![ns-permission-app-env-cluster-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-cluster-entry.png)
+
+3. Edit permissions
+   * ![ns-permission-app-env-cluster-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-cluster-edit.png)
+
 ## 1.3 Adding configuration items
 
 To edit the configuration, you need to have the edit permission of this Namespace. If you find that there is no Add Configuration button, you can find the project administrator to authorize it.
