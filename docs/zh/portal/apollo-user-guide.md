@@ -70,6 +70,73 @@
 3. 分配发布权限
     * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
 
+### 1.2.3 不同维度的权限管理
+
+对于Apollo的配置权限，在初始设计时把权限绑定在了 namespace 上，因为 apollo 的权限管理本身是比较灵活的，所以可以在这个基础之上进行扩展。
+
+基于 Apollo 的主要实体类的设计 [E-R Diagram](/docs/zh/design/apollo-design.md?id=_14-e-r-diagram)，
+我们可以认为 Namespace 是一个权限的最小单元，而 App 是一个权限的最大单元。
+中间依次是 Env、Cluster，所以我们可以对不同维度的权限进行管理。
+
+| App | Env | Cluster | Namespace | Model | Impl |
+| --- | --- | --- | --- | --- |------|
+| ☑️ |  |  |  | App → * | 未实现  |
+| ☑️ |  |  | ☑️ | App → Namespace | 已实现  |
+| ☑️ | ☑️ |  |  | App + Env → * | 未实现  |
+| ☑️ | ☑️ |  | ☑️ | App + Env → Namespace | 已实现  |
+| ☑️ | ☑️ | ☑️ |  | App + Env + Cluster → * | 已实现  |
+| ☑️ | ☑️ | ☑️ | ☑️ | App + Env + Cluster → Namespace | 未实现  |
+
+对不同权限模型的释义：
+
+| Model | Target | PermissionType (e.g. Modify) | TargetId |
+| --- | --- | --- | --- |
+| App → * | App的所有namespace |  |  |
+| App → Namespace | App下的所有指定名字的namespace | ModifyNamespace | App+Namespace |
+| App + Env → * | App的env下所有namespace |  |  |
+| App + Env → Namespace | App的env下所有指定名字的namespace | ModifyNamespace | App+Namespace+Env |
+| App + Env + Cluster → * | App的env中cluster的所有namespace | ModifyNamespaceInCluster | App+Env+ClusterName |
+| App + Env + Cluster → Namespace | App的env中cluster下指定名字的namespace |  |  |
+
+#### 1.2.3.1 App下的所有指定名字的namespace
+
+1. 点击application这个namespace的授权按钮
+    * ![ns-permission-app-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-entry.png)
+    
+2. 选择“所有环境”
+    * ![ns-permission-app-allns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-select.png)
+
+3. 分配修改权限
+    * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
+
+4. 分配发布权限
+    * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
+
+#### 1.2.3.2 App的env下所有指定名字的namespace
+
+1. 点击application这个namespace的授权按钮
+    * ![ns-permission-app-env-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-allns-entry.png)
+
+2. 选择环境
+    * ![ns-permission-app-env-ns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-ns-select.png)
+
+3. 分配修改权限
+    * ![namespace-permission-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-permission-edit.png)
+
+4. 分配发布权限
+    * ![namespace-publish-permission](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/namespace-publish-permission.png)
+
+#### 1.2.3.3 App的env中cluster的所有namespace
+
+1. 点击“管理集群”进取管理集群页面
+    * ![manage-cluster-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/manage-cluster-entry.png)
+
+2. 点击想管理的Cluster的授权按钮
+    * ![ns-permission-app-env-cluster-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-cluster-entry.png)
+
+3. 编辑权限
+    * ![ns-permission-app-env-cluster-edit](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-cluster-edit.png)
+
 ## 1.3 添加配置项
 编辑配置需要拥有这个Namespace的编辑权限，如果发现没有新增配置按钮，可以找项目管理员授权。
 
