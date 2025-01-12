@@ -35,6 +35,7 @@
   "Common.Deleted": "Delete Successfully",
   "Common.DeleteFailed": "Fail to Delete",
   "Common.ReturnToIndex": "Return to project page",
+  "Common.ReturnToManageClusterPage": "Return to manage cluster page",
   "Common.Cancel": "Cancel",
   "Common.Ok": "OK",
   "Common.Search": "Query",

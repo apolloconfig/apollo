@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-cluster_manage_module.controller('ClusterManageController',
+manage_cluster_module.controller('ManageClusterController',
     ['$scope', '$location', '$window', '$translate', 'toastr', 'AppService', 'EnvService', 'ClusterService',
       'AppUtil',
       function ($scope, $location, $window, $translate, toastr, AppService, EnvService, ClusterService,

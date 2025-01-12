@@ -35,7 +35,7 @@
   "Common.Deleted": "删除成功",
   "Common.DeleteFailed": "删除失败",
   "Common.ReturnToIndex": "返回到应用首页",
-  "Common.ReturnToClusterManagePage": "返回到管理集群页面",
+  "Common.ReturnToManageClusterPage": "返回到管理集群页面",
   "Common.Cancel": "取消",
   "Common.Ok": "确定",
   "Common.Search": "查询",
