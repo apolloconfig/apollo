@@ -1271,7 +1271,7 @@ config:
 
 ### 2.4.2 基于内置的Eureka服务发现
 
-感谢[AiotCEO](https://github.com/AiotCEO)提供了k8s的部署支持，使用说明可以参考[apollo-on-kubernetes](https://github.com/apolloconfig/apollo/blob/master/scripts/apollo-on-kubernetes/README.md)。
+感谢[AiotCEO](https://github.com/AiotCEO)提供了k8s的部署支持，使用说明可以参考[apollo-on-kubernetes](https://github.com/apolloconfig/apollo-on-kubernetes)。
 
 感谢[qct](https://github.com/qct)提供的Helm Chart部署支持，使用说明可以参考[qct/apollo-helm](https://github.com/qct/apollo-helm)。
 

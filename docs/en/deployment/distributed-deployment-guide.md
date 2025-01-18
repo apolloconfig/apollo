@@ -1322,7 +1322,7 @@ If you have modified the code of the apollo server and want to build a Docker im
 
 ### 2.4.2 Based on the built-in Eureka service discovery
 
-Thanks to [AiotCEO](https://github.com/AiotCEO) for providing k8s deployment support, please refer to [apollo-on-kubernetes](https://github.com/apolloconfig/apollo/blob/master/scripts/apollo-on-kubernetes/README.md).
+Thanks to [AiotCEO](https://github.com/AiotCEO) for providing k8s deployment support, please refer to [apollo-on-kubernetes](https://github.com/apolloconfig/apollo-on-kubernetes).
 
 Thanks to [qct](https://github.com/qct) for Helm Chart deployment support, please refer to [qct/apollo-helm](https://github.com/qct/apollo-helm) for usage instructions.
 
