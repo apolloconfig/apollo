@@ -31,6 +31,7 @@
   - [PHP 客户端使用指南](zh/client/php-sdks-user-guide.md)
   - [C 客户端使用指南](zh/client/c-sdks-user-guide.md)
   - [Rust 客户端使用指南](zh/client/rust-sdks-user-guide.md)
+  - [K8S ConfigMap接入指南](zh/client/k8s-configmap-user-guide.md)
   - [HTTP API 接入指南](zh/client/other-language-client-user-guide.md)
 
 - 扩展开发
