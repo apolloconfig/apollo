@@ -110,98 +110,90 @@ public class ReleaseController {
     return this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
   }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
-    @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
-    public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
-                            @PathVariable String clusterName, @PathVariable String namespaceName,
-                            @PathVariable String branchName, @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
-                            @RequestBody NamespaceReleaseDTO model, HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
+  public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String branchName,
+      @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
+      @RequestBody NamespaceReleaseDTO model, HttpServletRequest request) {
+    RequestPrecondition.checkArguments(
+        !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
+        "Params(releaseTitle and releasedBy) can not be empty");
 
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw BadRequestException.userNotExists(model.getReleasedBy());
-        }
-
-        ReleaseDTO mergedRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName,
-                model.getReleaseTitle(), model.getReleaseComment(),
-                model.isEmergencyPublish(), deleteBranch, model.getReleasedBy());
-
-
-        ConfigPublishEvent event = ConfigPublishEvent.instance();
-        event.withAppId(appId)
-            .withCluster(clusterName)
-            .withNamespace(namespaceName)
-            .withReleaseId(mergedRelease.getId())
-            .setMergeEvent(true)
-            .setEnv(Env.valueOf(env));
-        publisher.publishEvent(event);
-
-        return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
+    if (userService.findByUserId(model.getReleasedBy()) == null) {
+      throw BadRequestException.userNotExists(model.getReleasedBy());
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
-    @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
-    public OpenReleaseDTO createGrayRelease(@PathVariable String appId,
-                                        @PathVariable String env, @PathVariable String clusterName,
-                                        @PathVariable String namespaceName, @PathVariable String branchName,
-                                        @RequestBody NamespaceReleaseDTO model,
-                                        HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
+    ReleaseDTO mergedRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()),
+        clusterName, namespaceName, branchName, model.getReleaseTitle(), model.getReleaseComment(),
+        model.isEmergencyPublish(), deleteBranch, model.getReleasedBy());
 
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw BadRequestException.userNotExists(model.getReleasedBy());
-        }
+    ConfigPublishEvent event = ConfigPublishEvent.instance();
+    event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
+        .withReleaseId(mergedRelease.getId()).setMergeEvent(true).setEnv(Env.valueOf(env));
+    publisher.publishEvent(event);
 
-        NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
+    return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
+  }
 
-        releaseModel.setAppId(appId);
-        releaseModel.setEnv(Env.valueOf(env).toString());
-        releaseModel.setClusterName(branchName);
-        releaseModel.setNamespaceName(namespaceName);
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
+  public OpenReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String branchName, @RequestBody NamespaceReleaseDTO model,
+      HttpServletRequest request) {
+    RequestPrecondition.checkArguments(
+        !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
+        "Params(releaseTitle and releasedBy) can not be empty");
 
-        ReleaseDTO releaseDTO = releaseService.publish(releaseModel);
-
-        ConfigPublishEvent event = ConfigPublishEvent.instance();
-        event.withAppId(appId)
-            .withCluster(clusterName)
-            .withNamespace(namespaceName)
-            .withReleaseId(releaseDTO.getId())
-            .setGrayPublishEvent(true)
-            .setEnv(Env.valueOf(env));
-        publisher.publishEvent(event);
-
-        return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
+    if (userService.findByUserId(model.getReleasedBy()) == null) {
+      throw BadRequestException.userNotExists(model.getReleasedBy());
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
-    @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-del-releases")
-    public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId,
-                                               @PathVariable String env, @PathVariable String clusterName,
-                                               @PathVariable String namespaceName, @PathVariable String branchName,
-                                               @RequestBody NamespaceGrayDelReleaseDTO model,
-                                               HttpServletRequest request) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
-                        .getReleaseTitle()),
-                "Params(releaseTitle and releasedBy) can not be empty");
-        RequestPrecondition.checkArguments(model.getGrayDelKeys() != null,
-                "Params(grayDelKeys) can not be null");
+    NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, model);
 
-        if (userService.findByUserId(model.getReleasedBy()) == null) {
-            throw BadRequestException.userNotExists(model.getReleasedBy());
-        }
+    releaseModel.setAppId(appId);
+    releaseModel.setEnv(Env.valueOf(env).toString());
+    releaseModel.setClusterName(branchName);
+    releaseModel.setNamespaceName(namespaceName);
 
-        NamespaceGrayDelReleaseModel releaseModel = BeanUtils.transform(NamespaceGrayDelReleaseModel.class, model);
-        releaseModel.setAppId(appId);
-        releaseModel.setEnv(env.toUpperCase());
-        releaseModel.setClusterName(branchName);
-        releaseModel.setNamespaceName(namespaceName);
+    ReleaseDTO releaseDTO = releaseService.publish(releaseModel);
 
-        return OpenApiBeanUtils.transformFromReleaseDTO(releaseService.publish(releaseModel, releaseModel.getReleasedBy()));
+    ConfigPublishEvent event = ConfigPublishEvent.instance();
+    event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
+        .withReleaseId(releaseDTO.getId()).setGrayPublishEvent(true).setEnv(Env.valueOf(env));
+    publisher.publishEvent(event);
+
+    return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
+  }
+
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-del-releases")
+  public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String branchName, @RequestBody NamespaceGrayDelReleaseDTO model,
+      HttpServletRequest request) {
+    RequestPrecondition.checkArguments(
+        !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
+        "Params(releaseTitle and releasedBy) can not be empty");
+    RequestPrecondition.checkArguments(model.getGrayDelKeys() != null,
+        "Params(grayDelKeys) can not be null");
+
+    if (userService.findByUserId(model.getReleasedBy()) == null) {
+      throw BadRequestException.userNotExists(model.getReleasedBy());
     }
+
+    NamespaceGrayDelReleaseModel releaseModel = BeanUtils.transform(
+        NamespaceGrayDelReleaseModel.class, model);
+    releaseModel.setAppId(appId);
+    releaseModel.setEnv(env.toUpperCase());
+    releaseModel.setClusterName(branchName);
+    releaseModel.setNamespaceName(namespaceName);
+
+    return OpenApiBeanUtils.transformFromReleaseDTO(
+        releaseService.publish(releaseModel, releaseModel.getReleasedBy()));
+  }
 
   @PutMapping(path = "/releases/{releaseId}/rollback")
   public void rollback(@PathVariable String env,
