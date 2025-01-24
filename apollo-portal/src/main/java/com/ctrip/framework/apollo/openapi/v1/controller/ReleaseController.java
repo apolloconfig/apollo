@@ -30,10 +30,12 @@ import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
+import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,18 +56,21 @@ public class ReleaseController {
   private final NamespaceBranchService namespaceBranchService;
   private final ConsumerPermissionValidator consumerPermissionValidator;
   private final ReleaseOpenApiService releaseOpenApiService;
+  private final ApplicationEventPublisher publisher;
 
   public ReleaseController(
       final ReleaseService releaseService,
       final UserService userService,
       final NamespaceBranchService namespaceBranchService,
       final ConsumerPermissionValidator consumerPermissionValidator,
-      ReleaseOpenApiService releaseOpenApiService) {
+      ReleaseOpenApiService releaseOpenApiService,
+      ApplicationEventPublisher publisher) {
     this.releaseService = releaseService;
     this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
     this.consumerPermissionValidator = consumerPermissionValidator;
     this.releaseOpenApiService = releaseOpenApiService;
+    this.publisher = publisher;
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -83,7 +88,19 @@ public class ReleaseController {
       throw BadRequestException.userNotExists(model.getReleasedBy());
     }
 
-    return this.releaseOpenApiService.publishNamespace(appId, env, clusterName, namespaceName, model);
+    OpenReleaseDTO releaseDTO = this.releaseOpenApiService.publishNamespace(appId, env,
+        clusterName, namespaceName, model);
+
+    ConfigPublishEvent event = ConfigPublishEvent.instance();
+    event.withAppId(appId)
+        .withCluster(clusterName)
+        .withNamespace(namespaceName)
+        .withReleaseId(releaseDTO.getId())
+        .setNormalPublishEvent(true)
+        .setEnv(Env.valueOf(env));
+    publisher.publishEvent(event);
+
+    return releaseDTO;
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest")
@@ -111,6 +128,16 @@ public class ReleaseController {
                 model.getReleaseTitle(), model.getReleaseComment(),
                 model.isEmergencyPublish(), deleteBranch, model.getReleasedBy());
 
+
+        ConfigPublishEvent event = ConfigPublishEvent.instance();
+        event.withAppId(appId)
+            .withCluster(clusterName)
+            .withNamespace(namespaceName)
+            .withReleaseId(mergedRelease.getId())
+            .setMergeEvent(true)
+            .setEnv(Env.valueOf(env));
+        publisher.publishEvent(event);
+
         return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
     }
 
@@ -136,7 +163,18 @@ public class ReleaseController {
         releaseModel.setClusterName(branchName);
         releaseModel.setNamespaceName(namespaceName);
 
-        return OpenApiBeanUtils.transformFromReleaseDTO(releaseService.publish(releaseModel));
+        ReleaseDTO releaseDTO = releaseService.publish(releaseModel);
+
+        ConfigPublishEvent event = ConfigPublishEvent.instance();
+        event.withAppId(appId)
+            .withCluster(clusterName)
+            .withNamespace(namespaceName)
+            .withReleaseId(releaseDTO.getId())
+            .setGrayPublishEvent(true)
+            .setEnv(Env.valueOf(env));
+        publisher.publishEvent(event);
+
+        return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
     }
 
     @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
@@ -184,6 +222,16 @@ public class ReleaseController {
     if (!consumerPermissionValidator.hasReleaseNamespacePermission(request,release.getAppId(), release.getNamespaceName(), env)) {
       throw new AccessDeniedException("Forbidden operation. you don't have release permission");
     }
+
+    ConfigPublishEvent event = ConfigPublishEvent.instance();
+    event.withAppId(release.getAppId())
+        .withCluster(release.getClusterName())
+        .withNamespace(release.getNamespaceName())
+        .withReleaseId(release.getId())
+        .setRollbackEvent(true)
+        .setEnv(Env.valueOf(env));
+    publisher.publishEvent(event);
+
 
     this.releaseOpenApiService.rollbackRelease(env, releaseId, operator);
   }
