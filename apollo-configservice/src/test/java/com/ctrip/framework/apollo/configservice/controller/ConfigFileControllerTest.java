@@ -95,8 +95,8 @@ public class ConfigFileControllerTest {
 
     when(namespaceUtil.filterNamespaceName(someNamespace)).thenReturn(someNamespace);
     when(namespaceUtil.normalizeNamespace(someAppId, someNamespace)).thenReturn(someNamespace);
-    when(grayReleaseRulesHolder.hasGrayReleaseRule(anyString(), anyString(), anyString()))
-        .thenReturn(false);
+    when(grayReleaseRulesHolder.hasGrayReleaseRule(anyString(), anyString(), anyString(),
+        anyString())).thenReturn(false);
 
     watchedKeys2CacheKey =
         (Multimap<String, String>) ReflectionTestUtils
@@ -199,8 +199,8 @@ public class ConfigFileControllerTest {
     Map<String, String> configurations =
         ImmutableMap.of(someKey, someValue);
 
-    when(grayReleaseRulesHolder.hasGrayReleaseRule(someAppId, someClientIp, someNamespace))
-        .thenReturn(true);
+    when(grayReleaseRulesHolder.hasGrayReleaseRule(someAppId, someClientIp, someClientLabel,
+        someNamespace)).thenReturn(true);
 
     ApolloConfig someApolloConfig = mock(ApolloConfig.class);
     when(someApolloConfig.getConfigurations()).thenReturn(configurations);

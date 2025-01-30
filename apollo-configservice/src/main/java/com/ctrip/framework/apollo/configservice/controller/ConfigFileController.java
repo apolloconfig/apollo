@@ -175,7 +175,7 @@ public class ConfigFileController implements ReleaseMessageListener {
 
     //1. check whether this client has gray release rules
     boolean hasGrayReleaseRule = grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp,
-        namespace);
+        clientLabel, namespace);
 
     String cacheKey = assembleCacheKey(outputFormat, appId, clusterName, namespace, dataCenter);
 
@@ -200,7 +200,7 @@ public class ConfigFileController implements ReleaseMessageListener {
       }
       //5. Double check if this client needs to load gray release, if yes, load from db again
       //This step is mainly to avoid cache pollution
-      if (grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp, namespace)) {
+      if (grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp, clientLabel, namespace)) {
         Tracer.logEvent("ConfigFile.Cache.GrayReleaseConflict", cacheKey);
         return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
             request, response);

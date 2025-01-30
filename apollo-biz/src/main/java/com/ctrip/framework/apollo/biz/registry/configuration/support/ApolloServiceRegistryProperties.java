@@ -17,10 +17,12 @@
 package com.ctrip.framework.apollo.biz.registry.configuration.support;
 
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
+import com.google.common.base.Strings;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.commons.util.InetUtils;
@@ -72,6 +74,9 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
   @Autowired
   private InetUtils inetUtils;
 
+  @Autowired
+  private ServletContext servletContext;
+
   /**
    * if user doesn't config, then resolve them on the runtime.
    */
@@ -84,7 +89,9 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
     if (this.uri == null) {
       String host = this.inetUtils.findFirstNonLoopbackHostInfo().getIpAddress();
       Integer port = propertyResolver.getRequiredProperty("server.port", Integer.class);
-      String uriString = "http://" + host + ":" + port + "/";
+      String contextPath = Strings.isNullOrEmpty(this.servletContext.getContextPath()) ? "/"
+          : this.servletContext.getContextPath();
+      String uriString = "http://" + host + ":" + port + contextPath;
       this.uri = URI.create(uriString);
     }
   }
