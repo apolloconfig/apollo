@@ -115,7 +115,7 @@
 #### 1.2.3.2 App的env下所有指定名字的namespace
 
 1. 点击application这个namespace的授权按钮
-    * ![ns-permission-app-env-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-allns-entry.png)
+    * ![ns-permission-app-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-entry.png)
 
 2. 选择环境
     * ![ns-permission-app-env-ns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-ns-select.png)

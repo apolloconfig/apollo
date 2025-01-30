@@ -60,10 +60,10 @@
 	</developers>
 
 	<properties>
-		<revision>2.4.0-SNAPSHOT</revision>
+		<revision>2.4.0</revision>
 		<java.version>1.8</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<apollo-java.version>2.4.0-SNAPSHOT</apollo-java.version>
+		<apollo-java.version>2.4.0</apollo-java.version>
 		<spring-boot.version>2.7.11</spring-boot.version>
 		<spring-cloud.version>2021.0.5</spring-cloud.version>
 		<!-- sort by alphabet -->

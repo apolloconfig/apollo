@@ -8,8 +8,8 @@
 
 * Java: 1.8+
   * To run in Java 1.7 runtime environment, please use 1.x version of apollo client, such as 1.9.1
-* Guava: 20.0+
-  * The Apollo client will reference Guava 29 by default. If your project references other versions, make sure the version number is greater than or equal to 20.0
+* Guava: 22.0+
+  * The Apollo client will reference Guava 32 by default. If your project references other versions, make sure the version number is greater than or equal to 22.0
 
 >Note: For Apollo client, you can make a few code changes to downgrade to Java 1.6 if needed, see [Issue 483](https://github.com/apolloconfig/apollo/issues/483) for details
 
@@ -686,7 +686,7 @@ After starting the application, use J-console or similar tools to view the metri
 ![showing Apollo client monitoring metrics in JMX](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/apollo-client-monitor-jmx.jpg)
 #### 3.1.6.3 Client Export Metrics to External Monitoring Systems
 
-Users can customize the integration with monitoring systems such as Prometheus as needed. The client provides an SPI, see [7.3 Exporting Metrics to Custom Monitoring Systems](#73-exporting-metrics-to-custom-monitoring-systems). for details.
+Users can customize the integration with monitoring systems such as Prometheus as needed. The client provides an SPI, see [7.3 Exporting Metrics to Custom Monitoring Systems](#_73-exporting-metrics-to-custom-monitoring-systems). for details.
 
 *Related Metrics Data Tables*
 
