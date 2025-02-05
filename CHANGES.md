@@ -26,6 +26,8 @@ Apollo 2.4.0
 * [Feature: add JSON formatting function in apollo-portal](https://github.com/apolloconfig/apollo/pull/5287)
 * [Fix: add missing url patterns for AdminServiceAuthenticationFilter](https://github.com/apolloconfig/apollo/pull/5291)
 * [Fix: support java.time.Instant serialization with gson](https://github.com/apolloconfig/apollo/pull/5298)
+* [Feature: support to assign users management authority by the cluster (modify, publish)](https://github.com/apolloconfig/apollo/pull/5302)
+* [Feature: notification by email when releasing by OpenApi also](https://github.com/apolloconfig/apollo/pull/5324)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
