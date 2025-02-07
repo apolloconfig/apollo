@@ -213,8 +213,6 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 
 ### 2.1.1 创建ApolloPortalDB
 
-可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
-
 #### 2.1.1.1 手动导入SQL创建
 
 通过各种MySQL客户端导入[apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)即可。
@@ -224,14 +222,7 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloportaldb.sql
 ```
 
-#### 2.1.1.2 通过Flyway导入SQL创建
-
-> 需要1.3.0及以上版本
-
-1. 根据实际情况修改[flyway-portaldb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-portaldb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
-2. 在apollo项目根目录下执行`mvn -N -Pportaldb flyway:migrate`
-
-#### 2.1.1.3 验证
+#### 2.1.1.2 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql
@@ -246,8 +237,6 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`.`ServerConfig` limi
 
 ### 2.1.2 创建ApolloConfigDB
 
-可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
-
 #### 2.1.2.1 手动导入SQL
 
 通过各种MySQL客户端导入[apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)即可。
@@ -257,14 +246,7 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`.`ServerConfig` limi
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloconfigdb.sql
 ```
 
-#### 2.1.2.2 通过Flyway导入SQL
-
-> 需要1.3.0及以上版本
-
-1. 根据实际情况修改[flyway-configdb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-configdb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
-2. 在apollo项目根目录下执行`mvn -N -Pconfigdb flyway:migrate`
-
-#### 2.1.2.3 验证
+#### 2.1.2.2 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql

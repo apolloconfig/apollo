@@ -215,8 +215,6 @@ Note that ApolloPortalDB only needs to deploy one in the production environment,
 
 ### 2.1.1 Creating ApolloPortalDB
 
-You can choose to create it by manually importing SQL or by automatically importing SQL via [Flyway](https://flywaydb.org/) depending on the actual situation.
-
 #### 2.1.1.1 Manual SQL Import
 
 You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql) through various MySQL clients.
@@ -227,14 +225,7 @@ Using the native MySQL client as an example.
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloportaldb.sql
 ```
 
-#### 2.1.1.2 Created via Flyway import SQL
-
-> Requires version 1.3.0 and above
-
-1. Modify the `flyway-portaldb.properties` in [flyway-portaldb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-portaldb.properties) in `flyway.user`, `flyway.password` and `flyway.url` configurations
-2. Execute `mvn -N -Pportaldb flyway:migrate` in the apollo project root directory
-
-#### 2.1.1.3 Verification
+#### 2.1.1.2 Verification
 
 After a successful import, you can verify it by executing the following sql statement.
 
@@ -250,8 +241,6 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`. `ServerConfig` lim
 
 ### 2.1.2 Creating ApolloConfigDB
 
-You can choose to create it by manually importing SQL or automatically importing SQL via [Flyway](https://flywaydb.org/) according to the actual situation.
-
 #### 2.1.2.1 Importing SQL Manually
 
 You can import [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql) through various MySQL clients.
@@ -262,16 +251,7 @@ Using the native MySQL client as an example.
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloconfigdb.sql
 ```
 
-#### 2.1.2.2 SQL import via Flyway
-
-> Version 1.3.0 and above is required
-
-1. Modify the `flyway.user`, `flyway.password`, and `flyway.password` in [flyway-configdb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-configdb.properties) .
-2. Run `mvn -N -Pconfigdb flyway:migrate` in the apollo project root directory
-
-#### 2.1.2.3 Verification
-
-
+#### 2.1.2.2 Verification
 
 After a successful import, you can verify it by executing the following sql statement.
 
