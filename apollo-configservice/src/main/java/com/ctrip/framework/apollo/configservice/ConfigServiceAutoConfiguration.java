@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.configservice.filter.ClientAuthenticationFilte
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigServiceWithCache;
+import com.ctrip.framework.apollo.configservice.service.config.ConfigServiceWithChangeCache;
 import com.ctrip.framework.apollo.configservice.service.config.DefaultConfigService;
 import com.ctrip.framework.apollo.configservice.util.AccessKeyUtil;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -69,13 +70,16 @@ public class ConfigServiceAutoConfiguration {
 
   @Bean
   public ConfigService configService() {
+    if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
+      return new ConfigServiceWithChangeCache(releaseService, releaseMessageService,
+          grayReleaseRulesHolder(), bizConfig, meterRegistry);
+    }
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
           grayReleaseRulesHolder(), bizConfig, meterRegistry);
     }
     return new DefaultConfigService(releaseService, grayReleaseRulesHolder());
   }
-
   @Bean
   public static NoOpPasswordEncoder passwordEncoder() {
     return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();

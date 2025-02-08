@@ -240,6 +240,10 @@ public class BizConfig extends RefreshableConfig {
     return getBooleanProperty("config-service.cache.key.ignore-case", false);
   }
 
+  public boolean isConfigServiceIncrementalChangeEnabled() {
+    return getBooleanProperty("config-service.incremental.change.enabled", false);
+  }
+
   int checkInt(int value, int min, int max, int defaultValue) {
     if (value >= min && value <= max) {
       return value;
