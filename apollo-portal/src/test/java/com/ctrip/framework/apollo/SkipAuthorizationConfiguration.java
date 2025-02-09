@@ -42,7 +42,7 @@ public class SkipAuthorizationConfiguration {
   @Bean
   public ConsumerPermissionValidator consumerPermissionValidator() {
     final ConsumerPermissionValidator mock = mock(ConsumerPermissionValidator.class);
-    when(mock.hasCreateNamespacePermission(any(), any())).thenReturn(true);
+    when(mock.hasCreateNamespacePermission(any())).thenReturn(true);
     return mock;
   }
 
@@ -61,7 +61,7 @@ public class SkipAuthorizationConfiguration {
   }
 
   @Primary
-  @Bean("permissionValidator")
+  @Bean("userPermissionValidator")
   public UserPermissionValidator permissionValidator() {
     final UserPermissionValidator mock = mock(UserPermissionValidator.class);
     when(mock.isSuperAdmin()).thenReturn(true);
