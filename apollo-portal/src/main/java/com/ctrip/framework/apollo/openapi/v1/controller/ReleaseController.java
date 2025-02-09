@@ -73,13 +73,12 @@ public class ReleaseController {
     this.publisher = publisher;
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public OpenReleaseDTO createRelease(@PathVariable String appId, @PathVariable String env,
                                       @PathVariable String clusterName,
                                       @PathVariable String namespaceName,
-                                      @RequestBody NamespaceReleaseDTO model,
-                                      HttpServletRequest request) {
+                                      @RequestBody NamespaceReleaseDTO model) {
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleasedBy(), model
             .getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
@@ -110,13 +109,13 @@ public class ReleaseController {
     return this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
   public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName,
       @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
-      @RequestBody NamespaceReleaseDTO model, HttpServletRequest request) {
+      @RequestBody NamespaceReleaseDTO model) {
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
@@ -137,12 +136,11 @@ public class ReleaseController {
     return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
   public OpenReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String branchName, @RequestBody NamespaceReleaseDTO model,
-      HttpServletRequest request) {
+      @PathVariable String branchName, @RequestBody NamespaceReleaseDTO model) {
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
@@ -168,12 +166,11 @@ public class ReleaseController {
     return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-del-releases")
   public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String branchName, @RequestBody NamespaceGrayDelReleaseDTO model,
-      HttpServletRequest request) {
+      @PathVariable String branchName, @RequestBody NamespaceGrayDelReleaseDTO model) {
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(model.getReleasedBy(), model.getReleaseTitle()),
         "Params(releaseTitle and releasedBy) can not be empty");
@@ -197,7 +194,7 @@ public class ReleaseController {
 
   @PutMapping(path = "/releases/{releaseId}/rollback")
   public void rollback(@PathVariable String env,
-      @PathVariable long releaseId, @RequestParam String operator, HttpServletRequest request) {
+      @PathVariable long releaseId, @RequestParam String operator) {
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
         "Param operator can not be empty");
 
@@ -211,7 +208,7 @@ public class ReleaseController {
       throw new BadRequestException("release not found");
     }
 
-    if (!consumerPermissionValidator.hasReleaseNamespacePermission(request,release.getAppId(), release.getNamespaceName(), env)) {
+    if (!consumerPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Forbidden operation. you don't have release permission");
     }
 

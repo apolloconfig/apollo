@@ -56,11 +56,10 @@ public class AppController {
    * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
    */
   @Transactional
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission(#request)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission()")
   @PostMapping(value = "/apps")
   public void createApp(
-      @RequestBody OpenCreateAppDTO req,
-      HttpServletRequest request
+      @RequestBody OpenCreateAppDTO req
   ) {
     if (null == req.getApp()) {
       throw new BadRequestException("App is null");
@@ -72,7 +71,7 @@ public class AppController {
     // create app
     this.appOpenApiService.createApp(req);
     if (req.isAssignAppRoleToSelf()) {
-      long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
+      long consumerId = this.consumerAuthUtil.retrieveConsumerIdByCtx();
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId());
     }
   }
@@ -95,8 +94,8 @@ public class AppController {
    * @return which apps can be operated by open api
    */
   @GetMapping("/apps/authorized")
-  public List<OpenAppDTO> findAppsAuthorized(HttpServletRequest request) {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerId(request);
+  public List<OpenAppDTO> findAppsAuthorized() {
+    long consumerId = this.consumerAuthUtil.retrieveConsumerIdByCtx();
 
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
 

@@ -50,11 +50,10 @@ public class NamespaceController {
     this.namespaceOpenApiService = namespaceOpenApiService;
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#request, #appId)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
   public OpenAppNamespaceDTO createNamespace(@PathVariable String appId,
-                                             @RequestBody OpenAppNamespaceDTO appNamespaceDTO,
-                                             HttpServletRequest request) {
+                                             @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
       throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s", appId,

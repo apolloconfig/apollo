@@ -16,6 +16,44 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
+
 public interface PermissionValidator {
 
+  boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName);
+
+  boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName);
+
+  default boolean hasDeleteNamespacePermission(String appId) {
+    return hasAssignRolePermission(appId) || isSuperAdmin();
+  }
+
+  default boolean hasOperateNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    return hasModifyNamespacePermission(appId, env, clusterName, namespaceName)
+        || hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
+  }
+
+  boolean hasAssignRolePermission(String appId);
+
+  boolean hasCreateNamespacePermission(String appId);
+
+  boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace);
+
+  boolean hasCreateClusterPermission(String appId);
+
+  default boolean isAppAdmin(String appId) {
+    return isSuperAdmin() || hasAssignRolePermission(appId);
+  }
+
+  boolean isSuperAdmin();
+
+  boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName);
+
+  boolean hasCreateApplicationPermission();
+
+  boolean hasManageAppMasterPermission(String appId);
 }

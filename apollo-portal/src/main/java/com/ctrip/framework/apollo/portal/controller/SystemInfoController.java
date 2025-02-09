@@ -65,7 +65,7 @@ public class SystemInfoController {
     restTemplate = restTemplateFactory.getObject();
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @GetMapping
   public SystemInfo getSystemInfo() {
     SystemInfo systemInfo = new SystemInfo();
@@ -86,7 +86,7 @@ public class SystemInfoController {
     return systemInfo;
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @GetMapping(value = "/health")
   public Health checkHealth(@RequestParam String instanceId) {
     List<Env> allEnvs = portalSettings.getAllEnvs();

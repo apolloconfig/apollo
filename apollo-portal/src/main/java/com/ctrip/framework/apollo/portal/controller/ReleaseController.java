@@ -69,7 +69,7 @@ public class ReleaseController {
     this.userInfoHolder = userInfoHolder;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public ReleaseDTO createRelease(@PathVariable String appId,
                                   @PathVariable String env, @PathVariable String clusterName,
@@ -98,7 +98,7 @@ public class ReleaseController {
     return createdRelease;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
   public ReleaseDTO createGrayRelease(@PathVariable String appId,
                                       @PathVariable String env, @PathVariable String clusterName,
