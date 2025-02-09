@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -62,8 +62,8 @@ public class SkipAuthorizationConfiguration {
 
   @Primary
   @Bean("permissionValidator")
-  public PermissionValidator permissionValidator() {
-    final PermissionValidator mock = mock(PermissionValidator.class);
+  public UserPermissionValidator permissionValidator() {
+    final UserPermissionValidator mock = mock(UserPermissionValidator.class);
     when(mock.isSuperAdmin()).thenReturn(true);
     when(mock.hasAssignRolePermission(any())).thenReturn(true);
     return mock;

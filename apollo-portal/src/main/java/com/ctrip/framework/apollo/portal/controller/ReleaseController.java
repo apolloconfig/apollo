@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
@@ -53,19 +53,19 @@ public class ReleaseController {
   private final ReleaseService releaseService;
   private final ApplicationEventPublisher publisher;
   private final PortalConfig portalConfig;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
   private final UserInfoHolder userInfoHolder;
 
   public ReleaseController(
       final ReleaseService releaseService,
       final ApplicationEventPublisher publisher,
       final PortalConfig portalConfig,
-      final PermissionValidator permissionValidator,
+      final UserPermissionValidator userPermissionValidator,
       final UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
     this.publisher = publisher;
     this.portalConfig = portalConfig;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
     this.userInfoHolder = userInfoHolder;
   }
 
@@ -146,7 +146,7 @@ public class ReleaseController {
                                          @PathVariable String namespaceName,
                                          @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
                                          @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -161,7 +161,7 @@ public class ReleaseController {
                                              @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
                                              @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -187,7 +187,7 @@ public class ReleaseController {
       throw NotFoundException.releaseNotFound(releaseId);
     }
 
-    if (!permissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
+    if (!userPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
 

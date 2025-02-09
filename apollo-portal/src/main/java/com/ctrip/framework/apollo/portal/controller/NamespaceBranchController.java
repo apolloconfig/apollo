@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
@@ -45,19 +45,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NamespaceBranchController {
 
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
   private final ReleaseService releaseService;
   private final NamespaceBranchService namespaceBranchService;
   private final ApplicationEventPublisher publisher;
   private final PortalConfig portalConfig;
 
   public NamespaceBranchController(
-      final PermissionValidator permissionValidator,
+      final UserPermissionValidator userPermissionValidator,
       final ReleaseService releaseService,
       final NamespaceBranchService namespaceBranchService,
       final ApplicationEventPublisher publisher,
       final PortalConfig portalConfig) {
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
     this.releaseService = releaseService;
     this.namespaceBranchService = namespaceBranchService;
     this.publisher = publisher;
@@ -71,7 +71,7 @@ public class NamespaceBranchController {
                                 @PathVariable String namespaceName) {
     NamespaceBO namespaceBO = namespaceBranchService.findBranch(appId, Env.valueOf(env), clusterName, namespaceName);
 
-    if (namespaceBO != null && permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (namespaceBO != null && userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       namespaceBO.hideItems();
     }
 
@@ -97,8 +97,8 @@ public class NamespaceBranchController {
                            @PathVariable String namespaceName,
                            @PathVariable String branchName) {
 
-    boolean hasModifyPermission = permissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
-    boolean hasReleasePermission = permissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
+    boolean hasModifyPermission = userPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
+    boolean hasReleasePermission = userPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
     boolean canDelete = hasReleasePermission
         || (hasModifyPermission && releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
 

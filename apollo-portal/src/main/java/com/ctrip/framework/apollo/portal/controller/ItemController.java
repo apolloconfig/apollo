@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
@@ -63,13 +63,13 @@ public class ItemController {
   private final ItemService configService;
   private final NamespaceService namespaceService;
   private final UserInfoHolder userInfoHolder;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
 
   public ItemController(final ItemService configService, final UserInfoHolder userInfoHolder,
-                        final PermissionValidator permissionValidator, final NamespaceService namespaceService) {
+                        final UserPermissionValidator userPermissionValidator, final NamespaceService namespaceService) {
     this.configService = configService;
     this.userInfoHolder = userInfoHolder;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
     this.namespaceService = namespaceService;
   }
 
@@ -142,7 +142,7 @@ public class ItemController {
                                  @PathVariable String clusterName, @PathVariable String namespaceName,
                                  @RequestParam(defaultValue = "lineNum") String orderBy) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -182,7 +182,7 @@ public class ItemController {
         continue;
       }
 
-      if (permissionValidator
+      if (userPermissionValidator
           .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(),
               namespace.getClusterName(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
@@ -202,7 +202,7 @@ public class ItemController {
     boolean hasPermission = true;
     for (NamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
       // once user has not one of the namespace's ModifyNamespace permission, then break the loop
-      hasPermission = permissionValidator.hasModifyNamespacePermission(
+      hasPermission = userPermissionValidator.hasModifyNamespacePermission(
           namespaceIdentifier.getAppId(),
           namespaceIdentifier.getEnv().getName(),
           namespaceIdentifier.getClusterName(),

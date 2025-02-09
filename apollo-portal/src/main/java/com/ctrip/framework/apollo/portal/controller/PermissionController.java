@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
@@ -57,7 +57,7 @@ public class PermissionController {
   private final UserService userService;
   private final RoleInitializationService roleInitializationService;
   private final SystemRoleManagerService systemRoleManagerService;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
 
   public PermissionController(
           final UserInfoHolder userInfoHolder,
@@ -65,13 +65,13 @@ public class PermissionController {
           final UserService userService,
           final RoleInitializationService roleInitializationService,
           final SystemRoleManagerService systemRoleManagerService,
-          final PermissionValidator permissionValidator) {
+          final UserPermissionValidator userPermissionValidator) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.userService = userService;
     this.roleInitializationService = roleInitializationService;
     this.systemRoleManagerService = systemRoleManagerService;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
   }
 
   @PostMapping("/apps/{appId}/initPermission")
@@ -415,7 +415,7 @@ public class PermissionController {
   @GetMapping("/system/role/createApplication/{userId}")
   public JsonObject hasCreateApplicationPermission(@PathVariable String userId) {
     JsonObject rs = new JsonObject();
-    rs.addProperty("hasCreateApplicationPermission", permissionValidator.hasCreateApplicationPermission(userId));
+    rs.addProperty("hasCreateApplicationPermission", userPermissionValidator.hasCreateApplicationPermission(userId));
     return rs;
   }
 
