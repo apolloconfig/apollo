@@ -46,6 +46,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,7 +94,7 @@ public class ConfigFileControllerTest {
     someClientIp = "10.1.1.1";
     someClientLabel = "myLabel";
 
-    when(namespaceUtil.filterNamespaceName(someNamespace)).thenReturn(someNamespace);
+    when(namespaceUtil.filterNamespaceName(startsWith(someNamespace))).thenReturn(someNamespace);
     when(namespaceUtil.normalizeNamespace(someAppId, someNamespace)).thenReturn(someNamespace);
     when(grayReleaseRulesHolder.hasGrayReleaseRule(anyString(), anyString(), anyString(),
         anyString())).thenReturn(false);
@@ -188,6 +189,35 @@ public class ConfigFileControllerTest {
 
     assertEquals(HttpStatus.OK, response.getStatusCode());
     assertEquals(configurations, GSON.fromJson(response.getBody(), responseType));
+  }
+
+  @Test
+  public void testQueryConfigAsRaw() throws Exception {
+    String someKey = "someKey";
+    String someValue = "someValue";
+
+    String someWatchKey = "someWatchKey";
+    Set<String> watchKeys = Sets.newHashSet(someWatchKey);
+
+    ApolloConfig someApolloConfig = mock(ApolloConfig.class);
+    when(configController
+        .queryConfig(someAppId, someClusterName, someNamespace, someDataCenter, "-1", someClientIp, someClientLabel,null,
+                someRequest, someResponse)).thenReturn(someApolloConfig);
+    when(someApolloConfig.getNamespaceName()).thenReturn(someNamespace + ".json");
+    String jsonContent = GSON.toJson(ImmutableMap.of(someKey, someValue));
+    when(someApolloConfig.getConfigurations()).thenReturn(ImmutableMap.of("content", jsonContent));
+    when(watchKeysUtil
+            .assembleAllWatchKeys(someAppId, someClusterName, someNamespace, someDataCenter))
+            .thenReturn(watchKeys);
+
+    ResponseEntity<String> response =
+        configFileController
+            .queryConfigAsRaw(someAppId, someClusterName, someNamespace + ".json", someDataCenter,
+                  someClientIp, someClientLabel, someRequest, someResponse);
+
+    assertEquals(HttpStatus.OK, response.getStatusCode());
+    assertEquals("application/json;charset=UTF-8", response.getHeaders().getContentType().toString());
+    assertEquals(jsonContent, response.getBody());
   }
 
   @Test

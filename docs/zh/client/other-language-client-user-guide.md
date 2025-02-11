@@ -31,13 +31,22 @@
 ### 1.2.2 Http接口返回格式
 该Http接口返回的是JSON格式、UTF-8编码，包含了对应namespace中所有的配置项。
 
-返回内容Sample如下：
+若是properties类型的namespace，返回内容Sample如下：
 ```json
 {
     "portal.elastic.document.type":"biz",
     "portal.elastic.cluster.name":"hermes-es-fws"
 }
 ```
+
+若不是properties类型的namespace，返回内容Sample如下（content是namespace的内容）：
+```json
+{
+    "content": "{\"portal.elastic.document.type\":\"biz\",\"portal.elastic.cluster.name\":\"hermes-es-fws\"}"
+}
+```
+
+> 通过`{config_server_url}/configfiles/raw/{appId}/{clusterName}/{namespaceName}?ip={clientIp}`可以获取到原始的配置内容，不会进行转义。
 
 > 通过`{config_server_url}/configfiles/{appId}/{clusterName}/{namespaceName}?ip={clientIp}`可以获取到properties形式的配置
 
