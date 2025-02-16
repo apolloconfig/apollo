@@ -25,7 +25,6 @@ import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
-import javax.servlet.http.HttpServletRequest;
 
 @Component("consumerPermissionValidator")
 public class ConsumerPermissionValidator implements PermissionValidator {
@@ -45,9 +44,9 @@ public class ConsumerPermissionValidator implements PermissionValidator {
     if (hasCreateNamespacePermission(appId)) {
       return true;
     }
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
-        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.MODIFY_NAMESPACE,
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
@@ -58,34 +57,33 @@ public class ConsumerPermissionValidator implements PermissionValidator {
     if (hasCreateNamespacePermission(appId)) {
       return true;
     }
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
-        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.RELEASE_NAMESPACE,
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
   @Override
   public boolean hasAssignRolePermission(String appId) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.ASSIGN_ROLE, appId);
   }
 
   @Override
   public boolean hasCreateNamespacePermission(String appId) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.CREATE_NAMESPACE, appId);
   }
 
   @Override
   public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-    // TODO: align OpenApiConfig with PortalConfig
-    return false;
+    throw new UnsupportedOperationException("Not supported operation");
   }
 
   @Override
   public boolean hasCreateClusterPermission(String appId) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdByCtx(),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.CREATE_CLUSTER, appId);
   }
 
@@ -98,19 +96,17 @@ public class ConsumerPermissionValidator implements PermissionValidator {
   @Override
   public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
       String namespaceName) {
-    // TODO: align OpenApiConfig with PortalConfig
-    return false;
+    throw new UnsupportedOperationException("Not supported operation");
   }
 
   @Override
   public boolean hasCreateApplicationPermission() {
-    long consumerId = consumerAuthUtil.retrieveConsumerIdByCtx();
+    long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
     return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
   }
 
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
-    // TODO: align OpenApiConfig with PortalConfig
-    return false;
+    throw new UnsupportedOperationException("Not supported operation");
   }
 }

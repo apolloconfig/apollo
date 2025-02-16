@@ -59,17 +59,12 @@ public class ConsumerAuthUtil {
   }
 
   // retrieve from RequestContextHolder
-  public long retrieveConsumerIdByCtx() {
+  public long retrieveConsumerIdFromCtx() {
     ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     if (attributes == null) {
-      throw new IllegalStateException("No consumer id!");
+      throw new IllegalStateException("No Request!");
     }
     HttpServletRequest request = attributes.getRequest();
-    Object value = request.getAttribute(CONSUMER_ID);
-    try {
-      return Long.parseLong(value.toString());
-    } catch (Throwable ex) {
-      throw new IllegalStateException("No consumer id!", ex);
-    }
+    return retrieveConsumerId(request);
   }
 }

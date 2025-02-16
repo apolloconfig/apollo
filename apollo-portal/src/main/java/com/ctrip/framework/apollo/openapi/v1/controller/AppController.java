@@ -26,7 +26,6 @@ import com.ctrip.framework.apollo.openapi.dto.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import java.util.Arrays;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
@@ -71,7 +70,7 @@ public class AppController {
     // create app
     this.appOpenApiService.createApp(req);
     if (req.isAssignAppRoleToSelf()) {
-      long consumerId = this.consumerAuthUtil.retrieveConsumerIdByCtx();
+      long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId());
     }
   }
@@ -95,7 +94,7 @@ public class AppController {
    */
   @GetMapping("/apps/authorized")
   public List<OpenAppDTO> findAppsAuthorized() {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerIdByCtx();
+    long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
 
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
 
