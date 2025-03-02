@@ -117,17 +117,29 @@ EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
 
 You can modify the startup.sh of `apollo-configservice` and `apollo-adminservice` respectively, passing in the -D parameter via JVM System Property, or via OS Environment Variable, the following example will specify the URL to register URL as `http://1.2.3.4:8080`.
 
+>Note: The default registration ports for apollo-configservice and apollo-adminservice are 8080 and 8090 respectively.
+
 JVM System Property example.
 
 ```properties
+# apollo-configservice
 -Deureka.instance.homePageUrl=http://1.2.3.4:8080
+-Deureka.instance.preferIpAddress=false
+
+# apollo-adminservice
+-Deureka.instance.homePageUrl=http://1.2.3.4:8090
 -Deureka.instance.preferIpAddress=false
 ```
 
 OS Environment Variable Example.
 
 ```properties
+# apollo-configservice
 EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
+EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+# apollo-adminservice
+EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8090
 EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ```
 

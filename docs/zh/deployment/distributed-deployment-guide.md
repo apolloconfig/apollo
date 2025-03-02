@@ -117,17 +117,30 @@ EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
 
 可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会指定注册的URL为`http://1.2.3.4:8080`。
 
+> 注：apollo-configservice和apollo-adminservice默认注册端口分别为8080、8090
+
+
 JVM System Property示例：
 
 ```properties
+# apollo-configservice
 -Deureka.instance.homePageUrl=http://1.2.3.4:8080
+-Deureka.instance.preferIpAddress=false
+
+# apollo-adminservice
+-Deureka.instance.homePageUrl=http://1.2.3.4:8090
 -Deureka.instance.preferIpAddress=false
 ```
 
 OS Environment Variable示例：
 
 ```properties
+# apollo-configservice
 EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
+EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+# apollo-adminservice
+EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8090
 EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ```
 
