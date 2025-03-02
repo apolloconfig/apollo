@@ -76,7 +76,7 @@ Encapsulated bash functions, the underlying use of curl to send HTTP requests
 * Bash function: [openapi.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi.sh)
 
 * Usage example: [openapi-usage-example.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi-usage-example.sh)
-* All the shell scripts related to openapi are in the folder https://github.com/apolloconfig/apollo/tree/master/scripts/sql
+* All the shell scripts related to openapi are in the folder https://github.com/apolloconfig/apollo/tree/master/scripts/openapi/bash
 
 ### III. Interface documentation
 
