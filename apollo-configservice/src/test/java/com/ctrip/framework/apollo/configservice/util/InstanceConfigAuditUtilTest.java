@@ -16,9 +16,11 @@
  */
 package com.ctrip.framework.apollo.configservice.util;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Instance;
 import com.ctrip.framework.apollo.biz.entity.InstanceConfig;
 import com.ctrip.framework.apollo.biz.service.InstanceService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +43,10 @@ public class InstanceConfigAuditUtilTest {
 
   @Mock
   private InstanceService instanceService;
+  @Mock
+  private BizConfig bizConfig;
+  @Mock
+  private MeterRegistry meterRegistry;
   private BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel> audits;
 
   private String someAppId;
@@ -56,7 +62,12 @@ public class InstanceConfigAuditUtilTest {
 
   @Before
   public void setUp() throws Exception {
-    instanceConfigAuditUtil = new InstanceConfigAuditUtil(instanceService);
+    when(bizConfig.getInstanceConfigAuditMaxSize()).thenReturn(100);
+    when(bizConfig.getInstanceCacheMaxSize()).thenReturn(100);
+    when(bizConfig.getInstanceConfigCacheMaxSize()).thenReturn(100);
+
+    instanceConfigAuditUtil = new InstanceConfigAuditUtil(instanceService, bizConfig, meterRegistry);
+    instanceConfigAuditUtil.initialize();
 
     audits = (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>)
         ReflectionTestUtils.getField(instanceConfigAuditUtil, "audits");
