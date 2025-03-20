@@ -1571,3 +1571,35 @@ json
 }
 ```
 以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
+
+### 3.2.14 instance.config.audit.max.size - 客户端拉取审计记录的队列大小
+
+> 适用于2.5.0及以上版本
+
+默认为 10000，最小为10，用于控制客户端拉取审计记录的队列大小，超过队列大小后会丢弃最早的审计记录。
+
+修改完需要重启生效。
+
+### 3.2.15 instance.cache.max.size - 实例缓存的最大数量
+
+> 适用于2.5.0及以上版本
+
+默认为 50000，最小为10，用于控制实例缓存的最大数量，当缓存超过最大容量时，会触发 缓存淘汰（Eviction） 机制。
+
+修改完需要重启生效。
+
+
+### 3.2.16 instance.config.cache.max.size - 实例配置的缓存最大数量
+
+> 适用于2.5.0及以上版本
+
+默认为 50000，最小为10，用于控制实例配置的缓存最大数量，当缓存超过最大容量时，会触发 缓存淘汰（Eviction） 机制。
+
+修改完需要重启生效。
+
+
+### 3.2.17 instance.config.audit.time.threshold.minutes - 实例拉取审计记录的间隔时间
+
+> 适用于2.5.0及以上版本
+
+时间阈值单位为分钟，默认为 10，最小为5，用于控制在保存/更新客户端拉取配置审计记录时，当2次请求记录间隔大于该值时，才会保存/更新拉取记录，小于该值时，不会保存/更新拉取记录。

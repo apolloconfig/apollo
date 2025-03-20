@@ -1632,3 +1632,33 @@ json
 }
 ```
 The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.
+
+### 3.2.14 instance.config.audit.max.size - The size of the queue for clients to pull audit records
+
+> For version 2.5.0 and above
+
+The default value is 10000 and the minimum value is 10. It is used to control the queue size for the client to pull audit records. When the queue size is exceeded, the earliest audit record will be discarded.
+
+After the modification, you need to restart for it to take effect.
+
+### 3.2.15 instance.cache.max.size - The maximum number of caches for the instance
+
+> For version 2.5.0 and above
+
+The default value is 50000, and the minimum value is 10. It is used to control the maximum number of instance caches. When the cache exceeds the maximum capacity, the cache eviction mechanism is triggered.
+
+After the modification, you need to restart for it to take effect.
+
+### 3.2.16 instance.config.cache.max.size - The maximum number of caches for the instance config
+
+> For version 2.5.0 and above
+
+The default value is 50000 and the minimum value is 10. It is used to control the maximum number of caches for the instance config. When the cache exceeds the maximum capacity, the cache eviction mechanism is triggered.
+
+After the modification, you need to restart for it to take effect.
+
+### 3.2.17 instance.config.audit.time.threshold.minutes - The interval between instances pulling audit records
+
+> For version 2.5.0 and above
+
+The time threshold unit is minutes, the default is 10, and the minimum is 5. It is used to control when saving/updating the client pull configuration audit record. When the interval between two request records is greater than this value, the pull record will be saved/updated. When it is less than this value, the pull record will not be saved/updated.
