@@ -170,15 +170,20 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
       return true;
     }
     // check label gray rule
-    if (!Strings.isNullOrEmpty(clientLabel) &&
-        (reversedGrayReleaseRuleLabelCache.containsKey(
-            assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, clientLabel)) ||
-            reversedGrayReleaseRuleLabelCache.containsKey(
-                assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName,
-                    GrayReleaseRuleItemDTO.ALL_Label)))) {
+
+    if (isClientLabelValid(clientLabel) && isGrayReleaseRulePresent(clientAppId, namespaceName, clientLabel)) {
       return true;
     }
     return false;
+    }
+
+  private boolean isClientLabelValid(String clientLabel) {
+    return !Strings.isNullOrEmpty(clientLabel);
+  }
+
+  private boolean isGrayReleaseRulePresent(String clientAppId, String namespaceName, String clientLabel) {
+    return reversedGrayReleaseRuleLabelCache.containsKey(assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, clientLabel)) ||
+            reversedGrayReleaseRuleLabelCache.containsKey(assembleReversedGrayReleaseRuleKey(clientAppId, namespaceName, GrayReleaseRuleItemDTO.ALL_Label));
   }
 
   private void scanGrayReleaseRules() {
