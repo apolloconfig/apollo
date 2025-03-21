@@ -63,46 +63,77 @@ public class ItemSetService {
   @Transactional
   public ItemChangeSets updateSet(String appId, String clusterName,
                                   String namespaceName, ItemChangeSets changeSet) {
-    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
-
-    if (namespace == null) {
-      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
-    }
-
-    if (bizConfig.isItemNumLimitEnabled()) {
-      int itemCount = itemService.findNonEmptyItemCount(namespace.getId());
-      int createItemCount = (int) changeSet.getCreateItems().stream().filter(item -> !StringUtils.isEmpty(item.getKey())).count();
-      int deleteItemCount = (int) changeSet.getDeleteItems().stream().filter(item -> !StringUtils.isEmpty(item.getKey())).count();
-      itemCount = itemCount + createItemCount - deleteItemCount;
-      if (itemCount > bizConfig.itemNumLimit()) {
-        throw new BadRequestException("The maximum number of items (" + bizConfig.itemNumLimit() + ") for this namespace has been reached. Current item count is " + itemCount + ".");
-      }
-    }
+    Namespace namespace = validateNamespace(appId, clusterName, namespaceName);
+    validateItemLimit(namespace, changeSet);
 
     String operator = changeSet.getDataChangeLastModifiedBy();
     ConfigChangeContentBuilder configChangeContentBuilder = new ConfigChangeContentBuilder();
 
-    if (!CollectionUtils.isEmpty(changeSet.getCreateItems())) {
-      this.doCreateItems(changeSet.getCreateItems(), namespace, operator, configChangeContentBuilder);
-      auditService.audit("ItemSet", null, Audit.OP.INSERT, operator);
-    }
-
-    if (!CollectionUtils.isEmpty(changeSet.getUpdateItems())) {
-      this.doUpdateItems(changeSet.getUpdateItems(), namespace, operator, configChangeContentBuilder);
-      auditService.audit("ItemSet", null, Audit.OP.UPDATE, operator);
-    }
-
-    if (!CollectionUtils.isEmpty(changeSet.getDeleteItems())) {
-      this.doDeleteItems(changeSet.getDeleteItems(), namespace, operator, configChangeContentBuilder);
-      auditService.audit("ItemSet", null, Audit.OP.DELETE, operator);
-    }
-
-    if (configChangeContentBuilder.hasContent()) {
-      commitService.createCommit(appId, clusterName, namespaceName, configChangeContentBuilder.build(),
-                                 changeSet.getDataChangeLastModifiedBy());
-    }
+    processItemChanges(changeSet, namespace, operator, configChangeContentBuilder);
+    auditChanges(changeSet, operator);
+    commitChanges(appId, clusterName, namespaceName, configChangeContentBuilder, operator);
 
     return changeSet;
+  }
+
+  private Namespace validateNamespace(String appId, String clusterName, String namespaceName) {
+    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
+    if (namespace == null) {
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
+    }
+    return namespace;
+  }
+
+  private void validateItemLimit(Namespace namespace, ItemChangeSets changeSet) {
+    if (!bizConfig.isItemNumLimitEnabled()) {
+      return;
+    }
+
+    int itemCount = itemService.findNonEmptyItemCount(namespace.getId());
+    int createItemCount = (int) changeSet.getCreateItems().stream()
+            .filter(item -> !StringUtils.isEmpty(item.getKey())).count();
+    int deleteItemCount = (int) changeSet.getDeleteItems().stream()
+            .filter(item -> !StringUtils.isEmpty(item.getKey())).count();
+
+    itemCount = itemCount + createItemCount - deleteItemCount;
+
+    if (itemCount > bizConfig.itemNumLimit()) {
+      throw new BadRequestException("The maximum number of items (" + bizConfig.itemNumLimit() +
+              ") for this namespace has been reached. Current item count is " + itemCount + ".");
+    }
+  }
+
+  private void processItemChanges(ItemChangeSets changeSet, Namespace namespace,
+                                  String operator, ConfigChangeContentBuilder configChangeContentBuilder) {
+    if (!CollectionUtils.isEmpty(changeSet.getCreateItems())) {
+      doCreateItems(changeSet.getCreateItems(), namespace, operator, configChangeContentBuilder);
+    }
+    if (!CollectionUtils.isEmpty(changeSet.getUpdateItems())) {
+      doUpdateItems(changeSet.getUpdateItems(), namespace, operator, configChangeContentBuilder);
+    }
+    if (!CollectionUtils.isEmpty(changeSet.getDeleteItems())) {
+      doDeleteItems(changeSet.getDeleteItems(), namespace, operator, configChangeContentBuilder);
+    }
+  }
+
+  private void auditChanges(ItemChangeSets changeSet, String operator) {
+    if (!CollectionUtils.isEmpty(changeSet.getCreateItems())) {
+      auditService.audit("ItemSet", null, Audit.OP.INSERT, operator);
+    }
+    if (!CollectionUtils.isEmpty(changeSet.getUpdateItems())) {
+      auditService.audit("ItemSet", null, Audit.OP.UPDATE, operator);
+    }
+    if (!CollectionUtils.isEmpty(changeSet.getDeleteItems())) {
+      auditService.audit("ItemSet", null, Audit.OP.DELETE, operator);
+    }
+  }
+
+  private void commitChanges(String appId, String clusterName, String namespaceName,
+                             ConfigChangeContentBuilder configChangeContentBuilder, String operator) {
+    if (configChangeContentBuilder.hasContent()) {
+      commitService.createCommit(appId, clusterName, namespaceName,
+              configChangeContentBuilder.build(), operator);
+    }
   }
 
   private void doDeleteItems(List<ItemDTO> toDeleteItems, Namespace namespace, String operator,
