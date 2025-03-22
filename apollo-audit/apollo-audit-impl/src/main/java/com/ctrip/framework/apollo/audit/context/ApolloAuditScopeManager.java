@@ -22,16 +22,18 @@ public class ApolloAuditScopeManager {
 
   private ApolloAuditScope scope;
 
-  public ApolloAuditScopeManager() {
-  }
+  public ApolloAuditScopeManager() {}
 
   public ApolloAuditScope activate(ApolloAuditSpan span) {
-    setScope(new ApolloAuditScope(span, this));
-    return getScope();
+    // Directly manage the scope, no need to reference the scope's previous parent
+    this.scope = new ApolloAuditScope(span);
+    return this.scope;
   }
 
-  public void deactivate() throws IOException {
-    getScope().close();
+  public void deactivate() {
+    if (this.scope != null) {
+      this.scope.close();  // Close the scope, but no need for reference to parent scope
+    }
   }
 
   public ApolloAuditSpan activeSpan() {

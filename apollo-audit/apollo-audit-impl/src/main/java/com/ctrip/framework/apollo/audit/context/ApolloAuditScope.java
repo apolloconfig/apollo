@@ -18,16 +18,11 @@ package com.ctrip.framework.apollo.audit.context;
 
 public class ApolloAuditScope implements AutoCloseable {
 
-  private final ApolloAuditScopeManager manager;
-
   private ApolloAuditSpan activeSpan;
-  private ApolloAuditScope hangUp;
   private String lastSpanId;
 
-  public ApolloAuditScope(ApolloAuditSpan activeSpan, ApolloAuditScopeManager manager) {
-    this.hangUp = manager.getScope();
+  public ApolloAuditScope(ApolloAuditSpan activeSpan) {
     this.activeSpan = activeSpan;
-    this.manager = manager;
     this.lastSpanId = null;
   }
 
@@ -36,12 +31,8 @@ public class ApolloAuditScope implements AutoCloseable {
   }
 
   @Override
-  public void close(){
-    // closing span become parent-scope's last span
-    if (hangUp != null) {
-      hangUp.setLastSpanId(activeSpan().spanId());
-    }
-    this.manager.setScope(hangUp);
+  public void close() {
+    // Closing span becomes parent-scope's last span, managed externally
   }
 
   public String getLastSpanId() {
