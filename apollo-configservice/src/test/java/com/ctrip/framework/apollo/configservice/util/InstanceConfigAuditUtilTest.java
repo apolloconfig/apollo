@@ -67,7 +67,6 @@ public class InstanceConfigAuditUtilTest {
     when(bizConfig.getInstanceConfigCacheMaxSize()).thenReturn(100);
 
     instanceConfigAuditUtil = new InstanceConfigAuditUtil(instanceService, bizConfig, meterRegistry);
-    instanceConfigAuditUtil.initialize();
 
     audits = (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>)
         ReflectionTestUtils.getField(instanceConfigAuditUtil, "audits");

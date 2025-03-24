@@ -73,10 +73,6 @@ public class InstanceConfigAuditUtil implements InitializingBean {
     auditExecutorService = Executors.newSingleThreadExecutor(
         ApolloThreadFactory.create("InstanceConfigAuditUtil", true));
     auditStopped = new AtomicBoolean(false);
-  }
-
-  @PostConstruct
-  void initialize() {
     buildInstanceCache();
     buildInstanceConfigReleaseKeyCache();
   }
@@ -186,7 +182,7 @@ public class InstanceConfigAuditUtil implements InitializingBean {
   }
 
   private void buildInstanceCache() {
-    CacheBuilder instanceCacheBuilder = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+    CacheBuilder<Object, Object> instanceCacheBuilder = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
         .maximumSize(this.bizConfig.getInstanceCacheMaxSize());
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
       instanceCacheBuilder.recordStats();
@@ -198,7 +194,7 @@ public class InstanceConfigAuditUtil implements InitializingBean {
   }
 
   private void buildInstanceConfigReleaseKeyCache() {
-    CacheBuilder instanceConfigReleaseKeyCacheBuilder = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS)
+    CacheBuilder<Object, Object> instanceConfigReleaseKeyCacheBuilder = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS)
         .maximumSize(this.bizConfig.getInstanceConfigCacheMaxSize());
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
       instanceConfigReleaseKeyCacheBuilder.recordStats();
