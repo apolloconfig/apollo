@@ -201,7 +201,7 @@ public class InstanceConfigAuditUtil implements InitializingBean {
     }
     instanceConfigReleaseKeyCache = instanceConfigReleaseKeyCacheBuilder.build();
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
-      GuavaCacheMetrics.monitor(meterRegistry, instanceCache, "instance_config_cache");
+      GuavaCacheMetrics.monitor(meterRegistry, instanceConfigReleaseKeyCache, "instance_config_cache");
     }
   }
 
