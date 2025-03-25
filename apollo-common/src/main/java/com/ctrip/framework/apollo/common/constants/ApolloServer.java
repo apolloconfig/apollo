@@ -16,10 +16,11 @@
  */
 package com.ctrip.framework.apollo.common.constants;
 
+import com.ctrip.framework.apollo.common.constants.VersionUtil;
+
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ApolloServer {
-  public final static String VERSION =
-      "java-" + ApolloServer.class.getPackage().getImplementationVersion();
+  public static final String VERSION = VersionUtil.getVersion(ApolloServer.class);
 }
