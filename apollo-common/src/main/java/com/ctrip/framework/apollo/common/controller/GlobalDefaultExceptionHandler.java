@@ -33,6 +33,7 @@ import javax.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -53,6 +54,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
 public class GlobalDefaultExceptionHandler {
+
   private Gson gson = new Gson();
   private static Type mapType = new TypeToken<Map<String, Object>>() {
   }.getType();
@@ -115,7 +117,7 @@ public class GlobalDefaultExceptionHandler {
 
   private ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request,
                                                           HttpStatus status, Throwable ex, Level logLevel) {
-    String message = ex.getMessage();
+    String message = getMessageWithRootCause(ex);
     printLog(message, ex, logLevel);
 
     Map<String, Object> errorAttributes = new HashMap<>();
@@ -167,6 +169,15 @@ public class GlobalDefaultExceptionHandler {
     }
 
     Tracer.logError(ex);
+  }
+
+  private String getMessageWithRootCause(Throwable ex) {
+    String message = ex.getMessage();
+    Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(ex);
+    if (rootCause != ex) {
+      message += "; rootCause message " + rootCause.getMessage();
+    }
+    return message;
   }
 
 }
