@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import org.springframework.stereotype.Service;
 import java.util.List;
+
 @Service
 public class ServerOrganizationOpenApiService implements OrganizationOpenApiService {
 
