@@ -191,6 +191,7 @@ public class OpenApiBeanUtils {
     Preconditions.checkArgument(openClusterDTO != null);
     return BeanUtils.transform(ClusterDTO.class, openClusterDTO);
   }
+
   public static OpenOrganizationDto transformFromOrganization(final Organization organization){
     Preconditions.checkArgument(organization != null);
     return BeanUtils.transform(OpenOrganizationDto.class, organization);
