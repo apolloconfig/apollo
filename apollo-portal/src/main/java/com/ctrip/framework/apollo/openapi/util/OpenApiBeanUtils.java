@@ -195,6 +195,7 @@ public class OpenApiBeanUtils {
     Preconditions.checkArgument(organization != null);
     return BeanUtils.transform(OpenOrganizationDto.class, organization);
   }
+
   public static List<OpenOrganizationDto> transformFromOrganizations(final List<Organization> organizations){
     if (CollectionUtils.isEmpty(organizations)) {
       return Collections.emptyList();
