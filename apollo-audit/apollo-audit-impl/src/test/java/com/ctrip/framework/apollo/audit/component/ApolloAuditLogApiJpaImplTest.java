@@ -97,35 +97,28 @@ public class ApolloAuditLogApiJpaImplTest {
   @Test
   public void testAppendAuditLog() {
     final String description = "no description";
+    {
+      ApolloAuditSpan activeSpan = new ApolloAuditSpan();
+      activeSpan.setOpType(create);
+      activeSpan.setOpName(opName);
+      activeSpan.setContext(new ApolloAuditSpanContext(traceId, spanId));
+      ApolloAuditScopeManager manager = new ApolloAuditScopeManager();
+      ApolloAuditScope scope = new ApolloAuditScope(activeSpan, manager);
 
-    // Create an ApolloAuditSpan and set its properties
-    ApolloAuditSpan activeSpan = new ApolloAuditSpan();
-    activeSpan.setOpType(create);
-    activeSpan.setOpName(opName);
-    activeSpan.setContext(new ApolloAuditSpanContext(traceId, spanId));
+      Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description)))
+          .thenReturn(scope);
+    }
+    ApolloAuditScope scope = (ApolloAuditScope) api.appendAuditLog(create, opName);
 
-    // Create the ApolloAuditScope using the active span
-    ApolloAuditScope scope = new ApolloAuditScope(activeSpan);
-
-    // Mock the behavior of the tracer to return the scope when startActiveSpan is called
-    Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description)))
-            .thenReturn(scope);
-
-    // Call the method under test
-    ApolloAuditScope returnedScope = (ApolloAuditScope) api.appendAuditLog(create, opName);
-
-    // Verify interactions with the tracer
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
     Mockito.verify(tracer, Mockito.times(1))
-            .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description));
+        .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description));
 
-    // Verify that the scope returned has the correct values
-    assertEquals(create, returnedScope.activeSpan().getOpType());
-    assertEquals(opName, returnedScope.activeSpan().getOpName());
-    assertEquals(traceId, returnedScope.activeSpan().traceId());
-    assertEquals(spanId, returnedScope.activeSpan().spanId());
+    assertEquals(create, scope.activeSpan().getOpType());
+    assertEquals(opName, scope.activeSpan().getOpName());
+    assertEquals(traceId, scope.activeSpan().traceId());
+    assertEquals(spanId, scope.activeSpan().spanId());
   }
-
 
   @Test
   public void testAppendDataInfluenceCaseCreateOrUpdate() {
