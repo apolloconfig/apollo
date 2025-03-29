@@ -31,7 +31,6 @@ public class OrganizationController {
         this.organizationOpenApiService = organizationOpenApiService;
     }
 
-
     @RequestMapping("/organizations")
     public List<OpenOrganizationDto> getOrganization() {
         return organizationOpenApiService.getOrganizations();
