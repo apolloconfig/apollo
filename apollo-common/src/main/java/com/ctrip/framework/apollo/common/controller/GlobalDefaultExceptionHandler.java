@@ -175,7 +175,7 @@ public class GlobalDefaultExceptionHandler {
     String message = ex.getMessage();
     Throwable rootCause = NestedExceptionUtils.getMostSpecificCause(ex);
     if (rootCause != ex) {
-      message += "; rootCause message " + rootCause.getMessage();
+      message += " [Cause: " + rootCause.getMessage() + "]";
     }
     return message;
   }
