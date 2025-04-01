@@ -39,7 +39,7 @@ public class GlobalSearchController {
         this.portalConfig = portalConfig;
     }
 
-    @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+    @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
     @GetMapping("/global-search/item-info/by-key-or-value")
     public SearchResponseEntity<List<ItemInfo>> getItemInfoBySearch(@RequestParam(value = "key", required = false, defaultValue = "") String key,
                                                                     @RequestParam(value = "value", required = false , defaultValue = "") String value) {

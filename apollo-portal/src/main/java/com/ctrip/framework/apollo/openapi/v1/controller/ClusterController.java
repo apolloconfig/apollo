@@ -54,10 +54,10 @@ public class ClusterController {
     return this.clusterOpenApiService.getCluster(appId, env, clusterName);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#request, #appId)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#appId)")
   @PostMapping(value = "apps/{appId}/clusters")
   public OpenClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
-      @Valid @RequestBody OpenClusterDTO cluster, HttpServletRequest request) {
+      @Valid @RequestBody OpenClusterDTO cluster) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
       throw new BadRequestException(

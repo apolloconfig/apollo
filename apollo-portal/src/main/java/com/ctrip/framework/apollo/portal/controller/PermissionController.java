@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.constant.RoleType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
@@ -57,7 +57,7 @@ public class PermissionController {
   private final UserService userService;
   private final RoleInitializationService roleInitializationService;
   private final SystemRoleManagerService systemRoleManagerService;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
 
   public PermissionController(
           final UserInfoHolder userInfoHolder,
@@ -65,13 +65,13 @@ public class PermissionController {
           final UserService userService,
           final RoleInitializationService roleInitializationService,
           final SystemRoleManagerService systemRoleManagerService,
-          final PermissionValidator permissionValidator) {
+          final UserPermissionValidator userPermissionValidator) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.userService = userService;
     this.roleInitializationService = roleInitializationService;
     this.systemRoleManagerService = systemRoleManagerService;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
   }
 
   @PostMapping("/apps/{appId}/initPermission")
@@ -166,7 +166,7 @@ public class PermissionController {
     return assignedUsers;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @PostMapping("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceEnvRoleToUser")
   public ResponseEntity<Void> assignNamespaceEnvRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String namespaceName,
@@ -191,7 +191,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @DeleteMapping("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceEnvRoleFromUser")
   public ResponseEntity<Void> removeNamespaceEnvRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String namespaceName,
@@ -234,7 +234,7 @@ public class PermissionController {
     return assignedUsers;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}")
   public ResponseEntity<Void> assignClusterNamespaceRoleToUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String roleType, @RequestBody String user) {
@@ -258,7 +258,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}")
   public ResponseEntity<Void> removeClusterNamespaceRoleFromUser(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String roleType, @RequestParam String user) {
@@ -294,7 +294,7 @@ public class PermissionController {
     return assignedUsers;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @PostMapping("/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceRoleToUser")
   public ResponseEntity<Void> assignNamespaceRoleToUser(@PathVariable String appId, @PathVariable String namespaceName,
@@ -314,7 +314,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasAssignRolePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasAssignRolePermission(#appId)")
   @DeleteMapping("/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceRoleFromUser")
   public ResponseEntity<Void> removeNamespaceRoleFromUser(@PathVariable String appId, @PathVariable String namespaceName,
@@ -340,7 +340,7 @@ public class PermissionController {
     return users;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasManageAppMasterPermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasManageAppMasterPermission(#appId)")
   @PostMapping("/apps/{appId}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignAppRoleToUser")
   public ResponseEntity<Void> assignAppRoleToUser(@PathVariable String appId, @PathVariable String roleType,
@@ -360,7 +360,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasManageAppMasterPermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasManageAppMasterPermission(#appId)")
   @DeleteMapping("/apps/{appId}/roles/{roleType}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeAppRoleFromUser")
   public ResponseEntity<Void> removeAppRoleFromUser(@PathVariable String appId, @PathVariable String roleType,
@@ -381,7 +381,7 @@ public class PermissionController {
     }
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping("/system/role/createApplication")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.addCreateApplicationRoleToUser")
   public ResponseEntity<Void> addCreateApplicationRoleToUser(@RequestBody List<String> userIds) {
@@ -393,7 +393,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @DeleteMapping("/system/role/createApplication/{userId}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.deleteCreateApplicationRoleFromUser")
   public ResponseEntity<Void> deleteCreateApplicationRoleFromUser(@PathVariable("userId") String userId) {
@@ -405,7 +405,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @GetMapping("/system/role/createApplication")
   public List<String> getCreateApplicationRoleUsers() {
     return rolePermissionService.queryUsersWithRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME)
@@ -415,11 +415,11 @@ public class PermissionController {
   @GetMapping("/system/role/createApplication/{userId}")
   public JsonObject hasCreateApplicationPermission(@PathVariable String userId) {
     JsonObject rs = new JsonObject();
-    rs.addProperty("hasCreateApplicationPermission", permissionValidator.hasCreateApplicationPermission(userId));
+    rs.addProperty("hasCreateApplicationPermission", userPermissionValidator.hasCreateApplicationPermission(userId));
     return rs;
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping("/apps/{appId}/system/master/{userId}")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.addManageAppMasterRoleToUser")
   public ResponseEntity<Void> addManageAppMasterRoleToUser(@PathVariable String appId, @PathVariable String userId) {
@@ -432,7 +432,7 @@ public class PermissionController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @DeleteMapping("/apps/{appId}/system/master/{userId}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.forbidManageAppMaster")
   public ResponseEntity<Void> forbidManageAppMaster(@PathVariable String appId, @PathVariable String  userId) {

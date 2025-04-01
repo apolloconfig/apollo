@@ -61,7 +61,7 @@ public class ConfigsImportController {
    *             etc.
    * @throws IOException
    */
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/import")
   public void importConfigFile(@PathVariable String appId, @PathVariable String env,
                                @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -76,7 +76,7 @@ public class ConfigsImportController {
     configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename, file.getInputStream());
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=cover")
   public void importConfigByZipWithCoverConflictNamespace(@RequestParam(value = "envs") String envs,
                                 @RequestParam("file") MultipartFile file) throws IOException {
@@ -91,7 +91,7 @@ public class ConfigsImportController {
     }
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=ignore")
   public void importConfigByZipWithIgnoreConflictNamespace(@RequestParam(value = "envs") String envs,
                                 @RequestParam("file") MultipartFile file) throws IOException {

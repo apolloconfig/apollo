@@ -58,7 +58,7 @@ public class UserInfoController {
     this.passwordChecker = passwordChecker;
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping("/users")
   public void createOrUpdateUser(
       @RequestParam(value = "isCreate", defaultValue = "false") boolean isCreate,
@@ -83,7 +83,7 @@ public class UserInfoController {
     }
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PutMapping("/users/enabled")
   public void changeUserEnabled(@RequestBody UserPO user) {
     if (userService instanceof SpringSecurityUserService) {

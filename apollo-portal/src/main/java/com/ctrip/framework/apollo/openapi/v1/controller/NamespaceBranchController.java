@@ -77,14 +77,13 @@ public class NamespaceBranchController {
         return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#request, #appId)")
+    @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
     @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
     public OpenNamespaceDTO createBranch(@PathVariable String appId,
                                          @PathVariable String env,
                                          @PathVariable String clusterName,
                                          @PathVariable String namespaceName,
-                                         @RequestParam("operator") String operator,
-                                         HttpServletRequest request) {
+                                         @RequestParam("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -98,23 +97,22 @@ public class NamespaceBranchController {
         return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
     @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}")
     public void deleteBranch(@PathVariable String appId,
                              @PathVariable String env,
                              @PathVariable String clusterName,
                              @PathVariable String namespaceName,
                              @PathVariable String branchName,
-                             @RequestParam("operator") String operator,
-                             HttpServletRequest request) {
+                             @RequestParam("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
             throw BadRequestException.userNotExists(operator);
         }
 
-        boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(request, appId, namespaceName, env) ||
-            (consumerPermissionValidator.hasModifyNamespacePermission(request, appId, namespaceName, env) &&
+        boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName) ||
+            (consumerPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName) &&
                 releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
 
         if (!canDelete) {
@@ -139,13 +137,12 @@ public class NamespaceBranchController {
         return OpenApiBeanUtils.transformFromGrayReleaseRuleDTO(grayReleaseRuleDTO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
     @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
     public void updateBranchRules(@PathVariable String appId, @PathVariable String env,
                                   @PathVariable String clusterName, @PathVariable String namespaceName,
                                   @PathVariable String branchName, @RequestBody OpenGrayReleaseRuleDTO rules,
-                                  @RequestParam("operator") String operator,
-                                  HttpServletRequest request) {
+                                  @RequestParam("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {

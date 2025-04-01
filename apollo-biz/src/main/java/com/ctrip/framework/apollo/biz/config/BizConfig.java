@@ -60,6 +60,11 @@ public class BizConfig extends RefreshableConfig {
   private static final int DEFAULT_LONG_POLLING_TIMEOUT = 60; //60s
   public static final int DEFAULT_RELEASE_HISTORY_RETENTION_SIZE = -1;
 
+  private static final int DEFAULT_INSTANCE_CONFIG_AUDIT_MAX_SIZE = 10000;
+  private static final int DEFAULT_INSTANCE_CACHE_MAX_SIZE = 50000;
+  private static final int DEFAULT_INSTANCE_CONFIG_CACHE_MAX_SIZE = 50000;
+  private static final int DEFAULT_INSTANCE_CONFIG_AUDIT_TIME_THRESHOLD_IN_MINUTE = 10;//10 minutes
+
   private static final Gson GSON = new Gson();
 
   private static final Type appIdValueLengthOverrideTypeReference =
@@ -100,7 +105,8 @@ public class BizConfig extends RefreshableConfig {
   public long longPollingTimeoutInMilli() {
     int timeout = getIntProperty("long.polling.timeout", DEFAULT_LONG_POLLING_TIMEOUT);
     // java client's long polling timeout is 90 seconds, so server side long polling timeout must be less than 90
-    return 1000 * checkInt(timeout, 1, 90, DEFAULT_LONG_POLLING_TIMEOUT);
+    timeout = checkInt(timeout, 1, 90, DEFAULT_LONG_POLLING_TIMEOUT);
+    return TimeUnit.SECONDS.toMillis(timeout);
   }
 
   public int itemKeyLengthLimit() {
@@ -238,6 +244,27 @@ public class BizConfig extends RefreshableConfig {
 
   public boolean isConfigServiceCacheKeyIgnoreCase() {
     return getBooleanProperty("config-service.cache.key.ignore-case", false);
+  }
+
+  public int getInstanceConfigAuditMaxSize() {
+    int auditMaxSize = getIntProperty("instance.config.audit.max.size", DEFAULT_INSTANCE_CONFIG_AUDIT_MAX_SIZE);
+    return checkInt(auditMaxSize, 10, Integer.MAX_VALUE, DEFAULT_INSTANCE_CONFIG_AUDIT_MAX_SIZE);
+  }
+
+  public int getInstanceCacheMaxSize() {
+    int cacheMaxSize = getIntProperty("instance.cache.max.size", DEFAULT_INSTANCE_CACHE_MAX_SIZE);
+    return checkInt(cacheMaxSize, 10, Integer.MAX_VALUE, DEFAULT_INSTANCE_CACHE_MAX_SIZE);
+  }
+
+  public int getInstanceConfigCacheMaxSize() {
+    int cacheMaxSize = getIntProperty("instance.config.cache.max.size", DEFAULT_INSTANCE_CONFIG_CACHE_MAX_SIZE);
+    return checkInt(cacheMaxSize, 10, Integer.MAX_VALUE, DEFAULT_INSTANCE_CONFIG_CACHE_MAX_SIZE);
+  }
+
+  public long getInstanceConfigAuditTimeThresholdInMilli() {
+    int timeThreshold = getIntProperty("instance.config.audit.time.threshold.minutes", DEFAULT_INSTANCE_CONFIG_AUDIT_TIME_THRESHOLD_IN_MINUTE);
+    timeThreshold = checkInt(timeThreshold, 5, Integer.MAX_VALUE, DEFAULT_INSTANCE_CONFIG_AUDIT_TIME_THRESHOLD_IN_MINUTE);
+    return TimeUnit.MINUTES.toMillis(timeThreshold);
   }
 
   public boolean isConfigServiceIncrementalChangeEnabled() {

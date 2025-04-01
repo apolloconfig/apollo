@@ -18,15 +18,16 @@ package com.ctrip.framework.apollo.openapi.auth;
 
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID;
 
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
-import javax.servlet.http.HttpServletRequest;
 
-@Component
-public class ConsumerPermissionValidator {
+@Component("consumerPermissionValidator")
+public class ConsumerPermissionValidator implements PermissionValidator {
 
   private final ConsumerRolePermissionService permissionService;
   private final ConsumerAuthUtil consumerAuthUtil;
@@ -37,44 +38,75 @@ public class ConsumerPermissionValidator {
     this.consumerAuthUtil = consumerAuthUtil;
   }
 
-  public boolean hasModifyNamespacePermission(HttpServletRequest request, String appId,
-      String namespaceName, String env) {
-    if (hasCreateNamespacePermission(request, appId)) {
+  @Override
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (hasCreateNamespacePermission(appId)) {
       return true;
     }
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
-        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
-            PermissionType.MODIFY_NAMESPACE,
-            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
-
+        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
+        PermissionType.MODIFY_NAMESPACE,
+        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  public boolean hasReleaseNamespacePermission(HttpServletRequest request, String appId,
-      String namespaceName, String env) {
-    if (hasCreateNamespacePermission(request, appId)) {
+  @Override
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (hasCreateNamespacePermission(appId)) {
       return true;
     }
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
-        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
-            PermissionType.RELEASE_NAMESPACE,
-            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
-
+        || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
+        PermissionType.RELEASE_NAMESPACE,
+        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  public boolean hasCreateNamespacePermission(HttpServletRequest request, String appId) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
+  @Override
+  public boolean hasAssignRolePermission(String appId) {
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
+        PermissionType.ASSIGN_ROLE, appId);
+  }
+
+  @Override
+  public boolean hasCreateNamespacePermission(String appId) {
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.CREATE_NAMESPACE, appId);
   }
 
-  public boolean hasCreateClusterPermission(HttpServletRequest request, String appId) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerId(request),
+  @Override
+  public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+    throw new UnsupportedOperationException("Not supported operation");
+  }
+
+  @Override
+  public boolean hasCreateClusterPermission(String appId) {
+    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.CREATE_CLUSTER, appId);
   }
 
-  public boolean hasCreateApplicationPermission(HttpServletRequest request) {
-    long consumerId = consumerAuthUtil.retrieveConsumerId(request);
+  @Override
+  public boolean isSuperAdmin() {
+    // openapi shouldn't be
+    return false;
+  }
+
+  @Override
+  public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    throw new UnsupportedOperationException("Not supported operation");
+  }
+
+  @Override
+  public boolean hasCreateApplicationPermission() {
+    long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
     return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Override
+  public boolean hasManageAppMasterPermission(String appId) {
+    throw new UnsupportedOperationException("Not supported operation");
   }
 }

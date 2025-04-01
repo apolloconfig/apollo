@@ -34,7 +34,7 @@ Since the cache has a delay of at most one second, if you need to work with conf
 
 The Http interface returns JSON format, UTF-8 encoding, which contains all the configuration items in the corresponding namespace.
 
-Return content Sample is as follows.
+If the namespace is of type `properties`, the return content sample is as follows:
 
 ```json
 {
@@ -42,6 +42,15 @@ Return content Sample is as follows.
     "portal.elastic.cluster.name": "hermes-es-fws"
 }
 ```
+
+If the namespace is not of type `properties`, the return content sample is as follows:
+```json
+{
+    "content": "{\"portal.elastic.document.type\":\"biz\",\"portal.elastic.cluster.name\":\"hermes-es-fws\"}"
+}
+```
+
+> You can get the raw configuration content without escaping via `{config_server_url}/configfiles/raw/{appId}/{clusterName}/{namespaceName}?ip={clientIp}`.
 
 > The configuration in the form of properties can be obtained via `{config_server_url}/configfiles/{appId}/{clusterName}/{namespaceName}?ip={clientIp}`
 

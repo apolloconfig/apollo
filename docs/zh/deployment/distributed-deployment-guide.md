@@ -117,17 +117,30 @@ EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
 
 可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会指定注册的URL为`http://1.2.3.4:8080`。
 
+> 注：apollo-configservice和apollo-adminservice默认注册端口分别为8080、8090
+
+
 JVM System Property示例：
 
 ```properties
+# apollo-configservice
 -Deureka.instance.homePageUrl=http://1.2.3.4:8080
+-Deureka.instance.preferIpAddress=false
+
+# apollo-adminservice
+-Deureka.instance.homePageUrl=http://1.2.3.4:8090
 -Deureka.instance.preferIpAddress=false
 ```
 
 OS Environment Variable示例：
 
 ```properties
+# apollo-configservice
 EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
+EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
+
+# apollo-adminservice
+EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8090
 EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ```
 
@@ -213,8 +226,6 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 
 ### 2.1.1 创建ApolloPortalDB
 
-可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
-
 #### 2.1.1.1 手动导入SQL创建
 
 通过各种MySQL客户端导入[apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)即可。
@@ -224,14 +235,7 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloportaldb.sql
 ```
 
-#### 2.1.1.2 通过Flyway导入SQL创建
-
-> 需要1.3.0及以上版本
-
-1. 根据实际情况修改[flyway-portaldb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-portaldb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
-2. 在apollo项目根目录下执行`mvn -N -Pportaldb flyway:migrate`
-
-#### 2.1.1.3 验证
+#### 2.1.1.2 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql
@@ -246,8 +250,6 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`.`ServerConfig` limi
 
 ### 2.1.2 创建ApolloConfigDB
 
-可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
-
 #### 2.1.2.1 手动导入SQL
 
 通过各种MySQL客户端导入[apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)即可。
@@ -257,14 +259,7 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`.`ServerConfig` limi
 source /your_local_path/scripts/sql/profiles/mysql-default/apolloconfigdb.sql
 ```
 
-#### 2.1.2.2 通过Flyway导入SQL
-
-> 需要1.3.0及以上版本
-
-1. 根据实际情况修改[flyway-configdb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-configdb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
-2. 在apollo项目根目录下执行`mvn -N -Pconfigdb flyway:migrate`
-
-#### 2.1.2.3 验证
+#### 2.1.2.2 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql
@@ -1576,6 +1571,37 @@ json
 }
 ```
 以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
+
+### 3.2.14 instance.config.audit.max.size - 客户端拉取审计记录的队列大小
+
+> 适用于2.5.0及以上版本
+
+默认为 10000，最小为10，用于控制客户端拉取审计记录的队列大小，超过队列大小后会丢弃最早的审计记录。
+
+修改完需要重启生效。
+
+### 3.2.15 instance.cache.max.size - 实例缓存的最大数量
+
+> 适用于2.5.0及以上版本
+
+默认为 50000，最小为10，用于控制实例缓存的最大数量，当缓存超过最大容量时，会触发缓存淘汰（Eviction） 机制。
+
+修改完需要重启生效。
+
+### 3.2.16 instance.config.cache.max.size - 实例配置的缓存最大数量
+
+> 适用于2.5.0及以上版本
+
+默认为 50000，最小为10，用于控制实例配置的缓存最大数量，当缓存超过最大容量时，会触发缓存淘汰（Eviction） 机制。
+
+修改完需要重启生效。
+
+
+### 3.2.17 instance.config.audit.time.threshold.minutes - 实例拉取审计记录的间隔时间
+
+> 适用于2.5.0及以上版本
+
+时间阈值单位为分钟，默认为 10，最小为5，用于控制在保存/更新客户端拉取配置审计记录时，当2次请求记录间隔大于该值时，才会保存/更新拉取记录，小于该值时，不会保存/更新拉取记录。
 
 ### 3.2.14 config-service.incremental.change.enabled - 是否开启增量配置同步客户端
 

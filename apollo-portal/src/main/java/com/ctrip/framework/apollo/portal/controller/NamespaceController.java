@@ -30,7 +30,7 @@ import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceCreationModel;
@@ -76,7 +76,7 @@ public class NamespaceController {
   private final AppNamespaceService appNamespaceService;
   private final RoleInitializationService roleInitializationService;
   private final PortalConfig portalConfig;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
 
   public NamespaceController(
@@ -86,7 +86,7 @@ public class NamespaceController {
       final AppNamespaceService appNamespaceService,
       final RoleInitializationService roleInitializationService,
       final PortalConfig portalConfig,
-      final PermissionValidator permissionValidator,
+      final UserPermissionValidator userPermissionValidator,
       final AdminServiceAPI.NamespaceAPI namespaceAPI) {
     this.publisher = publisher;
     this.userInfoHolder = userInfoHolder;
@@ -94,7 +94,7 @@ public class NamespaceController {
     this.appNamespaceService = appNamespaceService;
     this.roleInitializationService = roleInitializationService;
     this.portalConfig = portalConfig;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
     this.namespaceAPI = namespaceAPI;
   }
 
@@ -111,7 +111,7 @@ public class NamespaceController {
     List<NamespaceBO> namespaceBOs = namespaceService.findNamespaceBOs(appId, Env.valueOf(env), clusterName);
 
     for (NamespaceBO namespaceBO : namespaceBOs) {
-      if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceBO.getBaseInfo().getNamespaceName())) {
+      if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceBO.getBaseInfo().getNamespaceName())) {
         namespaceBO.hideItems();
       }
     }
@@ -125,7 +125,7 @@ public class NamespaceController {
 
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf(env), clusterName, namespaceName);
 
-    if (namespaceBO != null && permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (namespaceBO != null && userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       namespaceBO.hideItems();
     }
 
@@ -141,7 +141,7 @@ public class NamespaceController {
     return namespaceService.findPublicNamespaceForAssociatedNamespace(Env.valueOf(env), appId, clusterName, namespaceName);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasCreateNamespacePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping("/apps/{appId}/namespaces")
   @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.create")
   public ResponseEntity<Void> createNamespace(@PathVariable String appId,
@@ -172,7 +172,7 @@ public class NamespaceController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasDeleteNamespacePermission(#appId)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/linked-namespaces/{namespaceName:.+}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Namespace.deleteLinkedNamespace")
   public ResponseEntity<Void> deleteLinkedNamespace(@PathVariable String appId, @PathVariable String env,
@@ -195,7 +195,7 @@ public class NamespaceController {
     return namespaceService.getNamespaceUsageByAppId(appId, namespaceName);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasDeleteNamespacePermission(#appId)")
+  @PreAuthorize(value = "@userPermissionValidator.hasDeleteNamespacePermission(#appId)")
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
   public ResponseEntity<Void> deleteAppNamespace(@PathVariable String appId, @PathVariable String namespaceName) {
@@ -218,7 +218,7 @@ public class NamespaceController {
     return BeanUtils.transform(AppNamespaceDTO.class, appNamespace);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasCreateAppNamespacePermission(#appId, #appNamespace)")
+  @PreAuthorize(value = "@userPermissionValidator.hasCreateAppNamespacePermission(#appId, #appNamespace)")
   @PostMapping("/apps/{appId}/appnamespaces")
   @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create")
   public AppNamespace createAppNamespace(@PathVariable String appId,

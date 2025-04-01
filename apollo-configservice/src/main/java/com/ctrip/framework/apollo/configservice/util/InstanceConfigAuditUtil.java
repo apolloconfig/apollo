@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.util;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.cache.Cache;
@@ -30,6 +31,9 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -48,29 +52,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Service
 public class InstanceConfigAuditUtil implements InitializingBean {
-  private static final int INSTANCE_CONFIG_AUDIT_MAX_SIZE = 10000;
-  private static final int INSTANCE_CACHE_MAX_SIZE = 50000;
-  private static final int INSTANCE_CONFIG_CACHE_MAX_SIZE = 50000;
-  private static final long OFFER_TIME_LAST_MODIFIED_TIME_THRESHOLD_IN_MILLI = TimeUnit.MINUTES.toMillis(10);//10 minutes
+
   private static final Joiner STRING_JOINER = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR);
   private final ExecutorService auditExecutorService;
   private final AtomicBoolean auditStopped;
-  private BlockingQueue<InstanceConfigAuditModel> audits = Queues.newLinkedBlockingQueue
-      (INSTANCE_CONFIG_AUDIT_MAX_SIZE);
+  private BlockingQueue<InstanceConfigAuditModel> audits;
   private Cache<String, Long> instanceCache;
   private Cache<String, String> instanceConfigReleaseKeyCache;
 
   private final InstanceService instanceService;
+  private final BizConfig bizConfig;
+  private final MeterRegistry meterRegistry;
 
-  public InstanceConfigAuditUtil(final InstanceService instanceService) {
+  public InstanceConfigAuditUtil(final InstanceService instanceService, final BizConfig bizConfig, final MeterRegistry meterRegistry) {
     this.instanceService = instanceService;
+    this.bizConfig = bizConfig;
+    this.meterRegistry = meterRegistry;
+
+    audits = Queues.newLinkedBlockingQueue(this.bizConfig.getInstanceConfigAuditMaxSize());
     auditExecutorService = Executors.newSingleThreadExecutor(
         ApolloThreadFactory.create("InstanceConfigAuditUtil", true));
     auditStopped = new AtomicBoolean(false);
-    instanceCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
-        .maximumSize(INSTANCE_CACHE_MAX_SIZE).build();
-    instanceConfigReleaseKeyCache = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS)
-        .maximumSize(INSTANCE_CONFIG_CACHE_MAX_SIZE).build();
+    buildInstanceCache();
+    buildInstanceConfigReleaseKeyCache();
   }
 
   public boolean audit(String appId, String clusterName, String dataCenter, String
@@ -138,8 +142,7 @@ public class InstanceConfigAuditUtil implements InitializingBean {
   }
 
   private boolean offerTimeAndLastModifiedTimeCloseEnough(Date offerTime, Date lastModifiedTime) {
-    return (offerTime.getTime() - lastModifiedTime.getTime()) <
-        OFFER_TIME_LAST_MODIFIED_TIME_THRESHOLD_IN_MILLI;
+    return (offerTime.getTime() - lastModifiedTime.getTime()) < this.bizConfig.getInstanceConfigAuditTimeThresholdInMilli();
   }
 
   private long prepareInstanceId(InstanceConfigAuditModel auditModel) {
@@ -176,6 +179,30 @@ public class InstanceConfigAuditUtil implements InitializingBean {
         }
       }
     });
+  }
+
+  private void buildInstanceCache() {
+    CacheBuilder<Object, Object> instanceCacheBuilder = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
+        .maximumSize(this.bizConfig.getInstanceCacheMaxSize());
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      instanceCacheBuilder.recordStats();
+    }
+    instanceCache = instanceCacheBuilder.build();
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      GuavaCacheMetrics.monitor(meterRegistry, instanceCache, "instance_cache");
+    }
+  }
+
+  private void buildInstanceConfigReleaseKeyCache() {
+    CacheBuilder<Object, Object> instanceConfigReleaseKeyCacheBuilder = CacheBuilder.newBuilder().expireAfterWrite(1, TimeUnit.DAYS)
+        .maximumSize(this.bizConfig.getInstanceConfigCacheMaxSize());
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      instanceConfigReleaseKeyCacheBuilder.recordStats();
+    }
+    instanceConfigReleaseKeyCache = instanceConfigReleaseKeyCacheBuilder.build();
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      GuavaCacheMetrics.monitor(meterRegistry, instanceConfigReleaseKeyCache, "instance_config_cache");
+    }
   }
 
   private String assembleInstanceKey(String appId, String cluster, String ip, String datacenter) {

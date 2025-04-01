@@ -120,7 +120,7 @@ Explanation of different permission models：
 #### 1.2.3.2 All namespaces of App's env
 
 1. Click the authorization button of the application
-   * ![ns-permission-app-env-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-allns-entry.png)
+   * ![ns-permission-app-allns-entry](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-allns-entry.png)
 
 2. Select the env
    * ![ns-permission-app-env-ns-select](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/ns-permission-app-env-ns-select.png)

@@ -78,11 +78,11 @@ public class ItemController {
         new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
-                                @RequestBody OpenItemDTO item, HttpServletRequest request) {
+                                @RequestBody OpenItemDTO item) {
 
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
@@ -99,12 +99,12 @@ public class ItemController {
     return this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
-                         @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
+                         @RequestParam(defaultValue = "false") boolean createIfNotExists) {
 
     RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
 
@@ -132,23 +132,22 @@ public class ItemController {
     }
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public void updateItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String key, @RequestBody OpenItemDTO item,
-      @RequestParam(defaultValue = "false") boolean createIfNotExists, HttpServletRequest request) {
+      @RequestParam(defaultValue = "false") boolean createIfNotExists) {
     this.updateItem(appId, env, clusterName, namespaceName,
         new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
-        createIfNotExists, request);
+        createIfNotExists);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator,
-                         HttpServletRequest request) {
+                         @PathVariable String key, @RequestParam String operator) {
 
     if (userService.findByUserId(operator) == null) {
       throw BadRequestException.userNotExists(operator);
@@ -162,15 +161,13 @@ public class ItemController {
     this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#request, #appId, #namespaceName, #env)")
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public void deleteItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String key, @RequestParam String operator,
-      HttpServletRequest request) {
+      @PathVariable String key, @RequestParam String operator) {
     this.deleteItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator,
-        request);
+        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")

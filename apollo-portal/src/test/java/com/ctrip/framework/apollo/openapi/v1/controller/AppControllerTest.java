@@ -107,7 +107,7 @@ public class AppControllerTest {
   @Test
   public void testFindAppsAuthorized() throws Exception {
     final long consumerId = 123456;
-    Mockito.when(this.consumerAuthUtil.retrieveConsumerId(Mockito.any())).thenReturn(consumerId);
+    Mockito.when(this.consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(consumerId);
 
     final List<ConsumerRole> consumerRoles = Arrays.asList(
         generateConsumerRoleByRoleId(6),

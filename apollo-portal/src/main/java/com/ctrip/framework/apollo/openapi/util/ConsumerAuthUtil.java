@@ -21,6 +21,8 @@ import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -54,5 +56,15 @@ public class ConsumerAuthUtil {
     } catch (Throwable ex) {
       throw new IllegalStateException("No consumer id!", ex);
     }
+  }
+
+  // retrieve from RequestContextHolder
+  public long retrieveConsumerIdFromCtx() {
+    ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    if (attributes == null) {
+      throw new IllegalStateException("No Request!");
+    }
+    HttpServletRequest request = attributes.getRequest();
+    return retrieveConsumerId(request);
   }
 }

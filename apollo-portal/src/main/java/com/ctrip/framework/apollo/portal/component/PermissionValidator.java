@@ -17,176 +17,43 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
-import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
-import com.ctrip.framework.apollo.portal.constant.PermissionType;
-import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
-import com.ctrip.framework.apollo.portal.service.RolePermissionService;
-import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.util.RoleUtils;
-import org.springframework.stereotype.Component;
 
-@Component("permissionValidator")
-public class PermissionValidator {
+public interface PermissionValidator {
 
-  private final UserInfoHolder userInfoHolder;
-  private final RolePermissionService rolePermissionService;
-  private final PortalConfig portalConfig;
-  private final AppNamespaceService appNamespaceService;
-  private final SystemRoleManagerService systemRoleManagerService;
+  boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName);
 
-  public PermissionValidator(
-          final UserInfoHolder userInfoHolder,
-          final RolePermissionService rolePermissionService,
-          final PortalConfig portalConfig,
-          final AppNamespaceService appNamespaceService,
-          final SystemRoleManagerService systemRoleManagerService) {
-    this.userInfoHolder = userInfoHolder;
-    this.rolePermissionService = rolePermissionService;
-    this.portalConfig = portalConfig;
-    this.appNamespaceService = appNamespaceService;
-    this.systemRoleManagerService = systemRoleManagerService;
-  }
+  boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName);
 
-  private boolean hasModifyNamespacePermission(String appId, String namespaceName) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName));
-  }
-
-  private boolean hasModifyNamespacePermission(String appId, String namespaceName, String env) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
-  }
-
-  private boolean hasModifyNamespacesInClusterPermission(String appId, String env, String clusterName) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
-        RoleUtils.buildClusterTargetId(appId, env, clusterName));
-  }
-
-  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-    if (hasModifyNamespacePermission(appId, namespaceName)) {
-      return true;
-    }
-    if (hasModifyNamespacePermission(appId, namespaceName, env)) {
-      return true;
-    }
-    if (hasModifyNamespacesInClusterPermission(appId, env, clusterName)) {
-      return true;
-    }
-    return false;
-  }
-
-  private boolean hasReleaseNamespacePermission(String appId, String namespaceName) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName));
-  }
-
-  private boolean hasReleaseNamespacePermission(String appId, String namespaceName, String env) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
-  }
-
-  private boolean hasReleaseNamespacesInClusterPermission(String appId, String env, String clusterName) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
-        RoleUtils.buildClusterTargetId(appId, env, clusterName));
-  }
-
-  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-    if (hasReleaseNamespacePermission(appId, namespaceName)) {
-      return true;
-    }
-    if (hasReleaseNamespacePermission(appId, namespaceName, env)) {
-      return true;
-    }
-    if (hasReleaseNamespacesInClusterPermission(appId, env, clusterName)) {
-      return true;
-    }
-    return false;
-  }
-
-  public boolean hasDeleteNamespacePermission(String appId) {
+  default boolean hasDeleteNamespacePermission(String appId) {
     return hasAssignRolePermission(appId) || isSuperAdmin();
   }
 
-  public boolean hasOperateNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+  default boolean hasOperateNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
     return hasModifyNamespacePermission(appId, env, clusterName, namespaceName)
         || hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
-  public boolean hasAssignRolePermission(String appId) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.ASSIGN_ROLE,
-        appId);
-  }
+  boolean hasAssignRolePermission(String appId);
 
-  public boolean hasCreateNamespacePermission(String appId) {
+  boolean hasCreateNamespacePermission(String appId);
 
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.CREATE_NAMESPACE,
-        appId);
-  }
+  boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace);
 
-  public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+  boolean hasCreateClusterPermission(String appId);
 
-    boolean isPublicAppNamespace = appNamespace.isPublic();
-
-    if (portalConfig.canAppAdminCreatePrivateNamespace() || isPublicAppNamespace) {
-      return hasCreateNamespacePermission(appId);
-    }
-
-    return isSuperAdmin();
-  }
-
-  public boolean hasCreateClusterPermission(String appId) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.CREATE_CLUSTER,
-        appId);
-  }
-
-  public boolean isAppAdmin(String appId) {
+  default boolean isAppAdmin(String appId) {
     return isSuperAdmin() || hasAssignRolePermission(appId);
   }
 
-  public boolean isSuperAdmin() {
-    return rolePermissionService.isSuperAdmin(userInfoHolder.getUser().getUserId());
-  }
+  boolean isSuperAdmin();
 
-  public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
-      String namespaceName) {
-    // 1. check whether the current environment enables member only function
-    if (!portalConfig.isConfigViewMemberOnly(env)) {
-      return false;
-    }
+  boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName);
 
-    // 2. public namespace is open to every one
-    AppNamespace appNamespace = appNamespaceService.findByAppIdAndName(appId, namespaceName);
-    if (appNamespace != null && appNamespace.isPublic()) {
-      return false;
-    }
+  boolean hasCreateApplicationPermission();
 
-    // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
-  }
-
-  public boolean hasCreateApplicationPermission() {
-    return hasCreateApplicationPermission(userInfoHolder.getUser().getUserId());
-  }
-
-  public boolean hasCreateApplicationPermission(String userId) {
-    return systemRoleManagerService.hasCreateApplicationPermission(userId);
-  }
-
-  public boolean hasManageAppMasterPermission(String appId) {
-    // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
-    return isSuperAdmin() ||
-        (hasAssignRolePermission(appId) &&
-         systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
-        );
-  }
+  boolean hasManageAppMasterPermission(String appId);
 }

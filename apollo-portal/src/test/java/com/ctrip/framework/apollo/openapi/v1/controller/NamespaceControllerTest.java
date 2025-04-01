@@ -39,7 +39,7 @@ public class NamespaceControllerTest extends AbstractControllerTest {
 
   @Test
   public void shouldFailWhenAppNamespaceNameIsInvalid() {
-    Assert.assertTrue(consumerPermissionValidator.hasCreateNamespacePermission(null, null));
+    Assert.assertTrue(consumerPermissionValidator.hasCreateNamespacePermission(null));
 
     OpenAppNamespaceDTO dto = new OpenAppNamespaceDTO();
     dto.setAppId("appId");

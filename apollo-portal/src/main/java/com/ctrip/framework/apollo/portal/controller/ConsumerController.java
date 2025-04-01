@@ -61,7 +61,7 @@ public class ConsumerController {
   }
 
   @Transactional
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/consumers")
   public ConsumerInfo create(
       @RequestBody ConsumerCreateRequestVO requestVO,
@@ -102,19 +102,19 @@ public class ConsumerController {
     return consumerService.getConsumerInfoByAppId(requestVO.getAppId());
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @GetMapping(value = "/consumer-tokens/by-appId")
   public ConsumerToken getConsumerTokenByAppId(@RequestParam String appId) {
     return consumerService.getConsumerTokenByAppId(appId);
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @GetMapping(value = "/consumer/info/by-appId")
   public ConsumerInfo getConsumerInfoByAppId(@RequestParam String appId) {
     return consumerService.getConsumerInfoByAppId(appId);
   }
 
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/consumers/{token}/assign-role")
   public List<ConsumerRole> assignNamespaceRoleToConsumer(
       @PathVariable String token,
@@ -163,13 +163,13 @@ public class ConsumerController {
   }
 
   @GetMapping("/consumers")
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   public List<ConsumerInfo> getConsumerList(Pageable page) {
     return consumerService.findConsumerInfoList(page);
   }
 
   @DeleteMapping(value = "/consumers/by-appId")
-  @PreAuthorize(value = "@permissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   public void deleteConsumers(@RequestParam String appId) {
     consumerService.deleteConsumer(appId);
   }

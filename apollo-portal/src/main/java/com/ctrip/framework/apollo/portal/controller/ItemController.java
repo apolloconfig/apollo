@@ -23,7 +23,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
@@ -63,17 +63,17 @@ public class ItemController {
   private final ItemService configService;
   private final NamespaceService namespaceService;
   private final UserInfoHolder userInfoHolder;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
 
   public ItemController(final ItemService configService, final UserInfoHolder userInfoHolder,
-                        final PermissionValidator permissionValidator, final NamespaceService namespaceService) {
+                        final UserPermissionValidator userPermissionValidator, final NamespaceService namespaceService) {
     this.configService = configService;
     this.userInfoHolder = userInfoHolder;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
     this.namespaceService = namespaceService;
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items", consumes = {
       "application/json"})
   public void modifyItemsByText(@PathVariable String appId, @PathVariable String env,
@@ -87,7 +87,7 @@ public class ItemController {
     configService.updateConfigItemByText(model);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item")
   public ItemDTO createItem(@PathVariable String appId, @PathVariable String env,
                             @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -106,7 +106,7 @@ public class ItemController {
     return configService.createItem(appId, Env.valueOf(env), clusterName, namespaceName, item);
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item")
   public void updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -120,7 +120,7 @@ public class ItemController {
   }
 
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @DeleteMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -142,7 +142,7 @@ public class ItemController {
                                  @PathVariable String clusterName, @PathVariable String namespaceName,
                                  @RequestParam(defaultValue = "lineNum") String orderBy) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
@@ -182,7 +182,7 @@ public class ItemController {
         continue;
       }
 
-      if (permissionValidator
+      if (userPermissionValidator
           .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv().getName(),
               namespace.getClusterName(), namespace.getNamespaceName())) {
         diff.setDiffs(new ItemChangeSets());
@@ -202,7 +202,7 @@ public class ItemController {
     boolean hasPermission = true;
     for (NamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
       // once user has not one of the namespace's ModifyNamespace permission, then break the loop
-      hasPermission = permissionValidator.hasModifyNamespacePermission(
+      hasPermission = userPermissionValidator.hasModifyNamespacePermission(
           namespaceIdentifier.getAppId(),
           namespaceIdentifier.getEnv().getName(),
           namespaceIdentifier.getClusterName(),
@@ -220,7 +220,7 @@ public class ItemController {
     throw new AccessDeniedException(String.format("You don't have the permission to modify namespace: %s", noPermissionNamespace));
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/syntax-check", consumes = {
       "application/json"})
   public ResponseEntity<Void> syntaxCheckText(@PathVariable String appId, @PathVariable String env,
@@ -231,7 +231,7 @@ public class ItemController {
     return ResponseEntity.ok().build();
   }
 
-  @PreAuthorize(value = "@permissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/revoke-items")
   public void revokeItems(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName) {

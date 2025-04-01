@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.portal.controller;
 
 
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.component.PermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
 import com.ctrip.framework.apollo.portal.service.ReleaseHistoryService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,11 +33,11 @@ import java.util.List;
 public class ReleaseHistoryController {
 
   private final ReleaseHistoryService releaseHistoryService;
-  private final PermissionValidator permissionValidator;
+  private final UserPermissionValidator userPermissionValidator;
 
-  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService, final PermissionValidator permissionValidator) {
+  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService, final UserPermissionValidator userPermissionValidator) {
     this.releaseHistoryService = releaseHistoryService;
-    this.permissionValidator = permissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/histories")
@@ -48,7 +48,7 @@ public class ReleaseHistoryController {
                                                                 @RequestParam(value = "page", defaultValue = "0") int page,
                                                                 @RequestParam(value = "size", defaultValue = "10") int size) {
 
-    if (permissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 
