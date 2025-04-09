@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Objects;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -88,6 +88,8 @@ public class ItemController {
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
         "key and dataChangeCreatedBy should not be null or empty");
 
+    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()), "value should not be null");
+
     if (userService.findByUserId(item.getDataChangeCreatedBy()) == null) {
       throw BadRequestException.userNotExists(item.getDataChangeCreatedBy());
     }
@@ -113,6 +115,7 @@ public class ItemController {
         "key and dataChangeLastModifiedBy can not be empty");
 
     RequestPrecondition.checkArguments(item.getKey().equals(key), "Key in path and payload is not consistent");
+    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()), "value should not be null");
 
     if (userService.findByUserId(item.getDataChangeLastModifiedBy()) == null) {
       throw BadRequestException.userNotExists(item.getDataChangeLastModifiedBy());

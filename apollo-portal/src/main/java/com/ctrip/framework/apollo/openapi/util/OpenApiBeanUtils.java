@@ -23,6 +23,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
+import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import org.springframework.util.CollectionUtils;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
@@ -33,15 +45,6 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.google.common.base.Preconditions;
@@ -187,5 +190,17 @@ public class OpenApiBeanUtils {
   public static ClusterDTO transformToClusterDTO(OpenClusterDTO openClusterDTO) {
     Preconditions.checkArgument(openClusterDTO != null);
     return BeanUtils.transform(ClusterDTO.class, openClusterDTO);
+  }
+
+  public static OpenOrganizationDto transformFromOrganization(final Organization organization){
+    Preconditions.checkArgument(organization != null);
+    return BeanUtils.transform(OpenOrganizationDto.class, organization);
+  }
+
+  public static List<OpenOrganizationDto> transformFromOrganizations(final List<Organization> organizations){
+    if (CollectionUtils.isEmpty(organizations)) {
+      return Collections.emptyList();
+    }
+    return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization).collect(Collectors.toList());
   }
 }
