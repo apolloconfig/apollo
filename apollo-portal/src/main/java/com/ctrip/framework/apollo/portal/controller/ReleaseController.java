@@ -136,6 +136,10 @@ public class ReleaseController {
     if (release == null) {
       throw NotFoundException.releaseNotFound(releaseId);
     }
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(release.getAppId(), env,
+        release.getClusterName(), release.getNamespaceName())) {
+      throw new AccessDeniedException("Access is denied");
+    }
     return release;
   }
 
