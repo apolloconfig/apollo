@@ -21,13 +21,9 @@ import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 
-import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
 import com.google.common.base.Strings;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import java.util.HashMap;
-import java.util.List;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -100,51 +96,6 @@ public abstract class AbstractConfigService implements ConfigService {
     return release;
   }
 
-  public List<ConfigurationChange> calcConfigurationChanges(
-      Map<String, String> latestReleaseConfigurations, Map<String, String> historyConfigurations) {
-    if (latestReleaseConfigurations == null) {
-      latestReleaseConfigurations = new HashMap<>();
-    }
-
-    if (historyConfigurations == null) {
-      historyConfigurations = new HashMap<>();
-    }
-
-    Set<String> previousKeys = historyConfigurations.keySet();
-    Set<String> currentKeys = latestReleaseConfigurations.keySet();
-
-    Set<String> commonKeys = Sets.intersection(previousKeys, currentKeys);
-    Set<String> newKeys = Sets.difference(currentKeys, commonKeys);
-    Set<String> removedKeys = Sets.difference(previousKeys, commonKeys);
-
-    List<ConfigurationChange> changes = Lists.newArrayList();
-
-    for (String newKey : newKeys) {
-      changes.add(new ConfigurationChange(newKey, latestReleaseConfigurations.get(newKey),
-          "ADDED"));
-    }
-
-    for (String removedKey : removedKeys) {
-      changes.add(new ConfigurationChange(removedKey, null, "DELETED"));
-    }
-
-    for (String commonKey : commonKeys) {
-      String previousValue = historyConfigurations.get(commonKey);
-      String currentValue = latestReleaseConfigurations.get(commonKey);
-      if (com.google.common.base.Objects.equal(previousValue, currentValue)) {
-        continue;
-      }
-      changes.add(
-          new ConfigurationChange(commonKey, currentValue, "MODIFIED"));
-    }
-
-    return changes;
-  }
-
-  @Override
-  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) {
-    return null;
-  }
 
   /**
    * Find active release by id

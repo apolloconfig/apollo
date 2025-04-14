@@ -25,7 +25,6 @@ import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
-import com.ctrip.framework.apollo.core.enums.ConfigurationChangeType;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -46,9 +45,9 @@ import static org.mockito.Mockito.*;
  * @author jason
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ConfigServiceWithChangeCacheTest {
+public class DefaultIncrementalSyncServiceTest {
 
-  private ConfigServiceWithChangeCache configServiceWithChangeCache;
+  private DefaultIncrementalSyncService defaultIncrementalSyncService;
 
   @Mock
   private ReleaseService releaseService;
@@ -57,12 +56,6 @@ public class ConfigServiceWithChangeCacheTest {
   private ReleaseMessageService releaseMessageService;
   @Mock
   private Release someRelease;
-  @Mock
-  private BizConfig bizConfig;
-  @Mock
-  private MeterRegistry meterRegistry;
-  @Mock
-  private GrayReleaseRulesHolder grayReleaseRulesHolder;
 
   private String someKey;
 
@@ -72,19 +65,20 @@ public class ConfigServiceWithChangeCacheTest {
   private String someClusterName;
   private String someNamespaceName;
 
+  private String newReleaseKey;
+
+
 
   @Before
   public void setUp() throws Exception {
-    configServiceWithChangeCache = new ConfigServiceWithChangeCache(releaseService,
-        releaseMessageService,
-        grayReleaseRulesHolder, bizConfig, meterRegistry);
-
-    configServiceWithChangeCache.initialize();
+    defaultIncrementalSyncService = new DefaultIncrementalSyncService();
 
     someReleaseKey = "someReleaseKey";
     someAppId = "someAppId";
     someClusterName = "someClusterName";
     someNamespaceName = "someNamespaceName";
+
+    newReleaseKey = "someReleaseKey";
 
     someKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
 
@@ -99,10 +93,11 @@ public class ConfigServiceWithChangeCacheTest {
     String value2 = "value2";
 
     Map<String, String> latestConfig = ImmutableMap.of(key1, value1, key2, value2);
-    Map<String, String> historyConfig = ImmutableMap.of(key1, value1);
+    Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
     List<ConfigurationChange> result =
-        configServiceWithChangeCache.calcConfigurationChanges(latestConfig, historyConfig);
+        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
+            someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key2, result.get(0).getKey());
@@ -115,10 +110,11 @@ public class ConfigServiceWithChangeCacheTest {
     String key1 = "key1";
     String value1 = "value1";
 
-    Map<String, String> historyConfig = ImmutableMap.of(key1, value1);
+    Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
     List<ConfigurationChange> result =
-        configServiceWithChangeCache.calcConfigurationChanges(null, historyConfig);
+        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, null, someReleaseKey,
+            clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -133,8 +129,9 @@ public class ConfigServiceWithChangeCacheTest {
 
     Map<String, String> latestConfig = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result =
-        configServiceWithChangeCache.calcConfigurationChanges(latestConfig, null);
+    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
+        newReleaseKey, latestConfig, someReleaseKey, null);
+
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -150,10 +147,11 @@ public class ConfigServiceWithChangeCacheTest {
     String anotherValue1 = "anotherValue1";
 
     Map<String, String> latestConfig = ImmutableMap.of(key1, anotherValue1);
-    Map<String, String> historyConfig = ImmutableMap.of(key1, value1);
+    Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
     List<ConfigurationChange> result =
-        configServiceWithChangeCache.calcConfigurationChanges(latestConfig, historyConfig);
+        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
+            someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -167,80 +165,16 @@ public class ConfigServiceWithChangeCacheTest {
     String value1 = "value1";
 
     Map<String, String> latestConfig = ImmutableMap.of();
-    Map<String, String> historyConfig = ImmutableMap.of(key1, value1);
+    Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
     List<ConfigurationChange> result =
-        configServiceWithChangeCache.calcConfigurationChanges(latestConfig, historyConfig);
+        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
+            someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
     assertEquals(null, result.get(0).getNewValue());
     assertEquals("DELETED", result.get(0).getConfigurationChangeType());
-  }
-
-  @Test
-  public void testFindReleasesByReleaseKeys() {
-    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn
-        (someRelease);
-
-    Map<String, Release> someReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-    Map<String, Release> anotherReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-
-    int retryTimes = 100;
-
-    for (int i = 0; i < retryTimes; i++) {
-      configServiceWithChangeCache.findReleasesByReleaseKeys(Sets.newHashSet(someReleaseKey));
-    }
-
-    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
-    assertEquals(someRelease, anotherReleaseMap.get(someReleaseKey));
-
-    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
-  }
-
-  @Test
-  public void testFindReleasesByReleaseKeysWithReleaseNotFound() {
-    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn
-        (null);
-
-    Map<String, Release> someReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-    Map<String, Release> anotherReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-
-    int retryTimes = 100;
-
-    for (int i = 0; i < retryTimes; i++) {
-      configServiceWithChangeCache.findReleasesByReleaseKeys(Sets.newHashSet(someReleaseKey));
-    }
-
-    assertNull(someReleaseMap);
-    assertNull(anotherReleaseMap);
-
-    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
-  }
-
-  @Test
-  public void testFindReleasesByReleaseKeysWithReleaseMessageNotification() {
-    ReleaseMessage someReleaseMessage = mock(ReleaseMessage.class);
-
-    when(releaseService.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName)).thenReturn(someRelease);
-    when(someReleaseMessage.getMessage()).thenReturn(someKey);
-    when(someRelease.getReleaseKey()).thenReturn(someReleaseKey);
-
-    configServiceWithChangeCache.handleMessage(someReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
-    Map<String, Release> someReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-    Map<String, Release> anotherReleaseMap = configServiceWithChangeCache.findReleasesByReleaseKeys(
-        Sets.newHashSet(someReleaseKey));
-
-    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
-    assertEquals(someRelease, anotherReleaseMap.get(someReleaseKey));
-
-    verify(releaseService, times(0)).findByReleaseKey(someKey);
   }
 
 }

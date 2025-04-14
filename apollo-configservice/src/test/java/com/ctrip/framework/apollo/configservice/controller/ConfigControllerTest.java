@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
-import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
 import com.ctrip.framework.apollo.configservice.util.InstanceConfigAuditUtil;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -60,7 +59,7 @@ public class ConfigControllerTest {
 
   private ConfigController configController;
   @Mock
-  private ConfigService configService;
+  private Service configService;
   @Mock
   private AppNamespaceServiceWithCache appNamespaceService;
   @Mock

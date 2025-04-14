@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.WebUtils;
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
+import com.ctrip.framework.apollo.configservice.service.config.IncrementalSyncService;
 import com.ctrip.framework.apollo.configservice.util.InstanceConfigAuditUtil;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -63,6 +64,8 @@ import java.util.stream.Collectors;
 public class ConfigController {
 
   private final ConfigService configService;
+
+  private final IncrementalSyncService incrementalSyncService;
   private final AppNamespaceServiceWithCache appNamespaceService;
   private final NamespaceUtil namespaceUtil;
   private final InstanceConfigAuditUtil instanceConfigAuditUtil;
@@ -75,12 +78,14 @@ public class ConfigController {
 
   public ConfigController(
       final ConfigService configService,
+      final IncrementalSyncService incrementalSyncService,
       final AppNamespaceServiceWithCache appNamespaceService,
       final NamespaceUtil namespaceUtil,
       final InstanceConfigAuditUtil instanceConfigAuditUtil,
       final Gson gson,
       final BizConfig bizConfig) {
     this.configService = configService;
+    this.incrementalSyncService = incrementalSyncService;
     this.appNamespaceService = appNamespaceService;
     this.namespaceUtil = namespaceUtil;
     this.instanceConfigAuditUtil = instanceConfigAuditUtil;
@@ -166,28 +171,31 @@ public class ConfigController {
                   clientSideReleaseKey.split(Pattern.quote(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)))
               .collect(Collectors.toList()));
 
-      Map<String, Release> historyReleases = configService.findReleasesByReleaseKeys(
+      Map<String, Release> clientSideReleases = configService.findReleasesByReleaseKeys(
           clientSideReleaseKeys);
       //find history releases
-      if (historyReleases != null) {
+      if (clientSideReleases != null) {
         //order by clientSideReleaseKeys
         List<Release> historyReleasesWithOrder = new ArrayList<>();
         for (String item : clientSideReleaseKeys) {
-          Release release = historyReleases.get(item);
+          Release release = clientSideReleases.get(item);
           if (release != null) {
             historyReleasesWithOrder.add(release);
           }
         }
 
-        Map<String, String> historyConfigurations = mergeReleaseConfigurations
+        Map<String, String> clientSideConfigurations = mergeReleaseConfigurations
             (historyReleasesWithOrder);
 
-        List<ConfigurationChange> configurationChanges = configService.calcConfigurationChanges(
-            latestConfigurations, historyConfigurations);
+        List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
+            latestMergedReleaseKey,
+            latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
 
         apolloConfig.setConfigurationChanges(configurationChanges);
 
         apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
+        Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
+            originalNamespace, dataCenter));
         return apolloConfig;
       }
 

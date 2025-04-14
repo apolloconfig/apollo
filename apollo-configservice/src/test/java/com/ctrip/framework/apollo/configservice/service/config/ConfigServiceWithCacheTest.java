@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -28,7 +29,10 @@ import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 
+import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Map;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +51,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigServiceWithCacheTest {
+
   private ConfigServiceWithCache configServiceWithCache;
 
   @Mock
@@ -97,6 +102,20 @@ public class ConfigServiceWithCacheTest {
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
 
     verify(releaseService, times(1)).findActiveOne(someId);
+  }
+
+  @Test
+  public void testFindReleasesByReleaseKeys() {
+    String someReleaseKey = "someReleaseKey";
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(someRelease);
+
+    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+        someReleaseKeys);
+    assertEquals(1, someReleaseMap.size());
+    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
   }
 
   @Test
@@ -299,4 +318,6 @@ public class ConfigServiceWithCacheTest {
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(Lists.newArrayList(someKey));
     verify(releaseService, times(1)).findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
   }
+
+
 }

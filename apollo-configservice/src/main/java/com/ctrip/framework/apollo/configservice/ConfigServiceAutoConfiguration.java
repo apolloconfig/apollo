@@ -30,7 +30,6 @@ import com.ctrip.framework.apollo.configservice.filter.ClientAuthenticationFilte
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigServiceWithCache;
-import com.ctrip.framework.apollo.configservice.service.config.ConfigServiceWithChangeCache;
 import com.ctrip.framework.apollo.configservice.service.config.DefaultConfigService;
 import com.ctrip.framework.apollo.configservice.util.AccessKeyUtil;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -70,10 +69,12 @@ public class ConfigServiceAutoConfiguration {
 
   @Bean
   public ConfigService configService() {
+    //四种情况
+    //开启增量更新
     if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
-      return new ConfigServiceWithChangeCache(releaseService, releaseMessageService,
-          grayReleaseRulesHolder(), bizConfig, meterRegistry);
+
     }
+    //开启本地缓存
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
           grayReleaseRulesHolder(), bizConfig, meterRegistry);
