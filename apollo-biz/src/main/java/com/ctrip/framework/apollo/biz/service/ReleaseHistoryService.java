@@ -65,6 +65,8 @@ public class ReleaseHistoryService {
       ApolloThreadFactory.create("ReleaseHistoryService", true));
   private final AtomicBoolean cleanStopped = new AtomicBoolean(false);
 
+  private static final int BATCH_SIZE = 100; // Number of records processed per batch
+
   private final ReleaseHistoryRepository releaseHistoryRepository;
   private final ReleaseRepository releaseRepository;
   private final AuditService auditService;
@@ -189,7 +191,7 @@ public class ReleaseHistoryService {
     String branchName = cleanRelease.getBranchName();
 
     int retentionLimit = this.getReleaseHistoryRetentionLimit(cleanRelease);
-    //Second check, if retentionLimit is default value, do not clean
+    // Second check, if retentionLimit is default value, do not clean
     if (retentionLimit == DEFAULT_RELEASE_HISTORY_RETENTION_SIZE) {
       return;
     }
@@ -202,10 +204,11 @@ public class ReleaseHistoryService {
     boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
       List<ReleaseHistory> cleanReleaseHistoryList = releaseHistoryRepository.findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
-          appId, clusterName, namespaceName, branchName, maxId.get());
+              appId, clusterName, namespaceName, branchName, maxId.get());
+
       Set<Long> releaseIds = cleanReleaseHistoryList.stream()
-          .map(ReleaseHistory::getReleaseId)
-          .collect(Collectors.toSet());
+              .map(ReleaseHistory::getReleaseId)
+              .collect(Collectors.toSet());
 
       transactionManager.execute(new TransactionCallbackWithoutResult() {
         @Override
@@ -214,7 +217,8 @@ public class ReleaseHistoryService {
           releaseRepository.deleteAllById(releaseIds);
         }
       });
-      hasMore = cleanReleaseHistoryList.size() == 100;
+
+      hasMore = cleanReleaseHistoryList.size() == BATCH_SIZE;
     }
   }
 
