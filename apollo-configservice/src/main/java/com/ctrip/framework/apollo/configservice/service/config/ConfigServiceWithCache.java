@@ -258,8 +258,10 @@ public class ConfigServiceWithCache extends AbstractConfigService {
           Release release = releaseService.findByReleaseKey(key);
 
           transaction.setStatus(Transaction.SUCCESS);
-
-          return release.getId();
+          if(release != null){
+            return release.getId();
+          }
+          return null;
         } catch (Throwable ex) {
           transaction.setStatus(ex);
           throw ex;

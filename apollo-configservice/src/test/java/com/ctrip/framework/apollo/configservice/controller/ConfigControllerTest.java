@@ -20,6 +20,8 @@ import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.configservice.service.AppNamespaceServiceWithCache;
+import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
+import com.ctrip.framework.apollo.configservice.service.config.IncrementalSyncService;
 import com.ctrip.framework.apollo.configservice.util.InstanceConfigAuditUtil;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.core.ConfigConsts;
@@ -59,7 +61,9 @@ public class ConfigControllerTest {
 
   private ConfigController configController;
   @Mock
-  private Service configService;
+  private ConfigService configService;
+  @Mock
+  private IncrementalSyncService incrementalSyncService;
   @Mock
   private AppNamespaceServiceWithCache appNamespaceService;
   @Mock
@@ -96,7 +100,8 @@ public class ConfigControllerTest {
   @Before
   public void setUp() throws Exception {
     configController = spy(new ConfigController(
-        configService, appNamespaceService, namespaceUtil, instanceConfigAuditUtil, gson, bizConfig
+        configService, incrementalSyncService, appNamespaceService, namespaceUtil,
+        instanceConfigAuditUtil, gson, bizConfig
     ));
 
     someAppId = "1";
@@ -541,7 +546,7 @@ public class ConfigControllerTest {
     String clientSideReleaseKey = "1";
     String someConfigurations = "{\"apollo.public.foo\": \"foo\"}";
     HttpServletResponse someResponse = mock(HttpServletResponse.class);
-    Map<String, Release> someReleaseMap = mock(Map.class);
+    ImmutableMap<String, Release> someReleaseMap = mock(ImmutableMap.class);
 
     String anotherConfigurations = "{\"apollo.public.foo\": \"foo\", \"apollo.public.bar\": \"bar\"}";
 
@@ -557,8 +562,9 @@ public class ConfigControllerTest {
 
     List<ConfigurationChange> configurationChanges = new ArrayList<>();
     configurationChanges.add(new ConfigurationChange("apollo.public.bar", "bar", "ADDED"));
-    when(configService.calcConfigurationChanges(
+    when(incrementalSyncService.getConfigurationChanges("someServerSideNewReleaseKey",
         gson.fromJson(anotherConfigurations, configurationTypeReference),
+        "someServerSideNewReleaseKey",
         gson.fromJson(someConfigurations, configurationTypeReference)))
         .thenReturn(configurationChanges);
 
@@ -605,7 +611,7 @@ public class ConfigControllerTest {
     String somePublicAppClientSideReleaseKey = "2";
     String someConfigurations = "{\"apollo.public.foo.client\": \"foo.override\"}";
     String somePublicConfigurations = "{\"apollo.public.foo.client\": \"foo\"}";
-    Map<String, Release> someReleaseMap = mock(Map.class);
+    ImmutableMap<String, Release> someReleaseMap = mock(ImmutableMap.class);
     Release somePublicRelease = mock(Release.class);
 
     when(configService.findReleasesByReleaseKeys(Sets.newHashSet(someAppClientSideReleaseKey,
@@ -649,8 +655,9 @@ public class ConfigControllerTest {
     configurationChanges.add(new ConfigurationChange("apollo.public.bar", "bar", "ADDED"));
     configurationChanges.add(new ConfigurationChange("apollo.public.foo", "foo-override", "ADDED"));
     configurationChanges.add(new ConfigurationChange("apollo.public.foo.client", null, "DELETED"));
-    when(configService.calcConfigurationChanges(
+    when(incrementalSyncService.getConfigurationChanges("",
         gson.fromJson(mergeServerSideConfigurations, configurationTypeReference),
+        "",
         gson.fromJson(mergeClientSideConfigurations, configurationTypeReference)))
         .thenReturn(configurationChanges);
 

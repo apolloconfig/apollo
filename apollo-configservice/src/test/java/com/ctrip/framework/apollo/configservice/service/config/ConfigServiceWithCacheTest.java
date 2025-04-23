@@ -107,9 +107,13 @@ public class ConfigServiceWithCacheTest {
   @Test
   public void testFindReleasesByReleaseKeys() {
     String someReleaseKey = "someReleaseKey";
+    long someId = 1;
     Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
 
     when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(someRelease);
+    when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
+    when(someRelease.getId()).thenReturn(someId);
+
 
     ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
         someReleaseKeys);
@@ -128,6 +132,32 @@ public class ConfigServiceWithCacheTest {
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
 
+    verify(releaseService, times(1)).findActiveOne(someId);
+    verify(releaseService, times(1)).findActiveOne(someId);
+  }
+
+  @Test
+  public void testFindReleasesByReleaseKeysWithSameIdMultipleTimes() {
+    String someReleaseKey = "someReleaseKey";
+    long someId = 1;
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(someRelease);
+    when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
+    when(someRelease.getId()).thenReturn(someId);
+
+    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+        someReleaseKeys);
+    ImmutableMap<String, Release> otherReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+        someReleaseKeys);
+
+    assertEquals(1, someReleaseMap.size());
+    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+
+    assertEquals(1, otherReleaseMap.size());
+    assertEquals(someRelease, otherReleaseMap.get(someReleaseKey));
+
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
     verify(releaseService, times(1)).findActiveOne(someId);
   }
 
@@ -148,6 +178,24 @@ public class ConfigServiceWithCacheTest {
 
     verify(releaseService, times(1)).findActiveOne(someId);
     verify(releaseService, times(1)).findActiveOne(anotherId);
+  }
+
+  @Test
+  public void testFindReleasesByReleaseKeysNotFoundMultipleTimes() throws Exception {
+    String someReleaseKey = "someReleaseKey";
+    long someId = 1;
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(null);
+    when(releaseService.findActiveOne(someId)).thenReturn(null);
+
+
+
+    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+        someReleaseKeys);
+    assertEquals(1, someReleaseMap.size());
+    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
   }
 
   @Test
