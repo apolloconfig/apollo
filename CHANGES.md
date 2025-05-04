@@ -10,6 +10,8 @@ Apollo 2.5.0
 * [Feature: Enhanced instance configuration auditing and caching](https://github.com/apolloconfig/apollo/pull/5361)
 * [Feature: Provide a new open API to return the organization list](https://github.com/apolloconfig/apollo/pull/5365)
 * [Refactor: Exception handler adds root cause information](https://github.com/apolloconfig/apollo/pull/5367)
+* [Feature: Enhanced parameter verification for edit item](https://github.com/apolloconfig/apollo/pull/5376)
+* [Feature: Added a new feature to get instance count by namespace.](https://github.com/apolloconfig/apollo/pull/5381)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
