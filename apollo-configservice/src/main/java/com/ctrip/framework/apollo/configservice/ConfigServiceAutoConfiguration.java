@@ -69,13 +69,18 @@ public class ConfigServiceAutoConfiguration {
 
   @Bean
   public ConfigService configService() {
+    //四种情况
+    //开启增量更新
+    if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
+
+    }
+    //开启本地缓存
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
           grayReleaseRulesHolder(), bizConfig, meterRegistry);
     }
     return new DefaultConfigService(releaseService, grayReleaseRulesHolder());
   }
-
   @Bean
   public static NoOpPasswordEncoder passwordEncoder() {
     return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
