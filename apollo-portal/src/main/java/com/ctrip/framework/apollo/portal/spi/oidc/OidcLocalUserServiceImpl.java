@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.ctrip.framework.apollo.portal.util.UserSearchService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -53,11 +55,14 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
 
   private final UserRepository userRepository;
 
+  private final UserSearchService userSearchService;
+
   public OidcLocalUserServiceImpl(
       JdbcUserDetailsManager userDetailsManager,
       UserRepository userRepository) {
     this.userDetailsManager = userDetailsManager;
     this.userRepository = userRepository;
+    this.userSearchService = new UserSearchService(userRepository);
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -89,44 +94,12 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
   @Override
   public List<UserInfo> searchUsers(String keyword, int offset, int limit,
       boolean includeInactiveUsers) {
-    List<UserPO> users = this.findUsers(keyword, includeInactiveUsers);
+    List<UserPO> users = this.userSearchService.findUsers(keyword, includeInactiveUsers);
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
     return users.stream().map(UserPO::toUserInfo)
         .collect(Collectors.toList());
-  }
-
-  private List<UserPO> findUsers(String keyword, boolean includeInactiveUsers) {
-    Map<Long, UserPO> users = new HashMap<>();
-    List<UserPO> byUsername;
-    List<UserPO> byUserDisplayName;
-    if (includeInactiveUsers) {
-      if (StringUtils.isEmpty(keyword)) {
-        return (List<UserPO>) userRepository.findAll();
-      }
-      byUsername = userRepository.findByUsernameLike("%" + keyword + "%");
-      byUserDisplayName = userRepository.findByUserDisplayNameLike("%" + keyword + "%");
-    } else {
-      if (StringUtils.isEmpty(keyword)) {
-        return userRepository.findFirst20ByEnabled(1);
-      }
-      byUsername = userRepository
-          .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-      byUserDisplayName = userRepository
-          .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
-    }
-    if (!CollectionUtils.isEmpty(byUsername)) {
-      for (UserPO user : byUsername) {
-        users.put(user.getId(), user);
-      }
-    }
-    if (!CollectionUtils.isEmpty(byUserDisplayName)) {
-      for (UserPO user : byUserDisplayName) {
-        users.put(user.getId(), user);
-      }
-    }
-    return new ArrayList<>(users.values());
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Apollo Authors
+ * Copyright 2024 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,19 @@
  * limitations under the License.
  *
  */
+
 package com.ctrip.framework.apollo.common.constants;
 
-import com.ctrip.framework.apollo.common.constants.VersionUtil;
-
 /**
- * @author Jason Song(song_s@ctrip.com)
+ * Utility class for retrieving version information.
  */
-public class ApolloServer {
-  public static final String VERSION = VersionUtil.getVersion(ApolloServer.class);
+public class VersionUtil {
+    private VersionUtil() {
+        // Prevent instantiation
+    }
+
+    public static String getVersion(Class<?> clazz) {
+        String implementationVersion = clazz.getPackage().getImplementationVersion();
+        return "java-" + (implementationVersion != null ? implementationVersion : "unknown");
+    }
 }
