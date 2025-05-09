@@ -12,3 +12,8 @@
 项目地址：[xhrg-product/apollo-client-python](https://github.com/xhrg-product/apollo-client-python)
 
 > 非常感谢[@xhrg-product](https://github.com/xhrg-product)提供Python Apollo客户端的支持
+
+### Apollo Python 客户端 4
+项目地址：[OuterCloud/pyapollo](https://github.com/OuterCloud/pyapollo.git)
+
+> 非常感谢[@OuterCloud](https://github.com/OuterCloud)提供Python Apollo客户端的支持
