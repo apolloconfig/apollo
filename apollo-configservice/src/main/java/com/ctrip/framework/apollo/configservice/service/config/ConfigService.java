@@ -49,5 +49,5 @@ public interface ConfigService extends ReleaseMessageListener {
    * @param releaseKeys
    * @return the ReleaseMap
    */
-  ImmutableMap<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys);
+  Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys);
 }
