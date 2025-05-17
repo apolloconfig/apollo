@@ -74,7 +74,7 @@ public class ConfigServiceAutoConfiguration {
     if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
 
     }
-    //开启本地缓存
+    // enable local cache
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
           grayReleaseRulesHolder(), bizConfig, meterRegistry);
