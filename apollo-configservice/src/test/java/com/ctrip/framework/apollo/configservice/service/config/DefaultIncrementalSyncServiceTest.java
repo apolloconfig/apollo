@@ -24,10 +24,15 @@ import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
+import com.ctrip.framework.apollo.configservice.service.config.DefaultIncrementalSyncService.ReleaseKeyPair;
 import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
+import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.lang.reflect.Field;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +44,10 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author jason
@@ -67,12 +75,19 @@ public class DefaultIncrementalSyncServiceTest {
 
   private String newReleaseKey;
 
+  private String someClientSideReleaseKey;
+  private String someLatestMergedReleaseKey;
+  private Map<String, String> someClientSideConfigurations;
+  private Map<String, String> someLatestReleaseConfigurations;
+  private Cache<ReleaseKeyPair, List<ConfigurationChange>> configurationChangeCache;
+
+
 
 
   @Before
   public void setUp() throws Exception {
     defaultIncrementalSyncService = new DefaultIncrementalSyncService();
-
+    configurationChangeCache = getConfigurationChangeCache(defaultIncrementalSyncService);
     someReleaseKey = "someReleaseKey";
     someAppId = "someAppId";
     someClusterName = "someClusterName";
@@ -82,6 +97,88 @@ public class DefaultIncrementalSyncServiceTest {
 
     someKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
 
+    someClientSideReleaseKey = "client-release-key-v1";
+    someLatestMergedReleaseKey = "latest-release-key-v1";
+
+    someClientSideConfigurations = Maps.newHashMap();
+    someClientSideConfigurations.put("k1", "v1");
+    someClientSideConfigurations.put("k2", "v2");
+
+    someLatestReleaseConfigurations = Maps.newHashMap();
+    someLatestReleaseConfigurations.put("k1", "v1-new");
+    someLatestReleaseConfigurations.put("k3", "v3");
+  }
+
+
+  @SuppressWarnings("unchecked")
+  private Cache<ReleaseKeyPair, List<ConfigurationChange>> getConfigurationChangeCache(
+      DefaultIncrementalSyncService service) {
+    try {
+      Field cacheField = service.getClass().getDeclaredField("configurationChangeCache");
+      cacheField.setAccessible(true);
+      return (Cache<ReleaseKeyPair, List<ConfigurationChange>>) cacheField.get(service);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to get cache field", e);
+    }
+  }
+
+  @Test
+  public void testConfigurationChangeCacheHit() {
+
+    List<ConfigurationChange> firstResult = defaultIncrementalSyncService.getConfigurationChanges(
+        someLatestMergedReleaseKey,
+        someLatestReleaseConfigurations,
+        someClientSideReleaseKey,
+        someClientSideConfigurations
+    );
+
+    ReleaseKeyPair key = new ReleaseKeyPair(someClientSideReleaseKey, someLatestMergedReleaseKey);
+    List<ConfigurationChange> cachedResult = configurationChangeCache.getIfPresent(key);
+    assertNotNull(cachedResult);
+    assertSame(firstResult, cachedResult);
+
+    List<ConfigurationChange> secondResult = defaultIncrementalSyncService.getConfigurationChanges(
+        someLatestMergedReleaseKey,
+        someLatestReleaseConfigurations,
+        someClientSideReleaseKey,
+        someClientSideConfigurations
+    );
+
+    assertSame(firstResult, secondResult);
+  }
+
+  @Test
+  public void testConfigurationChangeCacheMiss() {
+    defaultIncrementalSyncService.getConfigurationChanges(
+        someLatestMergedReleaseKey,
+        someLatestReleaseConfigurations,
+        someClientSideReleaseKey,
+        someClientSideConfigurations
+    );
+
+    String differentLatestMergedReleaseKey = "different-latest-key";
+    ReleaseKeyPair differentKey = new ReleaseKeyPair(someClientSideReleaseKey,
+        differentLatestMergedReleaseKey);
+
+    assertNull(configurationChangeCache.getIfPresent(differentKey));
+  }
+
+  @Test
+  public void testConfigurationChangeCacheWithNullValues() {
+
+    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
+        someLatestMergedReleaseKey,
+        null,
+        someClientSideReleaseKey,
+        null
+    );
+
+    ReleaseKeyPair key = new ReleaseKeyPair(someClientSideReleaseKey, someLatestMergedReleaseKey);
+
+    List<ConfigurationChange> cachedResult = configurationChangeCache.getIfPresent(key);
+    assertNotNull(cachedResult);
+    assertSame(result, cachedResult);
+    Assert.assertTrue(result.isEmpty());
   }
 
   @Test
@@ -176,5 +273,6 @@ public class DefaultIncrementalSyncServiceTest {
     assertEquals(null, result.get(0).getNewValue());
     assertEquals("DELETED", result.get(0).getConfigurationChangeType());
   }
+
 
 }
