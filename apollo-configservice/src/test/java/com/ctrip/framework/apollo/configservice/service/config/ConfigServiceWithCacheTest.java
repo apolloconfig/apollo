@@ -194,16 +194,14 @@ public class ConfigServiceWithCacheTest {
   @Test
   public void testFindReleasesByReleaseKeysNotFoundMultipleTimes() throws Exception {
     String someReleaseKey = "someReleaseKey";
-    long someId = 1;
     Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
 
     when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(null);
-    when(releaseService.findActiveOne(someId)).thenReturn(null);
 
-    Map<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
-        someReleaseKeys);
-    assertEquals(1, someReleaseMap.size());
-    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+
     verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
   }
 

@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -123,13 +124,13 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
         return false;
       }
       ReleaseKeyPair that = (ReleaseKeyPair) obj;
-      return clientSideReleaseKey.equals(that.clientSideReleaseKey) &&
-          latestMergedReleaseKey.equals(that.latestMergedReleaseKey);
+      return Objects.equals(clientSideReleaseKey, that.clientSideReleaseKey) &&
+          Objects.equals(latestMergedReleaseKey, that.latestMergedReleaseKey);
     }
 
     @Override
     public int hashCode() {
-      return clientSideReleaseKey.hashCode() * 31 + latestMergedReleaseKey.hashCode();
+      return Objects.hash(clientSideReleaseKey, latestMergedReleaseKey);
     }
   }
 

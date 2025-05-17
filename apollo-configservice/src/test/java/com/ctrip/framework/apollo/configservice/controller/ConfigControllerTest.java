@@ -58,7 +58,6 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigControllerTest {
-
   private ConfigController configController;
   @Mock
   private ConfigService configService;
