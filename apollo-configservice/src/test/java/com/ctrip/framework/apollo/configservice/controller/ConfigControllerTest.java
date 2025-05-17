@@ -547,6 +547,7 @@ public class ConfigControllerTest {
     HttpServletResponse someResponse = mock(HttpServletResponse.class);
     ImmutableMap<String, Release> someReleaseMap = mock(ImmutableMap.class);
 
+    String someServerSideNewReleaseKey = "2";
     String anotherConfigurations = "{\"apollo.public.foo\": \"foo\", \"apollo.public.bar\": \"bar\"}";
 
     when(configService.findReleasesByReleaseKeys(Sets.newHashSet(clientSideReleaseKey))).thenReturn(
@@ -558,12 +559,14 @@ public class ConfigControllerTest {
         someDataCenter, someNotificationMessages)).thenReturn(anotherRelease);
     when(anotherRelease.getNamespaceName()).thenReturn(defaultNamespaceName);
     when(anotherRelease.getConfigurations()).thenReturn(anotherConfigurations);
+    when(anotherRelease.getReleaseKey()).thenReturn(someServerSideNewReleaseKey);
+
 
     List<ConfigurationChange> configurationChanges = new ArrayList<>();
     configurationChanges.add(new ConfigurationChange("apollo.public.bar", "bar", "ADDED"));
-    when(incrementalSyncService.getConfigurationChanges("someServerSideNewReleaseKey",
+    when(incrementalSyncService.getConfigurationChanges(someServerSideNewReleaseKey,
         gson.fromJson(anotherConfigurations, configurationTypeReference),
-        "someServerSideNewReleaseKey",
+        clientSideReleaseKey,
         gson.fromJson(someConfigurations, configurationTypeReference)))
         .thenReturn(configurationChanges);
 
@@ -621,7 +624,7 @@ public class ConfigControllerTest {
     when(somePublicRelease.getConfigurations()).thenReturn(somePublicConfigurations);
 
     String someAppServerSideReleaseKey = "3";
-    String somePublicAppSideReleaseKey = "4";
+    String somePublicAppServerSideReleaseKey = "4";
 
     HttpServletResponse someResponse = mock(HttpServletResponse.class);
     String somePublicAppId = "somePublicAppId";
@@ -643,33 +646,34 @@ public class ConfigControllerTest {
     when(configService.loadConfig(someAppId, someClientIp, someClientLabel, somePublicAppId,
         someClusterName, somePublicNamespaceName,
         someDataCenter, someNotificationMessages)).thenReturn(anotherPublicRelease);
-    when(anotherPublicRelease.getReleaseKey()).thenReturn(somePublicAppSideReleaseKey);
+    when(anotherPublicRelease.getReleaseKey()).thenReturn(somePublicAppServerSideReleaseKey);
     when(anotherPublicRelease.getAppId()).thenReturn(somePublicAppId);
     when(anotherPublicRelease.getClusterName()).thenReturn(someDataCenter);
     when(anotherPublicRelease.getNamespaceName()).thenReturn(somePublicNamespaceName);
 
     String mergeServerSideConfigurations = "{\"apollo.public.bar\": \"bar\",\"apollo.public.foo\": \"foo-override\"}";
+    String mergeServerSideReleaseKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+        .join(someAppServerSideReleaseKey, somePublicAppServerSideReleaseKey);
     String mergeClientSideConfigurations = "{\"apollo.public.foo.client\": \"foo.override\"}";
+    String mergeClientSideReleaseKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
+        .join(someAppClientSideReleaseKey, somePublicAppClientSideReleaseKey);
     List<ConfigurationChange> configurationChanges = new ArrayList<>();
     configurationChanges.add(new ConfigurationChange("apollo.public.bar", "bar", "ADDED"));
     configurationChanges.add(new ConfigurationChange("apollo.public.foo", "foo-override", "ADDED"));
     configurationChanges.add(new ConfigurationChange("apollo.public.foo.client", null, "DELETED"));
-    when(incrementalSyncService.getConfigurationChanges("",
+    when(incrementalSyncService.getConfigurationChanges(mergeServerSideReleaseKey,
         gson.fromJson(mergeServerSideConfigurations, configurationTypeReference),
-        "",
+        mergeClientSideReleaseKey,
         gson.fromJson(mergeClientSideConfigurations, configurationTypeReference)))
         .thenReturn(configurationChanges);
 
-    String mergeClientSideReleaseKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-        .join(someAppClientSideReleaseKey, somePublicAppClientSideReleaseKey);
+
     ApolloConfig result = configController.queryConfig(someAppId, someClusterName,
         somePublicNamespaceName, someDataCenter,
         mergeClientSideReleaseKey, someClientIp, someClientLabel, someMessagesAsString, someRequest,
         someResponse);
 
-    assertEquals(Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-            .join(someAppServerSideReleaseKey, somePublicAppSideReleaseKey),
-        result.getReleaseKey());
+    assertEquals(mergeServerSideReleaseKey, result.getReleaseKey());
     assertEquals(ConfigSyncType.INCREMENTAL_SYNC.getValue(), result.getConfigSyncType());
     assertEquals(configurationChanges, result.getConfigurationChanges());
   }
