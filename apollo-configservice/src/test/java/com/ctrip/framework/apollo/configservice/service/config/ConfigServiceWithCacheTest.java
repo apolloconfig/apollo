@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -28,7 +29,11 @@ import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 
+import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,6 +52,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigServiceWithCacheTest {
+
   private ConfigServiceWithCache configServiceWithCache;
 
   @Mock
@@ -100,6 +106,28 @@ public class ConfigServiceWithCacheTest {
   }
 
   @Test
+  public void testFindReleasesByReleaseKeys() {
+    String someReleaseKey = "someReleaseKey";
+    long someId = 1;
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(someRelease);
+    when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
+    when(someRelease.getId()).thenReturn(someId);
+
+    Map<String, Release> someReleaseMap = null;
+    try {
+      someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+    } catch (ExecutionException e) {
+
+    }
+    assertEquals(1, someReleaseMap.size());
+    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
+  }
+
+  @Test
   public void testFindActiveOneWithSameIdMultipleTimes() throws Exception {
     long someId = 1;
 
@@ -109,6 +137,38 @@ public class ConfigServiceWithCacheTest {
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
 
+    verify(releaseService, times(1)).findActiveOne(someId);
+    verify(releaseService, times(1)).findActiveOne(someId);
+  }
+
+  @Test
+  public void testFindReleasesByReleaseKeysWithSameIdMultipleTimes() {
+    String someReleaseKey = "someReleaseKey";
+    long someId = 1;
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(someRelease);
+    when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
+    when(someRelease.getId()).thenReturn(someId);
+
+    Map<String, Release> someReleaseMap = null;
+    Map<String, Release> otherReleaseMap = null;
+    try {
+      someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+      otherReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+    } catch (ExecutionException e) {
+
+    }
+
+    assertEquals(1, someReleaseMap.size());
+    assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
+
+    assertEquals(1, otherReleaseMap.size());
+    assertEquals(someRelease, otherReleaseMap.get(someReleaseKey));
+
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
     verify(releaseService, times(1)).findActiveOne(someId);
   }
 
@@ -129,6 +189,20 @@ public class ConfigServiceWithCacheTest {
 
     verify(releaseService, times(1)).findActiveOne(someId);
     verify(releaseService, times(1)).findActiveOne(anotherId);
+  }
+
+  @Test
+  public void testFindReleasesByReleaseKeysNotFoundMultipleTimes() throws Exception {
+    String someReleaseKey = "someReleaseKey";
+    Set<String> someReleaseKeys = Sets.newHashSet(someReleaseKey);
+
+    when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(null);
+
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+    assertEquals(0, configServiceWithCache.findReleasesByReleaseKeys(someReleaseKeys).size());
+
+    verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
   }
 
   @Test
@@ -299,4 +373,6 @@ public class ConfigServiceWithCacheTest {
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(Lists.newArrayList(someKey));
     verify(releaseService, times(1)).findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
   }
+
+
 }
