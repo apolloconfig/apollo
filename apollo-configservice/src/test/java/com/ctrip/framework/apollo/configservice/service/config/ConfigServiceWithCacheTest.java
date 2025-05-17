@@ -33,6 +33,7 @@ import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,9 +115,13 @@ public class ConfigServiceWithCacheTest {
     when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
     when(someRelease.getId()).thenReturn(someId);
 
+    Map<String, Release> someReleaseMap = null;
+    try {
+      someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+    } catch (ExecutionException e) {
 
-    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
-        someReleaseKeys);
+    }
     assertEquals(1, someReleaseMap.size());
     assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
     verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
@@ -146,10 +151,16 @@ public class ConfigServiceWithCacheTest {
     when(releaseService.findActiveOne(someId)).thenReturn(someRelease);
     when(someRelease.getId()).thenReturn(someId);
 
-    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
-        someReleaseKeys);
-    ImmutableMap<String, Release> otherReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
-        someReleaseKeys);
+    Map<String, Release> someReleaseMap = null;
+    Map<String, Release> otherReleaseMap = null;
+    try {
+      someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+      otherReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+    } catch (ExecutionException e) {
+
+    }
 
     assertEquals(1, someReleaseMap.size());
     assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
@@ -189,9 +200,7 @@ public class ConfigServiceWithCacheTest {
     when(releaseService.findByReleaseKey(someReleaseKey)).thenReturn(null);
     when(releaseService.findActiveOne(someId)).thenReturn(null);
 
-
-
-    ImmutableMap<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+    Map<String, Release> someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
         someReleaseKeys);
     assertEquals(1, someReleaseMap.size());
     assertEquals(someRelease, someReleaseMap.get(someReleaseKey));

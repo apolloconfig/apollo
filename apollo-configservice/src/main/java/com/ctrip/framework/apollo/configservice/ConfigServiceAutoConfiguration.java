@@ -31,6 +31,8 @@ import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWit
 import com.ctrip.framework.apollo.configservice.service.config.ConfigService;
 import com.ctrip.framework.apollo.configservice.service.config.ConfigServiceWithCache;
 import com.ctrip.framework.apollo.configservice.service.config.DefaultConfigService;
+import com.ctrip.framework.apollo.configservice.service.config.DefaultIncrementalSyncService;
+import com.ctrip.framework.apollo.configservice.service.config.IncrementalSyncService;
 import com.ctrip.framework.apollo.configservice.util.AccessKeyUtil;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -69,17 +71,17 @@ public class ConfigServiceAutoConfiguration {
 
   @Bean
   public ConfigService configService() {
-    //四种情况
-    //开启增量更新
-    if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
-
-    }
     // enable local cache
     if (bizConfig.isConfigServiceCacheEnabled()) {
       return new ConfigServiceWithCache(releaseService, releaseMessageService,
           grayReleaseRulesHolder(), bizConfig, meterRegistry);
     }
     return new DefaultConfigService(releaseService, grayReleaseRulesHolder());
+  }
+
+  @Bean
+  public IncrementalSyncService incrementalSyncService() {
+    return new DefaultIncrementalSyncService();
   }
   @Bean
   public static NoOpPasswordEncoder passwordEncoder() {

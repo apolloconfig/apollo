@@ -55,17 +55,15 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
     }
 
     List<ConfigurationChange> computed = calcConfigurationChanges(
-        latestMergedReleaseKey, latestReleaseConfigurations,
-        clientSideReleaseKey, clientSideConfigurations);
+        latestReleaseConfigurations, clientSideConfigurations);
 
     configurationChangeCache.put(key, computed);
     return computed;
   }
 
-  private List<ConfigurationChange> calcConfigurationChanges(String latestMergedReleaseKey,
-      Map<String, String> latestReleaseConfigurations, String clientSideReleaseKey,
+  private List<ConfigurationChange> calcConfigurationChanges(
+      Map<String, String> latestReleaseConfigurations,
       Map<String, String> clientSideConfigurations) {
-    ReleaseKeyPair key = new ReleaseKeyPair(clientSideReleaseKey, latestMergedReleaseKey);
 
     if (latestReleaseConfigurations == null) {
       latestReleaseConfigurations = new HashMap<>();

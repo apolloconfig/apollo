@@ -37,6 +37,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -165,40 +166,44 @@ public class ConfigController {
 
     Map<String, String> latestConfigurations = mergeReleaseConfigurations(releases);
 
-    if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
-      LinkedHashSet<String> clientSideReleaseKeys = Sets.newLinkedHashSet(
-          Arrays.stream(
-                  clientSideReleaseKey.split(Pattern.quote(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)))
-              .collect(Collectors.toList()));
+    try {
+      if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
+        LinkedHashSet<String> clientSideReleaseKeys = Sets.newLinkedHashSet(
+            Arrays.stream(
+                    clientSideReleaseKey.split(Pattern.quote(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)))
+                .collect(Collectors.toList()));
 
-      Map<String, Release> clientSideReleases = configService.findReleasesByReleaseKeys(
-          clientSideReleaseKeys);
-      //find history releases
-      if (clientSideReleases != null) {
-        //order by clientSideReleaseKeys
-        List<Release> historyReleasesWithOrder = new ArrayList<>();
-        for (String item : clientSideReleaseKeys) {
-          Release release = clientSideReleases.get(item);
-          if (release != null) {
-            historyReleasesWithOrder.add(release);
+        Map<String, Release> clientSideReleases = configService.findReleasesByReleaseKeys(
+            clientSideReleaseKeys);
+        //find history releases
+        if (clientSideReleases != null) {
+          //order by clientSideReleaseKeys
+          List<Release> historyReleasesWithOrder = new ArrayList<>();
+          for (String item : clientSideReleaseKeys) {
+            Release release = clientSideReleases.get(item);
+            if (release != null) {
+              historyReleasesWithOrder.add(release);
+            }
           }
+
+          Map<String, String> clientSideConfigurations = mergeReleaseConfigurations
+              (historyReleasesWithOrder);
+
+          List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
+              latestMergedReleaseKey,
+              latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
+
+          apolloConfig.setConfigurationChanges(configurationChanges);
+
+          apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
+          Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
+              originalNamespace, dataCenter));
+          return apolloConfig;
         }
 
-        Map<String, String> clientSideConfigurations = mergeReleaseConfigurations
-            (historyReleasesWithOrder);
-
-        List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
-            latestMergedReleaseKey,
-            latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
-
-        apolloConfig.setConfigurationChanges(configurationChanges);
-
-        apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
-        Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
-            originalNamespace, dataCenter));
-        return apolloConfig;
       }
-
+    } catch (ExecutionException e) {
+      //fallback to full sync
     }
 
     apolloConfig.setConfigurations(latestConfigurations);

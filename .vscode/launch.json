@@ -1,0 +1,77 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "LocalAdminServiceApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.LocalAdminServiceApplication",
+            "projectName": "apollo-adminservice"
+        },
+        {
+            "type": "java",
+            "name": "AdminServiceApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.adminservice.AdminServiceApplication",
+            "projectName": "apollo-adminservice"
+        },
+        {
+            "type": "java",
+            "name": "ApolloApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.assembly.ApolloApplication",
+            "projectName": "apollo-assembly"
+        },
+        {
+            "type": "java",
+            "name": "LocalApolloApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.assembly.LocalApolloApplication",
+            "projectName": "apollo-assembly"
+        },
+        {
+            "type": "java",
+            "name": "ApolloSqlConverter",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.build.sql.converter.ApolloSqlConverter",
+            "projectName": "apollo-build-sql-converter"
+        },
+        {
+            "type": "java",
+            "name": "LocalConfigServiceApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.LocalConfigServiceApplication",
+            "projectName": "apollo-configservice"
+        },
+        {
+            "type": "java",
+            "name": "ConfigServiceApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.configservice.ConfigServiceApplication",
+            "projectName": "apollo-configservice"
+        },
+        {
+            "type": "java",
+            "name": "LocalPortalApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.LocalPortalApplication",
+            "projectName": "apollo-portal"
+        },
+        {
+            "type": "java",
+            "name": "PortalApplication",
+            "request": "launch",
+            "mainClass": "com.ctrip.framework.apollo.portal.PortalApplication",
+            "projectName": "apollo-portal"
+        }
+    ]
+}

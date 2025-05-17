@@ -19,9 +19,9 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.message.ReleaseMessageListener;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
-import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -49,5 +49,5 @@ public interface ConfigService extends ReleaseMessageListener {
    * @param releaseKeys
    * @return the ReleaseMap
    */
-  Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys);
+  Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) throws ExecutionException;
 }

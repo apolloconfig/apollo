@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.google.common.base.Strings;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -39,6 +38,7 @@ import com.ctrip.framework.apollo.tracer.spi.Transaction;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -60,18 +60,17 @@ import org.springframework.util.CollectionUtils;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class ConfigServiceWithCache extends AbstractConfigService {
-
   private static final Logger logger = LoggerFactory.getLogger(ConfigServiceWithCache.class);
   private static final long DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES = 60;//1 hour
   private static final String TRACER_EVENT_CACHE_INVALIDATE = "ConfigCache.Invalidate";
   private static final String TRACER_EVENT_CACHE_LOAD = "ConfigCache.LoadFromDB";
   private static final String TRACER_EVENT_CACHE_LOAD_ID = "ConfigCache.LoadFromDBById";
-
-  private static final String TRACER_EVENT_CACHE_LOAD_RELEASEKEY = "ConfigCache.LoadFromDBByReleaseKey";
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
+  private static final String TRACER_EVENT_CACHE_LOAD_RELEASEKEY = "ConfigCache.LoadFromDBByReleaseKey";
 
-  protected final ReleaseService releaseService;
+
+  private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
   protected final BizConfig bizConfig;
   private final MeterRegistry meterRegistry;
@@ -80,7 +79,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   private LoadingCache<Long, Optional<Release>> configIdCache;
 
-  private LoadingCache<String, Long> releaseKeyCache;
+  private LoadingCache<String, Optional<Long>> releaseKeyCache;
 
   private ConfigCacheEntry nullConfigCacheEntry;
 
@@ -162,36 +161,34 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   }
 
   @Override
-  public ImmutableMap<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) {
-    try {
-      ImmutableMap<String, Long> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
-      if (CollectionUtils.isEmpty(releaseKeyMap)) {
-        return null;
-      }
+  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys)
+      throws ExecutionException {
 
-      Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(releaseKeyMap.values());
-      if (CollectionUtils.isEmpty(releasesMap)) {
-        return null;
-      }
-
-      Map<String, Release> releases = new HashMap<>();
-      releaseKeyMap.forEach((releaseKey,id) -> {
-        if (releasesMap.containsKey(id)) {
-          Release release = releasesMap.get(id).orElse(null);
-          if(release!=null){
-            releases.put(releaseKey, releasesMap.get(id).orElse(null));
-          }
-        }
-      });
-
-      if(releases.size()>0){
-        return ImmutableMap.copyOf(releases);
-      }
-
-    } catch (ExecutionException e) {
-
+    ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
+    if (CollectionUtils.isEmpty(releaseKeyMap)) {
+      return Collections.emptyMap();
     }
-    return null;
+
+    Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
+    for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
+      entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
+    }
+    if (validReleaseKeyIdMap.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(validReleaseKeyIdMap.values());
+    if (CollectionUtils.isEmpty(releasesMap)) {
+      return Collections.emptyMap();
+    }
+
+    Map<String, Release> releases = new HashMap<>();
+    for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
+      Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
+      releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
+    }
+
+    return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
   }
 
   private void buildConfigCache() {
@@ -249,9 +246,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
       releaseKeyCacheBuilder.recordStats();
     }
-    releaseKeyCache = releaseKeyCacheBuilder.build(new CacheLoader<String, Long>() {
+    releaseKeyCache = releaseKeyCacheBuilder.build(new CacheLoader<String, Optional<Long>>() {
       @Override
-      public Long load(String key) throws Exception {
+      public Optional<Long> load(String key) throws Exception {
         Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASEKEY,
             String.valueOf(key));
         try {
@@ -259,9 +256,9 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
           transaction.setStatus(Transaction.SUCCESS);
           if(release != null){
-            return release.getId();
+            return Optional.ofNullable(release.getId());
           }
-          return null;
+          return Optional.empty();
         } catch (Throwable ex) {
           transaction.setStatus(ex);
           throw ex;
