@@ -35,7 +35,9 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
   @Query("SELECT r.id from Role r where r.roleName like CONCAT('Master+', ?1) "
       + "OR r.roleName like CONCAT('ModifyNamespace+', ?1, '+%') "
       + "OR r.roleName like CONCAT('ReleaseNamespace+', ?1, '+%')  "
-      + "OR r.roleName like CONCAT('ManageAppMaster+', ?1)")
+      + "OR r.roleName like CONCAT('ManageAppMaster+', ?1) "
+      + "OR r.roleName like CONCAT('ModifyNamespacesInCluster+', ?1, '+%')"
+      + "OR r.roleName like CONCAT('ReleaseNamespacesInCluster+', ?1, '+%')")
   List<Long> findRoleIdsByAppId(String appId);
 
   @Query("SELECT r.id from Role r where r.roleName like CONCAT('ModifyNamespace+', ?1, '+', ?2) "
