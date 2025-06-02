@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.enricher.adapter.AppDtoUserInfoEnrichedAdapter;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
@@ -104,6 +105,12 @@ public class AppController {
 
   @GetMapping("/by-owner")
   public List<App> findAppsByOwner(@RequestParam("owner") String owner, Pageable page) {
+    UserInfo loginUser = userInfoHolder.getUser();
+    if(!Objects.equals(loginUser.getUserId(), owner)) {
+      // User can only search his own apps
+      owner = loginUser.getUserId();
+    }
+
     Set<String> appIds = Sets.newHashSet();
 
     List<Role> userRoles = rolePermissionService.findUserRoles(owner);
