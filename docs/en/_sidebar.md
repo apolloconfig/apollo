@@ -30,6 +30,7 @@
   - [NodeJS Client Usage Guide](en/client/nodejs-sdks-user-guide.md)
   - [PHP Client Usage Guide](en/client/php-sdks-user-guide.md)
   - [C Client Usage Guide](en/client/c-sdks-user-guide.md)
+  - [C++ Client Usage Guide](en/client/cpp-sdks-user-guide.md)
   - [Rust Client Usage Guide](en/client/rust-sdks-user-guide.md)
   - [K8S ConfigMap Integration Usage Guide](en/client/k8s-configmap-user-guide.md)
   - [HTTP API Guide](en/client/other-language-client-user-guide.md)
