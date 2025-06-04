@@ -33,12 +33,14 @@ public class ClusterService {
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ClusterAPI clusterAPI;
   private final RoleInitializationService roleInitializationService;
+  private final RolePermissionService rolePermissionService;
 
   public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI,
-      RoleInitializationService roleInitializationService) {
+      RoleInitializationService roleInitializationService, final RolePermissionService rolePermissionService) {
     this.userInfoHolder = userInfoHolder;
     this.clusterAPI = clusterAPI;
     this.roleInitializationService = roleInitializationService;
+    this.rolePermissionService = rolePermissionService;
   }
 
   public List<ClusterDTO> findClusters(Env env, String appId) {
@@ -60,7 +62,9 @@ public class ClusterService {
   }
 
   public void deleteCluster(Env env, String appId, String clusterName){
-    clusterAPI.delete(env, appId, clusterName, userInfoHolder.getUser().getUserId());
+    String operator = userInfoHolder.getUser().getUserId();
+    rolePermissionService.deleteRolePermissionsByAppIdAndCluster(appId, env.getName(), clusterName, operator);
+    clusterAPI.delete(env, appId, clusterName, operator);
   }
 
   public ClusterDTO loadCluster(String appId, Env env, String clusterName){
