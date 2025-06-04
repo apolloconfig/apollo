@@ -12,6 +12,7 @@ Apollo 2.5.0
 * [Refactor: Exception handler adds root cause information](https://github.com/apolloconfig/apollo/pull/5367)
 * [Feature: Enhanced parameter verification for edit item](https://github.com/apolloconfig/apollo/pull/5376)
 * [Feature: Added a new feature to get instance count by namespace.](https://github.com/apolloconfig/apollo/pull/5381)
+* [BugFix: Remove cluster roles when deleting apps or clusters](https://github.com/apolloconfig/apollo/issues/5392)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)

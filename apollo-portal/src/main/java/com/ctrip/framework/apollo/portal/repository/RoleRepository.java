@@ -35,6 +35,8 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
   @Query("SELECT r.id from Role r where r.roleName like CONCAT('Master+', ?1) "
       + "OR r.roleName like CONCAT('ModifyNamespace+', ?1, '+%') "
       + "OR r.roleName like CONCAT('ReleaseNamespace+', ?1, '+%')  "
+      + "OR r.roleName like CONCAT('ModifyNamespacesInCluster+', ?1, '+%') "
+      + "OR r.roleName like CONCAT('ReleaseNamespacesInCluster+', ?1, '+%') "
       + "OR r.roleName like CONCAT('ManageAppMaster+', ?1)")
   List<Long> findRoleIdsByAppId(String appId);
 
@@ -43,6 +45,10 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
       + "OR r.roleName like CONCAT('ReleaseNamespace+', ?1, '+', ?2) "
       + "OR r.roleName like CONCAT('ReleaseNamespace+', ?1, '+', ?2, '+%')")
   List<Long> findRoleIdsByAppIdAndNamespace(String appId, String namespaceName);
+
+  @Query("SELECT r.id from Role r where r.roleName = CONCAT('ModifyNamespacesInCluster+', ?1, '+', ?2, '+', ?3) "
+      + "OR r.roleName = CONCAT('ReleaseNamespacesInCluster+', ?1, '+', ?2, '+', ?3)")
+  List<Long> findRoleIdsByAppIdAndCluster(String appId, String env, String clusterName);
 
   @Modifying
   @Query("UPDATE Role SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = false")
