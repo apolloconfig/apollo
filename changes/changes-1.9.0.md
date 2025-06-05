@@ -41,7 +41,7 @@ Apollo 1.9.0
 * [Bump xstream from 1.4.16 to 1.4.17](https://github.com/ctripcorp/apollo/pull/3692)
 * [Improve the nacos registry configuration document](https://github.com/ctripcorp/apollo/pull/3695)
 * [Remove redundant invoke of trySyncFromUpstream](https://github.com/ctripcorp/apollo/pull/3699)
-* [add apollo team introduction and community releated contents](https://github.com/ctripcorp/apollo/pull/3713)
+* [add apollo team introduction and community related contents](https://github.com/ctripcorp/apollo/pull/3713)
 * [fix oidc sql](https://github.com/ctripcorp/apollo/pull/3720)
 * [feat(apollo-client): add method interestedChangedKeys to ConfigChangeEvent](https://github.com/ctripcorp/apollo/pull/3666)
 * [add More... link for known users](https://github.com/ctripcorp/apollo/pull/3757)

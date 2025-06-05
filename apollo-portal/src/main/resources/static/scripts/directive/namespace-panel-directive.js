@@ -751,12 +751,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 }
                 namespace.isTextEditing = !namespace.isTextEditing;
                 if (namespace.isTextEditing) {//切换为编辑状态
-                    namespace.commited = false;
+                    namespace.committed = false;
                     namespace.backupText = namespace.text;
                     namespace.editText = parseModel2Text(namespace);
 
                 } else {
-                    if (!namespace.commited) {//取消编辑,则复原
+                    if (!namespace.committed) {//取消编辑,则复原
                         namespace.text = namespace.backupText;
                     }
                 }
@@ -825,7 +825,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                             return false;
                         }
                     );
-                namespace.commited = true;
+                namespace.committed = true;
             }
 
             function syntaxCheck(namespace) {

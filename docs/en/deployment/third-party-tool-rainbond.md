@@ -56,7 +56,7 @@ Parameters：
 | team name | User-defined workspace isolated by namespace                 |
 | cluster name |  Select which K8s cluster Apollo will be deployed to           |
 | application | Select the application to which Apollo will be deployed, which contains several associated components |
-| version | Select the version of Apollo, the useable version is 1.9.2       |
+| version | Select the version of Apollo, the usable version is 1.9.2       |
 
 After a few minutes, the Apollo is installed and up and running.
 
