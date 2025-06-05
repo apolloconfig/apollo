@@ -136,7 +136,7 @@ function changeLinkInTranslationsListItem(currrentPath, translationsListItem) {
 function generateMultipleLanguagesNavbarPluginByListItemName(name) {
     return function (hook, vm) {
         const bindEventForChangeHrefInNavbar = () => {
-            // when user's mouse down, chanage href in navbar
+            // when user's mouse down, change href in navbar
             document.addEventListener("mousedown", _mouseEvent => {
                 const currrentPath = vm.route.path;
                 // find navbar list item by hard code name
