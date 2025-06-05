@@ -87,4 +87,9 @@ public interface RolePermissionService {
    * delete permissions when delete app namespace.
    */
   void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName, String operator);
+
+  /**
+   * delete permissions when delete cluster.
+   */
+  void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
 }

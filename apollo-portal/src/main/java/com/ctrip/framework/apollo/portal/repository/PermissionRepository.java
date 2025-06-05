@@ -50,4 +50,8 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   @Modifying
   @Query("UPDATE Permission SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = false")
   Integer batchDelete(List<Long> permissionIds, String operator);
+
+  @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
+  + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
+  List<Long> findPermissionIdsByCluster(String appId, String env, String clusterName);
 }
