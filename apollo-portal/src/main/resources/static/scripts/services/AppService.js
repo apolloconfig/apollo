@@ -21,11 +21,6 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             isArray: true,
             url: AppUtil.prefixPath() + '/apps'
         },
-        find_app_by_owner: {
-            method: 'GET',
-            isArray: true,
-            url: AppUtil.prefixPath() + '/apps/by-owner'
-        },
         find_app_by_self: {
             method: 'GET',
             isArray: true,
@@ -88,19 +83,6 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             }
             var d = $q.defer();
             app_resource.find_apps({appIds: appIds}, function (result) {
-                d.resolve(result);
-            }, function (result) {
-                d.reject(result);
-            });
-            return d.promise;
-        },
-        find_app_by_owner: function (owner, page, size) {
-            var d = $q.defer();
-            app_resource.find_app_by_owner({
-                                               owner: owner,
-                                               page: page,
-                                               size: size
-                                           }, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
