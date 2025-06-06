@@ -103,17 +103,14 @@ public class AppController {
     return appService.findByAppIds(Sets.newHashSet(appIds.split(",")));
   }
 
-  @GetMapping("/by-owner")
-  public List<App> findAppsByOwner(@RequestParam("owner") String owner, Pageable page) {
+  @GetMapping("/by-self")
+  public List<App> findAppsBySelf(Pageable page) {
     UserInfo loginUser = userInfoHolder.getUser();
-    if(!Objects.equals(loginUser.getUserId(), owner)) {
-      // User can only search his own apps
-      owner = loginUser.getUserId();
-    }
-
+    String userId = loginUser.getUserId();
+    
     Set<String> appIds = Sets.newHashSet();
 
-    List<Role> userRoles = rolePermissionService.findUserRoles(owner);
+    List<Role> userRoles = rolePermissionService.findUserRoles(userId);
 
     for (Role role : userRoles) {
       String appId = RoleUtils.extractAppIdFromRoleName(role.getRoleName());
