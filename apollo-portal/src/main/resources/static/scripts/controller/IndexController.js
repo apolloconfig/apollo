@@ -76,7 +76,7 @@ function IndexController($scope, $window, $translate, toastr, AppUtil, AppServic
 
     function getUserCreatedApps() {
         var size = 10;
-        AppService.find_app_by_owner($scope.userId, $scope.createdAppPage, size)
+        AppService.find_app_by_self($scope.createdAppPage, size)
             .then(function (result) {
                 $scope.createdAppPage += 1;
                 $scope.hasMoreCreatedApps = result.length == size;
