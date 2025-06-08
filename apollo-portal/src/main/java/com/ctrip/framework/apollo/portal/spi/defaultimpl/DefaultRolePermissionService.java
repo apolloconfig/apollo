@@ -353,7 +353,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     @Override
     public void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator) {
         appId = EscapeCharacter.DEFAULT.escape(appId);
-        List<Long> permissionIds = permissionRepository.findPermissionIdsByCluster(appId, env, clusterName);
+        List<Long> permissionIds = permissionRepository.findPermissionIdsByAppIdAndEnvAndCluster(appId, env, clusterName);
         if (!permissionIds.isEmpty()) {
             // 1. delete Permission
             permissionRepository.batchDelete(permissionIds, operator);

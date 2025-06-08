@@ -43,8 +43,12 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   @Query("SELECT p.id from Permission p where p.targetId like ?1 or p.targetId like CONCAT(?1, '+%')")
   List<Long> findPermissionIdsByAppId(String appId);
 
-  @Query("SELECT p.id from Permission p where p.targetId like CONCAT(?1, '+', ?2) "
-      + "OR p.targetId like CONCAT(?1, '+', ?2, '+%')")
+  @Query("SELECT p.id from Permission p "
+      + "where ("
+      + "p.targetId like CONCAT(?1, '+', ?2) OR p.targetId like CONCAT(?1, '+', ?2, '+%')"
+      + ") AND ( "
+      + "p.permissionType = 'ModifyNamespace' OR p.permissionType = 'ReleaseNamespace'"
+      + ")")
   List<Long> findPermissionIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
@@ -53,5 +57,5 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
 
   @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
   + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
-  List<Long> findPermissionIdsByCluster(String appId, String env, String clusterName);
+  List<Long> findPermissionIdsByAppIdAndEnvAndCluster(String appId, String env, String clusterName);
 }

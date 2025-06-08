@@ -12,7 +12,7 @@ Apollo 2.5.0
 * [Refactor: Exception handler adds root cause information](https://github.com/apolloconfig/apollo/pull/5367)
 * [Feature: Enhanced parameter verification for edit item](https://github.com/apolloconfig/apollo/pull/5376)
 * [Feature: Added a new feature to get instance count by namespace.](https://github.com/apolloconfig/apollo/pull/5381)
-* [Bugfix: Auto delete roles relate to cluster](https://github.com/apolloconfig/apollo/pull/5395)
+* [Bugfix: Remove cluster-related roles and permissions upon deletion](https://github.com/apolloconfig/apollo/pull/5395)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
