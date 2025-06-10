@@ -1663,9 +1663,9 @@ After the modification, you need to restart for it to take effect.
 
 The time threshold unit is minutes, the default is 10, and the minimum is 5. It is used to control when saving/updating the client pull configuration audit record. When the interval between two request records is greater than this value, the pull record will be saved/updated. When it is less than this value, the pull record will not be saved/updated.
 
-### 3.2.14 config-service.incremental.change.enabled - whether to enable incremental configuration synchronization client
+### 3.2.14 config-service.incremental.change.enabled - whether to enables incremental config sync for the client
 
-> for server versions 2.4.0 and above && client versions 2.3.0 and above
+> for server versions 2.5.0 and above && client versions 2.4.0 and above
 
 This is a function switch, if configured to true,config Service will cache previously loaded
 configuration information and send incremental updates to the client, reducing network pressure on

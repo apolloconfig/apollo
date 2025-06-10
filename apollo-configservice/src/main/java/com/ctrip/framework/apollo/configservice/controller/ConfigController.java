@@ -202,8 +202,9 @@ public class ConfigController {
         }
 
       }
-    } catch (ExecutionException e) {
+    } catch (Exception e) {
       //fallback to full sync
+      Tracer.logError("Failed to do incremental sync, fallback to full sync", e);
     }
 
     apolloConfig.setConfigurations(latestConfigurations);

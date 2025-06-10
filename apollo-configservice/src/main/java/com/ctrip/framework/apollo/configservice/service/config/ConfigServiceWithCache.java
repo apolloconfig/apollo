@@ -67,12 +67,12 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final String TRACER_EVENT_CACHE_LOAD_ID = "ConfigCache.LoadFromDBById";
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
-  private static final String TRACER_EVENT_CACHE_LOAD_RELEASEKEY = "ConfigCache.LoadFromDBByReleaseKey";
+  private static final String TRACER_EVENT_CACHE_LOAD_RELEASE_KEY = "ConfigCache.LoadFromDBByReleaseKey";
 
 
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
-  protected final BizConfig bizConfig;
+  private final BizConfig bizConfig;
   private final MeterRegistry meterRegistry;
 
   private LoadingCache<String, ConfigCacheEntry> configCache;
@@ -249,7 +249,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     releaseKeyCache = releaseKeyCacheBuilder.build(new CacheLoader<String, Optional<Long>>() {
       @Override
       public Optional<Long> load(String key) throws Exception {
-        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASEKEY,
+        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASE_KEY,
             String.valueOf(key));
         try {
           Release release = releaseService.findByReleaseKey(key);
