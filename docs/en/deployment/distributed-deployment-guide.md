@@ -1667,12 +1667,9 @@ The time threshold unit is minutes, the default is 10, and the minimum is 5. It 
 
 > for server versions 2.5.0 and above && client versions 2.4.0 and above
 
-This is a function switch, if configured to true,config Service will cache previously loaded
-configuration information and send incremental updates to the client, reducing network pressure on
-the server
+This is a feature toggle. When set to true, the Config Service caches previously loaded configurations and sends incremental updates to clients, reducing server network load.
 
-The default is false. Please evaluate the total configuration size and adjust the config service
-memory configuration before turning it on.
+Default is false. Assess total configuration size and adjust Config Service memory settings before enabling.
 
 > Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
 
