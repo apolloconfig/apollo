@@ -14,6 +14,6 @@ Apollo 2.5.0
 * [Feature: Added a new feature to get instance count by namespace.](https://github.com/apolloconfig/apollo/pull/5381)
 * [Bugfix: Remove cluster-related roles and permissions upon deletion](https://github.com/apolloconfig/apollo/pull/5395)
 * [Security: Prevent unauthorized access to other users' apps in /apps/by-owner endpoint](https://github.com/apolloconfig/apollo/pull/5396)
-
+* [Fix: Bump h2database and snakeyaml version](https://github.com/apolloconfig/apollo/pull/5406)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)

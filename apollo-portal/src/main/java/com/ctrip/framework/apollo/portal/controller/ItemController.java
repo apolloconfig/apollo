@@ -268,8 +268,8 @@ public class ItemController {
     protected Yaml createYaml() {
       LoaderOptions loaderOptions = new LoaderOptions();
       loaderOptions.setAllowDuplicateKeys(false);
-      return new Yaml(new SafeConstructor(), new Representer(),
-          new DumperOptions(), loaderOptions);
+      DumperOptions dumperOptions = new DumperOptions();
+      return new Yaml(new SafeConstructor(loaderOptions), new Representer(dumperOptions), dumperOptions, loaderOptions);
     }
   }
 
