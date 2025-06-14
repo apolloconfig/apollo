@@ -107,7 +107,7 @@ public class RoleUtils {
   }
 
   public static String buildNamespaceTargetId(String appId, String namespaceName, String env) {
-    return STRING_JOINER.join(appId, namespaceName, env);
+    return STRING_JOINER.join(appId, env, namespaceName);
   }
 
   public static String buildClusterTargetId(String appId, String env, String clusterName) {
