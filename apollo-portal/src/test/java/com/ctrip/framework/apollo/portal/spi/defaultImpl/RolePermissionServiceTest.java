@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.defaultImpl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
@@ -32,6 +33,7 @@ import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
@@ -318,6 +320,23 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission, somePermissionType, someTargetId));
     assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission, anotherPermissionType, anotherTargetId));
 
+  }
+
+  @Test
+  @Sql(scripts = "/sql/permission/RolePermissionServiceTest.deleteRolePermissionsByAppIdWithClusterRoles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteRolePermissionsByAppIdWithClusterRoles() {
+    String appId = "clusterApp";
+    String operator = "test";
+
+    rolePermissionService.deleteRolePermissionsByAppId(appId, operator);
+
+    String modifyRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(appId, "DEV", "default");
+    String releaseRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, "DEV", "default");
+
+    assertNull(roleRepository.findTopByRoleName(modifyRoleName));
+    assertNull(roleRepository.findTopByRoleName(releaseRoleName));
   }
 
   private Role assembleRole(String roleName) {

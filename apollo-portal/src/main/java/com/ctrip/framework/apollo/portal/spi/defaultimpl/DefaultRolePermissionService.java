@@ -348,4 +348,32 @@ public class DefaultRolePermissionService implements RolePermissionService {
             consumerRoleRepository.batchDeleteByRoleIds(roleIds, operator);
         }
     }
+
+    @Transactional
+    @Override
+    public void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator) {
+        appId = EscapeCharacter.DEFAULT.escape(appId);
+        List<Long> permissionIds = permissionRepository.findPermissionIdsByAppIdAndEnvAndCluster(appId, env, clusterName);
+        if (!permissionIds.isEmpty()) {
+            // 1. delete Permission
+            permissionRepository.batchDelete(permissionIds, operator);
+
+            // 2. delete Role Permission
+            rolePermissionRepository.batchDeleteByPermissionIds(permissionIds, operator);
+        }
+
+        List<Long> roleIds = roleRepository.findRoleIdsByCluster(appId, env, clusterName);
+        if (!roleIds.isEmpty()) {
+            // 3. delete Role
+            roleRepository.batchDelete(roleIds, operator);
+
+            // 4. delete User Role
+            userRoleRepository.batchDeleteByRoleIds(roleIds, operator);
+
+            // 5. delete Consumer Role
+            consumerRoleRepository.batchDeleteByRoleIds(roleIds, operator);
+        }
+    }
+
+
 }

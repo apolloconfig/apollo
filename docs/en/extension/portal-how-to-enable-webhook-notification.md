@@ -40,7 +40,7 @@ parameter name    | parameter annotation
     "releaseTitle": "",  // release title 
     "releaseComment": "",  // release Comment
     "releaseTime": "",  // release time  eg：2020-01-01T00:00:00.000+0800
-    "configuration": [ { // all configurations to be released; also applys to gray release
+    "configuration": [ { // all configurations to be released; also applies to gray release
         "firstEntity": "",  // key of configuration
         "secondEntity": ""  // value of configuration
     } ],

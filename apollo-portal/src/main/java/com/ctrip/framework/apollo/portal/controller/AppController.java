@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.enricher.adapter.AppDtoUserInfoEnrichedAdapter;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
@@ -102,11 +103,14 @@ public class AppController {
     return appService.findByAppIds(Sets.newHashSet(appIds.split(",")));
   }
 
-  @GetMapping("/by-owner")
-  public List<App> findAppsByOwner(@RequestParam("owner") String owner, Pageable page) {
+  @GetMapping("/by-self")
+  public List<App> findAppsBySelf(Pageable page) {
+    UserInfo loginUser = userInfoHolder.getUser();
+    String userId = loginUser.getUserId();
+    
     Set<String> appIds = Sets.newHashSet();
 
-    List<Role> userRoles = rolePermissionService.findUserRoles(owner);
+    List<Role> userRoles = rolePermissionService.findUserRoles(userId);
 
     for (Role role : userRoles) {
       String appId = RoleUtils.extractAppIdFromRoleName(role.getRoleName());

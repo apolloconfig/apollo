@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,12 +34,15 @@ public class ClusterService {
   private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ClusterAPI clusterAPI;
   private final RoleInitializationService roleInitializationService;
+  private final RolePermissionService rolePermissionService;
 
   public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI,
-      RoleInitializationService roleInitializationService) {
+      RoleInitializationService roleInitializationService,
+      RolePermissionService rolePermissionService) {
     this.userInfoHolder = userInfoHolder;
     this.clusterAPI = clusterAPI;
     this.roleInitializationService = roleInitializationService;
+    this.rolePermissionService = rolePermissionService;
   }
 
   public List<ClusterDTO> findClusters(Env env, String appId) {
@@ -61,6 +65,9 @@ public class ClusterService {
 
   public void deleteCluster(Env env, String appId, String clusterName){
     clusterAPI.delete(env, appId, clusterName, userInfoHolder.getUser().getUserId());
+
+    rolePermissionService.deleteRolePermissionsByCluster(appId, env.getName(), clusterName,
+        userInfoHolder.getUser().getUserId());
   }
 
   public ClusterDTO loadCluster(String appId, Env env, String clusterName){
