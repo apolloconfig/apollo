@@ -21,6 +21,12 @@ import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
+import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * config service with no cache
@@ -54,5 +60,14 @@ public class DefaultConfigService extends AbstractConfigService {
   @Override
   public void handleMessage(ReleaseMessage message, String channel) {
     // since there is no cache, so do nothing
+  }
+
+  @Override
+  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) throws ExecutionException {
+    List<Release> releasesMap = releaseService.findByReleaseKeys(releaseKeys);
+    if (releasesMap != null) {
+      return ImmutableMap.copyOf(releasesMap.stream().collect(ImmutableMap.toImmutableMap(Release::getReleaseKey, release -> release)));
+    }
+    return Collections.emptyMap();
   }
 }

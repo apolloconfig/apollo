@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -37,8 +38,13 @@ import com.ctrip.framework.apollo.tracer.spi.Transaction;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.cache.GuavaCacheMetrics;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +67,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final String TRACER_EVENT_CACHE_LOAD_ID = "ConfigCache.LoadFromDBById";
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
+  private static final String TRACER_EVENT_CACHE_LOAD_RELEASE_KEY = "ConfigCache.LoadFromDBByReleaseKey";
+
 
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
@@ -70,6 +78,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private LoadingCache<String, ConfigCacheEntry> configCache;
 
   private LoadingCache<Long, Optional<Release>> configIdCache;
+
+  private LoadingCache<String, Optional<Long>> releaseKeyCache;
 
   private ConfigCacheEntry nullConfigCacheEntry;
 
@@ -90,6 +100,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   void initialize() {
     buildConfigCache();
     buildConfigIdCache();
+    buildReleaseKeyCache();
   }
 
   @Override
@@ -149,6 +160,37 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     }
   }
 
+  @Override
+  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys)
+      throws ExecutionException {
+
+    ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
+    if (CollectionUtils.isEmpty(releaseKeyMap)) {
+      return Collections.emptyMap();
+    }
+
+    Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
+    for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
+      entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
+    }
+    if (validReleaseKeyIdMap.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(validReleaseKeyIdMap.values());
+    if (CollectionUtils.isEmpty(releasesMap)) {
+      return Collections.emptyMap();
+    }
+
+    Map<String, Release> releases = new HashMap<>();
+    for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
+      Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
+      releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
+    }
+
+    return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
+  }
+
   private void buildConfigCache() {
     CacheBuilder configCacheBuilder = CacheBuilder.newBuilder()
         .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
@@ -198,6 +240,39 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   }
 
+  private void buildReleaseKeyCache() {
+    CacheBuilder releaseKeyCacheBuilder = CacheBuilder.newBuilder()
+        .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      releaseKeyCacheBuilder.recordStats();
+    }
+    releaseKeyCache = releaseKeyCacheBuilder.build(new CacheLoader<String, Optional<Long>>() {
+      @Override
+      public Optional<Long> load(String key) throws Exception {
+        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASE_KEY,
+            String.valueOf(key));
+        try {
+          Release release = releaseService.findByReleaseKey(key);
+
+          transaction.setStatus(Transaction.SUCCESS);
+          if(release != null){
+            return Optional.ofNullable(release.getId());
+          }
+          return Optional.empty();
+        } catch (Throwable ex) {
+          transaction.setStatus(ex);
+          throw ex;
+        } finally {
+          transaction.complete();
+        }
+      }
+    });
+
+    if (bizConfig.isConfigServiceCacheStatsEnabled()) {
+      GuavaCacheMetrics.monitor(meterRegistry, releaseKeyCache, "releaseKey_cache");
+    }
+
+  }
   private void buildConfigIdCache() {
     CacheBuilder configIdCacheBuilder = CacheBuilder.newBuilder()
         .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
