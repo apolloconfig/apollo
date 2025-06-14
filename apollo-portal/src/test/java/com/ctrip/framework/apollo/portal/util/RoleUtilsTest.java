@@ -37,4 +37,21 @@ public class RoleUtilsTest {
     assertEquals("someApp", RoleUtils.extractAppIdFromRoleName("ModifyNamespace+someApp+xx"));
     assertEquals("app1", RoleUtils.extractAppIdFromRoleName("ReleaseNamespace+app1+application"));
   }
+
+  @Test
+  public void testBuildNamespaceTargetID() throws Exception {
+    assertEquals("app1+application",RoleUtils.buildNamespaceTargetId("app1", "application"));
+  }
+
+  @Test
+  public void testBuildNamespaceTargetIDWithEnv() throws Exception {
+    assertEquals("app1+LOCAL+application", RoleUtils.buildNamespaceTargetId("app1", "application", "LOCAL"));
+      assertEquals("test-app+DEV+config", RoleUtils.buildNamespaceTargetId("test-app", "config", "DEV"));
+  }
+
+  @Test
+  public void testBuildClusterTargetId() throws Exception {
+    assertEquals("app1+LOCAL+default", RoleUtils.buildClusterTargetId("app1", "LOCAL", "default"));
+    assertEquals("test-app+DEV+cluster1", RoleUtils.buildClusterTargetId("test-app", "DEV", "cluster1"));
+  }
 }
