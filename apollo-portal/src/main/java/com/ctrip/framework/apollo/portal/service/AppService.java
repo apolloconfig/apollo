@@ -142,8 +142,8 @@ public class AppService {
     AppDTO appDTO = BeanUtils.transform(AppDTO.class, app);
     appAPI.createApp(env, appDTO);
 
-    roleInitializationService.initClusterNamespaceRoles(app.getAppId(), ConfigConsts.CLUSTER_NAME_DEFAULT,
-        env.getName(), userInfoHolder.getUser().getUserId());
+    roleInitializationService.initClusterNamespaceRoles(app.getAppId(), env.getName(),
+            ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
   }
 
   private App createAppInLocal(App app) {
@@ -170,8 +170,8 @@ public class AppService {
     roleInitializationService.initAppRoles(createdApp);
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
-      roleInitializationService.initClusterNamespaceRoles(appId, ConfigConsts.CLUSTER_NAME_DEFAULT,
-          env.getName(), userInfoHolder.getUser().getUserId());
+      roleInitializationService.initClusterNamespaceRoles(appId, env.getName(),
+              ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
     }
 
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);
