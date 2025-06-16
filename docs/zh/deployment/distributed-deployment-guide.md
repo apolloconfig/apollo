@@ -1602,3 +1602,16 @@ json
 > 适用于2.5.0及以上版本
 
 时间阈值单位为分钟，默认为 10，最小为5，用于控制在保存/更新客户端拉取配置审计记录时，当2次请求记录间隔大于该值时，才会保存/更新拉取记录，小于该值时，不会保存/更新拉取记录。
+
+### 3.2.18 config-service.incremental.change.enabled - 是否开启增量配置同步客户端
+
+> 适用于服务端2.5.0及以上版本 && Java客户端2.4.0及以上版本
+
+这是一个功能开关，如果配置为true的话，config service会缓存加载过的配置信息，发送给客户端增量配置，减少客户端对服务端的网络压力。
+
+默认为false，开启前请先评估总配置大小并调整config service内存配置。
+
+> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`
+> 大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
+
+> `config-service.incremental.change.enabled` 配置调整必须重启 config service 才能生效

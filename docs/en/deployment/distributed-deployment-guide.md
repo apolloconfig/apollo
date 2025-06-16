@@ -1662,3 +1662,17 @@ After the modification, you need to restart for it to take effect.
 > For version 2.5.0 and above
 
 The time threshold unit is minutes, the default is 10, and the minimum is 5. It is used to control when saving/updating the client pull configuration audit record. When the interval between two request records is greater than this value, the pull record will be saved/updated. When it is less than this value, the pull record will not be saved/updated.
+
+### 3.2.14 config-service.incremental.change.enabled - whether to enables incremental config sync for the client
+
+> for server versions 2.5.0 and above && client versions 2.4.0 and above
+
+This is a feature toggle. When set to true, the Config Service caches previously loaded configurations and sends incremental updates to clients, reducing server network load.
+
+Default is false. Assess total configuration size and adjust Config Service memory settings before enabling.
+
+> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
+
+> `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
+
+
