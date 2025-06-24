@@ -85,13 +85,41 @@ function showTextModalDirective(AppUtil) {
             function init() {
                 scope.jsonObject = undefined;
                 if (isJsonText(scope.text)) {
-                    scope.jsonObject = parseBigInt(scope.text);
+                    // Check for duplicate keys and do not JSON format if they exist
+                    if (!hasDuplicateKeys(scope.text)) {
+                        scope.jsonObject = parseBigInt(scope.text);
+                    }
                 }
             }
 
             function isJsonText(text) {
                 try {
                     return typeof JSON.parse(text) === "object";
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function hasDuplicateKeys(jsonStr) {
+                try {
+                    // Use the regular expression to extract all the keys
+                    var keyRegex = /"([^"\\]*(\\.[^"\\]*)*)"\s*:/g;
+                    var keys = [];
+                    var match;
+
+                    while ((match = keyRegex.exec(jsonStr)) !== null) {
+                        keys.push(match[1]);
+                    }
+
+                    // Check for duplicate keys using manual deduplication
+                    var uniqueKeys = {};
+                    for (var i = 0; i < keys.length; i++) {
+                        if (uniqueKeys[keys[i]]) {
+                            return true; // Found duplicate
+                        }
+                        uniqueKeys[keys[i]] = true;
+                    }
+                    return false;
                 } catch (e) {
                     return false;
                 }
