@@ -38,6 +38,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.util.regex.Pattern;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -175,7 +176,7 @@ public class ConfigController {
         Map<String, Release> clientSideReleases = configService.findReleasesByReleaseKeys(
             clientSideReleaseKeys);
         //find history releases
-        if (clientSideReleases != null) {
+        if (!CollectionUtils.isEmpty(clientSideReleases)) {
           //order by clientSideReleaseKeys
           List<Release> historyReleasesWithOrder = new ArrayList<>();
           for (String item : clientSideReleaseKeys) {
@@ -188,16 +189,19 @@ public class ConfigController {
           Map<String, String> clientSideConfigurations = mergeReleaseConfigurations
               (historyReleasesWithOrder);
 
-          List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
-              latestMergedReleaseKey,
-              latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
+          if (!CollectionUtils.isEmpty(clientSideConfigurations)) {
+            List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
+                latestMergedReleaseKey,
+                latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
 
-          apolloConfig.setConfigurationChanges(configurationChanges);
+            apolloConfig.setConfigurationChanges(configurationChanges);
 
-          apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
-          Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
-              originalNamespace, dataCenter));
-          return apolloConfig;
+            apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
+            Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
+                originalNamespace, dataCenter));
+            return apolloConfig;
+          }
+
         }
 
       }

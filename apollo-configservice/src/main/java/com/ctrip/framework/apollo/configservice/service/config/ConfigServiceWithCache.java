@@ -162,34 +162,39 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   @Override
   public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys)
-      throws ExecutionException {
+      {
+        try {
+          ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
+          if (CollectionUtils.isEmpty(releaseKeyMap)) {
+            return Collections.emptyMap();
+          }
 
-    ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
-    if (CollectionUtils.isEmpty(releaseKeyMap)) {
-      return Collections.emptyMap();
-    }
+          Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
+          for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
+            entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
+          }
+          if (validReleaseKeyIdMap.isEmpty()) {
+            return Collections.emptyMap();
+          }
 
-    Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
-    for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
-      entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
-    }
-    if (validReleaseKeyIdMap.isEmpty()) {
-      return Collections.emptyMap();
-    }
+          Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(validReleaseKeyIdMap.values());
+          if (CollectionUtils.isEmpty(releasesMap)) {
+            return Collections.emptyMap();
+          }
 
-    Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(validReleaseKeyIdMap.values());
-    if (CollectionUtils.isEmpty(releasesMap)) {
-      return Collections.emptyMap();
-    }
+          Map<String, Release> releases = new HashMap<>();
+          for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
+            Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
+            releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
+          }
 
-    Map<String, Release> releases = new HashMap<>();
-    for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
-      Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
-      releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
-    }
-
-    return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
-  }
+          return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
+        } catch (Exception e) {
+          Tracer.logError(e);
+          logger.error("Failed to invoke findReleasesByReleaseKeys {}", releaseKeys, e);
+        }
+        return null;
+      }
 
   private void buildConfigCache() {
     CacheBuilder configCacheBuilder = CacheBuilder.newBuilder()

@@ -1665,7 +1665,7 @@ The time threshold unit is minutes, the default is 10, and the minimum is 5. It 
 
 ### 3.2.14 config-service.incremental.change.enabled - whether to enables incremental config sync for the client
 
-> for server versions 2.5.0 and above && client versions 2.4.0 and above
+> for server versions 2.5.0 and above && java client versions 2.4.0 and above
 
 This is a feature toggle. When set to true, the Config Service caches previously loaded configurations and sends incremental updates to clients, reducing server network load.
 
