@@ -21,7 +21,6 @@ import com.ctrip.framework.apollo.biz.message.ReleaseMessageListener;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
