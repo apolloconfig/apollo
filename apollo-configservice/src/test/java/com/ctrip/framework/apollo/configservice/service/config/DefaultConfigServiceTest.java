@@ -40,7 +40,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultConfigServiceTest {
-
   private DefaultConfigService configService;
   private String someClientAppId;
   private String someConfigAppId;

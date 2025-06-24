@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
 import com.ctrip.framework.apollo.biz.entity.Release;
@@ -33,7 +32,6 @@ import com.google.common.collect.Sets;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +50,6 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ConfigServiceWithCacheTest {
-
   private ConfigServiceWithCache configServiceWithCache;
 
   @Mock
@@ -116,12 +113,10 @@ public class ConfigServiceWithCacheTest {
     when(someRelease.getId()).thenReturn(someId);
 
     Map<String, Release> someReleaseMap = null;
-    try {
-      someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
-          someReleaseKeys);
-    } catch (ExecutionException e) {
 
-    }
+    someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
+          someReleaseKeys);
+
     assertEquals(1, someReleaseMap.size());
     assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
     verify(releaseService, times(1)).findByReleaseKey(someReleaseKey);
@@ -153,14 +148,11 @@ public class ConfigServiceWithCacheTest {
 
     Map<String, Release> someReleaseMap = null;
     Map<String, Release> otherReleaseMap = null;
-    try {
       someReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
           someReleaseKeys);
       otherReleaseMap = configServiceWithCache.findReleasesByReleaseKeys(
           someReleaseKeys);
-    } catch (ExecutionException e) {
 
-    }
 
     assertEquals(1, someReleaseMap.size());
     assertEquals(someRelease, someReleaseMap.get(someReleaseKey));
@@ -373,6 +365,4 @@ public class ConfigServiceWithCacheTest {
     verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(Lists.newArrayList(someKey));
     verify(releaseService, times(1)).findLatestActiveRelease(someAppId, someClusterName, someNamespaceName);
   }
-
-
 }

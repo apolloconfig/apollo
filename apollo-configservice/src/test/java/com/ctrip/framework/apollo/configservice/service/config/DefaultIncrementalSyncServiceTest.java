@@ -16,11 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
-import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Release;
-import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
-import com.ctrip.framework.apollo.biz.grayReleaseRule.GrayReleaseRulesHolder;
-import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
 import com.ctrip.framework.apollo.biz.service.ReleaseService;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
@@ -29,8 +25,6 @@ import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
 import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import io.micrometer.core.instrument.MeterRegistry;
 import java.lang.reflect.Field;
 import org.junit.Assert;
 import org.junit.Before;
@@ -46,8 +40,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.util.AssertionErrors.assertTrue;
 
 /**
  * @author jason
