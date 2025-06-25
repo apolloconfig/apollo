@@ -28,6 +28,7 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
     $scope.changeStatus = changeStatus
     $scope.searchUsers = searchUsers
     $scope.resetSearchUser = resetSearchUser
+    $scope.validatePwdMatch = validatePwdMatch
 
     initPermission();
 
@@ -85,6 +86,13 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
         searchUsers()
     }
 
+    function validatePwdMatch() {
+        $scope.pwdNotMatch = false;
+        if ($scope.user.password && $scope.user.password != $scope.user.confirmPassword) {
+            $scope.pwdNotMatch = true;
+        }
+    }
+
     $scope.changeUserEnabled = function (user) {
         var newUser={}
         if (user != null) {
@@ -104,6 +112,10 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
     }
 
     $scope.createOrUpdateUser = function () {
+        validatePwdMatch();
+        if ($scope.pwdNotMatch) {
+            return;
+        }
         if ($scope.status === '2') {
             UserService.createOrUpdateUser(true, $scope.user).then(function (result) {
                 toastr.success($translate.instant('UserMange.Created'));

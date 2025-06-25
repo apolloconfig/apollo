@@ -622,6 +622,8 @@
   "UserMange.UserName": "用户登录账户",
   "UserMange.UserDisplayName": "用户名称",
   "UserMange.Pwd": "密码",
+  "UserMange.ConfirmPwd": "确认密码",
+  "UserMange.PwdNotMatch": "密码不匹配",
   "UserMange.Email": "邮箱",
   "UserMange.Created": "创建用户成功",
   "UserMange.CreateFailed": "创建用户失败",
