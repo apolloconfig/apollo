@@ -85,7 +85,10 @@ function showTextModalDirective(AppUtil) {
             function init() {
                 scope.jsonObject = undefined;
                 if (isJsonText(scope.text)) {
-                    scope.jsonObject = parseBigInt(scope.text);
+                    // Check for duplicate keys and do not JSON format if they exist
+                    if (!hasDuplicateKeys(scope.text)) {
+                        scope.jsonObject = parseBigInt(scope.text);
+                    }
                 }
             }
 
@@ -95,6 +98,102 @@ function showTextModalDirective(AppUtil) {
                 } catch (e) {
                     return false;
                 }
+            }
+
+            function hasDuplicateKeys(jsonStr) {
+                try {
+                    var parsedObj = JSON.parse(jsonStr);
+                    
+                    return checkDuplicateKeysInJsonString(jsonStr);
+                } catch (e) {
+                    return false;
+                }
+            }
+
+            function checkDuplicateKeysInJsonString(jsonStr) {
+                // This method is safer since we already know the JSON is valid
+                
+                // Remove all whitespace characters for processing
+                var trimmed = jsonStr.replace(/\s/g, '');
+                
+                // Check if it's in object format
+                if (trimmed.charAt(0) !== '{' || trimmed.charAt(trimmed.length - 1) !== '}') {
+                    return false;
+                }
+                
+                // Extract top-level key-value pairs
+                var content = trimmed.slice(1, -1); // Remove leading and trailing {}
+                var keys = [];
+                var inString = false;
+                var escaped = false;
+                var braceLevel = 0;
+                var bracketLevel = 0;
+                var currentKey = '';
+                var collectingKey = false;
+                
+                for (var i = 0; i < content.length; i++) {
+                    var char = content[i];
+                    
+                    if (escaped) {
+                        escaped = false;
+                        if (collectingKey) {
+                            currentKey += char;
+                        }
+                        continue;
+                    }
+                    
+                    if (char === '\\') {
+                        escaped = true;
+                        if (collectingKey) {
+                            currentKey += char;
+                        }
+                        continue;
+                    }
+                    
+                    if (char === '"') {
+                        if (!inString && braceLevel === 0 && bracketLevel === 0) {
+                            // Start collecting key
+                            collectingKey = true;
+                            currentKey = '';
+                        } else if (inString && collectingKey) {
+                            // Finish collecting key
+                            keys.push(currentKey);
+                            collectingKey = false;
+                            currentKey = '';
+                        }
+                        inString = !inString;
+                        continue;
+                    }
+                    
+                    if (inString) {
+                        if (collectingKey) {
+                            currentKey += char;
+                        }
+                        continue;
+                    }
+                    
+                    // Track nesting levels
+                    if (char === '{') {
+                        braceLevel++;
+                    } else if (char === '}') {
+                        braceLevel--;
+                    } else if (char === '[') {
+                        bracketLevel++;
+                    } else if (char === ']') {
+                        bracketLevel--;
+                    }
+                }
+                
+                // Check for duplicate keys
+                var uniqueKeys = {};
+                for (var j = 0; j < keys.length; j++) {
+                    if (uniqueKeys[keys[j]]) {
+                        return true; // Found duplicate key
+                    }
+                    uniqueKeys[keys[j]] = true;
+                }
+                
+                return false;
             }
 
             function parseBigInt(str) {
