@@ -622,6 +622,8 @@
   "UserMange.UserName": "User Login Name",
   "UserMange.UserDisplayName": "User Display Name",
   "UserMange.Pwd": "Password",
+  "UserMange.ConfirmPwd": "Confirm Password",
+  "UserMange.PwdNotMatch": "Passwords do not match",
   "UserMange.Email": "Email",
   "UserMange.Created": "Create user successfully",
   "UserMange.CreateFailed": "Failed to create user",
