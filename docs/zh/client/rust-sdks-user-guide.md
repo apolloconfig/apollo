@@ -3,7 +3,7 @@
 
 > 非常感谢[@liushv0](https://github.com/liushv0)提供Rust Apollo客户端的支持
 
-### Apollo Rust Client
+### Apollo Rust 客户端 2
 
 一个同时支持 Rust 以及 WASM 的 apollo 客户端
 项目地址：[apollo-rust-client](https://github.com/qqiao/apollo-rust-client)
