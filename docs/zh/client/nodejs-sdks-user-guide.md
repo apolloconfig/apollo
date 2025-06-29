@@ -40,7 +40,7 @@
 
 > 非常感谢[@ChoGathK](https://github.com/ChoGathK)提供NodeJS Apollo客户端的支持
 
-### Apollo Rust Client
+### Apollo NodeJS(WebAssembly) 客户端 9
 
 一个同时支持 Rust 以及 WASM 的 apollo 客户端
 项目地址：[apollo-rust-client](https://github.com/qqiao/apollo-rust-client)
