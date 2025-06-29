@@ -119,6 +119,10 @@ public class ReleaseService {
     return releaseRepository.findByReleaseKeyIn(releaseKeys);
   }
 
+  public Release findByReleaseKey(String releaseKey) {
+    return releaseRepository.findByReleaseKey(releaseKey);
+  }
+
   public Release findLatestActiveRelease(Namespace namespace) {
     return findLatestActiveRelease(namespace.getAppId(),
                                    namespace.getClusterName(), namespace.getNamespaceName());
