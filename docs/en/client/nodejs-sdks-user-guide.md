@@ -40,7 +40,7 @@ Project address: [apollo-node-client](https://github.com/zhangxh1023/apollo-node
 
 > Thanks [@zhangxh1023](https://github.com/zhangxh1023) for providing support for the NodeJS Apollo client
 
-### Apollo Rust Client
+### Apollo NodeJS(WebAssembly) client 8
 
 A client for Apollo that supports both Rust and WASM.
 
