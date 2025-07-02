@@ -105,6 +105,7 @@ sync_item_module.controller("SyncItemController",
                                 $scope.hasDiff =
                                     clusterDiff.diffs.createItems.length
                                     + clusterDiff.diffs.updateItems.length
+                                    + clusterDiff.diffs.deleteItems.length
                                     > 0;
                             }
 
@@ -138,8 +139,10 @@ sync_item_module.controller("SyncItemController",
                     diffSet;
                 if (type == 'create') {
                     diffSet = diff.createItems;
-                } else {
+                } else if (type == 'update') {
                     diffSet = diff.updateItems;
+                } else if (type == 'delete') {
+                    diffSet = diff.deleteItems;
                 }
                 diffSet.forEach(function (item) {
                     if (item.key != toRemoveItem.key) {
@@ -148,8 +151,10 @@ sync_item_module.controller("SyncItemController",
                 });
                 if (type == 'create') {
                     diff.createItems = diffSetResult;
-                } else {
+                } else if (type == 'update') {
                     diff.updateItems = diffSetResult;
+                } else if (type == 'delete') {
+                    diff.deleteItems = diffSetResult;
                 }
 
                 syncData.syncItems.forEach(function (item) {

@@ -306,6 +306,7 @@ public class ItemService {
       }
     } else {
       Map<String, ItemDTO> targetItemMap = BeanUtils.mapByKey("key", targetItems);
+      Map<String, ItemDTO> sourceItemMap = BeanUtils.mapByKey("key", sourceItems);
       String key, sourceValue, sourceComment;
       ItemDTO targetItem = null;
       int maxLineNum = targetItems.size();//append to last
@@ -324,6 +325,14 @@ public class ItemService {
           targetItem.setValue(sourceValue);
           targetItem.setComment(sourceComment);
           changeSets.addUpdateItem(targetItem);
+        }
+      }
+      
+      // Check for deleted items: items that exist in target but not in source
+      for (ItemDTO targetItemToCheck : targetItems) {
+        String targetKey = targetItemToCheck.getKey();
+        if (!sourceItemMap.containsKey(targetKey)) {
+          changeSets.addDeleteItem(targetItemToCheck);
         }
       }
     }

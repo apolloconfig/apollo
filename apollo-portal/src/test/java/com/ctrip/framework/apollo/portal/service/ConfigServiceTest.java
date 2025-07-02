@@ -245,6 +245,53 @@ public class ConfigServiceTest extends AbstractUnitTest {
 
   }
 
+  @Test
+  public void testCompareWithDeletedItems() {
+    // Source has: a, newKey, c
+    ItemDTO sourceItem1 = new ItemDTO("a", "b", "comment", 1);//not modified
+    ItemDTO sourceItem2 = new ItemDTO("newKey", "c", "comment", 2);//new item
+    ItemDTO sourceItem3 = new ItemDTO("c", "newValue", "comment", 3);// update value
+    List<ItemDTO> sourceItems = Arrays.asList(sourceItem1, sourceItem2, sourceItem3);
+
+    // Target has: a, c, d, e (d and e should be deleted)
+    ItemDTO targetItem1 = new ItemDTO("a", "b", "comment", 1);
+    ItemDTO targetItem2 = new ItemDTO("c", "oldValue", "comment", 2);
+    ItemDTO targetItem3 = new ItemDTO("d", "toBeDeleted", "comment", 3); // should be deleted
+    ItemDTO targetItem4 = new ItemDTO("e", "alsoToBeDeleted", "comment", 4); // should be deleted
+    List<ItemDTO> targetItems = Arrays.asList(targetItem1, targetItem2, targetItem3, targetItem4);
+
+    String appId = "6666", env = "LOCAL", clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT,
+        namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
+    List<NamespaceIdentifier>
+        namespaceIdentifiers =
+        generateNamespaceIdentifier(appId, env, clusterName, namespaceName);
+    NamespaceDTO namespaceDTO = generateNamespaceDTO(appId, clusterName, namespaceName);
+
+    when(namespaceAPI.loadNamespace(appId, Env.valueOf(env), clusterName, namespaceName)).thenReturn(namespaceDTO);
+    when(itemAPI.findItems(appId, Env.valueOf(env), clusterName, namespaceName)).thenReturn(targetItems);
+
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("test");
+    when(userInfoHolder.getUser()).thenReturn(userInfo);
+
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
+    assertEquals(1, itemDiffses.size());
+
+    ItemDiffs itemDiffs = itemDiffses.get(0);
+
+    ItemChangeSets changeSets = itemDiffs.getDiffs();
+    
+    // This test currently fails because deleted items are not detected
+    assertEquals(2, changeSets.getDeleteItems().size()); // d and e should be deleted
+    assertEquals(1, changeSets.getUpdateItems().size()); // c should be updated
+    assertEquals(1, changeSets.getCreateItems().size());  // newKey should be created
+
+    // Verify the deleted items
+    List<ItemDTO> deleteItems = changeSets.getDeleteItems();
+    assertEquals("d", deleteItems.get(0).getKey());
+    assertEquals("e", deleteItems.get(1).getKey());
+  }
+
   private NamespaceDTO generateNamespaceDTO(String appId, String clusterName, String namespaceName) {
     NamespaceDTO namespaceDTO = new NamespaceDTO();
     namespaceDTO.setAppId(appId);
