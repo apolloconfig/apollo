@@ -162,14 +162,14 @@
                             ng-show="!clusterDiff.extInfo">{{'Common.Namespace' | translate }}:{{pageContext.namespaceName}}</span>
                     </h4>
                     <div class="text-center"
-                        ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 || clusterDiff.extInfo">
+                        ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length + clusterDiff.diffs.deleteItems.length == 0 || clusterDiff.extInfo">
                         <span
-                            ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length == 0 && !clusterDiff.extInfo">{{'Config.Sync.NoNeedSyncItem' | translate }}</span>
+                            ng-show="clusterDiff.diffs.createItems.length + clusterDiff.diffs.updateItems.length + clusterDiff.diffs.deleteItems.length == 0 && !clusterDiff.extInfo">{{'Config.Sync.NoNeedSyncItem' | translate }}</span>
                         <span ng-show="clusterDiff.extInfo" ng-bind="clusterDiff.extInfo"></span>, {{'Config.Sync.IgnoreSync' | translate }}
                     </div>
 
                     <div class="row" style="margin-top: 10px;"
-                        ng-show="clusterDiff.diffs.updateItems.length + clusterDiff.diffs.createItems.length > 0">
+                        ng-show="clusterDiff.diffs.updateItems.length + clusterDiff.diffs.createItems.length + clusterDiff.diffs.deleteItems.length > 0">
                         <div class="form-horizontal">
                             <div class="col-sm-12">
                                 <table class="table table-bordered table-striped table-hover">
@@ -206,6 +206,18 @@
                                                 <a data-tooltip="tooltip" data-placement="bottom"
                                                     title="{{'Config.Sync.NoSyncItem' | translate }}"
                                                     ng-click="removeItem(clusterDiff.diffs, 'update', updateItem)">{{'Config.Sync.Delete' | translate }}</a>
+                                            </td>
+                                        </tr>
+                                        <tr ng-repeat="deleteItem in clusterDiff.diffs.deleteItems">
+                                            <td width="5%">{{'Config.Sync.Delete' | translate }}</td>
+                                            <td width="15%" ng-bind="deleteItem.key"></td>
+                                            <td width="30%" ng-bind="deleteItem.value"></td>
+                                            <td width="30%"></td>
+                                            <td width="15%" ng-bind="deleteItem.comment"></td>
+                                            <td width="5%">
+                                                <a data-tooltip="tooltip" data-placement="bottom"
+                                                    title="{{'Config.Sync.NoSyncItem' | translate }}"
+                                                    ng-click="removeItem(clusterDiff.diffs, 'delete', deleteItem)">{{'Config.Sync.Remove' | translate }}</a>
                                             </td>
                                         </tr>
                                     </tbody>
