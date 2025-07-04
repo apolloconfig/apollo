@@ -37,13 +37,15 @@ public interface ReleaseRepository extends PagingAndSortingRepository<Release, L
 
   Release findByIdAndIsAbandonedFalse(long id);
 
+  Release findByReleaseKey(String releaseKey);
+
   List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId, String clusterName, String namespaceName, Pageable page);
 
   List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(String appId, String clusterName, String namespaceName, Pageable page);
 
   List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(String appId, String clusterName, String namespaceName, long fromId, long toId);
 
-  List<Release> findByReleaseKeyIn(Set<String> releaseKey);
+  List<Release> findByReleaseKeyIn(Set<String> releaseKeys);
 
   List<Release> findByIdIn(Set<Long> releaseIds);
 
