@@ -184,8 +184,8 @@ public class ItemService {
     return item;
   }
 
-  public void syncItems(String sourceNamespaceName, boolean includeDeletedItems, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
-    List<ItemDiffs> itemDiffs = compare(sourceNamespaceName, includeDeletedItems, comparedNamespaces, sourceItems);
+  public void syncItems(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+    List<ItemDiffs> itemDiffs = compare(sourceNamespaceName, comparedNamespaces, sourceItems);
     for (ItemDiffs itemDiff : itemDiffs) {
       NamespaceIdentifier namespaceIdentifier = itemDiff.getNamespace();
       ItemChangeSets changeSets = itemDiff.getDiffs();
@@ -250,7 +250,7 @@ public class ItemService {
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, formatStr);
   }
 
-  public List<ItemDiffs> compare(String sourceNamespaceName, boolean includeDeletedItems, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+  public List<ItemDiffs> compare(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
 
     List<ItemDiffs> result = new LinkedList<>();
 
@@ -258,7 +258,7 @@ public class ItemService {
 
       ItemDiffs itemDiffs = new ItemDiffs(namespace);
       try {
-        itemDiffs.setDiffs(parseChangeSets(sourceNamespaceName, includeDeletedItems, namespace, sourceItems));
+        itemDiffs.setDiffs(parseChangeSets(sourceNamespaceName, namespace, sourceItems));
       } catch (BadRequestException e) {
         itemDiffs.setDiffs(new ItemChangeSets());
         itemDiffs.setExtInfo("该集群下没有名为 " + namespace.getNamespaceName() + " 的namespace");
@@ -291,7 +291,7 @@ public class ItemService {
     return namespaceDTO.getId();
   }
 
-  private ItemChangeSets parseChangeSets(String sourceNamespaceName, boolean includeDeletedItems, NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
+  private ItemChangeSets parseChangeSets(String sourceNamespaceName, NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
     ItemChangeSets changeSets = new ItemChangeSets();
     List<ItemDTO>
         targetItems =
@@ -330,13 +330,10 @@ public class ItemService {
       }
       
       // Check for deleted items: items that exist in target but not in source
-      // Only include deleted items if the user explicitly chose to include them
-      if (includeDeletedItems) {
-        for (ItemDTO targetItemToCheck : targetItems) {
-          String targetKey = targetItemToCheck.getKey();
-          if (!sourceItemMap.containsKey(targetKey)) {
-            changeSets.addDeleteItem(targetItemToCheck);
-          }
+      for (ItemDTO targetItemToCheck : targetItems) {
+        String targetKey = targetItemToCheck.getKey();
+        if (!sourceItemMap.containsKey(targetKey)) {
+          changeSets.addDeleteItem(targetItemToCheck);
         }
       }
     }

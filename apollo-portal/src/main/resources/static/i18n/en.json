@@ -736,8 +736,6 @@
   "Config.Sync.LoadingItemsError": "Error loading configuration",
   "Config.Sync.PleaseChooseNeedSyncItems": "Please select the configuration that needs synchronization",
   "Config.Sync.PleaseChooseCluster": "Select Cluster",
-  "Config.Sync.IncludeDeletedItems": "Include Deleted Items",
-  "Config.Sync.IncludeDeletedItemsDesc": "Include items that exist in target but not in source for deletion",
   "Config.History.Title": "Release History",
   "Config.History.MasterVersionPublish": "Main version release",
   "Config.History.MasterVersionRollback": "Main version rollback",
