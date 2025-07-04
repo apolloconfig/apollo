@@ -27,7 +27,7 @@ public class NamespaceSyncModel implements Verifiable {
 
   private List<NamespaceIdentifier> syncToNamespaces;
   private List<ItemDTO> syncItems;
-  private boolean selectAll;
+  private boolean includeDeletedItems;
 
   @Override
   public boolean isInvalid() {
@@ -69,11 +69,11 @@ public class NamespaceSyncModel implements Verifiable {
     this.syncItems = syncItems;
   }
 
-  public boolean isSelectAll() {
-    return selectAll;
+  public boolean isIncludeDeletedItems() {
+    return includeDeletedItems;
   }
 
-  public void setSelectAll(boolean selectAll) {
-    this.selectAll = selectAll;
+  public void setIncludeDeletedItems(boolean includeDeletedItems) {
+    this.includeDeletedItems = includeDeletedItems;
   }
 }

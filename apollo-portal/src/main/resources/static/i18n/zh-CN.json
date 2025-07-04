@@ -736,6 +736,8 @@
   "Config.Sync.LoadingItemsError": "加载配置出错",
   "Config.Sync.PleaseChooseNeedSyncItems": "请选择需要同步的配置",
   "Config.Sync.PleaseChooseCluster": "请选择集群",
+  "Config.Sync.IncludeDeletedItems": "包含已删除的配置项",
+  "Config.Sync.IncludeDeletedItemsDesc": "包含目标环境中存在但源环境中不存在的配置项进行删除",
   "Config.History.Title": "发布历史",
   "Config.History.MasterVersionPublish": "主版本发布",
   "Config.History.MasterVersionRollback": "主版本回滚",

@@ -190,7 +190,7 @@ sync_item_module.controller("SyncItemController",
                 syncData = {
                     syncToNamespaces: [],
                     syncItems: [],
-                    selectAll: itemAllSelected
+                    includeDeletedItems: $scope.includeDeletedItems || false
                 };
                 var namespaceName = $scope.pageContext.namespaceName;
                 selectedClusters.forEach(function (cluster) {
