@@ -171,10 +171,10 @@ public class ItemController {
   }
 
   @PostMapping(value = "/namespaces/{namespaceName}/diff", consumes = {"application/json"})
-  public List<ItemDiffs> diff(@RequestBody NamespaceSyncModel model) {
+  public List<ItemDiffs> diff(@PathVariable String namespaceName, @RequestBody NamespaceSyncModel model) {
     checkModel(!model.isInvalid());
 
-    List<ItemDiffs> itemDiffs = configService.compare(model.getSyncToNamespaces(), model.getSyncItems());
+    List<ItemDiffs> itemDiffs = configService.compare(namespaceName, model.getSyncToNamespaces(), model.getSyncItems());
 
     for (ItemDiffs diff : itemDiffs) {
       NamespaceIdentifier namespace = diff.getNamespace();
@@ -214,7 +214,7 @@ public class ItemController {
       }
     }
     if (hasPermission) {
-      configService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
+      configService.syncItems(namespaceName, model.getSyncToNamespaces(), model.getSyncItems());
       return ResponseEntity.status(HttpStatus.OK).build();
     }
     throw new AccessDeniedException(String.format("You don't have the permission to modify namespace: %s", noPermissionNamespace));

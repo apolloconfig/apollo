@@ -164,7 +164,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
 
     assertEquals(1, itemDiffses.size());
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -207,7 +207,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
     assertEquals(1, itemDiffses.size());
 
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -274,7 +274,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
     assertEquals(1, itemDiffses.size());
 
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -324,7 +324,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
     // Test the complete sync flow
-    configService.syncItems(namespaceIdentifiers, sourceItems);
+    configService.syncItems(namespaceName, namespaceIdentifiers, sourceItems);
 
     // Verify that syncItems calls compare internally and processes all changes including deletes
     // This tests the integration between compare and syncItems methods
