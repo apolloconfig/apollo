@@ -184,8 +184,8 @@ public class ItemService {
     return item;
   }
 
-  public void syncItems(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
-    List<ItemDiffs> itemDiffs = compare(sourceNamespaceName, comparedNamespaces, sourceItems);
+  public void syncItems(String sourceNamespaceName, boolean selectAll, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+    List<ItemDiffs> itemDiffs = compare(sourceNamespaceName, selectAll, comparedNamespaces, sourceItems);
     for (ItemDiffs itemDiff : itemDiffs) {
       NamespaceIdentifier namespaceIdentifier = itemDiff.getNamespace();
       ItemChangeSets changeSets = itemDiff.getDiffs();
@@ -250,7 +250,7 @@ public class ItemService {
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, formatStr);
   }
 
-  public List<ItemDiffs> compare(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+  public List<ItemDiffs> compare(String sourceNamespaceName, boolean selectAll, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
 
     List<ItemDiffs> result = new LinkedList<>();
 
@@ -258,7 +258,7 @@ public class ItemService {
 
       ItemDiffs itemDiffs = new ItemDiffs(namespace);
       try {
-        itemDiffs.setDiffs(parseChangeSets(sourceNamespaceName, namespace, sourceItems));
+        itemDiffs.setDiffs(parseChangeSets(sourceNamespaceName, selectAll, namespace, sourceItems));
       } catch (BadRequestException e) {
         itemDiffs.setDiffs(new ItemChangeSets());
         itemDiffs.setExtInfo("该集群下没有名为 " + namespace.getNamespaceName() + " 的namespace");
@@ -291,7 +291,7 @@ public class ItemService {
     return namespaceDTO.getId();
   }
 
-  private ItemChangeSets parseChangeSets(String sourceNamespaceName, NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
+  private ItemChangeSets parseChangeSets(String sourceNamespaceName, boolean selectAll, NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
     ItemChangeSets changeSets = new ItemChangeSets();
     List<ItemDTO>
         targetItems =
@@ -330,8 +330,8 @@ public class ItemService {
       }
       
       // Check for deleted items: items that exist in target but not in source
-      // Only include deleted items if "Select All" was used (i.e., all source items are selected)
-      if (isAllSourceItemsSelected(sourceNamespaceName, namespace, sourceItems)) {
+      // Only include deleted items if "Select All" was used
+      if (selectAll) {
         for (ItemDTO targetItemToCheck : targetItems) {
           String targetKey = targetItemToCheck.getKey();
           if (!sourceItemMap.containsKey(targetKey)) {
@@ -342,31 +342,6 @@ public class ItemService {
     }
 
     return changeSets;
-  }
-
-  private boolean isAllSourceItemsSelected(String sourceNamespaceName, NamespaceIdentifier targetNamespace, List<ItemDTO> selectedSourceItems) {
-    // To determine if "Select All" was used, we check if selectedSourceItems represents
-    // all items from the source namespace. Since sync typically happens within the same app,
-    // we can make reasonable assumptions about the source namespace location.
-    
-    if (CollectionUtils.isEmpty(selectedSourceItems)) {
-      return false;
-    }
-    
-    // For a more robust implementation, we would need the exact source namespace coordinates.
-    // However, for now, we'll use a conservative approach:
-    // If we can't reliably determine that all items are selected, we'll assume partial selection.
-    // This ensures that deleted items are only included when we're confident "Select All" was used.
-    
-    // For safety, let's be conservative and only return true in very obvious cases.
-    // A more sophisticated implementation would require additional information from the frontend.
-    
-    // Since we can't reliably determine the exact source namespace without additional information,
-    // we'll return false for now to be safe. This means deleted items won't be included
-    // unless we have a more reliable way to detect "Select All".
-    
-    // TODO: Consider adding explicit "selectAll" flag to the request model for more reliable detection
-    return false;
   }
 
   private ItemDTO buildItem(long namespaceId, int lineNum, ItemDTO sourceItem) {

@@ -27,6 +27,7 @@ public class NamespaceSyncModel implements Verifiable {
 
   private List<NamespaceIdentifier> syncToNamespaces;
   private List<ItemDTO> syncItems;
+  private boolean selectAll;
 
   @Override
   public boolean isInvalid() {
@@ -66,5 +67,13 @@ public class NamespaceSyncModel implements Verifiable {
 
   public void setSyncItems(List<ItemDTO> syncItems) {
     this.syncItems = syncItems;
+  }
+
+  public boolean isSelectAll() {
+    return selectAll;
+  }
+
+  public void setSelectAll(boolean selectAll) {
+    this.selectAll = selectAll;
   }
 }

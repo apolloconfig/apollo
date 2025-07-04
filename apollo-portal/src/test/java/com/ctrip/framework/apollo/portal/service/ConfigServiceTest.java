@@ -164,7 +164,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, false, namespaceIdentifiers, sourceItems);
 
     assertEquals(1, itemDiffses.size());
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -207,7 +207,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, false, namespaceIdentifiers, sourceItems);
     assertEquals(1, itemDiffses.size());
 
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -249,9 +249,15 @@ public class ConfigServiceTest extends AbstractUnitTest {
   public void testCompareWithDeletedItems() {
     // Source has: a, newKey, c
     ItemDTO sourceItem1 = new ItemDTO("a", "b", "comment", 1);//not modified
+    sourceItem1.setNamespaceId(123L); // Set namespace ID for source items
     ItemDTO sourceItem2 = new ItemDTO("newKey", "c", "comment", 2);//new item
+    sourceItem2.setNamespaceId(123L);
     ItemDTO sourceItem3 = new ItemDTO("c", "newValue", "comment", 3);// update value
+    sourceItem3.setNamespaceId(123L);
     List<ItemDTO> sourceItems = Arrays.asList(sourceItem1, sourceItem2, sourceItem3);
+
+    // All items in the source namespace (for "Select All" detection)
+    List<ItemDTO> allSourceNamespaceItems = Arrays.asList(sourceItem1, sourceItem2, sourceItem3);
 
     // Target has: a, c, d, e (d and e should be deleted)
     ItemDTO targetItem1 = new ItemDTO("a", "b", "comment", 1);
@@ -266,15 +272,17 @@ public class ConfigServiceTest extends AbstractUnitTest {
         namespaceIdentifiers =
         generateNamespaceIdentifier(appId, env, clusterName, namespaceName);
     NamespaceDTO namespaceDTO = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespaceDTO.setId(123L); // Set the namespace ID to match source items
 
     when(namespaceAPI.loadNamespace(appId, Env.valueOf(env), clusterName, namespaceName)).thenReturn(namespaceDTO);
+    // Mock the call for target items
     when(itemAPI.findItems(appId, Env.valueOf(env), clusterName, namespaceName)).thenReturn(targetItems);
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
-    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, namespaceIdentifiers, sourceItems);
+    List<ItemDiffs> itemDiffses = configService.compare(namespaceName, true, namespaceIdentifiers, sourceItems);
     assertEquals(1, itemDiffses.size());
 
     ItemDiffs itemDiffs = itemDiffses.get(0);
@@ -324,7 +332,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
     // Test the complete sync flow
-    configService.syncItems(namespaceName, namespaceIdentifiers, sourceItems);
+    configService.syncItems(namespaceName, true, namespaceIdentifiers, sourceItems);
 
     // Verify that syncItems calls compare internally and processes all changes including deletes
     // This tests the integration between compare and syncItems methods
