@@ -184,8 +184,8 @@ public class ItemService {
     return item;
   }
 
-  public void syncItems(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
-    List<ItemDiffs> itemDiffs = compare(sourceNamespaceName, comparedNamespaces, sourceItems);
+  public void syncItems(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+    List<ItemDiffs> itemDiffs = compare(comparedNamespaces, sourceItems);
     for (ItemDiffs itemDiff : itemDiffs) {
       NamespaceIdentifier namespaceIdentifier = itemDiff.getNamespace();
       ItemChangeSets changeSets = itemDiff.getDiffs();
@@ -250,7 +250,7 @@ public class ItemService {
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, formatStr);
   }
 
-  public List<ItemDiffs> compare(String sourceNamespaceName, List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+  public List<ItemDiffs> compare(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
 
     List<ItemDiffs> result = new LinkedList<>();
 
@@ -258,7 +258,7 @@ public class ItemService {
 
       ItemDiffs itemDiffs = new ItemDiffs(namespace);
       try {
-        itemDiffs.setDiffs(parseChangeSets(sourceNamespaceName, namespace, sourceItems));
+        itemDiffs.setDiffs(parseChangeSets(namespace, sourceItems));
       } catch (BadRequestException e) {
         itemDiffs.setDiffs(new ItemChangeSets());
         itemDiffs.setExtInfo("该集群下没有名为 " + namespace.getNamespaceName() + " 的namespace");
@@ -291,7 +291,7 @@ public class ItemService {
     return namespaceDTO.getId();
   }
 
-  private ItemChangeSets parseChangeSets(String sourceNamespaceName, NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
+  private ItemChangeSets parseChangeSets(NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
     ItemChangeSets changeSets = new ItemChangeSets();
     List<ItemDTO>
         targetItems =
