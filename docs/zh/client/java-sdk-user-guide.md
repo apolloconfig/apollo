@@ -1374,7 +1374,7 @@ batch=2000
 
 ## 6.3 写测试类
 
-更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java]https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
+更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)
