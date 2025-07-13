@@ -22,6 +22,7 @@ public class ItemBO {
     private ItemDTO item;
     private boolean isModified;
     private boolean isDeleted;
+    private boolean isNewAdded;
     private String oldValue;
     private String newValue;
 
@@ -65,5 +66,11 @@ public class ItemBO {
       this.newValue = newValue;
     }
 
+    public boolean isNewAdded() {
+        return isNewAdded;
+    }
 
-  }
+    public void setNewAdded(boolean newAdded) {
+        isNewAdded = newAdded;
+    }
+}
