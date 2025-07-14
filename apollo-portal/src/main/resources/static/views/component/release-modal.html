@@ -91,11 +91,11 @@
                                     ng-if="config.item.key && config.isModified">
                                     <td width="20%" title="{{config.item.key}}">
                                         <span ng-bind="config.item.key"></span>
-                                        <span class="label label-success" ng-if="config.isNewAdded"
+                                        <span class="label label-success" ng-if="config.isNewlyAdded"
                                             data-tooltip="tooltip" data-placement="bottom"
                                             title="{{'Component.Publish.NewAddedTips' | translate }}">{{'Component.Publish.NewAdded' | translate }}</span>
                                         <span class="label label-info"
-                                            ng-if="config.isModified && !config.isNewAdded && !config.isDeleted"
+                                            ng-if="config.isModified && !config.isNewlyAdded && !config.isDeleted"
                                             data-tooltip="tooltip" data-placement="bottom"
                                             title="{{'Component.Publish.ModifiedTips' | translate }}">{{'Component.Publish.Modified' | translate }}</span>
                                         <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
