@@ -352,7 +352,7 @@
                                         data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
                                     <span class="label label-info"
-                                        ng-if="config.isModified && !config.isNewlyAdded && !config.isDeleted"
+                                        ng-if="config.isModified && !config.isDeleted && !config.isNewlyAdded"
                                         data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
                                     <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
@@ -484,7 +484,7 @@
                                         data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
                                     <span class="label label-info"
-                                        ng-if="config.isModified && !config.isNewlyAdded && !config.isDeleted"
+                                        ng-if="config.isModified  && !config.isDeleted && !config.isNewlyAdded"
                                         data-tooltip="tooltip" data-placement="bottom"
                                         title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
                                     <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
@@ -731,7 +731,7 @@
                                             data-tooltip="tooltip" data-placement="bottom"
                                             title="{{'Component.Namespace.Master.Items.Body.NewAddedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.NewAdded' | translate }}</span>
                                         <span class="label label-info"
-                                            ng-if="config.isModified && !config.isNewlyAdded && !config.isDeleted"
+                                            ng-if="config.isModified  && !config.isDeleted && !config.isNewlyAdded"
                                             data-tooltip="tooltip" data-placement="bottom"
                                             title="{{'Component.Namespace.Master.Items.Body.ModifiedTips' | translate }}">{{'Component.Namespace.Master.Items.Body.Modified' | translate }}</span>
                                         <span class="label label-danger" ng-if="config.isDeleted" data-tooltip="tooltip"
