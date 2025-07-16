@@ -105,7 +105,7 @@ pro.meta=http://apollo.xxx.com
 
 #### 1.2.2.1 自定义Apollo Meta Server地址定位逻辑
 
-在1.0.0版本中，Apollo提供了[MetaServerProvider SPI](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/spi/MetaServerProvider.java)，用户可以注入自己的MetaServerProvider来自定义Meta Server地址定位逻辑。
+在1.0.0版本中，Apollo提供了[MetaServerProvider SPI](https://github.com/apolloconfig/apollo-java/blob/main/apollo-core/src/main/java/com/ctrip/framework/apollo/core/spi/MetaServerProvider.java)，用户可以注入自己的MetaServerProvider来自定义Meta Server地址定位逻辑。
 
 由于我们使用典型的[Java Service Loader模式](https://docs.oracle.com/javase/7/docs/api/java/util/ServiceLoader.html)，所以实现起来还是比较简单的。
 
@@ -113,7 +113,7 @@ pro.meta=http://apollo.xxx.com
 
 **如果你的公司有很多应用需要接入Apollo，建议封装一个jar包，然后提供自定义的Apollo Meta Server定位逻辑，从而可以让接入Apollo的应用零配置使用。比如自己写一个`xx-company-apollo-client`，该jar包依赖`apollo-client`，在该jar包中通过spi方式定义自定义的MetaServerProvider实现，然后应用直接依赖`xx-company-apollo-client`即可。**
 
-MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/apolloconfig/apollo/blob/master/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
+MetaServerProvider的实现可以参考[LegacyMetaServerProvider](https://github.com/apolloconfig/apollo-java/blob/main/apollo-core/src/main/java/com/ctrip/framework/apollo/core/internals/LegacyMetaServerProvider.java)和[DefaultMetaServerProvider](https://github.com/apolloconfig/apollo-java/blob/main/apollo-client/src/main/java/com/ctrip/framework/apollo/internals/DefaultMetaServerProvider.java)。
 
 #### 1.2.2.2 跳过Apollo Meta Server服务发现
 
@@ -1374,7 +1374,7 @@ batch=2000
 
 ## 6.3 写测试类
 
-更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/apolloconfig/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java](https://github.com/apolloconfig/apollo/blob/master/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
+更多使用demo可以参考[ApolloMockServerApiTest.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerApiTest.java)和[ApolloMockServerSpringIntegrationTest.java](https://github.com/apolloconfig/apollo-java/blob/main/apollo-mockserver/src/test/java/com/ctrip/framework/apollo/mockserver/ApolloMockServerSpringIntegrationTest.java)。
 
 ```java
 @RunWith(SpringJUnit4ClassRunner.class)
