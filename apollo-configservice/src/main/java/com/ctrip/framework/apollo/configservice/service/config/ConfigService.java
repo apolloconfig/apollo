@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.configservice.service.config;
 import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.message.ReleaseMessageListener;
 import com.ctrip.framework.apollo.core.dto.ApolloNotificationMessages;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -40,4 +42,11 @@ public interface ConfigService extends ReleaseMessageListener {
    */
   Release loadConfig(String clientAppId, String clientIp, String clientLabel, String configAppId, String
       configClusterName, String configNamespace, String dataCenter, ApolloNotificationMessages clientMessages);
+
+
+  /**
+   * @param releaseKeys
+   * @return the ReleaseMap
+   */
+  Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys);
 }
