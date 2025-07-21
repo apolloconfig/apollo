@@ -10,21 +10,23 @@ Members include Project Management Committee members and committers. The list is
 
 ### Project Management Committee(PMC)
 
-| GitHub ID  | Name          | Organization |
-| ---------- | ------------- | ------------ |
-| Anilople   | Xiaoquan Wang | Some Bank    |
-| JaredTan95 | Jared Tan     | DaoCloud     |
-| kezhenxu94 | Zhenxu Ke     | Tetrate      |
-| klboke     | Kailing Chen  | TapTap       |
-| lepdou     | Le Zhang      | Tencent      |
-| nobodyiam  | Jason Song    | Ant Group    |
-| zouyx      | Joe Zou       | Shein        |
+| GitHub ID   | Name          | Organization |
+| ----------- | ------------- | ------------ |
+| Anilople    | Xiaoquan Wang | Some Bank    |
+| hezhangjian | ZhangJian He  | Huawei       |
+| JaredTan95  | Jared Tan     | DaoCloud     |
+| kezhenxu94  | Zhenxu Ke     | Tetrate      |
+| klboke      | Kailing Chen  | TapTap       |
+| lepdou      | Le Zhang      | Tencent      |
+| nobodyiam   | Jason Song    | Ant Group    |
+| zouyx       | Joe Zou       | Shein        |
 
 ### Committer
 
 | GitHub ID   | Name          | Organization |
 | ----------- | ------------- | ------------ |
 | Accelerater | Zhuohao Li    | Daocloud     |
+| hezhangjian | ZhangJian He  | Huawei       |
 | Anilople    | Xiaoquan Wang | Some Bank    |
 | JaredTan95  | Jared Tan     | DaoCloud     |
 | kezhenxu94  | Zhenxu Ke     | Tetrate      |
@@ -33,7 +35,6 @@ Members include Project Management Committee members and committers. The list is
 | nisiyong    | Stephen Ni    | Qihoo 360    |
 | nobodyiam   | Jason Song    | Ant Group    |
 | pengweiqhca | Wei Peng      | Tuhu         |
-| Shoothzj    | ZhangJian He  | Huawei       |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
 | zouyx       | Joe Zou       | Shein        |
 

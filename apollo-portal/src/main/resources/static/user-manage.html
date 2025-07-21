@@ -131,7 +131,19 @@
                                 {{'UserMange.Pwd' | translate }}
                             </label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control" name="password" ng-model="user.password">
+                                <input type="password" class="form-control" name="password" ng-model="user.password">
+                                <div ng-show="pwdNotMatch" ng-model="pwdNotMatch" style="color:red">
+                                    {{'UserMange.PwdNotMatch' | translate }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'UserMange.ConfirmPwd' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="password" class="form-control" name="confirmPassword" ng-model="user.confirmPassword" ng-blur="validatePwdMatch()">
                             </div>
                         </div>
                         <div class="form-group" valdr-form-group>
@@ -157,7 +169,7 @@
                             <div class="col-sm-offset-2 col-sm-9">
 
                                 <button type="submit" class="btn btn-primary"
-                                        ng-disabled="appForm.$invalid || submitBtnDisabled">{{status==='3' ? ('UserMange.Save' | translate) : ('Common.Submit' | translate) }}
+                                        ng-disabled="appForm.$invalid || submitBtnDisabled || pwdNotMatch">{{status==='3' ? ('UserMange.Save' | translate) : ('Common.Submit' | translate) }}
                                 </button>
                                 <button type="button" ng-click="changeStatus('1')" class="btn">{{status==='3' ? ('UserMange.Cancel' | translate) : ('UserMange.Back' | translate) }}</button>
                             </div>
