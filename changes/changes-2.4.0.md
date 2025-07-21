@@ -29,8 +29,5 @@ Apollo 2.4.0
 * [Feature: support to assign users management authority by the cluster (modify, publish)](https://github.com/apolloconfig/apollo/pull/5302)
 * [Feature: notification by email when releasing by OpenApi also](https://github.com/apolloconfig/apollo/pull/5324)
 
-* [Feature support incremental configuration synchronization client](https://github.com/apolloconfig/apollo/pull/5288)
-
-
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)

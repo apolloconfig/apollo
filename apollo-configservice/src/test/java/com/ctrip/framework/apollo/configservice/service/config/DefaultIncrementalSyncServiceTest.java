@@ -48,34 +48,18 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 public class DefaultIncrementalSyncServiceTest {
 
   private DefaultIncrementalSyncService defaultIncrementalSyncService;
-
-  @Mock
-  private ReleaseService releaseService;
-
-  @Mock
-  private ReleaseMessageService releaseMessageService;
-  @Mock
-  private Release someRelease;
-
   private String someKey;
-
   private String someReleaseKey;
-
   private String someAppId;
   private String someClusterName;
   private String someNamespaceName;
-
   private String newReleaseKey;
-
   private String someClientSideReleaseKey;
   private String someLatestMergedReleaseKey;
   private Map<String, String> someClientSideConfigurations;
   private Map<String, String> someLatestReleaseConfigurations;
   private Cache<ReleaseKeyPair, List<ConfigurationChange>> configurationChangeCache;
-
-
-
-
+  
   @Before
   public void setUp() throws Exception {
     defaultIncrementalSyncService = new DefaultIncrementalSyncService();
