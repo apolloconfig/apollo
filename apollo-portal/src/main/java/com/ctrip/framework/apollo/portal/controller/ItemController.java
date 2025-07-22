@@ -171,7 +171,7 @@ public class ItemController {
   }
 
   @PostMapping(value = "/namespaces/{namespaceName}/diff", consumes = {"application/json"})
-  public List<ItemDiffs> diff(@RequestBody NamespaceSyncModel model) {
+  public List<ItemDiffs> diff(@PathVariable String namespaceName, @RequestBody NamespaceSyncModel model) {
     checkModel(!model.isInvalid());
 
     List<ItemDiffs> itemDiffs = configService.compare(model.getSyncToNamespaces(), model.getSyncItems());
