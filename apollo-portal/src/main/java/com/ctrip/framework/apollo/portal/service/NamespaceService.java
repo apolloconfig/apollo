@@ -422,6 +422,7 @@ public class NamespaceService {
     //new item or modified
     if (!StringUtils.isEmpty(key) && (!newValue.equals(oldValue))) {
       itemBO.setModified(true);
+      itemBO.setNewlyAdded(!releaseItems.containsKey(key));
       itemBO.setOldValue(oldValue == null ? "" : oldValue);
       itemBO.setNewValue(newValue);
     }

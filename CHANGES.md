@@ -17,6 +17,7 @@ Apollo 2.5.0
 * [Fix: Bump h2database and snakeyaml version](https://github.com/apolloconfig/apollo/pull/5406)
 * [Bugfix: Correct permission target format to appId+env+namespace/cluster](https://github.com/apolloconfig/apollo/pull/5407)
 * [Security: Hide password when registering or modifying users](https://github.com/apolloconfig/apollo/pull/5414)
+* [Fix: the logical judgment for configuration addition, deletion, and modification.](https://github.com/apolloconfig/apollo/pull/5432)
 * [Feature support incremental configuration synchronization client](https://github.com/apolloconfig/apollo/pull/5288)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
