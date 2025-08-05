@@ -30,8 +30,7 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultSsoHeartbeatHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserService;
-import com.ctrip.framework.apollo.portal.spi.ldap.ApolloLdapAuthenticationProvider;
-import com.ctrip.framework.apollo.portal.spi.ldap.FilterLdapByGroupUserSearch;
+import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserDetailsService;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
 import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcAuthenticationSuccessEventListener;
@@ -75,10 +74,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
-import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
-import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.search.LdapUserSearch;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
+import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -184,7 +184,7 @@ public class AuthConfiguration {
     private final JWTUtils jwtUtils;
     private final UserDetailsService userDetailsService;
     private final HandlerExceptionResolver handlerExceptionResolver;
-    public SpringSecurityConfigurer(JWTUtils jwtUtils, UserDetailsService userDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
+    public SpringSecurityConfigurer(JWTUtils jwtUtils, UserDetailsService userDetailsService,  HandlerExceptionResolver handlerExceptionResolver) {
       this.jwtUtils = jwtUtils;
       this.userDetailsService = userDetailsService;
       this.handlerExceptionResolver = handlerExceptionResolver;
@@ -206,7 +206,6 @@ public class AuthConfiguration {
             .addFilterBefore(new JwtAuthenticationFilter(jwtUtils,userDetailsService,handlerExceptionResolver),
                     UsernamePasswordAuthenticationFilter.class);
     }
-
   }
 
   /**
@@ -251,6 +250,23 @@ public class AuthConfiguration {
     }
 
     @Bean
+    @DependsOn("userSearch")
+    public LdapUserDetailsService ldapUserDetailsService(
+            LdapUserSearch userSearch,
+            LdapAuthoritiesPopulator authoritiesPopulator,
+            LdapExtendProperties properties
+    ) {
+      UserDetailsContextMapper contextMapper = new LdapUserDetailsMapper();
+
+      return new LdapUserDetailsService(
+              userSearch,
+              contextMapper,
+              authoritiesPopulator,
+              properties
+      );
+    }
+
+    @Bean
     @ConditionalOnMissingBean
     public ContextSource ldapContextSource() {
       LdapContextSource source = new LdapContextSource();
@@ -271,6 +287,13 @@ public class AuthConfiguration {
       ldapTemplate.setIgnorePartialResultException(true);
       return ldapTemplate;
     }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+      return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
   }
 
   @Order(99)
@@ -280,71 +303,40 @@ public class AuthConfiguration {
   @EnableGlobalMethodSecurity(prePostEnabled = true)
   static class SpringSecurityLDAPConfigurer extends WebSecurityConfigurerAdapter {
 
-    private final LdapProperties ldapProperties;
-    private final LdapContextSource ldapContextSource;
+      private final JWTUtils jwtUtils;
+    private final UserDetailsService userDetailsService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
+      private final LdapAuthenticationProvider ldapAuthProvider;
 
-    private final LdapExtendProperties ldapExtendProperties;
 
-    public SpringSecurityLDAPConfigurer(final LdapProperties ldapProperties,
-        final LdapContextSource ldapContextSource,
-        final LdapExtendProperties ldapExtendProperties) {
-      this.ldapProperties = ldapProperties;
-      this.ldapContextSource = ldapContextSource;
-      this.ldapExtendProperties = ldapExtendProperties;
+    public SpringSecurityLDAPConfigurer(JWTUtils jwtUtils, UserDetailsService userDetailsService,
+                                         HandlerExceptionResolver handlerExceptionResolver, LdapAuthenticationProvider ldapAuthProvider) {
+        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
+        this.handlerExceptionResolver = handlerExceptionResolver;
+        this.ldapAuthProvider = ldapAuthProvider;
     }
 
-    @Bean
-    public FilterBasedLdapUserSearch userSearch() {
-      if (ldapExtendProperties.getGroup() == null || StringUtils
-          .isBlank(ldapExtendProperties.getGroup().getGroupSearch())) {
-        FilterBasedLdapUserSearch filterBasedLdapUserSearch = new FilterBasedLdapUserSearch("",
-            ldapProperties.getSearchFilter(), ldapContextSource
-        );
-        filterBasedLdapUserSearch.setSearchSubtree(true);
-        return filterBasedLdapUserSearch;
-      }
-
-      FilterLdapByGroupUserSearch filterLdapByGroupUserSearch = new FilterLdapByGroupUserSearch(
-          ldapProperties.getBase(), ldapProperties.getSearchFilter(), ldapExtendProperties.getGroup().getGroupBase(),
-          ldapContextSource, ldapExtendProperties.getGroup().getGroupSearch(),
-          ldapExtendProperties.getMapping().getRdnKey(),
-          ldapExtendProperties.getGroup().getGroupMembership(), ldapExtendProperties.getMapping().getLoginId()
-      );
-      filterLdapByGroupUserSearch.setSearchSubtree(true);
-      return filterLdapByGroupUserSearch;
-    }
-
-    @Bean
-    public LdapAuthenticationProvider ldapAuthProvider() {
-      BindAuthenticator bindAuthenticator = new BindAuthenticator(ldapContextSource);
-      bindAuthenticator.setUserSearch(userSearch());
-      DefaultLdapAuthoritiesPopulator defaultAuthAutoConfiguration = new DefaultLdapAuthoritiesPopulator(
-          ldapContextSource, null);
-      defaultAuthAutoConfiguration.setIgnorePartialResultException(true);
-      defaultAuthAutoConfiguration.setSearchSubtree(true);
-      // Rewrite the logic of LdapAuthenticationProvider with ApolloLdapAuthenticationProvider,
-      // use userId in LDAP system instead of userId input by user.
-      return new ApolloLdapAuthenticationProvider(
-          bindAuthenticator, defaultAuthAutoConfiguration, ldapExtendProperties);
-    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
-      http.headers().frameOptions().sameOrigin();
-      http.authorizeRequests()
+      http
+          .csrf().disable()
+          .cors()
+          .and()
+          .authorizeRequests()
           .antMatchers(BY_PASS_URLS).permitAll()
-          .antMatchers("/**").authenticated();
-      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
-          .httpBasic();
-      http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
-          .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+          .anyRequest().authenticated()
+          .and()
+              .logout().disable()
+          .addFilterBefore(new JwtAuthenticationFilter(jwtUtils,userDetailsService,handlerExceptionResolver),
+                  UsernamePasswordAuthenticationFilter.class);
+
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth.authenticationProvider(ldapAuthProvider());
+      auth.authenticationProvider(ldapAuthProvider);
     }
   }
 
