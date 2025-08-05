@@ -76,6 +76,7 @@
 		<javax.mail.version>1.6.2</javax.mail.version>
 		<jaxb.version>2.3.1</jaxb.version>
 		<junit.version>5.9.2</junit.version>
+		<jjwt.version>0.11.5</jjwt.version>
 		<h2database.version>2.2.220</h2database.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
 		<snakeyaml.version>2.3</snakeyaml.version>
@@ -201,6 +202,24 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-lang3</artifactId>
 				<version>${common-lang3.version}</version>
+			</dependency>
+			<!--jwt dependency-->
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-api</artifactId>
+				<version>${jjwt.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-impl</artifactId>
+				<version>${jjwt.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>${jjwt.version}</version>
+				<scope>runtime</scope>
 			</dependency>
 			<!-- to fix CVE-2022-45868 -->
 			<dependency>

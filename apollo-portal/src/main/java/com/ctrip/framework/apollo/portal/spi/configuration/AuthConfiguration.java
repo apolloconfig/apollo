@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.filter.JwtAuthenticationFilter;
 import com.ctrip.framework.apollo.portal.repository.AuthorityRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import com.ctrip.framework.apollo.portal.util.JWTUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -63,11 +65,15 @@ import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.LdapOperations;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.core.support.LdapContextSource;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
@@ -77,13 +83,15 @@ import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInit
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 public class AuthConfiguration {
 
   private static final String[] BY_PASS_URLS = {"/prometheus/**", "/metrics/**", "/openapi/**",
       "/vendor/**", "/styles/**", "/scripts/**", "/views/**", "/img/**", "/i18n/**", "/prefix-path",
-      "/health"};
+      "/health","/landing.html","/sso_heartbeat","default_sso_heartbeat.html","/refreshToken","/login",};
 
   /**
    * spring.profiles.active = auth
@@ -158,6 +166,11 @@ public class AuthConfiguration {
       return new SpringSecurityUserService(passwordEncoder, userRepository, authorityRepository);
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+      return authenticationConfiguration.getAuthenticationManager();
+    }
+
   }
 
   @Order(99)
@@ -168,19 +181,30 @@ public class AuthConfiguration {
   static class SpringSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     public static final String USER_ROLE = "user";
+    private final JWTUtils jwtUtils;
+    private final UserDetailsService userDetailsService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
+    public SpringSecurityConfigurer(JWTUtils jwtUtils, UserDetailsService userDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver handlerExceptionResolver) {
+      this.jwtUtils = jwtUtils;
+      this.userDetailsService = userDetailsService;
+      this.handlerExceptionResolver = handlerExceptionResolver;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
-      http.headers().frameOptions().sameOrigin();
-      http.authorizeRequests()
-          .antMatchers(BY_PASS_URLS).permitAll()
-          .antMatchers("/**").hasAnyRole(USER_ROLE);
-      http.formLogin().loginPage("/signin").defaultSuccessUrl("/", true).permitAll().failureUrl("/signin?#/error").and()
-          .httpBasic();
-      http.logout().logoutUrl("/user/logout").invalidateHttpSession(true).clearAuthentication(true)
-          .logoutSuccessUrl("/signin?#/logout");
-      http.exceptionHandling().authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+      http
+            .csrf().disable().sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+              .and()
+            .cors()
+              .and()
+            .authorizeRequests()
+            .antMatchers(BY_PASS_URLS).permitAll()
+            .anyRequest().authenticated()
+            .and()
+              .logout().disable()
+            .addFilterBefore(new JwtAuthenticationFilter(jwtUtils,userDetailsService,handlerExceptionResolver),
+                    UsernamePasswordAuthenticationFilter.class);
     }
 
   }
