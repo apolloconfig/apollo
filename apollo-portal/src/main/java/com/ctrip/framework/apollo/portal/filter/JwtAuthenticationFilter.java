@@ -37,7 +37,6 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String ACCESS_TOKEN_HEADER = "Authorization";
     private final JWTUtils jwtUtils;
     private final UserDetailsService userDetailsService;
     private final HandlerExceptionResolver handlerExceptionResolver;
@@ -59,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            String token = extractToken(request);
+            String token = jwtUtils.extractAccessTokenFromRequest(request);
 
             if (ObjectUtils.isEmpty(token)){
                 throw new BadRequestException("token is blank");
@@ -82,14 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private String extractToken(HttpServletRequest request) {
-        String token = request.getHeader(ACCESS_TOKEN_HEADER);
 
-        if (token == null){
-            token = request.getParameter("accessToken");
-        }
-        return token;
-    }
 
     private boolean isExcludePath(HttpServletRequest request) {
         String path = request.getRequestURI();

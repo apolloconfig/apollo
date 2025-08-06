@@ -25,9 +25,16 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
+
+import static com.ctrip.framework.apollo.portal.constant.JWTConstant.ACCESS_TOKEN_HEADER;
+import static com.ctrip.framework.apollo.portal.constant.JWTConstant.ACCESS_TOKEN;
+import static com.ctrip.framework.apollo.portal.constant.JWTConstant.ISSUER;
 
 @Component
 public class JWTUtils {
@@ -89,23 +96,81 @@ public class JWTUtils {
                 expiration.getTime() > System.currentTimeMillis();
     }
 
-    // Generate access token
-    public String generateAccessToken(String userIdentifier) {
-        return buildToken(userIdentifier, ACCESS_TOKEN_VALIDITY);
-    }
+    private String buildToken(String subject, long validity, Map<String, Object> customClaims) {
+        Map<String, Object> claims = customClaims != null ? new HashMap<>(customClaims) : new HashMap<>();
 
-    // Generate refresh token
-    public String generateRefreshToken(String userIdentifier) {
-        return buildToken(userIdentifier,REFRESH_TOKEN_VALIDITY);
-    }
-
-    // Token builder with core claims
-    private String buildToken(String subject, long validity) {
         return Jwts.builder()
                 .setSubject(subject)
+                .setIssuer(ISSUER)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + validity))
+                .setExpiration(new Date(System.currentTimeMillis() + validity))  // 过期时间
+                .addClaims(claims)
                 .signWith(SECRET_KEY)
                 .compact();
+    }
+
+
+    private String buildToken(String subject, long validity) {
+        return buildToken(subject, validity, null);
+    }
+
+
+    public String generateAccessToken(String userIdentifier, Map<String, Object> customClaims) {
+        return buildToken(userIdentifier, ACCESS_TOKEN_VALIDITY, customClaims);
+    }
+
+
+    public String generateAccessToken(String userIdentifier) {
+        return generateAccessToken(userIdentifier, null);
+    }
+
+
+    public String generateRefreshToken(String userIdentifier, Map<String, Object> customClaims) {
+        return buildToken(userIdentifier, REFRESH_TOKEN_VALIDITY, customClaims);
+    }
+
+
+    public String generateRefreshToken(String userIdentifier) {
+        return generateRefreshToken(userIdentifier, null);
+    }
+
+
+    public String generateAccessToken(String userIdentifier, long validDuration, Map<String, Object> claims) {
+        return buildToken(userIdentifier, validDuration, claims);
+    }
+
+
+    public String generateRefreshToken(String userIdentifier, long validDuration, Map<String, Object> claims) {
+        return buildToken(userIdentifier, validDuration, claims);
+    }
+
+    public <T> T getClaimValue(String token, String claimKey, Class<T> clazz) {
+        try {
+            if (!isValidToken(token)) {
+                return null;
+            }
+
+            Claims claims = getAllClaimsFromToken(token);
+            return claims.get(claimKey, clazz);
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+
+    public Object getRawClaimValue(String token, String claimKey) {
+        return getClaimValue(token, claimKey, Object.class);
+    }
+
+    public String extractAccessTokenFromRequest(HttpServletRequest request) {
+        String token = request.getHeader(ACCESS_TOKEN_HEADER);
+
+        if (token == null){
+            token = request.getParameter(ACCESS_TOKEN);
+        }
+        if (token == null){
+            token = request.getHeader("Authorization");
+        }
+        return token;
     }
 }

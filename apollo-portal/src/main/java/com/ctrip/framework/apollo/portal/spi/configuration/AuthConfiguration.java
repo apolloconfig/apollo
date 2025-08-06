@@ -32,12 +32,18 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserService;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserDetailsService;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
-import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
+
+import com.ctrip.framework.apollo.portal.filter.JwtOidcAuthenticationFilter;
+import com.ctrip.framework.apollo.portal.spi.oidc.JwtOidcLogoutSuccessHandler;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
+import com.ctrip.framework.apollo.portal.spi.oidc.JwtAuthenticationSuccessHandler;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcAuthenticationSuccessEventListener;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.oidc.HttpCookieOAuth2AuthorizationRequestRepository;
+import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
+
 import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncoderFactory;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
@@ -79,10 +85,9 @@ import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
-import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -304,8 +309,8 @@ public class AuthConfiguration {
   static class SpringSecurityLDAPConfigurer extends WebSecurityConfigurerAdapter {
 
       private final JWTUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
-    private final HandlerExceptionResolver handlerExceptionResolver;
+      private final UserDetailsService userDetailsService;
+      private final HandlerExceptionResolver handlerExceptionResolver;
       private final LdapAuthenticationProvider ldapAuthProvider;
 
 
@@ -391,8 +396,13 @@ public class AuthConfiguration {
 
     @Bean
     public OidcAuthenticationSuccessEventListener oidcAuthenticationSuccessEventListener(
-        OidcLocalUserService oidcLocalUserService, OidcExtendProperties oidcExtendProperties) {
+            OidcLocalUserService oidcLocalUserService, OidcExtendProperties oidcExtendProperties) {
       return new OidcAuthenticationSuccessEventListener(oidcLocalUserService, oidcExtendProperties);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+      return config.getAuthenticationManager();
     }
   }
 
@@ -405,30 +415,48 @@ public class AuthConfiguration {
     private final InMemoryClientRegistrationRepository clientRegistrationRepository;
 
     private final OAuth2ResourceServerProperties oauth2ResourceServerProperties;
+      private final JwtOidcAuthenticationFilter jwtOidcAuthenticationFilter;
+    private final JwtOidcLogoutSuccessHandler jwtOidcLogoutSuccessHandler;
+
+    private final JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler;
+    private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     public OidcWebSecurityConfigurerAdapter(
-        InMemoryClientRegistrationRepository clientRegistrationRepository,
-        OAuth2ResourceServerProperties oauth2ResourceServerProperties) {
+            InMemoryClientRegistrationRepository clientRegistrationRepository,
+            OAuth2ResourceServerProperties oauth2ResourceServerProperties, JwtOidcAuthenticationFilter jwtOidcAuthenticationFilter, JwtOidcLogoutSuccessHandler jwtOidcLogoutSuccessHandler, JwtAuthenticationSuccessHandler jwtAuthenticationSuccessHandler, HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) {
       this.clientRegistrationRepository = clientRegistrationRepository;
       this.oauth2ResourceServerProperties = oauth2ResourceServerProperties;
+        this.jwtOidcAuthenticationFilter = jwtOidcAuthenticationFilter;
+        this.jwtOidcLogoutSuccessHandler = jwtOidcLogoutSuccessHandler;
+        this.jwtAuthenticationSuccessHandler = jwtAuthenticationSuccessHandler;
+        this.httpCookieOAuth2AuthorizationRequestRepository = httpCookieOAuth2AuthorizationRequestRepository;
+
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
+      http
+              .csrf().disable()
+              .sessionManagement()
+              .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
       http.authorizeRequests(requests -> requests.antMatchers(BY_PASS_URLS).permitAll());
       http.authorizeRequests(requests -> requests.anyRequest().authenticated());
-      http.oauth2Login(configure ->
-          configure.clientRegistrationRepository(
-              new ExcludeClientCredentialsClientRegistrationRepository(
-                  this.clientRegistrationRepository)));
+
+      http.oauth2Login(oauth2 -> oauth2
+              .clientRegistrationRepository(new ExcludeClientCredentialsClientRegistrationRepository(this.clientRegistrationRepository))
+              .successHandler(jwtAuthenticationSuccessHandler)
+              .authorizationEndpoint(auth -> auth
+                      .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository)
+              )
+      );
+      http.addFilterBefore(
+              jwtOidcAuthenticationFilter,
+              OAuth2AuthorizationRequestRedirectFilter.class
+      );
       http.oauth2Client();
       http.logout(configure -> {
-        configure.logoutUrl("/user/logout");
-        OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler = new OidcClientInitiatedLogoutSuccessHandler(
-            this.clientRegistrationRepository);
-        logoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
-        configure.logoutSuccessHandler(logoutSuccessHandler);
+        configure.logoutUrl("/logout")
+                .logoutSuccessHandler(jwtOidcLogoutSuccessHandler);
       });
       // make jwt optional
       String jwtIssuerUri = this.oauth2ResourceServerProperties.getJwt().getIssuerUri();

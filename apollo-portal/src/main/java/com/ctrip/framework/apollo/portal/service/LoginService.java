@@ -33,10 +33,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import javax.servlet.http.Cookie;
 
+import static com.ctrip.framework.apollo.portal.constant.JWTConstant.REFRESH_TOKEN;
+
 @Service
 public class LoginService {
 
-    private final static String REFRESH_TOKEN_COOKIE_NAME = "refreshToken";
     private final AuthenticationManager authenticationManager;
     private final JWTUtils jwtUtils;
 
@@ -53,8 +54,6 @@ public class LoginService {
                     userLoginDto.getUsername(), userLoginDto.getPassword());
             Authentication authentication = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            System.out.println( "username in login");
-            System.out.println( userDetails.getUsername());
 
             String accessToken = jwtUtils.generateAccessToken(userDetails.getUsername());
             String refreshToken = jwtUtils.generateRefreshToken(userDetails.getUsername());
@@ -67,10 +66,10 @@ public class LoginService {
     }
 
     public void logout(HttpServletRequest request, HttpServletResponse response) {
-        CookieUtils.deleteCookie(request, response, REFRESH_TOKEN_COOKIE_NAME);
+        CookieUtils.deleteCookie(request, response, REFRESH_TOKEN);
     }
     public UserToken refreshToken(HttpServletRequest request) {
-        String refreshToken = CookieUtils.getCookie(request, REFRESH_TOKEN_COOKIE_NAME)
+        String refreshToken = CookieUtils.getCookie(request, REFRESH_TOKEN)
                 .map(Cookie::getValue)
                 .filter(value -> !value.isEmpty())
                 .orElseThrow(() -> new AuthorizedException("refresh token not found"));
@@ -88,6 +87,6 @@ public class LoginService {
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
 
-        CookieUtils.addCookie(response, REFRESH_TOKEN_COOKIE_NAME, refreshToken, (int) Duration.ofDays(7).getSeconds());
+        CookieUtils.addCookie(response, REFRESH_TOKEN, refreshToken, (int) Duration.ofDays(7).getSeconds());
     }
 }
