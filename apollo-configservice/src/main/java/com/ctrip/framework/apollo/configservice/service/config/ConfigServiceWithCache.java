@@ -68,7 +68,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
   private static final String TRACER_EVENT_CACHE_LOAD_RELEASE_KEY = "ConfigCache.LoadFromDBByReleaseKey";
 
-
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
   private final BizConfig bizConfig;
@@ -160,40 +159,40 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   }
 
   @Override
-  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys)
-      {
-        try {
-          ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
-          if (CollectionUtils.isEmpty(releaseKeyMap)) {
-            return Collections.emptyMap();
-          }
-
-          Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
-          for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
-            entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
-          }
-          if (validReleaseKeyIdMap.isEmpty()) {
-            return Collections.emptyMap();
-          }
-
-          Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(validReleaseKeyIdMap.values());
-          if (CollectionUtils.isEmpty(releasesMap)) {
-            return Collections.emptyMap();
-          }
-
-          Map<String, Release> releases = new HashMap<>();
-          for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
-            Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
-            releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
-          }
-
-          return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
-        } catch (Exception e) {
-          Tracer.logError(e);
-          logger.error("Failed to invoke findReleasesByReleaseKeys {}", releaseKeys, e);
-        }
-        return null;
+  public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) {
+    try {
+      ImmutableMap<String, Optional<Long>> releaseKeyMap = releaseKeyCache.getAll(releaseKeys);
+      if (CollectionUtils.isEmpty(releaseKeyMap)) {
+        return Collections.emptyMap();
       }
+
+      Map<String, Long> validReleaseKeyIdMap = new HashMap<>();
+      for (Map.Entry<String, Optional<Long>> entry : releaseKeyMap.entrySet()) {
+        entry.getValue().ifPresent(id -> validReleaseKeyIdMap.put(entry.getKey(), id));
+      }
+      if (validReleaseKeyIdMap.isEmpty()) {
+        return Collections.emptyMap();
+      }
+
+      Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(
+          validReleaseKeyIdMap.values());
+      if (CollectionUtils.isEmpty(releasesMap)) {
+        return Collections.emptyMap();
+      }
+
+      Map<String, Release> releases = new HashMap<>();
+      for (Map.Entry<String, Long> entry : validReleaseKeyIdMap.entrySet()) {
+        Optional<Release> releaseOpt = releasesMap.get(entry.getValue());
+        releaseOpt.ifPresent(release -> releases.put(entry.getKey(), release));
+      }
+
+      return releases.isEmpty() ? Collections.emptyMap() : ImmutableMap.copyOf(releases);
+    } catch (Exception e) {
+      Tracer.logError(e);
+      logger.error("Failed to invoke findReleasesByReleaseKeys {}", releaseKeys, e);
+    }
+    return null;
+  }
 
   private void buildConfigCache() {
     CacheBuilder configCacheBuilder = CacheBuilder.newBuilder()
@@ -275,8 +274,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
       GuavaCacheMetrics.monitor(meterRegistry, releaseKeyCache, "releaseKey_cache");
     }
-
   }
+
   private void buildConfigIdCache() {
     CacheBuilder configIdCacheBuilder = CacheBuilder.newBuilder()
         .expireAfterAccess(DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES, TimeUnit.MINUTES);
@@ -286,7 +285,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     configIdCache = configIdCacheBuilder.build(new CacheLoader<Long, Optional<Release>>() {
       @Override
       public Optional<Release> load(Long key) throws Exception {
-        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID, String.valueOf(key));
+        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID,
+            String.valueOf(key));
         try {
           Release release = releaseService.findActiveOne(key);
 
@@ -305,7 +305,6 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     if (bizConfig.isConfigServiceCacheStatsEnabled()) {
       GuavaCacheMetrics.monitor(meterRegistry, configIdCache, "config_id_cache");
     }
-
   }
 
   private static class ConfigCacheEntry {

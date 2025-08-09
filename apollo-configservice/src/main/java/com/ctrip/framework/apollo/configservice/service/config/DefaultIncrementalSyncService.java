@@ -28,9 +28,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
 public class DefaultIncrementalSyncService implements IncrementalSyncService {
 
   private final Cache<ReleaseKeyPair, List<ConfigurationChange>> configurationChangeCache;
@@ -41,7 +38,6 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
         .expireAfterWrite(10, TimeUnit.MINUTES)
         .build();
   }
-
 
   @Override
   public List<ConfigurationChange> getConfigurationChanges(String latestMergedReleaseKey,
@@ -133,6 +129,5 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
       return Objects.hash(clientSideReleaseKey, latestMergedReleaseKey);
     }
   }
-
 
 }

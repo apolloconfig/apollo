@@ -20,12 +20,10 @@ import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * @author jason
- */
 public interface IncrementalSyncService {
 
-  List<ConfigurationChange> getConfigurationChanges(String latestMergedReleaseKey, Map<String, String> latestReleaseConfigurations, String clientSideReleaseKey, Map<String, String> clientSideConfigurations) ;
+  List<ConfigurationChange> getConfigurationChanges(String latestMergedReleaseKey,
+      Map<String, String> latestReleaseConfigurations, String clientSideReleaseKey,
+      Map<String, String> clientSideConfigurations);
 
-  }
+}
