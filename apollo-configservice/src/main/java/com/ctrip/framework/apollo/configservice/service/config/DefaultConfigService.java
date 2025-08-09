@@ -65,7 +65,7 @@ public class DefaultConfigService extends AbstractConfigService {
   public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) {
     List<Release> releasesMap = releaseService.findByReleaseKeys(releaseKeys);
     if (releasesMap != null) {
-      return ImmutableMap.copyOf(releasesMap.stream().collect(ImmutableMap.toImmutableMap(Release::getReleaseKey, release -> release)));
+      return releasesMap.stream().collect(ImmutableMap.toImmutableMap(Release::getReleaseKey, release -> release));
     }
     return Collections.emptyMap();
   }

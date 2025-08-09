@@ -133,7 +133,6 @@ public class ConfigServiceWithCacheTest {
     assertEquals(someRelease, configServiceWithCache.findActiveOne(someId, someNotificationMessages));
 
     verify(releaseService, times(1)).findActiveOne(someId);
-    verify(releaseService, times(1)).findActiveOne(someId);
   }
 
   @Test

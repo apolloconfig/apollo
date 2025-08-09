@@ -1673,6 +1673,6 @@ Default is false. Assess total configuration size and adjust Config Service memo
 
 > Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
 
-> `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
+> `config-service.incremental.change.enabled` configuration adjustment requires a restart of the config service to take effect
 
 
