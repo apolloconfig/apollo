@@ -18,8 +18,8 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.dto.CommitDTO;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.service.CommitService;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -38,11 +38,11 @@ import java.util.List;
 public class CommitController {
 
   private final CommitService commitService;
-  private final UserPermissionValidator userPermissionValidator;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public CommitController(final CommitService commitService, final UserPermissionValidator userPermissionValidator) {
+  public CommitController(final CommitService commitService, final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.commitService = commitService;
-    this.userPermissionValidator = userPermissionValidator;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/commits")
@@ -51,7 +51,7 @@ public class CommitController {
                               @RequestParam(required = false) String key,
                               @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
                               @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "10") int size) {
-    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return Collections.emptyList();
     }
 

@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.service.ItemService;
@@ -44,15 +45,15 @@ public class ItemControllerTest {
   @Mock
   private UserInfoHolder userInfoHolder;
   @Mock
-  private UserPermissionValidator userPermissionValidator;
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @InjectMocks
   private ItemController itemController;
 
   @Before
   public void setUp() throws Exception {
-    itemController = new ItemController(configService, userInfoHolder, userPermissionValidator,
-        namespaceService);
+    itemController = new ItemController(configService, userInfoHolder ,
+        namespaceService,unifiedPermissionValidator);
   }
 
   @Test

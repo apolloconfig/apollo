@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.google.gson.Gson;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
@@ -24,7 +25,6 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.bo.ConfigBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
@@ -66,21 +66,20 @@ public class ConfigsExportService {
 
   private final PortalSettings portalSettings;
 
-  private final UserPermissionValidator userPermissionValidator;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public ConfigsExportService(
-      AppService appService,
-      ClusterService clusterService,
-      final @Lazy NamespaceService namespaceService,
-      final AppNamespaceService appNamespaceService,
-      PortalSettings portalSettings,
-      UserPermissionValidator userPermissionValidator) {
+          AppService appService,
+          ClusterService clusterService,
+          final @Lazy NamespaceService namespaceService,
+          final AppNamespaceService appNamespaceService,
+          PortalSettings portalSettings, UnifiedPermissionValidator unifiedPermissionValidator) {
     this.appService = appService;
     this.clusterService = clusterService;
     this.namespaceService = namespaceService;
     this.appNamespaceService = appNamespaceService;
     this.portalSettings = portalSettings;
-    this.userPermissionValidator = userPermissionValidator;
+      this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   /**
@@ -144,7 +143,7 @@ public class ConfigsExportService {
     final Predicate<App> isAppAdmin =
         app -> {
           try {
-            return userPermissionValidator.isAppAdmin(app.getAppId());
+            return unifiedPermissionValidator.isAppAdmin(app.getAppId());
           } catch (Exception e) {
             logger.error("permission check failed. app = {}", app);
             return false;
