@@ -22,8 +22,8 @@ import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
@@ -45,23 +45,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class NamespaceBranchController {
 
-  private final UserPermissionValidator userPermissionValidator;
+
   private final ReleaseService releaseService;
   private final NamespaceBranchService namespaceBranchService;
   private final ApplicationEventPublisher publisher;
   private final PortalConfig portalConfig;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public NamespaceBranchController(
-      final UserPermissionValidator userPermissionValidator,
-      final ReleaseService releaseService,
-      final NamespaceBranchService namespaceBranchService,
-      final ApplicationEventPublisher publisher,
-      final PortalConfig portalConfig) {
-    this.userPermissionValidator = userPermissionValidator;
+
+          final ReleaseService releaseService,
+          final NamespaceBranchService namespaceBranchService,
+          final ApplicationEventPublisher publisher,
+          final PortalConfig portalConfig, UnifiedPermissionValidator unifiedPermissionValidator) {
     this.releaseService = releaseService;
     this.namespaceBranchService = namespaceBranchService;
     this.publisher = publisher;
     this.portalConfig = portalConfig;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
@@ -71,14 +72,14 @@ public class NamespaceBranchController {
                                 @PathVariable String namespaceName) {
     NamespaceBO namespaceBO = namespaceBranchService.findBranch(appId, Env.valueOf(env), clusterName, namespaceName);
 
-    if (namespaceBO != null && userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (namespaceBO != null && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       namespaceBO.hideItems();
     }
 
     return namespaceBO;
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
   @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
   public NamespaceDTO createBranch(@PathVariable String appId,
@@ -97,8 +98,8 @@ public class NamespaceBranchController {
                            @PathVariable String namespaceName,
                            @PathVariable String branchName) {
 
-    boolean hasModifyPermission = userPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
-    boolean hasReleasePermission = userPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
+    boolean hasModifyPermission = unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
+    boolean hasReleasePermission = unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
     boolean canDelete = hasReleasePermission
         || (hasModifyPermission && releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
 
@@ -116,7 +117,7 @@ public class NamespaceBranchController {
 
 
 
-  @PreAuthorize(value = "@userPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
   @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
   public ReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
@@ -156,7 +157,7 @@ public class NamespaceBranchController {
   }
 
 
-  @PreAuthorize(value = "@userPermissionValidator.hasOperateNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasOperateNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
   @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.updateBranchRules")
   public void updateBranchRules(@PathVariable String appId, @PathVariable String env,

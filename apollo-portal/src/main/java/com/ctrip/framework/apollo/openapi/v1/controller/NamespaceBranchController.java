@@ -21,9 +21,9 @@ import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
@@ -49,17 +49,17 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/openapi/v1/envs/{env}")
 public class NamespaceBranchController {
 
-    private final ConsumerPermissionValidator consumerPermissionValidator;
+    private final UnifiedPermissionValidator unifiedPermissionValidator;
     private final ReleaseService releaseService;
     private final NamespaceBranchService namespaceBranchService;
     private final UserService userService;
 
     public NamespaceBranchController(
-        final ConsumerPermissionValidator consumerPermissionValidator,
-        final ReleaseService releaseService,
-        final NamespaceBranchService namespaceBranchService,
-        final UserService userService) {
-        this.consumerPermissionValidator = consumerPermissionValidator;
+            final UnifiedPermissionValidator unifiedPermissionValidator,
+            final ReleaseService releaseService,
+            final NamespaceBranchService namespaceBranchService,
+            final UserService userService) {
+        this.unifiedPermissionValidator = unifiedPermissionValidator;
         this.releaseService = releaseService;
         this.namespaceBranchService = namespaceBranchService;
         this.userService = userService;
@@ -77,7 +77,7 @@ public class NamespaceBranchController {
         return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
+        @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
     @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
     public OpenNamespaceDTO createBranch(@PathVariable String appId,
                                          @PathVariable String env,
@@ -97,7 +97,7 @@ public class NamespaceBranchController {
         return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+    @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
     @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}")
     public void deleteBranch(@PathVariable String appId,
                              @PathVariable String env,
@@ -111,8 +111,8 @@ public class NamespaceBranchController {
             throw BadRequestException.userNotExists(operator);
         }
 
-        boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName) ||
-            (consumerPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName) &&
+        boolean canDelete = unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName) ||
+            (unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName) &&
                 releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
 
         if (!canDelete) {
@@ -137,7 +137,7 @@ public class NamespaceBranchController {
         return OpenApiBeanUtils.transformFromGrayReleaseRuleDTO(grayReleaseRuleDTO);
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+    @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
     @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
     public void updateBranchRules(@PathVariable String appId, @PathVariable String env,
                                   @PathVariable String clusterName, @PathVariable String namespaceName,
