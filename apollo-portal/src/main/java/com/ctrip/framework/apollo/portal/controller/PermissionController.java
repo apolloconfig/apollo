@@ -419,7 +419,7 @@ public class PermissionController {
   @GetMapping("/system/role/createApplication/{userId}")
   public JsonObject hasCreateApplicationPermission(@PathVariable String userId) {
     JsonObject rs = new JsonObject();
-    rs.addProperty("unifiedPermissionValidator", userPermissionValidator.hasCreateApplicationPermission(userId));
+    rs.addProperty("hasCreateApplicationPermission", userPermissionValidator.hasCreateApplicationPermission(userId));
     return rs;
   }
 

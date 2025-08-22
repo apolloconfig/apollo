@@ -26,6 +26,9 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Set;
+
 @Component("userPermissionValidator")
 public class UserPermissionValidator extends AbstractPermissionValidator implements PermissionValidator {
 
@@ -106,5 +109,13 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   @Override
   protected boolean hasPermission(String targetId, String permissionType) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(), permissionType, targetId);
+  }
+
+  @Override
+  protected boolean hasPermissions(List<String> requiredPerms) {
+    String userId = userInfoHolder.getUser().getUserId();
+    Set<String> permissions =
+            rolePermissionService.getUserPermissionSet(userId);
+    return requiredPerms.stream().anyMatch(permissions::contains);
   }
 }
