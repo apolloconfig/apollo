@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,4 +59,8 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
   + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
   List<Long> findPermissionIdsByAppIdAndEnvAndCluster(String appId, String env, String clusterName);
+
+  // 批量获取权限详情
+  @Query("SELECT p FROM Permission p WHERE p.id IN :permissionIds")
+  List<Permission> findByIds(@Param("permissionIds") List<Long> permissionIds);
 }

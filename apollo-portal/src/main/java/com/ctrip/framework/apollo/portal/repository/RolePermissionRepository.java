@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.portal.entity.po.RolePermission;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -38,4 +39,9 @@ public interface RolePermissionRepository extends PagingAndSortingRepository<Rol
   @Modifying
   @Query("UPDATE RolePermission SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE PermissionId in ?1 and IsDeleted = false")
   Integer batchDeleteByPermissionIds(List<Long> permissionIds, String operator);
+
+
+  @Query("SELECT rp FROM RolePermission rp WHERE rp.roleId IN :roleIds")
+  List<RolePermission> findByRoleIds(@Param("roleIds") List<Long> roleIds);
+
 }
