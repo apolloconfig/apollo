@@ -375,5 +375,27 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
     }
 
+    @Override
+    public Set<String> getUserPermissionSet(String userId) {
+        // 1. 获取用户所有角色
+        List<UserRole> userRoles = userRoleRepository.findByUserId(userId);
+        Set<Long> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId)
+                .collect(Collectors.toSet());
+
+        // 2. 获取角色关联的权限ID
+        List<RolePermission> rolePermissions =
+                rolePermissionRepository.findByRoleIdIn(roleIds);
+        List<Long> permissionIds = rolePermissions.stream()
+                .map(RolePermission::getPermissionId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 3. 查询权限详情
+        return permissionRepository.findByIds(permissionIds).stream()
+                .map(p -> p.getPermissionType() + ":" + p.getTargetId())
+                .collect(Collectors.toSet());
+    }
+
 
 }
