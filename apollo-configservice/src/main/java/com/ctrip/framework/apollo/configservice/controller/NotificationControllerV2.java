@@ -68,7 +68,7 @@ import java.util.function.Function;
 @RequestMapping("/notifications/v2")
 public class NotificationControllerV2 implements ReleaseMessageListener {
   private static final Logger logger = LoggerFactory.getLogger(NotificationControllerV2.class);
-  private final CaseInsensitiveConcurrentMultimap<String, DeferredResultWrapper> deferredResults = new CaseInsensitiveConcurrentMultimap<>();
+  private final Multimap<String, DeferredResultWrapper> deferredResults = new CaseInsensitiveConcurrentMultimap<>();
 
   private static final Type notificationsTypeReference =
       new TypeToken<List<ApolloConfigNotification>>() {

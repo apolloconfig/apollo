@@ -21,7 +21,6 @@ import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.message.Topics;
 import com.ctrip.framework.apollo.biz.utils.EntityManagerUtil;
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
-import com.ctrip.framework.apollo.configservice.util.CaseInsensitiveConcurrentMultimap;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.configservice.util.WatchKeysUtil;
 import com.ctrip.framework.apollo.configservice.wrapper.DeferredResultWrapper;
@@ -80,7 +79,7 @@ public class NotificationControllerV2Test {
 
   private Gson gson;
 
-  private ConcurrentMultimap<String, DeferredResultWrapper> deferredResults;
+  private Multimap<String, DeferredResultWrapper> deferredResults;
 
   @Before
   public void setUp() throws Exception {
@@ -107,7 +106,7 @@ public class NotificationControllerV2Test {
     when(namespaceUtil.normalizeNamespace(someAppId, somePublicNamespace)).thenReturn(somePublicNamespace);
 
     deferredResults =
-        (ConcurrentMultimap<String, DeferredResultWrapper>) ReflectionTestUtils.getField(controller, "deferredResults");
+        (Multimap<String, DeferredResultWrapper>) ReflectionTestUtils.getField(controller, "deferredResults");
   }
 
   @Test
