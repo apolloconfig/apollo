@@ -24,7 +24,7 @@ import com.ctrip.framework.apollo.biz.utils.EntityManagerUtil;
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
-import com.ctrip.framework.apollo.configservice.util.ConcurrentMultimap;
+import com.ctrip.framework.apollo.configservice.util.CaseInsensitiveConcurrentMultimap;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.configservice.util.WatchKeysUtil;
 import com.ctrip.framework.apollo.configservice.wrapper.DeferredResultWrapper;
@@ -68,7 +68,7 @@ import java.util.function.Function;
 @RequestMapping("/notifications/v2")
 public class NotificationControllerV2 implements ReleaseMessageListener {
   private static final Logger logger = LoggerFactory.getLogger(NotificationControllerV2.class);
-  private final ConcurrentMultimap<String, DeferredResultWrapper> deferredResults = new ConcurrentMultimap<>();
+  private final CaseInsensitiveConcurrentMultimap<String, DeferredResultWrapper> deferredResults = new CaseInsensitiveConcurrentMultimap<>();
 
   private static final Type notificationsTypeReference =
       new TypeToken<List<ApolloConfigNotification>>() {

@@ -31,16 +31,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.Assert.*;
 
 /**
- * Test for ConcurrentMultimap
+ * Test for CaseInsensitiveConcurrentMultimap
  * 
  * @author Apollo Team
  */
-public class ConcurrentMultimapTest {
-  private ConcurrentMultimap<String, String> multimap;
+public class CaseInsensitiveConcurrentMultimapTest {
+  private CaseInsensitiveConcurrentMultimap<String, String> multimap;
 
   @Before
   public void setUp() {
-    multimap = new ConcurrentMultimap<>();
+    multimap = new CaseInsensitiveConcurrentMultimap<>();
   }
 
   @Test
