@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,13 +80,13 @@ public class ConsumerRolePermissionService {
   }
 
   public Set<String> getUserPermissionSet(long consumerId) {
-    // 1. 获取cu所有角色
+    // 1. Get all roles of the consumer
     List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
     Set<Long> roleIds = consumerRoles.stream()
             .map(ConsumerRole::getRoleId)
             .collect(Collectors.toSet());
 
-    // 2. 获取角色关联的权限ID
+    // 2. Get permission IDs associated with roles
     List<RolePermission> rolePermissions =
             rolePermissionRepository.findByRoleIdIn(roleIds);
     List<Long> permissionIds = rolePermissions.stream()
@@ -93,7 +94,11 @@ public class ConsumerRolePermissionService {
             .distinct()
             .collect(Collectors.toList());
 
-    // 3. 查询权限详情
+    if (CollectionUtils.isEmpty(permissionIds)) {
+      return Collections.emptySet();
+    }
+
+    // 3. Query permission details
     return permissionRepository.findByIds(permissionIds).stream()
             .map(p -> p.getPermissionType() + ":" + p.getTargetId())
             .collect(Collectors.toSet());
