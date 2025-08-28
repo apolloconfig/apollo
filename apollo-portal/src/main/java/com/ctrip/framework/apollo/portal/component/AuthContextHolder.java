@@ -21,20 +21,20 @@ public final class AuthContextHolder {
     private static final ThreadLocal<String> AUTH_TYPE_HOLDER = new ThreadLocal<>();
 
     private AuthContextHolder() {
-        // 不允许实例化
+        // Prevent instantiation
     }
 
-    /** 写入当前线程的认证来源标识 */
+    /** Write authentication source identifier for current thread */
     public static void setAuthType(String authType) {
         AUTH_TYPE_HOLDER.set(authType);
     }
 
-    /** 读取当前线程的认证来源标识 */
+    /** Read authentication source identifier for current thread */
     public static String getAuthType() {
         return AUTH_TYPE_HOLDER.get();
     }
 
-    /** 清理当前线程变量，防止内存泄漏 */
+    /** Clean up current thread variable to prevent memory leaks */
     public static void clear() {
         AUTH_TYPE_HOLDER.remove();
     }

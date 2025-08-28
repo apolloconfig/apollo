@@ -20,14 +20,13 @@ import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
-import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.AbstractPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
-import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -83,8 +82,14 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
 
   @Override
   protected boolean hasPermissions(List<String> requiredPerms) {
+    if (requiredPerms == null){
+      return false;
+    }
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
     Set<String> permissions = permissionService.getUserPermissionSet(consumerId);
+    if (permissions == null) {
+      permissions = Collections.emptySet();
+    }
     return requiredPerms.stream().anyMatch(permissions::contains);
   }
 }
