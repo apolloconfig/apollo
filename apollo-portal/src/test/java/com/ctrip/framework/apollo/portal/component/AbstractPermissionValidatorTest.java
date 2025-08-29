@@ -173,7 +173,7 @@ public class AbstractPermissionValidatorTest {
 
         @Override
         protected boolean hasPermissions(List<String> requiredPerms) {
-            return allowedPermissionList.containsAll(requiredPerms);
+            return requiredPerms.stream().anyMatch(allowedPermissionList::contains);
         }
     }
 

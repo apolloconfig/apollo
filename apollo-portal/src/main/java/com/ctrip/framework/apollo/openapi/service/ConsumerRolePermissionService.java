@@ -82,9 +82,17 @@ public class ConsumerRolePermissionService {
   public Set<String> getUserPermissionSet(long consumerId) {
     // 1. Get all roles of the consumer
     List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
+    if (CollectionUtils.isEmpty(consumerRoles)) {
+      return Collections.emptySet();
+    }
     Set<Long> roleIds = consumerRoles.stream()
             .map(ConsumerRole::getRoleId)
             .collect(Collectors.toSet());
+
+    if (CollectionUtils.isEmpty(roleIds)) {
+      return Collections.emptySet();
+    }
+
 
     // 2. Get permission IDs associated with roles
     List<RolePermission> rolePermissions =
