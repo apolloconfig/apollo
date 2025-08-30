@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,9 +40,9 @@ public class ConsumerRolePermissionService {
   private final RolePermissionRepository rolePermissionRepository;
 
   public ConsumerRolePermissionService(
-      final PermissionRepository permissionRepository,
-      final ConsumerRoleRepository consumerRoleRepository,
-      final RolePermissionRepository rolePermissionRepository) {
+          final PermissionRepository permissionRepository,
+          final ConsumerRoleRepository consumerRoleRepository,
+          final RolePermissionRepository rolePermissionRepository) {
     this.permissionRepository = permissionRepository;
     this.consumerRoleRepository = consumerRoleRepository;
     this.rolePermissionRepository = rolePermissionRepository;
@@ -52,7 +53,7 @@ public class ConsumerRolePermissionService {
    */
   public boolean consumerHasPermission(long consumerId, String permissionType, String targetId) {
     Permission permission =
-        permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
+            permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
     if (permission == null) {
       return false;
     }
@@ -63,7 +64,7 @@ public class ConsumerRolePermissionService {
     }
 
     Set<Long> roleIds =
-        consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toSet());
+            consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toSet());
     List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleIdIn(roleIds);
     if (CollectionUtils.isEmpty(rolePermissions)) {
       return false;
@@ -76,5 +77,38 @@ public class ConsumerRolePermissionService {
     }
 
     return false;
+  }
+
+  public Set<String> getUserPermissionSet(long consumerId) {
+    // 1. Get all roles of the consumer
+    List<ConsumerRole> consumerRoles = consumerRoleRepository.findByConsumerId(consumerId);
+    if (CollectionUtils.isEmpty(consumerRoles)) {
+      return Collections.emptySet();
+    }
+    Set<Long> roleIds = consumerRoles.stream()
+            .map(ConsumerRole::getRoleId)
+            .collect(Collectors.toSet());
+
+    if (CollectionUtils.isEmpty(roleIds)) {
+      return Collections.emptySet();
+    }
+
+
+    // 2. Get permission IDs associated with roles
+    List<RolePermission> rolePermissions =
+            rolePermissionRepository.findByRoleIdIn(roleIds);
+    List<Long> permissionIds = rolePermissions.stream()
+            .map(RolePermission::getPermissionId)
+            .distinct()
+            .collect(Collectors.toList());
+
+    if (CollectionUtils.isEmpty(permissionIds)) {
+      return Collections.emptySet();
+    }
+
+    // 3. Query permission details
+    return permissionRepository.findByIds(permissionIds).stream()
+            .map(p -> p.getPermissionType() + ":" + p.getTargetId())
+            .collect(Collectors.toSet());
   }
 }
