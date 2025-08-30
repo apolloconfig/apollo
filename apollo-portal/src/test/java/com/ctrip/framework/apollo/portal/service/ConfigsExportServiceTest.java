@@ -160,6 +160,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(appService.findAll()).thenReturn(exportApps);
     when(appNamespaceService.findAll()).thenReturn(appNamespaces);
     when(userPermissionValidator.isAppAdmin(any())).thenReturn(true);
+        when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn( true);
+    when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     when(clusterService.findClusters(env, appId1)).thenReturn(app1Clusters);
     when(clusterService.findClusters(env, appId2)).thenReturn(app2Clusters);
     when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName1, fillItemDetail, false)).thenReturn(app1Cluster1Namespace);
@@ -185,9 +188,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(itemService.findItems(any(), any(), any(), any())).thenReturn(Lists.newArrayList());
     HttpStatusCodeException itemNotFoundException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
     when(itemService.loadItem(any(), any(), any(), any(), anyString())).thenThrow(itemNotFoundException);
-    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn( true);
-    when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
-    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+
 
     FileInputStream fileInputStream = new FileInputStream(filePath);
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
