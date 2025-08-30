@@ -16,74 +16,102 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
-import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
-import com.ctrip.framework.apollo.portal.service.ReleaseService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
+import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 
 @RestController("openapiNamespaceBranchController")
-@RequestMapping("/openapi/v1/envs/{env}")
+@RequestMapping("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}")
 public class NamespaceBranchController {
 
     private final ConsumerPermissionValidator consumerPermissionValidator;
     private final ReleaseService releaseService;
     private final NamespaceBranchService namespaceBranchService;
     private final UserService userService;
+    private final ApplicationEventPublisher publisher;
+    private final PortalConfig portalConfig;
 
     public NamespaceBranchController(
         final ConsumerPermissionValidator consumerPermissionValidator,
         final ReleaseService releaseService,
         final NamespaceBranchService namespaceBranchService,
-        final UserService userService) {
+        final UserService userService,
+        final ApplicationEventPublisher publisher,
+        final PortalConfig portalConfig) {
         this.consumerPermissionValidator = consumerPermissionValidator;
         this.releaseService = releaseService;
         this.namespaceBranchService = namespaceBranchService;
         this.userService = userService;
+        this.publisher = publisher;
+        this.portalConfig = portalConfig;
     }
 
-    @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
-    public OpenNamespaceDTO findBranch(@PathVariable String appId,
-                                       @PathVariable String env,
-                                       @PathVariable String clusterName,
-                                       @PathVariable String namespaceName) {
+    /**
+     * 获取命名空间分支信息
+     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branch
+     */
+    @GetMapping("/branch")
+    public ResponseEntity<OpenNamespaceDTO> getBranch(@PathVariable String env,
+                                                      @PathVariable String appId,
+                                                      @PathVariable String clusterName,
+                                                      @PathVariable String namespaceName) {
         NamespaceBO namespaceBO = namespaceBranchService.findBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName);
         if (namespaceBO == null) {
-            return null;
+            throw new BadRequestException("Namespace branch not found");
         }
-        return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
+        return ResponseEntity.ok(OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO));
     }
 
+    /**
+     * 创建命名空间分支
+     * POST /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branch
+     */
     @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
-    @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
-    public OpenNamespaceDTO createBranch(@PathVariable String appId,
-                                         @PathVariable String env,
-                                         @PathVariable String clusterName,
-                                         @PathVariable String namespaceName,
-                                         @RequestParam("operator") String operator) {
+    @PostMapping("/branch")
+    @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<OpenNamespaceDTO> createBranch(@PathVariable String env,
+                                                         @PathVariable String appId,
+                                                         @PathVariable String clusterName,
+                                                         @PathVariable String namespaceName,
+                                                         @RequestHeader("X-Apollo-Operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -92,19 +120,26 @@ public class NamespaceBranchController {
 
         NamespaceDTO namespaceDTO = namespaceBranchService.createBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, operator);
         if (namespaceDTO == null) {
-            return null;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+        OpenNamespaceDTO result = BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
+    /**
+     * 删除命名空间分支
+     * DELETE /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}
+     */
     @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-    @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}")
-    public void deleteBranch(@PathVariable String appId,
-                             @PathVariable String env,
-                             @PathVariable String clusterName,
-                             @PathVariable String namespaceName,
-                             @PathVariable String branchName,
-                             @RequestParam("operator") String operator) {
+    @DeleteMapping("/branches/{branchName}")
+    @ApolloAuditLog(type = OpType.DELETE, name = "NamespaceBranch.delete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteBranch(@PathVariable String env,
+                                             @PathVariable String appId,
+                                             @PathVariable String clusterName,
+                                             @PathVariable String namespaceName,
+                                             @PathVariable String branchName,
+                                             @RequestHeader("X-Apollo-Operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -122,27 +157,85 @@ public class NamespaceBranchController {
                 + "or 3. you have modification permission but branch has been released");
         }
         namespaceBranchService.deleteBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName, operator);
-
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
-    public OpenGrayReleaseRuleDTO getBranchGrayRules(@PathVariable String appId, @PathVariable String env,
-                                                     @PathVariable String clusterName,
-                                                     @PathVariable String namespaceName,
-                                                     @PathVariable String branchName) {
+    /**
+     * 合并分支到主分支
+     * PATCH /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}
+     * 
+     * 使用 PATCH 方法表示部分更新操作（将分支状态从"独立"更新为"合并"）
+     */
+    @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+    @PatchMapping("/branches/{branchName}")
+    @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
+    public ResponseEntity<OpenReleaseDTO> mergeBranch(@PathVariable String env,
+                                                      @PathVariable String appId,
+                                                      @PathVariable String clusterName,
+                                                      @PathVariable String namespaceName,
+                                                      @PathVariable String branchName,
+                                                      @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
+                                                      @RequestBody NamespaceReleaseDTO model,
+                                                      @RequestHeader("X-Apollo-Operator") String operator) {
+        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator, model.getReleaseTitle()),
+            "operator and releaseTitle can not be empty");
+
+        if (userService.findByUserId(operator) == null) {
+            throw BadRequestException.userNotExists(operator);
+        }
+
+        if (model.isEmergencyPublish() && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env.toUpperCase()))) {
+            throw new BadRequestException("Env: %s is not supported emergency publish now", env);
+        }
+
+        ReleaseDTO createdRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName,
+                                                                model.getReleaseTitle(), model.getReleaseComment(),
+                                                                model.isEmergencyPublish(), deleteBranch, operator);
+
+        ConfigPublishEvent event = ConfigPublishEvent.instance();
+        event.withAppId(appId)
+            .withCluster(clusterName)
+            .withNamespace(namespaceName)
+            .withReleaseId(createdRelease.getId())
+            .setMergeEvent(true)
+            .setEnv(Env.valueOf(env.toUpperCase()));
+
+        publisher.publishEvent(event);
+
+        return ResponseEntity.ok(OpenApiBeanUtils.transformFromReleaseDTO(createdRelease));
+    }
+
+    /**
+     * 获取分支灰度发布规则
+     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-rules
+     */
+    @GetMapping("/branches/{branchName}/gray-rules")
+    public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(@PathVariable String env,
+                                                                     @PathVariable String appId,
+                                                                     @PathVariable String clusterName,
+                                                                     @PathVariable String namespaceName,
+                                                                     @PathVariable String branchName) {
         GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName);
         if (grayReleaseRuleDTO == null) {
-            return null;
+            return ResponseEntity.notFound().build();
         }
-        return OpenApiBeanUtils.transformFromGrayReleaseRuleDTO(grayReleaseRuleDTO);
+        return ResponseEntity.ok(OpenApiBeanUtils.transformFromGrayReleaseRuleDTO(grayReleaseRuleDTO));
     }
 
-    @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-    @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
-    public void updateBranchRules(@PathVariable String appId, @PathVariable String env,
-                                  @PathVariable String clusterName, @PathVariable String namespaceName,
-                                  @PathVariable String branchName, @RequestBody OpenGrayReleaseRuleDTO rules,
-                                  @RequestParam("operator") String operator) {
+    /**
+     * 更新分支灰度发布规则
+     * PUT /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-rules
+     */
+    @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+    @PutMapping("/branches/{branchName}/gray-rules")
+    @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.updateBranchRules")
+    public ResponseEntity<Void> updateBranchGrayRules(@PathVariable String env,
+                                                      @PathVariable String appId,
+                                                      @PathVariable String clusterName,
+                                                      @PathVariable String namespaceName,
+                                                      @PathVariable String branchName,
+                                                      @RequestBody OpenGrayReleaseRuleDTO rules,
+                                                      @RequestHeader("X-Apollo-Operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -158,5 +251,6 @@ public class NamespaceBranchController {
         namespaceBranchService
                 .updateBranchGrayRules(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName, grayReleaseRuleDTO, operator);
 
+        return ResponseEntity.ok().build();
     }
 }

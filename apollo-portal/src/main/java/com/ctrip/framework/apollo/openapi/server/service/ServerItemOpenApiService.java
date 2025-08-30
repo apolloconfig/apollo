@@ -16,17 +16,35 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.representer.Representer;
+
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
+import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
+
 
 /**
  * @author wxq
@@ -111,5 +129,132 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
 
     return new OpenPageDTO<>(commonOpenItemDTOPage.getPage(), commonOpenItemDTOPage.getSize(),
             commonOpenItemDTOPage.getTotal(), commonOpenItemDTOPage.getContent());
+  }
+
+  /**
+   * 通过文本方式批量修改配置项
+   */
+  public void modifyItemsByText(String appId, String env, String clusterName, String namespaceName,
+                               NamespaceTextModel model) {
+    model.setAppId(appId);
+    model.setClusterName(clusterName);
+    model.setEnv(env);
+    model.setNamespaceName(namespaceName);
+
+    itemService.updateConfigItemByText(model);
+  }
+
+  /**
+   * 查找分支下的配置项
+   */
+  public List<OpenItemDTO> findBranchItems(String appId, String env, String clusterName,
+                                           String namespaceName, String branchName) {
+    List<ItemDTO> items = itemService.findItems(appId, Env.valueOf(env), branchName, namespaceName);
+    if (items == null) {
+      return Collections.emptyList();
+    }
+    
+    // 按最后修改时间排序
+    items.sort((o1, o2) -> {
+      if (o1.getDataChangeLastModifiedTime().after(o2.getDataChangeLastModifiedTime())) {
+        return -1;
+      }
+      if (o1.getDataChangeLastModifiedTime().before(o2.getDataChangeLastModifiedTime())) {
+        return 1;
+      }
+      return 0;
+    });
+    
+    return OpenApiBeanUtils.transformFromItemDTOs(items);
+  }
+
+  /**
+   * 命名空间差异对比
+   */
+  public List<ItemDiffs> diff(NamespaceSyncModel model) {
+    return itemService.compare(model.getSyncToNamespaces(), model.getSyncItems());
+  }
+
+  /**
+   * 批量同步配置项到多个命名空间
+   */
+  public void syncItems(NamespaceSyncModel model) {
+    itemService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
+  }
+
+  /**
+   * 语法检查
+   */
+  public void syntaxCheckText(NamespaceTextModel model) {
+    doSyntaxCheck(model);
+  }
+
+  /**
+   * 撤销配置项更改
+   */
+  public void revokeItems(String appId, String env, String clusterName, String namespaceName) {
+    itemService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName);
+  }
+
+  /**
+   * 增强版查找配置项，支持排序
+   */
+  public List<OpenItemDTO> findItemsWithOrder(String appId, String env, String clusterName,
+                                              String namespaceName, String orderBy) {
+    List<ItemDTO> items = itemService.findItems(appId, Env.valueOf(env), clusterName, namespaceName);
+    if (items == null) {
+      return Collections.emptyList();
+    }
+    
+    if ("lastModifiedTime".equals(orderBy)) {
+      items.sort((o1, o2) -> {
+        if (o1.getDataChangeLastModifiedTime().after(o2.getDataChangeLastModifiedTime())) {
+          return -1;
+        }
+        if (o1.getDataChangeLastModifiedTime().before(o2.getDataChangeLastModifiedTime())) {
+          return 1;
+        }
+        return 0;
+      });
+    }
+    
+    return OpenApiBeanUtils.transformFromItemDTOs(items);
+  }
+
+  /**
+   * 语法检查实现
+   */
+  private void doSyntaxCheck(NamespaceTextModel model) {
+    if (StringUtils.isBlank(model.getConfigText())) {
+      return;
+    }
+
+    // 只支持yaml语法检查
+    if (model.getFormat() != ConfigFileFormat.YAML && model.getFormat() != ConfigFileFormat.YML) {
+      return;
+    }
+
+    // 使用YamlPropertiesFactoryBean检查yaml语法
+    TypeLimitedYamlPropertiesFactoryBean yamlPropertiesFactoryBean = new TypeLimitedYamlPropertiesFactoryBean();
+    yamlPropertiesFactoryBean.setResources(new ByteArrayResource(model.getConfigText().getBytes()));
+    try {
+      // 此调用将yaml转换为properties，如果转换失败将抛出异常
+      yamlPropertiesFactoryBean.getObject();
+    } catch (Exception ex) {
+      throw new BadRequestException(ex.getMessage());
+    }
+  }
+
+  /**
+   * 类型限制的YamlPropertiesFactoryBean
+   */
+  private static class TypeLimitedYamlPropertiesFactoryBean extends YamlPropertiesFactoryBean {
+    @Override
+    protected Yaml createYaml() {
+      LoaderOptions loaderOptions = new LoaderOptions();
+      loaderOptions.setAllowDuplicateKeys(false);
+      DumperOptions dumperOptions = new DumperOptions();
+      return new Yaml(new SafeConstructor(loaderOptions), new Representer(dumperOptions), dumperOptions, loaderOptions);
+    }
   }
 }

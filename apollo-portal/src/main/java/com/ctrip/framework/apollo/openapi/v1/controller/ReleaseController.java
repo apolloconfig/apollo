@@ -110,7 +110,7 @@ public class ReleaseController {
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
+  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/Relasemerge")
   public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName,

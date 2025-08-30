@@ -188,6 +188,7 @@ public class AppService {
 
     publisher.publishEvent(new AppCreationEvent(createdApp));
 
+    
     if (!CollectionUtils.isEmpty(admins)) {
       rolePermissionService
           .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),

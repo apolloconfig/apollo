@@ -16,6 +16,13 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
@@ -27,12 +34,9 @@ import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.listener.AppInfoChangedEvent;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import org.springframework.stereotype.Service;
 
 /**
  * @author wxq
@@ -43,14 +47,17 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final PortalSettings portalSettings;
   private final ClusterService clusterService;
   private final AppService appService;
+  private final ApplicationEventPublisher publisher;
 
   public ServerAppOpenApiService(
       PortalSettings portalSettings,
       ClusterService clusterService,
-      AppService appService) {
+      AppService appService,
+      ApplicationEventPublisher publisher) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
+    this.publisher = publisher;
   }
 
   private App convert(OpenAppDTO dto) {
@@ -107,4 +114,26 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   public List<OpenAppDTO> getAuthorizedApps() {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * 更新应用信息 - 使用OpenAPI DTO
+   * @param openAppDTO OpenAPI应用DTO
+   */
+  public void updateApp(OpenAppDTO openAppDTO) {
+    App app = convert(openAppDTO);
+    App updatedApp = appService.updateAppInLocal(app);
+    publisher.publishEvent(new AppInfoChangedEvent(updatedApp));
+  }
+
+  /**
+   * 更新应用信息 - 使用Entity（保留向后兼容）
+   * @param app 应用信息
+   * @return 更新后的应用
+   */
+  public App updateApp(App app) {
+    App updatedApp = appService.updateAppInLocal(app);
+    publisher.publishEvent(new AppInfoChangedEvent(updatedApp));
+    return updatedApp;
+  }
+
 }
