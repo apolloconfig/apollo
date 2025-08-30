@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
@@ -80,6 +81,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
   private RoleInitializationService roleInitializationService;
   @InjectMocks
   private ConfigsImportService      configsImportService;
+
+  @Mock
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @Test
   public void testNamespaceExportImport() throws FileNotFoundException {
@@ -181,6 +185,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(itemService.findItems(any(), any(), any(), any())).thenReturn(Lists.newArrayList());
     HttpStatusCodeException itemNotFoundException = new HttpClientErrorException(HttpStatus.NOT_FOUND);
     when(itemService.loadItem(any(), any(), any(), any(), anyString())).thenThrow(itemNotFoundException);
+    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn( true);
+    when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
 
     FileInputStream fileInputStream = new FileInputStream(filePath);
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
