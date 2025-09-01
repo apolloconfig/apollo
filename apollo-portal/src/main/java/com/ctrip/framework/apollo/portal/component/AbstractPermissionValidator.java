@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractPermissionValidator implements PermissionValidator {
@@ -53,12 +54,20 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
 
     @Override
     public boolean hasAssignRolePermission(String appId) {
-        return hasPermission(appId, PermissionType.ASSIGN_ROLE);
+        List<String> requiredPerms = Collections.singletonList(
+                PermissionType.ASSIGN_ROLE + ":" +
+                        appId
+        );
+        return hasPermissions(requiredPerms);
     }
 
     @Override
     public boolean hasCreateNamespacePermission(String appId) {
-        return hasPermission(appId, PermissionType.CREATE_NAMESPACE);
+        List<String> requiredPerms = Collections.singletonList(
+                PermissionType.CREATE_NAMESPACE + ":" +
+                        appId
+        );
+        return hasPermissions(requiredPerms);
     }
 
     @Override
@@ -68,7 +77,11 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
 
     @Override
     public boolean hasCreateClusterPermission(String appId) {
-        return hasPermission(appId, PermissionType.CREATE_CLUSTER);
+        List<String> requiredPerms = Collections.singletonList(
+                PermissionType.CREATE_CLUSTER + ":" +
+                        appId
+        );
+        return hasPermissions(requiredPerms);
     }
 
     @Override
@@ -91,7 +104,5 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
         return false;
     }
 
-    protected abstract boolean hasPermission(String targetId, String
-            permissionType);
     protected abstract boolean hasPermissions(List<String> requiredPerms);
 }

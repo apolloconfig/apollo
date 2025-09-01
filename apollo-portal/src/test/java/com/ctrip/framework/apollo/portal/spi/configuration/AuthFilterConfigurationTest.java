@@ -16,13 +16,12 @@
  */
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
-import com.ctrip.framework.apollo.portal.filter.AuthTypeResolverFilter;
+import com.ctrip.framework.apollo.portal.filter.UserTypeResolverFilter;
 import com.ctrip.framework.apollo.openapi.filter.ConsumerAuthenticationFilter;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 
@@ -42,14 +41,14 @@ public class AuthFilterConfigurationTest {
     @Test
     public void authTypeResolverFilter_ShouldReturnConfiguredFilterRegistrationBean() {
         // Call the method under test
-        FilterRegistrationBean<AuthTypeResolverFilter> filterRegistrationBean = authFilterConfiguration.authTypeResolverFilter();
+        FilterRegistrationBean<UserTypeResolverFilter> filterRegistrationBean = authFilterConfiguration.authTypeResolverFilter();
 
         // Verify that FilterRegistrationBean is created correctly
         assertNotNull(filterRegistrationBean, "FilterRegistrationBean should not be null");
 
-        // Verify that AuthTypeResolverFilter is set correctly
-        AuthTypeResolverFilter filter = filterRegistrationBean.getFilter();
-        assertNotNull(filter, "AuthTypeResolverFilter should not be null");
+        // Verify that UserTypeResolverFilter is set correctly
+        UserTypeResolverFilter filter = filterRegistrationBean.getFilter();
+        assertNotNull(filter, "UserTypeResolverFilter should not be null");
 
         // Verify that URL pattern is added correctly
         assertEquals("/*", filterRegistrationBean.getUrlPatterns().iterator().next(), "URL pattern should be '/*'");
