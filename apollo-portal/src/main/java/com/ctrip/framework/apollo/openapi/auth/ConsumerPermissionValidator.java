@@ -74,11 +74,6 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
     throw new UnsupportedOperationException("Not supported operation");
   }
 
-  @Override
-  protected boolean hasPermission(String targetId, String permissionType) {
-    return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
-        permissionType, targetId);
-  }
 
   @Override
   protected boolean hasPermissions(List<String> requiredPerms) {

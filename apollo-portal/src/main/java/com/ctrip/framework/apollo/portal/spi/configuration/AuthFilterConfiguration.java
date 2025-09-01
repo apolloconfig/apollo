@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
 import com.ctrip.framework.apollo.openapi.filter.ConsumerAuthenticationFilter;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.filter.AuthTypeResolverFilter;
+import com.ctrip.framework.apollo.portal.filter.UserTypeResolverFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,9 +40,9 @@ public class AuthFilterConfiguration {
     return openApiFilter;
   }
   @Bean
-  public FilterRegistrationBean<AuthTypeResolverFilter> authTypeResolverFilter() {
-    FilterRegistrationBean<AuthTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
-    authTypeResolverFilter.setFilter(new AuthTypeResolverFilter());
+  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
+    FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
+    authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
     authTypeResolverFilter.addUrlPatterns("/*");
     return authTypeResolverFilter;
   }

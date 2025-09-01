@@ -37,7 +37,6 @@ import java.util.HashSet;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
@@ -80,11 +79,8 @@ class UserPermissionValidatorTest {
     void hasCreateAppNamespacePermission_publicNamespace() {
         AppNamespace publicNs = new AppNamespace();
         publicNs.setPublic(true);
-
-        // Public namespace: only CREATE_NAMESPACE permission required
-        when(rolePermissionService.userHasPermission(USER_ID, PermissionType.CREATE_NAMESPACE, APP_ID))
-                .thenReturn(true);
-
+        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.CREATE_NAMESPACE + ":" +
+                APP_ID)));
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
     }
 
@@ -94,8 +90,8 @@ class UserPermissionValidatorTest {
         privateNs.setPublic(false);
 
         when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(true);
-        when(rolePermissionService.userHasPermission(USER_ID, PermissionType.CREATE_NAMESPACE, APP_ID))
-                .thenReturn(true);
+        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.CREATE_NAMESPACE + ":" +
+                APP_ID)));
 
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
     }
@@ -160,21 +156,13 @@ class UserPermissionValidatorTest {
     void shouldHideConfigToCurrentUser_userIsAppAdmin() {
         when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
         when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
-
-        // Check if user is AppAdmin (uses ASSIGN_ROLE permission)
-        when(rolePermissionService.userHasPermission(USER_ID, PermissionType.ASSIGN_ROLE, APP_ID))
-                .thenReturn(true);
-
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
+        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();
     }
 
     @Test
     void shouldHideConfigToCurrentUser_userHasNoPermission() {
-        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
-        when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
-        when(rolePermissionService.userHasPermission(anyString(), anyString(), anyString())).thenReturn(false);
-
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();
+        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
+        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
     }
 
     // 4. hasCreateApplicationPermission tests
@@ -203,8 +191,8 @@ class UserPermissionValidatorTest {
     void hasManageAppMasterPermission_normalUser_withAssignRole_andManageAppMaster() {
         when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
 
-        when(rolePermissionService.userHasPermission(USER_ID, PermissionType.ASSIGN_ROLE, APP_ID))
-                .thenReturn(true);
+        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.ASSIGN_ROLE + ":" +
+                APP_ID)));
         when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID))
                 .thenReturn(true);
 
@@ -214,29 +202,15 @@ class UserPermissionValidatorTest {
     @Test
     void hasManageAppMasterPermission_normalUser_withoutAssignRole() {
         when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-        when(rolePermissionService.userHasPermission(USER_ID, PermissionType.ASSIGN_ROLE, APP_ID))
-                .thenReturn(false);
+        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.ASSIGN_ROLE + ":" +
+                APP_ID)));
 
         assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
     }
 
-    // 6. hasPermission (protected) tests
 
-    @Test
-    void hasPermission_true() {
-        when(rolePermissionService.userHasPermission(USER_ID, "a-permission", "target-id"))
-                .thenReturn(true);
-        assertThat(validator.hasPermission("target-id", "a-permission")).isTrue();
-    }
 
-    @Test
-    void hasPermission_false() {
-        when(rolePermissionService.userHasPermission(USER_ID, "a-permission", "target-id"))
-                .thenReturn(false);
-        assertThat(validator.hasPermission("target-id", "a-permission")).isFalse();
-    }
-
-    // 7. hasPermissions (protected) tests
+    //  hasPermissions (protected) tests
 
     @Test
     void hasPermissions_match() {

@@ -93,6 +93,6 @@ public interface RolePermissionService {
    */
   void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
 
-  // 获取用户所有权限（permissionType + targetId集合）
+  // Get all permissions of the user (set of permissionType + targetId)
   Set<String> getUserPermissionSet(String userId);
 }

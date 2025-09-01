@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 @RestController("openapiNamespaceBranchController")
 @RequestMapping("/openapi/v1/envs/{env}")
@@ -77,7 +77,7 @@ public class NamespaceBranchController {
         return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
     }
 
-        @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
+    @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
     @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
     public OpenNamespaceDTO createBranch(@PathVariable String appId,
                                          @PathVariable String env,

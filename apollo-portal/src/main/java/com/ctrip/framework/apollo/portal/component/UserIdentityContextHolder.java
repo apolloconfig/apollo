@@ -16,11 +16,11 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
-public final class AuthContextHolder {
+public final class UserIdentityContextHolder {
 
     private static final ThreadLocal<String> AUTH_TYPE_HOLDER = new ThreadLocal<>();
 
-    private AuthContextHolder() {
+    private UserIdentityContextHolder() {
         // Prevent instantiation
     }
 
