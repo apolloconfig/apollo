@@ -60,7 +60,26 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
   List<Long> findPermissionIdsByAppIdAndEnvAndCluster(String appId, String env, String clusterName);
 
-  // 批量获取权限详情
-  @Query("SELECT p FROM Permission p WHERE p.id IN :permissionIds")
-  List<Permission> findByIds(@Param("permissionIds") List<Long> permissionIds);
+
+  @Query("SELECT DISTINCT p " +
+          "FROM UserRole ur " +
+          "JOIN RolePermission rp ON ur.roleId = rp.roleId " +
+          "JOIN Permission p ON rp.permissionId = p.id " +
+          "WHERE ur.userId = :userId " +
+          "AND ur.isDeleted = false " +
+          "AND rp.isDeleted = false " +
+          "AND p.isDeleted = false")
+  List<Permission> findUserPermissions(@Param("userId") String userId);
+
+  @Query("SELECT DISTINCT p " +
+          "FROM ConsumerRole cr " +
+          "JOIN RolePermission rp ON cr.roleId = rp.roleId " +
+          "JOIN Permission p ON rp.permissionId = p.id " +
+          "WHERE cr.consumerId = :consumerId " +
+          "AND cr.isDeleted = false " +
+          "AND rp.isDeleted = false " +
+          "AND p.isDeleted = false")
+  List<Permission> findConsumerPermissions(@Param("consumerId") long consumerId);
 }
+
+

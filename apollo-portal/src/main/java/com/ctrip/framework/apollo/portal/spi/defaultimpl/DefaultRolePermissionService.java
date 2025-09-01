@@ -377,26 +377,9 @@ public class DefaultRolePermissionService implements RolePermissionService {
 
     @Override
     public Set<String> getUserPermissionSet(String userId) {
-        // 1. Get all roles of the user
-        List<UserRole> userRoles = userRoleRepository.findByUserId(userId);
-        Set<Long> roleIds = userRoles.stream()
-                .map(UserRole::getRoleId)
-                .collect(Collectors.toSet());
+        List<Permission> permissions = permissionRepository.findUserPermissions(userId);
 
-        // 2. Get permission IDs associated with roles
-        List<RolePermission> rolePermissions =
-                rolePermissionRepository.findByRoleIdIn(roleIds);
-        List<Long> permissionIds = rolePermissions.stream()
-                .map(RolePermission::getPermissionId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        if (permissionIds.isEmpty()) {
-            return Collections.emptySet();
-        }
-
-        // 3. Query permission details
-        return permissionRepository.findByIds(permissionIds).stream()
+        return permissions.stream()
                 .map(p -> p.getPermissionType() + ":" + p.getTargetId())
                 .collect(Collectors.toSet());
     }

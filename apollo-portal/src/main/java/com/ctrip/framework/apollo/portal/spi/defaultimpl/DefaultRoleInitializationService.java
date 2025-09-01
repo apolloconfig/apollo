@@ -179,7 +179,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   public void initClusterNamespaceRoles(String appId, String env, String clusterName, String operator) {
     String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(appId, env, clusterName);
     if (rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName) == null) {
-      createClusterRole(appId, env, clusterName, PermissionType.  MODIFY_NAMESPACES_IN_CLUSTER, modifyNamespacesInClusterRoleName, operator);
+      createClusterRole(appId, env, clusterName, PermissionType.MODIFY_NAMESPACES_IN_CLUSTER, modifyNamespacesInClusterRoleName, operator);
     }
 
     String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, env, clusterName);

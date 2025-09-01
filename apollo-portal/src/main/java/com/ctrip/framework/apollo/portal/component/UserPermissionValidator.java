@@ -18,12 +18,10 @@ package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
-import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -105,11 +103,6 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
         (hasAssignRolePermission(appId) &&
          systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
         );
-  }
-
-  @Override
-  protected boolean hasPermission(String targetId, String permissionType) {
-    return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(), permissionType, targetId);
   }
 
   @Override

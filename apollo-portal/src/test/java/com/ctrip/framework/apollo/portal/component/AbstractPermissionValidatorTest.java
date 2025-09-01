@@ -143,10 +143,6 @@ public class AbstractPermissionValidatorTest {
     // Concrete implementation class for testing
     private static class AbstractPermissionValidatorImpl extends AbstractPermissionValidator {
 
-        @Override
-        protected boolean hasPermission(String targetId, String permissionType) {
-            return false;
-        }
 
         @Override
         protected boolean hasPermissions(List<String> requiredPerms) {
@@ -165,11 +161,6 @@ public class AbstractPermissionValidatorTest {
             this.allowedPermissionList = allowedPermissionList;
         }
 
-        @Override
-        protected boolean hasPermission(String targetId, String permissionType) {
-            String requiredPermission = permissionType + ":" + targetId;
-            return allowedPermissions.contains(requiredPermission);
-        }
 
         @Override
         protected boolean hasPermissions(List<String> requiredPerms) {

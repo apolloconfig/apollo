@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
-import com.ctrip.framework.apollo.portal.constant.AuthConstants;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstans;
 
 import org.springframework.stereotype.Component;
 
@@ -34,11 +34,11 @@ public class UnifiedPermissionValidator implements PermissionValidator{
     }
 
     private PermissionValidator getDelegate() {
-        String type = AuthContextHolder.getAuthType();
-        if (AuthConstants.USER.equals(type)) {
+        String type = UserIdentityContextHolder.getAuthType();
+        if (UserIdentityConstans.USER.equals(type)) {
             return userPermissionValidator;
         }
-        if (AuthConstants.CONSUMER.equals(type)) {
+        if (UserIdentityConstans.CONSUMER.equals(type)) {
             return consumerPermissionValidator;
         }
         throw new IllegalStateException("Unknown authentication type");

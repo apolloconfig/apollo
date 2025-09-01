@@ -16,8 +16,11 @@
  */
 package com.ctrip.framework.apollo.portal.filter;
 
-import com.ctrip.framework.apollo.portal.component.AuthContextHolder;
-import com.ctrip.framework.apollo.portal.constant.AuthConstants;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstans;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -26,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class AuthTypeResolverFilter extends OncePerRequestFilter {
+public class UserTypeResolverFilter extends OncePerRequestFilter {
     static final String CONSUMER_ID = "ApolloConsumerId";
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -35,19 +38,24 @@ public class AuthTypeResolverFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authType = resolve(request);
-        AuthContextHolder.setAuthType(authType);
+        UserIdentityContextHolder.setAuthType(authType);
         try {
             filterChain.doFilter(request, response);
         } finally {
-            AuthContextHolder.clear();
+            UserIdentityContextHolder.clear();
         }
     }
-
     private String resolve(HttpServletRequest req) {
-        if (req.getHeader(CONSUMER_ID) != null){
-            return AuthConstants.CONSUMER;
+        if (req.getHeader(CONSUMER_ID) != null) {
+            return UserIdentityConstans.CONSUMER;
         }
 
-        return AuthConstants.USER;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            return UserIdentityConstans.USER;
+        }
+
+
+        return UserIdentityConstans.ANONYMOUS;
     }
 }
