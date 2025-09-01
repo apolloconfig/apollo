@@ -34,7 +34,6 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.gson.Gson;
 import javax.annotation.PostConstruct;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,15 +44,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import java.util.Collections;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -78,15 +74,6 @@ public class ItemControllerAuthIntegrationTest {
 
   @Autowired
   private RolePermissionService rolePermissionService;
-
-  @Before
-  public void setUp() {
-    Authentication auth = new UsernamePasswordAuthenticationToken(
-            "test-user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-    );
-    SecurityContextHolder.getContext().setAuthentication(auth);
-  }
-
 
   @PostConstruct
   private void postConstruct() {

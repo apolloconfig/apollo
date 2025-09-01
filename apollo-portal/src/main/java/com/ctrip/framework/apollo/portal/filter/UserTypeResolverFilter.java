@@ -51,7 +51,7 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()) {
+        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             return UserIdentityConstans.USER;
         }
 
