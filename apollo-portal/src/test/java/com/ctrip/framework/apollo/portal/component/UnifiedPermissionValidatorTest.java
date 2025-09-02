@@ -18,7 +18,7 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
-import com.ctrip.framework.apollo.portal.constant.UserIdentityConstans;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,7 +60,7 @@ public class UnifiedPermissionValidatorTest {
         final boolean expectedPermission = true;
 
         // Set authentication type to USER
-        UserIdentityContextHolder.setAuthType(UserIdentityConstans.USER);
+        UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
         when(userPermissionValidator.hasManageAppMasterPermission(appId)).thenReturn(expectedPermission);
 
         boolean result = unifiedPermissionValidator.hasManageAppMasterPermission(appId);
@@ -74,7 +74,7 @@ public class UnifiedPermissionValidatorTest {
         final boolean expectedPermission = false;
 
         // Set authentication type to CONSUMER
-        UserIdentityContextHolder.setAuthType(UserIdentityConstans.CONSUMER);
+        UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
         when(consumerPermissionValidator.hasManageAppMasterPermission(appId)).thenReturn(expectedPermission);
 
         boolean result = unifiedPermissionValidator.hasManageAppMasterPermission(appId);
@@ -100,7 +100,7 @@ public class UnifiedPermissionValidatorTest {
         final boolean expectedPermission = true;
 
         // Set authentication type to USER
-        UserIdentityContextHolder.setAuthType(UserIdentityConstans.USER);
+        UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
         when(userPermissionValidator.hasCreateNamespacePermission(appId)).thenReturn(expectedPermission);
 
         boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);
@@ -114,7 +114,7 @@ public class UnifiedPermissionValidatorTest {
         final boolean expectedPermission = true;
 
         // Set authentication type to CONSUMER
-        UserIdentityContextHolder.setAuthType(UserIdentityConstans.CONSUMER);
+        UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
         when(consumerPermissionValidator.hasCreateNamespacePermission(appId)).thenReturn(expectedPermission);
 
         boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);
