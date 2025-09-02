@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,4 +59,27 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
   + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
   List<Long> findPermissionIdsByAppIdAndEnvAndCluster(String appId, String env, String clusterName);
+
+
+  @Query("SELECT DISTINCT p " +
+          "FROM UserRole ur, RolePermission rp, Permission p " +
+          "WHERE ur.roleId = rp.roleId " +
+          "  AND rp.permissionId = p.id " +
+          "  AND ur.userId = :userId " +
+          "  AND ur.isDeleted = false " +
+          "  AND rp.isDeleted = false " +
+          "  AND p.isDeleted = false")
+  List<Permission> findUserPermissions(@Param("userId") String userId);
+
+  @Query("SELECT DISTINCT p " +
+          "FROM ConsumerRole cr, RolePermission rp, Permission p " +
+          "WHERE cr.roleId = rp.roleId " +
+          "  AND rp.permissionId = p.id " +
+          "  AND cr.consumerId = :consumerId " +
+          "  AND cr.isDeleted = false " +
+          "  AND rp.isDeleted = false " +
+          "  AND p.isDeleted = false")
+  List<Permission> findConsumerPermissions(@Param("consumerId") long consumerId);
 }
+
+

@@ -92,4 +92,7 @@ public interface RolePermissionService {
    * delete permissions when delete cluster.
    */
   void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
+
+  // Get all permissions of the user (set of permissionType + targetId)
+  Set<String> getUserPermissionSet(String userId);
 }
