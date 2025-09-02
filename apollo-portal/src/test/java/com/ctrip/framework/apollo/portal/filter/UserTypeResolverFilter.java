@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.portal.filter;
 
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
-import com.ctrip.framework.apollo.portal.constant.UserIdentityConstans;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -30,7 +30,7 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        UserIdentityContextHolder.setAuthType(UserIdentityConstans.USER);
+        UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
         filterChain.doFilter(request, response);
     }
 }

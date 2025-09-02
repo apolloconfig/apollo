@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.portal.filter;
 
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
-import com.ctrip.framework.apollo.portal.constant.UserIdentityConstans;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,15 +47,15 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
     }
     private String resolve(HttpServletRequest req) {
         if (req.getHeader(CONSUMER_ID) != null) {
-            return UserIdentityConstans.CONSUMER;
+            return UserIdentityConstants.CONSUMER;
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return UserIdentityConstans.USER;
+            return UserIdentityConstants.USER;
         }
 
 
-        return UserIdentityConstans.ANONYMOUS;
+        return UserIdentityConstants.ANONYMOUS;
     }
 }
