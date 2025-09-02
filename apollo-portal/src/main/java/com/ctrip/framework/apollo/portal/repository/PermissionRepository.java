@@ -62,23 +62,23 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
 
 
   @Query("SELECT DISTINCT p " +
-          "FROM UserRole ur " +
-          "JOIN RolePermission rp ON ur.roleId = rp.roleId " +
-          "JOIN Permission p ON rp.permissionId = p.id " +
-          "WHERE ur.userId = :userId " +
-          "AND ur.isDeleted = false " +
-          "AND rp.isDeleted = false " +
-          "AND p.isDeleted = false")
+          "FROM UserRole ur, RolePermission rp, Permission p " +
+          "WHERE ur.roleId = rp.roleId " +
+          "  AND rp.permissionId = p.id " +
+          "  AND ur.userId = :userId " +
+          "  AND ur.isDeleted = false " +
+          "  AND rp.isDeleted = false " +
+          "  AND p.isDeleted = false")
   List<Permission> findUserPermissions(@Param("userId") String userId);
 
   @Query("SELECT DISTINCT p " +
-          "FROM ConsumerRole cr " +
-          "JOIN RolePermission rp ON cr.roleId = rp.roleId " +
-          "JOIN Permission p ON rp.permissionId = p.id " +
-          "WHERE cr.consumerId = :consumerId " +
-          "AND cr.isDeleted = false " +
-          "AND rp.isDeleted = false " +
-          "AND p.isDeleted = false")
+          "FROM ConsumerRole cr, RolePermission rp, Permission p " +
+          "WHERE cr.roleId = rp.roleId " +
+          "  AND rp.permissionId = p.id " +
+          "  AND cr.consumerId = :consumerId " +
+          "  AND cr.isDeleted = false " +
+          "  AND rp.isDeleted = false " +
+          "  AND p.isDeleted = false")
   List<Permission> findConsumerPermissions(@Param("consumerId") long consumerId);
 }
 
