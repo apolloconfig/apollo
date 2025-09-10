@@ -24,6 +24,7 @@ import org.hibernate.annotations.Where;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Objects;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -38,6 +39,14 @@ public class Permission extends BaseEntity {
 
   @Column(name = "`TargetId`", nullable = false)
   private String targetId;
+
+  public Permission() {
+  }
+
+  public Permission(String permissionType, String targetId) {
+    this.permissionType = permissionType;
+    this.targetId = targetId;
+  }
 
   public String getPermissionType() {
     return permissionType;
@@ -54,4 +63,20 @@ public class Permission extends BaseEntity {
   public void setTargetId(String targetId) {
     this.targetId = targetId;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Permission)) return false;
+    Permission that = (Permission) o;
+    return Objects.equals(permissionType, that.permissionType) &&
+            Objects.equals(targetId, that.targetId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(permissionType, targetId);
+  }
+
+
 }

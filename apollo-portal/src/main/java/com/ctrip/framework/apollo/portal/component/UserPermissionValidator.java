@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
@@ -106,15 +107,12 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   }
 
   @Override
-  protected boolean hasPermissions(List<String> requiredPerms) {
+  protected boolean hasPermissions(List<Permission> requiredPerms) {
     String userId = userInfoHolder.getUser().getUserId();
     if (requiredPerms.isEmpty()) {
       return false;
     }
-    Set<String> permissions = rolePermissionService.getUserPermissionSet(userId);
-    if (permissions == null) {
-        permissions = Collections.emptySet();
-          }
-    return requiredPerms.stream().anyMatch(permissions::contains);
+
+    return rolePermissionService.checkUserHasPermission(userId, requiredPerms);
   }
 }

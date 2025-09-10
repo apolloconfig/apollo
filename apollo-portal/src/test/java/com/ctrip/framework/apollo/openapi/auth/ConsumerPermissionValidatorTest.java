@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
+import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -198,28 +199,40 @@ public class ConsumerPermissionValidatorTest {
 
 
     /**
-     * TC001: User has at least one of the required permissions, should return true
+     * TC001: Consumer has at least one of the required permissions, should return true
      */
     @Test
     public void testHasPermissions_UserHasPermission_ReturnsTrue() {
-        Set<String> userPermissions = new HashSet<>(Arrays.asList("perm1", "perm2"));
-        when(permissionService.getUserPermissionSet(CONSUMER_ID)).thenReturn(userPermissions);
+        // 创建 Permission 对象列表
+        List<Permission> requiredPerms = Arrays.asList(
+                new Permission("a", "b"),
+                new Permission("c", "d")
+        );
 
-        List<String> requiredPerms = Arrays.asList("perm2", "perm3");
+        // 模拟 permissionService.checkUserHasPermission 返回 true
+        when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
+        when(permissionService.checkUserHasPermission(CONSUMER_ID, requiredPerms)).thenReturn(true);
+
         boolean result = validator.hasPermissions(requiredPerms);
 
         assertTrue(result);
+        verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
+        verify(permissionService, times(1)).checkUserHasPermission(CONSUMER_ID, requiredPerms);
     }
 
     /**
-     * TC002: User does not have any of the required permissions, should return false
+     * TC002: Consumer does not have any of the required permissions, should return false
      */
     @Test
     public void testHasPermissions_UserHasNoPermission_ReturnsFalse() {
-        Set<String> userPermissions = new HashSet<>(Arrays.asList("perm1", "perm2"));
-        when(permissionService.getUserPermissionSet(CONSUMER_ID)).thenReturn(userPermissions);
+        List<Permission> requiredPerms = Arrays.asList(
+                new Permission("a", "b"),
+                new Permission("c", "d")
+        );
 
-        List<String> requiredPerms = Arrays.asList("perm3", "perm4");
+        when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
+        when(permissionService.checkUserHasPermission(CONSUMER_ID, requiredPerms)).thenReturn(false);
+
         boolean result = validator.hasPermissions(requiredPerms);
 
         assertFalse(result);
@@ -230,13 +243,12 @@ public class ConsumerPermissionValidatorTest {
      */
     @Test
     public void testHasPermissions_RequiredPermsIsEmpty_ReturnsFalse() {
-        Set<String> userPermissions = new HashSet<>(Arrays.asList("perm1", "perm2"));
-        when(permissionService.getUserPermissionSet(CONSUMER_ID)).thenReturn(userPermissions);
+        List<Permission> requiredPerms = Collections.emptyList();
 
-        List<String> requiredPerms = Collections.emptyList();
         boolean result = validator.hasPermissions(requiredPerms);
 
         assertFalse(result);
+        verify(permissionService, never()).checkUserHasPermission(anyLong(), anyList());
     }
 
     /**
@@ -245,32 +257,9 @@ public class ConsumerPermissionValidatorTest {
     @Test
     public void testHasPermissions_RequiredPermsIsNull_ReturnsFalse() {
         boolean result = validator.hasPermissions(null);
-        assertFalse(result);
-    }
-
-    /**
-     * TC005: getUserPermissionSet returns an empty set, should return false
-     */
-    @Test
-    public void testHasPermissions_UserPermissionSetIsEmpty_ReturnsFalse() {
-        when(permissionService.getUserPermissionSet(CONSUMER_ID)).thenReturn(Collections.emptySet());
-
-        List<String> requiredPerms = Arrays.asList("perm1", "perm2");
-        boolean result = validator.hasPermissions(requiredPerms);
 
         assertFalse(result);
+        verify(permissionService, never()).checkUserHasPermission(anyLong(), anyList());
     }
 
-    /**
-     * TC006: getUserPermissionSet returns null, should return false
-     */
-    @Test
-    public void testHasPermissions_UserPermissionSetIsNull_ReturnsFalse() {
-        when(permissionService.getUserPermissionSet(CONSUMER_ID)).thenReturn(null);
-
-        List<String> requiredPerms = Arrays.asList("perm1", "perm2");
-        boolean result = validator.hasPermissions(requiredPerms);
-
-        assertFalse(result);
-    }
 }

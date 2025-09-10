@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
@@ -115,7 +116,7 @@ public class ItemControllerAuthIntegrationTest {
     headers.set("Content-Type", "application/json");
 
     HttpEntity<String> entity = new HttpEntity<>(GSON.toJson(itemDTO), headers);
-    when(rolePermissionService.getUserPermissionSet("luke")).thenReturn(Collections.singleton("ModifyNamespace:testApp+application"));
+    when(rolePermissionService.checkUserHasPermission(eq("luke"), anyList())).thenReturn(true);
 
     restTemplate.postForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item"),

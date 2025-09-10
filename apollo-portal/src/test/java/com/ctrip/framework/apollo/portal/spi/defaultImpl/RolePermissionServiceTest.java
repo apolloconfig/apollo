@@ -339,21 +339,6 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     assertNull(roleRepository.findTopByRoleName(releaseRoleName));
   }
 
-  @Test
-  @Sql(scripts = "/sql/permission/insert-test-getUserPermissionSet.sql",
-          executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-  public void testGetUserPermissionSet() throws Exception {
-    // User "apollo" is granted two permissions in the script
-    Set<String> permissions = rolePermissionService.getUserPermissionSet("apollo");
-    assertEquals(2, permissions.size());
-    assertTrue(permissions.contains("ModifyNamespace:someApp+someNamespace"));
-    assertTrue(permissions.contains("ReleaseNamespace:someApp+someNamespace"));
-
-    // User "nobody" has no roles in the script
-    permissions = rolePermissionService.getUserPermissionSet("nobody");
-    assertTrue(permissions.isEmpty());
-  }
 
   private Role assembleRole(String roleName) {
     Role role = new Role();

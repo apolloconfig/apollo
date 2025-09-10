@@ -55,7 +55,6 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
             return UserIdentityConstants.USER;
         }
 
-
         return UserIdentityConstants.ANONYMOUS;
     }
 }

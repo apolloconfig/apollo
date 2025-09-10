@@ -20,6 +20,7 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
@@ -34,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,8 +81,10 @@ class UserPermissionValidatorTest {
     void hasCreateAppNamespacePermission_publicNamespace() {
         AppNamespace publicNs = new AppNamespace();
         publicNs.setPublic(true);
-        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.CREATE_NAMESPACE + ":" +
-                APP_ID)));
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
+        );
+        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
     }
 
@@ -90,8 +94,10 @@ class UserPermissionValidatorTest {
         privateNs.setPublic(false);
 
         when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(true);
-        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.CREATE_NAMESPACE + ":" +
-                APP_ID)));
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
+        );
+        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
     }
@@ -190,9 +196,11 @@ class UserPermissionValidatorTest {
     @Test
     void hasManageAppMasterPermission_normalUser_withAssignRole_andManageAppMaster() {
         when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
+        );
+        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
-        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.ASSIGN_ROLE + ":" +
-                APP_ID)));
         when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID))
                 .thenReturn(true);
 
@@ -201,35 +209,34 @@ class UserPermissionValidatorTest {
 
     @Test
     void hasManageAppMasterPermission_normalUser_withoutAssignRole() {
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-        when(rolePermissionService.getUserPermissionSet(USER_ID)).thenReturn(new HashSet<>(Lists.newArrayList(PermissionType.ASSIGN_ROLE + ":" +
-                APP_ID)));
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
+        );
+        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
         assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
     }
 
 
-
-    //  hasPermissions (protected) tests
-
     @Test
     void hasPermissions_match() {
-        when(rolePermissionService.getUserPermissionSet(USER_ID))
-                .thenReturn(new HashSet<>(Lists.newArrayList("a-permission", "b-permission")));
+        List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
+        when(rolePermissionService.checkUserHasPermission(USER_ID, requiredPerms)).thenReturn(true);
 
-        assertThat(validator.hasPermissions(Lists.newArrayList("a-permission", "c-permission"))).isTrue();
+        assertThat(validator.hasPermissions(requiredPerms)).isTrue();
     }
 
     @Test
     void hasPermissions_notMatch() {
-        when(rolePermissionService.getUserPermissionSet(USER_ID))
-                .thenReturn(new HashSet<>(Lists.newArrayList("x-permission")));
+        List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
+        when(rolePermissionService.checkUserHasPermission(USER_ID, requiredPerms)).thenReturn(false);
 
-        assertThat(validator.hasPermissions(Lists.newArrayList("a-permission", "b-permission"))).isFalse();
+        assertThat(validator.hasPermissions(requiredPerms)).isFalse();
     }
 
     @Test
     void hasPermissions_emptyList() {
         assertThat(validator.hasPermissions(Collections.emptyList())).isFalse();
     }
+
 }
