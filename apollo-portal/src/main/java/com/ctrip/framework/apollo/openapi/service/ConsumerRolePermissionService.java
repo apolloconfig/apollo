@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.entity.po.RolePermission;
 import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -79,15 +80,15 @@ public class ConsumerRolePermissionService {
     return false;
   }
 
-  public Set<String> getUserPermissionSet(long consumerId) {
-    List<Permission> permissions = permissionRepository.findConsumerPermissions(consumerId);
+  public boolean checkUserHasPermission(long consumerId, List<Permission> permissions) {
+    List<Permission> consumerPermissions = permissionRepository.findConsumerPermissions(consumerId);
 
-    if (CollectionUtils.isEmpty(permissions)) {
-      return Collections.emptySet();
+    if (CollectionUtils.isEmpty(consumerPermissions)) {
+      return false;
     }
 
-    return permissions.stream()
-            .map(p -> p.getPermissionType() + ":" + p.getTargetId())
-            .collect(Collectors.toSet());
+    Set<Permission> userPermissionSet = Sets.newHashSet(consumerPermissions);
+
+    return permissions.stream().anyMatch(userPermissionSet::contains);
   }
 }

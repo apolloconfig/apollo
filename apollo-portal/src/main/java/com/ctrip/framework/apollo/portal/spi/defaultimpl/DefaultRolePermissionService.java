@@ -375,17 +375,17 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
     }
 
-    @Override
-    public Set<String> getUserPermissionSet(String userId) {
-        List<Permission> permissions = permissionRepository.findUserPermissions(userId);
 
-        if (CollectionUtils.isEmpty(permissions)) {
-            return Collections.emptySet();
+    public boolean checkUserHasPermission(String userId, List<Permission> permissions) {
+        List<Permission> userPermissions = permissionRepository.findUserPermissions(userId);
+
+        if (CollectionUtils.isEmpty(userPermissions)) {
+            return false;
         }
 
-        return permissions.stream()
-                .map(p -> p.getPermissionType() + ":" + p.getTargetId())
-                .collect(Collectors.toSet());
+        Set<Permission> userPermissionSet = Sets.newHashSet(userPermissions);
+
+        return permissions.stream().anyMatch(userPermissionSet::contains);
     }
 
 

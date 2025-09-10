@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
+import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 
 import java.util.Arrays;
@@ -28,46 +29,38 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
 
     @Override
     public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        List<String> requiredPerms = Arrays.asList(
-                PermissionType.MODIFY_NAMESPACE + ":" +
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName),
-                PermissionType.MODIFY_NAMESPACE + ":" +
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env),
-                PermissionType.MODIFY_NAMESPACES_IN_CLUSTER + ":" +
-                        RoleUtils.buildClusterTargetId(appId, env, clusterName)
+        List<Permission> requiredPermissions = Arrays.asList(
+                new Permission(PermissionType.MODIFY_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+                new Permission(PermissionType.MODIFY_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+                new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,RoleUtils.buildClusterTargetId(appId, env, clusterName))
         );
-        return hasPermissions(requiredPerms);
+        return hasPermissions(requiredPermissions);
     }
 
     @Override
     public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        List<String> requiredPerms = Arrays.asList(
-                PermissionType.RELEASE_NAMESPACE + ":" +
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName),
-                PermissionType.RELEASE_NAMESPACE + ":" +
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env),
-                PermissionType.RELEASE_NAMESPACES_IN_CLUSTER + ":" +
-                        RoleUtils.buildClusterTargetId(appId, env, clusterName)
+        List<Permission> requiredPermissions = Arrays.asList(
+                new Permission(PermissionType.RELEASE_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+                new Permission(PermissionType.RELEASE_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+                new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,RoleUtils.buildClusterTargetId(appId, env, clusterName))
         );
-        return hasPermissions(requiredPerms);
+        return hasPermissions(requiredPermissions);
     }
 
     @Override
     public boolean hasAssignRolePermission(String appId) {
-        List<String> requiredPerms = Collections.singletonList(
-                PermissionType.ASSIGN_ROLE + ":" +
-                        appId
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.ASSIGN_ROLE, appId)
         );
-        return hasPermissions(requiredPerms);
+        return hasPermissions(requiredPermissions);
     }
 
     @Override
     public boolean hasCreateNamespacePermission(String appId) {
-        List<String> requiredPerms = Collections.singletonList(
-                PermissionType.CREATE_NAMESPACE + ":" +
-                        appId
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.CREATE_NAMESPACE, appId)
         );
-        return hasPermissions(requiredPerms);
+        return hasPermissions(requiredPermissions);
     }
 
     @Override
@@ -77,11 +70,10 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
 
     @Override
     public boolean hasCreateClusterPermission(String appId) {
-        List<String> requiredPerms = Collections.singletonList(
-                PermissionType.CREATE_CLUSTER + ":" +
-                        appId
+        List<Permission> requiredPermissions = Collections.singletonList(
+                new Permission(PermissionType.CREATE_CLUSTER, appId)
         );
-        return hasPermissions(requiredPerms);
+        return hasPermissions(requiredPermissions);
     }
 
     @Override
@@ -104,5 +96,5 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
         return false;
     }
 
-    protected abstract boolean hasPermissions(List<String> requiredPerms);
+    protected abstract boolean hasPermissions(List<Permission> requiredPerms);
 }

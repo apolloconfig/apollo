@@ -79,7 +79,7 @@ public class ConfigsExportService {
     this.namespaceService = namespaceService;
     this.appNamespaceService = appNamespaceService;
     this.portalSettings = portalSettings;
-      this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   /**
