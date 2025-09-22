@@ -24,22 +24,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
-import com.ctrip.framework.apollo.portal.entity.vo.Organization;
+import com.ctrip.framework.apollo.openapi.dto.*;
 import org.springframework.util.CollectionUtils;
+import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
+import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -47,6 +40,7 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -64,6 +58,15 @@ public class OpenApiBeanUtils {
   public static ItemDTO transformToItemDTO(OpenItemDTO openItemDTO) {
     Preconditions.checkArgument(openItemDTO != null);
     return BeanUtils.transform(ItemDTO.class, openItemDTO);
+  }
+
+  public static List<OpenItemDTO> transformFromItemDTOs(List<ItemDTO> items) {
+    if (CollectionUtils.isEmpty(items)) {
+      return Collections.emptyList();
+    }
+    return items.stream()
+        .map(OpenApiBeanUtils::transformFromItemDTO)
+        .collect(Collectors.toList());
   }
 
   public static OpenAppNamespaceDTO transformToOpenAppNamespaceDTO(AppNamespace appNamespace) {
@@ -137,6 +140,12 @@ public class OpenApiBeanUtils {
     return lock;
   }
 
+  public static OpenNamespaceDTO transformFromNamespaceDTO(NamespaceDTO namespaceDTO) {
+    Preconditions.checkArgument(namespaceDTO != null);
+    
+    return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+  }
+
   public static OpenGrayReleaseRuleDTO transformFromGrayReleaseRuleDTO(
       GrayReleaseRuleDTO grayReleaseRuleDTO) {
     Preconditions.checkArgument(grayReleaseRuleDTO != null);
@@ -202,5 +211,25 @@ public class OpenApiBeanUtils {
       return Collections.emptyList();
     }
     return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization).collect(Collectors.toList());
+  }
+
+  /**
+   * 将InstanceDTO转换为OpenInstanceDTO
+   */
+  public static OpenInstanceDTO transformFromInstanceDTO(final InstanceDTO instanceDTO) {
+    Preconditions.checkArgument(instanceDTO != null);
+    return BeanUtils.transform(OpenInstanceDTO.class, instanceDTO);
+  }
+
+  /**
+   * 批量转换InstanceDTO列表为OpenInstanceDTO列表
+   */
+  public static List<OpenInstanceDTO> transformFromInstanceDTOs(final List<InstanceDTO> instanceDTOs) {
+    if (CollectionUtils.isEmpty(instanceDTOs)) {
+      return Collections.emptyList();
+    }
+    return instanceDTOs.stream()
+        .map(OpenApiBeanUtils::transformFromInstanceDTO)
+        .collect(Collectors.toList());
   }
 }
