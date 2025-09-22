@@ -73,6 +73,6 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
       return false;
     }
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
-    return permissionService.checkUserHasPermission(consumerId, requiredPerms);
+    return permissionService.hasAnyPermission(consumerId, requiredPerms);
   }
 }

@@ -376,7 +376,7 @@ public class DefaultRolePermissionService implements RolePermissionService {
     }
 
 
-    public boolean checkUserHasPermission(String userId, List<Permission> permissions) {
+    public boolean hasAnyPermission(String userId, List<Permission> permissions) {
         List<Permission> userPermissions = permissionRepository.findUserPermissions(userId);
 
         if (CollectionUtils.isEmpty(userPermissions)) {

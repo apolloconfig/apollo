@@ -116,7 +116,7 @@ public class ItemControllerAuthIntegrationTest {
     headers.set("Content-Type", "application/json");
 
     HttpEntity<String> entity = new HttpEntity<>(GSON.toJson(itemDTO), headers);
-    when(rolePermissionService.checkUserHasPermission(eq("luke"), anyList())).thenReturn(true);
+    when(rolePermissionService.hasAnyPermission(eq("luke"), anyList())).thenReturn(true);
 
     restTemplate.postForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/item"),
