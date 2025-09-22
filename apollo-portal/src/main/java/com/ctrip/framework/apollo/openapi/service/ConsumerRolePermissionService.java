@@ -80,7 +80,7 @@ public class ConsumerRolePermissionService {
     return false;
   }
 
-  public boolean checkUserHasPermission(long consumerId, List<Permission> permissions) {
+  public boolean hasAnyPermission(long consumerId, List<Permission> permissions) {
     List<Permission> consumerPermissions = permissionRepository.findConsumerPermissions(consumerId);
 
     if (CollectionUtils.isEmpty(consumerPermissions)) {

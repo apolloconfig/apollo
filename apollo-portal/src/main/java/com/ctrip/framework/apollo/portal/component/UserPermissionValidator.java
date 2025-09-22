@@ -113,6 +113,6 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
       return false;
     }
 
-    return rolePermissionService.checkUserHasPermission(userId, requiredPerms);
+    return rolePermissionService.hasAnyPermission(userId, requiredPerms);
   }
 }

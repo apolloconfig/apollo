@@ -84,7 +84,7 @@ class UserPermissionValidatorTest {
         List<Permission> requiredPermissions = Collections.singletonList(
                 new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
         );
-        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
+        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
     }
 
@@ -97,7 +97,7 @@ class UserPermissionValidatorTest {
         List<Permission> requiredPermissions = Collections.singletonList(
                 new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
         );
-        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
+        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
         assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
     }
@@ -199,7 +199,7 @@ class UserPermissionValidatorTest {
         List<Permission> requiredPermissions = Collections.singletonList(
                 new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
         );
-        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
+        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
         when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID))
                 .thenReturn(true);
@@ -212,7 +212,7 @@ class UserPermissionValidatorTest {
         List<Permission> requiredPermissions = Collections.singletonList(
                 new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
         );
-        when(rolePermissionService.checkUserHasPermission(USER_ID,requiredPermissions)).thenReturn( true);
+        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
 
         assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
     }
@@ -221,7 +221,7 @@ class UserPermissionValidatorTest {
     @Test
     void hasPermissions_match() {
         List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
-        when(rolePermissionService.checkUserHasPermission(USER_ID, requiredPerms)).thenReturn(true);
+        when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(true);
 
         assertThat(validator.hasPermissions(requiredPerms)).isTrue();
     }
@@ -229,7 +229,7 @@ class UserPermissionValidatorTest {
     @Test
     void hasPermissions_notMatch() {
         List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
-        when(rolePermissionService.checkUserHasPermission(USER_ID, requiredPerms)).thenReturn(false);
+        when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(false);
 
         assertThat(validator.hasPermissions(requiredPerms)).isFalse();
     }

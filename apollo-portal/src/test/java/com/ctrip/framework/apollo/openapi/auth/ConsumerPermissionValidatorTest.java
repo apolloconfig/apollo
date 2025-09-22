@@ -209,15 +209,15 @@ public class ConsumerPermissionValidatorTest {
                 new Permission("c", "d")
         );
 
-        // 模拟 permissionService.checkUserHasPermission 返回 true
+        // 模拟 permissionService.hasAnyPermission 返回 true
         when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
-        when(permissionService.checkUserHasPermission(CONSUMER_ID, requiredPerms)).thenReturn(true);
+        when(permissionService.hasAnyPermission(CONSUMER_ID, requiredPerms)).thenReturn(true);
 
         boolean result = validator.hasPermissions(requiredPerms);
 
         assertTrue(result);
         verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
-        verify(permissionService, times(1)).checkUserHasPermission(CONSUMER_ID, requiredPerms);
+        verify(permissionService, times(1)).hasAnyPermission(CONSUMER_ID, requiredPerms);
     }
 
     /**
@@ -231,7 +231,7 @@ public class ConsumerPermissionValidatorTest {
         );
 
         when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
-        when(permissionService.checkUserHasPermission(CONSUMER_ID, requiredPerms)).thenReturn(false);
+        when(permissionService.hasAnyPermission(CONSUMER_ID, requiredPerms)).thenReturn(false);
 
         boolean result = validator.hasPermissions(requiredPerms);
 
@@ -248,7 +248,7 @@ public class ConsumerPermissionValidatorTest {
         boolean result = validator.hasPermissions(requiredPerms);
 
         assertFalse(result);
-        verify(permissionService, never()).checkUserHasPermission(anyLong(), anyList());
+        verify(permissionService, never()).hasAnyPermission(anyLong(), anyList());
     }
 
     /**
@@ -259,7 +259,7 @@ public class ConsumerPermissionValidatorTest {
         boolean result = validator.hasPermissions(null);
 
         assertFalse(result);
-        verify(permissionService, never()).checkUserHasPermission(anyLong(), anyList());
+        verify(permissionService, never()).hasAnyPermission(anyLong(), anyList());
     }
 
 }
