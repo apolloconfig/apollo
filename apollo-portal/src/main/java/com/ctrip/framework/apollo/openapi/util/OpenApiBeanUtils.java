@@ -24,8 +24,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ctrip.framework.apollo.openapi.dto.*;
 import org.springframework.util.CollectionUtils;
-
+import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
@@ -33,23 +34,10 @@ import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
-import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenInstanceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
-import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
@@ -243,15 +231,5 @@ public class OpenApiBeanUtils {
     return instanceDTOs.stream()
         .map(OpenApiBeanUtils::transformFromInstanceDTO)
         .collect(Collectors.toList());
-  }
-
-  /**
-   * 将PageDTO<InstanceDTO>转换为OpenPageDTO<OpenInstanceDTO>
-   */
-  public static OpenPageDTO<OpenInstanceDTO> transformFromInstancePageDTO(final PageDTO<InstanceDTO> pageDTO) {
-    Preconditions.checkArgument(pageDTO != null);
-    
-    List<OpenInstanceDTO> openInstances = transformFromInstanceDTOs(pageDTO.getContent());
-    return new OpenPageDTO<>(pageDTO.getPage(), pageDTO.getSize(), pageDTO.getTotal(), openInstances);
   }
 }

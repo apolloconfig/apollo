@@ -55,19 +55,7 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-/**
- * RESTful API Controller for Namespace and AppNamespace management
- * 
- * This controller provides comprehensive namespace management capabilities including:
- * - AppNamespace CRUD operations
- * - Namespace querying and statistics  
- * - Release status management
- * - Namespace integrity check and repair
- * 
- * All APIs follow RESTful design principles with proper HTTP methods and resource-oriented URLs.
- * 
- * @author Apollo Team
- */
+
 @RestController("openapiNamespaceController")
 public class NamespaceController {
 
@@ -99,7 +87,7 @@ public class NamespaceController {
    */
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
-  public ResponseEntity<OpenAppNamespaceDTO> createAppNamespace(@PathVariable String appId,
+  public ResponseEntity<OpenAppNamespaceDTO> createNamespace(@PathVariable String appId,
                                                                 @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
@@ -125,12 +113,7 @@ public class NamespaceController {
 
     OpenAppNamespaceDTO created = this.namespaceOpenApiService.createAppNamespace(appNamespaceDTO);
     
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Location", "/openapi/v1/apps/" + appId + "/appnamespaces/" + created.getName());
-    
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .headers(headers)
-        .body(created);
+    return ResponseEntity.ok(created);
   }
 
   /**
@@ -138,7 +121,7 @@ public class NamespaceController {
    * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces
    */
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces")
-  public ResponseEntity<List<OpenNamespaceDTO>> getNamespaces(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<List<OpenNamespaceDTO>> findNamespaces(@PathVariable String appId, @PathVariable String env,
                                                               @PathVariable String clusterName,
                                                               @RequestParam(defaultValue = "true") boolean fillItemDetail) {
     List<OpenNamespaceDTO> namespaces = this.namespaceOpenApiService.getNamespaces(appId, env, clusterName, fillItemDetail);
@@ -150,7 +133,7 @@ public class NamespaceController {
    * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}
    */
   @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
-  public ResponseEntity<OpenNamespaceDTO> getNamespace(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<OpenNamespaceDTO> loadNamespace(@PathVariable String appId, @PathVariable String env,
                                                        @PathVariable String clusterName, @PathVariable String namespaceName,
                                                        @RequestParam(defaultValue = "true") boolean fillItemDetail) {
     OpenNamespaceDTO namespace = this.namespaceOpenApiService.getNamespace(appId, env, clusterName, namespaceName, fillItemDetail);

@@ -85,11 +85,11 @@ public class NamespaceBranchController {
 
     /**
      * 获取命名空间分支信息
-     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branch
+     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches
      */
-    @GetMapping("/branch")
-    public ResponseEntity<OpenNamespaceDTO> getBranch(@PathVariable String env,
-                                                      @PathVariable String appId,
+    @GetMapping("/branches")
+    public ResponseEntity<OpenNamespaceDTO> findBranch(@PathVariable String appId,
+                                                      @PathVariable String env,
                                                       @PathVariable String clusterName,
                                                       @PathVariable String namespaceName) {
         NamespaceBO namespaceBO = namespaceBranchService.findBranch(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName);
@@ -101,17 +101,17 @@ public class NamespaceBranchController {
 
     /**
      * 创建命名空间分支
-     * POST /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branch
+     * POST /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches
      */
     @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
-    @PostMapping("/branch")
+    @PostMapping("/branches")
     @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<OpenNamespaceDTO> createBranch(@PathVariable String env,
-                                                         @PathVariable String appId,
+    public ResponseEntity<OpenNamespaceDTO> createBranch(@PathVariable String appId,
+                                                         @PathVariable String env,
                                                          @PathVariable String clusterName,
                                                          @PathVariable String namespaceName,
-                                                         @RequestHeader("X-Apollo-Operator") String operator) {
+                                                         @RequestParam("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -139,7 +139,7 @@ public class NamespaceBranchController {
                                              @PathVariable String clusterName,
                                              @PathVariable String namespaceName,
                                              @PathVariable String branchName,
-                                             @RequestHeader("X-Apollo-Operator") String operator) {
+                                             @RequestParam("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {
@@ -163,7 +163,6 @@ public class NamespaceBranchController {
     /**
      * 合并分支到主分支
      * PATCH /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}
-     * 
      * 使用 PATCH 方法表示部分更新操作（将分支状态从"独立"更新为"合并"）
      */
     @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
@@ -207,11 +206,11 @@ public class NamespaceBranchController {
 
     /**
      * 获取分支灰度发布规则
-     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-rules
+     * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules
      */
-    @GetMapping("/branches/{branchName}/gray-rules")
-    public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(@PathVariable String env,
-                                                                     @PathVariable String appId,
+    @GetMapping("/branches/{branchName}/rules")
+    public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(@PathVariable String appId,
+                                                                     @PathVariable String env,
                                                                      @PathVariable String clusterName,
                                                                      @PathVariable String namespaceName,
                                                                      @PathVariable String branchName) {
@@ -224,18 +223,18 @@ public class NamespaceBranchController {
 
     /**
      * 更新分支灰度发布规则
-     * PUT /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-rules
+     * PUT /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules
      */
     @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-    @PutMapping("/branches/{branchName}/gray-rules")
+    @PutMapping("/branches/{branchName}/rules")
     @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.updateBranchRules")
-    public ResponseEntity<Void> updateBranchGrayRules(@PathVariable String env,
-                                                      @PathVariable String appId,
+    public ResponseEntity<Void> updateBranchGrayRules(@PathVariable String appId,
+                                                      @PathVariable String env,
                                                       @PathVariable String clusterName,
                                                       @PathVariable String namespaceName,
                                                       @PathVariable String branchName,
                                                       @RequestBody OpenGrayReleaseRuleDTO rules,
-                                                      @RequestHeader("X-Apollo-Operator") String operator) {
+                                                      @RequestHeader("operator") String operator) {
         RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
 
         if (userService.findByUserId(operator) == null) {

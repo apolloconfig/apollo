@@ -16,16 +16,22 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
+import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
-import org.springframework.stereotype.Service;
 
 /**
  * @author wxq
@@ -67,5 +73,61 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   @Override
   public void rollbackRelease(String env, long releaseId, String operator) {
     releaseService.rollback(Env.valueOf(env), releaseId, operator);
+  }
+
+  /**
+   * 获取发布详情
+   * @param env 环境
+   * @param releaseId 发布ID
+   * @return 发布详情
+   */
+  public OpenReleaseDTO getReleaseById(String env, long releaseId) {
+    ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
+    if (release == null) {
+      throw NotFoundException.releaseNotFound(releaseId);
+    }
+    return OpenApiBeanUtils.transformFromReleaseDTO(release);
+  }
+
+  /**
+   * 获取所有发布（分页）
+   * @param appId 应用ID
+   * @param env 环境
+   * @param clusterName 集群名称
+   * @param namespaceName 命名空间名称
+   * @param page 页码
+   * @param size 页大小
+   * @return 发布列表
+   */
+  public List<ReleaseBO> findAllReleases(String appId, String env, String clusterName, String namespaceName, int page, int size) {
+    return releaseService.findAllReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+  }
+
+  /**
+   * 获取活跃发布（分页）
+   * @param appId 应用ID
+   * @param env 环境
+   * @param clusterName 集群名称
+   * @param namespaceName 命名空间名称
+   * @param page 页码
+   * @param size 页大小
+   * @return 活跃发布列表
+   */
+  public List<OpenReleaseDTO> findActiveReleases(String appId, String env, String clusterName, String namespaceName, int page, int size) {
+    List<ReleaseDTO> releases = releaseService.findActiveReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+    return releases.stream()
+        .map(OpenApiBeanUtils::transformFromReleaseDTO)
+        .collect(java.util.stream.Collectors.toList());
+  }
+
+  /**
+   * 对比发布
+   * @param env 环境
+   * @param baseReleaseId 基础发布ID
+   * @param toCompareReleaseId 对比发布ID
+   * @return 对比结果
+   */
+  public ReleaseCompareResult compareRelease(String env, long baseReleaseId, long toCompareReleaseId) {
+    return releaseService.compare(Env.valueOf(env), baseReleaseId, toCompareReleaseId);
   }
 }

@@ -22,6 +22,7 @@ import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,33 +30,39 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
+import com.ctrip.framework.apollo.openapi.server.service.ServerClusterOpenApiService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 
 @RestController("openapiClusterController")
-@RequestMapping("/openapi/v1")
+@RequestMapping("/openapi/v1/envs/{env}")
 public class ClusterController {
 
   private final UserService userService;
   private final ClusterOpenApiService clusterOpenApiService;
+  private final ServerClusterOpenApiService serverClusterOpenApiService;
 
   public ClusterController(
       UserService userService,
-      ClusterOpenApiService clusterOpenApiService) {
+      ClusterOpenApiService clusterOpenApiService,
+      ServerClusterOpenApiService serverClusterOpenApiService) {
     this.userService = userService;
     this.clusterOpenApiService = clusterOpenApiService;
+    this.serverClusterOpenApiService = serverClusterOpenApiService;
   }
 
   /**
    * 获取指定集群信息
    * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}
    */
-  @GetMapping(value = "/envs/{env}/apps/{appId}/clusters/{clusterName:.+}")
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName:.+}")
   public ResponseEntity<OpenClusterDTO> getCluster(@PathVariable String env,
                                                    @PathVariable String appId, 
                                                    @PathVariable String clusterName) {
@@ -69,7 +76,7 @@ public class ClusterController {
    * POST /openapi/v1/envs/{env}/apps/{appId}/clusters
    */
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#appId)")
-  @PostMapping(value = "/envs/{env}/apps/{appId}/clusters")
+  @PostMapping(value = "/apps/{appId}/clusters")
   public ResponseEntity<OpenClusterDTO> createCluster(@PathVariable String env,
                                                       @PathVariable String appId, 
                                                       @Valid @RequestBody OpenClusterDTO cluster) {
@@ -95,6 +102,20 @@ public class ClusterController {
 
     OpenClusterDTO createdCluster = this.clusterOpenApiService.createCluster(env, cluster);
     return ResponseEntity.ok(createdCluster);
+  }
+
+  /**
+   * 删除集群
+   * DELETE /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}
+   */
+  @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
+  @DeleteMapping(value = "/envs/{env}/apps/{appId}/clusters/{clusterName:.+}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
+  public ResponseEntity<Void> deleteCluster(@PathVariable String env,
+                                            @PathVariable String appId, 
+                                            @PathVariable String clusterName) {
+    serverClusterOpenApiService.deleteCluster(env, appId, clusterName);
+    return ResponseEntity.ok().build();
   }
 
 }

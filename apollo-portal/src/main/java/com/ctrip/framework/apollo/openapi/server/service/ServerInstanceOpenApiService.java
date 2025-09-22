@@ -19,13 +19,13 @@ package com.ctrip.framework.apollo.openapi.server.service;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.openapi.api.InstanceOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenInstanceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.InstanceService;
@@ -51,19 +51,20 @@ public class ServerInstanceOpenApiService implements InstanceOpenApiService {
     /**
      * 根据发布版本查询实例（支持分页） - 返回OpenAPI DTO
      */
-    public OpenPageDTO<OpenInstanceDTO> getByRelease(String env, long releaseId, int page, int size) {
+    public PageDTO<OpenInstanceDTO> getByRelease(String env, long releaseId, int page, int size) {
         PageDTO<InstanceDTO> portalPageDTO = instanceService.getByRelease(Env.valueOf(env), releaseId, page, size);
-        return OpenApiBeanUtils.transformFromInstancePageDTO(portalPageDTO);
+
+        return transformToOpenPageDTO(portalPageDTO);
     }
 
     /**
      * 根据命名空间查询实例（支持分页） - 返回OpenAPI DTO
      */
-    public OpenPageDTO<OpenInstanceDTO> getByNamespace(String env, String appId, String clusterName, 
+    public PageDTO<OpenInstanceDTO> getByNamespace(String env, String appId, String clusterName, 
                                                         String namespaceName, String instanceAppId, 
                                                         int page, int size) {
         PageDTO<InstanceDTO> portalPageDTO = instanceService.getByNamespace(Env.valueOf(env), appId, clusterName, namespaceName, instanceAppId, page, size);
-        return OpenApiBeanUtils.transformFromInstancePageDTO(portalPageDTO);
+        return transformToOpenPageDTO(portalPageDTO);
     }
 
     /**
@@ -73,5 +74,14 @@ public class ServerInstanceOpenApiService implements InstanceOpenApiService {
                                                      String namespaceName, Set<Long> releaseIds) {
         List<InstanceDTO> portalInstances = instanceService.getByReleasesNotIn(Env.valueOf(env), appId, clusterName, namespaceName, releaseIds);
         return OpenApiBeanUtils.transformFromInstanceDTOs(portalInstances);
+    }
+
+    /**
+     * 将PageDTO<InstanceDTO>转换为PageDTO<OpenInstanceDTO>
+     */
+    private PageDTO<OpenInstanceDTO> transformToOpenPageDTO(PageDTO<InstanceDTO> pageDTO) {
+        List<OpenInstanceDTO> openContent = OpenApiBeanUtils.transformFromInstanceDTOs(pageDTO.getContent());
+        PageRequest pageable = PageRequest.of(pageDTO.getPage(), pageDTO.getSize());
+        return new PageDTO<>(openContent, pageable, pageDTO.getTotal());
     }
 }

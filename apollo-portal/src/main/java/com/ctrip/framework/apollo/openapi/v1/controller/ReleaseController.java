@@ -16,28 +16,18 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
-import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
-import com.ctrip.framework.apollo.openapi.dto.NamespaceGrayDelReleaseDTO;
-import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
-import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
-import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
-import com.ctrip.framework.apollo.portal.service.ReleaseService;
-import com.ctrip.framework.apollo.portal.spi.UserService;
-import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,6 +37,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
+import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.openapi.dto.NamespaceGrayDelReleaseDTO;
+import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.server.service.ServerReleaseOpenApiService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
+import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
+import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
+import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
+import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserService;
+
+@Validated
 @RestController("openapiReleaseController")
 @RequestMapping("/openapi/v1/envs/{env}")
 public class ReleaseController {
@@ -57,6 +71,8 @@ public class ReleaseController {
   private final ConsumerPermissionValidator consumerPermissionValidator;
   private final ReleaseOpenApiService releaseOpenApiService;
   private final ApplicationEventPublisher publisher;
+  private final ServerReleaseOpenApiService serverReleaseOpenApiService;
+  private final UserPermissionValidator userPermissionValidator;
 
   public ReleaseController(
       final ReleaseService releaseService,
@@ -64,18 +80,22 @@ public class ReleaseController {
       final NamespaceBranchService namespaceBranchService,
       final ConsumerPermissionValidator consumerPermissionValidator,
       ReleaseOpenApiService releaseOpenApiService,
-      ApplicationEventPublisher publisher) {
+      ApplicationEventPublisher publisher,
+      ServerReleaseOpenApiService serverReleaseOpenApiService,
+      UserPermissionValidator userPermissionValidator) {
     this.releaseService = releaseService;
     this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
     this.consumerPermissionValidator = consumerPermissionValidator;
     this.releaseOpenApiService = releaseOpenApiService;
     this.publisher = publisher;
+    this.serverReleaseOpenApiService = serverReleaseOpenApiService;
+    this.userPermissionValidator = userPermissionValidator;
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
-  public OpenReleaseDTO createRelease(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<OpenReleaseDTO> createRelease(@PathVariable String appId, @PathVariable String env,
                                       @PathVariable String clusterName,
                                       @PathVariable String namespaceName,
                                       @RequestBody NamespaceReleaseDTO model) {
@@ -99,19 +119,23 @@ public class ReleaseController {
         .setEnv(Env.valueOf(env));
     publisher.publishEvent(event);
 
-    return releaseDTO;
+    return ResponseEntity.ok(releaseDTO);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest")
-  public OpenReleaseDTO loadLatestActiveRelease(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<OpenReleaseDTO> loadLatestActiveRelease(@PathVariable String appId, @PathVariable String env,
                                                 @PathVariable String clusterName, @PathVariable
                                                     String namespaceName) {
-    return this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
+      OpenReleaseDTO latestActiveRelease = this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
+      if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+        throw new AccessDeniedException("Access is denied");
+      }
+      return ResponseEntity.ok(latestActiveRelease);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/Relasemerge")
-  public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
+  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
+  public ResponseEntity<OpenReleaseDTO> merge(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName,
       @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
@@ -133,12 +157,13 @@ public class ReleaseController {
         .withReleaseId(mergedRelease.getId()).setMergeEvent(true).setEnv(Env.valueOf(env));
     publisher.publishEvent(event);
 
-    return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
+    OpenReleaseDTO openReleaseDTO = OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
+    return ResponseEntity.ok(openReleaseDTO);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
-  public OpenReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<OpenReleaseDTO> createGrayRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName, @RequestBody NamespaceReleaseDTO model) {
     RequestPrecondition.checkArguments(
@@ -163,12 +188,13 @@ public class ReleaseController {
         .withReleaseId(releaseDTO.getId()).setGrayPublishEvent(true).setEnv(Env.valueOf(env));
     publisher.publishEvent(event);
 
-    return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
+    OpenReleaseDTO openReleaseDTO = OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
+    return ResponseEntity.ok(openReleaseDTO);
   }
 
   @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-del-releases")
-  public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
+  public ResponseEntity<OpenReleaseDTO> createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String branchName, @RequestBody NamespaceGrayDelReleaseDTO model) {
     RequestPrecondition.checkArguments(
@@ -188,12 +214,14 @@ public class ReleaseController {
     releaseModel.setClusterName(branchName);
     releaseModel.setNamespaceName(namespaceName);
 
-    return OpenApiBeanUtils.transformFromReleaseDTO(
-        releaseService.publish(releaseModel, releaseModel.getReleasedBy()));
+    OpenReleaseDTO openReleaseDTO = OpenApiBeanUtils.transformFromReleaseDTO(
+            releaseService.publish(releaseModel, releaseModel.getReleasedBy()));
+
+    return ResponseEntity.ok(openReleaseDTO);
   }
 
   @PutMapping(path = "/releases/{releaseId}/rollback")
-  public void rollback(@PathVariable String env,
+  public ResponseEntity<Void> rollback(@PathVariable String env,
       @PathVariable long releaseId, @RequestParam String operator) {
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
         "Param operator can not be empty");
@@ -223,6 +251,74 @@ public class ReleaseController {
 
 
     this.releaseOpenApiService.rollbackRelease(env, releaseId, operator);
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * 获取发布详情
+   * GET /openapi/v1/envs/{env}/releases/{releaseId}
+   */
+  @GetMapping("/releases/{releaseId}")
+  public ResponseEntity<OpenReleaseDTO> getReleaseById(@PathVariable String env,
+                                                       @PathVariable long releaseId) {
+    OpenReleaseDTO release = serverReleaseOpenApiService.getReleaseById(env, releaseId);
+    
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(release.getAppId(), env,
+        release.getClusterName(), release.getNamespaceName())) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    
+    return ResponseEntity.ok(release);
+  }
+
+  /**
+   * 获取所有发布（分页）
+   * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all
+   */
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
+  public ResponseEntity<List<ReleaseBO>> findAllReleases(@PathVariable String appId,
+                                                         @PathVariable String env,
+                                                         @PathVariable String clusterName,
+                                                         @PathVariable String namespaceName,
+                                                         @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
+                                                         @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
+
+    List<ReleaseBO> releases = serverReleaseOpenApiService.findAllReleases(appId, env, clusterName, namespaceName, page, size);
+    return ResponseEntity.ok(releases);
+  }
+
+  /**
+   * 获取活跃发布（分页）
+   * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active
+   */
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active")
+  public ResponseEntity<List<OpenReleaseDTO>> findActiveReleases(@PathVariable String appId,
+                                                                 @PathVariable String env,
+                                                                 @PathVariable String clusterName,
+                                                                 @PathVariable String namespaceName,
+                                                                 @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
+                                                                 @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
+    if (userPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
+
+    List<OpenReleaseDTO> releases = serverReleaseOpenApiService.findActiveReleases(appId, env, clusterName, namespaceName, page, size);
+    return ResponseEntity.ok(releases);
+  }
+
+  /**
+   * 对比发布
+   * GET /openapi/v1/envs/{env}/releases/compare
+   */
+  @GetMapping(value = "/releases/compare")
+  public ResponseEntity<ReleaseCompareResult> compareRelease(@PathVariable String env,
+                                                             @RequestParam long baseReleaseId,
+                                                             @RequestParam long toCompareReleaseId) {
+    ReleaseCompareResult result = serverReleaseOpenApiService.compareRelease(env, baseReleaseId, toCompareReleaseId);
+    return ResponseEntity.ok(result);
   }
 
 }

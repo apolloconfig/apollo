@@ -16,28 +16,24 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
-import com.ctrip.framework.apollo.openapi.server.service.ServerAppOpenApiService;
+import com.ctrip.framework.apollo.common.http.MultiResponseEntity;
+import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.openapi.server.service.impl.ServerAppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.component.PortalSettings;
-import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
-import com.ctrip.framework.apollo.portal.entity.po.Role;
-import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
-import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
-import com.ctrip.framework.apollo.portal.repository.RoleRepository;
-import com.ctrip.framework.apollo.portal.service.AppService;
-import com.ctrip.framework.apollo.portal.service.ClusterService;
-import com.ctrip.framework.apollo.portal.service.RolePermissionService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.spi.UserService;
-import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -49,116 +45,286 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author wxq
  */
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AppController.class)
-@Import({ConsumerService.class, ServerAppOpenApiService.class})
 public class AppControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  private PortalSettings portalSettings;
-
-  @MockBean
-  private AppService appService;
-
-  @MockBean
-  private ClusterService clusterService;
-
-  @MockBean
   private ConsumerAuthUtil consumerAuthUtil;
+  
+  @MockBean
+  private ConsumerService consumerService;
 
   @MockBean
-  private PermissionRepository permissionRepository;
+  private ServerAppOpenApiService serverAppOpenApiService;
 
-  @MockBean
-  private RolePermissionRepository rolePermissionRepository;
-
-  @MockBean
-  private UserInfoHolder userInfoHolder;
-  @MockBean
-  private ConsumerTokenRepository consumerTokenRepository;
-  @MockBean
-  private ConsumerRepository consumerRepository;
-  @MockBean
-  private ConsumerAuditRepository consumerAuditRepository;
-  @MockBean
-  private ConsumerRoleRepository consumerRoleRepository;
-  @MockBean
-  private PortalConfig portalConfig;
-  @MockBean
-  private RolePermissionService rolePermissionService;
-  @MockBean
-  private UserService userService;
-  @MockBean
-  private RoleRepository roleRepository;
+  @MockBean(name = "consumerPermissionValidator")
+  private ConsumerPermissionValidator consumerPermissionValidator;
 
   @Test
-  public void testFindAppsAuthorized() throws Exception {
-    final long consumerId = 123456;
+  public void testGetAuthorizedApps() throws Exception {
+    final long consumerId = 123456L;
     Mockito.when(this.consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(consumerId);
 
-    final List<ConsumerRole> consumerRoles = Arrays.asList(
-        generateConsumerRoleByRoleId(6),
-        generateConsumerRoleByRoleId(7),
-        generateConsumerRoleByRoleId(8)
-    );
-    Mockito.when(this.consumerRoleRepository.findByConsumerId(consumerId))
-        .thenReturn(consumerRoles);
+    Set<String> authorized = new HashSet<>(Arrays.asList("app1", "app2"));
+    Mockito.when(this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId))
+        .thenReturn(authorized);
 
-    Mockito.when(this.roleRepository.findAllById(Mockito.any())).thenAnswer(invocation -> {
-      Set<Role> roles = new HashSet<>();
-      Iterable<Long> roleIds = invocation.getArgument(0);
-      for (Long roleId : roleIds) {
-        if (roleId == 6) {
-          roles.add(generateRoleByIdAndRoleName(6, "ModifyNamespace+app1+application+DEV"));
-        }
-        if (roleId == 7) {
-          roles.add(generateRoleByIdAndRoleName(7, "ReleaseNamespace+app1+application+DEV"));
-        }
-        if (roleId == 8) {
-          roles.add(generateRoleByIdAndRoleName(8, "Master+app2"));
-        }
-      }
-      assertEquals(3, roles.size());
-      return roles;
-    });
+    List<OpenAppDTO> mockApps = new ArrayList<>();
+    mockApps.add(openApp("app1"));
+    mockApps.add(openApp("app2"));
+    Mockito.when(this.serverAppOpenApiService.getAppsInfo(Mockito.anyList()))
+        .thenReturn(mockApps);
 
-    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/authorized"))
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps")
+            .param("authorized", "true"))
         .andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)));
 
-    Mockito.verify(this.consumerRoleRepository, Mockito.times(1)).findByConsumerId(consumerId);
-    Mockito.verify(this.roleRepository, Mockito.times(1)).findAllById(Mockito.any());
-
-    ArgumentCaptor<Set<String>> appIdsCaptor = ArgumentCaptor.forClass(Set.class);
-    Mockito.verify(this.appService).findByAppIds(appIdsCaptor.capture());
-    Set<String> appIds = appIdsCaptor.getValue();
-    assertEquals(Sets.newHashSet("app1", "app2"), appIds);
+    ArgumentCaptor<List<String>> idsCaptor = ArgumentCaptor.forClass(List.class);
+    Mockito.verify(this.serverAppOpenApiService, times(1)).getAppsInfo(idsCaptor.capture());
+    List<String> captured = idsCaptor.getValue();
+    // order is not guaranteed, so verify as sets
+    org.junit.Assert.assertEquals(new HashSet<>(captured), authorized);
   }
 
-  private static ConsumerRole generateConsumerRoleByRoleId(long roleId) {
-    ConsumerRole consumerRole = new ConsumerRole();
-    consumerRole.setRoleId(roleId);
-    return consumerRole;
+  @Test
+  public void testGetAppsWithIds() throws Exception {
+    List<OpenAppDTO> mockApps = Arrays.asList(openApp("foo"), openApp("bar"));
+    Mockito.when(this.serverAppOpenApiService.getAppsInfo(eq(Arrays.asList("foo", "bar"))))
+        .thenReturn(mockApps);
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps")
+            .param("appIds", "foo,bar"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)))
+        .andExpect(jsonPath("$[0].appId", is("foo")))
+        .andExpect(jsonPath("$[1].appId", is("bar")));
+
+    Mockito.verify(this.consumerService, never()).findAppIdsAuthorizedByConsumerId(any(Long.class));
   }
 
-  private static Role generateRoleByIdAndRoleName(long id, String roleName) {
-    Role role = new Role();
-    role.setId(id);
-    role.setRoleName(roleName);
-    return role;
+  @Test
+  public void testGetAppsWithoutIds() throws Exception {
+    final long consumerId = 42L;
+    Mockito.when(this.consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(consumerId);
+    Mockito.when(this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId))
+        .thenReturn(new HashSet<>(Arrays.asList("a", "b")));
+    Mockito.when(this.serverAppOpenApiService.getAppsInfo(Mockito.anyList()))
+        .thenReturn(Arrays.asList(openApp("a"), openApp("b")));
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)));
+
+    Mockito.verify(this.consumerService, times(1)).findAppIdsAuthorizedByConsumerId(consumerId);
+    Mockito.verify(this.serverAppOpenApiService, times(1)).getAppsInfo(Mockito.anyList());
+  }
+
+  @Test
+  public void testGetSingleAppFound() throws Exception {
+    Mockito.when(this.serverAppOpenApiService.getAppsInfo(eq(Arrays.asList("demo"))))
+        .thenReturn(Arrays.asList(openApp("demo")));
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/demo"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.appId", is("demo")));
+  }
+
+  @Test
+  public void testGetSingleAppNotFound() throws Exception {
+    Mockito.when(this.serverAppOpenApiService.getAppsInfo(eq(Arrays.asList("none"))))
+        .thenReturn(new ArrayList<>());
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/none"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testCreateAppAssignRole() throws Exception {
+    Mockito.when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    Mockito.when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(11L);
+
+    OpenAppDTO app = openApp("new-app");
+    OpenCreateAppDTO req = new OpenCreateAppDTO();
+    req.setApp(app);
+    req.setAssignAppRoleToSelf(true);
+
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.post("/openapi/v1/apps")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(req))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.appId", is("new-app")));
+
+    Mockito.verify(serverAppOpenApiService, times(1)).createApp(any(OpenCreateAppDTO.class));
+    Mockito.verify(consumerService, times(1)).assignAppRoleToConsumer(11L, "new-app");
+  }
+
+  @Test
+  public void testCreateAppBadRequestWhenAppNull() throws Exception {
+    Mockito.when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    OpenCreateAppDTO req = new OpenCreateAppDTO();
+    req.setAssignAppRoleToSelf(false);
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.post("/openapi/v1/apps")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(req))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testCreateAppBadRequestWhenAppIdNull() throws Exception {
+    Mockito.when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    OpenCreateAppDTO req = new OpenCreateAppDTO();
+    req.setApp(new OpenAppDTO());
+    req.setAssignAppRoleToSelf(false);
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.post("/openapi/v1/apps")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(req))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testUpdateAppOk() throws Exception {
+    Mockito.when(consumerPermissionValidator.isAppAdmin("app-x")).thenReturn(true);
+    OpenAppDTO app = openApp("app-x");
+
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.put("/openapi/v1/apps/app-x")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(app))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.appId", is("app-x")));
+
+    Mockito.verify(serverAppOpenApiService, times(1)).updateApp(any(OpenAppDTO.class));
+  }
+
+  @Test
+  public void testUpdateAppIdMismatch() throws Exception {
+    Mockito.when(consumerPermissionValidator.isAppAdmin("foo")).thenReturn(true);
+    OpenAppDTO app = openApp("bar");
+
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.put("/openapi/v1/apps/foo")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(app))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  public void testDeleteApp() throws Exception {
+    Mockito.when(consumerPermissionValidator.isAppAdmin("to-del")).thenReturn(true);
+    this.mockMvc.perform(MockMvcRequestBuilders.delete("/openapi/v1/apps/to-del"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk());
+    Mockito.verify(serverAppOpenApiService, times(1)).deleteApp("to-del");
+  }
+
+  @Test
+  public void testGetAppEnvClusters() throws Exception {
+    List<OpenEnvClusterDTO> envs = new ArrayList<>();
+    OpenEnvClusterDTO dto = new OpenEnvClusterDTO();
+    dto.setClusters(Arrays.asList("x", "y"));
+    dto.setEnv("DEV");
+    envs.add(dto);
+    Mockito.when(serverAppOpenApiService.getEnvClusterInfo("demo")).thenReturn(envs);
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/demo/envclusters"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(1)))
+        .andExpect(jsonPath("$[0].env", is("DEV")));
+  }
+
+  @Test
+  public void testGetAppsBySelf() throws Exception {
+    Mockito.when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(7L);
+    Mockito.when(consumerService.findAppIdsAuthorizedByConsumerId(7L))
+        .thenReturn(new HashSet<>(Arrays.asList("x", "y")));
+    Mockito.when(serverAppOpenApiService.getAppsBySelf(any(Set.class), any()))
+        .thenReturn(Arrays.asList(openApp("x"), openApp("y")));
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self")
+            .param("page", "0").param("size", "10"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$", hasSize(2)));
+  }
+
+  @Test
+  public void testFindMissEnvs() throws Exception {
+    Mockito.when(serverAppOpenApiService.findMissEnvs("zzz"))
+        .thenReturn(MultiResponseEntity.ok());
+
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/zzz/miss_envs"))
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  public void testCreateAppInEnv() throws Exception {
+    // Allow create application permission for openapi endpoint
+    Mockito.when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    Mockito.when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(100L);
+
+    com.ctrip.framework.apollo.openapi.entity.Consumer c =
+        new com.ctrip.framework.apollo.openapi.entity.Consumer();
+    c.setName("operator-x");
+    Mockito.when(consumerService.getConsumerByConsumerId(100L)).thenReturn(c);
+
+    OpenAppDTO app = openApp("env-app");
+
+    this.mockMvc.perform(
+            MockMvcRequestBuilders.post("/openapi/v1/apps/envs/DEV")
+                .contentType("application/json")
+                .content(new ObjectMapper().writeValueAsString(app))
+        )
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(status().isOk());
+
+    // verify invocation with captured DTO instead of instance equality
+    ArgumentCaptor<OpenAppDTO> appCaptor = ArgumentCaptor.forClass(OpenAppDTO.class);
+    Mockito.verify(serverAppOpenApiService, times(1))
+        .createAppInEnv(Mockito.eq("DEV"), appCaptor.capture(), Mockito.eq("operator-x"));
+    OpenAppDTO capturedApp = appCaptor.getValue();
+    org.junit.Assert.assertEquals("env-app", capturedApp.getAppId());
+    org.junit.Assert.assertEquals("env-app", capturedApp.getName());
+  }
+
+  private static OpenAppDTO openApp(String appId) {
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId(appId);
+    dto.setName(appId);
+    return dto;
   }
 
 }
