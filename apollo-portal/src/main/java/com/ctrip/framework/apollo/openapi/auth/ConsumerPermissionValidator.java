@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.openapi.auth;
 
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID;
-
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
@@ -26,10 +25,7 @@ import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Component("consumerPermissionValidator")
 public class ConsumerPermissionValidator extends AbstractPermissionValidator implements PermissionValidator {
@@ -43,14 +39,10 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
     this.consumerAuthUtil = consumerAuthUtil;
   }
 
-
-
   @Override
   public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
     throw new UnsupportedOperationException("Not supported operation");
   }
-
-
 
   @Override
   public boolean isSuperAdmin() {
@@ -74,7 +66,6 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
   public boolean hasManageAppMasterPermission(String appId) {
     throw new UnsupportedOperationException("Not supported operation");
   }
-
 
   @Override
   protected boolean hasPermissions(List<Permission> requiredPerms) {
