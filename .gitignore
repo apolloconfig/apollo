@@ -27,3 +27,6 @@ target
 *.orig
 .flattened-pom.xml
 
+# Maven local repository
+.m2/
+
