@@ -16,23 +16,35 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.api.OrganizationOpenApiService;
+import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
+
 import java.util.List;
+
 
 @RestController("openapiOrganizationController")
 @RequestMapping("/openapi/v1")
 public class OrganizationController {
+    
     private final OrganizationOpenApiService organizationOpenApiService;
 
     public OrganizationController(OrganizationOpenApiService organizationOpenApiService) {
         this.organizationOpenApiService = organizationOpenApiService;
     }
 
-    @RequestMapping("/organizations")
-    public List<OpenOrganizationDto> getOrganization() {
-        return organizationOpenApiService.getOrganizations();
+    /**
+     * 获取所有组织信息
+     * GET /openapi/v1/organizations
+     * 
+     * @return 组织列表
+     */
+    @GetMapping("/organizations")
+    public ResponseEntity<List<OpenOrganizationDto>> getOrganizations() {
+        List<OpenOrganizationDto> organizations = organizationOpenApiService.getOrganizations();
+        return ResponseEntity.ok(organizations);
     }
 }
