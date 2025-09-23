@@ -16,34 +16,25 @@
  */
 package com.ctrip.framework.apollo.openapi.util;
 
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.ctrip.framework.apollo.openapi.dto.*;
-import org.springframework.util.CollectionUtils;
-import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
+import com.ctrip.framework.apollo.common.dto.*;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
-import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
-import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
-import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.openapi.model.*;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import org.springframework.util.CollectionUtils;
+
+import java.lang.reflect.Type;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class OpenApiBeanUtils {
 
@@ -99,7 +90,7 @@ public class OpenApiBeanUtils {
     // app namespace info
     openNamespaceDTO.setFormat(namespaceBO.getFormat());
     openNamespaceDTO.setComment(namespaceBO.getComment());
-    openNamespaceDTO.setPublic(namespaceBO.isPublic());
+    openNamespaceDTO.setIsPublic(namespaceBO.isPublic());
 
     // items
     List<OpenItemDTO> items = new LinkedList<>();
@@ -131,9 +122,9 @@ public class OpenApiBeanUtils {
     lock.setNamespaceName(namespaceName);
 
     if (namespaceLock == null) {
-      lock.setLocked(false);
+      lock.setIsLocked(false);
     } else {
-      lock.setLocked(true);
+      lock.setIsLocked(true);
       lock.setLockedBy(namespaceLock.getDataChangeCreatedBy());
     }
 
@@ -166,11 +157,11 @@ public class OpenApiBeanUtils {
         new GrayReleaseRuleDTO(appId, clusterName, namespaceName, branchName);
 
     Set<OpenGrayReleaseRuleItemDTO> openGrayReleaseRuleItemDTOSet =
-        openGrayReleaseRuleDTO.getRuleItems();
+        new HashSet<>(openGrayReleaseRuleDTO.getRuleItems());
     openGrayReleaseRuleItemDTOSet.forEach(openGrayReleaseRuleItemDTO -> {
       String clientAppId = openGrayReleaseRuleItemDTO.getClientAppId();
-      Set<String> clientIpList = openGrayReleaseRuleItemDTO.getClientIpList();
-      Set<String> clientLabelList = openGrayReleaseRuleItemDTO.getClientLabelList();
+      Set<String> clientIpList = new HashSet<>(openGrayReleaseRuleItemDTO.getClientIpList());
+      Set<String> clientLabelList = new HashSet<>(openGrayReleaseRuleItemDTO.getClientLabelList());
       GrayReleaseRuleItemDTO ruleItem = new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
       grayReleaseRuleDTO.addRuleItem(ruleItem);
     });

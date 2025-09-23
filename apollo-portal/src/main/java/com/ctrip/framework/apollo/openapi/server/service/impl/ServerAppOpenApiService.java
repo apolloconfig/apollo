@@ -136,6 +136,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    * 更新应用信息 - 使用OpenAPI DTO
    * @param openAppDTO OpenAPI应用DTO
    */
+  @Override
   public void updateApp(OpenAppDTO openAppDTO) {
     App app = convert(openAppDTO);
     App updatedApp = appService.updateAppInLocal(app);
