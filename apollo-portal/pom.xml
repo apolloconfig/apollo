@@ -137,6 +137,40 @@
 
 	</dependencies>
 	<build>
+		<!-- 默认插件配置（公共部分） -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.openapitools</groupId>
+					<artifactId>openapi-generator-maven-plugin</artifactId>
+					<version>7.15.0</version>
+					<executions>
+						<execution>
+							<id>generate-openapi-sources</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+							<configuration>
+								<inputSpec>${apollo.openapi.spec.url}</inputSpec>
+								<generatorName>spring</generatorName>
+								<output>${project.build.directory}/generated-sources/openapi</output>
+								<apiPackage>com.ctrip.framework.apollo.openapi.api</apiPackage>
+								<modelPackage>com.ctrip.framework.apollo.openapi.model</modelPackage>
+								<invokerPackage>com.ctrip.framework.apollo.openapi.invoker</invokerPackage>
+								<configOptions>
+									<interfaceOnly>true</interfaceOnly>
+									<useTags>true</useTags>
+									<dateLibrary>java8</dateLibrary>
+								</configOptions>
+								<skipValidateSpec>true</skipValidateSpec>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -214,48 +248,13 @@
 					</replacements>
 				</configuration>
 			</plugin>
-			<!-- 1) OpenAPI 代码生成：绑定 generate-sources 阶段 -->
+			<!-- OpenAPI 代码生成插件 -->
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>7.15.0</version>
-				<executions>
-					<execution>
-						<id>generate-openapi-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<!-- 你的 OpenAPI 契约文件 -->
-							<inputSpec>${apollo.openapi.spec.url}</inputSpec>
-
-							<!-- 生成 Spring 接口/模型 -->
-							<generatorName>spring</generatorName>
-
-							<!-- 输出目录（注意 openapi 会在下面再加一层 src/main/java） -->
-							<output>${project.build.directory}/generated-sources/openapi</output>
-
-							<!-- 包名 -->
-							<apiPackage>com.ctrip.framework.apollo.openapi.api</apiPackage>
-							<modelPackage>com.ctrip.framework.apollo.openapi.model</modelPackage>
-							<invokerPackage>com.ctrip.framework.apollo.openapi.invoker</invokerPackage>
-
-							<!-- 常用开关：只出接口 & 按 tag 分组，使用 java8 时间类型 -->
-							<configOptions>
-							<interfaceOnly>true</interfaceOnly>
-							<useTags>true</useTags>
-							<dateLibrary>java8</dateLibrary>
-						</configOptions>
-
-						<!-- 可选：跳过严格校验（契约不完全时更宽容） -->
-						<skipValidateSpec>true</skipValidateSpec>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 
-			<!-- 2) 把生成目录标记为源码目录，让 IDE 直接参与编译 -->
+			<!-- 把生成目录标记为源码目录，让 IDE 直接参与编译 -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
@@ -278,4 +277,44 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- Java 8 环境 -->
+		<profile>
+			<id>java8</id>
+			<activation>
+				<jdk>[1.8,1.9)</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.openapitools</groupId>
+							<artifactId>openapi-generator-maven-plugin</artifactId>
+							<version>5.4.0</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+
+		<!-- Java 11 及以上环境 -->
+		<profile>
+			<id>java11plus</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.openapitools</groupId>
+							<artifactId>openapi-generator-maven-plugin</artifactId>
+							<version>7.15.0</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
 </project>
