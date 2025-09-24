@@ -14,10 +14,10 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.server.service;
+package com.ctrip.framework.apollo.openapi.server.service.impl;
 
-import com.ctrip.framework.apollo.openapi.api.OrganizationOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import org.springframework.stereotype.Service;

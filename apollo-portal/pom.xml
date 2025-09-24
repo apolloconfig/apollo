@@ -27,6 +27,7 @@
 	<artifactId>apollo-portal</artifactId>
 	<name>Apollo Portal</name>
 	<properties>
+		<apollo.openapi.spec.url>https://raw.githubusercontent.com/tacklequestions/apollo-openapi/main/apollo-openapi.yaml</apollo.openapi.spec.url>
 		<github.path>${project.artifactId}</github.path>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 	</properties>
@@ -43,6 +44,21 @@
 		<dependency>
 			<groupId>com.ctrip.framework.apollo</groupId>
 			<artifactId>apollo-openapi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.openapitools</groupId>
+			<artifactId>jackson-databind-nullable</artifactId>
+			<version>0.2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations-jakarta</artifactId>
+			<version>2.2.22</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-models-jakarta</artifactId>
+			<version>2.2.22</version>
 		</dependency>
 		<dependency>
 			<groupId>com.ctrip.framework.apollo</groupId>
@@ -121,6 +137,40 @@
 
 	</dependencies>
 	<build>
+		<!-- 默认插件配置（公共部分） -->
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.openapitools</groupId>
+					<artifactId>openapi-generator-maven-plugin</artifactId>
+					<version>7.15.0</version>
+					<executions>
+						<execution>
+							<id>generate-openapi-sources</id>
+							<phase>generate-sources</phase>
+							<goals>
+								<goal>generate</goal>
+							</goals>
+							<configuration>
+								<inputSpec>${apollo.openapi.spec.url}</inputSpec>
+								<generatorName>spring</generatorName>
+								<output>${project.build.directory}/generated-sources/openapi</output>
+								<apiPackage>com.ctrip.framework.apollo.openapi.api</apiPackage>
+								<modelPackage>com.ctrip.framework.apollo.openapi.model</modelPackage>
+								<invokerPackage>com.ctrip.framework.apollo.openapi.invoker</invokerPackage>
+								<configOptions>
+									<interfaceOnly>true</interfaceOnly>
+									<useTags>true</useTags>
+									<dateLibrary>java8</dateLibrary>
+								</configOptions>
+								<skipValidateSpec>true</skipValidateSpec>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -198,6 +248,73 @@
 					</replacements>
 				</configuration>
 			</plugin>
+			<!-- OpenAPI 代码生成插件 -->
+			<plugin>
+				<groupId>org.openapitools</groupId>
+				<artifactId>openapi-generator-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- 把生成目录标记为源码目录，让 IDE 直接参与编译 -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>3.4.0</version>
+				<executions>
+					<execution>
+						<id>add-openapi-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<!-- 注意这层 src/main/java -->
+								<source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<!-- Java 8 环境 -->
+		<profile>
+			<id>java8</id>
+			<activation>
+				<jdk>[1.8,1.9)</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.openapitools</groupId>
+							<artifactId>openapi-generator-maven-plugin</artifactId>
+							<version>6.6.0</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+
+		<!-- Java 11 及以上环境 -->
+		<profile>
+			<id>java11plus</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.openapitools</groupId>
+							<artifactId>openapi-generator-maven-plugin</artifactId>
+							<version>7.15.0</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
 </project>

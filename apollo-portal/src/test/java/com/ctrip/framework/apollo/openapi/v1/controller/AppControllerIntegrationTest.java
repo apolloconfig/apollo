@@ -46,7 +46,7 @@ public class AppControllerIntegrationTest extends AbstractIntegrationTest {
     httpHeaders.set(HttpHeaders.AUTHORIZATION, token);
 
     ResponseEntity<OpenAppDTO[]> responseEntity =
-        restTemplate.exchange(this.url("/openapi/v1/apps/authorized"), HttpMethod.GET,
+        restTemplate.exchange(this.url("/openapi/v1/apps?authorized=true"), HttpMethod.GET,
             new HttpEntity<>(httpHeaders), OpenAppDTO[].class);
 
     OpenAppDTO[] openAppDTOS = responseEntity.getBody();

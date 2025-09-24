@@ -14,15 +14,16 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.server.service;
+package com.ctrip.framework.apollo.openapi.server.service.impl;
+
+import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
+import org.springframework.stereotype.Service;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
-import com.ctrip.framework.apollo.openapi.api.ClusterOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
-import org.springframework.stereotype.Service;
 
 /**
  * @author wxq
@@ -47,5 +48,16 @@ public class ServerClusterOpenApiService implements ClusterOpenApiService {
     ClusterDTO toCreate = OpenApiBeanUtils.transformToClusterDTO(openClusterDTO);
     ClusterDTO createdClusterDTO = clusterService.createCluster(Env.valueOf(env), toCreate);
     return OpenApiBeanUtils.transformFromClusterDTO(createdClusterDTO);
+  }
+
+  /**
+   * 删除集群
+   * @param env 环境
+   * @param appId 应用ID
+   * @param clusterName 集群名称
+   */
+  @Override
+  public void deleteCluster(String env, String appId, String clusterName) {
+    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
   }
 }
