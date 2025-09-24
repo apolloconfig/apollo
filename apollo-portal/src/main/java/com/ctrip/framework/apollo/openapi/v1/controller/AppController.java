@@ -16,24 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import java.util.*;
-
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -41,10 +23,19 @@ import com.ctrip.framework.apollo.common.http.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.server.service.impl.ServerAppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import java.util.*;
 
 @RestController("openapiAppController")
 @RequestMapping("/openapi/v1")
@@ -184,8 +175,8 @@ public class AppController {
    * GET /openapi/v1/apps/{appId}/navtree
    */
   @GetMapping("/apps/{appId}/navtree")
-  public ResponseEntity<MultiResponseEntity<EnvClusterInfo>> getAppNavTree(@PathVariable String appId) {
-    MultiResponseEntity<EnvClusterInfo> response = serverAppOpenApiService.getAppNavTree(appId);
+  public ResponseEntity<MultiResponseEntity<OpenEnvClusterInfo>> getAppNavTree(@PathVariable String appId) {
+    MultiResponseEntity<OpenEnvClusterInfo> response = serverAppOpenApiService.getAppNavTree(appId);
     return ResponseEntity.ok(response);
   }
 

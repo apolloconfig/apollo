@@ -20,11 +20,11 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenPageDTOOpenInstanceDTO;
 import com.ctrip.framework.apollo.openapi.server.service.InstanceOpenApiService;
-import com.ctrip.framework.apollo.openapi.server.service.impl.ServerInstanceOpenApiService;
 import com.google.common.base.Splitter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,12 +36,9 @@ public class InstanceController {
     private static final Splitter RELEASES_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
     
     private final InstanceOpenApiService instanceOpenApiService;
-    private final ServerInstanceOpenApiService serverInstanceOpenApiService;
 
-    public InstanceController(InstanceOpenApiService instanceOpenApiService, 
-                             ServerInstanceOpenApiService serverInstanceOpenApiService) {
+    public InstanceController(InstanceOpenApiService instanceOpenApiService) {
         this.instanceOpenApiService = instanceOpenApiService;
-        this.serverInstanceOpenApiService = serverInstanceOpenApiService;
     }
 
     /**
@@ -63,7 +60,7 @@ public class InstanceController {
                                                                           @PathVariable Long releaseId,
                                                                           @RequestParam(defaultValue = "0") int page,
                                                                           @RequestParam(defaultValue = "20") int size) {
-        OpenPageDTOOpenInstanceDTO instances = serverInstanceOpenApiService.getByRelease(env, releaseId, page, size);
+        OpenPageDTOOpenInstanceDTO instances = instanceOpenApiService.getByRelease(env, releaseId, page, size);
         return ResponseEntity.ok(instances);
     }
 
@@ -79,7 +76,7 @@ public class InstanceController {
                                                                          @RequestParam(required = false) String instanceAppId,
                                                                          @RequestParam(defaultValue = "0") int page,
                                                                          @RequestParam(defaultValue = "20") int size) {
-        OpenPageDTOOpenInstanceDTO instances = serverInstanceOpenApiService.getByNamespace(env, appId, clusterName, namespaceName, instanceAppId, page, size);
+        OpenPageDTOOpenInstanceDTO instances = instanceOpenApiService.getByNamespace(env, appId, clusterName, namespaceName, instanceAppId, page, size);
         return ResponseEntity.ok(instances);
     }
 
@@ -102,7 +99,7 @@ public class InstanceController {
             throw new BadRequestException("excludeReleases parameter cannot be empty");
         }
 
-        List<OpenInstanceDTO> instances = serverInstanceOpenApiService.getByReleasesNotIn(env, appId, clusterName, namespaceName, releaseIdSet);
+        List<OpenInstanceDTO> instances = instanceOpenApiService.getByReleasesNotIn(env, appId, clusterName, namespaceName, releaseIdSet);
         return ResponseEntity.ok(instances);
     }
 }

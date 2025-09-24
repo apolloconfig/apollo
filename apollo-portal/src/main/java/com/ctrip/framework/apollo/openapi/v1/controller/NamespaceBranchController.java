@@ -16,23 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
@@ -47,39 +30,49 @@ import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.server.service.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
-import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("openapiNamespaceBranchController")
 @RequestMapping("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}")
 public class NamespaceBranchController {
 
     private final ConsumerPermissionValidator consumerPermissionValidator;
-    private final ReleaseService releaseService;
+    private final ReleaseOpenApiService releaseOpenApiService;
     private final NamespaceBranchService namespaceBranchService;
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
     private final PortalConfig portalConfig;
+    private final UserInfoHolder userInfoHolder;
 
     public NamespaceBranchController(
-        final ConsumerPermissionValidator consumerPermissionValidator,
-        final ReleaseService releaseService,
-        final NamespaceBranchService namespaceBranchService,
-        final UserService userService,
-        final ApplicationEventPublisher publisher,
-        final PortalConfig portalConfig) {
+            final ConsumerPermissionValidator consumerPermissionValidator,
+            final ReleaseOpenApiService releaseOpenApiService,
+            final NamespaceBranchService namespaceBranchService,
+            final UserService userService,
+            final ApplicationEventPublisher publisher,
+            final PortalConfig portalConfig,
+            final UserInfoHolder userInfoHolder) {
         this.consumerPermissionValidator = consumerPermissionValidator;
-        this.releaseService = releaseService;
+        this.releaseOpenApiService = releaseOpenApiService;
         this.namespaceBranchService = namespaceBranchService;
         this.userService = userService;
         this.publisher = publisher;
         this.portalConfig = portalConfig;
+        this.userInfoHolder = userInfoHolder;
     }
 
     /**
@@ -101,6 +94,7 @@ public class NamespaceBranchController {
     /**
      * 创建命名空间分支
      * POST /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches
+     * 原先operator是必选，现在从authorization可以获取，为了保持兼容性留下但改为非必须
      */
     @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
     @PostMapping("/branches")
@@ -110,8 +104,8 @@ public class NamespaceBranchController {
                                                          @PathVariable String env,
                                                          @PathVariable String clusterName,
                                                          @PathVariable String namespaceName,
-                                                         @RequestParam("operator") String operator) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
+                                                         @RequestParam(value = "operator", required = false) String operator) {
+        operator = userInfoHolder.getUser().getUserId();
 
         if (userService.findByUserId(operator) == null) {
             throw BadRequestException.userNotExists(operator);
@@ -138,8 +132,8 @@ public class NamespaceBranchController {
                                              @PathVariable String clusterName,
                                              @PathVariable String namespaceName,
                                              @PathVariable String branchName,
-                                             @RequestParam("operator") String operator) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
+                                             @RequestParam(value = "operator", required = false) String operator) {
+        operator = userInfoHolder.getUser().getUserId();
 
         if (userService.findByUserId(operator) == null) {
             throw BadRequestException.userNotExists(operator);
@@ -147,7 +141,7 @@ public class NamespaceBranchController {
 
         boolean canDelete = consumerPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName) ||
             (consumerPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName) &&
-                releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName, namespaceName) == null);
+                    releaseOpenApiService.getLatestActiveRelease(appId, env, branchName, namespaceName) == null);
 
         if (!canDelete) {
             throw new AccessDeniedException("Forbidden operation. "
@@ -173,14 +167,9 @@ public class NamespaceBranchController {
                                                       @PathVariable String namespaceName,
                                                       @PathVariable String branchName,
                                                       @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
-                                                      @RequestBody NamespaceReleaseDTO model,
-                                                      @RequestHeader("X-Apollo-Operator") String operator) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator, model.getReleaseTitle()),
-            "operator and releaseTitle can not be empty");
-
-        if (userService.findByUserId(operator) == null) {
-            throw BadRequestException.userNotExists(operator);
-        }
+                                                      @RequestBody NamespaceReleaseDTO model) {
+        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(model.getReleaseTitle()),
+            "releaseTitle can not be empty");
 
         if (Boolean.TRUE.equals(model.getIsEmergencyPublish()) && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env.toUpperCase()))) {
             throw new BadRequestException("Env: %s is not supported emergency publish now", env);
@@ -188,7 +177,7 @@ public class NamespaceBranchController {
 
         ReleaseDTO createdRelease = namespaceBranchService.merge(appId, Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName,
                                                                 model.getReleaseTitle(), model.getReleaseComment(),
-                Boolean.TRUE.equals(model.getIsEmergencyPublish()), deleteBranch, operator);
+                                                                Boolean.TRUE.equals(model.getIsEmergencyPublish()), deleteBranch);
 
         ConfigPublishEvent event = ConfigPublishEvent.instance();
         event.withAppId(appId)
@@ -233,12 +222,8 @@ public class NamespaceBranchController {
                                                       @PathVariable String namespaceName,
                                                       @PathVariable String branchName,
                                                       @RequestBody OpenGrayReleaseRuleDTO rules,
-                                                      @RequestHeader("operator") String operator) {
-        RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),"operator can not be empty");
-
-        if (userService.findByUserId(operator) == null) {
-            throw BadRequestException.userNotExists(operator);
-        }
+                                                      @RequestParam(value = "operator", required = false) String operator) {
+        operator = userInfoHolder.getUser().getUserId();
 
         rules.setAppId(appId);
         rules.setClusterName(clusterName);

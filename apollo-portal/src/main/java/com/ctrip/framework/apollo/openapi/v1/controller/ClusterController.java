@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
-import com.ctrip.framework.apollo.openapi.server.service.impl.ServerClusterOpenApiService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,15 +38,12 @@ public class ClusterController {
 
   private final UserService userService;
   private final ClusterOpenApiService clusterOpenApiService;
-  private final ServerClusterOpenApiService serverClusterOpenApiService;
 
   public ClusterController(
       UserService userService,
-      ClusterOpenApiService clusterOpenApiService,
-      ServerClusterOpenApiService serverClusterOpenApiService) {
+      ClusterOpenApiService clusterOpenApiService) {
     this.userService = userService;
     this.clusterOpenApiService = clusterOpenApiService;
-    this.serverClusterOpenApiService = serverClusterOpenApiService;
   }
 
   /**
@@ -106,7 +102,7 @@ public class ClusterController {
   public ResponseEntity<Void> deleteCluster(@PathVariable String env,
                                             @PathVariable String appId, 
                                             @PathVariable String clusterName) {
-    serverClusterOpenApiService.deleteCluster(env, appId, clusterName);
+    clusterOpenApiService.deleteCluster(env, appId, clusterName);
     return ResponseEntity.ok().build();
   }
 

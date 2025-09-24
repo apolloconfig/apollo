@@ -16,18 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.http.MultiResponseEntity;
@@ -37,17 +25,24 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
-import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppDeletionEvent;
 import com.ctrip.framework.apollo.portal.listener.AppInfoChangedEvent;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+
+import java.util.*;
 
 /**
  * @author wxq
@@ -160,16 +155,16 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    * @return 导航树信息
    */
   @Override
-  public MultiResponseEntity<EnvClusterInfo> getAppNavTree(String appId) {
+  public MultiResponseEntity<OpenEnvClusterInfo> getAppNavTree(String appId) {
     return getEnvClusterInfoMultiResponseEntity(appId, portalSettings, appService);
   }
 
-  public static MultiResponseEntity<EnvClusterInfo> getEnvClusterInfoMultiResponseEntity(String appId, PortalSettings portalSettings, AppService appService) {
-    MultiResponseEntity<EnvClusterInfo> response = MultiResponseEntity.ok();
+  public static MultiResponseEntity<OpenEnvClusterInfo> getEnvClusterInfoMultiResponseEntity(String appId, PortalSettings portalSettings, AppService appService) {
+    MultiResponseEntity<OpenEnvClusterInfo> response = MultiResponseEntity.ok();
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       try {
-        response.addResponseEntity(RichResponseEntity.ok(appService.createEnvNavNode(env, appId)));
+        response.addResponseEntity(RichResponseEntity.ok(OpenApiBeanUtils.transformFromEnvClusterInfo(appService.createEnvNavNode(env, appId))));
       } catch (Exception e) {
         response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
             "load env:" + env.getName() + " cluster error." + e.getMessage()));

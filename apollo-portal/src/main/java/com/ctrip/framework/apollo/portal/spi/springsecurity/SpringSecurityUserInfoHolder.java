@@ -16,21 +16,19 @@
  */
 package com.ctrip.framework.apollo.portal.spi.springsecurity;
 
-import java.security.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.ctrip.framework.apollo.openapi.entity.Consumer;
+import com.ctrip.framework.apollo.openapi.service.ConsumerService;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.ctrip.framework.apollo.openapi.entity.Consumer;
-import com.ctrip.framework.apollo.openapi.service.ConsumerService;
-import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.spi.UserService;
+import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 
 public class SpringSecurityUserInfoHolder implements UserInfoHolder {
 
@@ -83,7 +81,7 @@ public class SpringSecurityUserInfoHolder implements UserInfoHolder {
       }
 
       // 获取Consumer ID
-      Object consumerIdObj = request.getAttribute("ApolloConsumerId");
+      Object consumerIdObj = request.getAttribute("Authorization");
       if (consumerIdObj == null) {
         return null;
       }

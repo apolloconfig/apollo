@@ -16,8 +16,10 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
-import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenPageDTOOpenItemDTO;
+import com.ctrip.framework.apollo.openapi.model.*;
+import com.ctrip.framework.apollo.portal.environment.Env;
+
+import java.util.List;
 
 /**
  * @author wxq
@@ -36,10 +38,27 @@ public interface ItemOpenApiService {
   void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO);
 
-  void removeItem(String appId, String env, String clusterName, String namespaceName, String key,
-      String operator);
+  void removeItem(String appId, String env, String clusterName, String namespaceName, String key);
 
   OpenPageDTOOpenItemDTO findItemsByNamespace(String appId, String env, String clusterName,
                                               String namespaceName, int page, int size);
 
+  OpenItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key);
+
+  void modifyItemsByText(String appId, String env, String clusterName, String namespaceName,
+                         OpenNamespaceTextModel model);
+
+  List<OpenItemDTO> findBranchItems(String appId, String env, String clusterName,
+                                    String namespaceName, String branchName);
+
+  List<OpenItemDiffs> diff(OpenNamespaceSyncModel model);
+
+  void syncItems(OpenNamespaceSyncModel model);
+
+  void syntaxCheckText(OpenNamespaceTextModel model);
+
+  void revokeItems(String appId, String env, String clusterName, String namespaceName);
+
+  List<OpenItemDTO> findItemsWithOrder(String appId, String env, String clusterName,
+                                       String namespaceName, String orderBy);
 }

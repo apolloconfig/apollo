@@ -16,22 +16,21 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service.impl;
 
-import java.util.List;
-
-import com.ctrip.framework.apollo.openapi.server.service.ReleaseOpenApiService;
-import org.springframework.stereotype.Service;
-
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseBO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.server.service.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
-import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
-import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author wxq
@@ -39,10 +38,12 @@ import com.ctrip.framework.apollo.portal.service.ReleaseService;
 @Service
 public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   private final ReleaseService releaseService;
+  private final UserInfoHolder userInfoHolder;
 
   public ServerReleaseOpenApiService(
-      ReleaseService releaseService) {
+      ReleaseService releaseService, UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @Override
@@ -72,6 +73,7 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
 
   @Override
   public void rollbackRelease(String env, long releaseId, String operator) {
+    operator = userInfoHolder.getUser().getName();
     releaseService.rollback(Env.valueOf(env), releaseId, operator);
   }
 
@@ -100,8 +102,8 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
    * @param size 页大小
    * @return 发布列表
    */
-  public List<ReleaseBO> findAllReleases(String appId, String env, String clusterName, String namespaceName, int page, int size) {
-    return releaseService.findAllReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+  public List<OpenReleaseBO> findAllReleases(String appId, String env, String clusterName, String namespaceName, int page, int size) {
+    return OpenApiBeanUtils.transformFromReleaseBOs(releaseService.findAllReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size));
   }
 
   /**
@@ -121,14 +123,4 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
         .collect(java.util.stream.Collectors.toList());
   }
 
-  /**
-   * 对比发布
-   * @param env 环境
-   * @param baseReleaseId 基础发布ID
-   * @param toCompareReleaseId 对比发布ID
-   * @return 对比结果
-   */
-  public ReleaseCompareResult compareRelease(String env, long baseReleaseId, long toCompareReleaseId) {
-    return releaseService.compare(Env.valueOf(env), baseReleaseId, toCompareReleaseId);
-  }
 }

@@ -16,12 +16,18 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service.impl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.ctrip.framework.apollo.openapi.model.OpenPageDTOOpenItemDTO;
+import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.openapi.model.*;
 import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.ItemService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -33,19 +39,10 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.representer.Representer;
 
-import com.ctrip.framework.apollo.common.dto.ItemDTO;
-import com.ctrip.framework.apollo.common.dto.PageDTO;
-import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
-import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
-import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.service.ItemService;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -55,9 +52,11 @@ import com.ctrip.framework.apollo.portal.service.ItemService;
 public class ServerItemOpenApiService implements ItemOpenApiService {
 
   private final ItemService itemService;
+  private final UserInfoHolder userInfoHolder;
 
-  public ServerItemOpenApiService(ItemService itemService) {
+  public ServerItemOpenApiService(ItemService itemService, UserInfoHolder userInfoHolder) {
     this.itemService = itemService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @Override
@@ -90,7 +89,6 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
       OpenItemDTO itemDTO) {
     ItemDTO toUpdateItem = itemService
         .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
-    //protect. only value,type,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
     toUpdateItem.setType(itemDTO.getType());
     toUpdateItem.setValue(itemDTO.getValue());
@@ -117,10 +115,9 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   }
 
   @Override
-  public void removeItem(String appId, String env, String clusterName, String namespaceName,
-      String key, String operator) {
+  public void removeItem(String appId, String env, String clusterName, String namespaceName, String key) {
     ItemDTO toDeleteItem = this.itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
-    this.itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
+    this.itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), userInfoHolder.getUser().getUserId());
   }
 
   @Override
@@ -131,8 +128,19 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
     int pageResult = commonOpenItemDTOPage.getPage();
     int sizeResult = commonOpenItemDTOPage.getSize();
     long totalResult = commonOpenItemDTOPage.getTotal();
+    List<OpenItemDTO> openItemDTOContentResult = getOpenItemDTOS(commonOpenItemDTOPage);
+
+    OpenPageDTOOpenItemDTO result = new OpenPageDTOOpenItemDTO();
+    result.setPage(pageResult);
+    result.setSize(sizeResult);
+    result.setTotal(totalResult);
+    result.setContent(openItemDTOContentResult);
+    return result;
+  }
+
+  private static List<OpenItemDTO> getOpenItemDTOS(PageDTO<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> commonOpenItemDTOPage) {
     List<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> contentResult = commonOpenItemDTOPage.getContent();
-    // 将contentResult转换为yaml generate OpenItemDTO版本
+    // 将contentResult转换为yaml generate OpenItemDTO
     List<OpenItemDTO> openItemDTOContentResult = new ArrayList<>();
     if (contentResult != null && !contentResult.isEmpty()) {
       for (com.ctrip.framework.apollo.openapi.dto.OpenItemDTO item : contentResult) {
@@ -146,31 +154,35 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
         openItemDTOContentResult.add(openItemDTO);
       }
     }
+    return openItemDTOContentResult;
+  }
 
-    OpenPageDTOOpenItemDTO result = new OpenPageDTOOpenItemDTO();
-    result.setPage(pageResult);
-    result.setSize(sizeResult);
-    result.setTotal(totalResult);
-    result.setContent(openItemDTOContentResult);
-    return result;
+  @Override
+  public OpenItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
+    ItemDTO itemDTO = itemService.loadItem(env, appId, clusterName, namespaceName, key);
+    return itemDTO == null ? null : OpenApiBeanUtils.transformFromItemDTO(itemDTO);
   }
 
   /**
    * 通过文本方式批量修改配置项
    */
+  @Override
   public void modifyItemsByText(String appId, String env, String clusterName, String namespaceName,
-                               NamespaceTextModel model) {
+                                OpenNamespaceTextModel model) {
+    String operator = userInfoHolder.getUser().getUserId();
+    model.setOperator(operator);
     model.setAppId(appId);
     model.setClusterName(clusterName);
     model.setEnv(env);
     model.setNamespaceName(namespaceName);
 
-    itemService.updateConfigItemByText(model);
+    itemService.updateConfigItemByText(OpenApiBeanUtils.transformToNamespaceTextModel(model));
   }
 
   /**
    * 查找分支下的配置项
    */
+  @Override
   public List<OpenItemDTO> findBranchItems(String appId, String env, String clusterName,
                                            String namespaceName, String branchName) {
     List<ItemDTO> items = itemService.findItems(appId, Env.valueOf(env), branchName, namespaceName);
@@ -195,27 +207,34 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   /**
    * 命名空间差异对比
    */
-  public List<ItemDiffs> diff(NamespaceSyncModel model) {
-    return itemService.compare(model.getSyncToNamespaces(), model.getSyncItems());
+  @Override
+  public List<OpenItemDiffs> diff(OpenNamespaceSyncModel model) {
+    NamespaceSyncModel namespaceSyncModel = OpenApiBeanUtils.transformToNamespaceSyncModel(model);
+    return OpenApiBeanUtils.transformFromItemDiffsList(
+            itemService.compare(namespaceSyncModel.getSyncToNamespaces(), namespaceSyncModel.getSyncItems()));
   }
 
   /**
    * 批量同步配置项到多个命名空间
    */
-  public void syncItems(NamespaceSyncModel model) {
-    itemService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
+  @Override
+  public void syncItems(OpenNamespaceSyncModel model) {
+    NamespaceSyncModel namespaceSyncModel = OpenApiBeanUtils.transformToNamespaceSyncModel(model);
+    itemService.syncItems(namespaceSyncModel.getSyncToNamespaces(), namespaceSyncModel.getSyncItems());
   }
 
   /**
    * 语法检查
    */
-  public void syntaxCheckText(NamespaceTextModel model) {
+  @Override
+  public void syntaxCheckText(OpenNamespaceTextModel model) {
     doSyntaxCheck(model);
   }
 
   /**
    * 撤销配置项更改
    */
+  @Override
   public void revokeItems(String appId, String env, String clusterName, String namespaceName) {
     itemService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName);
   }
@@ -223,6 +242,7 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   /**
    * 增强版查找配置项，支持排序
    */
+  @Override
   public List<OpenItemDTO> findItemsWithOrder(String appId, String env, String clusterName,
                                               String namespaceName, String orderBy) {
     List<ItemDTO> items = itemService.findItems(appId, Env.valueOf(env), clusterName, namespaceName);
@@ -248,13 +268,13 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   /**
    * 语法检查实现
    */
-  private void doSyntaxCheck(NamespaceTextModel model) {
+  private void doSyntaxCheck(OpenNamespaceTextModel model) {
     if (StringUtils.isBlank(model.getConfigText())) {
       return;
     }
 
     // 只支持yaml语法检查
-    if (model.getFormat() != ConfigFileFormat.YAML && model.getFormat() != ConfigFileFormat.YML) {
+    if (!Objects.equals(model.getFormat(), ConfigFileFormat.YAML.getValue()) && !Objects.equals(model.getFormat(), ConfigFileFormat.YML.getValue())) {
       return;
     }
 

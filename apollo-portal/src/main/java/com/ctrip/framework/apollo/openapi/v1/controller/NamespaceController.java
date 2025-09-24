@@ -78,7 +78,7 @@ public class NamespaceController {
    */
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
-  public ResponseEntity<OpenAppNamespaceDTO> createNamespace(@PathVariable String appId,
+  public ResponseEntity<OpenAppNamespaceDTO> createAppNamespace(@PathVariable String appId,
                                                                 @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
 
     if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {

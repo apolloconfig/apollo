@@ -24,15 +24,14 @@ import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.model.NamespaceGrayDelReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseBO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.impl.ServerReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
 import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
-import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
-import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
@@ -213,13 +212,8 @@ public class ReleaseController {
 
   @PutMapping(path = "/releases/{releaseId}/rollback")
   public ResponseEntity<Void> rollback(@PathVariable String env,
-      @PathVariable long releaseId, @RequestParam String operator) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
-        "Param operator can not be empty");
+      @PathVariable long releaseId, @RequestParam(value = "operator", required = false) String operator) {
 
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
-    }
 
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
@@ -267,7 +261,7 @@ public class ReleaseController {
    * GET /openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all
    */
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
-  public ResponseEntity<List<ReleaseBO>> findAllReleases(@PathVariable String appId,
+  public ResponseEntity<List<OpenReleaseBO>> findAllReleases(@PathVariable String appId,
                                                          @PathVariable String env,
                                                          @PathVariable String clusterName,
                                                          @PathVariable String namespaceName,
@@ -277,7 +271,7 @@ public class ReleaseController {
       return ResponseEntity.ok(Collections.emptyList());
     }
 
-    List<ReleaseBO> releases = serverReleaseOpenApiService.findAllReleases(appId, env, clusterName, namespaceName, page, size);
+    List<OpenReleaseBO> releases = serverReleaseOpenApiService.findAllReleases(appId, env, clusterName, namespaceName, page, size);
     return ResponseEntity.ok(releases);
   }
 
@@ -299,17 +293,4 @@ public class ReleaseController {
     List<OpenReleaseDTO> releases = serverReleaseOpenApiService.findActiveReleases(appId, env, clusterName, namespaceName, page, size);
     return ResponseEntity.ok(releases);
   }
-
-  /**
-   * 对比发布
-   * GET /openapi/v1/envs/{env}/releases/compare
-   */
-  @GetMapping(value = "/releases/compare")
-  public ResponseEntity<ReleaseCompareResult> compareRelease(@PathVariable String env,
-                                                             @RequestParam long baseReleaseId,
-                                                             @RequestParam long toCompareReleaseId) {
-    ReleaseCompareResult result = serverReleaseOpenApiService.compareRelease(env, baseReleaseId, toCompareReleaseId);
-    return ResponseEntity.ok(result);
-  }
-
 }

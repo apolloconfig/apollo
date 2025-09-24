@@ -19,7 +19,7 @@ import com.ctrip.framework.apollo.common.http.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
-import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -43,5 +43,5 @@ public interface AppOpenApiService {
 
   List<OpenAppDTO> getAppsBySelf(Set<String> appIds, Pageable page);
 
-  MultiResponseEntity<EnvClusterInfo> getAppNavTree(String appId);
+  MultiResponseEntity<OpenEnvClusterInfo> getAppNavTree(String appId);
 }
