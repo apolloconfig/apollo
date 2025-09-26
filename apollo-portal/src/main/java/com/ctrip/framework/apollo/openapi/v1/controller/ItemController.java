@@ -16,71 +16,82 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.api.ItemOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenPageDTO;
+import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.openapi.model.*;
+import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Objects;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+
 
 @Validated
 @RestController("openapiItemController")
-@RequestMapping("/openapi/v1/envs/{env}")
+@RequestMapping("/openapi/v1")
 public class ItemController {
 
-  private final ItemService itemService;
   private final UserService userService;
   private final ItemOpenApiService itemOpenApiService;
+  private final ConsumerPermissionValidator consumerPermissionValidator;
 
   private static final int ITEM_COMMENT_MAX_LENGTH = 256;
 
-  public ItemController(final ItemService itemService, final UserService userService,
-      ItemOpenApiService itemOpenApiService) {
-    this.itemService = itemService;
+  public ItemController(UserService userService, ItemOpenApiService itemOpenApiService,
+                        ConsumerPermissionValidator consumerPermissionValidator) {
     this.userService = userService;
     this.itemOpenApiService = itemOpenApiService;
+    this.consumerPermissionValidator = consumerPermissionValidator;
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
-      @PathVariable String namespaceName, @PathVariable String key) {
-    return this.itemOpenApiService.getItem(appId, env, clusterName, namespaceName, key);
+  /**
+   * 获取单个配置项
+   * GET openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}
+   */
+  @GetMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  public ResponseEntity<OpenItemDTO> getItem(@PathVariable String appId, @PathVariable String env, 
+      @PathVariable String clusterName, @PathVariable String namespaceName, @PathVariable String key) {
+    OpenItemDTO item = this.itemOpenApiService.getItem(appId, env, clusterName, namespaceName, key);
+    if (item == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(item);
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
-  public OpenItemDTO getItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName,
-      @PathVariable String namespaceName, @PathVariable String key) {
+  /**
+   * 通过查询参数获取配置项（支持编码的key）
+   * GET openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items?key={key}&encoded={true|false}
+   */
+  @GetMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public ResponseEntity<OpenItemDTO> getItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+                                                         @PathVariable String clusterName,
+                                                         @PathVariable String namespaceName, @PathVariable String key) {
     return this.getItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
+            new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
+  /**
+   * 创建新的配置项
+   * POST openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items
+   */
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
+  @PostMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items")
+  public ResponseEntity<OpenItemDTO> createItem(@PathVariable String appId, @PathVariable String env,
                                 @PathVariable String clusterName, @PathVariable String namespaceName,
                                 @RequestBody OpenItemDTO item) {
 
@@ -98,12 +109,17 @@ public class ItemController {
       throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
     }
 
-    return this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
+    OpenItemDTO createdItem = this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
+    return ResponseEntity.ok(createdItem);
   }
 
+  /**
+   * 更新配置项
+   * PUT openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}
+   */
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public void updateItem(@PathVariable String appId, @PathVariable String env,
+  @PutMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  public ResponseEntity<Void> updateItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
                          @PathVariable String key, @RequestBody OpenItemDTO item,
                          @RequestParam(defaultValue = "false") boolean createIfNotExists) {
@@ -113,8 +129,8 @@ public class ItemController {
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeLastModifiedBy()),
         "key and dataChangeLastModifiedBy can not be empty");
-
-    RequestPrecondition.checkArguments(item.getKey().equals(key), "Key in path and payload is not consistent");
+    RequestPrecondition.checkArguments(!Objects.isNull(item.getType()), "type should not be null");
+    RequestPrecondition.checkArguments(Objects.equals(item.getKey(), key), "Key in path and payload is not consistent");
     RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()), "value should not be null");
 
     if (userService.findByUserId(item.getDataChangeLastModifiedBy()) == null) {
@@ -129,58 +145,211 @@ public class ItemController {
       if (StringUtils.isEmpty(item.getDataChangeCreatedBy())) {
         throw new BadRequestException("dataChangeCreatedBy is required when createIfNotExists is true");
       }
-      this.itemOpenApiService.createOrUpdateItem(appId, env, clusterName, namespaceName, item);
+      itemOpenApiService.createOrUpdateItem(appId, env, clusterName, namespaceName, item);
     } else {
-      this.itemOpenApiService.updateItem(appId, env, clusterName, namespaceName, item);
+      itemOpenApiService.updateItem(appId, env, clusterName, namespaceName, item);
     }
+    return ResponseEntity.noContent().build();
   }
 
+  /**
+   * 通过编码的key更新配置项
+   * PUT openapi/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}
+   */
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
-  public void updateItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String key, @RequestBody OpenItemDTO item,
-      @RequestParam(defaultValue = "false") boolean createIfNotExists) {
-    this.updateItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
-        createIfNotExists);
+  @PutMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public ResponseEntity<Void> updateItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+                                     @PathVariable String clusterName, @PathVariable String namespaceName,
+                                     @PathVariable String key, @RequestBody OpenItemDTO item,
+                                     @RequestParam(defaultValue = "false") boolean createIfNotExists) {
+    return this.updateItem(appId, env, clusterName, namespaceName,
+              new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
+              createIfNotExists);
   }
 
+  /**
+   * 删除配置项
+   * DELETE openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}
+   */
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public void deleteItem(@PathVariable String appId, @PathVariable String env,
+  @DeleteMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  public ResponseEntity<Void> deleteItem(@PathVariable String appId, @PathVariable String env,
                          @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator) {
+                         @PathVariable String key, @RequestParam(value = "operator", required = false) String operator) {
 
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
-    }
-
-    ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+    OpenItemDTO toDeleteItem = itemOpenApiService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null) {
       throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
 
-    this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);
+    this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key);
+    return ResponseEntity.noContent().build();
   }
 
+  /**
+   * 通过编码的key删除配置项
+   * DELETE openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}
+   */
   @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
-  public void deleteItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String key, @RequestParam String operator) {
-    this.deleteItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator);
+  @DeleteMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  public ResponseEntity<Void> deleteItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
+                                     @PathVariable String clusterName, @PathVariable String namespaceName,
+                                     @PathVariable String key, @RequestParam(value = "operator", required = false) String operator) {
+    return this.deleteItem(appId, env, clusterName, namespaceName,
+            new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator);
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(@PathVariable String appId, @PathVariable String env,
+  /**
+   * 通过namespace查询item
+   * GET openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items
+   */
+  @GetMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items")
+  public OpenPageDTOOpenItemDTO findItemsByNamespace(@PathVariable String appId, @PathVariable String env,
                                                        @PathVariable String clusterName, @PathVariable String namespaceName,
                                                        @Valid @PositiveOrZero(message = "page should be positive or 0")
-                                                     @RequestParam(defaultValue = "0") int page,
+                                                       @RequestParam(defaultValue = "0") int page,
                                                        @Valid @Positive(message = "size should be positive number")
-                                                     @RequestParam(defaultValue = "50") int size) {
+                                                       @RequestParam(defaultValue = "50") int size) {
     return this.itemOpenApiService.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
   }
 
+  /**
+   * 通过文本批量修改配置项
+   * PUT openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:batchUpdate
+   */
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PutMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:batchUpdate", consumes = {"application/json"})
+  public ResponseEntity<Void> batchUpdateItemsByText(@PathVariable String appId, @PathVariable String env,
+                                @PathVariable String clusterName, @PathVariable String namespaceName,
+                                @RequestBody OpenNamespaceTextModel model) {
+    itemOpenApiService.modifyItemsByText(appId, env, clusterName, namespaceName, model);
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * 获取分支下的配置项
+   * GET openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items
+   */
+  @GetMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items")
+  public ResponseEntity<List<OpenItemDTO>> getBranchItems(@PathVariable String appId, @PathVariable String env,
+                                           @PathVariable String clusterName, @PathVariable String namespaceName,
+                                           @PathVariable String branchName) {
+    List<OpenItemDTO> items = itemOpenApiService.findBranchItems(appId, env, clusterName, namespaceName, branchName);
+    return ResponseEntity.ok(items);
+  }
+
+  /**
+   * 对比命名空间配置差异
+   * POST openapi/v1/namespaces/items:compare
+   */
+  @PostMapping(value = "namespaces/items:compare", consumes = {"application/json"})
+  public ResponseEntity<List<OpenItemDiffs>> compareItems(@RequestBody OpenNamespaceSyncModel model) {
+    RequestPrecondition.checkArguments(checkNamespaceSyncModel(model), "model is invalid");
+    List<OpenItemDiffs> itemDiffs = itemOpenApiService.diff(model);
+
+    for (OpenItemDiffs diff : itemDiffs) {
+      OpenNamespaceIdentifier namespace = diff.getNamespace();
+      if (namespace == null) {
+        continue;
+      }
+
+      if (consumerPermissionValidator
+          .shouldHideConfigToCurrentUser(namespace.getAppId(), namespace.getEnv(),
+              namespace.getClusterName(), namespace.getNamespaceName())) {
+        diff.setDiffs(new OpenItemChangeSets());
+        diff.setExtInfo("You are not this project's administrator, nor you have edit or release permission for the namespace: " + namespace);
+      }
+    }
+
+    return ResponseEntity.ok(itemDiffs);
+  }
+
+  /**
+   * 同步配置项到多个命名空间
+   * POST openapi/v1/apps/{appId}/namespaces/{namespaceName}/items:sync
+   */
+  @PostMapping(value = "/apps/{appId}/namespaces/{namespaceName}/items:sync", consumes = {"application/json"})
+  public ResponseEntity<Void> syncItems(@PathVariable String appId, @PathVariable String namespaceName, @RequestBody OpenNamespaceSyncModel model) {
+    RequestPrecondition.checkArguments(checkNamespaceSyncModel(model) && syncToNamespacesValid(appId, namespaceName, model),
+        "model is invalid");
+    
+    OpenNamespaceIdentifier noPermissionNamespace = null;
+    // 检查用户是否拥有每个命名空间的修改权限
+    boolean hasPermission = true;
+    for (OpenNamespaceIdentifier namespaceIdentifier : model.getSyncToNamespaces()) {
+      // 一旦用户没有其中一个命名空间的修改权限，就中断循环
+      hasPermission = consumerPermissionValidator.hasModifyNamespacePermission(
+          namespaceIdentifier.getAppId(),
+          namespaceIdentifier.getEnv(),
+          namespaceIdentifier.getClusterName(),
+          namespaceIdentifier.getNamespaceName()
+      );
+      if (!hasPermission) {
+        noPermissionNamespace = namespaceIdentifier;
+        break;
+      }
+    }
+    
+    if (hasPermission) {
+      itemOpenApiService.syncItems(model);
+      return ResponseEntity.accepted().build();
+    }
+    
+    throw new AccessDeniedException(String.format("You don't have the permission to modify namespace: %s", noPermissionNamespace));
+  }
+
+  /**
+   * 验证配置文本语法
+   * POST openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:validate
+   */
+
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PostMapping(value = "/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:validate", consumes = {"application/json"})
+  public ResponseEntity<Void> validateItems(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName, @RequestBody OpenNamespaceTextModel model) {
+
+    itemOpenApiService.syntaxCheckText(model);
+
+    return ResponseEntity.ok().build();
+  }
+
+  /**
+   * 撤销配置项更改
+   * POST openapi/v1/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:revert
+   */
+  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PostMapping("/apps/{appId}/env/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items:revert")
+  public ResponseEntity<Void> revertItems(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
+      @PathVariable String namespaceName) {
+    itemOpenApiService.revokeItems(appId, env, clusterName, namespaceName);
+    return ResponseEntity.accepted().build();
+  }
+
+
+  private boolean checkNamespaceSyncModel(OpenNamespaceSyncModel namespaceSyncModel) {
+    if (CollectionUtils.isEmpty(namespaceSyncModel.getSyncToNamespaces()) || CollectionUtils.isEmpty(namespaceSyncModel.getSyncItems())) {
+      return false;
+    }
+    for (OpenNamespaceIdentifier namespaceIdentifier : namespaceSyncModel.getSyncToNamespaces()) {
+      if (checkNamespaceIdentifier(namespaceIdentifier)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean checkNamespaceIdentifier(OpenNamespaceIdentifier namespaceIdentifier) {
+    return StringUtils.isContainEmpty(namespaceIdentifier.getEnv(), namespaceIdentifier.getClusterName(), namespaceIdentifier.getClusterName());
+  }
+
+  public boolean syncToNamespacesValid(String appId, String namespaceName, OpenNamespaceSyncModel namespaceSyncModel) {
+    for (OpenNamespaceIdentifier namespaceIdentifier : namespaceSyncModel.getSyncToNamespaces()) {
+      if (appId.equals(namespaceIdentifier.getAppId()) && namespaceName.equals(
+              namespaceIdentifier.getNamespaceName())) {
+        continue;
+      }
+      return false;
+    }
+    return true;
+  }
 }
