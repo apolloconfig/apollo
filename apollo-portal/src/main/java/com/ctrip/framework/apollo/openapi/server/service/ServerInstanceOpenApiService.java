@@ -21,7 +21,7 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.InstanceService;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("ServerInstanceOpenApiServiceOld")
 public class ServerInstanceOpenApiService implements InstanceOpenApiService {
 
     private final InstanceService instanceService;
