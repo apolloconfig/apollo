@@ -14,16 +14,16 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.server.service;
+package com.ctrip.framework.apollo.openapi.server.service.impl;
 
-import com.ctrip.framework.apollo.openapi.api.OrganizationOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
-@Service("ServerOrganizationOpenApiServiceOld")
+@Service
 public class ServerOrganizationOpenApiService implements OrganizationOpenApiService {
 
     private final PortalConfig portalConfig;
@@ -34,6 +34,6 @@ public class ServerOrganizationOpenApiService implements OrganizationOpenApiServ
 
     @Override
     public List<OpenOrganizationDto> getOrganizations() {
-        return OpenApiBeanUtils.transformFromOrganizations(portalConfig.organizations());
+        return OpenApiModelConverters.fromOrganizations(portalConfig.organizations());
     }
 }

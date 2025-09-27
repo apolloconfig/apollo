@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author wxq
  */
-@Service
+@Service("ServerReleaseOpenApiServiceOld")
 public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   private final ReleaseService releaseService;
 
