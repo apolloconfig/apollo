@@ -349,4 +349,3 @@ public final class OpenApiModelConverters {
   }
   // endregion
 }
-
