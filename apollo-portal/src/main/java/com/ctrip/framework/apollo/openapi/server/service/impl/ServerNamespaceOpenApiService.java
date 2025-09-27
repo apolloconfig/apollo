@@ -14,16 +14,16 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.openapi.server.service;
+package com.ctrip.framework.apollo.openapi.server.service.impl;
 
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
-import com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.openapi.server.service.NamespaceOpenApiService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceCreationEvent;
@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author wxq
  */
-@Service("ServerNamespaceOpenApiServiceOld")
+@Service
 public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
 
   private final AppNamespaceService appNamespaceService;
@@ -64,24 +64,24 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
     if (namespaceBO == null) {
       return null;
     }
-    return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
+    return OpenApiModelConverters.fromNamespaceBO(namespaceBO);
   }
 
   @Override
   public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName, boolean fillItemDetail) {
-    return OpenApiBeanUtils
-        .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
+    return OpenApiModelConverters
+        .fromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
             .valueOf(env), clusterName, fillItemDetail, false));
   }
 
   @Override
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
-    AppNamespace appNamespace = OpenApiBeanUtils.transformToAppNamespace(appNamespaceDTO);
-    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, appNamespaceDTO.isAppendNamespacePrefix());
+    AppNamespace appNamespace = OpenApiModelConverters.toAppNamespace(appNamespaceDTO);
+    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, appNamespaceDTO.getAppendNamespacePrefix());
 
     publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
 
-    return OpenApiBeanUtils.transformToOpenAppNamespaceDTO(createdAppNamespace);
+    return OpenApiModelConverters.fromAppNamespace(createdAppNamespace);
   }
 
   @Override
@@ -91,6 +91,6 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
         .valueOf(env), clusterName, namespaceName);
     NamespaceLockDTO lockDTO = namespaceLockService.getNamespaceLock(appId, Env
         .valueOf(env), clusterName, namespaceName);
-    return OpenApiBeanUtils.transformFromNamespaceLockDTO(namespace.getNamespaceName(), lockDTO);
+    return OpenApiModelConverters.fromNamespaceLockDTO(namespace.getNamespaceName(), lockDTO);
   }
 }
