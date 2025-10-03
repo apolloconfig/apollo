@@ -375,7 +375,6 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
     }
 
-
     public boolean hasAnyPermission(String userId, List<Permission> permissions) {
         List<Permission> userPermissions = permissionRepository.findUserPermissions(userId);
 
@@ -387,6 +386,5 @@ public class DefaultRolePermissionService implements RolePermissionService {
 
         return permissions.stream().anyMatch(userPermissionSet::contains);
     }
-
 
 }

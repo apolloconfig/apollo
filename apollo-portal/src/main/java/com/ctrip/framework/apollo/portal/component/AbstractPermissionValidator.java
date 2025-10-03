@@ -27,74 +27,83 @@ import java.util.List;
 
 public abstract class AbstractPermissionValidator implements PermissionValidator {
 
-    @Override
-    public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        List<Permission> requiredPermissions = Arrays.asList(
-                new Permission(PermissionType.MODIFY_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-                new Permission(PermissionType.MODIFY_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
-                new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,RoleUtils.buildClusterTargetId(appId, env, clusterName))
-        );
-        return hasPermissions(requiredPermissions);
-    }
+  @Override
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    List<Permission> requiredPermissions = Arrays.asList(
+        new Permission(PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+        new Permission(PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+        new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
+            RoleUtils.buildClusterTargetId(appId, env, clusterName))
+    );
+    return hasPermissions(requiredPermissions);
+  }
 
-    @Override
-    public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        List<Permission> requiredPermissions = Arrays.asList(
-                new Permission(PermissionType.RELEASE_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-                new Permission(PermissionType.RELEASE_NAMESPACE,RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
-                new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,RoleUtils.buildClusterTargetId(appId, env, clusterName))
-        );
-        return hasPermissions(requiredPermissions);
-    }
+  @Override
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    List<Permission> requiredPermissions = Arrays.asList(
+        new Permission(PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+        new Permission(PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+        new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
+            RoleUtils.buildClusterTargetId(appId, env, clusterName))
+    );
+    return hasPermissions(requiredPermissions);
+  }
 
-    @Override
-    public boolean hasAssignRolePermission(String appId) {
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.ASSIGN_ROLE, appId)
-        );
-        return hasPermissions(requiredPermissions);
-    }
+  @Override
+  public boolean hasAssignRolePermission(String appId) {
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.ASSIGN_ROLE, appId)
+    );
+    return hasPermissions(requiredPermissions);
+  }
 
-    @Override
-    public boolean hasCreateNamespacePermission(String appId) {
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.CREATE_NAMESPACE, appId)
-        );
-        return hasPermissions(requiredPermissions);
-    }
+  @Override
+  public boolean hasCreateNamespacePermission(String appId) {
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.CREATE_NAMESPACE, appId)
+    );
+    return hasPermissions(requiredPermissions);
+  }
 
-    @Override
-    public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-        return false;
-    }
+  @Override
+  public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+    return false;
+  }
 
-    @Override
-    public boolean hasCreateClusterPermission(String appId) {
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.CREATE_CLUSTER, appId)
-        );
-        return hasPermissions(requiredPermissions);
-    }
+  @Override
+  public boolean hasCreateClusterPermission(String appId) {
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.CREATE_CLUSTER, appId)
+    );
+    return hasPermissions(requiredPermissions);
+  }
 
-    @Override
-    public boolean isSuperAdmin() {
-        return false;
-    }
+  @Override
+  public boolean isSuperAdmin() {
+    return false;
+  }
 
-    @Override
-    public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName, String namespaceName) {
-        return false;
-    }
+  @Override
+  public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    return false;
+  }
 
-    @Override
-    public boolean hasCreateApplicationPermission() {
-        return false;
-    }
+  @Override
+  public boolean hasCreateApplicationPermission() {
+    return false;
+  }
 
-    @Override
-    public boolean hasManageAppMasterPermission(String appId) {
-        return false;
-    }
+  @Override
+  public boolean hasManageAppMasterPermission(String appId) {
+    return false;
+  }
 
-    protected abstract boolean hasPermissions(List<Permission> requiredPerms);
+  protected abstract boolean hasPermissions(List<Permission> requiredPerms);
 }

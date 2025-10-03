@@ -18,24 +18,30 @@ package com.ctrip.framework.apollo.portal.component;
 
 public final class UserIdentityContextHolder {
 
-    private static final ThreadLocal<String> AUTH_TYPE_HOLDER = new ThreadLocal<>();
+  private static final ThreadLocal<String> AUTH_TYPE_HOLDER = new ThreadLocal<>();
 
-    private UserIdentityContextHolder() {
-        // Prevent instantiation
-    }
+  private UserIdentityContextHolder() {
+    // Prevent instantiation
+  }
 
-    /** Write authentication source identifier for current thread */
-    public static void setAuthType(String authType) {
-        AUTH_TYPE_HOLDER.set(authType);
-    }
+  /**
+   * Read authentication source identifier for current thread
+   */
+  public static String getAuthType() {
+    return AUTH_TYPE_HOLDER.get();
+  }
 
-    /** Read authentication source identifier for current thread */
-    public static String getAuthType() {
-        return AUTH_TYPE_HOLDER.get();
-    }
+  /**
+   * Write authentication source identifier for current thread
+   */
+  public static void setAuthType(String authType) {
+    AUTH_TYPE_HOLDER.set(authType);
+  }
 
-    /** Clean up current thread variable to prevent memory leaks */
-    public static void clear() {
-        AUTH_TYPE_HOLDER.remove();
-    }
+  /**
+   * Clean up current thread variable to prevent memory leaks
+   */
+  public static void clear() {
+    AUTH_TYPE_HOLDER.remove();
+  }
 }

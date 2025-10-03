@@ -23,14 +23,12 @@ import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import java.util.List;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-
 @Component("userPermissionValidator")
-public class UserPermissionValidator extends AbstractPermissionValidator implements PermissionValidator {
+public class UserPermissionValidator extends AbstractPermissionValidator implements
+    PermissionValidator {
 
   private final UserInfoHolder userInfoHolder;
   private final RolePermissionService rolePermissionService;
@@ -38,12 +36,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   private final AppNamespaceService appNamespaceService;
   private final SystemRoleManagerService systemRoleManagerService;
 
-  public UserPermissionValidator(
-          final UserInfoHolder userInfoHolder,
-          final RolePermissionService rolePermissionService,
-          final PortalConfig portalConfig,
-          final AppNamespaceService appNamespaceService,
-          final SystemRoleManagerService systemRoleManagerService) {
+  public UserPermissionValidator(final UserInfoHolder userInfoHolder,
+      final RolePermissionService rolePermissionService, final PortalConfig portalConfig,
+      final AppNamespaceService appNamespaceService,
+      final SystemRoleManagerService systemRoleManagerService) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.portalConfig = portalConfig;
@@ -85,7 +81,8 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
     }
 
     // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
+    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName,
+        namespaceName);
   }
 
   @Override
@@ -100,10 +97,9 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
     // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
-    return isSuperAdmin() ||
-        (hasAssignRolePermission(appId) &&
-         systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
-        );
+    return isSuperAdmin() || (hasAssignRolePermission(appId)
+        && systemRoleManagerService.hasManageAppMasterPermission(
+        userInfoHolder.getUser().getUserId(), appId));
   }
 
   @Override

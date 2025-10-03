@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.auth;
 
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID;
+
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.service.ConsumerRolePermissionService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
@@ -24,11 +25,12 @@ import com.ctrip.framework.apollo.portal.component.AbstractPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
-import org.springframework.stereotype.Component;
 import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component("consumerPermissionValidator")
-public class ConsumerPermissionValidator extends AbstractPermissionValidator implements PermissionValidator {
+public class ConsumerPermissionValidator extends AbstractPermissionValidator implements
+    PermissionValidator {
 
   private final ConsumerRolePermissionService permissionService;
   private final ConsumerAuthUtil consumerAuthUtil;
@@ -59,7 +61,8 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
   @Override
   public boolean hasCreateApplicationPermission() {
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
-    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION,
+        SYSTEM_PERMISSION_TARGET_ID);
   }
 
   @Override
@@ -69,7 +72,7 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
 
   @Override
   protected boolean hasPermissions(List<Permission> requiredPerms) {
-    if (requiredPerms == null || requiredPerms.isEmpty()){
+    if (requiredPerms == null || requiredPerms.isEmpty()) {
       return false;
     }
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();

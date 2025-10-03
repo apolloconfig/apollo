@@ -16,6 +16,10 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
@@ -26,6 +30,8 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.collect.Lists;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,210 +39,194 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
-
 // Unit tests for UserPermissionValidator
 @ExtendWith(MockitoExtension.class)
 class UserPermissionValidatorTest {
 
-    @Mock
-    private UserInfoHolder userInfoHolder;
-    @Mock
-    private RolePermissionService rolePermissionService;
-    @Mock
-    private PortalConfig portalConfig;
-    @Mock
-    private AppNamespaceService appNamespaceService;
-    @Mock
-    private SystemRoleManagerService systemRoleManagerService;
+  private static final String USER_ID = "test-user";
+  private static final String APP_ID = "test-app";
+  private static final String ENV = "DEV";
+  private static final String CLUSTER = "default";
+  private static final String NAMESPACE = "application";
+  @Mock
+  private UserInfoHolder userInfoHolder;
+  @Mock
+  private RolePermissionService rolePermissionService;
+  @Mock
+  private PortalConfig portalConfig;
+  @Mock
+  private AppNamespaceService appNamespaceService;
+  @Mock
+  private SystemRoleManagerService systemRoleManagerService;
+  @InjectMocks
+  private UserPermissionValidator validator;
 
-    @InjectMocks
-    private UserPermissionValidator validator;
+  @BeforeEach
+  void setUp() {
+    // Create a UserInfo instance
+    UserInfo stubUser = new UserInfo();
+    stubUser.setUserId(USER_ID);
+    stubUser.setName("test");
+    lenient().when(userInfoHolder.getUser()).thenReturn(stubUser);
+  }
 
-    private static final String USER_ID = "test-user";
-    private static final String APP_ID = "test-app";
-    private static final String ENV = "DEV";
-    private static final String CLUSTER = "default";
-    private static final String NAMESPACE = "application";
+  // 1. hasCreateAppNamespacePermission tests
 
-    @BeforeEach
-    void setUp() {
-        // Create a UserInfo instance
-        UserInfo stubUser = new UserInfo();
-        stubUser.setUserId(USER_ID);
-        stubUser.setName("test");
-        lenient().when(userInfoHolder.getUser()).thenReturn(stubUser);
-    }
+  @Test
+  void hasCreateAppNamespacePermission_publicNamespace() {
+    AppNamespace publicNs = new AppNamespace();
+    publicNs.setPublic(true);
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
+    assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
+  }
 
-    // 1. hasCreateAppNamespacePermission tests
+  @Test
+  void hasCreateAppNamespacePermission_privateNamespace_adminCanCreate() {
+    AppNamespace privateNs = new AppNamespace();
+    privateNs.setPublic(false);
 
-    @Test
-    void hasCreateAppNamespacePermission_publicNamespace() {
-        AppNamespace publicNs = new AppNamespace();
-        publicNs.setPublic(true);
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
-        );
-        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
-        assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
-    }
+    when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(true);
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
 
-    @Test
-    void hasCreateAppNamespacePermission_privateNamespace_adminCanCreate() {
-        AppNamespace privateNs = new AppNamespace();
-        privateNs.setPublic(false);
+    assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
+  }
 
-        when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(true);
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.CREATE_NAMESPACE, APP_ID)
-        );
-        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
+  @Test
+  void hasCreateAppNamespacePermission_privateNamespace_adminCannotCreate_andUserIsSuperAdmin() {
+    AppNamespace privateNs = new AppNamespace();
+    privateNs.setPublic(false);
 
-        assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
-    }
+    when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(false);
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
 
-    @Test
-    void hasCreateAppNamespacePermission_privateNamespace_adminCannotCreate_andUserIsSuperAdmin() {
-        AppNamespace privateNs = new AppNamespace();
-        privateNs.setPublic(false);
+    assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
+  }
 
-        when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(false);
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
+  @Test
+  void hasCreateAppNamespacePermission_privateNamespace_adminCannotCreate_andUserIsNotSuperAdmin() {
+    AppNamespace privateNs = new AppNamespace();
+    privateNs.setPublic(false);
 
-        assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
-    }
+    when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(false);
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
 
-    @Test
-    void hasCreateAppNamespacePermission_privateNamespace_adminCannotCreate_andUserIsNotSuperAdmin() {
-        AppNamespace privateNs = new AppNamespace();
-        privateNs.setPublic(false);
+    assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isFalse();
+  }
 
-        when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(false);
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+  // 2. isSuperAdmin tests
 
-        assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isFalse();
-    }
+  @Test
+  void isSuperAdmin_true() {
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
+    assertThat(validator.isSuperAdmin()).isTrue();
+  }
 
-    // 2. isSuperAdmin tests
+  @Test
+  void isSuperAdmin_false() {
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+    assertThat(validator.isSuperAdmin()).isFalse();
+  }
 
-    @Test
-    void isSuperAdmin_true() {
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
-        assertThat(validator.isSuperAdmin()).isTrue();
-    }
+  // 3. shouldHideConfigToCurrentUser tests
 
-    @Test
-    void isSuperAdmin_false() {
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-        assertThat(validator.isSuperAdmin()).isFalse();
-    }
+  @Test
+  void shouldHideConfigToCurrentUser_envNotMemberOnly() {
+    when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
 
-    // 3. shouldHideConfigToCurrentUser tests
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
+  }
 
-    @Test
-    void shouldHideConfigToCurrentUser_envNotMemberOnly() {
-        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
+  @Test
+  void shouldHideConfigToCurrentUser_publicNamespace() {
+    when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
 
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
-    }
+    AppNamespace publicNs = new AppNamespace();
+    publicNs.setPublic(true);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(publicNs);
 
-    @Test
-    void shouldHideConfigToCurrentUser_publicNamespace() {
-        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
+  }
 
-        AppNamespace publicNs = new AppNamespace();
-        publicNs.setPublic(true);
-        when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(publicNs);
+  @Test
+  void shouldHideConfigToCurrentUser_userIsAppAdmin() {
+    when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();
+  }
 
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
-    }
+  @Test
+  void shouldHideConfigToCurrentUser_userHasNoPermission() {
+    when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
+  }
 
-    @Test
-    void shouldHideConfigToCurrentUser_userIsAppAdmin() {
-        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
-        when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();
-    }
+  // 4. hasCreateApplicationPermission tests
 
-    @Test
-    void shouldHideConfigToCurrentUser_userHasNoPermission() {
-        when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
-        assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
-    }
+  @Test
+  void hasCreateApplicationPermission_true() {
+    when(systemRoleManagerService.hasCreateApplicationPermission(USER_ID)).thenReturn(true);
+    assertThat(validator.hasCreateApplicationPermission()).isTrue();
+  }
 
-    // 4. hasCreateApplicationPermission tests
+  @Test
+  void hasCreateApplicationPermission_false() {
+    when(systemRoleManagerService.hasCreateApplicationPermission(USER_ID)).thenReturn(false);
+    assertThat(validator.hasCreateApplicationPermission()).isFalse();
+  }
 
-    @Test
-    void hasCreateApplicationPermission_true() {
-        when(systemRoleManagerService.hasCreateApplicationPermission(USER_ID)).thenReturn(true);
-        assertThat(validator.hasCreateApplicationPermission()).isTrue();
-    }
+  // 5. hasManageAppMasterPermission tests
 
-    @Test
-    void hasCreateApplicationPermission_false() {
-        when(systemRoleManagerService.hasCreateApplicationPermission(USER_ID)).thenReturn(false);
-        assertThat(validator.hasCreateApplicationPermission()).isFalse();
-    }
+  @Test
+  void hasManageAppMasterPermission_superAdmin() {
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
+    assertThat(validator.hasManageAppMasterPermission(APP_ID)).isTrue();
+  }
 
-    // 5. hasManageAppMasterPermission tests
+  @Test
+  void hasManageAppMasterPermission_normalUser_withAssignRole_andManageAppMaster() {
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
 
-    @Test
-    void hasManageAppMasterPermission_superAdmin() {
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(true);
-        assertThat(validator.hasManageAppMasterPermission(APP_ID)).isTrue();
-    }
+    when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID)).thenReturn(true);
 
-    @Test
-    void hasManageAppMasterPermission_normalUser_withAssignRole_andManageAppMaster() {
-        when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
-        );
-        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
+    assertThat(validator.hasManageAppMasterPermission(APP_ID)).isTrue();
+  }
 
-        when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID))
-                .thenReturn(true);
+  @Test
+  void hasManageAppMasterPermission_normalUser_withoutAssignRole() {
+    List<Permission> requiredPermissions = Collections.singletonList(
+        new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
 
-        assertThat(validator.hasManageAppMasterPermission(APP_ID)).isTrue();
-    }
-
-    @Test
-    void hasManageAppMasterPermission_normalUser_withoutAssignRole() {
-        List<Permission> requiredPermissions = Collections.singletonList(
-                new Permission(PermissionType.ASSIGN_ROLE, APP_ID)
-        );
-        when(rolePermissionService.hasAnyPermission(USER_ID,requiredPermissions)).thenReturn( true);
-
-        assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
-    }
+    assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
+  }
 
 
-    @Test
-    void hasPermissions_match() {
-        List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
-        when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(true);
+  @Test
+  void hasPermissions_match() {
+    List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(true);
 
-        assertThat(validator.hasPermissions(requiredPerms)).isTrue();
-    }
+    assertThat(validator.hasPermissions(requiredPerms)).isTrue();
+  }
 
-    @Test
-    void hasPermissions_notMatch() {
-        List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
-        when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(false);
+  @Test
+  void hasPermissions_notMatch() {
+    List<Permission> requiredPerms = Lists.newArrayList(new Permission(), new Permission());
+    when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(false);
 
-        assertThat(validator.hasPermissions(requiredPerms)).isFalse();
-    }
+    assertThat(validator.hasPermissions(requiredPerms)).isFalse();
+  }
 
-    @Test
-    void hasPermissions_emptyList() {
-        assertThat(validator.hasPermissions(Collections.emptyList())).isFalse();
-    }
+  @Test
+  void hasPermissions_emptyList() {
+    assertThat(validator.hasPermissions(Collections.emptyList())).isFalse();
+  }
 
 }

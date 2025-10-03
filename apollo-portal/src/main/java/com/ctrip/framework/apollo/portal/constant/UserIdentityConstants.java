@@ -14,14 +14,14 @@
  * limitations under the License.
  *
  */
-
-
 package com.ctrip.framework.apollo.portal.constant;
 
 public final class UserIdentityConstants {
-    public static final String USER    = "USER";
-    public static final String CONSUMER= "CONSUMER";
-    public static final String ANONYMOUS = "ANONYMOUS";
 
-    private UserIdentityConstants() {}
+  public static final String USER = "USER";
+  public static final String CONSUMER = "CONSUMER";
+  public static final String ANONYMOUS = "ANONYMOUS";
+
+  private UserIdentityConstants() {
+  }
 }
