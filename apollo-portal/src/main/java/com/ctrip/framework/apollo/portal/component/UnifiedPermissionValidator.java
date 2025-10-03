@@ -20,77 +20,86 @@ package com.ctrip.framework.apollo.portal.component;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
-
 import org.springframework.stereotype.Component;
 
 @Component("unifiedPermissionValidator")
-public class UnifiedPermissionValidator implements PermissionValidator{
-    private final UserPermissionValidator userPermissionValidator;
-    private final ConsumerPermissionValidator consumerPermissionValidator;
+public class UnifiedPermissionValidator implements PermissionValidator {
 
-    public UnifiedPermissionValidator(UserPermissionValidator userPermissionValidator, ConsumerPermissionValidator consumerPermissionValidator) {
-        this.userPermissionValidator = userPermissionValidator;
-        this.consumerPermissionValidator = consumerPermissionValidator;
-    }
+  private final UserPermissionValidator userPermissionValidator;
+  private final ConsumerPermissionValidator consumerPermissionValidator;
 
-    private PermissionValidator getDelegate() {
-        String type = UserIdentityContextHolder.getAuthType();
-        if (UserIdentityConstants.USER.equals(type)) {
-            return userPermissionValidator;
-        }
-        if (UserIdentityConstants.CONSUMER.equals(type)) {
-            return consumerPermissionValidator;
-        }
-        throw new IllegalStateException("Unknown authentication type");
-    }
-    @Override
-    public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        return getDelegate().hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
-    }
+  public UnifiedPermissionValidator(UserPermissionValidator userPermissionValidator,
+      ConsumerPermissionValidator consumerPermissionValidator) {
+    this.userPermissionValidator = userPermissionValidator;
+    this.consumerPermissionValidator = consumerPermissionValidator;
+  }
 
-    @Override
-    public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-        return getDelegate().hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
+  private PermissionValidator getDelegate() {
+    String type = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(type)) {
+      return userPermissionValidator;
     }
-
-    @Override
-    public boolean hasAssignRolePermission(String appId) {
-        return getDelegate().hasAssignRolePermission(appId);
+    if (UserIdentityConstants.CONSUMER.equals(type)) {
+      return consumerPermissionValidator;
     }
+    throw new IllegalStateException("Unknown authentication type");
+  }
 
-    @Override
-    public boolean hasCreateNamespacePermission(String appId) {
-        return getDelegate().hasCreateNamespacePermission(appId);
-    }
+  @Override
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    return getDelegate().hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
+  }
 
-    @Override
-    public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-        return getDelegate().hasCreateAppNamespacePermission(appId, appNamespace);
-    }
+  @Override
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    return getDelegate().hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
+  }
 
-    @Override
-    public boolean hasCreateClusterPermission(String appId) {
-        return getDelegate().hasCreateClusterPermission(appId);
-    }
+  @Override
+  public boolean hasAssignRolePermission(String appId) {
+    return getDelegate().hasAssignRolePermission(appId);
+  }
 
-    @Override
-    public boolean isSuperAdmin() {
-        return getDelegate().isSuperAdmin();
-    }
+  @Override
+  public boolean hasCreateNamespacePermission(String appId) {
+    return getDelegate().hasCreateNamespacePermission(appId);
+  }
 
-    @Override
-    public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName, String namespaceName) {
-        return getDelegate().shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName);
-    }
+  @Override
+  public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+    return getDelegate().hasCreateAppNamespacePermission(appId, appNamespace);
+  }
 
-    @Override
-    public boolean hasCreateApplicationPermission() {
-        return getDelegate().hasCreateApplicationPermission();
-    }
+  @Override
+  public boolean hasCreateClusterPermission(String appId) {
+    return getDelegate().hasCreateClusterPermission(appId);
+  }
 
+  @Override
+  public boolean isSuperAdmin() {
+    return getDelegate().isSuperAdmin();
+  }
 
-    @Override
-    public boolean hasManageAppMasterPermission(String appId) {
-        return getDelegate().hasManageAppMasterPermission(appId);
-    }
+  @Override
+  public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    return getDelegate().shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName);
+  }
+
+  @Override
+  public boolean hasCreateApplicationPermission() {
+    return getDelegate().hasCreateApplicationPermission();
+  }
+
+  @Override
+  public boolean hasDeleteNamespacePermission(String appId) {
+    return getDelegate().hasDeleteNamespacePermission(appId);
+  }
+
+  @Override
+  public boolean hasManageAppMasterPermission(String appId) {
+    return getDelegate().hasManageAppMasterPermission(appId);
+  }
 }

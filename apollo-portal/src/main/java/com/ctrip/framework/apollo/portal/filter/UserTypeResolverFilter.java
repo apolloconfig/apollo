@@ -18,43 +18,43 @@ package com.ctrip.framework.apollo.portal.filter;
 
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import java.io.IOException;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 public class UserTypeResolverFilter extends OncePerRequestFilter {
-    static final String CONSUMER_ID = "ApolloConsumerId";
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
 
-        String authType = resolve(request);
-        UserIdentityContextHolder.setAuthType(authType);
-        try {
-            filterChain.doFilter(request, response);
-        } finally {
-            UserIdentityContextHolder.clear();
-        }
+  static final String CONSUMER_ID = "ApolloConsumerId";
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+      FilterChain filterChain) throws ServletException, IOException {
+
+    String authType = resolve(request);
+    UserIdentityContextHolder.setAuthType(authType);
+    try {
+      filterChain.doFilter(request, response);
+    } finally {
+      UserIdentityContextHolder.clear();
     }
-    private String resolve(HttpServletRequest req) {
-        if (req.getHeader(CONSUMER_ID) != null) {
-            return UserIdentityConstants.CONSUMER;
-        }
+  }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            return UserIdentityConstants.USER;
-        }
-
-        return UserIdentityConstants.ANONYMOUS;
+  private String resolve(HttpServletRequest req) {
+    if (req.getHeader(CONSUMER_ID) != null) {
+      return UserIdentityConstants.CONSUMER;
     }
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+      return UserIdentityConstants.USER;
+    }
+
+    return UserIdentityConstants.ANONYMOUS;
+  }
 }

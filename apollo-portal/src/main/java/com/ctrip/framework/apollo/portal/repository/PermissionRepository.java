@@ -17,19 +17,18 @@
 package com.ctrip.framework.apollo.portal.repository;
 
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
-
+import java.util.Collection;
+import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
 public interface PermissionRepository extends PagingAndSortingRepository<Permission, Long> {
+
   /**
    * find permission by permission type and targetId
    */
@@ -39,7 +38,7 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
    * find permissions by permission types and targetId
    */
   List<Permission> findByPermissionTypeInAndTargetId(Collection<String> permissionTypes,
-                                                     String targetId);
+      String targetId);
 
   @Query("SELECT p.id from Permission p where p.targetId like ?1 or p.targetId like CONCAT(?1, '+%')")
   List<Long> findPermissionIdsByAppId(String appId);
@@ -57,29 +56,18 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   Integer batchDelete(List<Long> permissionIds, String operator);
 
   @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
-  + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
+      + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")
   List<Long> findPermissionIdsByAppIdAndEnvAndCluster(String appId, String env, String clusterName);
 
-
-  @Query("SELECT DISTINCT p " +
-          "FROM UserRole ur " +
-          "JOIN RolePermission rp ON ur.roleId = rp.roleId " +
-          "JOIN Permission p ON rp.permissionId = p.id " +
-          "WHERE ur.userId = :userId " +
-          "AND ur.isDeleted = false " +
-          "AND rp.isDeleted = false " +
-          "AND p.isDeleted = false")
+  @Query("SELECT DISTINCT p " + "FROM UserRole ur "
+      + "JOIN RolePermission rp ON ur.roleId = rp.roleId "
+      + "JOIN Permission p ON rp.permissionId = p.id " + "WHERE ur.userId = :userId "
+      + "AND ur.isDeleted = false " + "AND rp.isDeleted = false " + "AND p.isDeleted = false")
   List<Permission> findUserPermissions(@Param("userId") String userId);
 
-  @Query("SELECT DISTINCT p " +
-          "FROM ConsumerRole cr " +
-          "JOIN RolePermission rp ON cr.roleId = rp.roleId " +
-          "JOIN Permission p ON rp.permissionId = p.id " +
-          "WHERE cr.consumerId = :consumerId " +
-          "AND cr.isDeleted = false " +
-          "AND rp.isDeleted = false " +
-          "AND p.isDeleted = false")
+  @Query("SELECT DISTINCT p " + "FROM ConsumerRole cr "
+      + "JOIN RolePermission rp ON cr.roleId = rp.roleId "
+      + "JOIN Permission p ON rp.permissionId = p.id " + "WHERE cr.consumerId = :consumerId "
+      + "AND cr.isDeleted = false " + "AND rp.isDeleted = false " + "AND p.isDeleted = false")
   List<Permission> findConsumerPermissions(@Param("consumerId") long consumerId);
 }
-
-

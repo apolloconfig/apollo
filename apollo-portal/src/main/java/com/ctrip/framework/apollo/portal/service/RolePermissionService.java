@@ -93,5 +93,8 @@ public interface RolePermissionService {
    */
   void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
 
+  /**
+   * Check if user has any of the given permissions
+   */
   boolean hasAnyPermission(String userId, List<Permission> permissions);
 }

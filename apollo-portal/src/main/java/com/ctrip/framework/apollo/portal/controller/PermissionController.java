@@ -67,15 +67,14 @@ public class PermissionController {
           final UserService userService,
           final RoleInitializationService roleInitializationService,
           final SystemRoleManagerService systemRoleManagerService,
-          final  UnifiedPermissionValidator unifiedPermissionValidator, UserPermissionValidator userPermissionValidator) {
+          final UnifiedPermissionValidator unifiedPermissionValidator, UserPermissionValidator userPermissionValidator) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.userService = userService;
     this.roleInitializationService = roleInitializationService;
     this.systemRoleManagerService = systemRoleManagerService;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
-
-      this.userPermissionValidator = userPermissionValidator;
+    this.userPermissionValidator = userPermissionValidator;
   }
 
   @PostMapping("/apps/{appId}/initPermission")

@@ -39,6 +39,7 @@ public class AuthFilterConfiguration {
 
     return openApiFilter;
   }
+
   @Bean
   public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
     FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
