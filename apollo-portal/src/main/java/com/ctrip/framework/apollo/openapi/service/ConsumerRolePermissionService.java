@@ -64,7 +64,7 @@ public class ConsumerRolePermissionService {
     }
 
     Set<Long> roleIds =
-            consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toSet());
+        consumerRoles.stream().map(ConsumerRole::getRoleId).collect(Collectors.toSet());
     List<RolePermission> rolePermissions = rolePermissionRepository.findByRoleIdIn(roleIds);
     if (CollectionUtils.isEmpty(rolePermissions)) {
       return false;

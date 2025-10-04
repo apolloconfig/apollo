@@ -35,9 +35,9 @@ public class ReleaseHistoryController {
   private final ReleaseHistoryService releaseHistoryService;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService, UnifiedPermissionValidator unifiedPermissionValidator) {
+  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService, final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.releaseHistoryService = releaseHistoryService;
-      this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/histories")

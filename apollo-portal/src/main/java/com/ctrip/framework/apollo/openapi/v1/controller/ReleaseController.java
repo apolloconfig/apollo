@@ -59,17 +59,18 @@ public class ReleaseController {
   private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public ReleaseController(
-          final ReleaseService releaseService,
-          final UserService userService,
-          final NamespaceBranchService namespaceBranchService,
-          ReleaseOpenApiService releaseOpenApiService,
-          ApplicationEventPublisher publisher, UnifiedPermissionValidator unifiedPermissionValidator) {
+      final ReleaseService releaseService,
+      final UserService userService,
+      final NamespaceBranchService namespaceBranchService,
+      final UnifiedPermissionValidator unifiedPermissionValidator,
+      ReleaseOpenApiService releaseOpenApiService,
+      ApplicationEventPublisher publisher) {
     this.releaseService = releaseService;
     this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
     this.releaseOpenApiService = releaseOpenApiService;
     this.publisher = publisher;
-    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
