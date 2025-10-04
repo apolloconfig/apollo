@@ -80,14 +80,14 @@ public class NamespaceController {
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
 
   public NamespaceController(
-          final ApplicationEventPublisher publisher,
-          final UserInfoHolder userInfoHolder,
-          final NamespaceService namespaceService,
-          final AppNamespaceService appNamespaceService,
-          final RoleInitializationService roleInitializationService,
-          final PortalConfig portalConfig,
-          final UnifiedPermissionValidator unifiedPermissionValidator,
-          final AdminServiceAPI.NamespaceAPI namespaceAPI) {
+      final ApplicationEventPublisher publisher,
+      final UserInfoHolder userInfoHolder,
+      final NamespaceService namespaceService,
+      final AppNamespaceService appNamespaceService,
+      final RoleInitializationService roleInitializationService,
+      final PortalConfig portalConfig,
+      final UnifiedPermissionValidator unifiedPermissionValidator,
+      final AdminServiceAPI.NamespaceAPI namespaceAPI) {
     this.publisher = publisher;
     this.userInfoHolder = userInfoHolder;
     this.namespaceService = namespaceService;

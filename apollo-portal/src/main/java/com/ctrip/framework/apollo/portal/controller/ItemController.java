@@ -64,12 +64,14 @@ public class ItemController {
   private final NamespaceService namespaceService;
   private final UserInfoHolder userInfoHolder;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
+
   public ItemController(final ItemService configService, final UserInfoHolder userInfoHolder,
-                         final NamespaceService namespaceService, UnifiedPermissionValidator unifiedPermissionValidator) {
+      final NamespaceService namespaceService,
+      final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.configService = configService;
     this.userInfoHolder = userInfoHolder;
-    this.namespaceService = namespaceService;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.namespaceService = namespaceService;
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
