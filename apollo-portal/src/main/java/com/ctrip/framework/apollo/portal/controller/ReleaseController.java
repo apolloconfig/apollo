@@ -57,11 +57,11 @@ public class ReleaseController {
   private final UserInfoHolder userInfoHolder;
 
   public ReleaseController(
-          final ReleaseService releaseService,
-          final ApplicationEventPublisher publisher,
-          final PortalConfig portalConfig,
-          final UnifiedPermissionValidator unifiedPermissionValidator,
-          final UserInfoHolder userInfoHolder) {
+      final ReleaseService releaseService,
+      final ApplicationEventPublisher publisher,
+      final PortalConfig portalConfig,
+      final UnifiedPermissionValidator unifiedPermissionValidator,
+      final UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
     this.publisher = publisher;
     this.portalConfig = portalConfig;

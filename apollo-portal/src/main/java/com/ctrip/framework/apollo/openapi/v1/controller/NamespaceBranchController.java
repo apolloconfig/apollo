@@ -53,10 +53,10 @@ public class NamespaceBranchController {
     private final UserService userService;
 
     public NamespaceBranchController(
-            final UnifiedPermissionValidator unifiedPermissionValidator,
-            final ReleaseService releaseService,
-            final NamespaceBranchService namespaceBranchService,
-            final UserService userService) {
+        final UnifiedPermissionValidator unifiedPermissionValidator,
+        final ReleaseService releaseService,
+        final NamespaceBranchService namespaceBranchService,
+        final UserService userService) {
         this.unifiedPermissionValidator = unifiedPermissionValidator;
         this.releaseService = releaseService;
         this.namespaceBranchService = namespaceBranchService;

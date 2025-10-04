@@ -16,14 +16,15 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Jason Song(song_s@ctrip.com)

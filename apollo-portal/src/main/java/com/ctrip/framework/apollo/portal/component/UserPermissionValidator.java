@@ -36,8 +36,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   private final AppNamespaceService appNamespaceService;
   private final SystemRoleManagerService systemRoleManagerService;
 
-  public UserPermissionValidator(final UserInfoHolder userInfoHolder,
-      final RolePermissionService rolePermissionService, final PortalConfig portalConfig,
+  public UserPermissionValidator(
+      final UserInfoHolder userInfoHolder,
+      final RolePermissionService rolePermissionService,
+      final PortalConfig portalConfig,
       final AppNamespaceService appNamespaceService,
       final SystemRoleManagerService systemRoleManagerService) {
     this.userInfoHolder = userInfoHolder;
@@ -81,8 +83,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
     }
 
     // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName,
-        namespaceName);
+    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override
@@ -97,9 +98,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
     // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
-    return isSuperAdmin() || (hasAssignRolePermission(appId)
-        && systemRoleManagerService.hasManageAppMasterPermission(
-        userInfoHolder.getUser().getUserId(), appId));
+    return isSuperAdmin() ||
+        (hasAssignRolePermission(appId) &&
+            systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
+        );
   }
 
   @Override
