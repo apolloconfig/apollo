@@ -40,9 +40,9 @@ public class ConsumerRolePermissionService {
   private final RolePermissionRepository rolePermissionRepository;
 
   public ConsumerRolePermissionService(
-          final PermissionRepository permissionRepository,
-          final ConsumerRoleRepository consumerRoleRepository,
-          final RolePermissionRepository rolePermissionRepository) {
+      final PermissionRepository permissionRepository,
+      final ConsumerRoleRepository consumerRoleRepository,
+      final RolePermissionRepository rolePermissionRepository) {
     this.permissionRepository = permissionRepository;
     this.consumerRoleRepository = consumerRoleRepository;
     this.rolePermissionRepository = rolePermissionRepository;
@@ -53,7 +53,7 @@ public class ConsumerRolePermissionService {
    */
   public boolean consumerHasPermission(long consumerId, String permissionType, String targetId) {
     Permission permission =
-            permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
+        permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);
     if (permission == null) {
       return false;
     }

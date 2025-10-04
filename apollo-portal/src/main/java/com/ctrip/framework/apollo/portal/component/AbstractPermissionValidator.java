@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
