@@ -68,7 +68,7 @@ public class PermissionController {
       final RoleInitializationService roleInitializationService,
       final SystemRoleManagerService systemRoleManagerService,
       final UnifiedPermissionValidator unifiedPermissionValidator,
-      UserPermissionValidator userPermissionValidator) {
+      final UserPermissionValidator userPermissionValidator) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.userService = userService;
