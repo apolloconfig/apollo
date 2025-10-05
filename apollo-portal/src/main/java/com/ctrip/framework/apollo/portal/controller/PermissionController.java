@@ -59,7 +59,6 @@ public class PermissionController {
   private final RoleInitializationService roleInitializationService;
   private final SystemRoleManagerService systemRoleManagerService;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
-  private final UserPermissionValidator userPermissionValidator;
 
   public PermissionController(
       final UserInfoHolder userInfoHolder,
@@ -75,7 +74,6 @@ public class PermissionController {
     this.roleInitializationService = roleInitializationService;
     this.systemRoleManagerService = systemRoleManagerService;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
-    this.userPermissionValidator = userPermissionValidator;
   }
 
   @PostMapping("/apps/{appId}/initPermission")
@@ -419,7 +417,7 @@ public class PermissionController {
   @GetMapping("/system/role/createApplication/{userId}")
   public JsonObject hasCreateApplicationPermission(@PathVariable String userId) {
     JsonObject rs = new JsonObject();
-    rs.addProperty("hasCreateApplicationPermission", userPermissionValidator.hasCreateApplicationPermission(userId));
+    rs.addProperty("hasCreateApplicationPermission", unifiedPermissionValidator.hasCreateApplicationPermission());
     return rs;
   }
 
