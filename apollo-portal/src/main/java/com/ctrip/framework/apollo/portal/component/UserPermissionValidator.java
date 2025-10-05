@@ -37,11 +37,11 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   private final SystemRoleManagerService systemRoleManagerService;
 
   public UserPermissionValidator(
-      final UserInfoHolder userInfoHolder,
-      final RolePermissionService rolePermissionService,
-      final PortalConfig portalConfig,
-      final AppNamespaceService appNamespaceService,
-      final SystemRoleManagerService systemRoleManagerService) {
+          final UserInfoHolder userInfoHolder,
+          final RolePermissionService rolePermissionService,
+          final PortalConfig portalConfig,
+          final AppNamespaceService appNamespaceService,
+          final SystemRoleManagerService systemRoleManagerService) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.portalConfig = portalConfig;
@@ -95,7 +95,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
     return systemRoleManagerService.hasCreateApplicationPermission(userId);
   }
 
-@Override
+  @Override
   public boolean hasManageAppMasterPermission(String appId) {
     // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
     return isSuperAdmin() ||
