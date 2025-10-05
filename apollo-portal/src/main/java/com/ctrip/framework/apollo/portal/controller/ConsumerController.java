@@ -61,7 +61,7 @@ public class ConsumerController {
   }
 
   @Transactional
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/consumers")
   public ConsumerInfo create(
       @RequestBody ConsumerCreateRequestVO requestVO,
@@ -102,19 +102,19 @@ public class ConsumerController {
     return consumerService.getConsumerInfoByAppId(requestVO.getAppId());
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping(value = "/consumer-tokens/by-appId")
   public ConsumerToken getConsumerTokenByAppId(@RequestParam String appId) {
     return consumerService.getConsumerTokenByAppId(appId);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping(value = "/consumer/info/by-appId")
   public ConsumerInfo getConsumerInfoByAppId(@RequestParam String appId) {
     return consumerService.getConsumerInfoByAppId(appId);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/consumers/{token}/assign-role")
   public List<ConsumerRole> assignNamespaceRoleToConsumer(
       @PathVariable String token,
@@ -163,13 +163,13 @@ public class ConsumerController {
   }
 
   @GetMapping("/consumers")
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   public List<ConsumerInfo> getConsumerList(Pageable page) {
     return consumerService.findConsumerInfoList(page);
   }
 
   @DeleteMapping(value = "/consumers/by-appId")
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   public void deleteConsumers(@RequestParam String appId) {
     consumerService.deleteConsumer(appId);
   }
