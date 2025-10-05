@@ -88,11 +88,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
 
   @Override
   public boolean hasCreateApplicationPermission() {
-    return hasCreateApplicationPermission(userInfoHolder.getUser().getUserId());
-  }
-
-  public boolean hasCreateApplicationPermission(String userId) {
-    return systemRoleManagerService.hasCreateApplicationPermission(userId);
+    return systemRoleManagerService.hasCreateApplicationPermission(userInfoHolder.getUser().getUserId());
   }
 
   @Override
