@@ -339,7 +339,6 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     assertNull(roleRepository.findTopByRoleName(releaseRoleName));
   }
 
-
   private Role assembleRole(String roleName) {
     Role role = new Role();
     role.setRoleName(roleName);
