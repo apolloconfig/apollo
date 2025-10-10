@@ -27,8 +27,6 @@ public class UserIdentityContextHolderTest {
   @BeforeEach
   public void setUp() {
     // Clear ThreadLocal before each test
-    UserIdentityContextHolder.setAuthType(null);
-    // Clear any existing values before each test
     UserIdentityContextHolder.clear();
   }
 

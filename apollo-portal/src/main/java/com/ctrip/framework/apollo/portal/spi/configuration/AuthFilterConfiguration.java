@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AuthFilterConfiguration {
 
+  private static final int OPEN_API_AUTH_ORDER = -99;
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
       ConsumerAuthUtil consumerAuthUtil,
@@ -36,6 +37,7 @@ public class AuthFilterConfiguration {
 
     openApiFilter.setFilter(new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil));
     openApiFilter.addUrlPatterns("/openapi/*");
+    openApiFilter.setOrder(OPEN_API_AUTH_ORDER);
 
     return openApiFilter;
   }
@@ -45,6 +47,7 @@ public class AuthFilterConfiguration {
     FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
     authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
     authTypeResolverFilter.addUrlPatterns("/*");
+    authTypeResolverFilter.setOrder(OPEN_API_AUTH_ORDER + 1);
     return authTypeResolverFilter;
   }
 
