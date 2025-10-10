@@ -21,9 +21,9 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.dto.NamespaceGrayDelReleaseDTO;
 import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
@@ -54,26 +54,26 @@ public class ReleaseController {
   private final ReleaseService releaseService;
   private final UserService userService;
   private final NamespaceBranchService namespaceBranchService;
-  private final ConsumerPermissionValidator consumerPermissionValidator;
   private final ReleaseOpenApiService releaseOpenApiService;
   private final ApplicationEventPublisher publisher;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public ReleaseController(
       final ReleaseService releaseService,
       final UserService userService,
       final NamespaceBranchService namespaceBranchService,
-      final ConsumerPermissionValidator consumerPermissionValidator,
+      final UnifiedPermissionValidator unifiedPermissionValidator,
       ReleaseOpenApiService releaseOpenApiService,
       ApplicationEventPublisher publisher) {
     this.releaseService = releaseService;
     this.userService = userService;
     this.namespaceBranchService = namespaceBranchService;
-    this.consumerPermissionValidator = consumerPermissionValidator;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
     this.releaseOpenApiService = releaseOpenApiService;
     this.publisher = publisher;
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public OpenReleaseDTO createRelease(@PathVariable String appId, @PathVariable String env,
                                       @PathVariable String clusterName,
@@ -109,7 +109,7 @@ public class ReleaseController {
     return this.releaseOpenApiService.getLatestActiveRelease(appId, env, clusterName, namespaceName);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/merge")
   public OpenReleaseDTO merge(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -136,7 +136,7 @@ public class ReleaseController {
     return OpenApiBeanUtils.transformFromReleaseDTO(mergedRelease);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
   public OpenReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -166,7 +166,7 @@ public class ReleaseController {
     return OpenApiBeanUtils.transformFromReleaseDTO(releaseDTO);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/gray-del-releases")
   public OpenReleaseDTO createGrayDelRelease(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
@@ -208,7 +208,7 @@ public class ReleaseController {
       throw new BadRequestException("release not found");
     }
 
-    if (!consumerPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
+    if (!unifiedPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Forbidden operation. you don't have release permission");
     }
 

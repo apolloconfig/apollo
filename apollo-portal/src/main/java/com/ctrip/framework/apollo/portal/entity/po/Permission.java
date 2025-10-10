@@ -17,13 +17,12 @@
 package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -33,11 +32,20 @@ import javax.persistence.Table;
 @SQLDelete(sql = "Update `Permission` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
 public class Permission extends BaseEntity {
+
   @Column(name = "`PermissionType`", nullable = false)
   private String permissionType;
 
   @Column(name = "`TargetId`", nullable = false)
   private String targetId;
+
+  public Permission() {
+  }
+
+  public Permission(String permissionType, String targetId) {
+    this.permissionType = permissionType;
+    this.targetId = targetId;
+  }
 
   public String getPermissionType() {
     return permissionType;
@@ -54,4 +62,23 @@ public class Permission extends BaseEntity {
   public void setTargetId(String targetId) {
     this.targetId = targetId;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Permission)) {
+      return false;
+    }
+    Permission that = (Permission) o;
+    return Objects.equals(permissionType, that.permissionType) && Objects.equals(targetId,
+        that.targetId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(permissionType, targetId);
+  }
+
 }

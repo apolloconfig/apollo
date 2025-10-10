@@ -375,5 +375,16 @@ public class DefaultRolePermissionService implements RolePermissionService {
         }
     }
 
+    public boolean hasAnyPermission(String userId, List<Permission> permissions) {
+        List<Permission> userPermissions = permissionRepository.findUserPermissions(userId);
+
+        if (CollectionUtils.isEmpty(userPermissions)) {
+            return false;
+        }
+
+        Set<Permission> userPermissionSet = Sets.newHashSet(userPermissions);
+
+        return permissions.stream().anyMatch(userPermissionSet::contains);
+    }
 
 }

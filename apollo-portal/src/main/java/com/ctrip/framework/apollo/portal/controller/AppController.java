@@ -123,7 +123,7 @@ public class AppController {
     return appService.findByAppIds(appIds, page);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.hasCreateApplicationPermission()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @PostMapping
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
   public App create(@Valid @RequestBody AppModel appModel) {
@@ -132,7 +132,7 @@ public class AppController {
     return appService.createAppAndAddRolePermission(app, appModel.getAdmins());
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isAppAdmin(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @PutMapping("/{appId:.+}")
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
   public void update(@PathVariable String appId, @Valid @RequestBody AppModel appModel) {
@@ -185,7 +185,7 @@ public class AppController {
   }
 
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @DeleteMapping("/{appId:.+}")
   @ApolloAuditLog(type = OpType.RPC, name = "App.delete")
   public void deleteApp(@PathVariable String appId) {

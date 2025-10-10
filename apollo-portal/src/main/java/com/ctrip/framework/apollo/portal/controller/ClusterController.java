@@ -44,7 +44,7 @@ public class ClusterController {
     this.userInfoHolder = userInfoHolder;
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.hasCreateClusterPermission(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateClusterPermission(#appId)")
   @PostMapping(value = "apps/{appId}/envs/{env}/clusters")
   @ApolloAuditLog(type = OpType.CREATE, name = "Cluster.create")
   public ClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
@@ -56,7 +56,7 @@ public class ClusterController {
     return clusterService.createCluster(Env.valueOf(env), cluster);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @DeleteMapping(value = "apps/{appId}/envs/{env}/clusters/{clusterName:.+}")
   @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,

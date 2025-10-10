@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
 import com.ctrip.framework.apollo.openapi.filter.ConsumerAuthenticationFilter;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.filter.UserTypeResolverFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,6 +27,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AuthFilterConfiguration {
 
+  private static final int OPEN_API_AUTH_ORDER = -99;
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
       ConsumerAuthUtil consumerAuthUtil,
@@ -35,8 +37,18 @@ public class AuthFilterConfiguration {
 
     openApiFilter.setFilter(new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil));
     openApiFilter.addUrlPatterns("/openapi/*");
+    openApiFilter.setOrder(OPEN_API_AUTH_ORDER);
 
     return openApiFilter;
+  }
+
+  @Bean
+  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
+    FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
+    authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
+    authTypeResolverFilter.addUrlPatterns("/*");
+    authTypeResolverFilter.setOrder(OPEN_API_AUTH_ORDER + 1);
+    return authTypeResolverFilter;
   }
 
 }
