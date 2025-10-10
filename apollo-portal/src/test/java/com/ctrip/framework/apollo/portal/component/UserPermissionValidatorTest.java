@@ -199,10 +199,12 @@ class UserPermissionValidatorTest {
   }
 
   @Test
-  void hasManageAppMasterPermission_normalUser_withoutAssignRole() {
+  void hasManageAppMasterPermission_normalUser_withoutManageAppMaster() {
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
     List<Permission> requiredPermissions = Collections.singletonList(
-        new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
+            new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
+    when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID)).thenReturn(false);
 
     assertThat(validator.hasManageAppMasterPermission(APP_ID)).isFalse();
   }
