@@ -25,7 +25,9 @@ import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
@@ -68,8 +70,8 @@ public class AppControllerParamBindLowLevelTest {
   @Autowired private MockMvc mockMvc;
 
   // Keep the same mocks as your working test to satisfy context wiring
-  @MockBean(name = "consumerPermissionValidator")
-  private ConsumerPermissionValidator consumerPermissionValidator;
+  @MockBean(name = "unifiedPermissionValidator")
+  private UnifiedPermissionValidator unifiedPermissionValidator;
   @MockBean private PortalSettings portalSettings;
   @MockBean private AppService appService;
   @MockBean private ClusterService clusterService;
@@ -93,12 +95,14 @@ public class AppControllerParamBindLowLevelTest {
 
   @Before
   public void setUp() {
-    when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
-    when(consumerPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
 
     UserInfo user = new UserInfo();
     user.setUserId("tester");
     when(userService.findByUserId(anyString())).thenReturn(user);
+
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
   }
   @Before
   public void setAuthentication() {
