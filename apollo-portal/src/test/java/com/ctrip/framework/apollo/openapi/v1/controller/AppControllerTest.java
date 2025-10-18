@@ -43,6 +43,7 @@ import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -153,6 +154,11 @@ public class AppControllerTest {
     when(userService.findByUserId(Mockito.anyString())).thenReturn(userInfo);
 
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+  }
+
+  @After
+  public void tearDown() {
+    UserIdentityContextHolder.clear();
   }
 
   @Test

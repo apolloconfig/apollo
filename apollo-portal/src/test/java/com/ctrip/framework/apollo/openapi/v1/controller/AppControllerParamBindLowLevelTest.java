@@ -116,6 +116,7 @@ public class AppControllerParamBindLowLevelTest {
   @After
   public void clearAuthentication() {
     SecurityContextHolder.clearContext();
+    UserIdentityContextHolder.clear();
   }
   @Test
   public void createAppInEnv_shouldBind_env_query_body() throws Exception {
