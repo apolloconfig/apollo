@@ -27,7 +27,9 @@ import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
@@ -89,9 +91,8 @@ public class AppControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-
-  @MockBean(name = "consumerPermissionValidator")
-  private ConsumerPermissionValidator consumerPermissionValidator;
+  @MockBean(name = "unifiedPermissionValidator")
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @MockBean
   private PortalSettings portalSettings;
@@ -142,14 +143,16 @@ public class AppControllerTest {
 
   @Before
   public void setUpSecurityMocks() {
-    when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
-    when(consumerPermissionValidator.hasCreateNamespacePermission(Mockito.any()))
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateNamespacePermission(Mockito.any()))
         .thenReturn(true);
-    when(consumerPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
     when(userService.findByUserId(Mockito.anyString())).thenReturn(userInfo);
+
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
   }
 
   @Test
@@ -332,7 +335,7 @@ public class AppControllerTest {
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     Mockito.doNothing().when(appOpenApiService).updateApp(Mockito.any(OpenAppDTO.class));
-    when(consumerPermissionValidator.isAppAdmin(appId)).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
     mockMvc.perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + appId)
                     .param("operator", operator)
@@ -355,7 +358,7 @@ public class AppControllerTest {
     userInfo.setUserId("test");
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
-    when(consumerPermissionValidator.isAppAdmin(pathAppId)).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(pathAppId)).thenReturn(true);
 
     mockMvc.perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + pathAppId)
                     .param("operator", operator)
@@ -376,7 +379,7 @@ public class AppControllerTest {
     SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     when(appOpenApiService.deleteApp(appId)).thenReturn(new OpenAppDTO());
-    when(consumerPermissionValidator.isAppAdmin(appId)).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
     mockMvc.perform(delete("/openapi/v1/apps/" + appId)
                     .param("operator", operator))
