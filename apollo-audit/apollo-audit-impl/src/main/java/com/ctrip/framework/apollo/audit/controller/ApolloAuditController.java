@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,10 +70,12 @@ public class ApolloAuditController {
   @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
   public List<ApolloAuditLogDTO> findAllAuditLogsByOpNameAndTime(@RequestParam String opName,
       @RequestParam int page, @RequestParam int size,
-      @RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date startDate,
-      @RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date endDate) {
-    List<ApolloAuditLogDTO> logDTOList = api.queryLogsByOpName(opName, startDate, endDate, page,
-        size);
+      @RequestParam(value = "startDate", required = false)
+      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date startDate,
+      @RequestParam(value = "endDate", required = false)
+      @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.S") Date endDate) {
+    List<ApolloAuditLogDTO> logDTOList =
+        api.queryLogsByOpName(opName, startDate, endDate, page, size);
     return logDTOList;
   }
 
@@ -82,16 +84,16 @@ public class ApolloAuditController {
   public List<ApolloAuditLogDataInfluenceDTO> findDataInfluencesByField(
       @RequestParam String entityName, @RequestParam String entityId,
       @RequestParam String fieldName, int page, int size) {
-    List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList = api.queryDataInfluencesByField(
-        entityName, entityId, fieldName, page, size);
+    List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList =
+        api.queryDataInfluencesByField(entityName, entityId, fieldName, page, size);
     return dataInfluenceDTOList;
   }
 
   @GetMapping("/logs/by-name-or-type-or-operator")
   @PreAuthorize(value = "@apolloAuditLogQueryApiPreAuthorizer.hasQueryPermission()")
-  public List<ApolloAuditLogDTO> findAuditLogsByNameOrTypeOrOperator(@RequestParam String query, int page, int size) {
+  public List<ApolloAuditLogDTO> findAuditLogsByNameOrTypeOrOperator(@RequestParam String query,
+      int page, int size) {
     List<ApolloAuditLogDTO> logDTOList = api.searchLogByNameOrTypeOrOperator(query, page, size);
     return logDTOList;
   }
-
 }

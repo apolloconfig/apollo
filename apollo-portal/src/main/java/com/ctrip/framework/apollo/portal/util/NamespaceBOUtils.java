@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,32 +16,27 @@
  */
 package com.ctrip.framework.apollo.portal.util;
 
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.controller.ConfigsExportController;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-
-import org.springframework.util.CollectionUtils;
-
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 public class NamespaceBOUtils {
 
   private static final Gson GSON = new Gson();
 
   /**
-   * namespace must not be {@link ConfigFileFormat#Properties}. the content of namespace in item's value which item's
-   * key is {@link ConfigConsts#CONFIG_FILE_CONTENT_KEY}.
+   * namespace must not be {@link ConfigFileFormat#Properties}. the content of namespace in item's
+   * value which item's key is {@link ConfigConsts#CONFIG_FILE_CONTENT_KEY}.
    *
    * @param namespaceBO namespace
    * @return content of non-properties's namespace
@@ -89,5 +84,4 @@ public class NamespaceBOUtils {
 
     return GSON.toJson(itemDTOS);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,8 @@ class ConsumerControllerTest {
     consumerController.create(requestVO, null);
 
     Mockito.verify(consumerService, Mockito.times(1)).createConsumer(Mockito.any());
-    Mockito.verify(consumerService, Mockito.times(1))
-        .generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any());
+    Mockito.verify(consumerService, Mockito.times(1)).generateAndSaveConsumerToken(Mockito.any(),
+        Mockito.any(), Mockito.any());
     Mockito.verify(consumerService, Mockito.times(0))
         .assignCreateApplicationRoleToConsumer(Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());
@@ -84,14 +84,15 @@ class ConsumerControllerTest {
     {
       ConsumerToken ConsumerToken = new ConsumerToken();
       ConsumerToken.setToken(token);
-      Mockito.when(consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
+      Mockito.when(
+          consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
           .thenReturn(ConsumerToken);
     }
     consumerController.create(requestVO, null);
 
     Mockito.verify(consumerService, Mockito.times(1)).createConsumer(Mockito.any());
-    Mockito.verify(consumerService, Mockito.times(1))
-        .generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any());
+    Mockito.verify(consumerService, Mockito.times(1)).generateAndSaveConsumerToken(Mockito.any(),
+        Mockito.any(), Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1))
         .assignCreateApplicationRoleToConsumer(Mockito.eq(token));
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());

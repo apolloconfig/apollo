@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,7 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.google.common.base.MoreObjects;
-
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,9 +26,7 @@ import javax.persistence.Id;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Entity
 @Table(name = "`ReleaseMessage`")
 public class ReleaseMessage {
@@ -52,8 +48,7 @@ public class ReleaseMessage {
     }
   }
 
-  public ReleaseMessage() {
-  }
+  public ReleaseMessage() {}
 
   public ReleaseMessage(String message) {
     this.message = message;
@@ -77,11 +72,7 @@ public class ReleaseMessage {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .omitNullValues()
-        .add("id", id)
-        .add("message", message)
-        .add("dataChangeLastModifiedTime", dataChangeLastModifiedTime)
-        .toString();
+    return MoreObjects.toStringHelper(this).omitNullValues().add("id", id).add("message", message)
+        .add("dataChangeLastModifiedTime", dataChangeLastModifiedTime).toString();
   }
 }

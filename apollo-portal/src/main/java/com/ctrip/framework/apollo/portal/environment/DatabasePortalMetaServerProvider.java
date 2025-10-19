@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,12 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * load meta server addressed from database.
- * PortalDB.ServerConfig
- */
+/** load meta server addressed from database. PortalDB.ServerConfig */
 class DatabasePortalMetaServerProvider implements PortalMetaServerProvider {
-  private static final Logger logger = LoggerFactory.getLogger(DatabasePortalMetaServerProvider.class);
+  private static final Logger logger =
+      LoggerFactory.getLogger(DatabasePortalMetaServerProvider.class);
 
-  /**
-   * read config from database
-   */
+  /** read config from database */
   private final PortalConfig portalConfig;
 
   private volatile Map<Env, String> addresses;
@@ -56,5 +52,4 @@ class DatabasePortalMetaServerProvider implements PortalMetaServerProvider {
     addresses = Env.transformToEnvMap(map);
     logger.info("Loaded meta server addresses from portal config: {}", addresses);
   }
-
 }

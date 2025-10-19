@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,22 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.openapi.api.OrganizationOpenApiService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
 import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController("openapiOrganizationController")
 @RequestMapping("/openapi/v1")
 public class OrganizationController {
-    private final OrganizationOpenApiService organizationOpenApiService;
+  private final OrganizationOpenApiService organizationOpenApiService;
 
-    public OrganizationController(OrganizationOpenApiService organizationOpenApiService) {
-        this.organizationOpenApiService = organizationOpenApiService;
-    }
+  public OrganizationController(OrganizationOpenApiService organizationOpenApiService) {
+    this.organizationOpenApiService = organizationOpenApiService;
+  }
 
-    @RequestMapping("/organizations")
-    public List<OpenOrganizationDto> getOrganization() {
-        return organizationOpenApiService.getOrganizations();
-    }
+  @RequestMapping("/organizations")
+  public List<OpenOrganizationDto> getOrganization() {
+    return organizationOpenApiService.getOrganizations();
+  }
 }

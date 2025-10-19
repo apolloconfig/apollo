@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,12 @@ package com.ctrip.framework.apollo.openapi.util;
 
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
-import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Service
 public class ConsumerAuthUtil {
   static final String CONSUMER_ID = "ApolloConsumerId";
@@ -60,7 +57,8 @@ public class ConsumerAuthUtil {
 
   // retrieve from RequestContextHolder
   public long retrieveConsumerIdFromCtx() {
-    ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+    ServletRequestAttributes attributes =
+        (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
     if (attributes == null) {
       throw new IllegalStateException("No Request!");
     }

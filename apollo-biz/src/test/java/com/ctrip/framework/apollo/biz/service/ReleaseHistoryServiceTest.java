@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,10 +54,7 @@ import org.springframework.util.ReflectionUtils;
  * @since 2023/3/24
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = BizTestConfiguration.class,
-    webEnvironment = WebEnvironment.RANDOM_PORT
-)
+@SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ReleaseHistoryServiceTest {
 
@@ -90,12 +87,15 @@ public class ReleaseHistoryServiceTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/release-history-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/release-history-test.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testCleanReleaseHistory() {
-    ReleaseHistoryService service = (ReleaseHistoryService) AopProxyUtils.getSingletonTarget(releaseHistoryService);
+    ReleaseHistoryService service =
+        (ReleaseHistoryService) AopProxyUtils.getSingletonTarget(releaseHistoryService);
     assert service != null;
-    Method method = ReflectionUtils.findMethod(service.getClass(), "cleanReleaseHistory", ReleaseHistory.class);
+    Method method =
+        ReflectionUtils.findMethod(service.getClass(), "cleanReleaseHistory", ReleaseHistory.class);
     assert method != null;
     ReflectionUtils.makeAccessible(method);
 
@@ -112,8 +112,8 @@ public class ReleaseHistoryServiceTest {
     Assert.assertEquals(2, releaseRepository.count());
 
     when(bizConfig.releaseHistoryRetentionSize()).thenReturn(2);
-    when(bizConfig.releaseHistoryRetentionSizeOverride()).thenReturn(
-        ImmutableMap.of("kl-app+default+application+default", 1));
+    when(bizConfig.releaseHistoryRetentionSizeOverride())
+        .thenReturn(ImmutableMap.of("kl-app+default+application+default", 1));
     ReflectionUtils.invokeMethod(method, service, mockReleaseHistory);
     Assert.assertEquals(1, releaseHistoryRepository.count());
     Assert.assertEquals(1, releaseRepository.count());
@@ -126,21 +126,25 @@ public class ReleaseHistoryServiceTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/release-history-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/release-history-test.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testCleanReleaseHistoryTransactionalRollBack() {
-    ReleaseHistoryService service = (ReleaseHistoryService) AopProxyUtils.getSingletonTarget(releaseHistoryService);
+    ReleaseHistoryService service =
+        (ReleaseHistoryService) AopProxyUtils.getSingletonTarget(releaseHistoryService);
     assert service != null;
-    Method method = ReflectionUtils.findMethod(service.getClass(), "cleanReleaseHistory", ReleaseHistory.class);
+    Method method =
+        ReflectionUtils.findMethod(service.getClass(), "cleanReleaseHistory", ReleaseHistory.class);
     assert method != null;
     ReflectionUtils.makeAccessible(method);
 
     when(bizConfig.releaseHistoryRetentionSize()).thenReturn(1);
     when(bizConfig.releaseHistoryRetentionSizeOverride()).thenReturn(Maps.newHashMap());
     ReflectionTestUtils.setField(releaseHistoryService, "releaseRepository", mockReleaseRepository);
-    doThrow(new JDBCConnectionException("error", new SQLException("sql"))).when(mockReleaseRepository).deleteAllById(any());
-    Assert.assertThrows(JDBCConnectionException.class, () ->
-        ReflectionUtils.invokeMethod(method, service, mockReleaseHistory));
+    doThrow(new JDBCConnectionException("error", new SQLException("sql")))
+        .when(mockReleaseRepository).deleteAllById(any());
+    Assert.assertThrows(JDBCConnectionException.class,
+        () -> ReflectionUtils.invokeMethod(method, service, mockReleaseHistory));
 
     Assert.assertEquals(6, releaseHistoryRepository.count());
 
@@ -151,5 +155,4 @@ public class ReleaseHistoryServiceTest {
     Assert.assertEquals(1, releaseHistoryRepository.count());
     Assert.assertEquals(1, releaseRepository.count());
   }
-
 }

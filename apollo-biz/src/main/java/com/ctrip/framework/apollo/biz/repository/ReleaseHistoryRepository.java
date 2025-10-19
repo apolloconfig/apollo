@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,25 +25,27 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public interface ReleaseHistoryRepository extends PagingAndSortingRepository<ReleaseHistory, Long> {
-  Page<ReleaseHistory> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId, String
-      clusterName, String namespaceName, Pageable pageable);
+  Page<ReleaseHistory> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId,
+      String clusterName, String namespaceName, Pageable pageable);
 
-  Page<ReleaseHistory> findByReleaseIdAndOperationOrderByIdDesc(long releaseId, int operation, Pageable pageable);
+  Page<ReleaseHistory> findByReleaseIdAndOperationOrderByIdDesc(long releaseId, int operation,
+      Pageable pageable);
 
-  Page<ReleaseHistory> findByPreviousReleaseIdAndOperationOrderByIdDesc(long previousReleaseId, int operation, Pageable pageable);
+  Page<ReleaseHistory> findByPreviousReleaseIdAndOperationOrderByIdDesc(long previousReleaseId,
+      int operation, Pageable pageable);
 
-  Page<ReleaseHistory> findByReleaseIdAndOperationInOrderByIdDesc(long releaseId, Set<Integer> operations, Pageable pageable);
+  Page<ReleaseHistory> findByReleaseIdAndOperationInOrderByIdDesc(long releaseId,
+      Set<Integer> operations, Pageable pageable);
 
   @Modifying
   @Query("update ReleaseHistory set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?4 where AppId=?1 and ClusterName=?2 and NamespaceName = ?3 and IsDeleted = false")
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
 
-  Page<ReleaseHistory> findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(String appId, String clusterName, String namespaceName, String branchName, Pageable pageable);
+  Page<ReleaseHistory> findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+      String appId, String clusterName, String namespaceName, String branchName, Pageable pageable);
 
-  List<ReleaseHistory> findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(String appId, String clusterName, String namespaceName, String branchName, long maxId);
-
+  List<ReleaseHistory> findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
+      String appId, String clusterName, String namespaceName, String branchName, long maxId);
 }

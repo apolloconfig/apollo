@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,7 @@ package com.ctrip.framework.apollo.audit.dto;
 
 import java.util.List;
 
-/**
- * A combine of a log and its data influences
- */
+/** A combine of a log and its data influences */
 public class ApolloAuditLogDetailsDTO {
 
   private ApolloAuditLogDTO logDTO;
@@ -32,8 +30,7 @@ public class ApolloAuditLogDetailsDTO {
     this.dataInfluenceDTOList = dataInfluenceDTOList;
   }
 
-  public ApolloAuditLogDetailsDTO() {
-  }
+  public ApolloAuditLogDetailsDTO() {}
 
   public ApolloAuditLogDTO getLogDTO() {
     return logDTO;
@@ -47,8 +44,7 @@ public class ApolloAuditLogDetailsDTO {
     return dataInfluenceDTOList;
   }
 
-  public void setDataInfluenceDTOList(
-      List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList) {
+  public void setDataInfluenceDTOList(List<ApolloAuditLogDataInfluenceDTO> dataInfluenceDTOList) {
     this.dataInfluenceDTOList = dataInfluenceDTOList;
   }
 }

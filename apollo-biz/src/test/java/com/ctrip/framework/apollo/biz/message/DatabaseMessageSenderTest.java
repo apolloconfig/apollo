@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.biz.message;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.biz.AbstractUnitTest;
 import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
@@ -24,13 +27,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
-public class DatabaseMessageSenderTest extends AbstractUnitTest{
+/** @author Jason Song(song_s@ctrip.com) */
+public class DatabaseMessageSenderTest extends AbstractUnitTest {
   private DatabaseMessageSender messageSender;
   @Mock
   private ReleaseMessageRepository releaseMessageRepository;
@@ -69,7 +67,8 @@ public class DatabaseMessageSenderTest extends AbstractUnitTest{
   @Test(expected = RuntimeException.class)
   public void testSendMessageFailed() throws Exception {
     String someMessage = "some-message";
-    when(releaseMessageRepository.save(any(ReleaseMessage.class))).thenThrow(new RuntimeException());
+    when(releaseMessageRepository.save(any(ReleaseMessage.class)))
+        .thenThrow(new RuntimeException());
 
     messageSender.sendMessage(someMessage, Topics.APOLLO_RELEASE_TOPIC);
   }

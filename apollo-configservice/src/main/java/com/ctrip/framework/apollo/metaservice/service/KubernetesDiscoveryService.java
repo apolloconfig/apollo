@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,20 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
- * This is a simple implementation that skips any service discovery and just return what is configured
+ * This is a simple implementation that skips any service discovery and just return what is
+ * configured
  *
  * <ul>
- *   <li>getServiceInstances("apollo-configservice") returns ${apollo.config-service.url}</li>
- *   <li>getServiceInstances("apollo-adminservice") returns ${apollo.admin-service.url}</li>
+ * <li>getServiceInstances("apollo-configservice") returns ${apollo.config-service.url}
+ * <li>getServiceInstances("apollo-adminservice") returns ${apollo.admin-service.url}
  * </ul>
  */
 @Service
 @Profile({"kubernetes", "custom-defined-discovery"})
 public class KubernetesDiscoveryService implements DiscoveryService {
   private static final Splitter COMMA_SPLITTER = Splitter.on(",").omitEmptyStrings().trimResults();
-  private static final Map<String, String> SERVICE_ID_TO_CONFIG_NAME = ImmutableMap
-      .of(ServiceNameConsts.APOLLO_CONFIGSERVICE, "apollo.config-service.url",
+  private static final Map<String, String> SERVICE_ID_TO_CONFIG_NAME =
+      ImmutableMap.of(ServiceNameConsts.APOLLO_CONFIGSERVICE, "apollo.config-service.url",
           ServiceNameConsts.APOLLO_ADMINSERVICE, "apollo.admin-service.url");
 
   private final BizConfig bizConfig;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,18 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 
-/**
- * @author vdisk <vdisk@foxmail.com>
- */
-public class OidcAuthenticationSuccessEventListener implements
-    ApplicationListener<AuthenticationSuccessEvent> {
+/** @author vdisk <vdisk@foxmail.com> */
+public class OidcAuthenticationSuccessEventListener
+    implements ApplicationListener<AuthenticationSuccessEvent> {
 
-  private static final Logger log = LoggerFactory
-      .getLogger(OidcAuthenticationSuccessEventListener.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(OidcAuthenticationSuccessEventListener.class);
 
-  private static final Logger oidcLog = LoggerFactory.getLogger(
-      OidcAuthenticationSuccessEventListener.class.getName() + ".oidc");
+  private static final Logger oidcLog =
+      LoggerFactory.getLogger(OidcAuthenticationSuccessEventListener.class.getName() + ".oidc");
 
-  private static final Logger jwtLog = LoggerFactory.getLogger(
-      OidcAuthenticationSuccessEventListener.class.getName() + ".jwt");
+  private static final Logger jwtLog =
+      LoggerFactory.getLogger(OidcAuthenticationSuccessEventListener.class.getName() + ".jwt");
 
   private final OidcLocalUserService oidcLocalUserService;
 
@@ -50,8 +48,8 @@ public class OidcAuthenticationSuccessEventListener implements
 
   private final ConcurrentMap<String, String> userIdCache = new ConcurrentHashMap<>();
 
-  public OidcAuthenticationSuccessEventListener(
-      OidcLocalUserService oidcLocalUserService, OidcExtendProperties oidcExtendProperties) {
+  public OidcAuthenticationSuccessEventListener(OidcLocalUserService oidcLocalUserService,
+      OidcExtendProperties oidcExtendProperties) {
     this.oidcLocalUserService = oidcLocalUserService;
     this.oidcExtendProperties = oidcExtendProperties;
   }
@@ -72,8 +70,8 @@ public class OidcAuthenticationSuccessEventListener implements
 
   private void oidcUserLogin(OidcUser oidcUser) {
     String subject = oidcUser.getSubject();
-    String userDisplayName = OidcUserInfoUtil.getOidcUserDisplayName(oidcUser,
-        this.oidcExtendProperties);
+    String userDisplayName =
+        OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties);
     String email = oidcUser.getEmail();
 
     this.logOidc(oidcUser, subject, userDisplayName, email);
@@ -89,8 +87,7 @@ public class OidcAuthenticationSuccessEventListener implements
     this.oidcLocalUserService.createLocalUser(newUserInfo);
   }
 
-  private void logOidc(OidcUser oidcUser, String subject, String userDisplayName,
-      String email) {
+  private void logOidc(OidcUser oidcUser, String subject, String userDisplayName, String email) {
     oidcLog.debug("oidc authentication success, sub=[{}] userDisplayName=[{}] email=[{}]", subject,
         userDisplayName, email);
     if (oidcLog.isTraceEnabled()) {
@@ -115,8 +112,7 @@ public class OidcAuthenticationSuccessEventListener implements
 
   private void jwtLogin(Jwt jwt) {
     String subject = jwt.getSubject();
-    String userDisplayName = OidcUserInfoUtil.getJwtUserDisplayName(jwt,
-        this.oidcExtendProperties);
+    String userDisplayName = OidcUserInfoUtil.getJwtUserDisplayName(jwt, this.oidcExtendProperties);
 
     this.logJwt(jwt, subject, userDisplayName);
 

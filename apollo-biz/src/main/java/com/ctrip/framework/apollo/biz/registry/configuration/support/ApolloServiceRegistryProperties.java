@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,7 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
 
   public static final String PREFIX = "apollo.service.registry";
 
-  /**
-   * register self to registry or not
-   */
+  /** register self to registry or not */
   private boolean enabled;
 
   /**
@@ -51,21 +49,15 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
    */
   private String serviceName;
 
-  /**
-   * @see ServiceInstance#getUri()
-   */
+  /** @see ServiceInstance#getUri() */
   private URI uri;
 
-  /**
-   * @see ServiceInstance#getCluster()
-   */
+  /** @see ServiceInstance#getCluster() */
   private String cluster;
 
   private Map<String, String> metadata = new HashMap<>(8);
 
-  /**
-   * heartbeat to registry in second.
-   */
+  /** heartbeat to registry in second. */
   private long heartbeatIntervalInSecond = 10;
 
   @Autowired
@@ -77,9 +69,7 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
   @Autowired
   private ServletContext servletContext;
 
-  /**
-   * if user doesn't config, then resolve them on the runtime.
-   */
+  /** if user doesn't config, then resolve them on the runtime. */
   @PostConstruct
   public void postConstruct() {
     if (this.serviceName == null) {
@@ -116,6 +106,7 @@ public class ApolloServiceRegistryProperties implements ServiceInstance {
 
   /**
    * custom the uri
+   *
    * @see ServiceInstance#getUri()
    */
   public void setUri(String uri) {

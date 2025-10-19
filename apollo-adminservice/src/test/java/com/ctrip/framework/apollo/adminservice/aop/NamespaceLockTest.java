@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
  */
 package com.ctrip.framework.apollo.adminservice.aop;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
@@ -25,19 +30,12 @@ import com.ctrip.framework.apollo.biz.service.NamespaceLockService;
 import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class NamespaceLockTest {
@@ -83,7 +81,6 @@ public class NamespaceLockTest {
     verify(namespaceService).findOne(APP, CLUSTER, NAMESPACE);
     verify(namespaceLockService).findLock(anyLong());
     verify(namespaceLockService).tryLock(any());
-
   }
 
   @Test(expected = BadRequestException.class)
@@ -115,7 +112,7 @@ public class NamespaceLockTest {
   }
 
   @Test
-  public void acquireLockWithNamespaceIdSwitchOn(){
+  public void acquireLockWithNamespaceIdSwitchOn() {
 
     when(bizConfig.isNamespaceLockSwitchOff()).thenReturn(false);
     when(namespaceService.findOne(NAMESPACE_ID)).thenReturn(mockNamespace());
@@ -130,7 +127,7 @@ public class NamespaceLockTest {
   }
 
   @Test(expected = ServiceException.class)
-  public void testDuplicateLock(){
+  public void testDuplicateLock() {
 
     when(bizConfig.isNamespaceLockSwitchOff()).thenReturn(false);
     when(namespaceService.findOne(NAMESPACE_ID)).thenReturn(mockNamespace());
@@ -143,7 +140,6 @@ public class NamespaceLockTest {
     verify(namespaceService).findOne(NAMESPACE_ID);
     verify(namespaceLockService, times(2)).findLock(NAMESPACE_ID);
     verify(namespaceLockService).tryLock(any());
-
   }
 
   private Namespace mockNamespace() {
@@ -161,6 +157,4 @@ public class NamespaceLockTest {
     lock.setDataChangeCreatedBy(locedUser);
     return lock;
   }
-
-
 }

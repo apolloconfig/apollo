@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,14 +35,6 @@ import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
@@ -51,6 +43,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class NamespaceService {
@@ -71,19 +70,13 @@ public class NamespaceService {
   private final MessageSender messageSender;
   private final BizConfig bizConfig;
 
-  public NamespaceService(
-      final ReleaseHistoryService releaseHistoryService,
-      final NamespaceRepository namespaceRepository,
-      final AuditService auditService,
-      final @Lazy AppNamespaceService appNamespaceService,
-      final MessageSender messageSender,
-      final @Lazy ItemService itemService,
-      final CommitService commitService,
-      final @Lazy ReleaseService releaseService,
-      final @Lazy ClusterService clusterService,
+  public NamespaceService(final ReleaseHistoryService releaseHistoryService,
+      final NamespaceRepository namespaceRepository, final AuditService auditService,
+      final @Lazy AppNamespaceService appNamespaceService, final MessageSender messageSender,
+      final @Lazy ItemService itemService, final CommitService commitService,
+      final @Lazy ReleaseService releaseService, final @Lazy ClusterService clusterService,
       final @Lazy NamespaceBranchService namespaceBranchService,
-      final NamespaceLockService namespaceLockService,
-      final InstanceService instanceService,
+      final NamespaceLockService namespaceLockService, final InstanceService instanceService,
       final BizConfig bizConfig) {
     this.releaseHistoryService = releaseHistoryService;
     this.namespaceRepository = namespaceRepository;
@@ -100,19 +93,16 @@ public class NamespaceService {
     this.bizConfig = bizConfig;
   }
 
-
   public Namespace findOne(Long namespaceId) {
     return namespaceRepository.findById(namespaceId).orElse(null);
   }
 
   public Namespace findOne(String appId, String clusterName, String namespaceName) {
     return namespaceRepository.findByAppIdAndClusterNameAndNamespaceName(appId, clusterName,
-                                                                         namespaceName);
+        namespaceName);
   }
 
-  /**
-   * the returned content's size is not fixed. so please carefully used.
-   */
+  /** the returned content's size is not fixed. so please carefully used. */
   public Page<Namespace> findByItem(String itemKey, Pageable pageable) {
     Page<Item> items = itemService.findItemsByKey(itemKey, pageable);
 
@@ -125,7 +115,8 @@ public class NamespaceService {
     return new PageImpl<>(namespaceRepository.findByIdIn(namespaceIds));
   }
 
-  public Namespace findPublicNamespaceForAssociatedNamespace(String clusterName, String namespaceName) {
+  public Namespace findPublicNamespaceForAssociatedNamespace(String clusterName,
+      String namespaceName) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespaceName);
     if (appNamespace == null) {
       throw BadRequestException.namespaceNotExists("", clusterName, namespaceName);
@@ -135,19 +126,19 @@ public class NamespaceService {
 
     Namespace namespace = findOne(appId, clusterName, namespaceName);
 
-    //default cluster's namespace
+    // default cluster's namespace
     if (Objects.equals(clusterName, ConfigConsts.CLUSTER_NAME_DEFAULT)) {
       return namespace;
     }
 
-    //custom cluster's namespace not exist.
-    //return default cluster's namespace
+    // custom cluster's namespace not exist.
+    // return default cluster's namespace
     if (namespace == null) {
       return findOne(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespaceName);
     }
 
-    //custom cluster's namespace exist and has published.
-    //return custom cluster's namespace
+    // custom cluster's namespace exist and has published.
+    // return custom cluster's namespace
     Release latestActiveRelease = releaseService.findLatestActiveRelease(namespace);
     if (latestActiveRelease != null) {
       return namespace;
@@ -155,24 +146,25 @@ public class NamespaceService {
 
     Namespace defaultNamespace = findOne(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespaceName);
 
-    //custom cluster's namespace exist but never published.
-    //and default cluster's namespace not exist.
-    //return custom cluster's namespace
+    // custom cluster's namespace exist but never published.
+    // and default cluster's namespace not exist.
+    // return custom cluster's namespace
     if (defaultNamespace == null) {
       return namespace;
     }
 
-    //custom cluster's namespace exist but never published.
-    //and default cluster's namespace exist and has published.
-    //return default cluster's namespace
-    Release defaultNamespaceLatestActiveRelease = releaseService.findLatestActiveRelease(defaultNamespace);
+    // custom cluster's namespace exist but never published.
+    // and default cluster's namespace exist and has published.
+    // return default cluster's namespace
+    Release defaultNamespaceLatestActiveRelease =
+        releaseService.findLatestActiveRelease(defaultNamespace);
     if (defaultNamespaceLatestActiveRelease != null) {
       return defaultNamespace;
     }
 
-    //custom cluster's namespace exist but never published.
-    //and default cluster's namespace exist but never published.
-    //return custom cluster's namespace
+    // custom cluster's namespace exist but never published.
+    // and default cluster's namespace exist but never published.
+    // return custom cluster's namespace
     return namespace;
   }
 
@@ -206,18 +198,21 @@ public class NamespaceService {
   }
 
   public int countPublicAppNamespaceAssociatedNamespaces(String publicNamespaceName) {
-    AppNamespace publicAppNamespace = appNamespaceService.findPublicNamespaceByName(publicNamespaceName);
+    AppNamespace publicAppNamespace =
+        appNamespaceService.findPublicNamespaceByName(publicNamespaceName);
 
     if (publicAppNamespace == null) {
       throw new BadRequestException(
           String.format("Public appNamespace not exists. NamespaceName = %s", publicNamespaceName));
     }
 
-    return namespaceRepository.countByNamespaceNameAndAppIdNot(publicNamespaceName, publicAppNamespace.getAppId());
+    return namespaceRepository.countByNamespaceNameAndAppIdNot(publicNamespaceName,
+        publicAppNamespace.getAppId());
   }
 
   public List<Namespace> findNamespaces(String appId, String clusterName) {
-    List<Namespace> namespaces = namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(appId, clusterName);
+    List<Namespace> namespaces =
+        namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(appId, clusterName);
     if (namespaces == null) {
       return Collections.emptyList();
     }
@@ -228,7 +223,8 @@ public class NamespaceService {
     return namespaceRepository.findByAppIdAndNamespaceNameOrderByIdAsc(appId, namespaceName);
   }
 
-  public Namespace findChildNamespace(String appId, String parentClusterName, String namespaceName) {
+  public Namespace findChildNamespace(String appId, String parentClusterName,
+      String namespaceName) {
     List<Namespace> namespaces = findByAppIdAndNamespaceName(appId, namespaceName);
     if (CollectionUtils.isEmpty(namespaces) || namespaces.size() == 1) {
       return null;
@@ -239,8 +235,9 @@ public class NamespaceService {
       return null;
     }
 
-    Set<String> childClusterNames = childClusters.stream().map(Cluster::getName).collect(Collectors.toSet());
-    //the child namespace is the intersection of the child clusters and child namespaces
+    Set<String> childClusterNames =
+        childClusters.stream().map(Cluster::getName).collect(Collectors.toSet());
+    // the child namespace is the intersection of the child clusters and child namespaces
     for (Namespace namespace : namespaces) {
       if (childClusterNames.contains(namespace.getClusterName())) {
         return namespace;
@@ -256,7 +253,6 @@ public class NamespaceService {
     String namespaceName = parentNamespace.getNamespaceName();
 
     return findChildNamespace(appId, parentClusterName, namespaceName);
-
   }
 
   public Namespace findParentNamespace(String appId, String clusterName, String namespaceName) {
@@ -300,7 +296,6 @@ public class NamespaceService {
     for (Namespace namespace : toDeleteNamespaces) {
 
       deleteNamespace(namespace, operator);
-
     }
   }
 
@@ -313,18 +308,20 @@ public class NamespaceService {
     itemService.batchDelete(namespace.getId(), operator);
     commitService.batchDelete(appId, clusterName, namespace.getNamespaceName(), operator);
 
-    // Child namespace releases should retain as long as the parent namespace exists, because parent namespaces' release
+    // Child namespace releases should retain as long as the parent namespace exists, because parent
+    // namespaces' release
     // histories need them
     if (!isChildNamespace(namespace)) {
       releaseService.batchDelete(appId, clusterName, namespace.getNamespaceName(), operator);
     }
 
-    //delete child namespace
+    // delete child namespace
     Namespace childNamespace = findChildNamespace(namespace);
     if (childNamespace != null) {
       namespaceBranchService.deleteBranch(appId, clusterName, namespaceName,
-                                          childNamespace.getClusterName(), NamespaceBranchStatus.DELETED, operator);
-      //delete child namespace's releases. Notice: delete child namespace will not delete child namespace's releases
+          childNamespace.getClusterName(), NamespaceBranchStatus.DELETED, operator);
+      // delete child namespace's releases. Notice: delete child namespace will not delete child
+      // namespace's releases
       releaseService.batchDelete(appId, childNamespace.getClusterName(), namespaceName, operator);
     }
 
@@ -337,12 +334,14 @@ public class NamespaceService {
     namespace.setDeleted(true);
     namespace.setDataChangeLastModifiedBy(operator);
 
-    auditService.audit(Namespace.class.getSimpleName(), namespace.getId(), Audit.OP.DELETE, operator);
+    auditService.audit(Namespace.class.getSimpleName(), namespace.getId(), Audit.OP.DELETE,
+        operator);
 
     Namespace deleted = namespaceRepository.save(namespace);
 
-    //Publish release message to do some clean up in config service, such as updating the cache
-    messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
+    // Publish release message to do some clean up in config service, such as updating the cache
+    messageSender.sendMessage(
+        ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
         Topics.APOLLO_RELEASE_TOPIC);
 
     return deleted;
@@ -354,18 +353,22 @@ public class NamespaceService {
       throw new ServiceException("namespace not unique");
     }
 
-    if (bizConfig.isNamespaceNumLimitEnabled() && !bizConfig.namespaceNumLimitWhite().contains(entity.getAppId())) {
-      int nowCount = namespaceRepository.countByAppIdAndClusterName(entity.getAppId(), entity.getClusterName());
+    if (bizConfig.isNamespaceNumLimitEnabled()
+        && !bizConfig.namespaceNumLimitWhite().contains(entity.getAppId())) {
+      int nowCount = namespaceRepository.countByAppIdAndClusterName(entity.getAppId(),
+          entity.getClusterName());
       if (nowCount >= bizConfig.namespaceNumLimit()) {
-        throw new ServiceException("namespace[appId = " + entity.getAppId() + ", cluster= " + entity.getClusterName() + "] nowCount= " + nowCount + ", maxCount =" + bizConfig.namespaceNumLimit());
+        throw new ServiceException(
+            "namespace[appId = " + entity.getAppId() + ", cluster= " + entity.getClusterName()
+                + "] nowCount= " + nowCount + ", maxCount =" + bizConfig.namespaceNumLimit());
       }
     }
 
-    entity.setId(0);//protection
+    entity.setId(0); // protection
     Namespace namespace = namespaceRepository.save(entity);
 
     auditService.audit(Namespace.class.getSimpleName(), namespace.getId(), Audit.OP.INSERT,
-                       namespace.getDataChangeCreatedBy());
+        namespace.getDataChangeCreatedBy());
 
     return namespace;
   }
@@ -378,7 +381,7 @@ public class NamespaceService {
     managedNamespace = namespaceRepository.save(managedNamespace);
 
     auditService.audit(Namespace.class.getSimpleName(), managedNamespace.getId(), Audit.OP.UPDATE,
-                       managedNamespace.getDataChangeLastModifiedBy());
+        managedNamespace.getDataChangeLastModifiedBy());
 
     return managedNamespace;
   }
@@ -398,7 +401,6 @@ public class NamespaceService {
       namespaceRepository.save(ns);
       auditService.audit(Namespace.class.getSimpleName(), ns.getId(), Audit.OP.INSERT, createBy);
     }
-
   }
 
   public Map<String, Boolean> namespacePublishInfo(String appId) {
@@ -439,13 +441,15 @@ public class NamespaceService {
     }
 
     Date lastPublishTime = latestRelease.getDataChangeLastModifiedTime();
-    List<Item> itemsModifiedAfterLastPublish = itemService.findItemsModifiedAfterDate(namespaceId, lastPublishTime);
+    List<Item> itemsModifiedAfterLastPublish =
+        itemService.findItemsModifiedAfterDate(namespaceId, lastPublishTime);
 
     if (CollectionUtils.isEmpty(itemsModifiedAfterLastPublish)) {
       return false;
     }
 
-    Map<String, String> publishedConfiguration = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
+    Map<String, String> publishedConfiguration =
+        GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
     for (Item item : itemsModifiedAfterLastPublish) {
       if (!Objects.equals(item.getValue(), publishedConfiguration.get(item.getKey()))) {
         return true;
@@ -454,6 +458,4 @@ public class NamespaceService {
 
     return false;
   }
-
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,15 @@ public class ApolloServiceDiscoveryProperties {
 
   public static final String PREFIX = "apollo.service.discovery";
 
-  /**
-   * enable discovery of registry or not
-   */
+  /** enable discovery of registry or not */
   private boolean enabled = false;
 
   /**
    * health check interval.
+   *
    * <p>
    * if current time - the last time of instance's heartbeat < healthCheckInterval,
+   *
    * <p>
    * then this instance is healthy.
    */
@@ -57,5 +57,4 @@ public class ApolloServiceDiscoveryProperties {
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
-
 }

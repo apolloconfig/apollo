@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,43 +47,55 @@ public class BadRequestExceptionTest {
     BadRequestException namespaceNotExists = BadRequestException.namespaceNotExists();
     assertEquals("namespace not exist.", namespaceNotExists.getMessage());
 
-    BadRequestException namespaceNotExists2 = BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
-    assertEquals("namespace not exist for appId:app-1001 clusterName:test namespaceName:application", namespaceNotExists2.getMessage());
+    BadRequestException namespaceNotExists2 =
+        BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
+    assertEquals(
+        "namespace not exist for appId:app-1001 clusterName:test namespaceName:application",
+        namespaceNotExists2.getMessage());
   }
 
   @Test
   public void testNamespaceAlreadyExists() {
-    BadRequestException namespaceAlreadyExists = BadRequestException.namespaceAlreadyExists(namespaceName);
-    assertEquals("namespace already exists for namespaceName:application", namespaceAlreadyExists.getMessage());
+    BadRequestException namespaceAlreadyExists =
+        BadRequestException.namespaceAlreadyExists(namespaceName);
+    assertEquals("namespace already exists for namespaceName:application",
+        namespaceAlreadyExists.getMessage());
   }
 
   @Test
   public void testAppNamespaceNotExists() {
-    BadRequestException appNamespaceNotExists = BadRequestException.appNamespaceNotExists(appId, namespaceName);
-    assertEquals("appNamespace not exist for appId:app-1001 namespaceName:application", appNamespaceNotExists.getMessage());
+    BadRequestException appNamespaceNotExists =
+        BadRequestException.appNamespaceNotExists(appId, namespaceName);
+    assertEquals("appNamespace not exist for appId:app-1001 namespaceName:application",
+        appNamespaceNotExists.getMessage());
   }
 
   @Test
   public void testAppNamespaceAlreadyExists() {
-    BadRequestException appNamespaceAlreadyExists = BadRequestException.appNamespaceAlreadyExists(appId, namespaceName);
-    assertEquals("appNamespace already exists for appId:app-1001 namespaceName:application", appNamespaceAlreadyExists.getMessage());
+    BadRequestException appNamespaceAlreadyExists =
+        BadRequestException.appNamespaceAlreadyExists(appId, namespaceName);
+    assertEquals("appNamespace already exists for appId:app-1001 namespaceName:application",
+        appNamespaceAlreadyExists.getMessage());
   }
 
   @Test
   public void testInvalidNamespaceFormat() {
-    BadRequestException invalidNamespaceFormat = BadRequestException.invalidNamespaceFormat("format");
+    BadRequestException invalidNamespaceFormat =
+        BadRequestException.invalidNamespaceFormat("format");
     assertEquals("invalid namespace format:format", invalidNamespaceFormat.getMessage());
   }
 
   @Test
   public void testInvalidNotificationsFormat() {
-    BadRequestException invalidNotificationsFormat = BadRequestException.invalidNotificationsFormat("format");
+    BadRequestException invalidNotificationsFormat =
+        BadRequestException.invalidNotificationsFormat("format");
     assertEquals("invalid notifications format:format", invalidNotificationsFormat.getMessage());
   }
 
   @Test
   public void testInvalidClusterNameFormat() {
-    BadRequestException invalidClusterNameFormat = BadRequestException.invalidClusterNameFormat("format");
+    BadRequestException invalidClusterNameFormat =
+        BadRequestException.invalidClusterNameFormat("format");
     assertEquals("invalid clusterName format:format", invalidClusterNameFormat.getMessage());
   }
 
@@ -100,57 +112,58 @@ public class BadRequestExceptionTest {
   }
 
   @Test
-  public void testNamespaceNotMatch(){
+  public void testNamespaceNotMatch() {
     BadRequestException namespaceNotMatch = BadRequestException.namespaceNotMatch();
-    assertEquals("invalid request, item and namespace do not match!", namespaceNotMatch.getMessage());
+    assertEquals("invalid request, item and namespace do not match!",
+        namespaceNotMatch.getMessage());
   }
 
   @Test
-  public void testAppNotExists(){
+  public void testAppNotExists() {
     BadRequestException appNotExists = BadRequestException.appNotExists(appId);
     assertEquals("app not exists for appId:app-1001", appNotExists.getMessage());
   }
 
   @Test
-  public void testAppAlreadyExists(){
+  public void testAppAlreadyExists() {
     BadRequestException appAlreadyExists = BadRequestException.appAlreadyExists(appId);
     assertEquals("app already exists for appId:app-1001", appAlreadyExists.getMessage());
   }
 
   @Test
-  public void testClusterNotExists(){
+  public void testClusterNotExists() {
     BadRequestException clusterNotExists = BadRequestException.clusterNotExists(clusterName);
     assertEquals("cluster not exists for clusterName:test", clusterNotExists.getMessage());
   }
 
   @Test
-  public void testClusterAlreadyExists(){
-    BadRequestException clusterAlreadyExists = BadRequestException.clusterAlreadyExists(clusterName);
+  public void testClusterAlreadyExists() {
+    BadRequestException clusterAlreadyExists =
+        BadRequestException.clusterAlreadyExists(clusterName);
     assertEquals("cluster already exists for clusterName:test", clusterAlreadyExists.getMessage());
   }
 
   @Test
-  public void testUserNotExists(){
+  public void testUserNotExists() {
     BadRequestException userNotExists = BadRequestException.userNotExists("user");
     assertEquals("user not exists for userName:user", userNotExists.getMessage());
   }
 
   @Test
-  public void testUserAlreadyExists(){
+  public void testUserAlreadyExists() {
     BadRequestException userAlreadyExists = BadRequestException.userAlreadyExists("user");
     assertEquals("user already exists for userName:user", userAlreadyExists.getMessage());
   }
 
   @Test
-  public void testUserAlreadyAuthorized(){
+  public void testUserAlreadyAuthorized() {
     BadRequestException userAlreadyAuthorized = BadRequestException.userAlreadyAuthorized("user");
     assertEquals("user already authorized", userAlreadyAuthorized.getMessage());
   }
 
   @Test
-  public void testAccessKeyNotExists(){
+  public void testAccessKeyNotExists() {
     BadRequestException accessKeyNotExists = BadRequestException.accessKeyNotExists();
     assertEquals("accessKey not exist.", accessKeyNotExists.getMessage());
   }
-
 }

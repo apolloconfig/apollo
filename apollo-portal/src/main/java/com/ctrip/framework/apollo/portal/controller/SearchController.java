@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-import com.google.common.collect.Lists;
-
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.entity.App;
@@ -26,31 +24,26 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
-
+import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-/**
- * @author lepdou 2021-09-13
- */
+/** @author lepdou 2021-09-13 */
 @RestController("/app")
 public class SearchController {
 
-  private AppService       appService;
-  private PortalSettings   portalSettings;
+  private AppService appService;
+  private PortalSettings portalSettings;
   private NamespaceService namespaceService;
-  private PortalConfig     portalConfig;
+  private PortalConfig portalConfig;
 
-  public SearchController(final AppService appService,
-                          final PortalSettings portalSettings,
-                          final PortalConfig portalConfig,
-                          final NamespaceService namespaceService) {
+  public SearchController(final AppService appService, final PortalSettings portalSettings,
+      final PortalConfig portalConfig, final NamespaceService namespaceService) {
     this.appService = appService;
     this.portalConfig = portalConfig;
     this.portalSettings = portalSettings;
@@ -58,12 +51,13 @@ public class SearchController {
   }
 
   @GetMapping("/apps/search/by-appid-or-name")
-  public PageDTO<App> search(@RequestParam(value = "query", required = false) String query, Pageable pageable) {
+  public PageDTO<App> search(@RequestParam(value = "query", required = false) String query,
+      Pageable pageable) {
     if (StringUtils.isEmpty(query)) {
       return appService.findAll(pageable);
     }
 
-    //search app
+    // search app
     PageDTO<App> appPageDTO = appService.searchByAppIdOrAppName(query, pageable);
     if (appPageDTO.hasContent()) {
       return appPageDTO;
@@ -73,7 +67,7 @@ public class SearchController {
       return new PageDTO<>(Lists.newLinkedList(), pageable, 0);
     }
 
-    //search item
+    // search item
     return searchByItem(query, pageable);
   }
 
@@ -84,13 +78,14 @@ public class SearchController {
       return new PageDTO<>(result, pageable, 0);
     }
 
-    //use the env witch has the most namespace as page index.
+    // use the env witch has the most namespace as page index.
     final AtomicLong maxTotal = new AtomicLong(0);
 
     List<Env> activeEnvs = portalSettings.getActiveEnvs();
 
     activeEnvs.forEach(env -> {
-      PageDTO<NamespaceDTO> namespacePage = namespaceService.findNamespacesByItem(env, itemKey, pageable);
+      PageDTO<NamespaceDTO> namespacePage =
+          namespaceService.findNamespacesByItem(env, itemKey, pageable);
       if (!namespacePage.hasContent()) {
         return;
       }
@@ -118,5 +113,4 @@ public class SearchController {
 
     return new PageDTO<>(result, pageable, maxTotal.get());
   }
-
 }

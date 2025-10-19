@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,8 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
   private final Cache<ReleaseKeyPair, List<ConfigurationChange>> configurationChangeCache;
 
   public DefaultIncrementalSyncService() {
-    configurationChangeCache = CacheBuilder.newBuilder()
-        .maximumSize(1000)
-        .expireAfterWrite(10, TimeUnit.MINUTES)
-        .build();
+    configurationChangeCache =
+        CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.MINUTES).build();
   }
 
   @Override
@@ -51,8 +49,8 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
       return cachedChanges;
     }
 
-    List<ConfigurationChange> computed = calcConfigurationChanges(
-        latestReleaseConfigurations, clientSideConfigurations);
+    List<ConfigurationChange> computed =
+        calcConfigurationChanges(latestReleaseConfigurations, clientSideConfigurations);
 
     configurationChangeCache.put(key, computed);
     return computed;
@@ -80,8 +78,8 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
     List<ConfigurationChange> changes = Lists.newArrayList();
 
     for (String newKey : newKeys) {
-      changes.add(new ConfigurationChange(newKey, latestReleaseConfigurations.get(newKey),
-          "ADDED"));
+      changes
+          .add(new ConfigurationChange(newKey, latestReleaseConfigurations.get(newKey), "ADDED"));
     }
 
     for (String removedKey : removedKeys) {
@@ -94,8 +92,7 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
       if (com.google.common.base.Objects.equal(previousValue, currentValue)) {
         continue;
       }
-      changes.add(
-          new ConfigurationChange(commonKey, currentValue, "MODIFIED"));
+      changes.add(new ConfigurationChange(commonKey, currentValue, "MODIFIED"));
     }
 
     return changes;
@@ -120,8 +117,8 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
         return false;
       }
       ReleaseKeyPair that = (ReleaseKeyPair) obj;
-      return Objects.equals(clientSideReleaseKey, that.clientSideReleaseKey) &&
-          Objects.equals(latestMergedReleaseKey, that.latestMergedReleaseKey);
+      return Objects.equals(clientSideReleaseKey, that.clientSideReleaseKey)
+          && Objects.equals(latestMergedReleaseKey, that.latestMergedReleaseKey);
     }
 
     @Override
@@ -129,5 +126,4 @@ public class DefaultIncrementalSyncService implements IncrementalSyncService {
       return Objects.hash(clientSideReleaseKey, latestMergedReleaseKey);
     }
   }
-
 }

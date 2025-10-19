@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,13 @@ import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Service
 public class ReleaseMessageService {
   private final ReleaseMessageRepository releaseMessageRepository;
@@ -45,7 +42,8 @@ public class ReleaseMessageService {
     return releaseMessageRepository.findTopByMessageInOrderByIdDesc(messages);
   }
 
-  public List<ReleaseMessage> findLatestReleaseMessagesGroupByMessages(Collection<String> messages) {
+  public List<ReleaseMessage> findLatestReleaseMessagesGroupByMessages(
+      Collection<String> messages) {
     if (CollectionUtils.isEmpty(messages)) {
       return Collections.emptyList();
     }

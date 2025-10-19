@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,10 @@ public class UserPermissionValidator implements PermissionValidator {
   private final AppNamespaceService appNamespaceService;
   private final SystemRoleManagerService systemRoleManagerService;
 
-  public UserPermissionValidator(
-          final UserInfoHolder userInfoHolder,
-          final RolePermissionService rolePermissionService,
-          final PortalConfig portalConfig,
-          final AppNamespaceService appNamespaceService,
-          final SystemRoleManagerService systemRoleManagerService) {
+  public UserPermissionValidator(final UserInfoHolder userInfoHolder,
+      final RolePermissionService rolePermissionService, final PortalConfig portalConfig,
+      final AppNamespaceService appNamespaceService,
+      final SystemRoleManagerService systemRoleManagerService) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.portalConfig = portalConfig;
@@ -50,8 +48,7 @@ public class UserPermissionValidator implements PermissionValidator {
 
   private boolean hasModifyNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.MODIFY_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName));
+        PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName));
   }
 
   private boolean hasModifyNamespacePermission(String appId, String namespaceName, String env) {
@@ -60,14 +57,16 @@ public class UserPermissionValidator implements PermissionValidator {
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  private boolean hasModifyNamespacesInClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasModifyNamespacesInClusterPermission(String appId, String env,
+      String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
   @Override
-  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
     if (hasModifyNamespacePermission(appId, namespaceName)) {
       return true;
     }
@@ -82,8 +81,7 @@ public class UserPermissionValidator implements PermissionValidator {
 
   private boolean hasReleaseNamespacePermission(String appId, String namespaceName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.RELEASE_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName));
+        PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName));
   }
 
   private boolean hasReleaseNamespacePermission(String appId, String namespaceName, String env) {
@@ -92,14 +90,16 @@ public class UserPermissionValidator implements PermissionValidator {
         RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
-  private boolean hasReleaseNamespacesInClusterPermission(String appId, String env, String clusterName) {
+  private boolean hasReleaseNamespacesInClusterPermission(String appId, String env,
+      String clusterName) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
         PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
         RoleUtils.buildClusterTargetId(appId, env, clusterName));
   }
 
   @Override
-  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
     if (hasReleaseNamespacePermission(appId, namespaceName)) {
       return true;
     }
@@ -115,15 +115,13 @@ public class UserPermissionValidator implements PermissionValidator {
   @Override
   public boolean hasAssignRolePermission(String appId) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.ASSIGN_ROLE,
-        appId);
+        PermissionType.ASSIGN_ROLE, appId);
   }
 
   @Override
   public boolean hasCreateNamespacePermission(String appId) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.CREATE_NAMESPACE,
-        appId);
+        PermissionType.CREATE_NAMESPACE, appId);
   }
 
   @Override
@@ -141,8 +139,7 @@ public class UserPermissionValidator implements PermissionValidator {
   @Override
   public boolean hasCreateClusterPermission(String appId) {
     return rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-        PermissionType.CREATE_CLUSTER,
-        appId);
+        PermissionType.CREATE_CLUSTER, appId);
   }
 
   @Override
@@ -165,7 +162,8 @@ public class UserPermissionValidator implements PermissionValidator {
     }
 
     // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
+    return !isAppAdmin(appId)
+        && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override
@@ -179,10 +177,9 @@ public class UserPermissionValidator implements PermissionValidator {
 
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
-    // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
-    return isSuperAdmin() ||
-        (hasAssignRolePermission(appId) &&
-         systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
-        );
+    // the manage app master permission might not be initialized, so we need to check isSuperAdmin
+    // first
+    return isSuperAdmin() || (hasAssignRolePermission(appId) && systemRoleManagerService
+        .hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId));
   }
 }

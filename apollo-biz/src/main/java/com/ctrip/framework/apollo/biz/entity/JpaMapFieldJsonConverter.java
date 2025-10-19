@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ class JpaMapFieldJsonConverter implements AttributeConverter<Map<String, String>
 
   private static final Gson GSON = new Gson();
 
-  private static final TypeToken<HashMap<String, String>> TYPE_TOKEN = new TypeToken<HashMap<String, String>>() {
-  };
+  private static final TypeToken<HashMap<String, String>> TYPE_TOKEN =
+      new TypeToken<HashMap<String, String>>() {};
 
   @SuppressWarnings("unchecked")
   private static final Type TYPE = TYPE_TOKEN.getType();

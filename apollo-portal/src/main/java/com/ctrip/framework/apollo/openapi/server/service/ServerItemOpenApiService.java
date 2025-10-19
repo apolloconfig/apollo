@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 @Service
 public class ServerItemOpenApiService implements ItemOpenApiService {
 
@@ -43,7 +41,8 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public OpenItemDTO getItem(String appId, String env, String clusterName, String namespaceName,
       String key) {
-    ItemDTO itemDTO = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+    ItemDTO itemDTO =
+        itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     return itemDTO == null ? null : OpenApiBeanUtils.transformFromItemDTO(itemDTO);
   }
 
@@ -53,24 +52,24 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
 
     ItemDTO toCreate = OpenApiBeanUtils.transformToItemDTO(itemDTO);
 
-    //protect
+    // protect
     toCreate.setLineNum(0);
     toCreate.setId(0);
     toCreate.setDataChangeLastModifiedBy(toCreate.getDataChangeCreatedBy());
     toCreate.setDataChangeLastModifiedTime(null);
     toCreate.setDataChangeCreatedTime(null);
 
-    ItemDTO createdItem = itemService.createItem(appId, Env.valueOf(env),
-        clusterName, namespaceName, toCreate);
+    ItemDTO createdItem =
+        itemService.createItem(appId, Env.valueOf(env), clusterName, namespaceName, toCreate);
     return OpenApiBeanUtils.transformFromItemDTO(createdItem);
   }
 
   @Override
   public void updateItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO) {
-    ItemDTO toUpdateItem = itemService
-        .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
-    //protect. only value,type,comment,lastModifiedBy can be modified
+    ItemDTO toUpdateItem =
+        itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
+    // protect. only value,type,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
     toUpdateItem.setType(itemDTO.getType());
     toUpdateItem.setValue(itemDTO.getValue());
@@ -99,17 +98,18 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public void removeItem(String appId, String env, String clusterName, String namespaceName,
       String key, String operator) {
-    ItemDTO toDeleteItem = this.itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+    ItemDTO toDeleteItem =
+        this.itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     this.itemService.deleteItem(Env.valueOf(env), toDeleteItem.getId(), operator);
   }
 
   @Override
   public OpenPageDTO<OpenItemDTO> findItemsByNamespace(String appId, String env, String clusterName,
-                                                       String namespaceName, int page, int size) {
-    PageDTO<OpenItemDTO> commonOpenItemDTOPage =
-            this.itemService.findItemsByNamespace(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+      String namespaceName, int page, int size) {
+    PageDTO<OpenItemDTO> commonOpenItemDTOPage = this.itemService.findItemsByNamespace(appId,
+        Env.valueOf(env), clusterName, namespaceName, page, size);
 
     return new OpenPageDTO<>(commonOpenItemDTOPage.getPage(), commonOpenItemDTOPage.getSize(),
-            commonOpenItemDTOPage.getTotal(), commonOpenItemDTOPage.getContent());
+        commonOpenItemDTOPage.getTotal(), commonOpenItemDTOPage.getContent());
   }
 }

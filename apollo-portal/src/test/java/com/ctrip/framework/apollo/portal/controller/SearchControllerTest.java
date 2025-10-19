@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-import com.google.common.collect.Lists;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
@@ -26,7 +28,8 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
-
+import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,27 +39,18 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-
-/**
- * @author lepdou 2021-09-13
- */
+/** @author lepdou 2021-09-13 */
 @RunWith(MockitoJUnitRunner.class)
 public class SearchControllerTest {
 
   @Mock
-  private AppService       appService;
+  private AppService appService;
   @Mock
   private NamespaceService namespaceService;
   @Mock
-  private PortalSettings   portalSettings;
+  private PortalSettings portalSettings;
   @Mock
-  private PortalConfig     portalConfig;
+  private PortalConfig portalConfig;
   @InjectMocks
   private SearchController searchController;
 

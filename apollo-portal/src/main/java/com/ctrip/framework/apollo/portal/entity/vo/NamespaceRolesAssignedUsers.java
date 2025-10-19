@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.vo;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-
 import java.util.Set;
 
 public class NamespaceRolesAssignedUsers {
@@ -48,8 +47,7 @@ public class NamespaceRolesAssignedUsers {
     return modifyRoleUsers;
   }
 
-  public void setModifyRoleUsers(
-      Set<UserInfo> modifyRoleUsers) {
+  public void setModifyRoleUsers(Set<UserInfo> modifyRoleUsers) {
     this.modifyRoleUsers = modifyRoleUsers;
   }
 
@@ -57,8 +55,7 @@ public class NamespaceRolesAssignedUsers {
     return releaseRoleUsers;
   }
 
-  public void setReleaseRoleUsers(
-      Set<UserInfo> releaseRoleUsers) {
+  public void setReleaseRoleUsers(Set<UserInfo> releaseRoleUsers) {
     this.releaseRoleUsers = releaseRoleUsers;
   }
 }

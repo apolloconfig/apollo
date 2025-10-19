@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class MockBeanFactory {
   }
 
   public static Release mockRelease(long releaseId, String releaseKey, String appId,
-                                    String clusterName, String groupName, String configurations) {
+      String clusterName, String groupName, String configurations) {
     Release instance = new Release();
 
     instance.setId(releaseId);
@@ -68,7 +68,8 @@ public class MockBeanFactory {
     return instance;
   }
 
-  public static Item mockItem(long id, long namespaceId, String itemKey, String itemValue, int lineNum) {
+  public static Item mockItem(long id, long namespaceId, String itemKey, String itemValue,
+      int lineNum) {
     Item item = new Item();
     item.setId(id);
     item.setKey(itemKey);
@@ -77,5 +78,4 @@ public class MockBeanFactory {
     item.setNamespaceId(namespaceId);
     return item;
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,17 @@ import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import javax.transaction.Transactional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController("openapiAppController")
 public class AppController implements AppManagementApi {
@@ -50,20 +49,16 @@ public class AppController implements AppManagementApi {
   private final AppOpenApiService appOpenApiService;
   private final UserService userService;
 
-  public AppController(
-          final ConsumerAuthUtil consumerAuthUtil,
-          final ConsumerService consumerService,
-          final AppOpenApiService appOpenApiService,
-          final UserService userService) {
+  public AppController(final ConsumerAuthUtil consumerAuthUtil,
+      final ConsumerService consumerService, final AppOpenApiService appOpenApiService,
+      final UserService userService) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerService = consumerService;
     this.appOpenApiService = appOpenApiService;
     this.userService = userService;
   }
 
-  /**
-   * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
-   */
+  /** @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel) */
   @Transactional
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission()")
   @Override
@@ -92,15 +87,14 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<List<OpenAppDTO>> findApps(String appIds) {
     if (StringUtils.hasText(appIds)) {
-      return ResponseEntity.ok(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(","))));
+      return ResponseEntity
+          .ok(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(","))));
     } else {
       return ResponseEntity.ok(this.appOpenApiService.getAllApps());
     }
   }
 
-  /**
-   * @return which apps can be operated by open api
-   */
+  /** @return which apps can be operated by open api */
   @Override
   public ResponseEntity<List<OpenAppDTO>> findAppsAuthorized() {
     long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
@@ -110,9 +104,7 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok(appOpenApiService.getAppsInfo(new ArrayList<>(appIds)));
   }
 
-  /**
-   * get single app info (new added)
-   */
+  /** get single app info (new added) */
   @Override
   public ResponseEntity<OpenAppDTO> getApp(String appId) {
     List<OpenAppDTO> apps = appOpenApiService.getAppsInfo(Collections.singletonList(appId));
@@ -122,9 +114,7 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok(apps.get(0));
   }
 
-  /**
-   * update app (new added)
-   */
+  /** update app (new added) */
   @Override
   @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
@@ -140,20 +130,18 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok(dto);
   }
 
-  /**
-   * Get the current Consumer's application list (paginated) (new added)
-   */
+  /** Get the current Consumer's application list (paginated) (new added) */
   @Override
   public ResponseEntity<List<OpenAppDTO>> getAppsBySelf(Integer page, Integer size) {
     long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
-    Set<String> authorizedAppIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+    Set<String> authorizedAppIds =
+        this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
     List<OpenAppDTO> apps = appOpenApiService.getAppsBySelf(authorizedAppIds, page, size);
     return ResponseEntity.ok(apps);
   }
 
   /**
-   * Create an application in a specified environment (new added)
-   * POST /openapi/v1/apps/envs/{env}
+   * Create an application in a specified environment (new added) POST /openapi/v1/apps/envs/{env}
    */
   @Override
   @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission()")
@@ -167,9 +155,7 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok().build();
   }
 
-  /**
-   * Delete App (new added)
-   */
+  /** Delete App (new added) */
   @Override
   @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
@@ -181,17 +167,13 @@ public class AppController implements AppManagementApi {
     return ResponseEntity.ok().build();
   }
 
-  /**
-   * Find miss env (new added)
-   */
+  /** Find miss env (new added) */
   @Override
   public ResponseEntity<MultiResponseEntity> findMissEnvs(String appId) {
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
   }
 
-  /**
-   * Find appNavTree (new added)
-   */
+  /** Find appNavTree (new added) */
   @Override
   public ResponseEntity<MultiResponseEntity> getAppNavTree(String appId) {
     return ResponseEntity.ok(appOpenApiService.getAppNavTree(appId));

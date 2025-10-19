@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,25 +24,28 @@ import java.lang.annotation.Target;
 /**
  * Mainly used in field definitions, indicates the name of the corresponding audit data table field
  * of this member variables(attributes).
- * <p></p>
+ *
+ * <p>
  * It could also be used on method parameters to express the field name of the field which this
  * parameter matches.
- * <p></p>
+ *
+ * <p>
  * Example usage:
+ *
  * <pre>
  * {@code
  * CASE 1:
  * public class App {
- *   @ApolloAuditLogDataInfluenceTableField(fieldName="AppId")
+ *   &#64;ApolloAuditLogDataInfluenceTableField(fieldName="AppId")
  *   private String appId;
  *   // ...
  * }
  * CASE 2:
- * @ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
+ * &#64;ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
  * public AppNamespace batchDeleteByAppId(
- *   @ApolloAuditLogDataInfluence
- *   @ApolloAuditLogDataInfluenceTable(tableName="AppNamespace")
- *   @ApolloAuditLogDataInfluenceTableField(fieldName="AppId") String appId) {
+ *   &#64;ApolloAuditLogDataInfluence
+ *   &#64;ApolloAuditLogDataInfluenceTable(tableName="AppNamespace")
+ *   &#64;ApolloAuditLogDataInfluenceTableField(fieldName="AppId") String appId) {
  *   // ...
  * }
  * }
@@ -61,5 +64,4 @@ public @interface ApolloAuditLogDataInfluenceTableField {
    * @return field name
    */
   String fieldName();
-
 }

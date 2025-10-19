@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,14 @@ public class AuthFilterConfiguration {
 
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
-      ConsumerAuthUtil consumerAuthUtil,
-      ConsumerAuditUtil consumerAuditUtil) {
+      ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
 
-    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter = new FilterRegistrationBean<>();
+    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter =
+        new FilterRegistrationBean<>();
 
     openApiFilter.setFilter(new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil));
     openApiFilter.addUrlPatterns("/openapi/*");
 
     return openApiFilter;
   }
-
 }

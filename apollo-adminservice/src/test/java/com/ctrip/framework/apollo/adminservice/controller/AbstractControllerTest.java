@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.AdminServiceTestConfiguration;
-
+import javax.annotation.PostConstruct;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,10 +29,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = AdminServiceTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AdminServiceTestConfiguration.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractControllerTest {
 
   @Autowired
@@ -65,7 +64,7 @@ public abstract class AbstractControllerTest {
     return url("/apps/{appId}/clusters/{clusterName}");
   }
 
-  protected String itemBaseUrl(){
+  protected String itemBaseUrl() {
     return url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items");
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,9 +44,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public class RolePermissionServiceTest extends AbstractIntegrationTest {
   @Autowired
   private RolePermissionService rolePermissionService;
@@ -90,7 +88,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Sql(scripts = "/sql/permission/insert-test-permissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePermissionWithPermissionExisted() throws Exception {
     String someTargetId = "someTargetId";
@@ -134,7 +133,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Sql(scripts = "/sql/permission/insert-test-permissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePermissionsWithPermissionsExisted() throws Exception {
     String someTargetId = "someTargetId";
@@ -149,7 +149,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-permissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreateRoleWithPermissions() throws Exception {
     String someRoleName = "someRoleName";
@@ -163,7 +164,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     List<RolePermission> rolePermissions =
         rolePermissionRepository.findByRoleIdIn(Sets.newHashSet(createdFromDB.getId()));
 
-    Set<Long> rolePermissionIds = rolePermissions.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
+    Set<Long> rolePermissionIds =
+        rolePermissions.stream().map(RolePermission::getPermissionId).collect(Collectors.toSet());
 
     assertEquals(someRoleName, createdFromDB.getRoleName());
     assertEquals(2, rolePermissionIds.size());
@@ -171,7 +173,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreateRoleWithPermissionsWithRoleExisted() throws Exception {
     String someRoleName = "someRoleName";
@@ -181,7 +184,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testAssignRoleToUsers() throws Exception {
     String someRoleName = "someRoleName";
@@ -191,8 +195,7 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
 
     Set<String> users = Sets.newHashSet(someUser, anotherUser);
 
-    rolePermissionService
-        .assignRoleToUsers(someRoleName, users, operator);
+    rolePermissionService.assignRoleToUsers(someRoleName, users, operator);
 
     List<UserRole> userRoles = userRoleRepository.findByRoleId(990);
 
@@ -216,13 +219,14 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
 
     Set<String> users = Sets.newHashSet(someUser);
 
-    rolePermissionService
-        .assignRoleToUsers(someRoleName, users, operator);
+    rolePermissionService.assignRoleToUsers(someRoleName, users, operator);
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-userroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testAssignRoleToUsersWithUserRolesExisted() throws Exception {
     String someRoleName = "someRoleName";
@@ -232,8 +236,7 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
 
     Set<String> users = Sets.newHashSet(someUser, anotherUser);
 
-    rolePermissionService
-        .assignRoleToUsers(someRoleName, users, operator);
+    rolePermissionService.assignRoleToUsers(someRoleName, users, operator);
 
     List<UserRole> userRoles = userRoleRepository.findByRoleId(990);
 
@@ -249,8 +252,10 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-userroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testRemoveRoleFromUsers() throws Exception {
     String someRoleName = "someRoleName";
@@ -270,7 +275,8 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = IllegalStateException.class)
-  @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-userroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testRemoveRoleFromUsersWithRoleNotExisted() throws Exception {
     String someRoleName = "someRoleName";
@@ -283,8 +289,10 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-userroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryUsersWithRole() throws Exception {
     String roleName = "someRoleName";
@@ -298,10 +306,14 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-permissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-userroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-rolepermissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-userroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-rolepermissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testUserHasPermission() throws Exception {
     String someTargetId = "someTargetId";
@@ -313,17 +325,22 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     String someUserWithNoPermission = "someUserWithNoPermission";
 
     assertTrue(rolePermissionService.userHasPermission(someUser, somePermissionType, someTargetId));
-    assertTrue(rolePermissionService.userHasPermission(someUser, anotherPermissionType, anotherTargetId));
-    assertTrue(rolePermissionService.userHasPermission(anotherUser, somePermissionType, someTargetId));
-    assertTrue(rolePermissionService.userHasPermission(anotherUser, anotherPermissionType, anotherTargetId));
+    assertTrue(
+        rolePermissionService.userHasPermission(someUser, anotherPermissionType, anotherTargetId));
+    assertTrue(
+        rolePermissionService.userHasPermission(anotherUser, somePermissionType, someTargetId));
+    assertTrue(rolePermissionService.userHasPermission(anotherUser, anotherPermissionType,
+        anotherTargetId));
 
-    assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission, somePermissionType, someTargetId));
-    assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission, anotherPermissionType, anotherTargetId));
-
+    assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission,
+        somePermissionType, someTargetId));
+    assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission,
+        anotherPermissionType, anotherTargetId));
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/RolePermissionServiceTest.deleteRolePermissionsByAppIdWithClusterRoles.sql",
+  @Sql(
+      scripts = "/sql/permission/RolePermissionServiceTest.deleteRolePermissionsByAppIdWithClusterRoles.sql",
       executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testDeleteRolePermissionsByAppIdWithClusterRoles() {
@@ -332,8 +349,10 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
 
     rolePermissionService.deleteRolePermissionsByAppId(appId, operator);
 
-    String modifyRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(appId, "DEV", "default");
-    String releaseRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, "DEV", "default");
+    String modifyRoleName =
+        RoleUtils.buildModifyNamespacesInClusterRoleName(appId, "DEV", "default");
+    String releaseRoleName =
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, "DEV", "default");
 
     assertNull(roleRepository.findTopByRoleName(modifyRoleName));
     assertNull(roleRepository.findTopByRoleName(releaseRoleName));
@@ -357,5 +376,4 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
 
     return permission;
   }
-
 }

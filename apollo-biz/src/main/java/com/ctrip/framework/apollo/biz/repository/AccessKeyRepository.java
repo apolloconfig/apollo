@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.biz.repository;
 
-
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
 import java.util.Date;
 import java.util.List;
@@ -30,7 +29,8 @@ public interface AccessKeyRepository extends PagingAndSortingRepository<AccessKe
 
   List<AccessKey> findByAppId(String appId);
 
-  List<AccessKey> findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(Date date);
+  List<AccessKey> findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+      Date date);
 
   List<AccessKey> findByDataChangeLastModifiedTime(Date date);
 }

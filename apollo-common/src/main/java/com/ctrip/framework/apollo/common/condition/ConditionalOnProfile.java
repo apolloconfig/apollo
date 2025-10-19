@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
  */
 package com.ctrip.framework.apollo.common.condition;
 
-import org.springframework.context.annotation.Conditional;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.springframework.context.annotation.Conditional;
 
 /**
  * {@link Conditional} that only matches when the specified profiles are active.
  *
  * @author Jason Song(song_s@ctrip.com)
  */
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Conditional(OnProfileCondition.class)
@@ -37,6 +36,7 @@ public @interface ConditionalOnProfile {
 
   /**
    * The profiles that should be active
+   *
    * @return
    */
   String[] value() default {};

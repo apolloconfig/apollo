@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import javax.persistence.Table;
 
 /**
  * use database as a registry instead of eureka, zookeeper, consul etc.
+ *
  * <p>
  * persist {@link ServiceInstance}
  */
@@ -45,15 +46,11 @@ public class ServiceRegistry {
   @Column(name = "`ServiceName`", nullable = false)
   private String serviceName;
 
-  /**
-   * @see ServiceInstance#getUri()
-   */
+  /** @see ServiceInstance#getUri() */
   @Column(name = "`Uri`", nullable = false)
   private String uri;
 
-  /**
-   * @see ServiceInstance#getCluster()
-   */
+  /** @see ServiceInstance#getCluster() */
   @Column(name = "`Cluster`", nullable = false)
   private String cluster;
 
@@ -64,9 +61,7 @@ public class ServiceRegistry {
   @Column(name = "`DataChange_CreatedTime`", nullable = false)
   private LocalDateTime dataChangeCreatedTime;
 
-  /**
-   * modify by heartbeat
-   */
+  /** modify by heartbeat */
   @Column(name = "`DataChange_LastTime`", nullable = false)
   private LocalDateTime dataChangeLastModifiedTime;
 
@@ -82,15 +77,10 @@ public class ServiceRegistry {
 
   @Override
   public String toString() {
-    return "Registry{" +
-        "id=" + id +
-        ", serviceName='" + serviceName + '\'' +
-        ", uri='" + uri + '\'' +
-        ", cluster='" + cluster + '\'' +
-        ", metadata='" + metadata + '\'' +
-        ", dataChangeCreatedTime=" + dataChangeCreatedTime +
-        ", dataChangeLastModifiedTime=" + dataChangeLastModifiedTime +
-        '}';
+    return "Registry{" + "id=" + id + ", serviceName='" + serviceName + '\'' + ", uri='" + uri
+        + '\'' + ", cluster='" + cluster + '\'' + ", metadata='" + metadata + '\''
+        + ", dataChangeCreatedTime=" + dataChangeCreatedTime + ", dataChangeLastModifiedTime="
+        + dataChangeLastModifiedTime + '}';
   }
 
   public long getId() {

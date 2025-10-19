@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,16 @@
  */
 package com.ctrip.framework.apollo.portal.component.txtresolver;
 
-
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.InjectMocks;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.InjectMocks;
 
 public class PropertyResolverTest extends AbstractUnitTest {
 
@@ -90,15 +87,17 @@ public class PropertyResolverTest extends AbstractUnitTest {
 
   @Test
   public void testDeleteCommentItem() {
-    ItemChangeSets changeSets = resolver.resolve(1, "a=b\n\nb=c", mockBaseItemWith2Key1Comment1Blank());
+    ItemChangeSets changeSets =
+        resolver.resolve(1, "a=b\n\nb=c", mockBaseItemWith2Key1Comment1Blank());
     Assert.assertEquals(1, changeSets.getDeleteItems().size());
     Assert.assertEquals(3, changeSets.getUpdateItems().size());
     Assert.assertEquals(0, changeSets.getCreateItems().size());
   }
 
   @Test
-  public void testDeleteBlankItem(){
-    ItemChangeSets changeSets = resolver.resolve(1, "#qqqq\na=b\nb=c", mockBaseItemWith2Key1Comment1Blank());
+  public void testDeleteBlankItem() {
+    ItemChangeSets changeSets =
+        resolver.resolve(1, "#qqqq\na=b\nb=c", mockBaseItemWith2Key1Comment1Blank());
     Assert.assertEquals(1, changeSets.getDeleteItems().size());
     Assert.assertEquals(1, changeSets.getUpdateItems().size());
     Assert.assertEquals(0, changeSets.getCreateItems().size());
@@ -116,26 +115,23 @@ public class PropertyResolverTest extends AbstractUnitTest {
   @Test
   public void testUpdateCommentItem() {
 
-    ItemChangeSets changeSets = resolver.resolve(1, "#ww\n"
-                                                    + "a=b\n"
-                                                    +"\n"
-                                                    + "b=c", mockBaseItemWith2Key1Comment1Blank());
+    ItemChangeSets changeSets =
+        resolver.resolve(1, "#ww\n" + "a=b\n" + "\n" + "b=c", mockBaseItemWith2Key1Comment1Blank());
     Assert.assertEquals(0, changeSets.getDeleteItems().size());
     Assert.assertEquals(1, changeSets.getUpdateItems().size());
     Assert.assertEquals(0, changeSets.getCreateItems().size());
   }
 
   @Test
-  public void testAllSituation(){
-    ItemChangeSets changeSets = resolver.resolve(1, "#ww\nd=e\nb=c\na=b\n\nq=w\n#eee", mockBaseItemWith2Key1Comment1Blank());
+  public void testAllSituation() {
+    ItemChangeSets changeSets = resolver.resolve(1, "#ww\nd=e\nb=c\na=b\n\nq=w\n#eee",
+        mockBaseItemWith2Key1Comment1Blank());
     Assert.assertEquals(0, changeSets.getDeleteItems().size());
     Assert.assertEquals(4, changeSets.getUpdateItems().size());
     Assert.assertEquals(3, changeSets.getCreateItems().size());
   }
 
-  /**
-   * a=b b=c c=d
-   */
+  /** a=b b=c c=d */
   private List<ItemDTO> mockBaseItemHas3Key() {
     ItemDTO item1 = new ItemDTO("a", "b", "", 1);
     ItemDTO item2 = new ItemDTO("b", "c", "", 2);
@@ -144,9 +140,9 @@ public class PropertyResolverTest extends AbstractUnitTest {
   }
 
   /**
-   * #qqqq
-   * a=b
+   * #qqqq a=b
    *
+   * <p>
    * b=c
    */
   private List<ItemDTO> mockBaseItemWith2Key1Comment1Blank() {
@@ -157,5 +153,4 @@ public class PropertyResolverTest extends AbstractUnitTest {
     i4.setLineNum(4);
     return Arrays.asList(i1, i2, i3, i4);
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,12 @@
  */
 package com.ctrip.framework.apollo.biz.registry;
 
-/**
- * @see org.springframework.cloud.client.serviceregistry.ServiceRegistry
- */
+/** @see org.springframework.cloud.client.serviceregistry.ServiceRegistry */
 public interface DatabaseServiceRegistry {
 
-  /**
-   * register an instance to database
-   */
+  /** register an instance to database */
   void register(ServiceInstance instance);
 
-  /**
-   * remove an instance from database
-   */
+  /** remove an instance from database */
   void deregister(ServiceInstance instance);
 }

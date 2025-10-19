@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.ctrip.framework.apollo.configservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
-import static org.awaitility.Awaitility.*;
 
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.AccessKey;
@@ -34,9 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * @author nisiyong
- */
+/** @author nisiyong */
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class AccessKeyServiceWithCacheTest {
 
@@ -67,12 +65,12 @@ public class AccessKeyServiceWithCacheTest {
   @Test
   public void testGetAvailableSecrets() throws Exception {
     String appId = "someAppId";
-    AccessKey firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false,
-        false, 1577808000000L);
-    AccessKey secondAccessKey = assembleAccessKey(2L, appId, "secret-2", false,
-        false, 1577808001000L);
-    AccessKey thirdAccessKey = assembleAccessKey(3L, appId, "secret-3", true,
-        false, 1577808005000L);
+    AccessKey firstAccessKey =
+        assembleAccessKey(1L, appId, "secret-1", false, false, 1577808000000L);
+    AccessKey secondAccessKey =
+        assembleAccessKey(2L, appId, "secret-2", false, false, 1577808001000L);
+    AccessKey thirdAccessKey =
+        assembleAccessKey(3L, appId, "secret-3", true, false, 1577808005000L);
 
     // Initialize
     accessKeyServiceWithCache.afterPropertiesSet();
@@ -80,18 +78,22 @@ public class AccessKeyServiceWithCacheTest {
     assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty();
 
     // Add access key, disable by default
-    when(accessKeyRepository.findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(new Date(0L)))
-        .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
+    when(accessKeyRepository
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+            new Date(0L))).thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
-    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
+    await().untilAsserted(
+        () -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
 
     // Update access key, enable both of them
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", true, false, 1577808002000L);
     secondAccessKey = assembleAccessKey(2L, appId, "secret-2", true, false, 1577808003000L);
-    when(accessKeyRepository.findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(new Date(1577808001000L)))
-        .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
+    when(accessKeyRepository
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+            new Date(1577808001000L)))
+                .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
@@ -105,8 +107,9 @@ public class AccessKeyServiceWithCacheTest {
 
     // Update access key, disable the first one
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false, false, 1577808004000L);
-    when(accessKeyRepository.findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(new Date(1577808003000L)))
-        .thenReturn(Lists.newArrayList(firstAccessKey));
+    when(accessKeyRepository
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+            new Date(1577808003000L))).thenReturn(Lists.newArrayList(firstAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
@@ -114,15 +117,15 @@ public class AccessKeyServiceWithCacheTest {
         .containsExactly("secret-2"));
 
     // Delete access key, delete the second one
-    when(accessKeyRepository.findAllById(anyList()))
-        .thenReturn(Lists.newArrayList(firstAccessKey));
+    when(accessKeyRepository.findAllById(anyList())).thenReturn(Lists.newArrayList(firstAccessKey));
 
     await().untilAsserted(
         () -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
 
     // Add new access key in runtime, enable by default
-    when(accessKeyRepository.findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(new Date(1577808004000L)))
-        .thenReturn(Lists.newArrayList(thirdAccessKey));
+    when(accessKeyRepository
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+            new Date(1577808004000L))).thenReturn(Lists.newArrayList(thirdAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, thirdAccessKey));
 
@@ -145,8 +148,9 @@ public class AccessKeyServiceWithCacheTest {
 
   /**
    * the referenced object is not reclaimable by garbage collection at least until after the
-   * invocation of this method. see the java 9 method {@link java.lang.ref.Reference#reachabilityFence}
-   * see the netty consistency method for JDK 6-8 {@link io.netty.util.ResourceLeakDetector.DefaultResourceLeak#reachabilityFence0}
+   * invocation of this method. see the java 9 method
+   * {@link java.lang.ref.Reference#reachabilityFence} see the netty consistency method for JDK 6-8
+   * {@link io.netty.util.ResourceLeakDetector.DefaultResourceLeak#reachabilityFence0}
    *
    * @param ref the reference
    */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.NamespaceLock;
-
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface NamespaceLockRepository extends PagingAndSortingRepository<NamespaceLock, Long> {
@@ -25,5 +24,4 @@ public interface NamespaceLockRepository extends PagingAndSortingRepository<Name
   NamespaceLock findByNamespaceId(Long namespaceId);
 
   Long deleteByNamespaceId(Long namespaceId);
-
 }

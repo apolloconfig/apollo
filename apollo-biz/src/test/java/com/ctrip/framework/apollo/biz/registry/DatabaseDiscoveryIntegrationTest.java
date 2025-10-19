@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,22 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-/**
- * test when {@link DatabaseDiscoveryClient} is warped by decorator.
- */
-@TestPropertySource(
-    properties = {
-        "apollo.service.registry.enabled=true",
-        "apollo.service.registry.cluster=default",
-        "apollo.service.discovery.enabled=true",
-        "spring.application.name=for-test-service",
-        "server.port=10000",
-    }
-)
-@ContextConfiguration(classes = {
-    ApolloServiceRegistryAutoConfiguration.class,
-    ApolloServiceDiscoveryAutoConfiguration.class,
-})
+/** test when {@link DatabaseDiscoveryClient} is warped by decorator. */
+@TestPropertySource(properties = {"apollo.service.registry.enabled=true",
+    "apollo.service.registry.cluster=default", "apollo.service.discovery.enabled=true",
+    "spring.application.name=for-test-service", "server.port=10000",})
+@ContextConfiguration(classes = {ApolloServiceRegistryAutoConfiguration.class,
+    ApolloServiceDiscoveryAutoConfiguration.class,})
 public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
 
   private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -56,18 +46,14 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
   @Autowired
   private DatabaseDiscoveryClient discoveryClient;
 
-  /**
-   * discover one after register, and delete it
-   */
+  /** discover one after register, and delete it */
   @Test
   public void registerThenDiscoveryThenDelete() {
     // register it
     String serviceName = "a-service";
     String uri = "http://192.168.1.20:8080/";
     String cluster = "default";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, uri, cluster
-    );
+    ServiceInstance instance = newServiceInstance(serviceName, uri, cluster);
     this.serviceRegistry.register(instance);
 
     // find it
@@ -85,16 +71,13 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
     assertEquals(1, this.discoveryClient.getInstances(serviceName).size());
   }
 
-  /**
-   * diff cluster so cannot be discover
-   */
+  /** diff cluster so cannot be discover */
   @Test
   public void registerThenDiscoveryNone() {
     // register it
     String serviceName = "b-service";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, "http://192.168.1.20:8080/", "cannot-be-discovery"
-    );
+    ServiceInstance instance =
+        newServiceInstance(serviceName, "http://192.168.1.20:8080/", "cannot-be-discovery");
     this.serviceRegistry.register(instance);
 
     // find none
@@ -105,9 +88,8 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
   @Test
   public void registerTwice() {
     String serviceName = "c-service";
-    ServiceInstance instance = newServiceInstance(
-        serviceName, "http://192.168.1.20:8080/", "default"
-    );
+    ServiceInstance instance =
+        newServiceInstance(serviceName, "http://192.168.1.20:8080/", "default");
 
     // register it
     this.serviceRegistry.register(instance);
@@ -124,16 +106,10 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
     final String serviceName = "d-service";
     final String cluster = "default";
 
-    this.serviceRegistry.register(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:8080/", cluster
-        )
-    );
-    this.serviceRegistry.register(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:10000/", cluster
-        )
-    );
+    this.serviceRegistry
+        .register(newServiceInstance(serviceName, "http://192.168.1.20:8080/", cluster));
+    this.serviceRegistry
+        .register(newServiceInstance(serviceName, "http://192.168.1.20:10000/", cluster));
 
     final List<ServiceInstance> serviceInstances = this.discoveryClient.getInstances(serviceName);
     assertEquals(2, serviceInstances.size());
@@ -145,11 +121,8 @@ public class DatabaseDiscoveryIntegrationTest extends AbstractIntegrationTest {
     }
 
     // delete one
-    this.serviceRegistry.deregister(
-        newServiceInstance(
-            serviceName, "http://192.168.1.20:10000/", cluster
-        )
-    );
+    this.serviceRegistry
+        .deregister(newServiceInstance(serviceName, "http://192.168.1.20:10000/", cluster));
 
     // because it save in memory, so we can still find it
     assertEquals(2, this.discoveryClient.getInstances(serviceName).size());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,9 +24,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * @author lepdou 2017-04-08
- */
+/** @author lepdou 2017-04-08 */
 @Entity
 @Table(name = "`Users`")
 public class UserPO {
@@ -36,14 +33,19 @@ public class UserPO {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "`Id`")
   private long id;
+
   @Column(name = "`Username`", nullable = false)
   private String username;
+
   @Column(name = "`UserDisplayName`", nullable = false)
   private String userDisplayName;
+
   @Column(name = "`Password`", nullable = false)
   private String password;
+
   @Column(name = "`Email`", nullable = false)
   private String email;
+
   @Column(name = "`Enabled`", nullable = false)
   private int enabled;
 

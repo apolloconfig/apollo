@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,8 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
 
     // assign role to user
     restTemplate.postForEntity(
-        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}"), entity, Void.class,
-        appId, env, clusterName, roleType);
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}"), entity,
+        Void.class, appId, env, clusterName, roleType);
 
     // check role assigned
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> afterAssign = restTemplate.getForEntity(
@@ -89,8 +89,8 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
 
     // remove role from user
     restTemplate.delete(
-        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}?user={user}"), appId,
-        env, clusterName, roleType, user);
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}?user={user}"),
+        appId, env, clusterName, roleType, user);
 
     // check role removed
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> afterRemove = restTemplate.getForEntity(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,13 @@ package com.ctrip.framework.apollo.portal.service;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
-
 import java.util.List;
 import java.util.Set;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public interface RolePermissionService {
 
-  /**
-   * Create role with permissions, note that role name should be unique
-   */
+  /** Create role with permissions, note that role name should be unique */
   Role createRoleWithPermissions(Role role, Set<Long> permissionIds);
 
   /**
@@ -38,58 +33,39 @@ public interface RolePermissionService {
    *
    * @return the users assigned roles
    */
-  Set<String> assignRoleToUsers(String roleName, Set<String> userIds,
-      String operatorUserId);
+  Set<String> assignRoleToUsers(String roleName, Set<String> userIds, String operatorUserId);
 
-  /**
-   * Remove role from users
-   */
+  /** Remove role from users */
   void removeRoleFromUsers(String roleName, Set<String> userIds, String operatorUserId);
 
-  /**
-   * Query users with role
-   */
+  /** Query users with role */
   Set<UserInfo> queryUsersWithRole(String roleName);
 
-  /**
-   * Find role by role name, note that roleName should be unique
-   */
+  /** Find role by role name, note that roleName should be unique */
   Role findRoleByRoleName(String roleName);
 
-  /**
-   * Check whether user has the permission
-   */
+  /** Check whether user has the permission */
   boolean userHasPermission(String userId, String permissionType, String targetId);
 
-  /**
-   * Find the user's roles
-   */
+  /** Find the user's roles */
   List<Role> findUserRoles(String userId);
 
   boolean isSuperAdmin(String userId);
 
-  /**
-   * Create permission, note that permissionType + targetId should be unique
-   */
+  /** Create permission, note that permissionType + targetId should be unique */
   Permission createPermission(Permission permission);
 
-  /**
-   * Create permissions, note that permissionType + targetId should be unique
-   */
+  /** Create permissions, note that permissionType + targetId should be unique */
   Set<Permission> createPermissions(Set<Permission> permissions);
 
-  /**
-   * delete permissions when delete app.
-   */
+  /** delete permissions when delete app. */
   void deleteRolePermissionsByAppId(String appId, String operator);
 
-  /**
-   * delete permissions when delete app namespace.
-   */
-  void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName, String operator);
+  /** delete permissions when delete app namespace. */
+  void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName,
+      String operator);
 
-  /**
-   * delete permissions when delete cluster.
-   */
-  void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
+  /** delete permissions when delete cluster. */
+  void deleteRolePermissionsByCluster(String appId, String env, String clusterName,
+      String operator);
 }

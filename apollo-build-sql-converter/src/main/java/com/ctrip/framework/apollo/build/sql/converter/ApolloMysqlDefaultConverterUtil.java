@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,12 @@
  */
 package com.ctrip.framework.apollo.build.sql.converter;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApolloMysqlDefaultConverterUtil {
@@ -47,8 +44,7 @@ public class ApolloMysqlDefaultConverterUtil {
 
     List<SqlStatement> sqlStatements = ApolloSqlConverterUtil.toStatements(rawText);
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(targetSql),
-            StandardCharsets.UTF_8, StandardOpenOption.CREATE,
-            StandardOpenOption.TRUNCATE_EXISTING)) {
+        StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
       for (SqlStatement sqlStatement : sqlStatements) {
         String convertedText = convertMainMysqlLine(sqlStatement, databaseName);
         bufferedWriter.write(convertedText);

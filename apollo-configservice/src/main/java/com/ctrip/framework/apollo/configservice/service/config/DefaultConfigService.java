@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,9 @@ public class DefaultConfigService extends AbstractConfigService {
   }
 
   @Override
-  protected Release findLatestActiveRelease(String configAppId, String configClusterName, String configNamespace,
-                                            ApolloNotificationMessages clientMessages) {
-    return releaseService.findLatestActiveRelease(configAppId, configClusterName,
-        configNamespace);
+  protected Release findLatestActiveRelease(String configAppId, String configClusterName,
+      String configNamespace, ApolloNotificationMessages clientMessages) {
+    return releaseService.findLatestActiveRelease(configAppId, configClusterName, configNamespace);
   }
 
   @Override
@@ -65,7 +64,8 @@ public class DefaultConfigService extends AbstractConfigService {
   public Map<String, Release> findReleasesByReleaseKeys(Set<String> releaseKeys) {
     List<Release> releasesMap = releaseService.findByReleaseKeys(releaseKeys);
     if (releasesMap != null) {
-      return releasesMap.stream().collect(ImmutableMap.toImmutableMap(Release::getReleaseKey, release -> release));
+      return releasesMap.stream()
+          .collect(ImmutableMap.toImmutableMap(Release::getReleaseKey, release -> release));
     }
     return Collections.emptyMap();
   }

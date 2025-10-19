@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Instance;
-
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface InstanceRepository extends PagingAndSortingRepository<Instance, Long> {
-  Instance findByAppIdAndClusterNameAndDataCenterAndIp(String appId, String clusterName, String dataCenter, String ip);
+  Instance findByAppIdAndClusterNameAndDataCenterAndIp(String appId, String clusterName,
+      String dataCenter, String ip);
 }

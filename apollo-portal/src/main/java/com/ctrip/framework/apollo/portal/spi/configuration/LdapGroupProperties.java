@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  *
  */
-
-
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 /**
@@ -25,19 +23,13 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
  */
 public class LdapGroupProperties {
 
-  /**
-   * group search base
-   */
+  /** group search base */
   private String groupBase;
 
-  /**
-   * group search filter
-   */
+  /** group search filter */
   private String groupSearch;
 
-  /**
-   * group membership prop
-   */
+  /** group membership prop */
   private String groupMembership;
 
   public String getGroupBase() {

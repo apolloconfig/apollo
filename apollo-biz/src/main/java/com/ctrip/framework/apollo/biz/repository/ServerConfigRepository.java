@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
-
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public interface ServerConfigRepository extends PagingAndSortingRepository<ServerConfig, Long> {
   ServerConfig findTopByKeyAndCluster(String key, String cluster);
 

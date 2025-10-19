@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
 
-  /**
-   * find role by role name
-   */
+  /** find role by role name */
   Role findTopByRoleName(String roleName);
 
   @Query("SELECT r.id from Role r where r.roleName like CONCAT('Master+', ?1) "

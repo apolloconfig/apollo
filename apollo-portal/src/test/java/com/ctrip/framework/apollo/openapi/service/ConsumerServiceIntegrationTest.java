@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,16 +31,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 public class ConsumerServiceIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired
   private ConsumerService consumerService;
 
   @Test
-  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(
+      scripts = "/sql/openapi/ConsumerServiceIntegrationTest.testFindAppIdsAuthorizedByConsumerId.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindAppIdsAuthorizedByConsumerId() {
     Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(1000L);
@@ -49,7 +49,8 @@ public class ConsumerServiceIntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindAllConsumer() {
     List<Consumer> consumerList = consumerService.findAllConsumer(Pageable.ofSize(1));
@@ -59,20 +60,19 @@ public class ConsumerServiceIntegrationTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/openapi/ConsumerServiceIntegrationTest.commonData.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testDeleteConsumer() {
     long consumerId = 1000;
     String appId = "consumer-test-app-role";
 
-    Assertions.assertThatNoException()
-        .isThrownBy(()-> consumerService.deleteConsumer(appId));
+    Assertions.assertThatNoException().isThrownBy(() -> consumerService.deleteConsumer(appId));
 
     Assertions.assertThatExceptionOfType(BadRequestException.class)
-        .isThrownBy(()-> consumerService.deleteConsumer(appId))
+        .isThrownBy(() -> consumerService.deleteConsumer(appId))
         .withMessage("ConsumerApp not exist");
 
-    Assertions.assertThat(consumerService.getConsumerByConsumerId(consumerId))
-        .isNull();
+    Assertions.assertThat(consumerService.getConsumerByConsumerId(consumerId)).isNull();
   }
 }

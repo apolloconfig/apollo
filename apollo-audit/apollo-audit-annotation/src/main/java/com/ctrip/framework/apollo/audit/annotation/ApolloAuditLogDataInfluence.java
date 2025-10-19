@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,15 @@ import java.lang.annotation.Target;
 
 /**
  * Combine with {@link ApolloAuditLog}, mark which method's parameter is audit log's data change.
- * <p></p>
+ *
+ * <p>
  * Example usage:
+ *
  * <pre>
  * {@code
- * @ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
+ * &#64;ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
  * public AppNamespace batchDeleteByAppId(
- *            @ApolloAuditLogDataInfluence String appId) {
+ *            &#64;ApolloAuditLogDataInfluence String appId) {
  *   // ...
  * }
  * }
@@ -41,5 +43,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ApolloAuditLogDataInfluence {
-
 }

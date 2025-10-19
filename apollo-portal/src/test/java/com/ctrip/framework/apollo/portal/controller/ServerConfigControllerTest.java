@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,16 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
+import java.util.*;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -28,13 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.web.client.HttpClientErrorException;
-
-import java.util.*;
-
-import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by kezhenxu at 2019/1/14 13:24.
@@ -55,9 +54,8 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("validKey");
     serverConfig.setValue("validValue");
-    ResponseEntity<ServerConfig> responseEntity = restTemplate.postForEntity(
-        url("/server/portal-db/config"), serverConfig, ServerConfig.class
-    );
+    ResponseEntity<ServerConfig> responseEntity = restTemplate
+        .postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
     assertEquals(responseEntity.getBody().getKey(), serverConfig.getKey());
     assertEquals(responseEntity.getBody().getValue(), serverConfig.getValue());
   }
@@ -68,28 +66,20 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setKey("  ");
     serverConfig.setValue("valid");
     try {
-      restTemplate.postForEntity(
-          url("/server/portal-db/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
-          new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Key cannot be blank")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("ServerConfig.Key cannot be blank"));
     }
     serverConfig.setKey("valid");
     serverConfig.setValue("   ");
     try {
-      restTemplate.postForEntity(
-          url("/server/portal-db/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
-          new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Value cannot be blank")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("ServerConfig.Value cannot be blank"));
     }
   }
 
@@ -105,6 +95,5 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfigList = serverConfigController.findAllConfigDBServerConfig(Env.DEV.getName());
     Assert.assertNotNull(serverConfigList);
     Assert.assertEquals(0, serverConfigList.size());
-
   }
 }

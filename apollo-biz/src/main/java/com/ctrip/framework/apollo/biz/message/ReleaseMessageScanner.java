@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,13 @@
  */
 package com.ctrip.framework.apollo.biz.message;
 
+import com.ctrip.framework.apollo.biz.config.BizConfig;
+import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
+import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
+import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
+import com.ctrip.framework.apollo.tracer.Tracer;
+import com.ctrip.framework.apollo.tracer.spi.Transaction;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Iterator;
 import java.util.List;
@@ -25,32 +32,23 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
 
-import com.ctrip.framework.apollo.biz.config.BizConfig;
-import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
-import com.ctrip.framework.apollo.biz.repository.ReleaseMessageRepository;
-import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
-import com.ctrip.framework.apollo.tracer.Tracer;
-import com.ctrip.framework.apollo.tracer.spi.Transaction;
-import com.google.common.collect.Lists;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public class ReleaseMessageScanner implements InitializingBean {
   private static final Logger logger = LoggerFactory.getLogger(ReleaseMessageScanner.class);
-  private static final int missingReleaseMessageMaxAge = 10; // hardcoded to 10, could be configured via BizConfig if necessary
+  private static final int missingReleaseMessageMaxAge = 10; // hardcoded to 10, could be configured
+                                                             // via BizConfig if necessary
   private final BizConfig bizConfig;
   private final ReleaseMessageRepository releaseMessageRepository;
   private int databaseScanInterval;
   private final List<ReleaseMessageListener> listeners;
   private final ScheduledExecutorService executorService;
-  private final Map<Long, Integer> missingReleaseMessages; // missing release message id => age counter
+  private final Map<Long, Integer> missingReleaseMessages; // missing release message id => age
+                                                           // counter
   private long maxIdScanned;
 
   public ReleaseMessageScanner(final BizConfig bizConfig,
@@ -58,8 +56,8 @@ public class ReleaseMessageScanner implements InitializingBean {
     this.bizConfig = bizConfig;
     this.releaseMessageRepository = releaseMessageRepository;
     listeners = Lists.newCopyOnWriteArrayList();
-    executorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory
-        .create("ReleaseMessageScanner", true));
+    executorService = Executors.newScheduledThreadPool(1,
+        ApolloThreadFactory.create("ReleaseMessageScanner", true));
     missingReleaseMessages = Maps.newHashMap();
   }
 
@@ -68,7 +66,8 @@ public class ReleaseMessageScanner implements InitializingBean {
     databaseScanInterval = bizConfig.releaseMessageScanIntervalInMilli();
     maxIdScanned = loadLargestMessageId();
     executorService.scheduleWithFixedDelay(() -> {
-      Transaction transaction = Tracer.newTransaction("Apollo.ReleaseMessageScanner", "scanMessage");
+      Transaction transaction =
+          Tracer.newTransaction("Apollo.ReleaseMessageScanner", "scanMessage");
       try {
         scanMissingMessages();
         scanMessages();
@@ -80,11 +79,11 @@ public class ReleaseMessageScanner implements InitializingBean {
         transaction.complete();
       }
     }, databaseScanInterval, databaseScanInterval, TimeUnit.MILLISECONDS);
-
   }
 
   /**
    * add message listeners for release message
+   *
    * @param listener
    */
   public void addMessageListener(ReleaseMessageListener listener) {
@@ -93,9 +92,7 @@ public class ReleaseMessageScanner implements InitializingBean {
     }
   }
 
-  /**
-   * Scan messages, continue scanning until there is no more messages
-   */
+  /** Scan messages, continue scanning until there is no more messages */
   private void scanMessages() {
     boolean hasMoreMessages = true;
     while (hasMoreMessages && !Thread.currentThread().isInterrupted()) {
@@ -109,7 +106,7 @@ public class ReleaseMessageScanner implements InitializingBean {
    * @return whether there are more messages
    */
   private boolean scanAndSendMessages() {
-    //current batch is 500
+    // current batch is 500
     List<ReleaseMessage> releaseMessages =
         releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(maxIdScanned);
     if (CollectionUtils.isEmpty(releaseMessages)) {
@@ -128,8 +125,8 @@ public class ReleaseMessageScanner implements InitializingBean {
 
   private void scanMissingMessages() {
     Set<Long> missingReleaseMessageIds = missingReleaseMessages.keySet();
-    Iterable<ReleaseMessage> releaseMessages = releaseMessageRepository
-        .findAllById(missingReleaseMessageIds);
+    Iterable<ReleaseMessage> releaseMessages =
+        releaseMessageRepository.findAllById(missingReleaseMessageIds);
     fireMessageScanned(releaseMessages);
     releaseMessages.forEach(releaseMessage -> {
       missingReleaseMessageIds.remove(releaseMessage.getId());
@@ -138,8 +135,7 @@ public class ReleaseMessageScanner implements InitializingBean {
   }
 
   private void growAndCleanMissingMessages() {
-    Iterator<Entry<Long, Integer>> iterator = missingReleaseMessages.entrySet()
-        .iterator();
+    Iterator<Entry<Long, Integer>> iterator = missingReleaseMessages.entrySet().iterator();
     while (iterator.hasNext()) {
       Entry<Long, Integer> entry = iterator.next();
       if (entry.getValue() > missingReleaseMessageMaxAge) {
@@ -164,6 +160,7 @@ public class ReleaseMessageScanner implements InitializingBean {
 
   /**
    * find largest message id as the current start point
+   *
    * @return current largest message id
    */
   private long loadLargestMessageId() {
@@ -173,6 +170,7 @@ public class ReleaseMessageScanner implements InitializingBean {
 
   /**
    * Notify listeners with messages loaded
+   *
    * @param messages
    */
   private void fireMessageScanned(Iterable<ReleaseMessage> messages) {

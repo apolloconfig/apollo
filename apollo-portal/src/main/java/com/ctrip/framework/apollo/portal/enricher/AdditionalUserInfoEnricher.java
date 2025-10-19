@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,13 @@ import com.ctrip.framework.apollo.portal.enricher.adapter.UserInfoEnrichedAdapte
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import java.util.Map;
 
-/**
- * @author vdisk <vdisk@foxmail.com>
- */
+/** @author vdisk <vdisk@foxmail.com> */
 public interface AdditionalUserInfoEnricher {
 
   /**
    * enrich an additional user info for the dto list
    *
-   * @param adapter     enrich adapter
+   * @param adapter enrich adapter
    * @param userInfoMap userInfo map
    */
   void enrichAdditionalUserInfo(UserInfoEnrichedAdapter adapter, Map<String, UserInfo> userInfoMap);

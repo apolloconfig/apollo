@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,18 +29,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-/**
- * Default discovery service for Eureka
- */
+/** Default discovery service for Eureka */
 @Service
-@ConditionalOnMissingProfile({
-    "kubernetes",
-    "nacos-discovery",
-    "consul-discovery",
-    "zookeeper-discovery",
-    "custom-defined-discovery",
-    "database-discovery",
-})
+@ConditionalOnMissingProfile({"kubernetes", "nacos-discovery", "consul-discovery",
+    "zookeeper-discovery", "custom-defined-discovery", "database-discovery",})
 public class DefaultDiscoveryService implements DiscoveryService {
 
   private final EurekaClient eurekaClient;
@@ -60,11 +52,12 @@ public class DefaultDiscoveryService implements DiscoveryService {
         .collect(Collectors.toList());
   }
 
-  private static final Function<InstanceInfo, ServiceDTO> instanceInfoToServiceDTOFunc = instance -> {
-    ServiceDTO service = new ServiceDTO();
-    service.setAppName(instance.getAppName());
-    service.setInstanceId(instance.getInstanceId());
-    service.setHomepageUrl(instance.getHomePageUrl());
-    return service;
-  };
+  private static final Function<InstanceInfo, ServiceDTO> instanceInfoToServiceDTOFunc =
+      instance -> {
+        ServiceDTO service = new ServiceDTO();
+        service.setAppName(instance.getAppName());
+        service.setInstanceId(instance.getInstanceId());
+        service.setHomepageUrl(instance.getHomePageUrl());
+        return service;
+      };
 }

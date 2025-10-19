@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,17 +24,14 @@ import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-/**
- * use database as a registry
- */
+/** use database as a registry */
 @Service
 @Profile("database-discovery")
 public class DatabaseDiscoveryService implements DiscoveryService {
 
   private final DatabaseDiscoveryClient discoveryClient;
 
-  public DatabaseDiscoveryService(
-      DatabaseDiscoveryClient discoveryClient) {
+  public DatabaseDiscoveryService(DatabaseDiscoveryClient discoveryClient) {
     this.discoveryClient = discoveryClient;
   }
 

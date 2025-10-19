@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,46 +30,42 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultRolePermissionSe
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * @author Timothy Liu(timothy.liu@cvte.com)
- */
+/** @author Timothy Liu(timothy.liu@cvte.com) */
 @Configuration
 public class RoleConfiguration {
 
-    private final RoleRepository roleRepository;
-    private final RolePermissionRepository rolePermissionRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final PermissionRepository permissionRepository;
-    private final PortalConfig portalConfig;
-    private final ConsumerRoleRepository consumerRoleRepository;
-    private final UserService userService;
+  private final RoleRepository roleRepository;
+  private final RolePermissionRepository rolePermissionRepository;
+  private final UserRoleRepository userRoleRepository;
+  private final PermissionRepository permissionRepository;
+  private final PortalConfig portalConfig;
+  private final ConsumerRoleRepository consumerRoleRepository;
+  private final UserService userService;
 
-    public RoleConfiguration(final RoleRepository roleRepository,
-        final RolePermissionRepository rolePermissionRepository,
-        final UserRoleRepository userRoleRepository,
-        final PermissionRepository permissionRepository,
-        final PortalConfig portalConfig,
-        final ConsumerRoleRepository consumerRoleRepository,
-        final UserService userService) {
-      this.roleRepository = roleRepository;
-      this.rolePermissionRepository = rolePermissionRepository;
-      this.userRoleRepository = userRoleRepository;
-      this.permissionRepository = permissionRepository;
-      this.portalConfig = portalConfig;
-      this.consumerRoleRepository = consumerRoleRepository;
-      this.userService = userService;
-    }
+  public RoleConfiguration(final RoleRepository roleRepository,
+      final RolePermissionRepository rolePermissionRepository,
+      final UserRoleRepository userRoleRepository, final PermissionRepository permissionRepository,
+      final PortalConfig portalConfig, final ConsumerRoleRepository consumerRoleRepository,
+      final UserService userService) {
+    this.roleRepository = roleRepository;
+    this.rolePermissionRepository = rolePermissionRepository;
+    this.userRoleRepository = userRoleRepository;
+    this.permissionRepository = permissionRepository;
+    this.portalConfig = portalConfig;
+    this.consumerRoleRepository = consumerRoleRepository;
+    this.userService = userService;
+  }
 
-    @Bean
-    public RoleInitializationService roleInitializationService() {
-        return new DefaultRoleInitializationService(rolePermissionService(), portalConfig,
-            permissionRepository);
-    }
+  @Bean
+  public RoleInitializationService roleInitializationService() {
+    return new DefaultRoleInitializationService(rolePermissionService(), portalConfig,
+        permissionRepository);
+  }
 
-    @Bean
-    public RolePermissionService rolePermissionService() {
-        return new DefaultRolePermissionService(roleRepository, rolePermissionRepository,
-            userRoleRepository, permissionRepository, portalConfig, consumerRoleRepository,
-            userService);
-    }
+  @Bean
+  public RolePermissionService rolePermissionService() {
+    return new DefaultRolePermissionService(roleRepository, rolePermissionRepository,
+        userRoleRepository, permissionRepository, portalConfig, consumerRoleRepository,
+        userService);
+  }
 }

@@ -628,6 +628,24 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>2.23.0</version>
+				<configuration>
+					<java>
+						<eclipse>
+							<file>apollo-buildtools/style/eclipse-java-google-style.xml</file>
+						</eclipse>
+						<licenseHeader>
+							<file>apollo-buildtools/header/apollo-license</file>
+						</licenseHeader>
+						<removeUnusedImports/>
+						<trimTrailingWhitespace/>
+						<endWithNewline/>
+					</java>
+				</configuration>
+			</plugin>
 		</plugins>
 		<resources>
 			<resource>

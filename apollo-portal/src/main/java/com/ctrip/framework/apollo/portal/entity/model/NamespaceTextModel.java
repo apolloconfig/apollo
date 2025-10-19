@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.entity.model;
 
-
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.environment.Env;
 
 public class NamespaceTextModel implements Verifiable {
 
@@ -31,7 +30,6 @@ public class NamespaceTextModel implements Verifiable {
   private String format;
   private String configText;
   private String operator;
-
 
   @Override
   public boolean isInvalid() {

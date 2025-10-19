@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.entity.vo.consumer;
 
-/**
- * @see com.ctrip.framework.apollo.openapi.entity.Consumer
- */
+/** @see com.ctrip.framework.apollo.openapi.entity.Consumer */
 public class ConsumerCreateRequestVO {
   private String appId;
   private boolean allowCreateApplication;
@@ -92,5 +90,4 @@ public class ConsumerCreateRequestVO {
   public void setRateLimit(int rateLimit) {
     this.rateLimit = rateLimit;
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,16 @@
 package com.ctrip.framework.apollo.openapi.repository;
 
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
-
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.Date;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public interface ConsumerTokenRepository extends PagingAndSortingRepository<ConsumerToken, Long> {
   /**
    * find consumer token by token
    *
-   * @param token     the token
+   * @param token the token
    * @param validDate the date when the token is valid
    */
   ConsumerToken findTopByTokenAndExpiresAfter(String token, Date validDate);
@@ -38,5 +34,4 @@ public interface ConsumerTokenRepository extends PagingAndSortingRepository<Cons
   ConsumerToken findByConsumerId(Long consumerId);
 
   List<ConsumerToken> findByConsumerIdIn(List<Long> consumerIds);
-
 }

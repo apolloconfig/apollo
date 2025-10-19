@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,19 @@ package com.ctrip.framework.apollo.biz.registry;
 import java.net.URI;
 import java.util.Map;
 
-/**
- * @see org.springframework.cloud.client.ServiceInstance
- */
+/** @see org.springframework.cloud.client.ServiceInstance */
 public interface ServiceInstance {
 
-  /**
-   * @return The service ID as registered.
-   */
+  /** @return The service ID as registered. */
   String getServiceName();
 
   /**
    * get the uri of a service instance, for example:
+   *
    * <ul>
-   *   <li><a href="http://localhost:8080/">http://localhost:8080/</a></li>
-   *   <li><a href="http://10.240.12.34:8080/">http://10.240.12.34:8080/</a></li>
-   *   <li><a href="http://47.56.23.34:8080/">http://47.56.23.34:8080/</a></li>
+   * <li><a href="http://localhost:8080/">http://localhost:8080/</a>
+   * <li><a href="http://10.240.12.34:8080/">http://10.240.12.34:8080/</a>
+   * <li><a href="http://47.56.23.34:8080/">http://47.56.23.34:8080/</a>
    * </ul>
    *
    * @return The service URI address.
@@ -43,7 +40,8 @@ public interface ServiceInstance {
 
   /**
    * Tag a service instance for service discovery.
-   * <p/>
+   *
+   * <p>
    * so use cluster for service discovery.
    *
    * @return The cluster of the service instance.

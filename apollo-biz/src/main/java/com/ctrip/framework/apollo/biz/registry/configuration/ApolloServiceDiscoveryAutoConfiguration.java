@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientAlwaysAddS
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientImpl;
 import com.ctrip.framework.apollo.biz.registry.DatabaseDiscoveryClientMemoryCacheDecoratorImpl;
 import com.ctrip.framework.apollo.biz.registry.ServiceInstance;
-import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryClearApplicationRunner;
 import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceDiscoveryProperties;
+import com.ctrip.framework.apollo.biz.registry.configuration.support.ApolloServiceRegistryClearApplicationRunner;
 import com.ctrip.framework.apollo.biz.service.ServiceRegistryService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -31,52 +31,37 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnProperty(
-    prefix = ApolloServiceDiscoveryProperties.PREFIX,
-    value = "enabled"
-)
-@EnableConfigurationProperties({
-    ApolloServiceDiscoveryProperties.class,
-})
+@ConditionalOnProperty(prefix = ApolloServiceDiscoveryProperties.PREFIX, value = "enabled")
+@EnableConfigurationProperties({ApolloServiceDiscoveryProperties.class,})
 public class ApolloServiceDiscoveryAutoConfiguration {
 
-
   private static DatabaseDiscoveryClient wrapMemoryCache(DatabaseDiscoveryClient discoveryClient) {
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(discoveryClient);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(discoveryClient);
     decorator.init();
     return decorator;
   }
 
   private static DatabaseDiscoveryClient wrapAlwaysAddSelfInstance(
-      DatabaseDiscoveryClient discoveryClient,
-      ServiceInstance selfInstance
-  ) {
-    return new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
-            discoveryClient, selfInstance
-    );
+      DatabaseDiscoveryClient discoveryClient, ServiceInstance selfInstance) {
+    return new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(discoveryClient,
+        selfInstance);
   }
 
   @Bean
   @ConditionalOnMissingBean
   public DatabaseDiscoveryClient databaseDiscoveryClient(
-      ApolloServiceDiscoveryProperties discoveryProperties,
-      ServiceInstance selfServiceInstance,
-      ServiceRegistryService serviceRegistryService
-  ) {
+      ApolloServiceDiscoveryProperties discoveryProperties, ServiceInstance selfServiceInstance,
+      ServiceRegistryService serviceRegistryService) {
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster()
-    );
-    return wrapMemoryCache(
-        wrapAlwaysAddSelfInstance(discoveryClient, selfServiceInstance)
-    );
+        serviceRegistryService, discoveryProperties, selfServiceInstance.getCluster());
+    return wrapMemoryCache(wrapAlwaysAddSelfInstance(discoveryClient, selfServiceInstance));
   }
 
   @Bean
   @ConditionalOnMissingBean
   public ApolloServiceRegistryClearApplicationRunner apolloServiceRegistryClearApplicationRunner(
-      ServiceRegistryService serviceRegistryService
-  ) {
+      ServiceRegistryService serviceRegistryService) {
     return new ApolloServiceRegistryClearApplicationRunner(serviceRegistryService);
   }
 }

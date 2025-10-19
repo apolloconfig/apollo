@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,14 +36,8 @@ public class AuthUserPasswordCheckerTest {
   public void testRegexMatch() {
     PortalConfig mock = Mockito.mock(PortalConfig.class);
     AuthUserPasswordChecker checker = new AuthUserPasswordChecker(mock);
-    List<String> unMatchList = Arrays.asList(
-        "11111111",
-        "oibjdiel",
-        "oso87b6",
-        "0vb9xibowkd8bz9dsxbef",
-        "",
-        null
-    );
+    List<String> unMatchList =
+        Arrays.asList("11111111", "oibjdiel", "oso87b6", "0vb9xibowkd8bz9dsxbef", "", null);
     String exceptedErrMsg = "Password needs a number and letter and between 8~20 characters";
 
     for (String p : unMatchList) {
@@ -52,11 +46,7 @@ public class AuthUserPasswordCheckerTest {
       Assert.assertEquals(exceptedErrMsg, res.getMessage());
     }
 
-    List<String> matchList = Arrays.asList(
-        "pziv0g87",
-        "8f7zjpf8sci93",
-        "Upz4jF8u2yjV3wn8zp6c"
-    );
+    List<String> matchList = Arrays.asList("pziv0g87", "8f7zjpf8sci93", "Upz4jF8u2yjV3wn8zp6c");
 
     for (String p : matchList) {
       CheckResult res = checker.checkWeakPassword(p);

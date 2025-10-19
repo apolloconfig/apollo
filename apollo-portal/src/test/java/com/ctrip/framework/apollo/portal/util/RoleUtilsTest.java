@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ public class RoleUtilsTest {
   public void testExtractAppIdFromMasterRoleName() throws Exception {
     assertEquals("someApp", RoleUtils.extractAppIdFromMasterRoleName("Master+someApp"));
     assertEquals("someApp", RoleUtils.extractAppIdFromMasterRoleName("Master+someApp+xx"));
-
 
     assertNull(RoleUtils.extractAppIdFromMasterRoleName("ReleaseNamespace+app1+application"));
   }

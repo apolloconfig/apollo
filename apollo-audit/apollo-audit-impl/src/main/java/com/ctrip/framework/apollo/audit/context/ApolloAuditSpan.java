@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,12 @@ public class ApolloAuditSpan {
     return this.context;
   }
 
-  //just do nothing
+  // just do nothing
   public void finish() {
     endTime = new Date();
   }
 
-  public void log() {
-  }
+  public void log() {}
 
   // sugar method
   public String spanId() {

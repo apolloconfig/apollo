@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,9 +59,9 @@ public class ApolloAuditControllerTest {
       Mockito.when(api.queryLogs(Mockito.eq(page), Mockito.eq(size))).thenReturn(mockLogDTOList);
     }
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/logs")
-                .param("page", String.valueOf(page))
-                .param("size", String.valueOf(size)))
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/apollo/audit/logs")
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(size));
@@ -74,14 +74,13 @@ public class ApolloAuditControllerTest {
     final String traceId = "query-trace-id";
     final int traceDetailsListLength = 3;
     {
-      List<ApolloAuditLogDetailsDTO> mockDetailsDTOList = MockBeanFactory.mockTraceDetailsDTOListByLength(
-          traceDetailsListLength);
+      List<ApolloAuditLogDetailsDTO> mockDetailsDTOList =
+          MockBeanFactory.mockTraceDetailsDTOListByLength(traceDetailsListLength);
       mockDetailsDTOList.forEach(e -> e.getLogDTO().setTraceId(traceId));
       Mockito.when(api.queryTraceDetails(Mockito.eq(traceId))).thenReturn(mockDetailsDTOList);
     }
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/trace")
-            .param("traceId", traceId))
+    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/trace").param("traceId", traceId))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(traceDetailsListLength))
@@ -102,24 +101,21 @@ public class ApolloAuditControllerTest {
       mockLogDTOList.forEach(e -> {
         e.setOpName(opName);
       });
-      Mockito.when(
-          api.queryLogsByOpName(Mockito.eq(opName), Mockito.eq(startDate), Mockito.eq(endDate),
-              Mockito.eq(page), Mockito.eq(size))).thenReturn(mockLogDTOList);
+      Mockito.when(api.queryLogsByOpName(Mockito.eq(opName), Mockito.eq(startDate),
+          Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size))).thenReturn(mockLogDTOList);
     }
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/logs/opName").param("opName", opName)
-            .param("startDate", sdf.format(startDate))
-            .param("endDate", sdf.format(endDate))
-            .param("page", String.valueOf(page))
-            .param("size", String.valueOf(size)))
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/apollo/audit/logs/opName").param("opName", opName)
+            .param("startDate", sdf.format(startDate)).param("endDate", sdf.format(endDate))
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(size))
         .andExpect(MockMvcResultMatchers.jsonPath("$.[0].opName").value(opName));
 
-    Mockito.verify(api, Mockito.times(1))
-        .queryLogsByOpName(Mockito.eq(opName), Mockito.eq(startDate), Mockito.eq(endDate),
-            Mockito.eq(page), Mockito.eq(size));
+    Mockito.verify(api, Mockito.times(1)).queryLogsByOpName(Mockito.eq(opName),
+        Mockito.eq(startDate), Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size));
   }
 
   @Test
@@ -128,32 +124,29 @@ public class ApolloAuditControllerTest {
     final String entityId = "query-entity-id";
     final String fieldName = "query-field-name";
     {
-      List<ApolloAuditLogDataInfluenceDTO> mockDataInfluenceDTOList = MockBeanFactory.mockDataInfluenceDTOListByLength(
-          size);
+      List<ApolloAuditLogDataInfluenceDTO> mockDataInfluenceDTOList =
+          MockBeanFactory.mockDataInfluenceDTOListByLength(size);
       mockDataInfluenceDTOList.forEach(e -> {
         e.setInfluenceEntityName(entityName);
         e.setInfluenceEntityId(entityId);
         e.setFieldName(fieldName);
       });
-      Mockito.when(api.queryDataInfluencesByField(Mockito.eq(entityName), Mockito.eq(entityId),
+      Mockito
+          .when(api.queryDataInfluencesByField(Mockito.eq(entityName), Mockito.eq(entityId),
               Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size)))
           .thenReturn(mockDataInfluenceDTOList);
     }
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/apollo/audit/logs/dataInfluences/field")
-            .param("entityName", entityName)
-            .param("entityId", entityId)
-            .param("fieldName", fieldName)
-            .param("page", String.valueOf(page))
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/apollo/audit/logs/dataInfluences/field")
+            .param("entityName", entityName).param("entityId", entityId)
+            .param("fieldName", fieldName).param("page", String.valueOf(page))
             .param("size", String.valueOf(size)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(size));
 
-    Mockito.verify(api, Mockito.times(1))
-        .queryDataInfluencesByField(Mockito.eq(entityName), Mockito.eq(entityId),
-            Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size));
+    Mockito.verify(api, Mockito.times(1)).queryDataInfluencesByField(Mockito.eq(entityName),
+        Mockito.eq(entityId), Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size));
   }
-
-
 }

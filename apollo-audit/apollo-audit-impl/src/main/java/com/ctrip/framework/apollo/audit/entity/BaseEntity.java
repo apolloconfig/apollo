@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,10 +116,10 @@ public abstract class BaseEntity {
   @PrePersist
   protected void prePersist() {
     if (this.dataChangeCreatedTime == null) {
-        dataChangeCreatedTime = new Date();
+      dataChangeCreatedTime = new Date();
     }
     if (this.dataChangeLastModifiedTime == null) {
-        dataChangeLastModifiedTime = new Date();
+      dataChangeLastModifiedTime = new Date();
     }
   }
 
@@ -132,5 +132,4 @@ public abstract class BaseEntity {
   protected void preRemove() {
     this.dataChangeLastModifiedTime = new Date();
   }
-
 }

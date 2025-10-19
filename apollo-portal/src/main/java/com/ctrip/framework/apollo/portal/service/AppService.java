@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,13 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AppAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
-import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppCreationEvent;
 import com.ctrip.framework.apollo.portal.repository.AppRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -41,14 +41,13 @@ import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Lists;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Set;
 import org.springframework.util.CollectionUtils;
 
 @Service
@@ -68,15 +67,11 @@ public class AppService {
 
   private final ApplicationEventPublisher publisher;
 
-  public AppService(
-      final UserInfoHolder userInfoHolder,
-      final AppAPI appAPI,
-      final AppRepository appRepository,
-      final ClusterService clusterService,
+  public AppService(final UserInfoHolder userInfoHolder, final AppAPI appAPI,
+      final AppRepository appRepository, final ClusterService clusterService,
       final AppNamespaceService appNamespaceService,
       final RoleInitializationService roleInitializationService,
-      final RolePermissionService rolePermissionService,
-      final FavoriteService favoriteService,
+      final RolePermissionService rolePermissionService, final FavoriteService favoriteService,
       final UserService userService, ApplicationEventPublisher publisher,
       final ApolloAuditLogApi apolloAuditLogApi, PortalSettings portalSettings) {
     this.userInfoHolder = userInfoHolder;
@@ -92,7 +87,6 @@ public class AppService {
     this.publisher = publisher;
     this.portalSettings = portalSettings;
   }
-
 
   public List<App> findAll() {
     Iterable<App> apps = appRepository.findAll();
@@ -143,7 +137,7 @@ public class AppService {
     appAPI.createApp(env, appDTO);
 
     roleInitializationService.initClusterNamespaceRoles(app.getAppId(), env.getName(),
-            ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
+        ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
   }
 
   private App createAppInLocal(App app) {
@@ -171,7 +165,7 @@ public class AppService {
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       roleInitializationService.initClusterNamespaceRoles(appId, env.getName(),
-              ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
+          ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
     }
 
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);
@@ -181,17 +175,15 @@ public class AppService {
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
-  public App createAppAndAddRolePermission(
-      App app, Set<String> admins
-  ) {
+  public App createAppAndAddRolePermission(App app, Set<String> admins) {
     App createdApp = this.createAppInLocal(app);
 
     publisher.publishEvent(new AppCreationEvent(createdApp));
 
     if (!CollectionUtils.isEmpty(admins)) {
-      rolePermissionService
-          .assignRoleToUsers(RoleUtils.buildAppMasterRoleName(createdApp.getAppId()),
-              admins, userInfoHolder.getUser().getUserId());
+      rolePermissionService.assignRoleToUsers(
+          RoleUtils.buildAppMasterRoleName(createdApp.getAppId()), admins,
+          userInfoHolder.getUser().getUserId());
     }
 
     return createdApp;
@@ -259,22 +251,23 @@ public class AppService {
     }
     String operator = userInfoHolder.getUser().getUserId();
 
-    //this operator is passed to com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
+    // this operator is passed to
+    // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
     managedApp.setDataChangeLastModifiedBy(operator);
 
-    //删除portal数据库中的app
+    // 删除portal数据库中的app
     appRepository.deleteApp(appId, operator);
 
     // append a deleted data influence should be bounded
     apolloAuditLogApi.appendDataInfluences(Collections.singletonList(managedApp), App.class);
 
-    //删除portal数据库中的appNamespace
+    // 删除portal数据库中的appNamespace
     appNamespaceService.batchDeleteByAppId(appId, operator);
 
-    //删除portal数据库中的收藏表
+    // 删除portal数据库中的收藏表
     favoriteService.batchDeleteByAppId(appId, operator);
 
-    //删除portal数据库中Permission、Role相关数据
+    // 删除portal数据库中Permission、Role相关数据
     rolePermissionService.deleteRolePermissionsByAppId(appId, operator);
 
     return managedApp;

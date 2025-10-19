@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author nisiyong
- */
+/** @author nisiyong */
 @RestController
 public class AccessKeyController {
 
   private final AccessKeyService accessKeyService;
 
-  public AccessKeyController(
-      AccessKeyService accessKeyService) {
+  public AccessKeyController(AccessKeyService accessKeyService) {
     this.accessKeyService = accessKeyService;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,15 @@
  */
 package com.ctrip.framework.apollo.biz.config;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
 import com.ctrip.framework.apollo.biz.repository.ServerConfigRepository;
 import com.ctrip.framework.apollo.biz.service.BizDBPropertySource;
 import java.util.Map;
+import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,16 +33,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import javax.sql.DataSource;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @RunWith(MockitoJUnitRunner.class)
 public class BizConfigTest {
 
@@ -52,14 +49,16 @@ public class BizConfigTest {
 
   @Before
   public void setUp() throws Exception {
-    bizConfig = new BizConfig(new BizDBPropertySource(serverConfigRepository, dataSource, environment));
+    bizConfig =
+        new BizConfig(new BizDBPropertySource(serverConfigRepository, dataSource, environment));
     ReflectionTestUtils.setField(bizConfig, "environment", environment);
   }
 
   @Test
   public void testReleaseMessageNotificationBatch() throws Exception {
     int someBatch = 20;
-    when(environment.getProperty("apollo.release-message.notification.batch")).thenReturn(String.valueOf(someBatch));
+    when(environment.getProperty("apollo.release-message.notification.batch"))
+        .thenReturn(String.valueOf(someBatch));
 
     assertEquals(someBatch, bizConfig.releaseMessageNotificationBatch());
   }
@@ -75,7 +74,8 @@ public class BizConfigTest {
   public void testReleaseMessageNotificationBatchWithInvalidNumber() throws Exception {
     int someBatch = -20;
     int defaultBatch = 100;
-    when(environment.getProperty("apollo.release-message.notification.batch")).thenReturn(String.valueOf(someBatch));
+    when(environment.getProperty("apollo.release-message.notification.batch"))
+        .thenReturn(String.valueOf(someBatch));
 
     assertEquals(defaultBatch, bizConfig.releaseMessageNotificationBatch());
   }
@@ -83,7 +83,8 @@ public class BizConfigTest {
   @Test
   public void testReleaseHistoryRetentionSize() {
     int someLimit = 20;
-    when(environment.getProperty("apollo.release-history.retention.size")).thenReturn(String.valueOf(someLimit));
+    when(environment.getProperty("apollo.release-history.retention.size"))
+        .thenReturn(String.valueOf(someLimit));
 
     assertEquals(someLimit, bizConfig.releaseHistoryRetentionSize());
   }
@@ -92,18 +93,21 @@ public class BizConfigTest {
   public void testReleaseHistoryRetentionSizeOverride() {
     int someOverrideLimit = 10;
     String overrideValueString = "{'a+b+c+b':10}";
-    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    when(environment.getProperty("apollo.release-history.retention.size.override"))
+        .thenReturn(overrideValueString);
     int overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+c+b");
     assertEquals(someOverrideLimit, overrideValue);
 
     overrideValueString = "{'a+b+c+b':0,'a+b+d+b':2}";
-    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    when(environment.getProperty("apollo.release-history.retention.size.override"))
+        .thenReturn(overrideValueString);
     assertEquals(1, bizConfig.releaseHistoryRetentionSizeOverride().size());
     overrideValue = bizConfig.releaseHistoryRetentionSizeOverride().get("a+b+d+b");
     assertEquals(2, overrideValue);
 
     overrideValueString = "{}";
-    when(environment.getProperty("apollo.release-history.retention.size.override")).thenReturn(overrideValueString);
+    when(environment.getProperty("apollo.release-history.retention.size.override"))
+        .thenReturn(overrideValueString);
     assertEquals(0, bizConfig.releaseHistoryRetentionSizeOverride().size());
   }
 
@@ -168,11 +172,12 @@ public class BizConfigTest {
     int someMin = someInvalidValue + 1;
     int someMax = anotherInvalidValue - 1;
 
-    assertEquals(someDefaultValue, bizConfig.checkInt(someInvalidValue, someMin, Integer.MAX_VALUE, someDefaultValue));
-    assertEquals(someDefaultValue, bizConfig.checkInt(anotherInvalidValue, Integer.MIN_VALUE, someMax,
-        someDefaultValue));
-    assertEquals(someValidValue, bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE,
-        someDefaultValue));
+    assertEquals(someDefaultValue,
+        bizConfig.checkInt(someInvalidValue, someMin, Integer.MAX_VALUE, someDefaultValue));
+    assertEquals(someDefaultValue,
+        bizConfig.checkInt(anotherInvalidValue, Integer.MIN_VALUE, someMax, someDefaultValue));
+    assertEquals(someValidValue,
+        bizConfig.checkInt(someValidValue, Integer.MIN_VALUE, Integer.MAX_VALUE, someDefaultValue));
   }
 
   @Test

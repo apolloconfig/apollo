@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -41,10 +44,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 
 @Validated
 @RestController("openapiItemController")
@@ -64,49 +63,58 @@ public class ItemController {
     this.itemOpenApiService = itemOpenApiService;
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
-  public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
-      @PathVariable String namespaceName, @PathVariable String key) {
+  @GetMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  public OpenItemDTO getItem(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key) {
     return this.itemOpenApiService.getItem(appId, env, clusterName, namespaceName, key);
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  @GetMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public OpenItemDTO getItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName,
-      @PathVariable String namespaceName, @PathVariable String key) {
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key) {
     return this.getItem(appId, env, clusterName, namespaceName,
         new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(
+      value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public OpenItemDTO createItem(@PathVariable String appId, @PathVariable String env,
-                                @PathVariable String clusterName, @PathVariable String namespaceName,
-                                @RequestBody OpenItemDTO item) {
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @RequestBody OpenItemDTO item) {
 
     RequestPrecondition.checkArguments(
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeCreatedBy()),
         "key and dataChangeCreatedBy should not be null or empty");
 
-    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()), "value should not be null");
+    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
+        "value should not be null");
 
     if (userService.findByUserId(item.getDataChangeCreatedBy()) == null) {
       throw BadRequestException.userNotExists(item.getDataChangeCreatedBy());
     }
 
-    if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
+    if (!StringUtils.isEmpty(item.getComment())
+        && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
+      throw new BadRequestException("Comment length should not exceed %s characters",
+          ITEM_COMMENT_MAX_LENGTH);
     }
 
     return this.itemOpenApiService.createItem(appId, env, clusterName, namespaceName, item);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  @PreAuthorize(
+      value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PutMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public void updateItem(@PathVariable String appId, @PathVariable String env,
-                         @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestBody OpenItemDTO item,
-                         @RequestParam(defaultValue = "false") boolean createIfNotExists) {
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key, @RequestBody OpenItemDTO item,
+      @RequestParam(defaultValue = "false") boolean createIfNotExists) {
 
     RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
 
@@ -114,20 +122,25 @@ public class ItemController {
         !StringUtils.isContainEmpty(item.getKey(), item.getDataChangeLastModifiedBy()),
         "key and dataChangeLastModifiedBy can not be empty");
 
-    RequestPrecondition.checkArguments(item.getKey().equals(key), "Key in path and payload is not consistent");
-    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()), "value should not be null");
+    RequestPrecondition.checkArguments(item.getKey().equals(key),
+        "Key in path and payload is not consistent");
+    RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
+        "value should not be null");
 
     if (userService.findByUserId(item.getDataChangeLastModifiedBy()) == null) {
       throw BadRequestException.userNotExists(item.getDataChangeLastModifiedBy());
     }
 
-    if (!StringUtils.isEmpty(item.getComment()) && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
-      throw new BadRequestException("Comment length should not exceed %s characters", ITEM_COMMENT_MAX_LENGTH);
+    if (!StringUtils.isEmpty(item.getComment())
+        && item.getComment().length() > ITEM_COMMENT_MAX_LENGTH) {
+      throw new BadRequestException("Comment length should not exceed %s characters",
+          ITEM_COMMENT_MAX_LENGTH);
     }
 
     if (createIfNotExists) {
       if (StringUtils.isEmpty(item.getDataChangeCreatedBy())) {
-        throw new BadRequestException("dataChangeCreatedBy is required when createIfNotExists is true");
+        throw new BadRequestException(
+            "dataChangeCreatedBy is required when createIfNotExists is true");
       }
       this.itemOpenApiService.createOrUpdateItem(appId, env, clusterName, namespaceName, item);
     } else {
@@ -135,8 +148,10 @@ public class ItemController {
     }
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PutMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  @PreAuthorize(
+      value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PutMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public void updateItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String key, @RequestBody OpenItemDTO item,
@@ -146,17 +161,20 @@ public class ItemController {
         createIfNotExists);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
+  @PreAuthorize(
+      value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @DeleteMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key:.+}")
   public void deleteItem(@PathVariable String appId, @PathVariable String env,
-                         @PathVariable String clusterName, @PathVariable String namespaceName,
-                         @PathVariable String key, @RequestParam String operator) {
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String key, @RequestParam String operator) {
 
     if (userService.findByUserId(operator) == null) {
       throw BadRequestException.userNotExists(operator);
     }
 
-    ItemDTO toDeleteItem = itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+    ItemDTO toDeleteItem =
+        itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
     if (toDeleteItem == null) {
       throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
     }
@@ -164,8 +182,10 @@ public class ItemController {
     this.itemOpenApiService.removeItem(appId, env, clusterName, namespaceName, key, operator);
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @DeleteMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
+  @PreAuthorize(
+      value = "@consumerPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @DeleteMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key:.+}")
   public void deleteItemByEncodedKey(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String key, @RequestParam String operator) {
@@ -174,13 +194,14 @@ public class ItemController {
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
-  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(@PathVariable String appId, @PathVariable String env,
-                                                       @PathVariable String clusterName, @PathVariable String namespaceName,
-                                                       @Valid @PositiveOrZero(message = "page should be positive or 0")
-                                                     @RequestParam(defaultValue = "0") int page,
-                                                       @Valid @Positive(message = "size should be positive number")
-                                                     @RequestParam(defaultValue = "50") int size) {
-    return this.itemOpenApiService.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
+  public OpenPageDTO<OpenItemDTO> findItemsByNamespace(@PathVariable String appId,
+      @PathVariable String env, @PathVariable String clusterName,
+      @PathVariable String namespaceName,
+      @Valid @PositiveOrZero(message = "page should be positive or 0")
+      @RequestParam(defaultValue = "0") int page,
+      @Valid @Positive(message = "size should be positive number")
+      @RequestParam(defaultValue = "50") int size) {
+    return this.itemOpenApiService.findItemsByNamespace(appId, env, clusterName, namespaceName,
+        page, size);
   }
-
 }

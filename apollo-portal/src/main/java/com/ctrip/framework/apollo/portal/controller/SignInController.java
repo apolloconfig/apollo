@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- * @author lepdou 2017-08-30
- */
+/** @author lepdou 2017-08-30 */
 @Controller
 public class SignInController {
 
   @GetMapping("/signin")
   public String login(@RequestParam(value = "error", required = false) String error,
-                      @RequestParam(value = "logout", required = false) String logout) {
+      @RequestParam(value = "logout", required = false) String logout) {
     return "login.html";
   }
-
 }

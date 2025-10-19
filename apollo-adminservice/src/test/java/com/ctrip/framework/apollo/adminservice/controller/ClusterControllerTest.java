@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.adminservice.controller;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.biz.service.ClusterService;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
@@ -28,9 +31,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
-
-import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.*;
 
 public class ClusterControllerTest extends AbstractControllerTest {
 
@@ -61,8 +61,8 @@ public class ClusterControllerTest extends AbstractControllerTest {
     ClusterDTO cluster = new ClusterDTO();
     cluster.setAppId("valid");
     cluster.setName("notBlank");
-    ResponseEntity<ClusterDTO> response =
-        restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class, cluster.getAppId());
+    ResponseEntity<ClusterDTO> response = restTemplate.postForEntity(url("/apps/{appId}/clusters"),
+        cluster, ClusterDTO.class, cluster.getAppId());
     ClusterDTO createdCluster = response.getBody();
     Assert.assertNotNull(createdCluster);
     Assert.assertEquals(cluster.getAppId(), createdCluster.getAppId());
@@ -70,10 +70,12 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
     cluster.setName("invalid app name");
     try {
-      restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class, cluster.getAppId());
+      restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class,
+          cluster.getAppId());
       Assert.fail("Should throw");
     } catch (HttpClientErrorException e) {
-      Assert.assertThat(new String(e.getResponseBodyAsByteArray()), containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+      Assert.assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
   }
 }

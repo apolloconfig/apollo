@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
  */
 package com.ctrip.framework.apollo.configservice.service.config;
 
-import com.ctrip.framework.apollo.biz.entity.Release;
-import com.ctrip.framework.apollo.biz.service.ReleaseMessageService;
-import com.ctrip.framework.apollo.biz.service.ReleaseService;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import com.ctrip.framework.apollo.biz.utils.ReleaseMessageKeyGenerator;
 import com.ctrip.framework.apollo.configservice.service.config.DefaultIncrementalSyncService.ReleaseKeyPair;
 import com.ctrip.framework.apollo.core.dto.ConfigurationChange;
@@ -26,24 +28,15 @@ import com.google.common.cache.Cache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
-/**
- * @author jason
- */
+/** @author jason */
 @RunWith(MockitoJUnitRunner.class)
 public class DefaultIncrementalSyncServiceTest {
 
@@ -59,7 +52,7 @@ public class DefaultIncrementalSyncServiceTest {
   private Map<String, String> someClientSideConfigurations;
   private Map<String, String> someLatestReleaseConfigurations;
   private Cache<ReleaseKeyPair, List<ConfigurationChange>> configurationChangeCache;
-  
+
   @Before
   public void setUp() throws Exception {
     defaultIncrementalSyncService = new DefaultIncrementalSyncService();
@@ -85,7 +78,6 @@ public class DefaultIncrementalSyncServiceTest {
     someLatestReleaseConfigurations.put("k3", "v3");
   }
 
-
   @SuppressWarnings("unchecked")
   private Cache<ReleaseKeyPair, List<ConfigurationChange>> getConfigurationChangeCache(
       DefaultIncrementalSyncService service) {
@@ -102,11 +94,8 @@ public class DefaultIncrementalSyncServiceTest {
   public void testConfigurationChangeCacheHit() {
 
     List<ConfigurationChange> firstResult = defaultIncrementalSyncService.getConfigurationChanges(
-        someLatestMergedReleaseKey,
-        someLatestReleaseConfigurations,
-        someClientSideReleaseKey,
-        someClientSideConfigurations
-    );
+        someLatestMergedReleaseKey, someLatestReleaseConfigurations, someClientSideReleaseKey,
+        someClientSideConfigurations);
 
     ReleaseKeyPair key = new ReleaseKeyPair(someClientSideReleaseKey, someLatestMergedReleaseKey);
     List<ConfigurationChange> cachedResult = configurationChangeCache.getIfPresent(key);
@@ -114,27 +103,20 @@ public class DefaultIncrementalSyncServiceTest {
     assertSame(firstResult, cachedResult);
 
     List<ConfigurationChange> secondResult = defaultIncrementalSyncService.getConfigurationChanges(
-        someLatestMergedReleaseKey,
-        someLatestReleaseConfigurations,
-        someClientSideReleaseKey,
-        someClientSideConfigurations
-    );
+        someLatestMergedReleaseKey, someLatestReleaseConfigurations, someClientSideReleaseKey,
+        someClientSideConfigurations);
 
     assertSame(firstResult, secondResult);
   }
 
   @Test
   public void testConfigurationChangeCacheMiss() {
-    defaultIncrementalSyncService.getConfigurationChanges(
-        someLatestMergedReleaseKey,
-        someLatestReleaseConfigurations,
-        someClientSideReleaseKey,
-        someClientSideConfigurations
-    );
+    defaultIncrementalSyncService.getConfigurationChanges(someLatestMergedReleaseKey,
+        someLatestReleaseConfigurations, someClientSideReleaseKey, someClientSideConfigurations);
 
     String differentLatestMergedReleaseKey = "different-latest-key";
-    ReleaseKeyPair differentKey = new ReleaseKeyPair(someClientSideReleaseKey,
-        differentLatestMergedReleaseKey);
+    ReleaseKeyPair differentKey =
+        new ReleaseKeyPair(someClientSideReleaseKey, differentLatestMergedReleaseKey);
 
     assertNull(configurationChangeCache.getIfPresent(differentKey));
   }
@@ -142,12 +124,8 @@ public class DefaultIncrementalSyncServiceTest {
   @Test
   public void testConfigurationChangeCacheWithNullValues() {
 
-    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
-        someLatestMergedReleaseKey,
-        null,
-        someClientSideReleaseKey,
-        null
-    );
+    List<ConfigurationChange> result = defaultIncrementalSyncService
+        .getConfigurationChanges(someLatestMergedReleaseKey, null, someClientSideReleaseKey, null);
 
     ReleaseKeyPair key = new ReleaseKeyPair(someClientSideReleaseKey, someLatestMergedReleaseKey);
 
@@ -168,9 +146,8 @@ public class DefaultIncrementalSyncServiceTest {
     Map<String, String> latestConfig = ImmutableMap.of(key1, value1, key2, value2);
     Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result =
-        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
-            someReleaseKey, clientSideConfigurations);
+    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
+        newReleaseKey, latestConfig, someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key2, result.get(0).getKey());
@@ -185,9 +162,8 @@ public class DefaultIncrementalSyncServiceTest {
 
     Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result =
-        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, null, someReleaseKey,
-            clientSideConfigurations);
+    List<ConfigurationChange> result = defaultIncrementalSyncService
+        .getConfigurationChanges(newReleaseKey, null, someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -202,9 +178,8 @@ public class DefaultIncrementalSyncServiceTest {
 
     Map<String, String> latestConfig = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
-        newReleaseKey, latestConfig, someReleaseKey, null);
-
+    List<ConfigurationChange> result = defaultIncrementalSyncService
+        .getConfigurationChanges(newReleaseKey, latestConfig, someReleaseKey, null);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -222,9 +197,8 @@ public class DefaultIncrementalSyncServiceTest {
     Map<String, String> latestConfig = ImmutableMap.of(key1, anotherValue1);
     Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result =
-        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
-            someReleaseKey, clientSideConfigurations);
+    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
+        newReleaseKey, latestConfig, someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
@@ -240,15 +214,12 @@ public class DefaultIncrementalSyncServiceTest {
     Map<String, String> latestConfig = ImmutableMap.of();
     Map<String, String> clientSideConfigurations = ImmutableMap.of(key1, value1);
 
-    List<ConfigurationChange> result =
-        defaultIncrementalSyncService.getConfigurationChanges(newReleaseKey, latestConfig,
-            someReleaseKey, clientSideConfigurations);
+    List<ConfigurationChange> result = defaultIncrementalSyncService.getConfigurationChanges(
+        newReleaseKey, latestConfig, someReleaseKey, clientSideConfigurations);
 
     assertEquals(1, result.size());
     assertEquals(key1, result.get(0).getKey());
     assertEquals(null, result.get(0).getNewValue());
     assertEquals("DELETED", result.get(0).getConfigurationChangeType());
   }
-
-
 }

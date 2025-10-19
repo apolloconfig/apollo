@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,45 +68,39 @@ public class ApolloAuditSpanAspectTest {
       when(mockAnnotation.type()).thenReturn(opType);
       when(mockAnnotation.name()).thenReturn(opName);
       when(mockAnnotation.description()).thenReturn(description);
-      when(api.appendAuditLog(eq(opType), eq(opName), eq(description)))
-          .thenReturn(mockScope);
+      when(api.appendAuditLog(eq(opType), eq(opName), eq(description))).thenReturn(mockScope);
       doNothing().when(aspect).auditDataInfluenceArg(mockPJP);
     }
 
     aspect.around(mockPJP, mockAnnotation);
-    verify(api, times(1))
-        .appendAuditLog(eq(opType), eq(opName), eq(description));
-    verify(mockScope, times(1))
-        .close();
-    verify(aspect, times(1))
-        .auditDataInfluenceArg(eq(mockPJP));
+    verify(api, times(1)).appendAuditLog(eq(opType), eq(opName), eq(description));
+    verify(mockScope, times(1)).close();
+    verify(aspect, times(1)).auditDataInfluenceArg(eq(mockPJP));
   }
 
   @Test
   public void testAuditDataInfluenceArg() throws NoSuchMethodException {
     ProceedingJoinPoint mockPJP = mock(ProceedingJoinPoint.class);
-    Object[] args = new Object[]{new Object(), new Object()};
+    Object[] args = new Object[] {new Object(), new Object()};
     Method method = MockAuditClass.class.getMethod("mockAuditMethod", Object.class, Object.class);
     {
       doReturn(method).when(aspect).findMethod(any());
       when(mockPJP.getArgs()).thenReturn(args);
     }
     aspect.auditDataInfluenceArg(mockPJP);
-    verify(aspect, times(1))
-        .parseArgAndAppend(eq("App"), eq("Name"), eq(args[0]));
+    verify(aspect, times(1)).parseArgAndAppend(eq("App"), eq("Name"), eq(args[0]));
   }
 
   @Test
   public void testAuditDataInfluenceArgCaseFindMethodReturnNull() throws NoSuchMethodException {
     ProceedingJoinPoint mockPJP = mock(ProceedingJoinPoint.class);
-    Object[] args = new Object[]{new Object(), new Object()};
+    Object[] args = new Object[] {new Object(), new Object()};
     {
       doReturn(null).when(aspect).findMethod(any());
       when(mockPJP.getArgs()).thenReturn(args);
     }
     aspect.auditDataInfluenceArg(mockPJP);
-    verify(aspect, times(0))
-        .parseArgAndAppend(eq("App"), eq("Name"), eq(args[0]));
+    verify(aspect, times(0)).parseArgAndAppend(eq("App"), eq("Name"), eq(args[0]));
   }
 
   @Test
@@ -120,7 +114,7 @@ public class ApolloAuditSpanAspectTest {
       when(mockPJP.getTarget()).thenReturn(mockAuditClass);
       when(mockPJP.getSignature()).thenReturn(signature);
       when(signature.getName()).thenReturn("mockAuditMethod");
-      when(signature.getParameterTypes()).thenReturn(new Class[]{Object.class, Object.class});
+      when(signature.getParameterTypes()).thenReturn(new Class[] {Object.class, Object.class});
     }
     Method methodFounded = aspect.findMethod(mockPJP);
 
@@ -132,8 +126,7 @@ public class ApolloAuditSpanAspectTest {
   public void testParseArgAndAppendCaseNullName() {
     Object somewhat = new Object();
     aspect.parseArgAndAppend(null, null, somewhat);
-    verify(api, times(0))
-        .appendDataInfluence(any(), any(), any(), any());
+    verify(api, times(0)).appendDataInfluence(any(), any(), any(), any());
   }
 
   @Test
@@ -167,15 +160,10 @@ public class ApolloAuditSpanAspectTest {
   public class MockAuditClass {
 
     public void mockAuditMethod(
-        @ApolloAuditLogDataInfluence
-        @ApolloAuditLogDataInfluenceTable(tableName = "App")
-        @ApolloAuditLogDataInfluenceTableField(fieldName = "Name") Object val1,
-        Object val2) {
-    }
+        @ApolloAuditLogDataInfluence @ApolloAuditLogDataInfluenceTable(tableName = "App")
+        @ApolloAuditLogDataInfluenceTableField(fieldName = "Name") Object val1, Object val2) {}
 
     // same name method test
-    public void mockAuditMethod(
-        Object val2) {
-    }
+    public void mockAuditMethod(Object val2) {}
   }
 }

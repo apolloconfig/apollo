@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,10 +49,10 @@ public class HomePageControllerTest {
     ServiceDTO someServiceDto = mock(ServiceDTO.class);
     ServiceDTO anotherServiceDto = mock(ServiceDTO.class);
 
-    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE)).thenReturn(
-        Lists.newArrayList(someServiceDto));
-    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE)).thenReturn(
-        Lists.newArrayList(anotherServiceDto));
+    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE))
+        .thenReturn(Lists.newArrayList(someServiceDto));
+    when(discoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE))
+        .thenReturn(Lists.newArrayList(anotherServiceDto));
 
     List<ServiceDTO> allServices = homePageController.listAllServices();
 

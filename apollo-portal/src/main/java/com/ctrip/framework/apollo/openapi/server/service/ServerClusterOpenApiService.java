@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,7 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import org.springframework.stereotype.Service;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 @Service
 public class ServerClusterOpenApiService implements ClusterOpenApiService {
 

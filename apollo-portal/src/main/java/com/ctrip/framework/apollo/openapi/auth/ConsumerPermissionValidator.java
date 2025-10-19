@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,8 @@ public class ConsumerPermissionValidator implements PermissionValidator {
     return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.MODIFY_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
         || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
-        PermissionType.MODIFY_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
+            PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
   @Override
@@ -60,8 +60,8 @@ public class ConsumerPermissionValidator implements PermissionValidator {
     return permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
         PermissionType.RELEASE_NAMESPACE, RoleUtils.buildNamespaceTargetId(appId, namespaceName))
         || permissionService.consumerHasPermission(consumerAuthUtil.retrieveConsumerIdFromCtx(),
-        PermissionType.RELEASE_NAMESPACE,
-        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
+            PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env));
   }
 
   @Override
@@ -102,7 +102,8 @@ public class ConsumerPermissionValidator implements PermissionValidator {
   @Override
   public boolean hasCreateApplicationPermission() {
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
-    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION,
+        SYSTEM_PERMISSION_TARGET_ID);
   }
 
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,16 +30,16 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
   @Test
   void init() {
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     decorator.init();
   }
 
   @Test
   void updateCacheTask_empty() {
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     decorator.updateCacheTask();
 
     Mockito.verify(client, Mockito.never()).getInstances(Mockito.any());
@@ -49,22 +49,17 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
   void updateCacheTask_exception() {
     final String serviceName = "a-service";
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances(serviceName))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance(serviceName, "http://10.240.34.56:8080/", "beijing"),
-                newServiceInstance(serviceName, "http://10.240.34.56:8081/", "beijing"),
-                newServiceInstance(serviceName, "http://10.240.34.56:8082/", "beijing")
-            )
-        );
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    Mockito.when(client.getInstances(serviceName)).thenReturn(
+        Arrays.asList(newServiceInstance(serviceName, "http://10.240.34.56:8080/", "beijing"),
+            newServiceInstance(serviceName, "http://10.240.34.56:8081/", "beijing"),
+            newServiceInstance(serviceName, "http://10.240.34.56:8082/", "beijing")));
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     List<ServiceInstance> list = decorator.getInstances(serviceName);
     assertEquals(3, list.size());
 
     // if database error
-    Mockito.when(client.getInstances(serviceName))
-            .thenThrow(OutOfMemoryError.class);
+    Mockito.when(client.getInstances(serviceName)).thenThrow(OutOfMemoryError.class);
     assertThrows(OutOfMemoryError.class, () -> decorator.readFromDatabase(serviceName));
 
     // task won't be interrupted by Throwable
@@ -76,24 +71,16 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
   @Test
   void getInstances_from_cache() {
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances("a-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
-                newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")
-            )
-        );
-    Mockito.when(client.getInstances("b-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")
-            )
-        );
+    Mockito.when(client.getInstances("a-service")).thenReturn(
+        Arrays.asList(newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
+            newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")));
+    Mockito.when(client.getInstances("b-service")).thenReturn(
+        Arrays.asList(newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")));
 
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(3, decorator.getInstances("b-service").size());
@@ -107,24 +94,16 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
   @Test
   void getInstances_from_cache_when_database_updated() {
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances("a-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
-                newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")
-            )
-        );
-    Mockito.when(client.getInstances("b-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")
-            )
-        );
+    Mockito.when(client.getInstances("a-service")).thenReturn(
+        Arrays.asList(newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
+            newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")));
+    Mockito.when(client.getInstances("b-service")).thenReturn(
+        Arrays.asList(newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")));
 
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(3, decorator.getInstances("b-service").size());
@@ -135,12 +114,8 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
     Mockito.verify(client, Mockito.times(1)).getInstances("b-service");
 
     // instances in database are changed
-    Mockito.when(client.getInstances("b-service"))
-        .thenReturn(
-            Collections.singletonList(
-                newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai")
-            )
-        );
+    Mockito.when(client.getInstances("b-service")).thenReturn(Collections
+        .singletonList(newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai")));
 
     // read again
     assertEquals(2, decorator.getInstances("a-service").size());
@@ -163,28 +138,19 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
     Mockito.verify(client, Mockito.times(2)).getInstances("b-service");
   }
 
-
   @Test
   void getInstances_from_cache_when_database_crash() {
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances("a-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
-                newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")
-            )
-        );
-    Mockito.when(client.getInstances("b-service"))
-        .thenReturn(
-            Arrays.asList(
-                newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
-                newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")
-            )
-        );
+    Mockito.when(client.getInstances("a-service")).thenReturn(
+        Arrays.asList(newServiceInstance("a-service", "http://10.240.34.56:8080/", "beijing"),
+            newServiceInstance("a-service", "http://10.240.34.56:8081/", "beijing")));
+    Mockito.when(client.getInstances("b-service")).thenReturn(
+        Arrays.asList(newServiceInstance("b-service", "http://10.240.56.78:8080/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8081/", "shanghai"),
+            newServiceInstance("b-service", "http://10.240.56.78:8082/", "shanghai")));
 
-    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator
-        = new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
+    DatabaseDiscoveryClientMemoryCacheDecoratorImpl decorator =
+        new DatabaseDiscoveryClientMemoryCacheDecoratorImpl(client);
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(3, decorator.getInstances("b-service").size());
@@ -195,11 +161,10 @@ class DatabaseDiscoveryClientMemoryCacheDecoratorImplTest {
     Mockito.verify(client, Mockito.times(1)).getInstances("b-service");
 
     // database crash
-    Mockito.when(client.getInstances(Mockito.any()))
-        .thenThrow(OutOfMemoryError.class);
+    Mockito.when(client.getInstances(Mockito.any())).thenThrow(OutOfMemoryError.class);
     assertThrows(OutOfMemoryError.class, () -> decorator.readFromDatabase("a-service"));
     assertThrows(OutOfMemoryError.class, () -> decorator.readFromDatabase("b-service"));
-    
+
     // read again
     assertEquals(2, decorator.getInstances("a-service").size());
     assertEquals(3, decorator.getInstances("b-service").size());

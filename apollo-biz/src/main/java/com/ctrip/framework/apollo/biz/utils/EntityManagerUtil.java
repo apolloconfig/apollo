@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,18 @@ import org.springframework.orm.jpa.EntityManagerHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Component
 public class EntityManagerUtil extends EntityManagerFactoryAccessor {
   private static final Logger logger = LoggerFactory.getLogger(EntityManagerUtil.class);
+
   /**
-   * close the entity manager.
-   * Use it with caution! This is only intended for use with async request, which Spring won't
-   * close the entity manager until the async request is finished.
+   * close the entity manager. Use it with caution! This is only intended for use with async
+   * request, which Spring won't close the entity manager until the async request is finished.
    */
   public void closeEntityManager() {
-    EntityManagerHolder emHolder = (EntityManagerHolder)
-        TransactionSynchronizationManager.getResource(getEntityManagerFactory());
+    EntityManagerHolder emHolder = (EntityManagerHolder) TransactionSynchronizationManager
+        .getResource(getEntityManagerFactory());
     if (emHolder == null) {
       return;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
  */
 package com.ctrip.framework.apollo.openapi.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import javax.servlet.http.HttpServletRequest;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @RunWith(MockitoJUnitRunner.class)
 public class ConsumerAuthUtilTest {
   private ConsumerAuthUtil consumerAuthUtil;
@@ -86,5 +83,4 @@ public class ConsumerAuthUtilTest {
     when(request.getAttribute(ConsumerAuthUtil.CONSUMER_ID)).thenReturn(someInvalidConsumerId);
     consumerAuthUtil.retrieveConsumerId(request);
   }
-
 }

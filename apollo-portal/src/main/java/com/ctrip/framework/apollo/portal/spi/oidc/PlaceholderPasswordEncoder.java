@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,12 @@ import java.util.Base64;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * @author vdisk <vdisk@foxmail.com>
- */
+/** @author vdisk <vdisk@foxmail.com> */
 public class PlaceholderPasswordEncoder implements PasswordEncoder {
 
   public static final String ENCODING_ID = "placeholder";
 
-  /**
-   * generate a random string as a password placeholder.
-   */
+  /** generate a random string as a password placeholder. */
   @Override
   public String encode(CharSequence rawPassword) {
     byte[] bytes = new byte[32];
@@ -37,9 +33,7 @@ public class PlaceholderPasswordEncoder implements PasswordEncoder {
     return Base64.getEncoder().encodeToString(bytes);
   }
 
-  /**
-   * placeholder will never matches a password
-   */
+  /** placeholder will never matches a password */
   @Override
   public boolean matches(CharSequence rawPassword, String encodedPassword) {
     return false;

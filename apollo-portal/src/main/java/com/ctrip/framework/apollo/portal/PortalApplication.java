@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @PropertySource(value = {"classpath:portal.properties"})
 @EnableAutoConfiguration(exclude = {LdapAutoConfiguration.class})
 @EnableTransactionManagement
-@ComponentScan(basePackageClasses = {ApolloCommonConfig.class,
-    PortalApplication.class, PortalOpenApiConfig.class})
+@ComponentScan(basePackageClasses = {ApolloCommonConfig.class, PortalApplication.class,
+    PortalOpenApiConfig.class})
 public class PortalApplication {
 
   public static void main(String[] args) throws Exception {

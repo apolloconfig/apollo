@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,20 @@ package com.ctrip.framework.apollo.portal.constant;
 
 public interface PermissionType {
 
-  /**
-   * system level permission
-   */
+  /** system level permission */
   String CREATE_APPLICATION = "CreateApplication";
+
   String MANAGE_APP_MASTER = "ManageAppMaster";
 
-  /**
-   * APP level permission
-   */
-
+  /** APP level permission */
   String CREATE_NAMESPACE = "CreateNamespace";
 
   String CREATE_CLUSTER = "CreateCluster";
 
-  /**
-   * 分配用户权限的权限
-   */
+  /** 分配用户权限的权限 */
   String ASSIGN_ROLE = "AssignRole";
 
-  /**
-   * namespace level permission
-   */
-
+  /** namespace level permission */
   String MODIFY_NAMESPACE = "ModifyNamespace";
 
   String RELEASE_NAMESPACE = "ReleaseNamespace";
@@ -48,5 +39,4 @@ public interface PermissionType {
   String MODIFY_NAMESPACES_IN_CLUSTER = "ModifyNamespacesInCluster";
 
   String RELEASE_NAMESPACES_IN_CLUSTER = "ReleaseNamespacesInCluster";
-
 }

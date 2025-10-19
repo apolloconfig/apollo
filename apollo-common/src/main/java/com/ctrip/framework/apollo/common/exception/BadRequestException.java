@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
  */
 package com.ctrip.framework.apollo.common.exception;
 
-
 import org.springframework.http.HttpStatus;
 
 public class BadRequestException extends AbstractApolloHttpException {
 
-  /**
-   * @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...)
-   */
+  /** @see AbstractApolloHttpException#AbstractApolloHttpException(String, Object...) */
   public BadRequestException(String msgtpl, Object... args) {
     super(msgtpl, args);
     setHttpStatus(HttpStatus.BAD_REQUEST);
@@ -65,11 +62,13 @@ public class BadRequestException extends AbstractApolloHttpException {
   }
 
   public static BadRequestException appNamespaceNotExists(String appId, String namespaceName) {
-    return new BadRequestException("appNamespace not exist for appId:%s namespaceName:%s", appId, namespaceName);
+    return new BadRequestException("appNamespace not exist for appId:%s namespaceName:%s", appId,
+        namespaceName);
   }
 
   public static BadRequestException appNamespaceAlreadyExists(String appId, String namespaceName) {
-    return new BadRequestException("appNamespace already exists for appId:%s namespaceName:%s", appId, namespaceName);
+    return new BadRequestException("appNamespace already exists for appId:%s namespaceName:%s",
+        appId, namespaceName);
   }
 
   public static BadRequestException invalidNamespaceFormat(String format) {

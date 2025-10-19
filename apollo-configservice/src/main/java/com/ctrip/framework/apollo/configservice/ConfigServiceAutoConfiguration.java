@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Configuration
 public class ConfigServiceAutoConfiguration {
 
@@ -53,10 +51,9 @@ public class ConfigServiceAutoConfiguration {
   private final MeterRegistry meterRegistry;
 
   public ConfigServiceAutoConfiguration(final BizConfig bizConfig,
-                                        final ReleaseService releaseService,
-                                        final ReleaseMessageService releaseMessageService,
-                                        final GrayReleaseRuleRepository grayReleaseRuleRepository,
-                                        final MeterRegistry meterRegistry) {
+      final ReleaseService releaseService, final ReleaseMessageService releaseMessageService,
+      final GrayReleaseRuleRepository grayReleaseRuleRepository,
+      final MeterRegistry meterRegistry) {
     this.bizConfig = bizConfig;
     this.releaseService = releaseService;
     this.releaseMessageService = releaseMessageService;
@@ -83,14 +80,17 @@ public class ConfigServiceAutoConfiguration {
   public IncrementalSyncService incrementalSyncService() {
     return new DefaultIncrementalSyncService();
   }
+
   @Bean
   public static NoOpPasswordEncoder passwordEncoder() {
     return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
   }
 
   @Bean
-  public FilterRegistrationBean<ClientAuthenticationFilter> clientAuthenticationFilter(AccessKeyUtil accessKeyUtil) {
-    FilterRegistrationBean<ClientAuthenticationFilter> filterRegistrationBean = new FilterRegistrationBean<>();
+  public FilterRegistrationBean<ClientAuthenticationFilter> clientAuthenticationFilter(
+      AccessKeyUtil accessKeyUtil) {
+    FilterRegistrationBean<ClientAuthenticationFilter> filterRegistrationBean =
+        new FilterRegistrationBean<>();
 
     filterRegistrationBean.setFilter(new ClientAuthenticationFilter(bizConfig, accessKeyUtil));
     filterRegistrationBean.addUrlPatterns("/configs/*");
@@ -111,14 +111,12 @@ public class ConfigServiceAutoConfiguration {
     private final BizConfig bizConfig;
     private final ReleaseMessageRepository releaseMessageRepository;
 
-    public MessageScannerConfiguration(
-        final NotificationController notificationController,
+    public MessageScannerConfiguration(final NotificationController notificationController,
         final ConfigFileController configFileController,
         final NotificationControllerV2 notificationControllerV2,
         final GrayReleaseRulesHolder grayReleaseRulesHolder,
         final ReleaseMessageServiceWithCache releaseMessageServiceWithCache,
-        final ConfigService configService,
-        final BizConfig bizConfig,
+        final ConfigService configService, final BizConfig bizConfig,
         final ReleaseMessageRepository releaseMessageRepository) {
       this.notificationController = notificationController;
       this.configFileController = configFileController;
@@ -132,20 +130,19 @@ public class ConfigServiceAutoConfiguration {
 
     @Bean
     public ReleaseMessageScanner releaseMessageScanner() {
-      ReleaseMessageScanner releaseMessageScanner = new ReleaseMessageScanner(bizConfig,
-          releaseMessageRepository);
-      //0. handle release message cache
+      ReleaseMessageScanner releaseMessageScanner =
+          new ReleaseMessageScanner(bizConfig, releaseMessageRepository);
+      // 0. handle release message cache
       releaseMessageScanner.addMessageListener(releaseMessageServiceWithCache);
-      //1. handle gray release rule
+      // 1. handle gray release rule
       releaseMessageScanner.addMessageListener(grayReleaseRulesHolder);
-      //2. handle server cache
+      // 2. handle server cache
       releaseMessageScanner.addMessageListener(configService);
       releaseMessageScanner.addMessageListener(configFileController);
-      //3. notify clients
+      // 3. notify clients
       releaseMessageScanner.addMessageListener(notificationControllerV2);
       releaseMessageScanner.addMessageListener(notificationController);
       return releaseMessageScanner;
     }
   }
-
 }

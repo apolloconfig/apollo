@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,10 @@ import org.springframework.boot.sql.init.DatabaseInitializationSettings;
 import org.springframework.jdbc.datasource.AbstractDriverBasedDataSource;
 import org.springframework.jdbc.datasource.SimpleDriverDataSource;
 
-public class ApolloDataSourceScriptDatabaseInitializer extends
-    DataSourceScriptDatabaseInitializer {
+public class ApolloDataSourceScriptDatabaseInitializer extends DataSourceScriptDatabaseInitializer {
 
-  private static final Logger log = LoggerFactory.getLogger(
-      ApolloDataSourceScriptDatabaseInitializer.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(ApolloDataSourceScriptDatabaseInitializer.class);
 
   public ApolloDataSourceScriptDatabaseInitializer(DataSource dataSource,
       DatabaseInitializationSettings settings) {
@@ -55,12 +54,12 @@ public class ApolloDataSourceScriptDatabaseInitializer extends
 
   private String getJdbcUrl(DataSource dataSource) {
     if (dataSource instanceof AbstractDriverBasedDataSource) {
-      AbstractDriverBasedDataSource driverBasedDataSource = (AbstractDriverBasedDataSource) dataSource;
+      AbstractDriverBasedDataSource driverBasedDataSource =
+          (AbstractDriverBasedDataSource) dataSource;
       return driverBasedDataSource.getUrl();
     }
-    SimpleDriverDataSource simpleDriverDataSource = DataSourceBuilder.derivedFrom(dataSource)
-        .type(SimpleDriverDataSource.class)
-        .build();
+    SimpleDriverDataSource simpleDriverDataSource =
+        DataSourceBuilder.derivedFrom(dataSource).type(SimpleDriverDataSource.class).build();
     return simpleDriverDataSource.getUrl();
   }
 
