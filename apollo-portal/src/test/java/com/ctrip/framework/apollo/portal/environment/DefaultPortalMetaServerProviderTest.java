@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,13 @@ public class DefaultPortalMetaServerProviderTest extends AbstractUnitTest {
 
   @Test
   public void testFromPropertyFile() {
-    assertEquals("http://localhost:8080", defaultPortalMetaServerProvider.getMetaServerAddress(Env.LOCAL));
+    assertEquals("http://localhost:8080",
+        defaultPortalMetaServerProvider.getMetaServerAddress(Env.LOCAL));
     assertEquals("${dev_meta}", defaultPortalMetaServerProvider.getMetaServerAddress(Env.DEV));
     assertEquals("${pro_meta}", defaultPortalMetaServerProvider.getMetaServerAddress(Env.PRO));
   }
 
-  /**
-   * testing the environment dynamic added from system property
-   */
+  /** testing the environment dynamic added from system property */
   @Test
   public void testDynamicEnvironmentFromSystemProperty() {
     String someDevMetaAddress = "someMetaAddress";
@@ -74,5 +73,4 @@ public class DefaultPortalMetaServerProviderTest extends AbstractUnitTest {
     // clear the property
     System.clearProperty(randomEnvironment + "_meta");
   }
-
 }

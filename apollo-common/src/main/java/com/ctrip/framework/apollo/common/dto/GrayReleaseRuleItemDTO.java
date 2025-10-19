@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,12 @@
  */
 package com.ctrip.framework.apollo.common.dto;
 
-import com.google.common.collect.Sets;
-
-import java.util.Set;
-
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+import com.google.common.collect.Sets;
+import java.util.Set;
+
+/** @author Jason Song(song_s@ctrip.com) */
 public class GrayReleaseRuleItemDTO {
   public static final String ALL_IP = "*";
   public static final String ALL_Label = "*";
@@ -42,7 +39,8 @@ public class GrayReleaseRuleItemDTO {
     this(clientAppId, Sets.newHashSet(), Sets.newHashSet());
   }
 
-  public GrayReleaseRuleItemDTO(String clientAppId, Set<String> clientIpList, Set<String> clientLabelList) {
+  public GrayReleaseRuleItemDTO(String clientAppId, Set<String> clientIpList,
+      Set<String> clientLabelList) {
     this.clientAppId = clientAppId;
     this.clientIpList = clientIpList;
     this.clientLabelList = clientLabelList;
@@ -60,8 +58,9 @@ public class GrayReleaseRuleItemDTO {
     return clientLabelList;
   }
 
-  public boolean matches(String clientAppId, String clientIp,String clientLabel) {
-    return (appIdMatches(clientAppId) && ipMatches(clientIp))||(appIdMatches(clientAppId) && labelMatches(clientLabel));
+  public boolean matches(String clientAppId, String clientIp, String clientLabel) {
+    return (appIdMatches(clientAppId) && ipMatches(clientIp))
+        || (appIdMatches(clientAppId) && labelMatches(clientLabel));
   }
 
   private boolean appIdMatches(String clientAppId) {
@@ -78,8 +77,7 @@ public class GrayReleaseRuleItemDTO {
 
   @Override
   public String toString() {
-    return toStringHelper(this).add("clientAppId", clientAppId)
-        .add("clientIpList", clientIpList)
+    return toStringHelper(this).add("clientAppId", clientAppId).add("clientIpList", clientIpList)
         .add("clientLabelList", clientLabelList).toString();
   }
 }

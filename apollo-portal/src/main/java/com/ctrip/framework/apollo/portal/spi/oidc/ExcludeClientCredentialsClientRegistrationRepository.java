@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,14 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 
-/**
- * @author vdisk <vdisk@foxmail.com>
- */
-public class ExcludeClientCredentialsClientRegistrationRepository implements
-    ClientRegistrationRepository, Iterable<ClientRegistration> {
+/** @author vdisk <vdisk@foxmail.com> */
+public class ExcludeClientCredentialsClientRegistrationRepository
+    implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 
-  /**
-   * origin clientRegistrationRepository
-   */
+  /** origin clientRegistrationRepository */
   private final InMemoryClientRegistrationRepository delegate;
 
-  /**
-   * exclude client_credentials
-   */
+  /** exclude client_credentials */
   private final List<ClientRegistration> clientRegistrationList;
 
   public ExcludeClientCredentialsClientRegistrationRepository(

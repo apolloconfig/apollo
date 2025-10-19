@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ public class ApolloAuditSpanContext {
     this.spanId = spanId;
   }
 
-  public ApolloAuditSpanContext(String traceId, String spanId, String operator, String parentId, String followsFromId) {
+  public ApolloAuditSpanContext(String traceId, String spanId, String operator, String parentId,
+      String followsFromId) {
     this.traceId = traceId;
     this.spanId = spanId;
     this.operator = operator;

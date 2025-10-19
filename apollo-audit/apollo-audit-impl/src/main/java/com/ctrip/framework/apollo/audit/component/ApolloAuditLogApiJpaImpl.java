@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   private final ApolloAuditTraceContext traceContext;
 
   public ApolloAuditLogApiJpaImpl(ApolloAuditLogService logService,
-      ApolloAuditLogDataInfluenceService dataInfluenceService, ApolloAuditTraceContext traceContext) {
+      ApolloAuditLogDataInfluenceService dataInfluenceService,
+      ApolloAuditTraceContext traceContext) {
     this.logService = logService;
     this.dataInfluenceService = dataInfluenceService;
     this.traceContext = traceContext;
@@ -57,7 +58,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   public AutoCloseable appendAuditLog(OpType type, String name, String description) {
     ApolloAuditTracer tracer = traceContext.tracer();
     if (Objects.isNull(tracer)) {
-      return () -> {};
+      return () -> {
+      };
     }
     ApolloAuditScope scope = tracer.startActiveSpan(type, name, description);
     logService.logSpan(scope.activeSpan());
@@ -76,8 +78,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     }
     String spanId = traceContext.tracer().getActiveSpan().spanId();
     OpType type = traceContext.tracer().getActiveSpan().getOpType();
-    ApolloAuditLogDataInfluence.Builder builder = ApolloAuditLogDataInfluence.builder().spanId(spanId)
-        .entityName(entityName).entityId(entityId).fieldName(fieldName);
+    ApolloAuditLogDataInfluence.Builder builder = ApolloAuditLogDataInfluence.builder()
+        .spanId(spanId).entityName(entityName).entityId(entityId).fieldName(fieldName);
     if (type == null) {
       return;
     }
@@ -98,8 +100,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     if (Objects.isNull(tableName) || Objects.equals(tableName, "")) {
       return;
     }
-    List<Field> dataInfluenceFields = ApolloAuditUtil.getAnnotatedFields(
-        ApolloAuditLogDataInfluenceTableField.class, beanDefinition);
+    List<Field> dataInfluenceFields = ApolloAuditUtil
+        .getAnnotatedFields(ApolloAuditLogDataInfluenceTableField.class, beanDefinition);
     Field idField = ApolloAuditUtil.getPersistenceIdFieldByAnnotation(beanDefinition);
     entities.forEach(e -> {
       try {
@@ -108,7 +110,8 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
         for (Field f : dataInfluenceFields) {
           f.setAccessible(true);
           String val = String.valueOf(f.get(e));
-          String fieldName = f.getAnnotation(ApolloAuditLogDataInfluenceTableField.class).fieldName();
+          String fieldName =
+              f.getAnnotation(ApolloAuditLogDataInfluenceTableField.class).fieldName();
           appendDataInfluence(tableName, tableId, fieldName, val);
         }
       } catch (IllegalAccessException ex) {
@@ -129,17 +132,16 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
     if (startDate == null && endDate == null) {
       return ApolloAuditUtil.logListToDTOList(logService.findByOpName(opName, page, size));
     }
-    return ApolloAuditUtil.logListToDTOList(
-        logService.findByOpNameAndTime(opName, startDate, endDate, page, size));
+    return ApolloAuditUtil
+        .logListToDTOList(logService.findByOpNameAndTime(opName, startDate, endDate, page, size));
   }
 
   @Override
   public List<ApolloAuditLogDetailsDTO> queryTraceDetails(String traceId) {
     List<ApolloAuditLogDetailsDTO> detailsDTOList = new ArrayList<>();
     logService.findByTraceId(traceId).forEach(log -> {
-      detailsDTOList.add(new ApolloAuditLogDetailsDTO(ApolloAuditUtil.logToDTO(log),
-          ApolloAuditUtil.dataInfluenceListToDTOList(
-              dataInfluenceService.findBySpanId(log.getSpanId()))));
+      detailsDTOList.add(new ApolloAuditLogDetailsDTO(ApolloAuditUtil.logToDTO(log), ApolloAuditUtil
+          .dataInfluenceListToDTOList(dataInfluenceService.findBySpanId(log.getSpanId()))));
     });
     return detailsDTOList;
   }
@@ -147,12 +149,13 @@ public class ApolloAuditLogApiJpaImpl implements ApolloAuditLogApi {
   @Override
   public List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
       String entityId, String fieldName, int page, int size) {
-    return ApolloAuditUtil.dataInfluenceListToDTOList(dataInfluenceService.findByEntityNameAndEntityIdAndFieldName(entityName, entityId,
-        fieldName, page, size));
+    return ApolloAuditUtil.dataInfluenceListToDTOList(dataInfluenceService
+        .findByEntityNameAndEntityIdAndFieldName(entityName, entityId, fieldName, page, size));
   }
 
   @Override
   public List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size) {
-    return ApolloAuditUtil.logListToDTOList(logService.searchLogByNameOrTypeOrOperator(query, page, size));
+    return ApolloAuditUtil
+        .logListToDTOList(logService.searchLogByNameOrTypeOrOperator(query, page, size));
   }
 }

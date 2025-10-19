@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,8 @@ public class ApolloAuditOperatorSupplierTest {
 
   @BeforeEach
   public void setUp() {
-    Mockito.when(requestAttributes.getAttribute(
-        Mockito.eq(ApolloAuditConstants.TRACER),
-        Mockito.eq(RequestAttributes.SCOPE_REQUEST))
-    ).thenReturn(tracer);
+    Mockito.when(requestAttributes.getAttribute(Mockito.eq(ApolloAuditConstants.TRACER),
+        Mockito.eq(RequestAttributes.SCOPE_REQUEST))).thenReturn(tracer);
     RequestContextHolder.setRequestAttributes(requestAttributes);
   }
 
@@ -70,5 +68,4 @@ public class ApolloAuditOperatorSupplierTest {
   public void testGetOperatorCaseActiveSpanNotExist() {
     assertEquals("anonymous", defaultSupplier.getOperator());
   }
-
 }

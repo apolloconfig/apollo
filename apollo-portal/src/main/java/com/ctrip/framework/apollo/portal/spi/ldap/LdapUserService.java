@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,74 +47,54 @@ import org.springframework.util.CollectionUtils;
 /**
  * Ldap user spi service
  *
+ * <p>
  * Support OpenLdap,ApacheDS,ActiveDirectory use {@link LdapTemplate} as underlying implementation
  *
  * @author xm.lin xm.lin@anxincloud.com
- * @author idefav
- * @Description ldap user service
+ * @author idefav @Description ldap user service
  * @date 18-8-9 下午4:42
  */
 public class LdapUserService implements UserService {
 
   private final LdapTemplate ldapTemplate;
 
-  /**
-   * ldap search base
-   */
+  /** ldap search base */
   @Value("${spring.ldap.base}")
   private String base;
 
-  /**
-   * user objectClass
-   */
+  /** user objectClass */
   @Value("${ldap.mapping.objectClass}")
   private String objectClassAttrName;
 
-  /**
-   * user LoginId
-   */
+  /** user LoginId */
   @Value("${ldap.mapping.loginId}")
   private String loginIdAttrName;
 
-  /**
-   * user displayName
-   */
+  /** user displayName */
   @Value("${ldap.mapping.userDisplayName}")
   private String userDisplayNameAttrName;
 
-  /**
-   * email
-   */
+  /** email */
   @Value("${ldap.mapping.email}")
   private String emailAttrName;
 
-  /**
-   * rdn
-   */
+  /** rdn */
   @Value("${ldap.mapping.rdnKey:}")
   private String rdnKey;
 
-  /**
-   * memberOf
-   */
+  /** memberOf */
   @Value("#{'${ldap.filter.memberOf:}'.split('\\|')}")
   private String[] memberOf;
 
-  /**
-   * group search base
-   */
+  /** group search base */
   @Value("${ldap.group.groupBase:}")
   private String groupBase;
 
-  /**
-   * group filter eg. (&(cn=apollo-admins)(&(member=*)))
-   */
+  /** group filter eg. (&(cn=apollo-admins)(&(member=*))) */
   @Value("${ldap.group.groupSearch:}")
   private String groupSearch;
 
-  /**
-   * group memberShip eg. member
-   */
+  /** group memberShip eg. member */
   @Value("${ldap.group.groupMembership:}")
   private String groupMembershipAttrName;
 
@@ -125,9 +105,7 @@ public class LdapUserService implements UserService {
     this.ldapTemplate = ldapTemplate;
   }
 
-  /**
-   * 用户信息Mapper
-   */
+  /** 用户信息Mapper */
   private final ContextMapper<UserInfo> ldapUserInfoMapper = (ctx) -> {
     DirContextAdapter contextAdapter = (DirContextAdapter) ctx;
     UserInfo userInfo = new UserInfo();
@@ -137,13 +115,10 @@ public class LdapUserService implements UserService {
     return userInfo;
   };
 
-  /**
-   * 查询条件
-   */
+  /** 查询条件 */
   private ContainerCriteria ldapQueryCriteria() {
-    ContainerCriteria criteria = query()
-        .searchScope(SearchScope.SUBTREE)
-        .where("objectClass").is(objectClassAttrName);
+    ContainerCriteria criteria =
+        query().searchScope(SearchScope.SUBTREE).where("objectClass").is(objectClassAttrName);
     if (memberOf.length > 0 && !StringUtils.isEmpty(memberOf[0])) {
       ContainerCriteria memberOfFilters = query().where(MEMBER_OF_ATTR_NAME).is(memberOf[0]);
       Arrays.stream(memberOf).skip(1)
@@ -182,21 +157,19 @@ public class LdapUserService implements UserService {
         return null;
       }
       return tmp;
-
     });
   }
 
   private UserInfo searchUserById(String userId) {
     try {
-      return ldapTemplate.searchForObject(query().where(loginIdAttrName).is(userId),
-          ctx -> {
-            UserInfo userInfo = new UserInfo();
-            DirContextAdapter contextAdapter = (DirContextAdapter) ctx;
-            userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
-            userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
-            userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
-            return userInfo;
-          });
+      return ldapTemplate.searchForObject(query().where(loginIdAttrName).is(userId), ctx -> {
+        UserInfo userInfo = new UserInfo();
+        DirContextAdapter contextAdapter = (DirContextAdapter) ctx;
+        userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
+        userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
+        userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
+        return userInfo;
+      });
     } catch (EmptyResultDataAccessException ex) {
       // EmptyResultDataAccessException means no record found
       return null;
@@ -211,62 +184,60 @@ public class LdapUserService implements UserService {
    * @param keyword user search keywords
    * @param userIds user id list
    */
-  private List<UserInfo> searchUserInfoByGroup(String groupBase, String groupSearch,
-      String keyword, List<String> userIds) {
+  private List<UserInfo> searchUserInfoByGroup(String groupBase, String groupSearch, String keyword,
+      List<String> userIds) {
 
-    return ldapTemplate
-        .searchForObject(groupBase, groupSearch, ctx -> {
-            List<UserInfo> userInfos = new ArrayList<>();
+    return ldapTemplate.searchForObject(groupBase, groupSearch, ctx -> {
+      List<UserInfo> userInfos = new ArrayList<>();
 
-          if (!MEMBER_UID_ATTR_NAME.equals(groupMembershipAttrName)) {
-            String[] members = ((DirContextAdapter) ctx).getStringAttributes(groupMembershipAttrName);
-            for (String item : members) {
-              LdapName ldapName = LdapUtils.newLdapName(item);
-              LdapName memberRdn = LdapUtils.removeFirst(ldapName, LdapUtils.newLdapName(base));
-              if (keyword != null) {
-                String rdnValue = LdapUtils.getValue(memberRdn, rdnKey).toString();
-                if (rdnValue.toLowerCase().contains(keyword.toLowerCase())) {
-                  UserInfo userInfo = lookupUser(memberRdn.toString(), userIds);
-                  userInfos.add(userInfo);
-                }
-              } else {
-                UserInfo userInfo = lookupUser(memberRdn.toString(), userIds);
-                if (userInfo != null) {
-                  userInfos.add(userInfo);
-                }
-              }
-
+      if (!MEMBER_UID_ATTR_NAME.equals(groupMembershipAttrName)) {
+        String[] members = ((DirContextAdapter) ctx).getStringAttributes(groupMembershipAttrName);
+        for (String item : members) {
+          LdapName ldapName = LdapUtils.newLdapName(item);
+          LdapName memberRdn = LdapUtils.removeFirst(ldapName, LdapUtils.newLdapName(base));
+          if (keyword != null) {
+            String rdnValue = LdapUtils.getValue(memberRdn, rdnKey).toString();
+            if (rdnValue.toLowerCase().contains(keyword.toLowerCase())) {
+              UserInfo userInfo = lookupUser(memberRdn.toString(), userIds);
+              userInfos.add(userInfo);
             }
-            return userInfos;
-          }
-
-          Set<String> memberUids = Sets.newHashSet(((DirContextAdapter) ctx)
-              .getStringAttributes(groupMembershipAttrName));
-          if (!CollectionUtils.isEmpty(userIds)) {
-            memberUids = Sets.intersection(memberUids, Sets.newHashSet(userIds));
-          }
-          for (String memberUid : memberUids) {
-            UserInfo userInfo = searchUserById(memberUid);
+          } else {
+            UserInfo userInfo = lookupUser(memberRdn.toString(), userIds);
             if (userInfo != null) {
-              if (keyword != null) {
-                if (userInfo.getUserId().toLowerCase().contains(keyword.toLowerCase())) {
-                  userInfos.add(userInfo);
-                }
-              } else {
-                userInfos.add(userInfo);
-              }
+              userInfos.add(userInfo);
             }
           }
-          return userInfos;
-        });
+        }
+        return userInfos;
+      }
+
+      Set<String> memberUids =
+          Sets.newHashSet(((DirContextAdapter) ctx).getStringAttributes(groupMembershipAttrName));
+      if (!CollectionUtils.isEmpty(userIds)) {
+        memberUids = Sets.intersection(memberUids, Sets.newHashSet(userIds));
+      }
+      for (String memberUid : memberUids) {
+        UserInfo userInfo = searchUserById(memberUid);
+        if (userInfo != null) {
+          if (keyword != null) {
+            if (userInfo.getUserId().toLowerCase().contains(keyword.toLowerCase())) {
+              userInfos.add(userInfo);
+            }
+          } else {
+            userInfos.add(userInfo);
+          }
+        }
+      }
+      return userInfos;
+    });
   }
 
   @Override
-  public List<UserInfo> searchUsers(String keyword, int offset, int limit, boolean includeInactiveUsers) {
+  public List<UserInfo> searchUsers(String keyword, int offset, int limit,
+      boolean includeInactiveUsers) {
     List<UserInfo> users = new ArrayList<>();
     if (StringUtils.isNotBlank(groupSearch)) {
-      List<UserInfo> userListByGroup = searchUserInfoByGroup(groupBase, groupSearch, keyword,
-          null);
+      List<UserInfo> userListByGroup = searchUserInfoByGroup(groupBase, groupSearch, keyword, null);
       users.addAll(userListByGroup);
       return users.stream().collect(collectingAndThen(toCollection(() -> new TreeSet<>((o1, o2) -> {
         if (o1.getUserId().equals(o2.getUserId())) {
@@ -287,8 +258,8 @@ public class LdapUserService implements UserService {
   @Override
   public UserInfo findByUserId(String userId) {
     if (StringUtils.isNotBlank(groupSearch)) {
-      List<UserInfo> lists = searchUserInfoByGroup(groupBase, groupSearch, null,
-          Collections.singletonList(userId));
+      List<UserInfo> lists =
+          searchUserInfoByGroup(groupBase, groupSearch, null, Collections.singletonList(userId));
       if (lists != null && !lists.isEmpty() && lists.get(0) != null) {
         return lists.get(0);
       }
@@ -296,8 +267,8 @@ public class LdapUserService implements UserService {
     }
 
     try {
-      return ldapTemplate
-          .searchForObject(ldapQueryCriteria().and(loginIdAttrName).is(userId), ldapUserInfoMapper);
+      return ldapTemplate.searchForObject(ldapQueryCriteria().and(loginIdAttrName).is(userId),
+          ldapUserInfoMapper);
     } catch (EmptyResultDataAccessException ex) {
       // EmptyResultDataAccessException means no record found
       return null;
@@ -316,5 +287,4 @@ public class LdapUserService implements UserService {
     userIds.stream().skip(1).forEach(userId -> criteria.or(loginIdAttrName).is(userId));
     return ldapTemplate.search(ldapQueryCriteria().and(criteria), ldapUserInfoMapper);
   }
-
 }

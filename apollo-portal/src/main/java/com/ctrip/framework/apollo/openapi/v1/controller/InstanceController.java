@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController("openapiInstanceController")
 @RequestMapping("/openapi/v1/envs/{env}")
 public class InstanceController {
-    private final InstanceOpenApiService instanceOpenApiService;
+  private final InstanceOpenApiService instanceOpenApiService;
 
-    public InstanceController(InstanceOpenApiService instanceOpenApiService) {
-        this.instanceOpenApiService = instanceOpenApiService;
-    }
+  public InstanceController(InstanceOpenApiService instanceOpenApiService) {
+    this.instanceOpenApiService = instanceOpenApiService;
+  }
 
-    @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/instances")
-    public int getInstanceCountByNamespace(@PathVariable String appId, @PathVariable String env,
-                                           @PathVariable String clusterName, @PathVariable String namespaceName) {
-        return this.instanceOpenApiService.getInstanceCountByNamespace(appId, env, clusterName, namespaceName);
-    }
+  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/instances")
+  public int getInstanceCountByNamespace(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
+    return this.instanceOpenApiService.getInstanceCountByNamespace(appId, env, clusterName,
+        namespaceName);
+  }
 }

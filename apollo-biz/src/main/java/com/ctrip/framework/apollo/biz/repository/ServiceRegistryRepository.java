@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface ServiceRegistryRepository extends PagingAndSortingRepository<ServiceRegistry, Long> {
+public interface ServiceRegistryRepository
+    extends PagingAndSortingRepository<ServiceRegistry, Long> {
 
   List<ServiceRegistry> findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(
-      String serviceName, LocalDateTime localDateTime
-  );
+      String serviceName, LocalDateTime localDateTime);
 
   ServiceRegistry findByServiceNameAndUri(String serviceName, String uri);
 

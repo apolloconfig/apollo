@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@ package com.ctrip.framework.apollo.portal.listener;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.tracer.Tracer;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class DeletionListener {
@@ -39,9 +38,7 @@ public class DeletionListener {
   private final AdminServiceAPI.AppAPI appAPI;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
 
-  public DeletionListener(
-      final PortalSettings portalSettings,
-      final AdminServiceAPI.AppAPI appAPI,
+  public DeletionListener(final PortalSettings portalSettings, final AdminServiceAPI.AppAPI appAPI,
       final AdminServiceAPI.NamespaceAPI namespaceAPI) {
     this.portalSettings = portalSettings;
     this.appAPI = appAPI;
@@ -67,7 +64,8 @@ public class DeletionListener {
 
   @EventListener
   public void onAppNamespaceDeletionEvent(AppNamespaceDeletionEvent event) {
-    AppNamespaceDTO appNamespace = BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
+    AppNamespaceDTO appNamespace =
+        BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
     List<Env> envs = portalSettings.getActiveEnvs();
     String appId = appNamespace.getAppId();
     String namespaceName = appNamespace.getName();
@@ -77,9 +75,12 @@ public class DeletionListener {
       try {
         namespaceAPI.deleteAppNamespace(env, appId, namespaceName, operator);
       } catch (Throwable e) {
-        logger.error("Delete appNamespace failed. appId = {}, namespace = {}, env = {}", appId, namespaceName, env, e);
-        Tracer.logError(String
-            .format("Delete appNamespace failed. appId = %s, namespace = %s, env = %s", appId, namespaceName, env), e);
+        logger.error("Delete appNamespace failed. appId = {}, namespace = {}, env = {}", appId,
+            namespaceName, env, e);
+        Tracer.logError(
+            String.format("Delete appNamespace failed. appId = %s, namespace = %s, env = %s", appId,
+                namespaceName, env),
+            e);
       }
     }
   }

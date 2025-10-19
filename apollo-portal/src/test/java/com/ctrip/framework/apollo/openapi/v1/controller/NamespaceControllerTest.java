@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import static org.hamcrest.Matchers.containsString;
+
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
@@ -25,7 +27,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.HttpClientErrorException;
-import static org.hamcrest.Matchers.containsString;
 
 /**
  * Created by kezhenxu at 2019/1/8 18:17.
@@ -47,10 +48,8 @@ public class NamespaceControllerTest extends AbstractControllerTest {
     dto.setFormat(ConfigFileFormat.Properties.getValue());
     dto.setDataChangeCreatedBy("apollo");
     try {
-      restTemplate.postForEntity(
-          url("/openapi/v1/apps/{appId}/appnamespaces"),
-          dto, OpenAppNamespaceDTO.class, dto.getAppId()
-      );
+      restTemplate.postForEntity(url("/openapi/v1/apps/{appId}/appnamespaces"), dto,
+          OpenAppNamespaceDTO.class, dto.getAppId());
       Assert.fail("should throw");
     } catch (HttpClientErrorException e) {
       String result = e.getResponseBodyAsString();

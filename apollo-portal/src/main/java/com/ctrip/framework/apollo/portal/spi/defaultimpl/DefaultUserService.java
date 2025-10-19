@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,22 @@
  */
 package com.ctrip.framework.apollo.portal.spi.defaultimpl;
 
-import com.google.common.collect.Lists;
-
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-
+import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.util.CollectionUtils;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public class DefaultUserService implements UserService {
 
   private static final String DEFAULT_USER_ID = "apollo";
 
   @Override
-  public List<UserInfo> searchUsers(String keyword, int offset, int limit, boolean includeInactiveUsers) {
+  public List<UserInfo> searchUsers(String keyword, int offset, int limit,
+      boolean includeInactiveUsers) {
     return Collections.singletonList(assembleDefaultUser());
   }
 

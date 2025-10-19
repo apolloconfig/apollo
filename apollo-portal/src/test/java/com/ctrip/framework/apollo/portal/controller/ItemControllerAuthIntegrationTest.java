@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {PortalApplication.class,
-    ControllableAuthorizationConfiguration.class}, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {PortalApplication.class, ControllableAuthorizationConfiguration.class},
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ItemControllerAuthIntegrationTest {
 
   private final Gson GSON = new Gson();
@@ -63,6 +63,7 @@ public class ItemControllerAuthIntegrationTest {
 
   @Value("${local.server.port}")
   int port;
+
   @Autowired
   private UserInfoHolder userInfoHolder;
   @Autowired
@@ -78,9 +79,7 @@ public class ItemControllerAuthIntegrationTest {
     return "http://localhost:" + port + path;
   }
 
-  /**
-   * Test cluster permission denied.
-   */
+  /** Test cluster permission denied. */
   @Test
   public void testCreateItemPermissionDenied() {
     setUserId("xxx");

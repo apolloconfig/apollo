@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,17 @@ import java.lang.annotation.Target;
 
 /**
  * Mark which method should be audited, add to controller or service's method.
- * <p></p>
+ *
+ * <p>
  * Define the attributes of the operation for persisting and querying. When adding to controller's
  * methods, suggested that don't set name, and it will automatically be set to request's url.
- * <p></p>
+ *
+ * <p>
  * Example usage:
+ *
  * <pre>
  * {@code
- * @ApolloAuditLog(type=OpType.CREATE,name="App.create")
+ * &#64;ApolloAuditLog(type=OpType.CREATE,name="App.create")
  * public App create() {
  *   // ...
  * }
@@ -66,4 +69,3 @@ public @interface ApolloAuditLog {
    */
   String description() default "no description";
 }
-

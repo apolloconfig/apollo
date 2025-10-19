@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,9 @@
 package com.ctrip.framework.apollo.biz.grayReleaseRule;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
-
 import java.util.Set;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   private long ruleId;
   private String branchName;
@@ -32,8 +29,8 @@ public class GrayReleaseRuleCache implements Comparable<GrayReleaseRuleCache> {
   private int branchStatus;
   private Set<GrayReleaseRuleItemDTO> ruleItems;
 
-  public GrayReleaseRuleCache(long ruleId, String branchName, String namespaceName, long
-      releaseId, int branchStatus, long loadVersion, Set<GrayReleaseRuleItemDTO> ruleItems) {
+  public GrayReleaseRuleCache(long ruleId, String branchName, String namespaceName, long releaseId,
+      int branchStatus, long loadVersion, Set<GrayReleaseRuleItemDTO> ruleItems) {
     this.ruleId = ruleId;
     this.branchName = branchName;
     this.namespaceName = namespaceName;

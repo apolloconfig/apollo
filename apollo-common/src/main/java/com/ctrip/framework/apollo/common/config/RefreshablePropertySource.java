@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@
  */
 package com.ctrip.framework.apollo.common.config;
 
+import java.util.Map;
 import org.springframework.core.env.MapPropertySource;
 
-import java.util.Map;
-
 public abstract class RefreshablePropertySource extends MapPropertySource {
-
 
   public RefreshablePropertySource(String name, Map<String, Object> source) {
     super(name, source);
@@ -32,9 +30,6 @@ public abstract class RefreshablePropertySource extends MapPropertySource {
     return this.source.get(name);
   }
 
-  /**
-   * refresh property
-   */
+  /** refresh property */
   protected abstract void refresh();
-
 }

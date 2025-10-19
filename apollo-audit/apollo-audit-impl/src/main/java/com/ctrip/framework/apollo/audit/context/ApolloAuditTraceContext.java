@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,8 @@ public class ApolloAuditTraceContext {
       if (tracer != null) {
         return ((ApolloAuditTracer) tracer);
       } else {
-        ApolloAuditTracer newTracer = new ApolloAuditTracer(new ApolloAuditScopeManager(), operatorSupplier);
+        ApolloAuditTracer newTracer =
+            new ApolloAuditTracer(new ApolloAuditScopeManager(), operatorSupplier);
         setTracer(newTracer);
         return newTracer;
       }
@@ -49,10 +50,8 @@ public class ApolloAuditTraceContext {
 
   void setTracer(ApolloAuditTracer tracer) {
     if (Objects.nonNull(RequestContextHolder.getRequestAttributes())) {
-      RequestContextHolder.getRequestAttributes()
-          .setAttribute(ApolloAuditConstants.TRACER, tracer, RequestAttributes.SCOPE_REQUEST);
+      RequestContextHolder.getRequestAttributes().setAttribute(ApolloAuditConstants.TRACER, tracer,
+          RequestAttributes.SCOPE_REQUEST);
     }
   }
-
-
 }

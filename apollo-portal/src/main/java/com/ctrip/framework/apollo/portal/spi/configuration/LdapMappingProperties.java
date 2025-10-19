@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  *
  */
-
-
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 /**
@@ -25,29 +23,19 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
  */
 public class LdapMappingProperties {
 
-  /**
-   * user ldap objectClass
-   */
+  /** user ldap objectClass */
   private String objectClass;
 
-  /**
-   * user login Id
-   */
+  /** user login Id */
   private String loginId;
 
-  /**
-   * user rdn key
-   */
+  /** user rdn key */
   private String rdnKey;
 
-  /**
-   * user display name
-   */
+  /** user display name */
   private String userDisplayName;
 
-  /**
-   * email
-   */
+  /** email */
   private String email;
 
   public String getObjectClass() {

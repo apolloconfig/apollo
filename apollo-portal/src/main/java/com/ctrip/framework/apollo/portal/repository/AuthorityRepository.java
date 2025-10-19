@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,11 @@
  * limitations under the License.
  *
  */
-
 package com.ctrip.framework.apollo.portal.repository;
 
 import com.ctrip.framework.apollo.portal.entity.po.Authority;
-
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-/**
- * @author lepdou 2022-01-20
- */
+/** @author lepdou 2022-01-20 */
 public interface AuthorityRepository extends PagingAndSortingRepository<Authority, Long> {
-
 }

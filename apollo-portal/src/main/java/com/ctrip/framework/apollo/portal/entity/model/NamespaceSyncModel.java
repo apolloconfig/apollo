@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@ package com.ctrip.framework.apollo.portal.entity.model;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
-
-import org.springframework.util.CollectionUtils;
-
 import java.util.List;
+import org.springframework.util.CollectionUtils;
 
 public class NamespaceSyncModel implements Verifiable {
 
@@ -43,8 +41,8 @@ public class NamespaceSyncModel implements Verifiable {
 
   public boolean syncToNamespacesValid(String appId, String namespaceName) {
     for (NamespaceIdentifier namespaceIdentifier : syncToNamespaces) {
-      if (appId.equals(namespaceIdentifier.getAppId()) && namespaceName.equals(
-          namespaceIdentifier.getNamespaceName())) {
+      if (appId.equals(namespaceIdentifier.getAppId())
+          && namespaceName.equals(namespaceIdentifier.getNamespaceName())) {
         continue;
       }
       return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import org.springframework.context.annotation.Profile;
 @Configuration
 public class ApolloBizAssemblyConfiguration {
 
- @Primary
- @ConfigurationProperties(prefix = "spring.config-datasource")
- @Bean
- public static DataSourceProperties dataSourceProperties() {
-  return new DataSourceProperties();
- }
+  @Primary
+  @ConfigurationProperties(prefix = "spring.config-datasource")
+  @Bean
+  public static DataSourceProperties dataSourceProperties() {
+    return new DataSourceProperties();
+  }
 }

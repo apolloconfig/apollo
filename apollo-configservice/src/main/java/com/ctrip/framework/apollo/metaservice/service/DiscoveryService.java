@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ public interface DiscoveryService {
   /**
    * @param serviceId the service id
    * @return the service instance list for the specified service id, or an empty list if no service
-   * instance available
+   *         instance available
    */
   List<ServiceDTO> getServiceInstances(String serviceId);
 }

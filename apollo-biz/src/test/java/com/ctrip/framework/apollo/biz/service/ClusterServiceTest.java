@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package com.ctrip.framework.apollo.biz.service;
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
-
+import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
 
 public class ClusterServiceTest extends AbstractIntegrationTest {
 

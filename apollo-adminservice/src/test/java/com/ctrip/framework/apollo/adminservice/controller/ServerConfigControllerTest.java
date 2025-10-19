@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,10 +31,12 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 class ServerConfigControllerTest extends AbstractControllerTest {
 
   @Test
-  @Sql(scripts = "/controller/test-server-config.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/test-server-config.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   void findAllServerConfig() {
-    ServerConfig[] serverConfigs = restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
     assertNotNull(serverConfigs);
     assertEquals(1, serverConfigs.length);
     assertEquals("name", serverConfigs[0].getKey());
@@ -42,16 +44,19 @@ class ServerConfigControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  @Sql(scripts = "/controller/test-server-config.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/test-server-config.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   void createOrUpdatePortalDBConfig() {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("name");
     serverConfig.setValue("ckl");
-    ServerConfig response = restTemplate.postForObject(url("/server/config"), serverConfig, ServerConfig.class);
+    ServerConfig response =
+        restTemplate.postForObject(url("/server/config"), serverConfig, ServerConfig.class);
     assertNotNull(response);
 
-    ServerConfig[] serverConfigs = restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
     assertNotNull(serverConfigs);
     assertEquals(1, serverConfigs.length);
     assertEquals("name", serverConfigs[0].getKey());
@@ -63,9 +68,9 @@ class ServerConfigControllerTest extends AbstractControllerTest {
     response = restTemplate.postForObject(url("/server/config"), serverConfig, ServerConfig.class);
     assertNotNull(response);
 
-    serverConfigs = restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
     assertNotNull(serverConfigs);
     assertEquals(2, serverConfigs.length);
-
   }
 }

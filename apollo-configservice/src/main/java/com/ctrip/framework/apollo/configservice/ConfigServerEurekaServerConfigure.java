@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 @Configuration
 @EnableEurekaServer
-@ConditionalOnProperty(name = "apollo.eureka.server.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "apollo.eureka.server.enabled", havingValue = "true",
+    matchIfMissing = true)
 public class ConfigServerEurekaServerConfigure {
 
   @Order(99)
@@ -45,8 +46,10 @@ public class ConfigServerEurekaServerConfigure {
 
     @Value("${apollo.eureka.server.security.enabled:false}")
     private boolean eurekaSecurityEnabled;
+
     @Value("${apollo.eureka.server.security.username:}")
     private String username;
+
     @Value("${apollo.eureka.server.security.password:}")
     private String password;
 
@@ -57,8 +60,7 @@ public class ConfigServerEurekaServerConfigure {
       if (eurekaSecurityEnabled) {
         http.authorizeRequests()
             .antMatchers("/eureka/apps/**", "/eureka/instances/**", "/eureka/peerreplication/**")
-            .hasRole(EUREKA_ROLE)
-            .antMatchers("/**").permitAll();
+            .hasRole(EUREKA_ROLE).antMatchers("/**").permitAll();
       }
     }
 
@@ -67,8 +69,8 @@ public class ConfigServerEurekaServerConfigure {
       if (!eurekaSecurityEnabled) {
         return;
       }
-      InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer = auth
-          .getConfigurer(InMemoryUserDetailsManagerConfigurer.class);
+      InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> configurer =
+          auth.getConfigurer(InMemoryUserDetailsManagerConfigurer.class);
       if (configurer == null) {
         configurer = auth.inMemoryAuthentication();
       }

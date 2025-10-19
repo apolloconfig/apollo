@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,20 @@ import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.entity.po.RolePermission;
 import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Service
 public class ConsumerRolePermissionService {
   private final PermissionRepository permissionRepository;
   private final ConsumerRoleRepository consumerRoleRepository;
   private final RolePermissionRepository rolePermissionRepository;
 
-  public ConsumerRolePermissionService(
-      final PermissionRepository permissionRepository,
+  public ConsumerRolePermissionService(final PermissionRepository permissionRepository,
       final ConsumerRoleRepository consumerRoleRepository,
       final RolePermissionRepository rolePermissionRepository) {
     this.permissionRepository = permissionRepository;
@@ -47,9 +43,7 @@ public class ConsumerRolePermissionService {
     this.rolePermissionRepository = rolePermissionRepository;
   }
 
-  /**
-   * Check whether user has the permission
-   */
+  /** Check whether user has the permission */
   public boolean consumerHasPermission(long consumerId, String permissionType, String targetId) {
     Permission permission =
         permissionRepository.findTopByPermissionTypeAndTargetId(permissionType, targetId);

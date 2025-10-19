@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,12 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 /**
- * For non-eureka discovery services such as kubernetes and nacos, there is no eureka home page, so we need to add a default one
+ * For non-eureka discovery services such as kubernetes and nacos, there is no eureka home page, so
+ * we need to add a default one
  */
-@Profile({
-    "kubernetes",
-    "nacos-discovery",
-    "consul-discovery",
-    "zookeeper-discovery",
-    "custom-defined-discovery",
-    "database-discovery",
-})
+@Profile({"kubernetes", "nacos-discovery", "consul-discovery", "zookeeper-discovery",
+    "custom-defined-discovery", "database-discovery",})
 @RestController
 public class HomePageController {
   private final DiscoveryService discoveryService;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.biz.auth;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -40,10 +39,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
   }
 
   /**
-   * Although the authentication below is useless, we may not remove them for backward compatibility.
-   * Because if we remove them and the old clients(before 0.9.0) still send the authentication
-   * information, the server will return 401, which should cause big problems.
+   * Although the authentication below is useless, we may not remove them for backward
+   * compatibility. Because if we remove them and the old clients(before 0.9.0) still send the
+   * authentication information, the server will return 401, which should cause big problems.
    *
+   * <p>
    * We may remove the following once we remove spring security from Apollo.
    */
   @Autowired
@@ -51,5 +51,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     auth.inMemoryAuthentication().withUser("user").password("").roles("USER").and()
         .withUser("apollo").password("").roles("USER", "ADMIN");
   }
-
 }

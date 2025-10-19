@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.controller;
 
-
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
@@ -31,9 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 配置中心本身需要一些配置,这些配置放在数据库里面
- */
+/** 配置中心本身需要一些配置,这些配置放在数据库里面 */
 @RestController
 public class ServerConfigController {
   private final ServerConfigService serverConfigService;
@@ -52,7 +49,8 @@ public class ServerConfigController {
   @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
   @PostMapping("/server/envs/{env}/config-db/config")
   @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdateConfigDBConfig")
-  public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig, @PathVariable String env) {
+  public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig,
+      @PathVariable String env) {
     return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig);
   }
 
@@ -67,5 +65,4 @@ public class ServerConfigController {
   public List<ServerConfig> findAllConfigDBServerConfig(@PathVariable String env) {
     return serverConfigService.findAllConfigDBConfig(Env.transformEnv(env));
   }
-
 }

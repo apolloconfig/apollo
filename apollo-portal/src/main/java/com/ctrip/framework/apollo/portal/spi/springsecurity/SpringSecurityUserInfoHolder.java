@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,9 @@ package com.ctrip.framework.apollo.portal.spi.springsecurity;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.security.Principal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.security.Principal;
 
 public class SpringSecurityUserInfoHolder implements UserInfoHolder {
 
@@ -54,5 +53,4 @@ public class SpringSecurityUserInfoHolder implements UserInfoHolder {
     }
     return String.valueOf(principal);
   }
-
 }

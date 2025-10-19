@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,7 @@ import java.util.List;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 @Service
 public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
 
@@ -45,10 +43,8 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   private final NamespaceService namespaceService;
   private final NamespaceLockService namespaceLockService;
 
-  public ServerNamespaceOpenApiService(
-      AppNamespaceService appNamespaceService,
-      ApplicationEventPublisher publisher,
-      NamespaceService namespaceService,
+  public ServerNamespaceOpenApiService(AppNamespaceService appNamespaceService,
+      ApplicationEventPublisher publisher, NamespaceService namespaceService,
       NamespaceLockService namespaceLockService) {
     this.appNamespaceService = appNamespaceService;
     this.publisher = publisher;
@@ -59,8 +55,8 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   @Override
   public OpenNamespaceDTO getNamespace(String appId, String env, String clusterName,
       String namespaceName, boolean fillItemDetail) {
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf
-        (env), clusterName, namespaceName, fillItemDetail, false);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf(env), clusterName,
+        namespaceName, fillItemDetail, false);
     if (namespaceBO == null) {
       return null;
     }
@@ -68,16 +64,17 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   }
 
   @Override
-  public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName, boolean fillItemDetail) {
-    return OpenApiBeanUtils
-        .batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId, Env
-            .valueOf(env), clusterName, fillItemDetail, false));
+  public List<OpenNamespaceDTO> getNamespaces(String appId, String env, String clusterName,
+      boolean fillItemDetail) {
+    return OpenApiBeanUtils.batchTransformFromNamespaceBOs(namespaceService.findNamespaceBOs(appId,
+        Env.valueOf(env), clusterName, fillItemDetail, false));
   }
 
   @Override
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
     AppNamespace appNamespace = OpenApiBeanUtils.transformToAppNamespace(appNamespaceDTO);
-    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, appNamespaceDTO.isAppendNamespacePrefix());
+    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace,
+        appNamespaceDTO.isAppendNamespacePrefix());
 
     publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
 
@@ -87,10 +84,10 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   @Override
   public OpenNamespaceLockDTO getNamespaceLock(String appId, String env, String clusterName,
       String namespaceName) {
-    NamespaceDTO namespace = namespaceService.loadNamespaceBaseInfo(appId, Env
-        .valueOf(env), clusterName, namespaceName);
-    NamespaceLockDTO lockDTO = namespaceLockService.getNamespaceLock(appId, Env
-        .valueOf(env), clusterName, namespaceName);
+    NamespaceDTO namespace =
+        namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
+    NamespaceLockDTO lockDTO =
+        namespaceLockService.getNamespaceLock(appId, Env.valueOf(env), clusterName, namespaceName);
     return OpenApiBeanUtils.transformFromNamespaceLockDTO(namespace.getNamespaceName(), lockDTO);
   }
 }

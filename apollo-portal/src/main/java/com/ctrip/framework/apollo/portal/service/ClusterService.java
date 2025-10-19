@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,13 @@ package com.ctrip.framework.apollo.portal.service;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import javax.transaction.Transactional;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ClusterService {
@@ -36,7 +34,8 @@ public class ClusterService {
   private final RoleInitializationService roleInitializationService;
   private final RolePermissionService rolePermissionService;
 
-  public ClusterService(final UserInfoHolder userInfoHolder, final AdminServiceAPI.ClusterAPI clusterAPI,
+  public ClusterService(final UserInfoHolder userInfoHolder,
+      final AdminServiceAPI.ClusterAPI clusterAPI,
       RoleInitializationService roleInitializationService,
       RolePermissionService rolePermissionService) {
     this.userInfoHolder = userInfoHolder;
@@ -55,23 +54,22 @@ public class ClusterService {
     }
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
 
-    roleInitializationService.initClusterNamespaceRoles(cluster.getAppId(), env.getName(), cluster.getName(),
-        userInfoHolder.getUser().getUserId());
+    roleInitializationService.initClusterNamespaceRoles(cluster.getAppId(), env.getName(),
+        cluster.getName(), userInfoHolder.getUser().getUserId());
 
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());
 
     return clusterDTO;
   }
 
-  public void deleteCluster(Env env, String appId, String clusterName){
+  public void deleteCluster(Env env, String appId, String clusterName) {
     clusterAPI.delete(env, appId, clusterName, userInfoHolder.getUser().getUserId());
 
     rolePermissionService.deleteRolePermissionsByCluster(appId, env.getName(), clusterName,
         userInfoHolder.getUser().getUserId());
   }
 
-  public ClusterDTO loadCluster(String appId, Env env, String clusterName){
+  public ClusterDTO loadCluster(String appId, Env env, String clusterName) {
     return clusterAPI.loadCluster(appId, env, clusterName);
   }
-
 }

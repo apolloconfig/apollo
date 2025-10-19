@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,12 @@ public class SystemRoleManagerService {
 
   public static final String SYSTEM_PERMISSION_TARGET_ID = "SystemRole";
 
-  public static final String CREATE_APPLICATION_ROLE_NAME = RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+  public static final String CREATE_APPLICATION_ROLE_NAME =
+      RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_APPLICATION,
+          SYSTEM_PERMISSION_TARGET_ID);
 
-  public static final String CREATE_APPLICATION_LIMIT_SWITCH_KEY = "role.create-application.enabled";
+  public static final String CREATE_APPLICATION_LIMIT_SWITCH_KEY =
+      "role.create-application.enabled";
   public static final String MANAGE_APP_MASTER_LIMIT_SWITCH_KEY = "role.manage-app-master.enabled";
 
   private final RolePermissionService rolePermissionService;
@@ -42,8 +45,7 @@ public class SystemRoleManagerService {
   private final RoleInitializationService roleInitializationService;
 
   public SystemRoleManagerService(final RolePermissionService rolePermissionService,
-                                  final PortalConfig portalConfig,
-                                  final RoleInitializationService roleInitializationService) {
+      final PortalConfig portalConfig, final RoleInitializationService roleInitializationService) {
     this.rolePermissionService = rolePermissionService;
     this.portalConfig = portalConfig;
     this.roleInitializationService = roleInitializationService;
@@ -67,7 +69,8 @@ public class SystemRoleManagerService {
       return true;
     }
 
-    return rolePermissionService.userHasPermission(userId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+    return rolePermissionService.userHasPermission(userId, PermissionType.CREATE_APPLICATION,
+        SYSTEM_PERMISSION_TARGET_ID);
   }
 
   public boolean hasManageAppMasterPermission(String userId, String appId) {

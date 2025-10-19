@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
  */
 package com.ctrip.framework.apollo.portal.component.emailbuilder;
 
-import com.google.common.base.Joiner;
-import com.google.gson.Gson;
-
 import com.ctrip.framework.apollo.common.constants.GsonType;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
-
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.google.common.base.Joiner;
+import com.google.gson.Gson;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 @Component
 public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
@@ -61,14 +58,13 @@ public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
     return portalConfig.emailReleaseDiffModuleTemplate();
   }
 
-  private String renderGrayReleaseRuleContent(String bodyTemplate, ReleaseHistoryBO releaseHistory) {
+  private String renderGrayReleaseRuleContent(String bodyTemplate,
+      ReleaseHistoryBO releaseHistory) {
 
     Map<String, Object> context = releaseHistory.getOperationContext();
     Object rules = context.get("rules");
-    List<GrayReleaseRuleItemDTO>
-            ruleItems = rules == null ?
-            null : gson.fromJson(rules.toString(), GsonType.RULE_ITEMS);
-
+    List<GrayReleaseRuleItemDTO> ruleItems =
+        rules == null ? null : gson.fromJson(rules.toString(), GsonType.RULE_ITEMS);
 
     if (CollectionUtils.isEmpty(ruleItems)) {
       return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE, "<br><h4>无灰度规则</h4>");
@@ -78,16 +74,15 @@ public class GrayPublishEmailBuilder extends ConfigPublishEmailBuilder {
       String clientAppId = ruleItem.getClientAppId();
       Set<String> ips = ruleItem.getClientIpList();
 
-      rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>")
-              .append(clientAppId)
-              .append("&nbsp;&nbsp; <b>IP:&nbsp;</b>");
+      rulesHtmlBuilder.append("<b>AppId:&nbsp;</b>").append(clientAppId)
+          .append("&nbsp;&nbsp; <b>IP:&nbsp;</b>");
 
       IP_JOINER.appendTo(rulesHtmlBuilder, ips);
     }
-    String grayRulesModuleContent = portalConfig.emailGrayRulesModuleTemplate().replaceAll(EMAIL_CONTENT_GRAY_RULES_CONTENT,
-            Matcher.quoteReplacement(rulesHtmlBuilder.toString()));
+    String grayRulesModuleContent = portalConfig.emailGrayRulesModuleTemplate().replaceAll(
+        EMAIL_CONTENT_GRAY_RULES_CONTENT, Matcher.quoteReplacement(rulesHtmlBuilder.toString()));
 
-    return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE, Matcher.quoteReplacement(grayRulesModuleContent));
-
+    return bodyTemplate.replaceAll(EMAIL_CONTENT_GRAY_RULES_MODULE,
+        Matcher.quoteReplacement(grayRulesModuleContent));
   }
 }

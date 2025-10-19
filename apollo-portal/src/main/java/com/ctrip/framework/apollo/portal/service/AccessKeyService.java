@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,8 @@ import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AccessKeyAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.tracer.Tracer;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class AccessKeyService {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,15 +45,12 @@ class ApolloSqlConverterH2Test {
     // generate checker sql files
     ApolloSqlConverterUtil.deleteDir(Paths.get(checkerParentDir));
     SqlTemplateGist gists = ApolloSqlConverterUtil.getGists(repositoryDir);
-    SqlTemplateGist h2TestGist = gists.toBuilder()
-        .h2Function("\n"
-            + "\n"
-            + "-- H2 Function\n"
-            + "-- ------------------------------------------------------------\n"
-            + "CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR \"com.ctrip.framework.apollo.build.sql.converter.TestH2Function.unixTimestamp\";\n")
+    SqlTemplateGist h2TestGist = gists.toBuilder().h2Function("\n" + "\n" + "-- H2 Function\n"
+        + "-- ------------------------------------------------------------\n"
+        + "CREATE ALIAS IF NOT EXISTS UNIX_TIMESTAMP FOR \"com.ctrip.framework.apollo.build.sql.converter.TestH2Function.unixTimestamp\";\n")
         .build();
-    List<String> srcSqlList = ApolloSqlConverter.convert(repositoryDir, srcDir, checkerParentDir,
-        h2TestGist);
+    List<String> srcSqlList =
+        ApolloSqlConverter.convert(repositoryDir, srcDir, checkerParentDir, h2TestGist);
     List<String> checkerSqlList = new ArrayList<>(srcSqlList.size());
     for (String srcSql : srcSqlList) {
       String checkerSql = ApolloSqlConverterUtil.replacePath(srcSql, srcDir,
@@ -63,8 +60,8 @@ class ApolloSqlConverterH2Test {
 
     // generate test checker sql files
     ApolloSqlConverterUtil.deleteDir(Paths.get(testCheckerParentDir));
-    List<String> testSrcSqlList = ApolloSqlConverter.convert(repositoryDir, testSrcDir,
-        testCheckerParentDir, h2TestGist);
+    List<String> testSrcSqlList =
+        ApolloSqlConverter.convert(repositoryDir, testSrcDir, testCheckerParentDir, h2TestGist);
     List<String> testCheckerSqlList = new ArrayList<>(testSrcSqlList.size());
     for (String testSrcSql : testSrcSqlList) {
       String testCheckerSql = ApolloSqlConverterUtil.replacePath(testSrcSql, testSrcDir,
@@ -78,7 +75,6 @@ class ApolloSqlConverterH2Test {
     this.checkConfigDatabase(h2Path, checkerSqlList, testCheckerSqlList);
 
     this.checkPortalDatabase(h2Path, checkerSqlList, testCheckerSqlList);
-
   }
 
   private void checkSort(List<String> testSrcSqlList) {
@@ -160,5 +156,4 @@ class ApolloSqlConverterH2Test {
 
     DatabasePopulatorUtils.execute(populator, portalDataSource);
   }
-
 }

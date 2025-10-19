@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,17 @@
 package com.ctrip.framework.apollo.openapi.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
-
-import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @Entity
 @Table(name = "`ConsumerRole`")
-@SQLDelete(sql = "Update `ConsumerRole` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@SQLDelete(
+    sql = "Update `ConsumerRole` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
 public class ConsumerRole extends BaseEntity {
   @Column(name = "`ConsumerId`", nullable = false)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,16 +37,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.util.regex.Pattern;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -55,11 +45,18 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @RestController
 @RequestMapping("/configs")
 public class ConfigController {
@@ -73,17 +70,13 @@ public class ConfigController {
   private final Gson gson;
   private final BizConfig bizConfig;
 
+  private static final Type configurationTypeReference =
+      new TypeToken<Map<String, String>>() {}.getType();
 
-  private static final Type configurationTypeReference = new TypeToken<Map<String, String>>() {
-  }.getType();
-
-  public ConfigController(
-      final ConfigService configService,
+  public ConfigController(final ConfigService configService,
       final IncrementalSyncService incrementalSyncService,
-      final AppNamespaceServiceWithCache appNamespaceService,
-      final NamespaceUtil namespaceUtil,
-      final InstanceConfigAuditUtil instanceConfigAuditUtil,
-      final Gson gson,
+      final AppNamespaceServiceWithCache appNamespaceService, final NamespaceUtil namespaceUtil,
+      final InstanceConfigAuditUtil instanceConfigAuditUtil, final Gson gson,
       final BizConfig bizConfig) {
     this.configService = configService;
     this.incrementalSyncService = incrementalSyncService;
@@ -96,17 +89,17 @@ public class ConfigController {
 
   @GetMapping(value = "/{appId}/{clusterName}/{namespace:.+}")
   public ApolloConfig queryConfig(@PathVariable String appId, @PathVariable String clusterName,
-                                  @PathVariable String namespace,
-                                  @RequestParam(value = "dataCenter", required = false) String dataCenter,
-                                  @RequestParam(value = "releaseKey", defaultValue = "-1") String clientSideReleaseKey,
-                                  @RequestParam(value = "ip", required = false) String clientIp,
-                                  @RequestParam(value = "label", required = false) String clientLabel,
-                                  @RequestParam(value = "messages", required = false) String messagesAsString,
-                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
+      @PathVariable String namespace,
+      @RequestParam(value = "dataCenter", required = false) String dataCenter,
+      @RequestParam(value = "releaseKey", defaultValue = "-1") String clientSideReleaseKey,
+      @RequestParam(value = "ip", required = false) String clientIp,
+      @RequestParam(value = "label", required = false) String clientLabel,
+      @RequestParam(value = "messages", required = false) String messagesAsString,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
     String originalNamespace = namespace;
-    //strip out .properties suffix
+    // strip out .properties suffix
     namespace = namespaceUtil.filterNamespaceName(namespace);
-    //fix the character case issue, such as FX.apollo <-> fx.apollo
+    // fix the character case issue, such as FX.apollo <-> fx.apollo
     namespace = namespaceUtil.normalizeNamespace(appId, namespace);
 
     if (Strings.isNullOrEmpty(clientIp)) {
@@ -119,20 +112,20 @@ public class ConfigController {
 
     String appClusterNameLoaded = clusterName;
     if (!ConfigConsts.NO_APPID_PLACEHOLDER.equalsIgnoreCase(appId)) {
-      Release currentAppRelease = configService.loadConfig(appId, clientIp, clientLabel, appId, clusterName, namespace,
-          dataCenter, clientMessages);
+      Release currentAppRelease = configService.loadConfig(appId, clientIp, clientLabel, appId,
+          clusterName, namespace, dataCenter, clientMessages);
 
       if (currentAppRelease != null) {
         releases.add(currentAppRelease);
-        //we have cluster search process, so the cluster name might be overridden
+        // we have cluster search process, so the cluster name might be overridden
         appClusterNameLoaded = currentAppRelease.getClusterName();
       }
     }
 
-    //if namespace does not belong to this appId, should check if there is a public configuration
+    // if namespace does not belong to this appId, should check if there is a public configuration
     if (!namespaceBelongsToAppId(appId, namespace)) {
-      Release publicRelease = this.findPublicConfig(appId, clientIp, clientLabel, clusterName, namespace,
-          dataCenter, clientMessages);
+      Release publicRelease = this.findPublicConfig(appId, clientIp, clientLabel, clusterName,
+          namespace, dataCenter, clientMessages);
       if (Objects.nonNull(publicRelease)) {
         releases.add(publicRelease);
       }
@@ -141,8 +134,8 @@ public class ConfigController {
     if (releases.isEmpty()) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND,
           String.format(
-              "Could not load configurations with appId: %s, clusterName: %s, namespace: %s",
-              appId, clusterName, originalNamespace));
+              "Could not load configurations with appId: %s, clusterName: %s, namespace: %s", appId,
+              clusterName, originalNamespace));
       Tracer.logEvent("Apollo.Config.NotFound",
           assembleKey(appId, clusterName, originalNamespace, dataCenter));
       return null;
@@ -161,23 +154,23 @@ public class ConfigController {
       return null;
     }
 
-    ApolloConfig apolloConfig = new ApolloConfig(appId, appClusterNameLoaded, originalNamespace,
-        latestMergedReleaseKey);
+    ApolloConfig apolloConfig =
+        new ApolloConfig(appId, appClusterNameLoaded, originalNamespace, latestMergedReleaseKey);
 
     Map<String, String> latestConfigurations = mergeReleaseConfigurations(releases);
 
     try {
       if (bizConfig.isConfigServiceIncrementalChangeEnabled()) {
-        LinkedHashSet<String> clientSideReleaseKeys = Sets.newLinkedHashSet(
-            Arrays.stream(
-                    clientSideReleaseKey.split(Pattern.quote(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)))
-                .collect(Collectors.toList()));
+        LinkedHashSet<String> clientSideReleaseKeys = Sets.newLinkedHashSet(Arrays
+            .stream(
+                clientSideReleaseKey.split(Pattern.quote(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)))
+            .collect(Collectors.toList()));
 
-        Map<String, Release> clientSideReleases = configService.findReleasesByReleaseKeys(
-            clientSideReleaseKeys);
-        //find history releases
+        Map<String, Release> clientSideReleases =
+            configService.findReleasesByReleaseKeys(clientSideReleaseKeys);
+        // find history releases
         if (!CollectionUtils.isEmpty(clientSideReleases)) {
-          //order by clientSideReleaseKeys
+          // order by clientSideReleaseKeys
           List<Release> historyReleasesWithOrder = new ArrayList<>();
           for (String item : clientSideReleaseKeys) {
             Release release = clientSideReleases.get(item);
@@ -186,44 +179,42 @@ public class ConfigController {
             }
           }
 
-          Map<String, String> clientSideConfigurations = mergeReleaseConfigurations
-              (historyReleasesWithOrder);
+          Map<String, String> clientSideConfigurations =
+              mergeReleaseConfigurations(historyReleasesWithOrder);
 
           if (!CollectionUtils.isEmpty(clientSideConfigurations)) {
-            List<ConfigurationChange> configurationChanges = incrementalSyncService.getConfigurationChanges(
-                latestMergedReleaseKey,
-                latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
+            List<ConfigurationChange> configurationChanges =
+                incrementalSyncService.getConfigurationChanges(latestMergedReleaseKey,
+                    latestConfigurations, clientSideReleaseKey, clientSideConfigurations);
 
             apolloConfig.setConfigurationChanges(configurationChanges);
 
             apolloConfig.setConfigSyncType(ConfigSyncType.INCREMENTAL_SYNC.getValue());
-            Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
-                originalNamespace, dataCenter));
+            Tracer.logEvent("Apollo.Config.Found",
+                assembleKey(appId, appClusterNameLoaded, originalNamespace, dataCenter));
             return apolloConfig;
           }
-
         }
-
       }
     } catch (Exception e) {
-      //fallback to full sync
+      // fallback to full sync
       Tracer.logError("Failed to do incremental sync, fallback to full sync", e);
     }
 
     apolloConfig.setConfigurations(latestConfigurations);
 
-    Tracer.logEvent("Apollo.Config.Found", assembleKey(appId, appClusterNameLoaded,
-        originalNamespace, dataCenter));
+    Tracer.logEvent("Apollo.Config.Found",
+        assembleKey(appId, appClusterNameLoaded, originalNamespace, dataCenter));
     return apolloConfig;
   }
 
   private boolean namespaceBelongsToAppId(String appId, String namespaceName) {
-    //Every app has an 'application' namespace
+    // Every app has an 'application' namespace
     if (Objects.equals(ConfigConsts.NAMESPACE_APPLICATION, namespaceName)) {
       return true;
     }
 
-    //if no appId is present, then no other namespace belongs to it
+    // if no appId is present, then no other namespace belongs to it
     if (ConfigConsts.NO_APPID_PLACEHOLDER.equalsIgnoreCase(appId)) {
       return false;
     }
@@ -235,28 +226,26 @@ public class ConfigController {
 
   /**
    * @param clientAppId the application which uses public config
-   * @param namespace   the namespace
-   * @param dataCenter  the datacenter
+   * @param namespace the namespace
+   * @param dataCenter the datacenter
    */
-  private Release findPublicConfig(String clientAppId, String clientIp, String clientLabel, String clusterName,
-                                   String namespace, String dataCenter, ApolloNotificationMessages clientMessages) {
+  private Release findPublicConfig(String clientAppId, String clientIp, String clientLabel,
+      String clusterName, String namespace, String dataCenter,
+      ApolloNotificationMessages clientMessages) {
     AppNamespace appNamespace = appNamespaceService.findPublicNamespaceByName(namespace);
 
-    //check whether the namespace's appId equals to current one
+    // check whether the namespace's appId equals to current one
     if (Objects.isNull(appNamespace) || Objects.equals(clientAppId, appNamespace.getAppId())) {
       return null;
     }
 
     String publicConfigAppId = appNamespace.getAppId();
 
-    return configService.loadConfig(clientAppId, clientIp, clientLabel, publicConfigAppId, clusterName, namespace, dataCenter,
-        clientMessages);
+    return configService.loadConfig(clientAppId, clientIp, clientLabel, publicConfigAppId,
+        clusterName, namespace, dataCenter, clientMessages);
   }
 
-  /**
-   * Merge configurations of releases.
-   * Release in lower index override those in higher index
-   */
+  /** Merge configurations of releases. Release in lower index override those in higher index */
   Map<String, String> mergeReleaseConfigurations(List<Release> releases) {
     Map<String, String> result = Maps.newLinkedHashMap();
     for (Release release : Lists.reverse(releases)) {
@@ -274,15 +263,14 @@ public class ConfigController {
   }
 
   private void auditReleases(String appId, String cluster, String dataCenter, String clientIp,
-                             List<Release> releases) {
+      List<Release> releases) {
     if (Strings.isNullOrEmpty(clientIp)) {
-      //no need to audit instance config when there is no ip
+      // no need to audit instance config when there is no ip
       return;
     }
     for (Release release : releases) {
       instanceConfigAuditUtil.audit(appId, cluster, dataCenter, clientIp, release.getAppId(),
-          release.getClusterName(),
-          release.getNamespaceName(), release.getReleaseKey());
+          release.getClusterName(), release.getNamespaceName(), release.getReleaseKey());
     }
   }
 

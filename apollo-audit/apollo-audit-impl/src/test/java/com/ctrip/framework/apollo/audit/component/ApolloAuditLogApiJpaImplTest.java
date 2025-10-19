@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,14 +105,15 @@ public class ApolloAuditLogApiJpaImplTest {
       ApolloAuditScopeManager manager = new ApolloAuditScopeManager();
       ApolloAuditScope scope = new ApolloAuditScope(activeSpan, manager);
 
-      Mockito.when(tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description)))
+      Mockito.when(
+          tracer.startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description)))
           .thenReturn(scope);
     }
     ApolloAuditScope scope = (ApolloAuditScope) api.appendAuditLog(create, opName);
 
     Mockito.verify(traceContext, Mockito.times(1)).tracer();
-    Mockito.verify(tracer, Mockito.times(1))
-        .startActiveSpan(Mockito.eq(create), Mockito.eq(opName), Mockito.eq(description));
+    Mockito.verify(tracer, Mockito.times(1)).startActiveSpan(Mockito.eq(create), Mockito.eq(opName),
+        Mockito.eq(description));
 
     assertEquals(create, scope.activeSpan().getOpType());
     assertEquals(opName, scope.activeSpan().getOpName());
@@ -184,9 +185,8 @@ public class ApolloAuditLogApiJpaImplTest {
     List<Object> entities = MockBeanFactory.mockDataInfluenceEntityListByLength(entityNum);
     api.appendDataInfluences(entities, MockDataInfluenceEntity.class);
 
-    Mockito.verify(api, Mockito.times(entityNum))
-        .appendDataInfluence(Mockito.eq("MockTableName"), Mockito.any(), Mockito.eq("MarkedAttribute"),
-            Mockito.any());
+    Mockito.verify(api, Mockito.times(entityNum)).appendDataInfluence(Mockito.eq("MockTableName"),
+        Mockito.any(), Mockito.eq("MarkedAttribute"), Mockito.any());
   }
 
   @Test
@@ -196,7 +196,6 @@ public class ApolloAuditLogApiJpaImplTest {
     assertThrows(IllegalArgumentException.class, () -> {
       api.appendDataInfluences(entities, MockDataInfluenceEntity.class);
     });
-
   }
 
   @Test
@@ -205,24 +204,19 @@ public class ApolloAuditLogApiJpaImplTest {
 
     api.appendDataInfluences(entities, Object.class);
 
-    Mockito.verify(api, Mockito.times(0))
-        .appendDataInfluence(Mockito.any(), Mockito.any(),
-            Mockito.any(), Mockito.any());
+    Mockito.verify(api, Mockito.times(0)).appendDataInfluence(Mockito.any(), Mockito.any(),
+        Mockito.any(), Mockito.any());
   }
-
-
 
   @Test
   public void testQueryLogs() {
     {
       List<ApolloAuditLog> logList = MockBeanFactory.mockAuditLogListByLength(size);
-      Mockito.when(logService.findAll(Mockito.eq(page), Mockito.eq(size)))
-          .thenReturn(logList);
+      Mockito.when(logService.findAll(Mockito.eq(page), Mockito.eq(size))).thenReturn(logList);
     }
 
     List<ApolloAuditLogDTO> dtoList = api.queryLogs(page, size);
-    Mockito.verify(logService, Mockito.times(1))
-        .findAll(Mockito.eq(page), Mockito.eq(size));
+    Mockito.verify(logService, Mockito.times(1)).findAll(Mockito.eq(page), Mockito.eq(size));
     assertEquals(size, dtoList.size());
   }
 
@@ -238,8 +232,8 @@ public class ApolloAuditLogApiJpaImplTest {
     }
 
     List<ApolloAuditLogDTO> dtoList = api.queryLogsByOpName(opName, startDate, endDate, page, size);
-    Mockito.verify(logService, Mockito.times(1))
-        .findByOpName(Mockito.eq(opName), Mockito.eq(page), Mockito.eq(size));
+    Mockito.verify(logService, Mockito.times(1)).findByOpName(Mockito.eq(opName), Mockito.eq(page),
+        Mockito.eq(size));
     assertEquals(size, dtoList.size());
   }
 
@@ -250,15 +244,13 @@ public class ApolloAuditLogApiJpaImplTest {
     final Date endDate = new Date();
     {
       List<ApolloAuditLog> logList = MockBeanFactory.mockAuditLogListByLength(size);
-      Mockito.when(logService.findByOpNameAndTime(Mockito.eq(opName),
-              Mockito.eq(startDate), Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size)))
-          .thenReturn(logList);
+      Mockito.when(logService.findByOpNameAndTime(Mockito.eq(opName), Mockito.eq(startDate),
+          Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size))).thenReturn(logList);
     }
 
     List<ApolloAuditLogDTO> dtoList = api.queryLogsByOpName(opName, startDate, endDate, page, size);
-    Mockito.verify(logService, Mockito.times(1))
-        .findByOpNameAndTime(Mockito.eq(opName),
-            Mockito.eq(startDate), Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size));
+    Mockito.verify(logService, Mockito.times(1)).findByOpNameAndTime(Mockito.eq(opName),
+        Mockito.eq(startDate), Mockito.eq(endDate), Mockito.eq(page), Mockito.eq(size));
     assertEquals(size, dtoList.size());
   }
 
@@ -269,20 +261,16 @@ public class ApolloAuditLogApiJpaImplTest {
     final int dataInfluenceOfEachLog = 3;
     {
       List<ApolloAuditLog> logList = MockBeanFactory.mockAuditLogListByLength(traceDetailsLength);
-      Mockito.when(logService.findByTraceId(Mockito.eq(traceId)))
-          .thenReturn(logList);
+      Mockito.when(logService.findByTraceId(Mockito.eq(traceId))).thenReturn(logList);
       List<ApolloAuditLogDataInfluence> dataInfluenceList =
           MockBeanFactory.mockDataInfluenceListByLength(dataInfluenceOfEachLog);
-      Mockito.when(dataInfluenceService.findBySpanId(Mockito.any()))
-          .thenReturn(dataInfluenceList);
+      Mockito.when(dataInfluenceService.findBySpanId(Mockito.any())).thenReturn(dataInfluenceList);
     }
 
     List<ApolloAuditLogDetailsDTO> detailsDTOList = api.queryTraceDetails(traceId);
 
-    Mockito.verify(logService, Mockito.times(1))
-        .findByTraceId(Mockito.eq(traceId));
-    Mockito.verify(dataInfluenceService, Mockito.times(3))
-        .findBySpanId(Mockito.any());
+    Mockito.verify(logService, Mockito.times(1)).findByTraceId(Mockito.eq(traceId));
+    Mockito.verify(dataInfluenceService, Mockito.times(3)).findBySpanId(Mockito.any());
 
     assertEquals(traceDetailsLength, detailsDTOList.size());
     assertEquals(dataInfluenceOfEachLog, detailsDTOList.get(0).getDataInfluenceDTOList().size());
@@ -294,16 +282,19 @@ public class ApolloAuditLogApiJpaImplTest {
     final String entityId = "1";
     final String fieldName = "xxx";
     {
-      List<ApolloAuditLogDataInfluence> dataInfluenceList = MockBeanFactory.mockDataInfluenceListByLength(size);
-      Mockito.when(dataInfluenceService.findByEntityNameAndEntityIdAndFieldName(Mockito.eq(entityName),
+      List<ApolloAuditLogDataInfluence> dataInfluenceList =
+          MockBeanFactory.mockDataInfluenceListByLength(size);
+      Mockito
+          .when(dataInfluenceService.findByEntityNameAndEntityIdAndFieldName(Mockito.eq(entityName),
               Mockito.eq(entityId), Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size)))
           .thenReturn(dataInfluenceList);
     }
 
-    List<ApolloAuditLogDataInfluenceDTO> dtoList = api.queryDataInfluencesByField(entityName, entityId, fieldName, page, size);
-    Mockito.verify(dataInfluenceService, Mockito.times(1))
-        .findByEntityNameAndEntityIdAndFieldName(Mockito.eq(entityName),
-            Mockito.eq(entityId), Mockito.eq(fieldName), Mockito.eq(page), Mockito.eq(size));
+    List<ApolloAuditLogDataInfluenceDTO> dtoList =
+        api.queryDataInfluencesByField(entityName, entityId, fieldName, page, size);
+    Mockito.verify(dataInfluenceService, Mockito.times(1)).findByEntityNameAndEntityIdAndFieldName(
+        Mockito.eq(entityName), Mockito.eq(entityId), Mockito.eq(fieldName), Mockito.eq(page),
+        Mockito.eq(size));
     assertEquals(size, dtoList.size());
   }
 }

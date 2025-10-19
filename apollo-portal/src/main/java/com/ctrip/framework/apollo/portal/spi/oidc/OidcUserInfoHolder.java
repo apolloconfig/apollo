@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.StringUtils;
 
-/**
- * @author vdisk <vdisk@foxmail.com>
- */
+/** @author vdisk <vdisk@foxmail.com> */
 public class OidcUserInfoHolder implements UserInfoHolder {
 
   private static final Logger log = LoggerFactory.getLogger(OidcUserInfoHolder.class);
@@ -65,8 +63,8 @@ public class OidcUserInfoHolder implements UserInfoHolder {
       UserInfo userInfo = new UserInfo();
       OidcUser oidcUser = (OidcUser) principal;
       userInfo.setUserId(oidcUser.getSubject());
-      userInfo.setName(
-          OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties));
+      userInfo
+          .setName(OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties));
       userInfo.setEmail(oidcUser.getEmail());
       return userInfo;
     }

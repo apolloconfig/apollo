@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,16 @@
  */
 package com.ctrip.framework.apollo.configservice.util;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+
 import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.biz.entity.Instance;
 import com.ctrip.framework.apollo.biz.entity.InstanceConfig;
 import com.ctrip.framework.apollo.biz.service.InstanceService;
 import io.micrometer.core.instrument.MeterRegistry;
+import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,15 +33,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 @RunWith(MockitoJUnitRunner.class)
 public class InstanceConfigAuditUtilTest {
   private InstanceConfigAuditUtil instanceConfigAuditUtil;
@@ -66,10 +63,11 @@ public class InstanceConfigAuditUtilTest {
     when(bizConfig.getInstanceCacheMaxSize()).thenReturn(100);
     when(bizConfig.getInstanceConfigCacheMaxSize()).thenReturn(100);
 
-    instanceConfigAuditUtil = new InstanceConfigAuditUtil(instanceService, bizConfig, meterRegistry);
+    instanceConfigAuditUtil =
+        new InstanceConfigAuditUtil(instanceService, bizConfig, meterRegistry);
 
-    audits = (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>)
-        ReflectionTestUtils.getField(instanceConfigAuditUtil, "audits");
+    audits = (BlockingQueue<InstanceConfigAuditUtil.InstanceConfigAuditModel>) ReflectionTestUtils
+        .getField(instanceConfigAuditUtil, "audits");
 
     someAppId = "someAppId";
     someClusterName = "someClusterName";
@@ -113,6 +111,4 @@ public class InstanceConfigAuditUtilTest {
         someConfigNamespace);
     verify(instanceService, times(1)).createInstanceConfig(any(InstanceConfig.class));
   }
-
-
 }

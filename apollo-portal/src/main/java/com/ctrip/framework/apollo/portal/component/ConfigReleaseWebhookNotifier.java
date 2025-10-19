@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -25,9 +26,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
-import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
-import com.ctrip.framework.apollo.portal.environment.Env;
 
 /**
  * publish webHook

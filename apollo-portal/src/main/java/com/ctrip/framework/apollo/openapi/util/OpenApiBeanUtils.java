@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.util;
 
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
-import com.ctrip.framework.apollo.portal.entity.vo.Organization;
-import org.springframework.util.CollectionUtils;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
@@ -45,11 +25,30 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.openapi.dto.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenClusterDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.openapi.dto.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.util.CollectionUtils;
 
 public class OpenApiBeanUtils {
 
@@ -103,11 +102,10 @@ public class OpenApiBeanUtils {
     List<ItemBO> itemBOs = namespaceBO.getItems();
     if (!CollectionUtils.isEmpty(itemBOs)) {
       items.addAll(itemBOs.stream().map(itemBO -> transformFromItemDTO(itemBO.getItem()))
-              .collect(Collectors.toList()));
+          .collect(Collectors.toList()));
     }
     openNamespaceDTO.setItems(items);
     return openNamespaceDTO;
-
   }
 
   public static List<OpenNamespaceDTO> batchTransformFromNamespaceBOs(
@@ -116,9 +114,8 @@ public class OpenApiBeanUtils {
       return Collections.emptyList();
     }
 
-    return namespaceBOs.stream()
-            .map(OpenApiBeanUtils::transformFromNamespaceBO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    return namespaceBOs.stream().map(OpenApiBeanUtils::transformFromNamespaceBO)
+        .collect(Collectors.toCollection(LinkedList::new));
   }
 
   public static OpenNamespaceLockDTO transformFromNamespaceLockDTO(String namespaceName,
@@ -162,7 +159,8 @@ public class OpenApiBeanUtils {
       String clientAppId = openGrayReleaseRuleItemDTO.getClientAppId();
       Set<String> clientIpList = openGrayReleaseRuleItemDTO.getClientIpList();
       Set<String> clientLabelList = openGrayReleaseRuleItemDTO.getClientLabelList();
-      GrayReleaseRuleItemDTO ruleItem = new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
+      GrayReleaseRuleItemDTO ruleItem =
+          new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
       grayReleaseRuleDTO.addRuleItem(ruleItem);
     });
 
@@ -192,15 +190,17 @@ public class OpenApiBeanUtils {
     return BeanUtils.transform(ClusterDTO.class, openClusterDTO);
   }
 
-  public static OpenOrganizationDto transformFromOrganization(final Organization organization){
+  public static OpenOrganizationDto transformFromOrganization(final Organization organization) {
     Preconditions.checkArgument(organization != null);
     return BeanUtils.transform(OpenOrganizationDto.class, organization);
   }
 
-  public static List<OpenOrganizationDto> transformFromOrganizations(final List<Organization> organizations){
+  public static List<OpenOrganizationDto> transformFromOrganizations(
+      final List<Organization> organizations) {
     if (CollectionUtils.isEmpty(organizations)) {
       return Collections.emptyList();
     }
-    return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization).collect(Collectors.toList());
+    return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization)
+        .collect(Collectors.toList());
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package com.ctrip.framework.apollo.common.controller;
 
 import com.google.common.collect.Lists;
 import com.google.gson.GsonBuilder;
-
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import java.time.Instant;
+import java.util.List;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,18 +33,18 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
 
-import java.util.List;
-
-/**
- * Created by Jason on 5/11/16.
- */
+/** Created by Jason on 5/11/16. */
 @Configuration
 public class HttpMessageConverterConfiguration {
   @Bean
   public HttpMessageConverters messageConverters() {
     // Custom Gson TypeAdapter for Instant
-    JsonSerializer<Instant> instantJsonSerializer = (src, typeOfSrc, context) ->
-        src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString()); // Serialize Instant as ISO-8601 string
+    JsonSerializer<Instant> instantJsonSerializer = (src, typeOfSrc,
+        context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString()); // Serialize
+                                                                                         // Instant
+                                                                                         // as
+                                                                                         // ISO-8601
+                                                                                         // string
 
     JsonDeserializer<Instant> instantJsonDeserializer = (json, typeOfT, context) -> {
       if (json == null || json.isJsonNull()) {
@@ -54,13 +54,11 @@ public class HttpMessageConverterConfiguration {
     };
 
     GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
-    gsonHttpMessageConverter.setGson(
-            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                .registerTypeAdapter(Instant.class, instantJsonSerializer)
-                .registerTypeAdapter(Instant.class, instantJsonDeserializer)
-                .create());
-    final List<HttpMessageConverter<?>> converters = Lists.newArrayList(
-            new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
+    gsonHttpMessageConverter.setGson(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+        .registerTypeAdapter(Instant.class, instantJsonSerializer)
+        .registerTypeAdapter(Instant.class, instantJsonDeserializer).create());
+    final List<HttpMessageConverter<?>> converters =
+        Lists.newArrayList(new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
             new AllEncompassingFormHttpMessageConverter(), gsonHttpMessageConverter);
     return new HttpMessageConverters() {
       @Override

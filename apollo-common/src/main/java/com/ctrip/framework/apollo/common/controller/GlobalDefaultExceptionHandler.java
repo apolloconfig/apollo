@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,12 @@
  *
  */
 package com.ctrip.framework.apollo.common.controller;
+
+import static org.slf4j.event.Level.ERROR;
+import static org.slf4j.event.Level.WARN;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import com.ctrip.framework.apollo.common.exception.AbstractApolloHttpException;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -46,22 +52,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.HttpStatusCodeException;
-import static org.slf4j.event.Level.ERROR;
-import static org.slf4j.event.Level.WARN;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
 public class GlobalDefaultExceptionHandler {
 
   private Gson gson = new Gson();
-  private static Type mapType = new TypeToken<Map<String, Object>>() {
-  }.getType();
+  private static Type mapType = new TypeToken<Map<String, Object>>() {}.getType();
 
   private static final Logger logger = LoggerFactory.getLogger(GlobalDefaultExceptionHandler.class);
 
-  //处理系统内置的Exception
+  // 处理系统内置的Exception
   @ExceptionHandler(Throwable.class)
   public ResponseEntity<Map<String, Object>> exception(HttpServletRequest request, Throwable ex) {
     return handleError(request, INTERNAL_SERVER_ERROR, ex);
@@ -69,33 +69,34 @@ public class GlobalDefaultExceptionHandler {
 
   @ExceptionHandler({HttpRequestMethodNotSupportedException.class, HttpMediaTypeException.class})
   public ResponseEntity<Map<String, Object>> badRequest(HttpServletRequest request,
-                                                        ServletException ex) {
+      ServletException ex) {
     return handleError(request, BAD_REQUEST, ex, WARN);
   }
 
   @ExceptionHandler(HttpStatusCodeException.class)
   public ResponseEntity<Map<String, Object>> restTemplateException(HttpServletRequest request,
-                                                                   HttpStatusCodeException ex) {
+      HttpStatusCodeException ex) {
     return handleError(request, ex.getStatusCode(), ex);
   }
 
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<Map<String, Object>> accessDeny(HttpServletRequest request,
-                                                        AccessDeniedException ex) {
+      AccessDeniedException ex) {
     return handleError(request, FORBIDDEN, ex);
   }
 
-  //处理自定义Exception
+  // 处理自定义Exception
   @ExceptionHandler({AbstractApolloHttpException.class})
-  public ResponseEntity<Map<String, Object>> badRequest(HttpServletRequest request, AbstractApolloHttpException ex) {
+  public ResponseEntity<Map<String, Object>> badRequest(HttpServletRequest request,
+      AbstractApolloHttpException ex) {
     return handleError(request, ex.getHttpStatus(), ex);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, Object>> handleMethodArgumentNotValidException(
-      HttpServletRequest request, MethodArgumentNotValidException ex
-  ) {
-    final Optional<ObjectError> firstError = ex.getBindingResult().getAllErrors().stream().findFirst();
+      HttpServletRequest request, MethodArgumentNotValidException ex) {
+    final Optional<ObjectError> firstError =
+        ex.getBindingResult().getAllErrors().stream().findFirst();
     if (firstError.isPresent()) {
       final String firstErrorMessage = firstError.get().getDefaultMessage();
       return handleError(request, BAD_REQUEST, new BadRequestException(firstErrorMessage));
@@ -105,18 +106,17 @@ public class GlobalDefaultExceptionHandler {
 
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<Map<String, Object>> handleConstraintViolationException(
-      HttpServletRequest request, ConstraintViolationException ex
-  ) {
+      HttpServletRequest request, ConstraintViolationException ex) {
     return handleError(request, BAD_REQUEST, new BadRequestException(ex.getMessage()));
   }
 
   private ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request,
-                                                          HttpStatus status, Throwable ex) {
+      HttpStatus status, Throwable ex) {
     return handleError(request, status, ex, ERROR);
   }
 
   private ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request,
-                                                          HttpStatus status, Throwable ex, Level logLevel) {
+      HttpStatus status, Throwable ex, Level logLevel) {
     String message = getMessageWithRootCause(ex);
     printLog(message, ex, logLevel);
 
@@ -125,12 +125,14 @@ public class GlobalDefaultExceptionHandler {
 
     if (ex instanceof HttpStatusCodeException) {
       try {
-        //try to extract the original error info if it is thrown from apollo programs, e.g. admin service
-        errorAttributes = gson.fromJson(((HttpStatusCodeException) ex).getResponseBodyAsString(), mapType);
+        // try to extract the original error info if it is thrown from apollo programs, e.g. admin
+        // service
+        errorAttributes =
+            gson.fromJson(((HttpStatusCodeException) ex).getResponseBodyAsString(), mapType);
         status = ((HttpStatusCodeException) ex).getStatusCode();
         errorHandled = true;
       } catch (Throwable th) {
-        //ignore
+        // ignore
       }
     }
 
@@ -140,7 +142,6 @@ public class GlobalDefaultExceptionHandler {
       errorAttributes.put("timestamp",
           LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
       errorAttributes.put("exception", ex.getClass().getName());
-
     }
 
     HttpHeaders headers = new HttpHeaders();
@@ -148,7 +149,7 @@ public class GlobalDefaultExceptionHandler {
     return new ResponseEntity<>(errorAttributes, headers, status);
   }
 
-  //打印日志, 其中logLevel为日志级别: ERROR/WARN/DEBUG/INFO/TRACE
+  // 打印日志, 其中logLevel为日志级别: ERROR/WARN/DEBUG/INFO/TRACE
   private void printLog(String message, Throwable ex, Level logLevel) {
     switch (logLevel) {
       case ERROR:
@@ -179,5 +180,4 @@ public class GlobalDefaultExceptionHandler {
     }
     return message;
   }
-
 }

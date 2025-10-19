@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,20 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import org.springframework.stereotype.Service;
 
-/**
- * @author wxq
- */
+/** @author wxq */
 @Service
 public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   private final ReleaseService releaseService;
 
-  public ServerReleaseOpenApiService(
-      ReleaseService releaseService) {
+  public ServerReleaseOpenApiService(ReleaseService releaseService) {
     this.releaseService = releaseService;
   }
 
   @Override
   public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName,
       String namespaceName, NamespaceReleaseDTO releaseDTO) {
-    NamespaceReleaseModel releaseModel = BeanUtils.transform(NamespaceReleaseModel.class, releaseDTO);
+    NamespaceReleaseModel releaseModel =
+        BeanUtils.transform(NamespaceReleaseModel.class, releaseDTO);
 
     releaseModel.setAppId(appId);
     releaseModel.setEnv(Env.valueOf(env).toString());
@@ -55,8 +53,8 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   @Override
   public OpenReleaseDTO getLatestActiveRelease(String appId, String env, String clusterName,
       String namespaceName) {
-    ReleaseDTO releaseDTO = releaseService.loadLatestRelease(appId, Env.valueOf
-        (env), clusterName, namespaceName);
+    ReleaseDTO releaseDTO =
+        releaseService.loadLatestRelease(appId, Env.valueOf(env), clusterName, namespaceName);
     if (releaseDTO == null) {
       return null;
     }

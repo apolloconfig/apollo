@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  */
 package com.ctrip.framework.apollo.biz.eureka;
 
-
 import com.ctrip.framework.apollo.biz.config.BizConfig;
+import java.util.List;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
@@ -27,11 +27,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-
 @Component
 @Primary
-@ConditionalOnProperty(value = {"eureka.client.enabled"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(value = {"eureka.client.enabled"}, havingValue = "true",
+    matchIfMissing = true)
 public class ApolloEurekaClientConfig extends EurekaClientConfigBean {
 
   private final BizConfig bizConfig;
@@ -43,9 +42,7 @@ public class ApolloEurekaClientConfig extends EurekaClientConfigBean {
     this.refreshScope = refreshScope;
   }
 
-  /**
-   * Assert only one zone: defaultZone, but multiple environments.
-   */
+  /** Assert only one zone: defaultZone, but multiple environments. */
   @Override
   public List<String> getEurekaServerServiceUrls(String myZone) {
     List<String> urls = bizConfig.eurekaServiceUrls();
@@ -59,9 +56,9 @@ public class ApolloEurekaClientConfig extends EurekaClientConfigBean {
 
   private void refreshEurekaClient() {
     if (!super.isFetchRegistry()) {
-        super.setFetchRegistry(true);
-        super.setRegisterWithEureka(true);
-        refreshScope.refresh(EUREKA_CLIENT_BEAN_NAME);
+      super.setFetchRegistry(true);
+      super.setRegisterWithEureka(true);
+      refreshScope.refresh(EUREKA_CLIENT_BEAN_NAME);
     }
   }
 

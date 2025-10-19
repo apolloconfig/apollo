@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,5 +21,4 @@ import com.ctrip.framework.apollo.portal.entity.bo.Email;
 public interface EmailService {
 
   void send(Email email);
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,6 @@
  */
 package com.ctrip.framework.apollo.openapi.filter;
 
-import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
-import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
-import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import javax.servlet.ServletException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
-
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,9 +27,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
+import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpHeaders;
+
+/** @author Jason Song(song_s@ctrip.com) */
 @RunWith(MockitoJUnitRunner.class)
 public class ConsumerAuthenticationFilterTest {
 
@@ -106,7 +102,6 @@ public class ConsumerAuthenticationFilterTest {
     verify(filterChain, never()).doFilter(request, response);
   }
 
-
   @Test
   public void testRateLimitSuccessfully() throws Exception {
     String someToken = "some-ratelimit-success-token";
@@ -134,13 +129,11 @@ public class ConsumerAuthenticationFilterTest {
     verify(consumerAuthUtil, times(total)).storeConsumerId(request, someConsumerId);
     verify(consumerAuditUtil, times(total)).audit(request, someConsumerId);
     verify(filterChain, times(total)).doFilter(request, response);
-
   }
-
 
   @Test
   public void testRateLimitPartFailure() throws Exception {
-     String someToken = "some-ratelimit-fail-token";
+    String someToken = "some-ratelimit-fail-token";
     Long someConsumerId = 1L;
     int qps = 5;
     int durationInSeconds = 3;
@@ -171,9 +164,7 @@ public class ConsumerAuthenticationFilterTest {
     verify(consumerAuditUtil, atMost(mostTimes)).audit(request, someConsumerId);
     verify(filterChain, atLeast(leastTimes)).doFilter(request, response);
     verify(filterChain, atMost(mostTimes)).doFilter(request, response);
-
   }
-
 
   private void setupRateLimitMocks(String someToken, Long someConsumerId, int qps) {
     ConsumerToken someConsumerToken = new ConsumerToken();
@@ -184,7 +175,6 @@ public class ConsumerAuthenticationFilterTest {
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someToken);
     when(consumerAuthUtil.getConsumerToken(someToken)).thenReturn(someConsumerToken);
   }
-
 
   public static void executeWithQps(int qps, Runnable task, int durationInSeconds) {
     ExecutorService executor = Executors.newFixedThreadPool(qps);
@@ -202,5 +192,4 @@ public class ConsumerAuthenticationFilterTest {
 
     executor.shutdown();
   }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,20 @@
  */
 package com.ctrip.framework.apollo.biz.utils;
 
-import com.google.common.collect.Sets;
+import static org.junit.Assert.assertEquals;
 
 import com.ctrip.framework.apollo.biz.MockBeanFactory;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
-
+import com.google.common.collect.Sets;
 import java.util.List;
-import org.junit.Test;
-
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-/**
- * @author Jason Song(song_s@ctrip.com)
- */
+/** @author Jason Song(song_s@ctrip.com) */
 public class ReleaseKeyGeneratorTest {
 
   @Test
@@ -46,7 +41,8 @@ public class ReleaseKeyGeneratorTest {
     String anotherAppId = "anotherAppId";
 
     Namespace namespace = MockBeanFactory.mockNamespace(someAppId, someCluster, someNamespace);
-    Namespace anotherNamespace = MockBeanFactory.mockNamespace(anotherAppId, someCluster, someNamespace);
+    Namespace anotherNamespace =
+        MockBeanFactory.mockNamespace(anotherAppId, someCluster, someNamespace);
     int generateTimes = 50000;
     Set<String> releaseKeys = Sets.newConcurrentHashSet();
 
@@ -54,14 +50,15 @@ public class ReleaseKeyGeneratorTest {
     CountDownLatch latch = new CountDownLatch(1);
 
     executorService.submit(generateReleaseKeysTask(namespace, releaseKeys, generateTimes, latch));
-    executorService.submit(generateReleaseKeysTask(anotherNamespace, releaseKeys, generateTimes, latch));
+    executorService
+        .submit(generateReleaseKeysTask(anotherNamespace, releaseKeys, generateTimes, latch));
 
     latch.countDown();
 
     executorService.shutdown();
     executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-    //make sure keys are unique
+    // make sure keys are unique
     assertEquals(generateTimes * 2, releaseKeys.size());
   }
 
@@ -82,17 +79,16 @@ public class ReleaseKeyGeneratorTest {
   }
 
   private Runnable generateReleaseKeysTask(Namespace namespace, Set<String> releaseKeys,
-                                   int generateTimes, CountDownLatch latch) {
+      int generateTimes, CountDownLatch latch) {
     return () -> {
       try {
         latch.await();
       } catch (InterruptedException e) {
-        //ignore
+        // ignore
       }
       for (int i = 0; i < generateTimes; i++) {
         releaseKeys.add(ReleaseKeyGenerator.generateReleaseKey(namespace));
       }
     };
   }
-
 }

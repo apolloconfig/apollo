@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,11 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
-
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
-
-import java.util.List;
 
 public class AppNamespaceServiceTest extends AbstractIntegrationTest {
 
@@ -37,7 +35,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   private final String APP = "app-test";
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindPublicAppNamespace() {
 
@@ -45,11 +44,11 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
 
     Assert.assertNotNull(appNamespaceList);
     Assert.assertEquals(5, appNamespaceList.size());
-
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindPublicAppNamespaceByName() {
 
@@ -59,7 +58,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindPublicAppNamespaceByAppAndName() {
 
@@ -68,21 +68,21 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     Assert.assertNull(appNamespaceService.findByAppIdAndName("100003173", "TFF.song0711-02"));
   }
 
-
   @Test
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreateDefaultAppNamespace() {
     appNamespaceService.createDefaultAppNamespace(APP);
 
-    AppNamespace appNamespace = appNamespaceService.findByAppIdAndName(APP, ConfigConsts.NAMESPACE_APPLICATION);
+    AppNamespace appNamespace =
+        appNamespaceService.findByAppIdAndName(APP, ConfigConsts.NAMESPACE_APPLICATION);
 
     Assert.assertNotNull(appNamespace);
     Assert.assertEquals(ConfigFileFormat.Properties.getValue(), appNamespace.getFormat());
-
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceExisted() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -94,7 +94,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceExistedAsPrivateAppNamespace() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -106,7 +107,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceNotExistedWithNoAppendnamespacePrefix() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -114,14 +116,16 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     appNamespace.setName("old");
     appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
 
-    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace, false);
+    AppNamespace createdAppNamespace =
+        appNamespaceService.createAppNamespaceInLocal(appNamespace, false);
 
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceExistedWithNoAppendnamespacePrefix() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -133,7 +137,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceNotExisted() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -141,14 +146,16 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
 
     appNamespaceService.createAppNamespaceInLocal(appNamespace);
 
-    AppNamespace createdAppNamespace = appNamespaceService.findPublicAppNamespace(appNamespace.getName());
+    AppNamespace createdAppNamespace =
+        appNamespaceService.findPublicAppNamespace(appNamespace.getName());
 
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePublicAppNamespaceWithWrongFormatNotExisted() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -157,16 +164,17 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
 
     appNamespaceService.createAppNamespaceInLocal(appNamespace);
 
-    AppNamespace createdAppNamespace = appNamespaceService.findPublicAppNamespace(appNamespace.getName());
+    AppNamespace createdAppNamespace =
+        appNamespaceService.findPublicAppNamespace(appNamespace.getName());
 
     Assert.assertNotNull(createdAppNamespace);
     Assert.assertEquals(appNamespace.getName(), createdAppNamespace.getName());
     Assert.assertEquals(ConfigFileFormat.YAML.getValue(), createdAppNamespace.getFormat());
   }
 
-
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePrivateAppNamespaceExisted() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -178,7 +186,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePrivateAppNamespaceExistedInAnotherAppId() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -196,7 +205,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePrivateAppNamespaceExistedInAnotherAppIdAsPublic() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -209,7 +219,8 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/appnamespaceservice/init-appnamespace.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testCreatePrivateAppNamespaceNotExisted() {
     AppNamespace appNamespace = assembleBaseAppNamespace();
@@ -231,5 +242,4 @@ public class AppNamespaceServiceTest extends AbstractIntegrationTest {
     appNamespace.setFormat(ConfigFileFormat.XML.getValue());
     return appNamespace;
   }
-
 }

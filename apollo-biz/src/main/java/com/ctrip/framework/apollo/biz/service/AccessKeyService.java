@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * @author nisiyong
- */
+/** @author nisiyong */
 @Service
 public class AccessKeyService {
 
@@ -35,9 +33,7 @@ public class AccessKeyService {
   private final AccessKeyRepository accessKeyRepository;
   private final AuditService auditService;
 
-  public AccessKeyService(
-      AccessKeyRepository accessKeyRepository,
-      AuditService auditService) {
+  public AccessKeyService(AccessKeyRepository accessKeyRepository, AuditService auditService) {
     this.accessKeyRepository = accessKeyRepository;
     this.auditService = auditService;
   }

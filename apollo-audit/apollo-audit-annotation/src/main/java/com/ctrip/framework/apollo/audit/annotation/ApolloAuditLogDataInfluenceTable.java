@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,23 +24,26 @@ import java.lang.annotation.Target;
 /**
  * Mainly used in class definitions, indicates the name of the corresponding audit data table of
  * this class.
- * <p></p>
+ *
+ * <p>
  * It could also be used on method parameters to express the table name of the class which this
  * parameter belongs to.
- * <p></p>
+ *
+ * <p>
  * Example usage:
+ *
  * <pre>
  * {@code
  * CASE 1:
- * @ApolloAuditLogDataInfluenceTable(tableName="App")
+ * &#64;ApolloAuditLogDataInfluenceTable(tableName="App")
  * public class App {
  *   // ...
  * }
  * CASE 2:
- * @ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
+ * &#64;ApolloAuditLog(type=OpType.DELETE,name="AppNamespace.batchDeleteByAppId")
  * public AppNamespace batchDeleteByAppId(
- *   @ApolloAuditLogDataInfluence
- *   @ApolloAuditLogDataInfluenceTable(tableName="AppNamespace") String appId) {
+ *   &#64;ApolloAuditLogDataInfluence
+ *   &#64;ApolloAuditLogDataInfluenceTable(tableName="AppNamespace") String appId) {
  *   // ...
  * }
  * }
@@ -59,5 +62,4 @@ public @interface ApolloAuditLogDataInfluenceTable {
    * @return table name
    */
   String tableName();
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServerInstanceOpenApiService implements InstanceOpenApiService {
 
-    private final InstanceService instanceService;
+  private final InstanceService instanceService;
 
-    public ServerInstanceOpenApiService(InstanceService instanceService) {
-        this.instanceService = instanceService;
-    }
+  public ServerInstanceOpenApiService(InstanceService instanceService) {
+    this.instanceService = instanceService;
+  }
 
-    @Override
-    public int getInstanceCountByNamespace(String appId, String env, String clusterName, String namespaceName) {
-        return instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env), clusterName, namespaceName);
-    }
+  @Override
+  public int getInstanceCountByNamespace(String appId, String env, String clusterName,
+      String namespaceName) {
+    return instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env), clusterName,
+        namespaceName);
+  }
 }

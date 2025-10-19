@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,11 +42,11 @@ public interface ApolloAuditLogQueryApi {
   /**
    * Query AuditLogs by operator name and time limit and page
    *
-   * @param opName    operation name of querying
+   * @param opName operation name of querying
    * @param startDate expect result after or equal this time
-   * @param endDate   expect result before or equal this time
-   * @param page      index from 0
-   * @param size      size of a page
+   * @param endDate expect result before or equal this time
+   * @param page index from 0
+   * @param size size of a page
    * @return List of ApolloAuditLogDTO
    */
   List<ApolloAuditLogDTO> queryLogsByOpName(String opName, Date startDate, Date endDate, int page,
@@ -54,16 +54,19 @@ public interface ApolloAuditLogQueryApi {
 
   /**
    * Query AuditLogDetails by trace id.
-   * <p></p>
+   *
+   * <p>
    * An AuditLogDetail contains an AuditLog and DataInfluences it caused.
-   * <p></p>
+   *
+   * <p>
+   *
    * <pre>
    * {@code
-   *   An AuditLogDetail:
-   *   {
-   *     LogDTO:{},
-   *     DataInfluencesDTO:[]
-   *   }
+   * An AuditLogDetail:
+   * {
+   *   LogDTO:{},
+   *   DataInfluencesDTO:[]
+   * }
    * }
    * </pre>
    *
@@ -76,10 +79,10 @@ public interface ApolloAuditLogQueryApi {
    * Query DataInfluences by specific entity's specified field and page
    *
    * @param entityName target entity's name(audit table name)
-   * @param entityId   target entity's id(audit table id)
-   * @param fieldName  target field's name(audit field id)
-   * @param page       index from 0
-   * @param size       size of a page
+   * @param entityId target entity's id(audit table id)
+   * @param fieldName target field's name(audit field id)
+   * @param page index from 0
+   * @param size size of a page
    * @return List of ApolloAuditLogDetailsDTO
    */
   List<ApolloAuditLogDataInfluenceDTO> queryDataInfluencesByField(String entityName,
@@ -89,10 +92,9 @@ public interface ApolloAuditLogQueryApi {
    * Fuzzy search related AuditLog by query-string and page, page index from 0.
    *
    * @param query input query string, used to fuzzy search
-   * @param page  index from 0
-   * @param size  size of a page
+   * @param page index from 0
+   * @param size size of a page
    * @return List of ApolloAuditLogDetailsDTO
    */
   List<ApolloAuditLogDTO> searchLogByNameOrTypeOrOperator(String query, int page, int size);
-
 }

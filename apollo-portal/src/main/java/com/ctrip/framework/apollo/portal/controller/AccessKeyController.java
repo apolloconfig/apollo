@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,24 +24,19 @@ import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AccessKeyService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
-
-/**
- * @author nisiyong
- */
+/** @author nisiyong */
 @RestController
 public class AccessKeyController {
 
   private final UserInfoHolder userInfoHolder;
   private final AccessKeyService accessKeyService;
 
-  public AccessKeyController(
-      UserInfoHolder userInfoHolder,
-      AccessKeyService accessKeyService) {
+  public AccessKeyController(UserInfoHolder userInfoHolder, AccessKeyService accessKeyService) {
     this.userInfoHolder = userInfoHolder;
     this.accessKeyService = accessKeyService;
   }
@@ -59,17 +54,14 @@ public class AccessKeyController {
 
   @PreAuthorize(value = "@userPermissionValidator.isAppAdmin(#appId)")
   @GetMapping(value = "/apps/{appId}/envs/{env}/accesskeys")
-  public List<AccessKeyDTO> findByAppId(@PathVariable String appId,
-      @PathVariable String env) {
+  public List<AccessKeyDTO> findByAppId(@PathVariable String appId, @PathVariable String env) {
     return accessKeyService.findByAppId(Env.valueOf(env), appId);
   }
 
   @PreAuthorize(value = "@userPermissionValidator.isAppAdmin(#appId)")
   @DeleteMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}")
   @ApolloAuditLog(type = OpType.DELETE, name = "AccessKey.delete")
-  public void delete(@PathVariable String appId,
-      @PathVariable String env,
-      @PathVariable long id) {
+  public void delete(@PathVariable String appId, @PathVariable String env, @PathVariable long id) {
     String operator = userInfoHolder.getUser().getUserId();
     accessKeyService.deleteAccessKey(Env.valueOf(env), appId, id, operator);
   }
@@ -77,9 +69,7 @@ public class AccessKeyController {
   @PreAuthorize(value = "@userPermissionValidator.isAppAdmin(#appId)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}/enable")
   @ApolloAuditLog(type = OpType.UPDATE, name = "AccessKey.enable")
-  public void enable(@PathVariable String appId,
-      @PathVariable String env,
-      @PathVariable long id,
+  public void enable(@PathVariable String appId, @PathVariable String env, @PathVariable long id,
       @RequestParam(required = false, defaultValue = "" + FILTER) int mode) {
     String operator = userInfoHolder.getUser().getUserId();
     accessKeyService.enable(Env.valueOf(env), appId, id, mode, operator);
@@ -88,9 +78,7 @@ public class AccessKeyController {
   @PreAuthorize(value = "@userPermissionValidator.isAppAdmin(#appId)")
   @PutMapping(value = "/apps/{appId}/envs/{env}/accesskeys/{id}/disable")
   @ApolloAuditLog(type = OpType.UPDATE, name = "AccessKey.disable")
-  public void disable(@PathVariable String appId,
-      @PathVariable String env,
-      @PathVariable long id) {
+  public void disable(@PathVariable String appId, @PathVariable String env, @PathVariable long id) {
     String operator = userInfoHolder.getUser().getUserId();
     accessKeyService.disable(Env.valueOf(env), appId, id, operator);
   }

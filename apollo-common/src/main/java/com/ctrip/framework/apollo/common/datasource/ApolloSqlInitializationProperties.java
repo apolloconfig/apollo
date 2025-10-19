@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,10 @@ import org.springframework.boot.sql.init.DatabaseInitializationMode;
 
 public class ApolloSqlInitializationProperties {
 
-  /**
-   * Locations of the schema (DDL) scripts to apply to the database.
-   */
+  /** Locations of the schema (DDL) scripts to apply to the database. */
   private List<String> schemaLocations;
 
-  /**
-   * Locations of the data (DML) scripts to apply to the database.
-   */
+  /** Locations of the data (DML) scripts to apply to the database. */
   private List<String> dataLocations;
 
   /**
@@ -38,34 +34,22 @@ public class ApolloSqlInitializationProperties {
    */
   private String platform = "all";
 
-  /**
-   * Username of the database to use when applying initialization scripts (if different).
-   */
+  /** Username of the database to use when applying initialization scripts (if different). */
   private String username;
 
-  /**
-   * Password of the database to use when applying initialization scripts (if different).
-   */
+  /** Password of the database to use when applying initialization scripts (if different). */
   private String password;
 
-  /**
-   * Whether initialization should continue when an error occurs.
-   */
+  /** Whether initialization should continue when an error occurs. */
   private boolean continueOnError = false;
 
-  /**
-   * Statement separator in the schema and data scripts.
-   */
+  /** Statement separator in the schema and data scripts. */
   private String separator = ";";
 
-  /**
-   * Encoding of the schema and data scripts.
-   */
+  /** Encoding of the schema and data scripts. */
   private Charset encoding;
 
-  /**
-   * Mode to apply when determining whether initialization should be performed.
-   */
+  /** Mode to apply when determining whether initialization should be performed. */
   private DatabaseInitializationMode mode = DatabaseInitializationMode.EMBEDDED;
 
   public List<String> getSchemaLocations() {

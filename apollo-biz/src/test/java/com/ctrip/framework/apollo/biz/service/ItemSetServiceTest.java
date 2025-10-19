@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,10 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
     Namespace namespace = namespaceService.findOne(1L);
 
     ItemChangeSets changeSets = new ItemChangeSets();
-    changeSets.addCreateItem(buildNormalItem(0L, namespace.getId(), "k6", "v6", "test item num limit", 6));
-    changeSets.addCreateItem(buildNormalItem(0L, namespace.getId(), "k7", "v7", "test item num limit", 7));
+    changeSets.addCreateItem(
+        buildNormalItem(0L, namespace.getId(), "k6", "v6", "test item num limit", 6));
+    changeSets.addCreateItem(
+        buildNormalItem(0L, namespace.getId(), "k7", "v7", "test item num limit", 7));
 
     try {
       itemSetService.updateSet(namespace, changeSets);
@@ -69,7 +71,6 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
 
     int size = itemService.findNonEmptyItemCount(namespace.getId());
     Assert.assertEquals(7, size);
-
   }
 
   @Test
@@ -88,10 +89,16 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
     Item item9902 = itemService.findOne(9902);
 
     ItemChangeSets changeSets = new ItemChangeSets();
-    changeSets.addUpdateItem(buildNormalItem(item9901.getId(), item9901.getNamespaceId(), item9901.getKey(), item9901.getValue() + " update", item9901.getComment(), item9901.getLineNum()));
-    changeSets.addDeleteItem(buildNormalItem(item9902.getId(), item9902.getNamespaceId(), item9902.getKey(), item9902.getValue() + " update", item9902.getComment(), item9902.getLineNum()));
-    changeSets.addCreateItem(buildNormalItem(0L, item9901.getNamespaceId(), "k6", "v6", "test item num limit", 6));
-    changeSets.addCreateItem(buildNormalItem(0L, item9901.getNamespaceId(), "k7", "v7", "test item num limit", 7));
+    changeSets.addUpdateItem(
+        buildNormalItem(item9901.getId(), item9901.getNamespaceId(), item9901.getKey(),
+            item9901.getValue() + " update", item9901.getComment(), item9901.getLineNum()));
+    changeSets.addDeleteItem(
+        buildNormalItem(item9902.getId(), item9902.getNamespaceId(), item9902.getKey(),
+            item9902.getValue() + " update", item9902.getComment(), item9902.getLineNum()));
+    changeSets.addCreateItem(
+        buildNormalItem(0L, item9901.getNamespaceId(), "k6", "v6", "test item num limit", 6));
+    changeSets.addCreateItem(
+        buildNormalItem(0L, item9901.getNamespaceId(), "k7", "v7", "test item num limit", 7));
 
     try {
       itemSetService.updateSet(namespace, changeSets);
@@ -102,7 +109,6 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
 
     int size = itemService.findNonEmptyItemCount(namespace.getId());
     Assert.assertEquals(5, size);
-
   }
 
   @Test
@@ -121,9 +127,14 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
     Item item9902 = itemService.findOne(9902);
 
     ItemChangeSets changeSets = new ItemChangeSets();
-    changeSets.addUpdateItem(buildNormalItem(item9901.getId(), item9901.getNamespaceId(), item9901.getKey(), item9901.getValue() + " update", item9901.getComment(), item9901.getLineNum()));
-    changeSets.addDeleteItem(buildNormalItem(item9902.getId(), item9902.getNamespaceId(), item9902.getKey(), item9902.getValue() + " update", item9902.getComment(), item9902.getLineNum()));
-    changeSets.addCreateItem(buildNormalItem(0L, item9901.getNamespaceId(), "k6", "v6", "test item num limit", 6));
+    changeSets.addUpdateItem(
+        buildNormalItem(item9901.getId(), item9901.getNamespaceId(), item9901.getKey(),
+            item9901.getValue() + " update", item9901.getComment(), item9901.getLineNum()));
+    changeSets.addDeleteItem(
+        buildNormalItem(item9902.getId(), item9902.getNamespaceId(), item9902.getKey(),
+            item9902.getValue() + " update", item9902.getComment(), item9902.getLineNum()));
+    changeSets.addCreateItem(
+        buildNormalItem(0L, item9901.getNamespaceId(), "k6", "v6", "test item num limit", 6));
 
     try {
       itemSetService.updateSet(namespace, changeSets);
@@ -133,15 +144,13 @@ public class ItemSetServiceTest extends AbstractIntegrationTest {
 
     int size = itemService.findNonEmptyItemCount(namespace.getId());
     Assert.assertEquals(5, size);
-
   }
 
-
-  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, String value, String comment, int lineNum) {
+  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, String value,
+      String comment, int lineNum) {
     ItemDTO item = new ItemDTO(key, value, comment, lineNum);
     item.setId(id);
     item.setNamespaceId(namespaceId);
     return item;
   }
-
 }

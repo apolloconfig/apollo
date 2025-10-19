@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,26 @@ package com.ctrip.framework.apollo.biz.service;
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.core.ConfigConsts;
+import java.util.List;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Objects;
-
 @Service
 public class AdminService {
-  private final static Logger logger = LoggerFactory.getLogger(AdminService.class);
+  private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
   private final AppService appService;
   private final AppNamespaceService appNamespaceService;
   private final ClusterService clusterService;
   private final NamespaceService namespaceService;
 
-  public AdminService(
-      final AppService appService,
+  public AdminService(final AppService appService,
       final @Lazy AppNamespaceService appNamespaceService,
-      final @Lazy ClusterService clusterService,
-      final @Lazy NamespaceService namespaceService) {
+      final @Lazy ClusterService clusterService, final @Lazy NamespaceService namespaceService) {
     this.appService = appService;
     this.appNamespaceService = appNamespaceService;
     this.clusterService = clusterService;

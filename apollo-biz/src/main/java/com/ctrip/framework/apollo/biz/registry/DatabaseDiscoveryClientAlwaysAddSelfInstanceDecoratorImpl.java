@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,22 @@ import java.util.Objects;
 
 /**
  * decorator pattern
+ *
  * <p>
  * when database crash, even cannot register self instance to database,
+ *
  * <p>
  * this decorator will ensure return's result contains self instance.
  */
 public class DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl
-  implements DatabaseDiscoveryClient {
+    implements DatabaseDiscoveryClient {
 
   private final DatabaseDiscoveryClient delegate;
 
   private final ServiceInstance selfInstance;
 
-  public DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
-      DatabaseDiscoveryClient delegate,
-      ServiceInstance selfInstance
-  ) {
+  public DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(DatabaseDiscoveryClient delegate,
+      ServiceInstance selfInstance) {
     this.delegate = delegate;
     this.selfInstance = selfInstance;
   }
@@ -61,6 +61,7 @@ public class DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl
 
   /**
    * if the serviceName is same with self, always return self's instance
+   *
    * @return never be empty list when serviceName is same with self
    */
   @Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package com.ctrip.framework.apollo.common.entity;
 import com.ctrip.framework.apollo.audit.event.ApolloAuditLogDataInfluenceEvent;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -124,10 +122,10 @@ public abstract class BaseEntity {
   @PrePersist
   protected void prePersist() {
     if (this.dataChangeCreatedTime == null) {
-        dataChangeCreatedTime = new Date();
+      dataChangeCreatedTime = new Date();
     }
     if (this.dataChangeLastModifiedTime == null) {
-        dataChangeLastModifiedTime = new Date();
+      dataChangeLastModifiedTime = new Date();
     }
   }
 
@@ -150,7 +148,7 @@ public abstract class BaseEntity {
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return toStringHelper().toString();
   }
 
