@@ -25,8 +25,11 @@ import com.ctrip.framework.apollo.portal.component.AbstractPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
-import java.util.List;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component("consumerPermissionValidator")
 public class ConsumerPermissionValidator extends AbstractPermissionValidator implements
@@ -39,6 +42,34 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
       final ConsumerAuthUtil consumerAuthUtil) {
     this.permissionService = permissionService;
     this.consumerAuthUtil = consumerAuthUtil;
+  }
+
+  @Override
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+    if (hasCreateNamespacePermission(appId)){
+      return true;
+    }
+    List<Permission> requiredPermissions = Arrays.asList(
+            new Permission(PermissionType.MODIFY_NAMESPACE,
+                    RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+            new Permission(PermissionType.MODIFY_NAMESPACE,
+                    RoleUtils.buildNamespaceTargetId(appId, namespaceName, env))
+    );
+    return hasPermissions(requiredPermissions);
+  }
+
+  @Override
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
+    if (hasCreateNamespacePermission(appId)){
+      return true;
+    }
+    List<Permission> requiredPermissions = Arrays.asList(
+            new Permission(PermissionType.RELEASE_NAMESPACE,
+                    RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+            new Permission(PermissionType.RELEASE_NAMESPACE,
+                    RoleUtils.buildNamespaceTargetId(appId, namespaceName, env))
+    );
+    return hasPermissions(requiredPermissions);
   }
 
   @Override
