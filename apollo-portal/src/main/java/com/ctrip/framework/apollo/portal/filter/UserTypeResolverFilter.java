@@ -46,7 +46,7 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
   }
 
   private String resolve(HttpServletRequest req) {
-    if (req.getHeader(CONSUMER_ID) != null) {
+    if (req.getAttribute(CONSUMER_ID) != null) {
       return UserIdentityConstants.CONSUMER;
     }
 

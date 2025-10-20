@@ -50,7 +50,7 @@ public class NamespaceController {
     this.namespaceOpenApiService = namespaceOpenApiService;
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateNamespacePermission(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
   @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
   public OpenAppNamespaceDTO createNamespace(@PathVariable String appId,
                                              @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
