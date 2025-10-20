@@ -49,13 +49,7 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
     if (hasCreateNamespacePermission(appId)){
       return true;
     }
-    List<Permission> requiredPermissions = Arrays.asList(
-            new Permission(PermissionType.MODIFY_NAMESPACE,
-                    RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-            new Permission(PermissionType.MODIFY_NAMESPACE,
-                    RoleUtils.buildNamespaceTargetId(appId, namespaceName, env))
-    );
-    return hasPermissions(requiredPermissions);
+    return super.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override
@@ -63,13 +57,7 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
     if (hasCreateNamespacePermission(appId)){
       return true;
     }
-    List<Permission> requiredPermissions = Arrays.asList(
-            new Permission(PermissionType.RELEASE_NAMESPACE,
-                    RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-            new Permission(PermissionType.RELEASE_NAMESPACE,
-                    RoleUtils.buildNamespaceTargetId(appId, namespaceName, env))
-    );
-    return hasPermissions(requiredPermissions);
+    return super.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override

@@ -49,7 +49,7 @@ public class ClusterController implements ClusterManagementApi {
     return ResponseEntity.ok(this.clusterOpenApiService.getCluster(appId, env, clusterName));
   }
 
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateClusterPermission(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateClusterPermission(#appId)")
   @Override
   public ResponseEntity<OpenClusterDTO> createCluster(String appId, String env, OpenClusterDTO cluster) {
 
@@ -78,7 +78,7 @@ public class ClusterController implements ClusterManagementApi {
   /**
    * Delete Clusters
    */
-  @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   @Override
   public ResponseEntity<Object> deleteCluster(String env, String appId, String clusterName, String operator) {
