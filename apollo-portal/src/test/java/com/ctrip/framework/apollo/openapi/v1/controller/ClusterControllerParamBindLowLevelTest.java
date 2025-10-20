@@ -16,9 +16,11 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.gson.Gson;
@@ -58,8 +60,8 @@ public class ClusterControllerParamBindLowLevelTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @MockBean(name = "consumerPermissionValidator")
-  private ConsumerPermissionValidator consumerPermissionValidator;
+  @MockBean(name = "unifiedPermissionValidator")
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @MockBean
   private UserService userService;
@@ -71,12 +73,13 @@ public class ClusterControllerParamBindLowLevelTest {
 
   @Before
   public void setUp() {
-    when(consumerPermissionValidator.hasCreateClusterPermission(anyString())).thenReturn(true);
-    when(consumerPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateClusterPermission(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
 
     UserInfo user = new UserInfo();
     user.setUserId("tester");
     when(userService.findByUserId(anyString())).thenReturn(user);
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
   }
 
   @Before
@@ -91,6 +94,7 @@ public class ClusterControllerParamBindLowLevelTest {
   @After
   public void clearAuthentication() {
     SecurityContextHolder.clearContext();
+    UserIdentityContextHolder.clear();
   }
 
   @Test
