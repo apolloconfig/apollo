@@ -152,7 +152,7 @@ class UserPermissionValidatorTest {
   }
 
   @Test
-  void shouldHideConfigToCurrentUser_userIsAppAdmin() {
+  void shouldHideConfigToCurrentUser_userIsNotAppAdmin() {
     when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
     when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();

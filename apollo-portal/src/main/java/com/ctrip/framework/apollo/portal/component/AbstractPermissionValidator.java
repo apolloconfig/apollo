@@ -71,9 +71,7 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   }
 
   @Override
-  public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-    return false;
-  }
+  public abstract boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace);
 
   @Override
   public boolean hasCreateClusterPermission(String appId) {
@@ -84,9 +82,7 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   }
 
   @Override
-  public boolean isSuperAdmin() {
-    return false;
-  }
+  public abstract boolean isSuperAdmin();
 
   @Override
   public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
@@ -95,14 +91,10 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   }
 
   @Override
-  public boolean hasCreateApplicationPermission() {
-    return false;
-  }
+  public abstract boolean hasCreateApplicationPermission();
 
   @Override
-  public boolean hasManageAppMasterPermission(String appId) {
-    return false;
-  }
+  public abstract boolean hasManageAppMasterPermission(String appId);
 
   protected abstract boolean hasPermissions(List<Permission> requiredPerms);
 }

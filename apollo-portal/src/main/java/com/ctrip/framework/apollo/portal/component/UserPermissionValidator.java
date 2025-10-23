@@ -92,6 +92,11 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   }
 
   @Override
+  public boolean hasCreateApplicationPermission(String userId) {
+    return systemRoleManagerService.hasCreateApplicationPermission(userId);
+  }
+
+  @Override
   public boolean hasManageAppMasterPermission(String appId) {
     // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
     return isSuperAdmin() ||
@@ -102,11 +107,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
 
   @Override
   protected boolean hasPermissions(List<Permission> requiredPerms) {
-    String userId = userInfoHolder.getUser().getUserId();
-    if (requiredPerms.isEmpty()) {
+    if (requiredPerms == null || requiredPerms.isEmpty()) {
       return false;
     }
-
+    String userId = userInfoHolder.getUser().getUserId();
     return rolePermissionService.hasAnyPermission(userId, requiredPerms);
   }
 }

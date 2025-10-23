@@ -25,10 +25,8 @@ import com.ctrip.framework.apollo.portal.component.AbstractPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.PermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
-import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Component("consumerPermissionValidator")
@@ -81,6 +79,11 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
   public boolean hasCreateApplicationPermission() {
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
     return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Override
+  public boolean hasCreateApplicationPermission(String userId) {
+    return false;
   }
 
   @Override
