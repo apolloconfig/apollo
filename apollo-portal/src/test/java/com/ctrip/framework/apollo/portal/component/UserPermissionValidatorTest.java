@@ -158,7 +158,7 @@ class UserPermissionValidatorTest {
   }
 
   @Test
-  void shouldHideConfigToCurrentUser_userHasNoPermission() {
+  void shouldHideConfigToCurrentUser_configViewNotMemberOnly() {
     when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
   }
