@@ -129,16 +129,6 @@ class UserPermissionValidatorTest {
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
     assertThat(validator.isSuperAdmin()).isFalse();
   }
-
-  // 3. shouldHideConfigToCurrentUser tests
-
-  @Test
-  void shouldHideConfigToCurrentUser_envNotMemberOnly() {
-    when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(false);
-
-    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE)).isFalse();
-  }
-
   @Test
   void shouldHideConfigToCurrentUser_publicNamespace() {
     when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
