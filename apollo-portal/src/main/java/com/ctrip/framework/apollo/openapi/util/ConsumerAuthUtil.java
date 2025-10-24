@@ -67,4 +67,15 @@ public class ConsumerAuthUtil {
     HttpServletRequest request = attributes.getRequest();
     return retrieveConsumerId(request);
   }
+
+  public boolean checkConsumerIdExist(HttpServletRequest request) {
+    if (request == null) {
+      ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+      if (attributes == null) {
+        return false;
+      }
+      request = attributes.getRequest();
+    }
+    return request.getAttribute(CONSUMER_ID) != null;
+  }
 }

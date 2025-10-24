@@ -43,9 +43,9 @@ public class AuthFilterConfiguration {
   }
 
   @Bean
-  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
+  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter(ConsumerAuthUtil consumerAuthUtil) {
     FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
-    authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
+    authTypeResolverFilter.setFilter(new UserTypeResolverFilter(consumerAuthUtil));
     authTypeResolverFilter.addUrlPatterns("/*");
     authTypeResolverFilter.setOrder(OPEN_API_AUTH_ORDER + 1);
     return authTypeResolverFilter;
