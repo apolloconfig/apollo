@@ -43,7 +43,7 @@ public class AuthFilterConfiguration {
   }
 
   @Bean
-  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter(ConsumerAuthUtil consumerAuthUtil) {
+  public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
     FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
     authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
     authTypeResolverFilter.addUrlPatterns("/*");
