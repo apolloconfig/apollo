@@ -16,7 +16,6 @@
  */
 package com.ctrip.framework.apollo.portal.filter;
 
-import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import java.io.IOException;
@@ -28,6 +27,8 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import static com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil.CONSUMER_ID;
 
 public class UserTypeResolverFilter extends OncePerRequestFilter {
   @Override
@@ -44,7 +45,7 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
   }
 
   private String resolve(HttpServletRequest req) {
-    if (ConsumerAuthUtil.checkConsumerIdExist(req)) {
+    if (req.getAttribute(CONSUMER_ID) != null) {
       return UserIdentityConstants.CONSUMER;
     }
 
