@@ -30,13 +30,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class UserTypeResolverFilter extends OncePerRequestFilter {
-
-  private final ConsumerAuthUtil consumerAuthUtil;
-
-  public UserTypeResolverFilter(ConsumerAuthUtil consumerAuthUtil) {
-    this.consumerAuthUtil = consumerAuthUtil;
-  }
-
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
@@ -51,7 +44,7 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
   }
 
   private String resolve(HttpServletRequest req) {
-    if (consumerAuthUtil.checkConsumerIdExist(req)) {
+    if (ConsumerAuthUtil.checkConsumerIdExist(req)) {
       return UserIdentityConstants.CONSUMER;
     }
 

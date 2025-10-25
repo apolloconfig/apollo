@@ -68,7 +68,7 @@ public class ConsumerAuthUtil {
     return retrieveConsumerId(request);
   }
 
-  public boolean checkConsumerIdExist(HttpServletRequest request) {
+  public static boolean checkConsumerIdExist(HttpServletRequest request) {
     return request.getAttribute(CONSUMER_ID) != null;
   }
 }
