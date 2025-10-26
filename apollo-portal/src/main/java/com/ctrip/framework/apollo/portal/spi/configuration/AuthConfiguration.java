@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.repository.AuthorityRepository;
 import com.ctrip.framework.apollo.portal.repository.UserRepository;
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
@@ -32,31 +33,17 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserService;
 import com.ctrip.framework.apollo.portal.spi.ldap.ApolloLdapAuthenticationProvider;
 import com.ctrip.framework.apollo.portal.spi.ldap.FilterLdapByGroupUserSearch;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
-import com.ctrip.framework.apollo.portal.spi.oidc.ExcludeClientCredentialsClientRegistrationRepository;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcAuthenticationSuccessEventListener;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserServiceImpl;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcLogoutHandler;
-import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.oidc.*;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.ApolloPasswordEncoderFactory;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
-
-import java.text.MessageFormat;
-import java.util.Collections;
-import javax.persistence.EntityManagerFactory;
-import javax.sql.DataSource;
-
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.ldap.core.ContextSource;
@@ -77,6 +64,11 @@ import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInit
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+
+import javax.persistence.EntityManagerFactory;
+import javax.sql.DataSource;
+import java.text.MessageFormat;
+import java.util.Collections;
 
 @Configuration
 public class AuthConfiguration {
@@ -106,8 +98,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
-      return new SpringSecurityUserInfoHolder(userService);
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService, @Lazy ConsumerService consumerService) {
+      return new SpringSecurityUserInfoHolder(userService, consumerService);
     }
 
     @Bean
@@ -210,8 +202,8 @@ public class AuthConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(UserInfoHolder.class)
-    public UserInfoHolder springSecurityUserInfoHolder(UserService userService) {
-      return new SpringSecurityUserInfoHolder(userService);
+    public UserInfoHolder springSecurityUserInfoHolder(UserService userService, @Lazy ConsumerService consumerService) {
+      return new SpringSecurityUserInfoHolder(userService, consumerService);
     }
 
     @Bean
