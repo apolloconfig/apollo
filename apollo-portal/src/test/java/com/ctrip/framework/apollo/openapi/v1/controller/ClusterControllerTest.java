@@ -16,13 +16,17 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.gson.Gson;
 import java.util.Collections;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,8 +69,8 @@ public class ClusterControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @MockBean(name = "consumerPermissionValidator")
-  private ConsumerPermissionValidator consumerPermissionValidator;
+  @MockBean(name = "unifiedPermissionValidator")
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @MockBean
   private UserService userService;
@@ -79,14 +83,21 @@ public class ClusterControllerTest {
 
   @Before
   public void setUpSecurityMocks() {
-    when(consumerPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(true);
-    when(consumerPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
 
     authenticatedUser = new UserInfo();
     authenticatedUser.setUserId("test-operator");
     when(userService.findByUserId(Mockito.anyString())).thenReturn(authenticatedUser);
 
     SecurityContextHolder.clearContext();
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+  }
+
+  @After
+  public void clearAuthentication() {
+    SecurityContextHolder.clearContext();
+    UserIdentityContextHolder.clear();
   }
 
   private void authenticate() {

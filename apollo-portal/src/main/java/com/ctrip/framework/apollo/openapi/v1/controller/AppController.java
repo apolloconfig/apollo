@@ -60,7 +60,7 @@ public class AppController implements AppManagementApi {
 
   /** @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel) */
   @Transactional
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @Override
   public ResponseEntity<Object> createApp(OpenCreateAppDTO req) {
     if (null == req.getApp()) {
@@ -116,7 +116,7 @@ public class AppController implements AppManagementApi {
 
   /** update app (new added) */
   @Override
-  @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
   public ResponseEntity<OpenAppDTO> updateApp(String appId, String operator, OpenAppDTO dto) {
     if (!Objects.equals(appId, dto.getAppId())) {
@@ -144,7 +144,7 @@ public class AppController implements AppManagementApi {
    * Create an application in a specified environment (new added) POST /openapi/v1/apps/envs/{env}
    */
   @Override
-  @PreAuthorize(value = "@consumerPermissionValidator.hasCreateApplicationPermission()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Object> createAppInEnv(String env, String operator, OpenAppDTO app) {
     if (userService.findByUserId(operator) == null) {
@@ -157,7 +157,7 @@ public class AppController implements AppManagementApi {
 
   /** Delete App (new added) */
   @Override
-  @PreAuthorize(value = "@consumerPermissionValidator.isAppAdmin(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
   public ResponseEntity<Object> deleteApp(String appId, String operator) {
     if (userService.findByUserId(operator) == null) {

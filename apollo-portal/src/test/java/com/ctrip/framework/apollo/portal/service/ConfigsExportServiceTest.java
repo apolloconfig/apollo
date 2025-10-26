@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
@@ -76,6 +77,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
   private RoleInitializationService roleInitializationService;
   @InjectMocks
   private ConfigsImportService configsImportService;
+
+  @Mock
+  private UnifiedPermissionValidator unifiedPermissionValidator;
 
   @Test
   public void testNamespaceExportImport() throws FileNotFoundException {
@@ -151,6 +155,9 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(appService.findAll()).thenReturn(exportApps);
     when(appNamespaceService.findAll()).thenReturn(appNamespaces);
     when(userPermissionValidator.isAppAdmin(any())).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn( true);
+    when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     when(clusterService.findClusters(env, appId1)).thenReturn(app1Clusters);
     when(clusterService.findClusters(env, appId2)).thenReturn(app2Clusters);
     when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName1, fillItemDetail, false))
@@ -183,6 +190,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
         new HttpClientErrorException(HttpStatus.NOT_FOUND);
     when(itemService.loadItem(any(), any(), any(), any(), anyString()))
         .thenThrow(itemNotFoundException);
+
 
     FileInputStream fileInputStream = new FileInputStream(filePath);
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);

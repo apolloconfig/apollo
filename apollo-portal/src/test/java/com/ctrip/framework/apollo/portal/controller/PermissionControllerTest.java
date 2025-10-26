@@ -29,8 +29,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
+
+import java.util.Collections;
 
 @ActiveProfiles("skipAuthorization")
 public class PermissionControllerTest extends AbstractIntegrationTest {
@@ -47,6 +53,10 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
   @Before
   public void setUp() {
     roleInitializationService.initClusterNamespaceRoles(appId, env, clusterName, "apollo");
+    Authentication auth = new UsernamePasswordAuthenticationToken(
+            "test-user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+    );
+    SecurityContextHolder.getContext().setAuthentication(auth);
   }
 
   @Test

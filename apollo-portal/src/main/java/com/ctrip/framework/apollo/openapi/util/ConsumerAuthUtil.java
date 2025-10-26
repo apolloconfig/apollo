@@ -26,7 +26,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 /** @author Jason Song(song_s@ctrip.com) */
 @Service
 public class ConsumerAuthUtil {
-  static final String CONSUMER_ID = "ApolloConsumerId";
+  public static final String CONSUMER_ID = "ApolloConsumerId";
   private final ConsumerService consumerService;
 
   public ConsumerAuthUtil(final ConsumerService consumerService) {

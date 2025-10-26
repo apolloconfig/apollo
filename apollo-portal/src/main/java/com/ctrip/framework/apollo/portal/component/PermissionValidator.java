@@ -55,5 +55,7 @@ public interface PermissionValidator {
 
   boolean hasCreateApplicationPermission();
 
+  boolean hasCreateApplicationPermission(String userId);
+
   boolean hasManageAppMasterPermission(String appId);
 }

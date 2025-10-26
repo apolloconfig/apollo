@@ -39,14 +39,14 @@ public class ServerConfigController {
     this.serverConfigService = serverConfigService;
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping("/server/portal-db/config")
   @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdatePortalDBConfig")
   public ServerConfig createOrUpdatePortalDBConfig(@Valid @RequestBody ServerConfig serverConfig) {
     return serverConfigService.createOrUpdatePortalDBConfig(serverConfig);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping("/server/envs/{env}/config-db/config")
   @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdateConfigDBConfig")
   public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig,
@@ -54,13 +54,13 @@ public class ServerConfigController {
     return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig);
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping("/server/portal-db/config/find-all-config")
   public List<ServerConfig> findAllPortalDBServerConfig() {
     return serverConfigService.findAllPortalDBConfig();
   }
 
-  @PreAuthorize(value = "@userPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping("/server/envs/{env}/config-db/config/find-all-config")
   public List<ServerConfig> findAllConfigDBServerConfig(@PathVariable String env) {
     return serverConfigService.findAllConfigDBConfig(Env.transformEnv(env));
