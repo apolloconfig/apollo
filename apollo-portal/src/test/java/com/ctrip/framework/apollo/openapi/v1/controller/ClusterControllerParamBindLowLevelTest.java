@@ -103,16 +103,19 @@ public class ClusterControllerParamBindLowLevelTest {
     String env = "DEV";
     String clusterName = "default";
 
-    when(clusterOpenApiService.getCluster(appId, env, clusterName)).thenReturn(new OpenClusterDTO());
+    when(clusterOpenApiService.getCluster(appId, env, clusterName)).thenReturn(
+        new OpenClusterDTO());
 
-    mockMvc.perform(get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName))
+    mockMvc.perform(
+            get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName))
         .andExpect(status().isOk());
 
     ArgumentCaptor<String> appIdCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> envCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> clusterNameCaptor = ArgumentCaptor.forClass(String.class);
 
-    verify(clusterOpenApiService, times(1)).getCluster(appIdCaptor.capture(), envCaptor.capture(), clusterNameCaptor.capture());
+    verify(clusterOpenApiService, times(1)).getCluster(appIdCaptor.capture(), envCaptor.capture(),
+        clusterNameCaptor.capture());
     assertThat(appIdCaptor.getValue()).isEqualTo(appId);
     assertThat(envCaptor.getValue()).isEqualTo(env);
     assertThat(clusterNameCaptor.getValue()).isEqualTo(clusterName);
@@ -128,7 +131,8 @@ public class ClusterControllerParamBindLowLevelTest {
     dto.setName("new-cluster");
     dto.setDataChangeCreatedBy("tester");
 
-    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class))).thenReturn(dto);
+    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class))).thenReturn(
+        dto);
 
     mockMvc.perform(post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
             .contentType(MediaType.APPLICATION_JSON)
@@ -153,7 +157,8 @@ public class ClusterControllerParamBindLowLevelTest {
 
     doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName);
 
-    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName)
+    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+            clusterName)
             .param("operator", operator))
         .andExpect(status().isOk());
 
@@ -161,7 +166,8 @@ public class ClusterControllerParamBindLowLevelTest {
     ArgumentCaptor<String> appIdCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> clusterNameCaptor = ArgumentCaptor.forClass(String.class);
 
-    verify(clusterOpenApiService, times(1)).deleteCluster(envCaptor.capture(), appIdCaptor.capture(), clusterNameCaptor.capture());
+    verify(clusterOpenApiService, times(1)).deleteCluster(envCaptor.capture(),
+        appIdCaptor.capture(), clusterNameCaptor.capture());
     assertThat(envCaptor.getValue()).isEqualTo(env);
     assertThat(appIdCaptor.getValue()).isEqualTo(appId);
     assertThat(clusterNameCaptor.getValue()).isEqualTo(clusterName);

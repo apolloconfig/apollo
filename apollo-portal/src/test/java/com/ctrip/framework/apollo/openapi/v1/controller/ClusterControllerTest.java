@@ -83,7 +83,8 @@ public class ClusterControllerTest {
 
   @Before
   public void setUpSecurityMocks() {
-    when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(
+        true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
 
     authenticatedUser = new UserInfo();
@@ -114,7 +115,8 @@ public class ClusterControllerTest {
     clusterDTO.setAppId(appId);
     clusterDTO.setName(clusterName);
 
-    when(clusterOpenApiService.getCluster(Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+    when(clusterOpenApiService.getCluster(Mockito.anyString(), Mockito.anyString(),
+        Mockito.anyString()))
         .thenReturn(clusterDTO);
 
     this.mockMvc.perform(MockMvcRequestBuilders
@@ -146,14 +148,15 @@ public class ClusterControllerTest {
     user.setUserId(operator);
 
     when(userService.findByUserId(operator)).thenReturn(user);
-    when(clusterOpenApiService.createCluster(eq(env), any(OpenClusterDTO.class))).thenReturn(clusterDTO);
+    when(clusterOpenApiService.createCluster(eq(env), any(OpenClusterDTO.class))).thenReturn(
+        clusterDTO);
 
     this.mockMvc.perform(
-        MockMvcRequestBuilders.post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(clusterDTO))
-    )
+            MockMvcRequestBuilders.post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(gson.toJson(clusterDTO))
+        )
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.appId", is(appId)))
@@ -178,15 +181,17 @@ public class ClusterControllerTest {
     clusterDTO.setDataChangeCreatedBy(operator);
 
     this.mockMvc.perform(
-        MockMvcRequestBuilders.post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appIdInPath)
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(clusterDTO))
-    )
+            MockMvcRequestBuilders.post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env,
+                    appIdInPath)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(gson.toJson(clusterDTO))
+        )
         .andDo(MockMvcResultHandlers.print())
         .andExpect(status().isBadRequest());
 
-    verify(clusterOpenApiService, never()).createCluster(Mockito.anyString(), Mockito.any(OpenClusterDTO.class));
+    verify(clusterOpenApiService, never()).createCluster(Mockito.anyString(),
+        Mockito.any(OpenClusterDTO.class));
   }
 
   @Test
@@ -206,7 +211,8 @@ public class ClusterControllerTest {
     Mockito.doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName);
 
     this.mockMvc.perform(MockMvcRequestBuilders
-            .delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName)
+            .delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+                clusterName)
             .accept(MediaType.APPLICATION_JSON)
             .param("operator", operator))
         .andDo(MockMvcResultHandlers.print())
