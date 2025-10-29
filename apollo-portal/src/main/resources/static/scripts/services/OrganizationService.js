@@ -19,7 +19,7 @@ appService.service("OrganizationService", ['$resource', '$q', 'AppUtil', functio
         find_organizations: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/organizations'
+            url: AppUtil.prefixPath() + '/openapi/v1/organizations'
         }
     });
 

@@ -15,11 +15,11 @@
  *
  */
 appService.service('EnvService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
-    var env_resource = $resource(AppUtil.prefixPath() + '/envs', {}, {
+    var env_resource = $resource(AppUtil.prefixPath() + '/openapi/v1/envs', {}, {
         find_all_envs:{
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/envs'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs'
         }
     });
     return {
