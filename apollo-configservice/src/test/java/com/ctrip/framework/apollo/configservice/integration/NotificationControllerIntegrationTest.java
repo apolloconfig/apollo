@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,15 +64,16 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithDefaultNamespace() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace), stop);
+    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace),
+        stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
-        ApolloConfigNotification.class,
-        getHostUrl(), someAppId, someCluster, defaultNamespace);
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, defaultNamespace);
 
     stop.set(true);
 
@@ -83,15 +84,17 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithDefaultNamespaceAsFile() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace), stop);
+    periodicSendMessage(executorService, assembleKey(someAppId, someCluster, defaultNamespace),
+        stop);
 
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
-        ApolloConfigNotification.class,
-        getHostUrl(), someAppId, someCluster, defaultNamespace + ".properties");
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster,
+        defaultNamespace + ".properties");
 
     stop.set(true);
 
@@ -102,18 +105,19 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithPrivateNamespaceAsFile() throws Exception {
     String namespace = "someNamespace.xml";
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace), stop);
+    periodicSendMessage(executorService,
+        assembleKey(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, namespace), stop);
 
-    ResponseEntity<ApolloConfigNotification> result = restTemplate
-        .getForEntity(
-            "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
-            ApolloConfigNotification.class,
-            getHostUrl(), someAppId, someCluster, namespace);
+    ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
+        "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, namespace);
 
     stop.set(true);
 
@@ -124,13 +128,14 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release-message.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-message.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithDefaultNamespaceWithNotificationIdNull() throws Exception {
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
-        ApolloConfigNotification.class,
-        getHostUrl(), someAppId, someCluster, defaultNamespace);
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, defaultNamespace);
 
     ApolloConfigNotification notification = result.getBody();
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -139,15 +144,19 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-message.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-  public void testPollNotificationWithDefaultNamespaceWithNotificationIdOutDated() throws Exception {
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-message.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testPollNotificationWithDefaultNamespaceWithNotificationIdOutDated()
+      throws Exception {
     long someOutDatedNotificationId = 1;
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&notificationId={notificationId}",
-        ApolloConfigNotification.class,
-        getHostUrl(), someAppId, someCluster, defaultNamespace, someOutDatedNotificationId);
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, defaultNamespace,
+        someOutDatedNotificationId);
 
     ApolloConfigNotification notification = result.getBody();
     assertEquals(HttpStatus.OK, result.getStatusCode());
@@ -156,19 +165,20 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWthPublicNamespaceAndNoDataCenter() throws Exception {
     String publicAppId = "somePublicAppId";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
+    periodicSendMessage(executorService,
+        assembleKey(publicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
 
-    ResponseEntity<ApolloConfigNotification> result = restTemplate
-        .getForEntity(
-            "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
-            ApolloConfigNotification.class,
-            getHostUrl(), someAppId, someCluster, somePublicNamespace);
+    ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
+        "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}",
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, somePublicNamespace);
 
     stop.set(true);
 
@@ -179,20 +189,22 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWthPublicNamespaceAndDataCenter() throws Exception {
     String publicAppId = "somePublicAppId";
     String someDC = "someDC";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace), stop);
+    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace),
+        stop);
 
-    ResponseEntity<ApolloConfigNotification> result = restTemplate
-        .getForEntity(
-            "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&dataCenter={dataCenter}",
-            ApolloConfigNotification.class,
-            getHostUrl(), someAppId, someCluster, somePublicNamespace, someDC);
+    ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
+        "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&dataCenter={dataCenter}",
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, somePublicNamespace,
+        someDC);
 
     stop.set(true);
 
@@ -203,20 +215,22 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWthPublicNamespaceAsFile() throws Exception {
     String publicAppId = "somePublicAppId";
     String someDC = "someDC";
 
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace), stop);
+    periodicSendMessage(executorService, assembleKey(publicAppId, someDC, somePublicNamespace),
+        stop);
 
-    ResponseEntity<ApolloConfigNotification> result = restTemplate
-        .getForEntity(
-            "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&dataCenter={dataCenter}",
-            ApolloConfigNotification.class,
-            getHostUrl(), someAppId, someCluster, somePublicNamespace + ".properties", someDC);
+    ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
+        "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&dataCenter={dataCenter}",
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster,
+        somePublicNamespace + ".properties", someDC);
 
     stop.set(true);
 
@@ -227,15 +241,18 @@ public class NotificationControllerIntegrationTest extends AbstractBaseIntegrati
   }
 
   @Test(timeout = 5000L)
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-message.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-message.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testPollNotificationWithPublicNamespaceWithNotificationIdOutDated() throws Exception {
     long someOutDatedNotificationId = 1;
     ResponseEntity<ApolloConfigNotification> result = restTemplate.getForEntity(
         "http://{baseurl}/notifications?appId={appId}&cluster={clusterName}&namespace={namespace}&notificationId={notificationId}",
-        ApolloConfigNotification.class,
-        getHostUrl(), someAppId, someCluster, somePublicNamespace, someOutDatedNotificationId);
+        ApolloConfigNotification.class, getHostUrl(), someAppId, someCluster, somePublicNamespace,
+        someOutDatedNotificationId);
 
     ApolloConfigNotification notification = result.getBody();
     assertEquals(HttpStatus.OK, result.getStatusCode());

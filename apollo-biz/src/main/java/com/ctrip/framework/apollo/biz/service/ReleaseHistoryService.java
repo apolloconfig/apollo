@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,9 +60,10 @@ public class ReleaseHistoryService {
   private static final Logger logger = LoggerFactory.getLogger(ReleaseHistoryService.class);
   private static final Gson GSON = new Gson();
   private static final int CLEAN_QUEUE_MAX_SIZE = 100;
-  private final BlockingQueue<ReleaseHistory> releaseClearQueue = Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
-  private final ExecutorService cleanExecutorService = Executors.newSingleThreadExecutor(
-      ApolloThreadFactory.create("ReleaseHistoryService", true));
+  private final BlockingQueue<ReleaseHistory> releaseClearQueue =
+      Queues.newLinkedBlockingQueue(CLEAN_QUEUE_MAX_SIZE);
+  private final ExecutorService cleanExecutorService =
+      Executors.newSingleThreadExecutor(ApolloThreadFactory.create("ReleaseHistoryService", true));
   private final AtomicBoolean cleanStopped = new AtomicBoolean(false);
 
   private final ReleaseHistoryRepository releaseHistoryRepository;
@@ -71,12 +72,9 @@ public class ReleaseHistoryService {
   private final BizConfig bizConfig;
   private final TransactionTemplate transactionManager;
 
-  public ReleaseHistoryService(
-      final ReleaseHistoryRepository releaseHistoryRepository,
-      final ReleaseRepository releaseRepository,
-      final AuditService auditService,
-      final BizConfig bizConfig,
-      final TransactionTemplate transactionManager) {
+  public ReleaseHistoryService(final ReleaseHistoryRepository releaseHistoryRepository,
+      final ReleaseRepository releaseRepository, final AuditService auditService,
+      final BizConfig bizConfig, final TransactionTemplate transactionManager) {
     this.releaseHistoryRepository = releaseHistoryRepository;
     this.releaseRepository = releaseRepository;
     this.auditService = auditService;
@@ -104,28 +102,33 @@ public class ReleaseHistoryService {
   }
 
   public Page<ReleaseHistory> findReleaseHistoriesByNamespace(String appId, String clusterName,
-                                                              String namespaceName, Pageable
-                                                                  pageable) {
-    return releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(appId, clusterName,
-                                                                                           namespaceName, pageable);
+      String namespaceName, Pageable pageable) {
+    return releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(appId,
+        clusterName, namespaceName, pageable);
   }
 
-  public Page<ReleaseHistory> findByReleaseIdAndOperation(long releaseId, int operation, Pageable page) {
-    return releaseHistoryRepository.findByReleaseIdAndOperationOrderByIdDesc(releaseId, operation, page);
+  public Page<ReleaseHistory> findByReleaseIdAndOperation(long releaseId, int operation,
+      Pageable page) {
+    return releaseHistoryRepository.findByReleaseIdAndOperationOrderByIdDesc(releaseId, operation,
+        page);
   }
 
-  public Page<ReleaseHistory> findByPreviousReleaseIdAndOperation(long previousReleaseId, int operation, Pageable page) {
-    return releaseHistoryRepository.findByPreviousReleaseIdAndOperationOrderByIdDesc(previousReleaseId, operation, page);
+  public Page<ReleaseHistory> findByPreviousReleaseIdAndOperation(long previousReleaseId,
+      int operation, Pageable page) {
+    return releaseHistoryRepository
+        .findByPreviousReleaseIdAndOperationOrderByIdDesc(previousReleaseId, operation, page);
   }
 
-  public Page<ReleaseHistory> findByReleaseIdAndOperationInOrderByIdDesc(long releaseId, Set<Integer> operations, Pageable page) {
-    return releaseHistoryRepository.findByReleaseIdAndOperationInOrderByIdDesc(releaseId, operations, page);
+  public Page<ReleaseHistory> findByReleaseIdAndOperationInOrderByIdDesc(long releaseId,
+      Set<Integer> operations, Pageable page) {
+    return releaseHistoryRepository.findByReleaseIdAndOperationInOrderByIdDesc(releaseId,
+        operations, page);
   }
 
   @Transactional
-  public ReleaseHistory createReleaseHistory(String appId, String clusterName, String
-      namespaceName, String branchName, long releaseId, long previousReleaseId, int operation,
-                                             Map<String, Object> operationContext, String operator) {
+  public ReleaseHistory createReleaseHistory(String appId, String clusterName, String namespaceName,
+      String branchName, long releaseId, long previousReleaseId, int operation,
+      Map<String, Object> operationContext, String operator) {
     ReleaseHistory releaseHistory = new ReleaseHistory();
     releaseHistory.setAppId(appId);
     releaseHistory.setClusterName(clusterName);
@@ -135,7 +138,7 @@ public class ReleaseHistoryService {
     releaseHistory.setPreviousReleaseId(previousReleaseId);
     releaseHistory.setOperation(operation);
     if (operationContext == null) {
-      releaseHistory.setOperationContext("{}"); //default empty object
+      releaseHistory.setOperationContext("{}"); // default empty object
     } else {
       releaseHistory.setOperationContext(GSON.toJson(operationContext));
     }
@@ -146,13 +149,13 @@ public class ReleaseHistoryService {
     releaseHistoryRepository.save(releaseHistory);
 
     auditService.audit(ReleaseHistory.class.getSimpleName(), releaseHistory.getId(),
-                       Audit.OP.INSERT, releaseHistory.getDataChangeCreatedBy());
+        Audit.OP.INSERT, releaseHistory.getDataChangeCreatedBy());
 
     int releaseHistoryRetentionLimit = this.getReleaseHistoryRetentionLimit(releaseHistory);
     if (releaseHistoryRetentionLimit != DEFAULT_RELEASE_HISTORY_RETENTION_SIZE) {
       if (!releaseClearQueue.offer(releaseHistory)) {
-        logger.warn("releaseClearQueue is full, failed to add task to clean queue, " +
-            "clean queue max size:{}", CLEAN_QUEUE_MAX_SIZE);
+        logger.warn("releaseClearQueue is full, failed to add task to clean queue, "
+            + "clean queue max size:{}", CLEAN_QUEUE_MAX_SIZE);
       }
     }
     return releaseHistory;
@@ -163,23 +166,17 @@ public class ReleaseHistoryService {
     return releaseHistoryRepository.batchDelete(appId, clusterName, namespaceName, operator);
   }
 
-  private Optional<Long> releaseHistoryRetentionMaxId(ReleaseHistory releaseHistory, int releaseHistoryRetentionSize) {
-    Page<ReleaseHistory> releaseHistoryPage = releaseHistoryRepository.findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
-        releaseHistory.getAppId(),
-        releaseHistory.getClusterName(),
-        releaseHistory.getNamespaceName(),
-        releaseHistory.getBranchName(),
-        PageRequest.of(releaseHistoryRetentionSize, 1)
-    );
+  private Optional<Long> releaseHistoryRetentionMaxId(ReleaseHistory releaseHistory,
+      int releaseHistoryRetentionSize) {
+    Page<ReleaseHistory> releaseHistoryPage = releaseHistoryRepository
+        .findByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+            releaseHistory.getAppId(), releaseHistory.getClusterName(),
+            releaseHistory.getNamespaceName(), releaseHistory.getBranchName(),
+            PageRequest.of(releaseHistoryRetentionSize, 1));
     if (releaseHistoryPage.isEmpty()) {
       return Optional.empty();
     }
-    return Optional.of(
-        releaseHistoryPage
-        .getContent()
-        .get(0)
-        .getId()
-    );
+    return Optional.of(releaseHistoryPage.getContent().get(0).getId());
   }
 
   private void cleanReleaseHistory(ReleaseHistory cleanRelease) {
@@ -189,7 +186,7 @@ public class ReleaseHistoryService {
     String branchName = cleanRelease.getBranchName();
 
     int retentionLimit = this.getReleaseHistoryRetentionLimit(cleanRelease);
-    //Second check, if retentionLimit is default value, do not clean
+    // Second check, if retentionLimit is default value, do not clean
     if (retentionLimit == DEFAULT_RELEASE_HISTORY_RETENTION_SIZE) {
       return;
     }
@@ -201,10 +198,10 @@ public class ReleaseHistoryService {
 
     boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
-      List<ReleaseHistory> cleanReleaseHistoryList = releaseHistoryRepository.findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
-          appId, clusterName, namespaceName, branchName, maxId.get());
-      Set<Long> releaseIds = cleanReleaseHistoryList.stream()
-          .map(ReleaseHistory::getReleaseId)
+      List<ReleaseHistory> cleanReleaseHistoryList = releaseHistoryRepository
+          .findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
+              appId, clusterName, namespaceName, branchName, maxId.get());
+      Set<Long> releaseIds = cleanReleaseHistoryList.stream().map(ReleaseHistory::getReleaseId)
           .collect(Collectors.toSet());
 
       transactionManager.execute(new TransactionCallbackWithoutResult() {
@@ -219,8 +216,9 @@ public class ReleaseHistoryService {
   }
 
   private int getReleaseHistoryRetentionLimit(ReleaseHistory releaseHistory) {
-    String overrideKey = String.format("%s+%s+%s+%s", releaseHistory.getAppId(),
-        releaseHistory.getClusterName(), releaseHistory.getNamespaceName(), releaseHistory.getBranchName());
+    String overrideKey =
+        String.format("%s+%s+%s+%s", releaseHistory.getAppId(), releaseHistory.getClusterName(),
+            releaseHistory.getNamespaceName(), releaseHistory.getBranchName());
 
     Map<String, Integer> overrideMap = bizConfig.releaseHistoryRetentionSizeOverride();
     return overrideMap.getOrDefault(overrideKey, bizConfig.releaseHistoryRetentionSize());

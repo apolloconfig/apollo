@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthUserPasswordChecker implements UserPasswordChecker {
 
-  private static final Pattern PWD_PATTERN = Pattern
-      .compile("^(?=.*[0-9].*)(?=.*[a-zA-Z].*).{8,20}$");
+  private static final Pattern PWD_PATTERN =
+      Pattern.compile("^(?=.*[0-9].*)(?=.*[a-zA-Z].*).{8,20}$");
 
   private final PortalConfig portalConfig;
 

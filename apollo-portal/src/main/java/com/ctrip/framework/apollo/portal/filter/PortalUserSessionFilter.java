@@ -67,8 +67,8 @@ public class PortalUserSessionFilter implements Filter {
   }
 
   @Override
-  public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws
-      IOException, ServletException {
+  public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
+      throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) req;
     HttpServletResponse response = (HttpServletResponse) resp;
 
@@ -118,8 +118,8 @@ public class PortalUserSessionFilter implements Filter {
         // Exclude anonymous users
         String principal = authentication.getName();
         if (principal != null && !"anonymousUser".equals(principal)) {
-          logger.debug("Authenticated portal user: {} accessing OpenAPI: {}",
-              principal, request.getRequestURI());
+          logger.debug("Authenticated portal user: {} accessing OpenAPI: {}", principal,
+              request.getRequestURI());
           return true;
         }
       }
@@ -155,8 +155,8 @@ public class PortalUserSessionFilter implements Filter {
    * @param request  the HTTP request
    * @param response the HTTP response
    */
-  private void handleSessionExpired(HttpServletRequest request,
-      HttpServletResponse response) throws IOException, ServletException {
+  private void handleSessionExpired(HttpServletRequest request, HttpServletResponse response)
+      throws IOException, ServletException {
     if (isOidcProfile()) {
       // OIDC mode: return 401 to maintain original behavior
       logger.debug("OIDC mode: returning 401 for expired session");

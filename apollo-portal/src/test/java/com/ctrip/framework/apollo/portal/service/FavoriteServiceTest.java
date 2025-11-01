@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
     Favorite favorite = instanceOfFavorite(testUser, testApp);
     favoriteService.addFavorite(favorite);
 
-    List<Favorite> createdFavorites = favoriteService.search(testUser, testApp, PageRequest.of(0, 10));
+    List<Favorite> createdFavorites =
+        favoriteService.search(testUser, testApp, PageRequest.of(0, 10));
 
     Assert.assertEquals(1, createdFavorites.size());
 
@@ -70,7 +71,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testSearchByUserId() {
     List<Favorite> favorites = favoriteService.search(testUser, null, PageRequest.of(0, 10));
@@ -78,7 +80,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testSearchByAppId() {
     List<Favorite> favorites = favoriteService.search(null, "test0621-04", PageRequest.of(0, 10));
@@ -86,22 +89,26 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testSearchByAppIdAndUserId() {
-    List<Favorite> favorites = favoriteService.search(testUser, "test0621-04", PageRequest.of(0, 10));
+    List<Favorite> favorites =
+        favoriteService.search(testUser, "test0621-04", PageRequest.of(0, 10));
     Assert.assertEquals(1, favorites.size());
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testSearchWithErrorParams() {
     favoriteService.search(null, null, PageRequest.of(0, 10));
   }
 
   @Test
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testDeleteFavorite() {
     long legalFavoriteId = 21L;
@@ -110,7 +117,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testDeleteFavoriteFail() {
     long anotherPersonFavoriteId = 23L;
@@ -119,7 +127,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test(expected = BadRequestException.class)
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testAdjustFavoriteError() {
     long anotherPersonFavoriteId = 23;
@@ -127,7 +136,8 @@ public class FavoriteServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/favorites/favorites.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/favorites/favorites.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testAdjustFavorite() {
     long toAdjustFavoriteId = 20;

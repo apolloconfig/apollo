@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,24 +35,26 @@ public class ReleaseHistoryController {
   private final ReleaseHistoryService releaseHistoryService;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService, final UnifiedPermissionValidator unifiedPermissionValidator) {
+  public ReleaseHistoryController(final ReleaseHistoryService releaseHistoryService,
+      final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.releaseHistoryService = releaseHistoryService;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/histories")
   public List<ReleaseHistoryBO> findReleaseHistoriesByNamespace(@PathVariable String appId,
-                                                                @PathVariable String env,
-                                                                @PathVariable String clusterName,
-                                                                @PathVariable String namespaceName,
-                                                                @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                @RequestParam(value = "size", defaultValue = "10") int size) {
+      @PathVariable String env, @PathVariable String clusterName,
+      @PathVariable String namespaceName,
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size) {
 
-    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+        namespaceName)) {
       return Collections.emptyList();
     }
 
-   return releaseHistoryService.findNamespaceReleaseHistory(appId, Env.valueOf(env), clusterName ,namespaceName, page, size);
+    return releaseHistoryService.findNamespaceReleaseHistory(appId, Env.valueOf(env), clusterName,
+        namespaceName, page, size);
   }
 
 }

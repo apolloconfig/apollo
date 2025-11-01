@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,17 @@ import java.util.List;
 
 public interface CommitRepository extends PagingAndSortingRepository<Commit, Long> {
 
-  List<Commit> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId, String clusterName,
-                                                                      String namespaceName, Pageable pageable);
+  List<Commit> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId,
+      String clusterName, String namespaceName, Pageable pageable);
 
   List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndDataChangeLastModifiedTimeGreaterThanEqualOrderByIdDesc(
-      String appId, String clusterName, String namespaceName, Date dataChangeLastModifiedTime, Pageable pageable);
+      String appId, String clusterName, String namespaceName, Date dataChangeLastModifiedTime,
+      Pageable pageable);
 
   @Modifying
   @Query("update Commit set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?4 where AppId=?1 and ClusterName=?2 and NamespaceName = ?3 and IsDeleted = false")
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
 
-  List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(String appId, String clusterName, String namespaceName,String changeSets, Pageable page);
+  List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(String appId,
+      String clusterName, String namespaceName, String changeSets, Pageable page);
 }

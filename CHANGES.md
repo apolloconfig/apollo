@@ -20,5 +20,6 @@ Apollo 2.5.0
 * [Fix: the logical judgment for configuration addition, deletion, and modification.](https://github.com/apolloconfig/apollo/pull/5432)
 * [Feature support incremental configuration synchronization client](https://github.com/apolloconfig/apollo/pull/5288)
 * [optimize: Implement unified permission verification logic and Optimize the implementation of permission verification](https://github.com/apolloconfig/apollo/pull/5456)
+* [CI: Add code and header formatter by spotless plugin](https://github.com/apolloconfig/apollo/pull/5485)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)

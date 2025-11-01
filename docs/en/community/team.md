@@ -37,6 +37,7 @@ Members include Project Management Committee members and committers. The list is
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
 | zouyx       | Joe Zou       | Shein        |
+| spaceluke   | Zhile Wei     | ByteDance    |
 
 ## Contributors
 

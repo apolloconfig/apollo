@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class ConfigFileUtils {
 
-  public static final String APP_METADATA_FILENAME              = "app.metadata";
-  public static final String CLUSTER_METADATA_FILE_SUFFIX       = ".cluster.metadata";
+  public static final String APP_METADATA_FILENAME = "app.metadata";
+  public static final String CLUSTER_METADATA_FILE_SUFFIX = ".cluster.metadata";
   public static final String APP_NAMESPACE_METADATA_FILE_SUFFIX = ".appnamespace.metadata";
 
   public static void check(MultipartFile file) {
@@ -159,12 +159,8 @@ public class ConfigFileUtils {
    *   123      none      action.yml      123+none+action.yml
    * </pre>
    */
-  public static String toFilename(
-      final String appId,
-      final String clusterName,
-      final String namespace,
-      final ConfigFileFormat configFileFormat
-  ) {
+  public static String toFilename(final String appId, final String clusterName,
+      final String namespace, final ConfigFileFormat configFileFormat) {
     final String suffix;
     if (ConfigFileFormat.Properties.equals(configFileFormat)) {
       suffix = "." + ConfigFileFormat.Properties.getValue();
@@ -178,12 +174,8 @@ public class ConfigFileUtils {
    * file path = ownerName/appId/env/configFilename
    * @return file path in compressed file
    */
-  public static String genNamespacePath(
-      final String ownerName,
-      final String appId,
-      final Env env,
-      final String configFilename
-  ) {
+  public static String genNamespacePath(final String ownerName, final String appId, final Env env,
+      final String configFilename) {
     return String.join(File.separator, ownerName, appId, env.getName(), configFilename);
   }
 
@@ -198,8 +190,8 @@ public class ConfigFileUtils {
    * path = {appNamespace}.appnamespace.metadata
    */
   public static String genAppNamespaceInfoPath(AppNamespace appNamespace) {
-    return String.join(File.separator,
-                       appNamespace.getAppId() + "+" + appNamespace.getName() + APP_NAMESPACE_METADATA_FILE_SUFFIX);
+    return String.join(File.separator, appNamespace.getAppId() + "+" + appNamespace.getName()
+        + APP_NAMESPACE_METADATA_FILE_SUFFIX);
   }
 
   /**
@@ -207,6 +199,6 @@ public class ConfigFileUtils {
    */
   public static String genClusterInfoPath(App app, Env env, ClusterDTO cluster) {
     return String.join(File.separator, app.getOwnerName(), app.getAppId(), env.getName(),
-                       cluster.getName() + CLUSTER_METADATA_FILE_SUFFIX);
+        cluster.getName() + CLUSTER_METADATA_FILE_SUFFIX);
   }
 }

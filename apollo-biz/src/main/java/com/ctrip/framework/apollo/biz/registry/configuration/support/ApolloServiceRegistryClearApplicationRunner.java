@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,11 +32,10 @@ import org.springframework.boot.ApplicationRunner;
 /**
  * clear the unhealthy instances.
  */
-public class ApolloServiceRegistryClearApplicationRunner
-  implements ApplicationRunner {
+public class ApolloServiceRegistryClearApplicationRunner implements ApplicationRunner {
 
-  private static final Logger log = LoggerFactory.getLogger(
-      ApolloServiceRegistryClearApplicationRunner.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(ApolloServiceRegistryClearApplicationRunner.class);
 
   /**
    * for {@link #clearUnhealthyInstances()}
@@ -50,8 +49,7 @@ public class ApolloServiceRegistryClearApplicationRunner
       ServiceRegistryService serviceRegistryService) {
     this.serviceRegistryService = serviceRegistryService;
     this.instanceClearScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-        ApolloThreadFactory.create("ApolloRegistryServerClearInstances", true)
-    );
+        ApolloThreadFactory.create("ApolloRegistryServerClearInstances", true));
   }
 
   /**
@@ -62,7 +60,8 @@ public class ApolloServiceRegistryClearApplicationRunner
       List<ServiceRegistry> serviceRegistryListDeleted =
           this.serviceRegistryService.deleteTimeBefore(Duration.ofDays(1));
       if (serviceRegistryListDeleted != null && !serviceRegistryListDeleted.isEmpty()) {
-        log.info("clear {} unhealthy instances by scheduled task", serviceRegistryListDeleted.size());
+        log.info("clear {} unhealthy instances by scheduled task",
+            serviceRegistryListDeleted.size());
       }
     } catch (Throwable t) {
       log.error("fail to clear unhealthy instances by scheduled task", t);
@@ -71,6 +70,7 @@ public class ApolloServiceRegistryClearApplicationRunner
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
-    this.instanceClearScheduledExecutorService.scheduleAtFixedRate(this::clearUnhealthyInstances, 0, 1, TimeUnit.DAYS);
+    this.instanceClearScheduledExecutorService.scheduleAtFixedRate(this::clearUnhealthyInstances, 0,
+        1, TimeUnit.DAYS);
   }
 }

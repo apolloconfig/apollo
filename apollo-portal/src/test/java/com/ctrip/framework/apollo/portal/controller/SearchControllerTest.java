@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,13 +50,13 @@ import static org.mockito.Mockito.when;
 public class SearchControllerTest {
 
   @Mock
-  private AppService       appService;
+  private AppService appService;
   @Mock
   private NamespaceService namespaceService;
   @Mock
-  private PortalSettings   portalSettings;
+  private PortalSettings portalSettings;
   @Mock
-  private PortalConfig     portalConfig;
+  private PortalConfig portalConfig;
   @InjectMocks
   private SearchController searchController;
 

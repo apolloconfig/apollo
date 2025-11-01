@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,11 +29,10 @@ import org.springframework.boot.ApplicationRunner;
 /**
  * send heartbeat on runtime.
  */
-public class ApolloServiceRegistryHeartbeatApplicationRunner
-    implements ApplicationRunner {
+public class ApolloServiceRegistryHeartbeatApplicationRunner implements ApplicationRunner {
 
-  private static final Logger log = LoggerFactory
-      .getLogger(ApolloServiceRegistryHeartbeatApplicationRunner.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(ApolloServiceRegistryHeartbeatApplicationRunner.class);
 
   private final ApolloServiceRegistryProperties registration;
 
@@ -45,29 +44,22 @@ public class ApolloServiceRegistryHeartbeatApplicationRunner
   private final ScheduledExecutorService heartbeatScheduledExecutorService;
 
   public ApolloServiceRegistryHeartbeatApplicationRunner(
-      ApolloServiceRegistryProperties registration,
-      DatabaseServiceRegistry serviceRegistry
-  ) {
+      ApolloServiceRegistryProperties registration, DatabaseServiceRegistry serviceRegistry) {
     this.registration = registration;
     this.serviceRegistry = serviceRegistry;
     this.heartbeatScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
-        ApolloThreadFactory.create("ApolloServiceRegistryHeartBeat", true)
-    );
+        ApolloThreadFactory.create("ApolloServiceRegistryHeartBeat", true));
   }
 
   @Override
   public void run(ApplicationArguments args) throws Exception {
     // register
-    log.info(
-        "register to database. '{}': uri '{}', cluster '{}' ",
-        this.registration.getServiceName(),
-        this.registration.getUri(),
-        this.registration.getCluster()
-    );
+    log.info("register to database. '{}': uri '{}', cluster '{}' ",
+        this.registration.getServiceName(), this.registration.getUri(),
+        this.registration.getCluster());
     // heartbeat as same as register
-    this.heartbeatScheduledExecutorService
-        .scheduleAtFixedRate(this::heartbeat, 0, this.registration.getHeartbeatIntervalInSecond(),
-            TimeUnit.SECONDS);
+    this.heartbeatScheduledExecutorService.scheduleAtFixedRate(this::heartbeat, 0,
+        this.registration.getHeartbeatIntervalInSecond(), TimeUnit.SECONDS);
   }
 
   private void heartbeat() {

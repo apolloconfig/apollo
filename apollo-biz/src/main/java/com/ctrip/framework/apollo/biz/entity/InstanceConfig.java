@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,15 +153,10 @@ public class InstanceConfig {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .omitNullValues()
-        .add("id", id)
-        .add("configAppId", configAppId)
-        .add("configClusterName", configClusterName)
-        .add("configNamespaceName", configNamespaceName)
-        .add("releaseKey", releaseKey)
+    return MoreObjects.toStringHelper(this).omitNullValues().add("id", id)
+        .add("configAppId", configAppId).add("configClusterName", configClusterName)
+        .add("configNamespaceName", configNamespaceName).add("releaseKey", releaseKey)
         .add("dataChangeCreatedTime", dataChangeCreatedTime)
-        .add("dataChangeLastModifiedTime", dataChangeLastModifiedTime)
-        .toString();
+        .add("dataChangeLastModifiedTime", dataChangeLastModifiedTime).toString();
   }
 }

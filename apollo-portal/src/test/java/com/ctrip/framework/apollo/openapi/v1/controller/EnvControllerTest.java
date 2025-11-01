@@ -52,13 +52,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {
-    "api.pool.max.total=100",
-    "api.pool.max.per.route=100",
-    "api.connectionTimeToLive=30000",
-    "api.connectTimeout=5000",
-    "api.readTimeout=5000"
-})
+@TestPropertySource(properties = {"api.pool.max.total=100", "api.pool.max.per.route=100",
+    "api.connectionTimeToLive=30000", "api.connectTimeout=5000", "api.readTimeout=5000"})
 public class EnvControllerTest {
 
   @Autowired
@@ -107,13 +102,10 @@ public class EnvControllerTest {
 
     authenticate();
 
-    this.mockMvc.perform(MockMvcRequestBuilders
-            .get("/openapi/v1/envs")
-            .accept(MediaType.APPLICATION_JSON))
-        .andDo(MockMvcResultHandlers.print())
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$[0]", is("DEV")))
-        .andExpect(jsonPath("$[1]", is("FAT")));
+    this.mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/envs").accept(MediaType.APPLICATION_JSON))
+        .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
+        .andExpect(jsonPath("$[0]", is("DEV"))).andExpect(jsonPath("$[1]", is("FAT")));
 
     verify(envOpenApiService).getEnvs();
   }

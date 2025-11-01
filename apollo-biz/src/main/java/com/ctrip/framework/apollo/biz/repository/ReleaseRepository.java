@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,18 +32,22 @@ import java.util.Set;
  */
 public interface ReleaseRepository extends PagingAndSortingRepository<Release, Long> {
 
-  Release findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(@Param("appId") String appId, @Param("clusterName") String clusterName,
-                                                                                         @Param("namespaceName") String namespaceName);
+  Release findFirstByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+      @Param("appId") String appId, @Param("clusterName") String clusterName,
+      @Param("namespaceName") String namespaceName);
 
   Release findByIdAndIsAbandonedFalse(long id);
 
   Release findByReleaseKey(String releaseKey);
 
-  List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId, String clusterName, String namespaceName, Pageable page);
+  List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId,
+      String clusterName, String namespaceName, Pageable page);
 
-  List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(String appId, String clusterName, String namespaceName, Pageable page);
+  List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseOrderByIdDesc(
+      String appId, String clusterName, String namespaceName, Pageable page);
 
-  List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(String appId, String clusterName, String namespaceName, long fromId, long toId);
+  List<Release> findByAppIdAndClusterNameAndNamespaceNameAndIsAbandonedFalseAndIdBetweenOrderByIdDesc(
+      String appId, String clusterName, String namespaceName, long fromId, long toId);
 
   List<Release> findByReleaseKeyIn(Set<String> releaseKeys);
 
@@ -54,5 +58,6 @@ public interface ReleaseRepository extends PagingAndSortingRepository<Release, L
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
 
   // For release history conversion program, need to delete after conversion it done
-  List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdAsc(String appId, String clusterName, String namespaceName);
+  List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdAsc(String appId,
+      String clusterName, String namespaceName);
 }

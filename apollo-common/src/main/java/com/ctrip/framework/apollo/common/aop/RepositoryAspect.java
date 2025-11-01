@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,12 @@ import org.springframework.stereotype.Component;
 public class RepositoryAspect {
 
   @Pointcut("execution(public * org.springframework.data.repository.Repository+.*(..))")
-  public void anyRepositoryMethod() {
-  }
+  public void anyRepositoryMethod() {}
 
   @Around("anyRepositoryMethod()")
   public Object invokeWithCatTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
-    String name =
-        joinPoint.getSignature().getDeclaringType().getSimpleName() + "." + joinPoint.getSignature()
-            .getName();
+    String name = joinPoint.getSignature().getDeclaringType().getSimpleName() + "."
+        + joinPoint.getSignature().getName();
     Transaction catTransaction = Tracer.newTransaction("SQL", name);
     try {
       Object result = joinPoint.proceed();

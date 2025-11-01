@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,25 +55,26 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/instances")
 public class InstanceConfigController {
-  private static final Splitter RELEASES_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+  private static final Splitter RELEASES_SPLITTER =
+      Splitter.on(",").omitEmptyStrings().trimResults();
   private final ReleaseService releaseService;
   private final InstanceService instanceService;
 
-  public InstanceConfigController(final ReleaseService releaseService, final InstanceService instanceService) {
+  public InstanceConfigController(final ReleaseService releaseService,
+      final InstanceService instanceService) {
     this.releaseService = releaseService;
     this.instanceService = instanceService;
   }
 
   @GetMapping("/by-release")
   public PageDTO<InstanceDTO> getByRelease(@RequestParam("releaseId") long releaseId,
-                                           Pageable pageable) {
+      Pageable pageable) {
     Release release = releaseService.findOne(releaseId);
     if (release == null) {
       throw NotFoundException.releaseNotFound(releaseId);
     }
-    Page<InstanceConfig> instanceConfigsPage = instanceService.findActiveInstanceConfigsByReleaseKey
-        (release.getReleaseKey(), pageable);
+    Page<InstanceConfig> instanceConfigsPage =
+        instanceService.findActiveInstanceConfigsByReleaseKey(release.getReleaseKey(), pageable);
 
     List<InstanceDTO> instanceDTOs = Collections.emptyList();
 
@@ -98,11 +99,11 @@ public class InstanceConfigController {
         Collection<InstanceConfig> configs = instanceConfigMap.get(instanceDTO.getId());
         List<InstanceConfigDTO> configDTOs = configs.stream().map(instanceConfig -> {
           InstanceConfigDTO instanceConfigDTO = new InstanceConfigDTO();
-          //to save some space
+          // to save some space
           instanceConfigDTO.setRelease(null);
           instanceConfigDTO.setReleaseDeliveryTime(instanceConfig.getReleaseDeliveryTime());
-          instanceConfigDTO.setDataChangeLastModifiedTime(instanceConfig
-              .getDataChangeLastModifiedTime());
+          instanceConfigDTO
+              .setDataChangeLastModifiedTime(instanceConfig.getDataChangeLastModifiedTime());
           return instanceConfigDTO;
         }).collect(Collectors.toList());
         instanceDTO.setConfigs(configDTOs);
@@ -114,9 +115,9 @@ public class InstanceConfigController {
 
   @GetMapping("/by-namespace-and-releases-not-in")
   public List<InstanceDTO> getByReleasesNotIn(@RequestParam("appId") String appId,
-                                              @RequestParam("clusterName") String clusterName,
-                                              @RequestParam("namespaceName") String namespaceName,
-                                              @RequestParam("releaseIds") String releaseIds) {
+      @RequestParam("clusterName") String clusterName,
+      @RequestParam("namespaceName") String namespaceName,
+      @RequestParam("releaseIds") String releaseIds) {
     Set<Long> releaseIdSet = RELEASES_SPLITTER.splitToList(releaseIds).stream().map(Long::parseLong)
         .collect(Collectors.toSet());
 
@@ -126,12 +127,12 @@ public class InstanceConfigController {
       throw NotFoundException.releaseNotFound(releaseIds);
     }
 
-    Set<String> releaseKeys = releases.stream().map(Release::getReleaseKey).collect(Collectors
-        .toSet());
+    Set<String> releaseKeys =
+        releases.stream().map(Release::getReleaseKey).collect(Collectors.toSet());
 
-    List<InstanceConfig> instanceConfigs = instanceService
-        .findInstanceConfigsByNamespaceWithReleaseKeysNotIn(appId, clusterName, namespaceName,
-            releaseKeys);
+    List<InstanceConfig> instanceConfigs =
+        instanceService.findInstanceConfigsByNamespaceWithReleaseKeysNotIn(appId, clusterName,
+            namespaceName, releaseKeys);
 
     Multimap<Long, InstanceConfig> instanceConfigMap = HashMultimap.create();
     Set<String> otherReleaseKeys = Sets.newHashSet();
@@ -153,7 +154,7 @@ public class InstanceConfigController {
     Map<String, ReleaseDTO> releaseMap = Maps.newHashMap();
 
     for (Release release : otherReleases) {
-      //unset configurations to save space
+      // unset configurations to save space
       release.setConfigurations(null);
       ReleaseDTO releaseDTO = BeanUtils.transform(ReleaseDTO.class, release);
       releaseMap.put(release.getReleaseKey(), releaseDTO);
@@ -165,8 +166,8 @@ public class InstanceConfigController {
         InstanceConfigDTO instanceConfigDTO = new InstanceConfigDTO();
         instanceConfigDTO.setRelease(releaseMap.get(instanceConfig.getReleaseKey()));
         instanceConfigDTO.setReleaseDeliveryTime(instanceConfig.getReleaseDeliveryTime());
-        instanceConfigDTO.setDataChangeLastModifiedTime(instanceConfig
-            .getDataChangeLastModifiedTime());
+        instanceConfigDTO
+            .setDataChangeLastModifiedTime(instanceConfig.getDataChangeLastModifiedTime());
         return instanceConfigDTO;
       }).collect(Collectors.toList());
       instanceDTO.setConfigs(configDTOs);
@@ -176,28 +177,29 @@ public class InstanceConfigController {
   }
 
   @GetMapping("/by-namespace")
-  public PageDTO<InstanceDTO> getInstancesByNamespace(
-      @RequestParam("appId") String appId, @RequestParam("clusterName") String clusterName,
+  public PageDTO<InstanceDTO> getInstancesByNamespace(@RequestParam("appId") String appId,
+      @RequestParam("clusterName") String clusterName,
       @RequestParam("namespaceName") String namespaceName,
       @RequestParam(value = "instanceAppId", required = false) String instanceAppId,
       Pageable pageable) {
     Page<Instance> instances;
     if (Strings.isNullOrEmpty(instanceAppId)) {
-      instances = instanceService.findInstancesByNamespace(appId, clusterName,
-          namespaceName, pageable);
+      instances =
+          instanceService.findInstancesByNamespace(appId, clusterName, namespaceName, pageable);
     } else {
       instances = instanceService.findInstancesByNamespaceAndInstanceAppId(instanceAppId, appId,
           clusterName, namespaceName, pageable);
     }
 
-    List<InstanceDTO> instanceDTOs = BeanUtils.batchTransform(InstanceDTO.class, instances.getContent());
+    List<InstanceDTO> instanceDTOs =
+        BeanUtils.batchTransform(InstanceDTO.class, instances.getContent());
     return new PageDTO<>(instanceDTOs, pageable, instances.getTotalElements());
   }
 
   @GetMapping("/by-namespace/count")
   public long getInstancesCountByNamespace(@RequestParam("appId") String appId,
-                                          @RequestParam("clusterName") String clusterName,
-                                          @RequestParam("namespaceName") String namespaceName) {
+      @RequestParam("clusterName") String clusterName,
+      @RequestParam("namespaceName") String namespaceName) {
     Page<Instance> instances = instanceService.findInstancesByNamespace(appId, clusterName,
         namespaceName, PageRequest.of(0, 1));
     return instances.getTotalElements();

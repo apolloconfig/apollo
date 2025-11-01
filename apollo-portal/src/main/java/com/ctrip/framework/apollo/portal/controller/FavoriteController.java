@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ public class FavoriteController {
 
 
   @GetMapping("/favorites")
-  public List<Favorite> findFavorites(@RequestParam(value = "userId", required = false) String userId,
-                                      @RequestParam(value = "appId", required = false) String appId,
-                                      Pageable page) {
+  public List<Favorite> findFavorites(
+      @RequestParam(value = "userId", required = false) String userId,
+      @RequestParam(value = "appId", required = false) String appId, Pageable page) {
     return favoriteService.search(userId, appId, page);
   }
 

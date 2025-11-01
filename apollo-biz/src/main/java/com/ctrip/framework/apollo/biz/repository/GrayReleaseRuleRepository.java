@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,13 +23,14 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import java.util.List;
 
 
-public interface GrayReleaseRuleRepository extends PagingAndSortingRepository<GrayReleaseRule, Long> {
+public interface GrayReleaseRuleRepository
+    extends PagingAndSortingRepository<GrayReleaseRule, Long> {
 
-  GrayReleaseRule findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(String appId, String clusterName,
-                                                                                         String namespaceName, String branchName);
+  GrayReleaseRule findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
+      String appId, String clusterName, String namespaceName, String branchName);
 
-  List<GrayReleaseRule> findByAppIdAndClusterNameAndNamespaceName(String appId,
-                                                               String clusterName, String namespaceName);
+  List<GrayReleaseRule> findByAppIdAndClusterNameAndNamespaceName(String appId, String clusterName,
+      String namespaceName);
 
   List<GrayReleaseRule> findFirst500ByIdGreaterThanOrderByIdAsc(Long id);
 

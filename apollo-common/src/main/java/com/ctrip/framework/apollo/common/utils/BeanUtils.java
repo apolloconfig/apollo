@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public class BeanUtils {
     for (PropertyDescriptor pd : pds) {
       Object srcValue = src.getPropertyValue(pd.getName());
       if (srcValue == null) {
-          emptyNames.add(pd.getName());
+        emptyNames.add(pd.getName());
       }
     }
     String[] result = new String[emptyNames.size()];
@@ -111,7 +111,7 @@ public class BeanUtils {
       Class<?> clazz = list.get(0).getClass();
       Field field = deepFindField(clazz, key);
       if (field == null) {
-          throw new IllegalArgumentException("Could not find the key");
+        throw new IllegalArgumentException("Could not find the key");
       }
       field.setAccessible(true);
       for (Object o : list) {
@@ -141,7 +141,7 @@ public class BeanUtils {
       Class<?> clazz = list.get(0).getClass();
       Field field = deepFindField(clazz, key);
       if (field == null) {
-          throw new IllegalArgumentException("Could not find the key");
+        throw new IllegalArgumentException("Could not find the key");
       }
       field.setAccessible(true);
       for (Object o : list) {
@@ -173,11 +173,11 @@ public class BeanUtils {
       Class<?> clazz = list.get(0).getClass();
       Field field = deepFindField(clazz, key);
       if (field == null) {
-          throw new IllegalArgumentException("Could not find the key");
+        throw new IllegalArgumentException("Could not find the key");
       }
       field.setAccessible(true);
       for (Object o : list) {
-        set.add((K)field.get(o));
+        set.add((K) field.get(o));
       }
     } catch (Exception e) {
       throw new BeanUtilsException(e);
@@ -251,5 +251,6 @@ public class BeanUtils {
     org.springframework.beans.BeanUtils.copyProperties(source, target, COPY_IGNORED_PROPERTIES);
   }
 
-  private static final String[] COPY_IGNORED_PROPERTIES = {"id", "dataChangeCreatedBy", "dataChangeCreatedTime", "dataChangeLastModifiedTime"};
+  private static final String[] COPY_IGNORED_PROPERTIES =
+      {"id", "dataChangeCreatedBy", "dataChangeCreatedTime", "dataChangeLastModifiedTime"};
 }

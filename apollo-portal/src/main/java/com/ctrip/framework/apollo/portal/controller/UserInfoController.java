@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,8 @@ public class UserInfoController {
   private final UserService userService;
   private final AuthUserPasswordChecker passwordChecker;
 
-  public UserInfoController(
-      final UserInfoHolder userInfoHolder,
-      final LogoutHandler logoutHandler,
-      final UserService userService,
-      final AuthUserPasswordChecker passwordChecker) {
+  public UserInfoController(final UserInfoHolder userInfoHolder, final LogoutHandler logoutHandler,
+      final UserService userService, final AuthUserPasswordChecker passwordChecker) {
     this.userInfoHolder = userInfoHolder;
     this.logoutHandler = logoutHandler;
     this.userService = userService;
@@ -105,7 +102,8 @@ public class UserInfoController {
 
   @GetMapping("/users")
   public List<UserInfo> searchUsersByKeyword(@RequestParam(value = "keyword") String keyword,
-      @RequestParam(value = "includeInactiveUsers", defaultValue = "false") boolean includeInactiveUsers,
+      @RequestParam(value = "includeInactiveUsers",
+          defaultValue = "false") boolean includeInactiveUsers,
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
     return userService.searchUsers(keyword, offset, limit, includeInactiveUsers);

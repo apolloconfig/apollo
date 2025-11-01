@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ public class OpenApiBeanUtils {
     List<ItemBO> itemBOs = namespaceBO.getItems();
     if (!CollectionUtils.isEmpty(itemBOs)) {
       items.addAll(itemBOs.stream().map(itemBO -> transformFromItemDTO(itemBO.getItem()))
-              .collect(Collectors.toList()));
+          .collect(Collectors.toList()));
     }
     openNamespaceDTO.setItems(items);
     return openNamespaceDTO;
@@ -116,9 +116,8 @@ public class OpenApiBeanUtils {
       return Collections.emptyList();
     }
 
-    return namespaceBOs.stream()
-            .map(OpenApiBeanUtils::transformFromNamespaceBO)
-            .collect(Collectors.toCollection(LinkedList::new));
+    return namespaceBOs.stream().map(OpenApiBeanUtils::transformFromNamespaceBO)
+        .collect(Collectors.toCollection(LinkedList::new));
   }
 
   public static OpenNamespaceLockDTO transformFromNamespaceLockDTO(String namespaceName,
@@ -162,7 +161,8 @@ public class OpenApiBeanUtils {
       String clientAppId = openGrayReleaseRuleItemDTO.getClientAppId();
       Set<String> clientIpList = openGrayReleaseRuleItemDTO.getClientIpList();
       Set<String> clientLabelList = openGrayReleaseRuleItemDTO.getClientLabelList();
-      GrayReleaseRuleItemDTO ruleItem = new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
+      GrayReleaseRuleItemDTO ruleItem =
+          new GrayReleaseRuleItemDTO(clientAppId, clientIpList, clientLabelList);
       grayReleaseRuleDTO.addRuleItem(ruleItem);
     });
 
@@ -192,15 +192,17 @@ public class OpenApiBeanUtils {
     return BeanUtils.transform(ClusterDTO.class, openClusterDTO);
   }
 
-  public static OpenOrganizationDto transformFromOrganization(final Organization organization){
+  public static OpenOrganizationDto transformFromOrganization(final Organization organization) {
     Preconditions.checkArgument(organization != null);
     return BeanUtils.transform(OpenOrganizationDto.class, organization);
   }
 
-  public static List<OpenOrganizationDto> transformFromOrganizations(final List<Organization> organizations){
+  public static List<OpenOrganizationDto> transformFromOrganizations(
+      final List<Organization> organizations) {
     if (CollectionUtils.isEmpty(organizations)) {
       return Collections.emptyList();
     }
-    return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization).collect(Collectors.toList());
+    return organizations.stream().map(OpenApiBeanUtils::transformFromOrganization)
+        .collect(Collectors.toList());
   }
 }

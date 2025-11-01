@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,7 @@ public class ClusterController implements ClusterManagementApi {
   private final ClusterOpenApiService clusterOpenApiService;
   private final UserInfoHolder userInfoHolder;
 
-  public ClusterController(
-      UserService userService,
-      ClusterOpenApiService clusterOpenApiService,
+  public ClusterController(UserService userService, ClusterOpenApiService clusterOpenApiService,
       UserInfoHolder userInfoHolder) {
     this.userService = userService;
     this.clusterOpenApiService = clusterOpenApiService;
@@ -61,8 +59,8 @@ public class ClusterController implements ClusterManagementApi {
       OpenClusterDTO cluster) {
 
     if (!Objects.equals(appId, cluster.getAppId())) {
-      throw new BadRequestException(
-          "AppId not equal. AppId in path = %s, AppId in payload = %s", appId, cluster.getAppId());
+      throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s",
+          appId, cluster.getAppId());
     }
 
     String clusterName = cluster.getName();
@@ -79,8 +77,8 @@ public class ClusterController implements ClusterManagementApi {
         "name and dataChangeCreatedBy should not be null or empty");
 
     if (!InputValidator.isValidClusterNamespace(clusterName)) {
-      throw BadRequestException.invalidClusterNameFormat(
-          InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE);
+      throw BadRequestException
+          .invalidClusterNameFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE);
     }
 
     if (userService.findByUserId(operator) == null) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,7 @@ public class ReleaseHistoryController {
 
   private static final Gson GSON = new Gson();
 
-  private final Type configurationTypeReference = new TypeToken<Map<String, Object>>() {
-  }.getType();
+  private final Type configurationTypeReference = new TypeToken<Map<String, Object>>() {}.getType();
 
   private final ReleaseHistoryService releaseHistoryService;
 
@@ -53,24 +52,22 @@ public class ReleaseHistoryController {
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/histories")
-  public PageDTO<ReleaseHistoryDTO> findReleaseHistoriesByNamespace(
-      @PathVariable String appId, @PathVariable String clusterName,
-      @PathVariable String namespaceName,
-      Pageable pageable) {
+  public PageDTO<ReleaseHistoryDTO> findReleaseHistoriesByNamespace(@PathVariable String appId,
+      @PathVariable String clusterName, @PathVariable String namespaceName, Pageable pageable) {
 
-    Page<ReleaseHistory> result = releaseHistoryService.findReleaseHistoriesByNamespace(appId, clusterName,
-                                                                                        namespaceName, pageable);
+    Page<ReleaseHistory> result = releaseHistoryService.findReleaseHistoriesByNamespace(appId,
+        clusterName, namespaceName, pageable);
     return transform2PageDTO(result, pageable);
   }
 
 
   @GetMapping("/releases/histories/by_release_id_and_operation")
   public PageDTO<ReleaseHistoryDTO> findReleaseHistoryByReleaseIdAndOperation(
-      @RequestParam("releaseId") long releaseId,
-      @RequestParam("operation") int operation,
+      @RequestParam("releaseId") long releaseId, @RequestParam("operation") int operation,
       Pageable pageable) {
 
-    Page<ReleaseHistory> result = releaseHistoryService.findByReleaseIdAndOperation(releaseId, operation, pageable);
+    Page<ReleaseHistory> result =
+        releaseHistoryService.findByReleaseIdAndOperation(releaseId, operation, pageable);
 
     return transform2PageDTO(result, pageable);
   }
@@ -78,16 +75,17 @@ public class ReleaseHistoryController {
   @GetMapping("/releases/histories/by_previous_release_id_and_operation")
   public PageDTO<ReleaseHistoryDTO> findReleaseHistoryByPreviousReleaseIdAndOperation(
       @RequestParam("previousReleaseId") long previousReleaseId,
-      @RequestParam("operation") int operation,
-      Pageable pageable) {
+      @RequestParam("operation") int operation, Pageable pageable) {
 
-    Page<ReleaseHistory> result = releaseHistoryService.findByPreviousReleaseIdAndOperation(previousReleaseId, operation, pageable);
+    Page<ReleaseHistory> result = releaseHistoryService
+        .findByPreviousReleaseIdAndOperation(previousReleaseId, operation, pageable);
 
     return transform2PageDTO(result, pageable);
 
   }
 
-  private PageDTO<ReleaseHistoryDTO> transform2PageDTO(Page<ReleaseHistory> releaseHistoriesPage, Pageable pageable){
+  private PageDTO<ReleaseHistoryDTO> transform2PageDTO(Page<ReleaseHistory> releaseHistoriesPage,
+      Pageable pageable) {
     if (!releaseHistoriesPage.hasContent()) {
       return null;
     }
@@ -104,8 +102,8 @@ public class ReleaseHistoryController {
   private ReleaseHistoryDTO transformReleaseHistory2DTO(ReleaseHistory releaseHistory) {
     ReleaseHistoryDTO dto = new ReleaseHistoryDTO();
     BeanUtils.copyProperties(releaseHistory, dto, "operationContext");
-    dto.setOperationContext(GSON.fromJson(releaseHistory.getOperationContext(),
-                                          configurationTypeReference));
+    dto.setOperationContext(
+        GSON.fromJson(releaseHistory.getOperationContext(), configurationTypeReference));
 
     return dto;
   }

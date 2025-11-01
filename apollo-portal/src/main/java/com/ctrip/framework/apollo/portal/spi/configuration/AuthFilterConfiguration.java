@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,10 +33,10 @@ public class AuthFilterConfiguration {
 
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(
-      ConsumerAuthUtil consumerAuthUtil,
-      ConsumerAuditUtil consumerAuditUtil) {
+      ConsumerAuthUtil consumerAuthUtil, ConsumerAuditUtil consumerAuditUtil) {
 
-    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter = new FilterRegistrationBean<>();
+    FilterRegistrationBean<ConsumerAuthenticationFilter> openApiFilter =
+        new FilterRegistrationBean<>();
 
     openApiFilter.setFilter(new ConsumerAuthenticationFilter(consumerAuthUtil, consumerAuditUtil));
     openApiFilter.addUrlPatterns("/openapi/*");
@@ -47,7 +47,8 @@ public class AuthFilterConfiguration {
 
   @Bean
   public FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter() {
-    FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter = new FilterRegistrationBean<>();
+    FilterRegistrationBean<UserTypeResolverFilter> authTypeResolverFilter =
+        new FilterRegistrationBean<>();
     authTypeResolverFilter.setFilter(new UserTypeResolverFilter());
     authTypeResolverFilter.addUrlPatterns("/*");
     authTypeResolverFilter.setOrder(OPEN_API_AUTH_ORDER + 1);
@@ -68,8 +69,8 @@ public class AuthFilterConfiguration {
 
     filter.setFilter(new PortalUserSessionFilter(environment));
     filter.addUrlPatterns("/openapi/*");
-    filter.setOrder(OPEN_API_AUTH_ORDER
-        - 1); // Run before ConsumerAuthenticationFilter after springSecurityFilterChain
+    filter.setOrder(OPEN_API_AUTH_ORDER - 1); // Run before ConsumerAuthenticationFilter after
+                                              // springSecurityFilterChain
 
     return filter;
   }

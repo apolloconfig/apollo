@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,8 +65,8 @@ public class OidcUserInfoHolder implements UserInfoHolder {
       UserInfo userInfo = new UserInfo();
       OidcUser oidcUser = (OidcUser) principal;
       userInfo.setUserId(oidcUser.getSubject());
-      userInfo.setName(
-          OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties));
+      userInfo
+          .setName(OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties));
       userInfo.setEmail(oidcUser.getEmail());
       return userInfo;
     }

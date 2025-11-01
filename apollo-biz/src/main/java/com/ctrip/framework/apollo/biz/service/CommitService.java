@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,11 +34,11 @@ public class CommitService {
     this.commitRepository = commitRepository;
   }
 
-  public void createCommit(String appId, String clusterName, String namespaceName, String configChangeContent,
-      String operator) {
+  public void createCommit(String appId, String clusterName, String namespaceName,
+      String configChangeContent, String operator) {
 
     Commit commit = new Commit();
-    commit.setId(0);//protection
+    commit.setId(0);// protection
     commit.setAppId(appId);
     commit.setClusterName(clusterName);
     commit.setNamespaceName(namespaceName);
@@ -48,8 +48,9 @@ public class CommitService {
     commitRepository.save(commit);
   }
 
-  public List<Commit> find(String appId, String clusterName, String namespaceName, Pageable page){
-    return commitRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(appId, clusterName, namespaceName, page);
+  public List<Commit> find(String appId, String clusterName, String namespaceName, Pageable page) {
+    return commitRepository.findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(appId,
+        clusterName, namespaceName, page);
   }
 
   public List<Commit> find(String appId, String clusterName, String namespaceName,
@@ -59,13 +60,15 @@ public class CommitService {
             appId, clusterName, namespaceName, lastModifiedTime, page);
   }
 
-  public List<Commit> findByKey(String appId, String clusterName, String namespaceName, String key,Pageable page){
-    String queryKey = "\"key\":\""+ key +"\"";
-    return commitRepository.findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(appId, clusterName, namespaceName, "%"+ queryKey + "%", page);
+  public List<Commit> findByKey(String appId, String clusterName, String namespaceName, String key,
+      Pageable page) {
+    String queryKey = "\"key\":\"" + key + "\"";
+    return commitRepository.findByAppIdAndClusterNameAndNamespaceNameAndChangeSetsLikeOrderByIdDesc(
+        appId, clusterName, namespaceName, "%" + queryKey + "%", page);
   }
 
   @Transactional
-  public int batchDelete(String appId, String clusterName, String namespaceName, String operator){
+  public int batchDelete(String appId, String clusterName, String namespaceName, String operator) {
     return commitRepository.batchDelete(appId, clusterName, namespaceName, operator);
   }
 

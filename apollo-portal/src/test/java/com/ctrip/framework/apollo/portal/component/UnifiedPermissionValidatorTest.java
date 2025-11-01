@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package com.ctrip.framework.apollo.portal.component;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -50,7 +49,8 @@ public class UnifiedPermissionValidatorTest {
     // No operation needed, UserIdentityContextHolder state will be set separately in each test
   }
 
-  // Clean up UserIdentityContextHolder state after each test method (critical! avoid pollution between tests)
+  // Clean up UserIdentityContextHolder state after each test method (critical! avoid pollution
+  // between tests)
   @AfterEach
   public void tearDown() {
     UserIdentityContextHolder.clear();
@@ -63,8 +63,8 @@ public class UnifiedPermissionValidatorTest {
 
     // Set authentication type to USER
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
-    when(userPermissionValidator.hasManageAppMasterPermission(appId)).thenReturn(
-        expectedPermission);
+    when(userPermissionValidator.hasManageAppMasterPermission(appId))
+        .thenReturn(expectedPermission);
 
     boolean result = unifiedPermissionValidator.hasManageAppMasterPermission(appId);
 
@@ -78,8 +78,8 @@ public class UnifiedPermissionValidatorTest {
 
     // Set authentication type to CONSUMER
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
-    when(consumerPermissionValidator.hasManageAppMasterPermission(appId)).thenReturn(
-        expectedPermission);
+    when(consumerPermissionValidator.hasManageAppMasterPermission(appId))
+        .thenReturn(expectedPermission);
 
     boolean result = unifiedPermissionValidator.hasManageAppMasterPermission(appId);
 
@@ -105,8 +105,8 @@ public class UnifiedPermissionValidatorTest {
 
     // Set authentication type to USER
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
-    when(userPermissionValidator.hasCreateNamespacePermission(appId)).thenReturn(
-        expectedPermission);
+    when(userPermissionValidator.hasCreateNamespacePermission(appId))
+        .thenReturn(expectedPermission);
 
     boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);
 
@@ -120,8 +120,8 @@ public class UnifiedPermissionValidatorTest {
 
     // Set authentication type to CONSUMER
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
-    when(consumerPermissionValidator.hasCreateNamespacePermission(appId)).thenReturn(
-        expectedPermission);
+    when(consumerPermissionValidator.hasCreateNamespacePermission(appId))
+        .thenReturn(expectedPermission);
 
     boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);
 

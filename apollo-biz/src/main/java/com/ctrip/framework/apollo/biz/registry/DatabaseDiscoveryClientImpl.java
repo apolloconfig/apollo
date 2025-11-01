@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,8 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
 
   private final String cluster;
 
-  public DatabaseDiscoveryClientImpl(
-      ServiceRegistryService serviceRegistryService,
-      ApolloServiceDiscoveryProperties discoveryProperties,
-      String cluster) {
+  public DatabaseDiscoveryClientImpl(ServiceRegistryService serviceRegistryService,
+      ApolloServiceDiscoveryProperties discoveryProperties, String cluster) {
     this.serviceRegistryService = serviceRegistryService;
     this.discoveryProperties = discoveryProperties;
     this.cluster = cluster;
@@ -50,15 +48,12 @@ public class DatabaseDiscoveryClientImpl implements DatabaseDiscoveryClient {
     {
       LocalDateTime healthTime = LocalDateTime.now()
           .minusSeconds(this.discoveryProperties.getHealthCheckIntervalInSecond());
-      List<ServiceRegistry> filterByHealthCheck =
-          this.serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
-              serviceName, healthTime
-          );
+      List<ServiceRegistry> filterByHealthCheck = this.serviceRegistryService
+          .findByServiceNameDataChangeLastModifiedTimeGreaterThan(serviceName, healthTime);
       serviceRegistryListFiltered = filterByCluster(filterByHealthCheck, this.cluster);
     }
 
-    return serviceRegistryListFiltered.stream()
-        .map(DatabaseDiscoveryClientImpl::convert)
+    return serviceRegistryListFiltered.stream().map(DatabaseDiscoveryClientImpl::convert)
         .collect(Collectors.toList());
   }
 

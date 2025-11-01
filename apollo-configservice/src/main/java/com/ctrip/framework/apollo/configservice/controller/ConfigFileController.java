@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,10 +74,10 @@ public class ConfigFileController implements ReleaseMessageListener {
   private final HttpHeaders xmlResponseHeaders;
   private final ResponseEntity<String> NOT_FOUND_RESPONSE;
   private Cache<String, String> localCache;
-  private final Multimap<String, String>
-      watchedKeys2CacheKey = Multimaps.synchronizedSetMultimap(HashMultimap.create());
-  private final Multimap<String, String>
-      cacheKey2WatchedKeys = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+  private final Multimap<String, String> watchedKeys2CacheKey =
+      Multimaps.synchronizedSetMultimap(HashMultimap.create());
+  private final Multimap<String, String> cacheKey2WatchedKeys =
+      Multimaps.synchronizedSetMultimap(HashMultimap.create());
   private static final Gson GSON = new Gson();
 
   private final ConfigController configController;
@@ -85,30 +85,25 @@ public class ConfigFileController implements ReleaseMessageListener {
   private final WatchKeysUtil watchKeysUtil;
   private final GrayReleaseRulesHolder grayReleaseRulesHolder;
 
-  public ConfigFileController(
-      final ConfigController configController,
-      final NamespaceUtil namespaceUtil,
-      final WatchKeysUtil watchKeysUtil,
+  public ConfigFileController(final ConfigController configController,
+      final NamespaceUtil namespaceUtil, final WatchKeysUtil watchKeysUtil,
       final GrayReleaseRulesHolder grayReleaseRulesHolder) {
-    localCache = CacheBuilder.newBuilder()
-        .expireAfterWrite(EXPIRE_AFTER_WRITE, TimeUnit.MINUTES)
+    localCache = CacheBuilder.newBuilder().expireAfterWrite(EXPIRE_AFTER_WRITE, TimeUnit.MINUTES)
         .weigher((Weigher<String, String>) (key, value) -> value == null ? 0 : value.length())
-        .maximumWeight(MAX_CACHE_SIZE)
-        .removalListener(notification -> {
+        .maximumWeight(MAX_CACHE_SIZE).removalListener(notification -> {
           String cacheKey = notification.getKey();
           logger.debug("removing cache key: {}", cacheKey);
           if (!cacheKey2WatchedKeys.containsKey(cacheKey)) {
             return;
           }
-          //create a new list to avoid ConcurrentModificationException
+          // create a new list to avoid ConcurrentModificationException
           List<String> watchedKeys = new ArrayList<>(cacheKey2WatchedKeys.get(cacheKey));
           for (String watchedKey : watchedKeys) {
             watchedKeys2CacheKey.remove(watchedKey, cacheKey);
           }
           cacheKey2WatchedKeys.removeAll(cacheKey);
           logger.debug("removed cache key: {}", cacheKey);
-        })
-        .build();
+        }).build();
     plainTextResponseHeaders = new HttpHeaders();
     plainTextResponseHeaders.add("Content-Type", "text/plain;charset=UTF-8");
     jsonResponseHeaders = new HttpHeaders();
@@ -126,18 +121,14 @@ public class ConfigFileController implements ReleaseMessageListener {
 
   @GetMapping(value = "/{appId}/{clusterName}/{namespace:.+}")
   public ResponseEntity<String> queryConfigAsProperties(@PathVariable String appId,
-                                                        @PathVariable String clusterName,
-                                                        @PathVariable String namespace,
-                                                        @RequestParam(value = "dataCenter", required = false) String dataCenter,
-                                                        @RequestParam(value = "ip", required = false) String clientIp,
-                                                        @RequestParam(value = "label", required = false) String clientLabel,
-                                                        HttpServletRequest request,
-                                                        HttpServletResponse response)
-      throws IOException {
+      @PathVariable String clusterName, @PathVariable String namespace,
+      @RequestParam(value = "dataCenter", required = false) String dataCenter,
+      @RequestParam(value = "ip", required = false) String clientIp,
+      @RequestParam(value = "label", required = false) String clientLabel,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    String result =
-        queryConfig(ConfigFileOutputFormat.PROPERTIES, appId, clusterName, namespace, dataCenter,
-            clientIp, clientLabel, request, response);
+    String result = queryConfig(ConfigFileOutputFormat.PROPERTIES, appId, clusterName, namespace,
+        dataCenter, clientIp, clientLabel, request, response);
 
     if (result == null) {
       return NOT_FOUND_RESPONSE;
@@ -148,17 +139,14 @@ public class ConfigFileController implements ReleaseMessageListener {
 
   @GetMapping(value = "/json/{appId}/{clusterName}/{namespace:.+}")
   public ResponseEntity<String> queryConfigAsJson(@PathVariable String appId,
-                                                  @PathVariable String clusterName,
-                                                  @PathVariable String namespace,
-                                                  @RequestParam(value = "dataCenter", required = false) String dataCenter,
-                                                  @RequestParam(value = "ip", required = false) String clientIp,
-                                                  @RequestParam(value = "label", required = false) String clientLabel,
-                                                  HttpServletRequest request,
-                                                  HttpServletResponse response) throws IOException {
+      @PathVariable String clusterName, @PathVariable String namespace,
+      @RequestParam(value = "dataCenter", required = false) String dataCenter,
+      @RequestParam(value = "ip", required = false) String clientIp,
+      @RequestParam(value = "label", required = false) String clientLabel,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    String result =
-        queryConfig(ConfigFileOutputFormat.JSON, appId, clusterName, namespace, dataCenter,
-            clientIp, clientLabel, request, response);
+    String result = queryConfig(ConfigFileOutputFormat.JSON, appId, clusterName, namespace,
+        dataCenter, clientIp, clientLabel, request, response);
 
     if (result == null) {
       return NOT_FOUND_RESPONSE;
@@ -169,17 +157,14 @@ public class ConfigFileController implements ReleaseMessageListener {
 
   @GetMapping(value = "/raw/{appId}/{clusterName}/{namespace:.+}")
   public ResponseEntity<String> queryConfigAsRaw(@PathVariable String appId,
-                                                 @PathVariable String clusterName,
-                                                 @PathVariable String namespace,
-                                                 @RequestParam(value = "dataCenter", required = false) String dataCenter,
-                                                 @RequestParam(value = "ip", required = false) String clientIp,
-                                                 @RequestParam(value = "label", required = false) String clientLabel,
-                                                 HttpServletRequest request,
-                                                 HttpServletResponse response) throws IOException {
+      @PathVariable String clusterName, @PathVariable String namespace,
+      @RequestParam(value = "dataCenter", required = false) String dataCenter,
+      @RequestParam(value = "ip", required = false) String clientIp,
+      @RequestParam(value = "label", required = false) String clientLabel,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    String result =
-        queryConfig(ConfigFileOutputFormat.RAW, appId, clusterName, namespace, dataCenter,
-            clientIp, clientLabel, request, response);
+    String result = queryConfig(ConfigFileOutputFormat.RAW, appId, clusterName, namespace,
+        dataCenter, clientIp, clientLabel, request, response);
 
     if (result == null) {
       return NOT_FOUND_RESPONSE;
@@ -206,49 +191,48 @@ public class ConfigFileController implements ReleaseMessageListener {
   }
 
   String queryConfig(ConfigFileOutputFormat outputFormat, String appId, String clusterName,
-                     String namespace, String dataCenter, String clientIp, String clientLabel,
-                     HttpServletRequest request,
-                     HttpServletResponse response) throws IOException {
-    //strip out .properties suffix
+      String namespace, String dataCenter, String clientIp, String clientLabel,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // strip out .properties suffix
     namespace = namespaceUtil.filterNamespaceName(namespace);
-    //fix the character case issue, such as FX.apollo <-> fx.apollo
+    // fix the character case issue, such as FX.apollo <-> fx.apollo
     namespace = namespaceUtil.normalizeNamespace(appId, namespace);
 
     if (Strings.isNullOrEmpty(clientIp)) {
       clientIp = WebUtils.tryToGetClientIp(request);
     }
 
-    //1. check whether this client has gray release rules
-    boolean hasGrayReleaseRule = grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp,
-        clientLabel, namespace);
+    // 1. check whether this client has gray release rules
+    boolean hasGrayReleaseRule =
+        grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp, clientLabel, namespace);
 
     String cacheKey = assembleCacheKey(outputFormat, appId, clusterName, namespace, dataCenter);
 
-    //2. try to load gray release and return
+    // 2. try to load gray release and return
     if (hasGrayReleaseRule) {
       Tracer.logEvent("ConfigFile.Cache.GrayRelease", cacheKey);
-      return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
-          request, response);
+      return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+          clientLabel, request, response);
     }
 
-    //3. if not gray release, check weather cache exists, if exists, return
+    // 3. if not gray release, check weather cache exists, if exists, return
     String result = localCache.getIfPresent(cacheKey);
 
-    //4. if not exists, load from ConfigController
+    // 4. if not exists, load from ConfigController
     if (Strings.isNullOrEmpty(result)) {
       Tracer.logEvent("ConfigFile.Cache.Miss", cacheKey);
-      result = loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
-          request, response);
+      result = loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+          clientLabel, request, response);
 
       if (result == null) {
         return null;
       }
-      //5. Double check if this client needs to load gray release, if yes, load from db again
-      //This step is mainly to avoid cache pollution
+      // 5. Double check if this client needs to load gray release, if yes, load from db again
+      // This step is mainly to avoid cache pollution
       if (grayReleaseRulesHolder.hasGrayReleaseRule(appId, clientIp, clientLabel, namespace)) {
         Tracer.logEvent("ConfigFile.Cache.GrayReleaseConflict", cacheKey);
-        return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp, clientLabel,
-            request, response);
+        return loadConfig(outputFormat, appId, clusterName, namespace, dataCenter, clientIp,
+            clientLabel, request, response);
       }
 
       localCache.put(cacheKey, result);
@@ -271,9 +255,8 @@ public class ConfigFileController implements ReleaseMessageListener {
   }
 
   private String loadConfig(ConfigFileOutputFormat outputFormat, String appId, String clusterName,
-                            String namespace, String dataCenter, String clientIp, String clientLabel,
-                            HttpServletRequest request,
-                            HttpServletResponse response) throws IOException {
+      String namespace, String dataCenter, String clientIp, String clientLabel,
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
     ApolloConfig apolloConfig = configController.queryConfig(appId, clusterName, namespace,
         dataCenter, "-1", clientIp, clientLabel, null, request, response);
 
@@ -302,17 +285,16 @@ public class ConfigFileController implements ReleaseMessageListener {
 
   private String getRawConfigContent(ApolloConfig apolloConfig) throws IOException {
     ConfigFileFormat format = determineNamespaceFormat(apolloConfig.getNamespaceName());
-      if (format == ConfigFileFormat.Properties) {
-          Properties properties = new Properties();
-          properties.putAll(apolloConfig.getConfigurations());
-          return PropertiesUtil.toString(properties);
-      }
+    if (format == ConfigFileFormat.Properties) {
+      Properties properties = new Properties();
+      properties.putAll(apolloConfig.getConfigurations());
+      return PropertiesUtil.toString(properties);
+    }
     return apolloConfig.getConfigurations().get("content");
   }
 
   String assembleCacheKey(ConfigFileOutputFormat outputFormat, String appId, String clusterName,
-                          String namespace,
-                          String dataCenter) {
+      String namespace, String dataCenter) {
     List<String> keyParts =
         Lists.newArrayList(outputFormat.getValue(), appId, clusterName, namespace);
     if (!Strings.isNullOrEmpty(dataCenter)) {
@@ -345,7 +327,7 @@ public class ConfigFileController implements ReleaseMessageListener {
       return;
     }
 
-    //create a new list to avoid ConcurrentModificationException
+    // create a new list to avoid ConcurrentModificationException
     List<String> cacheKeys = new ArrayList<>(watchedKeys2CacheKey.get(content));
 
     for (String cacheKey : cacheKeys) {

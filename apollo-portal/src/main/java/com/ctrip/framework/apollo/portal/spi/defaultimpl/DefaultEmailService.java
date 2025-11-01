@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,8 @@ public class DefaultEmailService implements EmailService {
 
       Message msg = new MimeMessage(session);
       msg.setFrom(new InternetAddress(email.getSenderEmailAddress()));
-      msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email.getRecipientsString(), false));
+      msg.setRecipients(Message.RecipientType.TO,
+          InternetAddress.parse(email.getRecipientsString(), false));
       msg.setSubject(email.getSubject());
       msg.setDataHandler(new DataHandler(new HTMLDataSource(email.getBody())));
 

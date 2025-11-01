@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ public abstract class RefreshableConfig {
   private static final Logger logger = LoggerFactory.getLogger(RefreshableConfig.class);
 
   private static final String LIST_SEPARATOR = ",";
-  //TimeUnit: second
+  // TimeUnit: second
   private static final int CONFIG_REFRESH_INTERVAL = 60;
 
   protected Splitter splitter = Splitter.on(LIST_SEPARATOR).omitEmptyStrings().trimResults();
@@ -65,26 +65,24 @@ public abstract class RefreshableConfig {
       throw new IllegalStateException("Property sources can not be empty.");
     }
 
-    //add property source to environment
+    // add property source to environment
     for (RefreshablePropertySource propertySource : propertySources) {
       propertySource.refresh();
       environment.getPropertySources().addLast(propertySource);
     }
 
-    //task to update configs
-    ScheduledExecutorService
-        executorService =
+    // task to update configs
+    ScheduledExecutorService executorService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
-    executorService
-        .scheduleWithFixedDelay(() -> {
-          try {
-            propertySources.forEach(RefreshablePropertySource::refresh);
-          } catch (Throwable t) {
-            logger.error("Refresh configs failed.", t);
-            Tracer.logError("Refresh configs failed.", t);
-          }
-        }, CONFIG_REFRESH_INTERVAL, CONFIG_REFRESH_INTERVAL, TimeUnit.SECONDS);
+    executorService.scheduleWithFixedDelay(() -> {
+      try {
+        propertySources.forEach(RefreshablePropertySource::refresh);
+      } catch (Throwable t) {
+        logger.error("Refresh configs failed.", t);
+        Tracer.logError("Refresh configs failed.", t);
+      }
+    }, CONFIG_REFRESH_INTERVAL, CONFIG_REFRESH_INTERVAL, TimeUnit.SECONDS);
   }
 
   public int getIntProperty(String key, int defaultValue) {

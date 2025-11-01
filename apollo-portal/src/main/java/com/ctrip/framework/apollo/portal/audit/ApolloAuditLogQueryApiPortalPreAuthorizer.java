@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ import org.springframework.stereotype.Component;
 
 @Component("apolloAuditLogQueryApiPreAuthorizer")
 @ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "true")
-public class ApolloAuditLogQueryApiPortalPreAuthorizer implements
-    ApolloAuditLogQueryApiPreAuthorizer {
+public class ApolloAuditLogQueryApiPortalPreAuthorizer
+    implements ApolloAuditLogQueryApiPreAuthorizer {
   private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public ApolloAuditLogQueryApiPortalPreAuthorizer(UnifiedPermissionValidator unifiedPermissionValidator) {
+  public ApolloAuditLogQueryApiPortalPreAuthorizer(
+      UnifiedPermissionValidator unifiedPermissionValidator) {
     this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 

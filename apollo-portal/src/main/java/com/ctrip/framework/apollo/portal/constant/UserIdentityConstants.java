@@ -22,6 +22,5 @@ public final class UserIdentityConstants {
   public static final String CONSUMER = "CONSUMER";
   public static final String ANONYMOUS = "ANONYMOUS";
 
-  private UserIdentityConstants() {
-  }
+  private UserIdentityConstants() {}
 }

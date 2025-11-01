@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ public class ServiceRegistryService {
   }
 
   public ServiceRegistry saveIfNotExistByServiceNameAndUri(ServiceRegistry serviceRegistry) {
-    ServiceRegistry serviceRegistrySaved = this.repository.findByServiceNameAndUri(serviceRegistry.getServiceName(), serviceRegistry.getUri());
+    ServiceRegistry serviceRegistrySaved = this.repository
+        .findByServiceNameAndUri(serviceRegistry.getServiceName(), serviceRegistry.getUri());
     final LocalDateTime now = LocalDateTime.now();
     if (null == serviceRegistrySaved) {
       serviceRegistrySaved = serviceRegistry;
@@ -49,16 +50,14 @@ public class ServiceRegistryService {
 
   @Transactional
   public void delete(ServiceRegistry serviceRegistry) {
-    this.repository.deleteByServiceNameAndUri(
-        serviceRegistry.getServiceName(), serviceRegistry.getUri()
-    );
+    this.repository.deleteByServiceNameAndUri(serviceRegistry.getServiceName(),
+        serviceRegistry.getUri());
   }
 
   public List<ServiceRegistry> findByServiceNameDataChangeLastModifiedTimeGreaterThan(
-      String serviceName,
-      LocalDateTime localDateTime
-  ) {
-    return this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(serviceName, localDateTime);
+      String serviceName, LocalDateTime localDateTime) {
+    return this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(serviceName,
+        localDateTime);
   }
 
   @Transactional

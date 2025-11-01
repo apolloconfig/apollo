@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,7 @@ public class AppController {
 
   @GetMapping("/apps")
   public List<AppDTO> find(@RequestParam(value = "name", required = false) String name,
-                           Pageable pageable) {
+      Pageable pageable) {
     List<App> app = null;
     if (StringUtils.isBlank(name)) {
       app = appService.findAll(pageable);

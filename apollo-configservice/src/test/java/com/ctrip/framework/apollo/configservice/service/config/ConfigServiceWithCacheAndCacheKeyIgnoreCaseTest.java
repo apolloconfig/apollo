@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author kl (http://kailing.pub)
@@ -89,7 +88,8 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     someNamespaceName = "someNamespaceName";
     someNotificationId = 1;
 
-    normalSomeKey = ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
+    normalSomeKey =
+        ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName);
     lowerCaseSomeKey = normalSomeKey.toLowerCase();
     someNotificationMessages = new ApolloNotificationMessages();
   }
@@ -232,51 +232,43 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     ReleaseMessage anotherReleaseMessage = mock(ReleaseMessage.class);
     Release anotherRelease = mock(Release.class);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(
-        Lists.newArrayList(lowerCaseSomeKey))).thenReturn
-        (someReleaseMessage);
-    when(releaseService.findLatestActiveRelease(
-        matchesCaseInsensitive(someAppId),
-        matchesCaseInsensitive(someClusterName),
-        matchesCaseInsensitive(someNamespaceName)
-    )).thenReturn(someRelease);
+    when(releaseMessageService
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
+        .thenReturn(someReleaseMessage);
+    when(releaseService.findLatestActiveRelease(matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName), matchesCaseInsensitive(someNamespaceName)))
+        .thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
     Release release = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName,
-        someNotificationMessages);
+        someNamespaceName, someNotificationMessages);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(
-        Lists.newArrayList(lowerCaseSomeKey))).thenReturn(anotherReleaseMessage);
-    when(releaseService.findLatestActiveRelease(
-        matchesCaseInsensitive(someAppId),
-        matchesCaseInsensitive(someClusterName),
-        matchesCaseInsensitive(someNamespaceName)
-    )).thenReturn(anotherRelease);
+    when(releaseMessageService
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
+        .thenReturn(anotherReleaseMessage);
+    when(releaseService.findLatestActiveRelease(matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName), matchesCaseInsensitive(someNamespaceName)))
+        .thenReturn(anotherRelease);
     when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
 
     Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
-        someNamespaceName, someNotificationMessages);
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     someNotificationMessages.put(
         ReleaseMessageKeyGenerator.generate(someAppId, someClusterName, someNamespaceName),
         someNewNotificationId);
 
     Release shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
-        someNamespaceName, someNotificationMessages);
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     assertEquals(someRelease, release);
     assertEquals(someRelease, stillOldRelease);
     assertEquals(anotherRelease, shouldBeNewRelease);
 
-    verify(releaseMessageService, times(2)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(lowerCaseSomeKey));
-    verify(releaseService, times(2)).findLatestActiveRelease(
-        someAppId.toLowerCase(),
-        someClusterName.toLowerCase(),
-        someNamespaceName.toLowerCase());
+    verify(releaseMessageService, times(2))
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey));
+    verify(releaseService, times(2)).findLatestActiveRelease(someAppId.toLowerCase(),
+        someClusterName.toLowerCase(), someNamespaceName.toLowerCase());
   }
 
   @Test
@@ -285,48 +277,43 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     ReleaseMessage anotherReleaseMessage = mock(ReleaseMessage.class);
     Release anotherRelease = mock(Release.class);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
+    when(releaseMessageService
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
-    when(releaseService.findLatestActiveRelease(
-        matchesCaseInsensitive(someAppId),
-        matchesCaseInsensitive(someClusterName),
-        matchesCaseInsensitive(someNamespaceName)
-    )).thenReturn(someRelease);
+    when(releaseService.findLatestActiveRelease(matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName), matchesCaseInsensitive(someNamespaceName)))
+        .thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
     Release release = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName,
-        someNotificationMessages);
+        someNamespaceName, someNotificationMessages);
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
+    when(releaseMessageService
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(anotherReleaseMessage);
-    when(releaseService.findLatestActiveRelease(
-        matchesCaseInsensitive(someAppId),
-        matchesCaseInsensitive(someClusterName),
-        matchesCaseInsensitive(someNamespaceName)
-    )).thenReturn(anotherRelease);
+    when(releaseService.findLatestActiveRelease(matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName), matchesCaseInsensitive(someNamespaceName)))
+        .thenReturn(anotherRelease);
 
     when(anotherReleaseMessage.getMessage()).thenReturn(lowerCaseSomeKey);
     when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
 
-    Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName, someNotificationMessages);
+    Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     configServiceWithCache.handleMessage(anotherReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
 
-    Release shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName, someNotificationMessages);
+    Release shouldBeNewRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     assertEquals(someRelease, release);
     assertEquals(someRelease, stillOldRelease);
     assertEquals(anotherRelease, shouldBeNewRelease);
 
-    verify(releaseMessageService, times(2)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(lowerCaseSomeKey));
-    verify(releaseService, times(2)).findLatestActiveRelease(
-        someAppId.toLowerCase(),
-        someClusterName.toLowerCase(),
-        someNamespaceName.toLowerCase());
+    verify(releaseMessageService, times(2))
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey));
+    verify(releaseService, times(2)).findLatestActiveRelease(someAppId.toLowerCase(),
+        someClusterName.toLowerCase(), someNamespaceName.toLowerCase());
 
     when(anotherReleaseMessage.getMessage()).thenReturn(normalSomeKey);
     when(anotherReleaseMessage.getId()).thenReturn(someNewNotificationId);
@@ -343,39 +330,33 @@ public class ConfigServiceWithCacheAndCacheKeyIgnoreCaseTest {
     long someNewNotificationId = someNotificationId + 1;
     String someIrrelevantKey = "someIrrelevantKey";
 
-    when(releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
+    when(releaseMessageService
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey)))
         .thenReturn(someReleaseMessage);
-    when(releaseService.findLatestActiveRelease(
-        matchesCaseInsensitive(someAppId),
-        matchesCaseInsensitive(someClusterName),
-        matchesCaseInsensitive(someNamespaceName)
-    )).thenReturn(someRelease);
+    when(releaseService.findLatestActiveRelease(matchesCaseInsensitive(someAppId),
+        matchesCaseInsensitive(someClusterName), matchesCaseInsensitive(someNamespaceName)))
+        .thenReturn(someRelease);
     when(someReleaseMessage.getId()).thenReturn(someNotificationId);
 
     Release release = configServiceWithCache.findLatestActiveRelease(someAppId, someClusterName,
-        someNamespaceName,
-        someNotificationMessages);
+        someNamespaceName, someNotificationMessages);
 
     Release stillOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
-        someNamespaceName, someNotificationMessages);
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     someNotificationMessages.put(someIrrelevantKey, someNewNotificationId);
 
     Release shouldStillBeOldRelease = configServiceWithCache.findLatestActiveRelease(someAppId,
-        someClusterName,
-        someNamespaceName, someNotificationMessages);
+        someClusterName, someNamespaceName, someNotificationMessages);
 
     assertEquals(someRelease, release);
     assertEquals(someRelease, stillOldRelease);
     assertEquals(someRelease, shouldStillBeOldRelease);
 
-    verify(releaseMessageService, times(1)).findLatestReleaseMessageForMessages(
-        Lists.newArrayList(lowerCaseSomeKey));
-    verify(releaseService, times(1)).findLatestActiveRelease(
-        someAppId.toLowerCase(),
-        someClusterName.toLowerCase(),
-        someNamespaceName.toLowerCase());
+    verify(releaseMessageService, times(1))
+        .findLatestReleaseMessageForMessages(Lists.newArrayList(lowerCaseSomeKey));
+    verify(releaseService, times(1)).findLatestActiveRelease(someAppId.toLowerCase(),
+        someClusterName.toLowerCase(), someNamespaceName.toLowerCase());
   }
 
   private String matchesCaseInsensitive(final String regex) {

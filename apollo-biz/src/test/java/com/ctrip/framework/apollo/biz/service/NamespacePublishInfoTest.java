@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,12 +56,13 @@ public class NamespacePublishInfoTest extends AbstractUnitTest {
   @Test
   public void testNamespaceNotEverPublishedButHasItems() {
     Cluster cluster = createCluster(ConfigConsts.CLUSTER_NAME_DEFAULT);
-    Namespace namespace = createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
+    Namespace namespace =
+        createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
     Item item = createItem(namespace.getId(), "a", "b");
 
     when(clusterService.findParentClusters(testApp)).thenReturn(Collections.singletonList(cluster));
-    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp, ConfigConsts.CLUSTER_NAME_DEFAULT))
-        .thenReturn(Collections.singletonList(namespace));
+    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp,
+        ConfigConsts.CLUSTER_NAME_DEFAULT)).thenReturn(Collections.singletonList(namespace));
     when(itemService.findLastOne(anyLong())).thenReturn(item);
 
     Map<String, Boolean> result = namespaceService.namespacePublishInfo(testApp);
@@ -73,15 +74,17 @@ public class NamespacePublishInfoTest extends AbstractUnitTest {
   @Test
   public void testNamespaceEverPublishedAndNotModifiedAfter() {
     Cluster cluster = createCluster(ConfigConsts.CLUSTER_NAME_DEFAULT);
-    Namespace namespace = createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
+    Namespace namespace =
+        createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
     Item item = createItem(namespace.getId(), "a", "b");
     Release release = createRelease("{\"a\":\"b\"}");
 
     when(clusterService.findParentClusters(testApp)).thenReturn(Collections.singletonList(cluster));
-    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp, ConfigConsts.CLUSTER_NAME_DEFAULT))
-        .thenReturn(Collections.singletonList(namespace));
+    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp,
+        ConfigConsts.CLUSTER_NAME_DEFAULT)).thenReturn(Collections.singletonList(namespace));
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
-    when(itemService.findItemsModifiedAfterDate(anyLong(), any())).thenReturn(Collections.singletonList(item));
+    when(itemService.findItemsModifiedAfterDate(anyLong(), any()))
+        .thenReturn(Collections.singletonList(item));
 
     Map<String, Boolean> result = namespaceService.namespacePublishInfo(testApp);
 
@@ -93,15 +96,17 @@ public class NamespacePublishInfoTest extends AbstractUnitTest {
   @Test
   public void testNamespaceEverPublishedAndModifiedAfter() {
     Cluster cluster = createCluster(ConfigConsts.CLUSTER_NAME_DEFAULT);
-    Namespace namespace = createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
+    Namespace namespace =
+        createNamespace(ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION);
     Item item = createItem(namespace.getId(), "a", "b");
     Release release = createRelease("{\"a\":\"c\"}");
 
     when(clusterService.findParentClusters(testApp)).thenReturn(Collections.singletonList(cluster));
-    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp, ConfigConsts.CLUSTER_NAME_DEFAULT))
-        .thenReturn(Collections.singletonList(namespace));
+    when(namespaceRepository.findByAppIdAndClusterNameOrderByIdAsc(testApp,
+        ConfigConsts.CLUSTER_NAME_DEFAULT)).thenReturn(Collections.singletonList(namespace));
     when(releaseService.findLatestActiveRelease(namespace)).thenReturn(release);
-    when(itemService.findItemsModifiedAfterDate(anyLong(), any())).thenReturn(Collections.singletonList(item));
+    when(itemService.findItemsModifiedAfterDate(anyLong(), any()))
+        .thenReturn(Collections.singletonList(item));
 
     Map<String, Boolean> result = namespaceService.namespacePublishInfo(testApp);
 

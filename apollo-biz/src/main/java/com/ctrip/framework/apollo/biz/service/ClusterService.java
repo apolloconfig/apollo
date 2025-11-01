@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,7 @@ public class ClusterService {
   private final AuditService auditService;
   private final NamespaceService namespaceService;
 
-  public ClusterService(
-      final ClusterRepository clusterRepository,
-      final AuditService auditService,
+  public ClusterService(final ClusterRepository clusterRepository, final AuditService auditService,
       final @Lazy NamespaceService namespaceService) {
     this.clusterRepository = clusterRepository;
     this.auditService = auditService;
@@ -84,7 +82,7 @@ public class ClusterService {
     Cluster savedCluster = saveWithoutInstanceOfAppNamespaces(entity);
 
     namespaceService.instanceOfAppNamespaces(savedCluster.getAppId(), savedCluster.getName(),
-                                             savedCluster.getDataChangeCreatedBy());
+        savedCluster.getDataChangeCreatedBy());
 
     return savedCluster;
   }
@@ -94,11 +92,11 @@ public class ClusterService {
     if (!isClusterNameUnique(entity.getAppId(), entity.getName())) {
       throw new BadRequestException("cluster not unique");
     }
-    entity.setId(0);//protection
+    entity.setId(0);// protection
     Cluster cluster = clusterRepository.save(entity);
 
     auditService.audit(Cluster.class.getSimpleName(), cluster.getId(), Audit.OP.INSERT,
-                       cluster.getDataChangeCreatedBy());
+        cluster.getDataChangeCreatedBy());
 
     return cluster;
   }
@@ -110,7 +108,7 @@ public class ClusterService {
       throw BadRequestException.clusterNotExists("");
     }
 
-    //delete linked namespaces
+    // delete linked namespaces
     namespaceService.deleteByAppIdAndClusterName(cluster.getAppId(), cluster.getName(), operator);
 
     cluster.setDeleted(true);
@@ -128,7 +126,7 @@ public class ClusterService {
     managedCluster = clusterRepository.save(managedCluster);
 
     auditService.audit(Cluster.class.getSimpleName(), managedCluster.getId(), Audit.OP.UPDATE,
-                       managedCluster.getDataChangeLastModifiedBy());
+        managedCluster.getDataChangeLastModifiedBy());
 
     return managedCluster;
   }

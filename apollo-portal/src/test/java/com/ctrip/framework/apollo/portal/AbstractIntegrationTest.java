@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,8 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {
-    PortalApplication.class,
-    SkipAuthorizationConfiguration.class
-}, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = {PortalApplication.class, SkipAuthorizationConfiguration.class},
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationTest {
 
   protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();

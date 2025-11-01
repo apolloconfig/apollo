@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,15 +53,11 @@ public class ConfigPublishListener {
 
   private ExecutorService executorService;
 
-  public ConfigPublishListener(
-      final ReleaseHistoryService releaseHistoryService,
-      final EmailService emailService,
-      final NormalPublishEmailBuilder normalPublishEmailBuilder,
+  public ConfigPublishListener(final ReleaseHistoryService releaseHistoryService,
+      final EmailService emailService, final NormalPublishEmailBuilder normalPublishEmailBuilder,
       final GrayPublishEmailBuilder grayPublishEmailBuilder,
-      final RollbackEmailBuilder rollbackEmailBuilder,
-      final MergeEmailBuilder mergeEmailBuilder,
-      final PortalConfig portalConfig,
-      final MQService mqService,
+      final RollbackEmailBuilder rollbackEmailBuilder, final MergeEmailBuilder mergeEmailBuilder,
+      final PortalConfig portalConfig, final MQService mqService,
       final ConfigReleaseWebhookNotifier configReleaseWebhookNotifier) {
     this.releaseHistoryService = releaseHistoryService;
     this.emailService = emailService;
@@ -76,7 +72,8 @@ public class ConfigPublishListener {
 
   @PostConstruct
   public void init() {
-    executorService = Executors.newSingleThreadExecutor(ApolloThreadFactory.create("ConfigPublishNotify", true));
+    executorService =
+        Executors.newSingleThreadExecutor(ApolloThreadFactory.create("ConfigPublishNotify", true));
   }
 
   @EventListener
@@ -111,20 +108,21 @@ public class ConfigPublishListener {
     private ReleaseHistoryBO getReleaseHistory() {
       Env env = publishInfo.getEnv();
 
-      int operation = publishInfo.isMergeEvent() ? ReleaseOperation.GRAY_RELEASE_MERGE_TO_MASTER :
-                      publishInfo.isRollbackEvent() ? ReleaseOperation.ROLLBACK :
-                      publishInfo.isNormalPublishEvent() ? ReleaseOperation.NORMAL_RELEASE :
-                      publishInfo.isGrayPublishEvent() ? ReleaseOperation.GRAY_RELEASE : -1;
+      int operation = publishInfo.isMergeEvent() ? ReleaseOperation.GRAY_RELEASE_MERGE_TO_MASTER
+          : publishInfo.isRollbackEvent() ? ReleaseOperation.ROLLBACK
+              : publishInfo.isNormalPublishEvent() ? ReleaseOperation.NORMAL_RELEASE
+                  : publishInfo.isGrayPublishEvent() ? ReleaseOperation.GRAY_RELEASE : -1;
 
       if (operation == -1) {
         return null;
       }
 
       if (publishInfo.isRollbackEvent()) {
-        return releaseHistoryService
-            .findLatestByPreviousReleaseIdAndOperation(env, publishInfo.getPreviousReleaseId(), operation);
+        return releaseHistoryService.findLatestByPreviousReleaseIdAndOperation(env,
+            publishInfo.getPreviousReleaseId(), operation);
       }
-      return releaseHistoryService.findLatestByReleaseIdAndOperation(env, publishInfo.getReleaseId(), operation);
+      return releaseHistoryService.findLatestByReleaseIdAndOperation(env,
+          publishInfo.getReleaseId(), operation);
 
     }
 

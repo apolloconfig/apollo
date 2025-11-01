@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,9 +55,8 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("validKey");
     serverConfig.setValue("validValue");
-    ResponseEntity<ServerConfig> responseEntity = restTemplate.postForEntity(
-        url("/server/portal-db/config"), serverConfig, ServerConfig.class
-    );
+    ResponseEntity<ServerConfig> responseEntity = restTemplate
+        .postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
     assertEquals(responseEntity.getBody().getKey(), serverConfig.getKey());
     assertEquals(responseEntity.getBody().getValue(), serverConfig.getValue());
   }
@@ -68,28 +67,20 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setKey("  ");
     serverConfig.setValue("valid");
     try {
-      restTemplate.postForEntity(
-          url("/server/portal-db/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
-          new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Key cannot be blank")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("ServerConfig.Key cannot be blank"));
     }
     serverConfig.setKey("valid");
     serverConfig.setValue("   ");
     try {
-      restTemplate.postForEntity(
-          url("/server/portal-db/config"), serverConfig, ServerConfig.class
-      );
+      restTemplate.postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
       Assert.fail("Should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
-          new String(e.getResponseBodyAsByteArray()),
-          containsString("ServerConfig.Value cannot be blank")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("ServerConfig.Value cannot be blank"));
     }
   }
 

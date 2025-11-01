@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import org.springframework.context.event.ContextClosedEvent;
  * remove self before shutdown
  */
 public class ApolloServiceRegistryDeregisterApplicationListener
-  implements ApplicationListener<ContextClosedEvent> {
+    implements ApplicationListener<ContextClosedEvent> {
 
-  private static final Logger log = LoggerFactory
-      .getLogger(ApolloServiceRegistryDeregisterApplicationListener.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(ApolloServiceRegistryDeregisterApplicationListener.class);
   private final ApolloServiceRegistryProperties registration;
 
   private final DatabaseServiceRegistry serviceRegistry;
@@ -48,20 +48,12 @@ public class ApolloServiceRegistryDeregisterApplicationListener
   private void deregister() {
     try {
       this.serviceRegistry.deregister(this.registration);
-      log.info(
-          "deregister success, '{}' uri '{}', cluster '{}'",
-          this.registration.getServiceName(),
-          this.registration.getUri(),
-          this.registration.getCluster()
-      );
+      log.info("deregister success, '{}' uri '{}', cluster '{}'",
+          this.registration.getServiceName(), this.registration.getUri(),
+          this.registration.getCluster());
     } catch (Throwable t) {
-      log.error(
-          "deregister fail, '{}' uri '{}',  cluster '{}'",
-          this.registration.getServiceName(),
-          this.registration.getUri(),
-          this.registration.getCluster(),
-          t
-      );
+      log.error("deregister fail, '{}' uri '{}',  cluster '{}'", this.registration.getServiceName(),
+          this.registration.getUri(), this.registration.getCluster(), t);
     }
   }
 }

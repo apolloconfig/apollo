@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.jdbc.Sql;
 
-public class AppNamespaceControllerTest extends AbstractControllerTest{
+public class AppNamespaceControllerTest extends AbstractControllerTest {
 
   @Autowired
   private AppNamespaceRepository namespaceRepository;
 
   @Test
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-  public void testCreate(){
+  public void testCreate() {
     String appId = "6666";
     String name = "testnamespace";
     String comment = "comment";
@@ -42,7 +42,9 @@ public class AppNamespaceControllerTest extends AbstractControllerTest{
     dto.setComment(comment);
     dto.setDataChangeCreatedBy("apollo");
 
-    AppNamespaceDTO resultDto = restTemplate.postForEntity(url("/apps/{appId}/appnamespaces"), dto, AppNamespaceDTO.class, appId).getBody();
+    AppNamespaceDTO resultDto = restTemplate
+        .postForEntity(url("/apps/{appId}/appnamespaces"), dto, AppNamespaceDTO.class, appId)
+        .getBody();
 
     Assert.assertNotNull(resultDto);
     Assert.assertEquals(appId, resultDto.getAppId());

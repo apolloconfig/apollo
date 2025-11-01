@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ public class NamespaceControllerTest extends AbstractControllerTest {
       namespaceDTO.setClusterName("cluster");
       namespaceDTO.setNamespaceName("invalid name");
       namespaceDTO.setAppId("whatever");
-      restTemplate.postForEntity(
-          url("/apps/{appId}/clusters/{clusterName}/namespaces"),
+      restTemplate.postForEntity(url("/apps/{appId}/clusters/{clusterName}/namespaces"),
           namespaceDTO, NamespaceDTO.class, namespaceDTO.getAppId(), namespaceDTO.getClusterName());
       Assert.fail("Should throw");
     } catch (HttpClientErrorException e) {
-      Assert.assertThat(new String(e.getResponseBodyAsByteArray()), containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+      Assert.assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
   }
 }

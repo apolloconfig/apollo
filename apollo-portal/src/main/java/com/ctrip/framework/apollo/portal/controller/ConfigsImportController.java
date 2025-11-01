@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,7 @@ public class ConfigsImportController {
   private final ConfigsImportService configsImportService;
 
 
-  public ConfigsImportController(
-      final ConfigsImportService configsImportService
-  ) {
+  public ConfigsImportController(final ConfigsImportService configsImportService) {
     this.configsImportService = configsImportService;
   }
 
@@ -61,29 +59,29 @@ public class ConfigsImportController {
    *             etc.
    * @throws IOException
    */
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/items/import")
   public void importConfigFile(@PathVariable String appId, @PathVariable String env,
-                               @PathVariable String clusterName, @PathVariable String namespaceName,
-                               @RequestParam("file") MultipartFile file) throws IOException {
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @RequestParam("file") MultipartFile file) throws IOException {
     // check file
     ConfigFileUtils.check(file);
     final String format = ConfigFileUtils.getFormat(file.getOriginalFilename());
-    final String standardFilename = ConfigFileUtils.toFilename(appId, clusterName,
-                                                               namespaceName,
-                                                               ConfigFileFormat.fromString(format));
+    final String standardFilename = ConfigFileUtils.toFilename(appId, clusterName, namespaceName,
+        ConfigFileFormat.fromString(format));
 
-    configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename, file.getInputStream());
+    configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename,
+        file.getInputStream());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=cover")
   public void importConfigByZipWithCoverConflictNamespace(@RequestParam(value = "envs") String envs,
-                                @RequestParam("file") MultipartFile file) throws IOException {
+      @RequestParam("file") MultipartFile file) throws IOException {
 
-    List<Env>
-        importEnvs =
-        Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(env -> Env.valueOf(env)).collect(Collectors.toList());
+    List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream()
+        .map(env -> Env.valueOf(env)).collect(Collectors.toList());
 
     byte[] bytes = file.getBytes();
     try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(bytes))) {
@@ -93,12 +91,12 @@ public class ConfigsImportController {
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping(value = "/configs/import", params = "conflictAction=ignore")
-  public void importConfigByZipWithIgnoreConflictNamespace(@RequestParam(value = "envs") String envs,
-                                @RequestParam("file") MultipartFile file) throws IOException {
+  public void importConfigByZipWithIgnoreConflictNamespace(
+      @RequestParam(value = "envs") String envs, @RequestParam("file") MultipartFile file)
+      throws IOException {
 
-    List<Env>
-        importEnvs =
-        Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(env -> Env.valueOf(env)).collect(Collectors.toList());
+    List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream()
+        .map(env -> Env.valueOf(env)).collect(Collectors.toList());
 
     byte[] bytes = file.getBytes();
     try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(bytes))) {

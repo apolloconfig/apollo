@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ public class ServerConfigService {
     Iterable<ServerConfig> serverConfigs = serverConfigRepository.findAll();
     return Lists.newArrayList(serverConfigs);
   }
+
   public List<ServerConfig> findAllConfigDBConfig(Env env) {
     return serverConfigAPI.findAllConfigDBConfig(env);
   }
@@ -59,13 +60,13 @@ public class ServerConfigService {
 
     ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
 
-    if (Objects.isNull(storedConfig)) {//create
+    if (Objects.isNull(storedConfig)) {// create
       serverConfig.setDataChangeCreatedBy(modifiedBy);
       serverConfig.setDataChangeLastModifiedBy(modifiedBy);
-      serverConfig.setId(0L);//为空，设置ID 为0，jpa执行新增操作
+      serverConfig.setId(0L);// 为空，设置ID 为0，jpa执行新增操作
       return serverConfigRepository.save(serverConfig);
     }
-    //update
+    // update
     BeanUtils.copyEntityProperties(serverConfig, storedConfig);
     storedConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigRepository.save(storedConfig);

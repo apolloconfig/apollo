@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,8 +70,8 @@ public class KubernetesDiscoveryServiceTest {
     String someUrl = "http://some-host/some-path";
     when(bizConfig.getValue(configServiceConfigName)).thenReturn(someUrl);
 
-    List<ServiceDTO> serviceDTOList = kubernetesDiscoveryService
-        .getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE);
+    List<ServiceDTO> serviceDTOList =
+        kubernetesDiscoveryService.getServiceInstances(ServiceNameConsts.APOLLO_CONFIGSERVICE);
 
     assertEquals(1, serviceDTOList.size());
     ServiceDTO serviceDTO = serviceDTOList.get(0);
@@ -89,8 +89,8 @@ public class KubernetesDiscoveryServiceTest {
     when(bizConfig.getValue(adminServiceConfigName))
         .thenReturn(String.format("%s,%s", someUrl, anotherUrl));
 
-    List<ServiceDTO> serviceDTOList = kubernetesDiscoveryService
-        .getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE);
+    List<ServiceDTO> serviceDTOList =
+        kubernetesDiscoveryService.getServiceInstances(ServiceNameConsts.APOLLO_ADMINSERVICE);
 
     assertEquals(2, serviceDTOList.size());
     ServiceDTO serviceDTO = serviceDTOList.get(0);

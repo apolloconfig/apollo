@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ public class CommitController {
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/commit")
   public List<CommitDTO> find(@PathVariable String appId, @PathVariable String clusterName,
-                              @PathVariable String namespaceName, @RequestParam(required = false) String key, Pageable pageable){
+      @PathVariable String namespaceName, @RequestParam(required = false) String key,
+      Pageable pageable) {
 
     List<Commit> commits;
     if (StringUtils.isEmpty(key)) {

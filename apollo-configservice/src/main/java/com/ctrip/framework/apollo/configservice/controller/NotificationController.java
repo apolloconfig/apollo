@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,22 +54,20 @@ import java.util.Set;
 @RequestMapping("/notifications")
 public class NotificationController implements ReleaseMessageListener {
   private static final Logger logger = LoggerFactory.getLogger(NotificationController.class);
-  private static final long TIMEOUT = 30 * 1000;//30 seconds
-  private final Multimap<String, DeferredResult<ResponseEntity<ApolloConfigNotification>>>
-      deferredResults = Multimaps.synchronizedSetMultimap(HashMultimap.create());
-  private static final ResponseEntity<ApolloConfigNotification>
-      NOT_MODIFIED_RESPONSE = new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+  private static final long TIMEOUT = 30 * 1000;// 30 seconds
+  private final Multimap<String, DeferredResult<ResponseEntity<ApolloConfigNotification>>> deferredResults =
+      Multimaps.synchronizedSetMultimap(HashMultimap.create());
+  private static final ResponseEntity<ApolloConfigNotification> NOT_MODIFIED_RESPONSE =
+      new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 
   private final WatchKeysUtil watchKeysUtil;
   private final ReleaseMessageServiceWithCache releaseMessageService;
   private final EntityManagerUtil entityManagerUtil;
   private final NamespaceUtil namespaceUtil;
 
-  public NotificationController(
-      final WatchKeysUtil watchKeysUtil,
+  public NotificationController(final WatchKeysUtil watchKeysUtil,
       final ReleaseMessageServiceWithCache releaseMessageService,
-      final EntityManagerUtil entityManagerUtil,
-      final NamespaceUtil namespaceUtil) {
+      final EntityManagerUtil entityManagerUtil, final NamespaceUtil namespaceUtil) {
     this.watchKeysUtil = watchKeysUtil;
     this.releaseMessageService = releaseMessageService;
     this.entityManagerUtil = entityManagerUtil;
@@ -89,21 +87,22 @@ public class NotificationController implements ReleaseMessageListener {
    */
   @GetMapping
   public DeferredResult<ResponseEntity<ApolloConfigNotification>> pollNotification(
-      @RequestParam(value = "appId") String appId,
-      @RequestParam(value = "cluster") String cluster,
-      @RequestParam(value = "namespace", defaultValue = ConfigConsts.NAMESPACE_APPLICATION) String namespace,
+      @RequestParam(value = "appId") String appId, @RequestParam(value = "cluster") String cluster,
+      @RequestParam(value = "namespace",
+          defaultValue = ConfigConsts.NAMESPACE_APPLICATION) String namespace,
       @RequestParam(value = "dataCenter", required = false) String dataCenter,
       @RequestParam(value = "notificationId", defaultValue = "-1") long notificationId,
       @RequestParam(value = "ip", required = false) String clientIp) {
-    //strip out .properties suffix
+    // strip out .properties suffix
     namespace = namespaceUtil.filterNamespaceName(namespace);
 
-    Set<String> watchedKeys = watchKeysUtil.assembleAllWatchKeys(appId, cluster, namespace, dataCenter);
+    Set<String> watchedKeys =
+        watchKeysUtil.assembleAllWatchKeys(appId, cluster, namespace, dataCenter);
 
     DeferredResult<ResponseEntity<ApolloConfigNotification>> deferredResult =
         new DeferredResult<>(TIMEOUT, NOT_MODIFIED_RESPONSE);
 
-    //check whether client is out-dated
+    // check whether client is out-dated
     ReleaseMessage latest = releaseMessageService.findLatestReleaseMessageForMessages(watchedKeys);
 
     /**
@@ -118,16 +117,15 @@ public class NotificationController implements ReleaseMessageListener {
       deferredResult.setResult(new ResponseEntity<>(
           new ApolloConfigNotification(namespace, latest.getId()), HttpStatus.OK));
     } else {
-      //register all keys
+      // register all keys
       for (String key : watchedKeys) {
         this.deferredResults.put(key, deferredResult);
       }
 
-      deferredResult
-          .onTimeout(() -> logWatchedKeys(watchedKeys, "Apollo.LongPoll.TimeOutKeys"));
+      deferredResult.onTimeout(() -> logWatchedKeys(watchedKeys, "Apollo.LongPoll.TimeOutKeys"));
 
       deferredResult.onCompletion(() -> {
-        //unregister all keys
+        // unregister all keys
         for (String key : watchedKeys) {
           deferredResults.remove(key, deferredResult);
         }
@@ -156,14 +154,13 @@ public class NotificationController implements ReleaseMessageListener {
       return;
     }
 
-    ResponseEntity<ApolloConfigNotification> notification =
-        new ResponseEntity<>(
-            new ApolloConfigNotification(keys.get(2), message.getId()), HttpStatus.OK);
+    ResponseEntity<ApolloConfigNotification> notification = new ResponseEntity<>(
+        new ApolloConfigNotification(keys.get(2), message.getId()), HttpStatus.OK);
 
     if (!deferredResults.containsKey(content)) {
       return;
     }
-    //create a new list to avoid ConcurrentModificationException
+    // create a new list to avoid ConcurrentModificationException
     List<DeferredResult<ResponseEntity<ApolloConfigNotification>>> results =
         Lists.newArrayList(deferredResults.get(content));
     logger.debug("Notify {} clients for key {}", results.size(), content);
@@ -180,4 +177,3 @@ public class NotificationController implements ReleaseMessageListener {
     }
   }
 }
-

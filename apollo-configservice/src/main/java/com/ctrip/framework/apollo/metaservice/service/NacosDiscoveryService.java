@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,37 +38,37 @@ import java.util.List;
 @Profile({"nacos-discovery"})
 public class NacosDiscoveryService implements DiscoveryService {
 
-    private final static Logger logger = LoggerFactory.getLogger(NacosDiscoveryService.class);
+  private final static Logger logger = LoggerFactory.getLogger(NacosDiscoveryService.class);
 
-    private NamingService namingService;
+  private NamingService namingService;
 
-    @NacosInjected
-    public void setNamingService(NamingService namingService) {
-        this.namingService = namingService;
+  @NacosInjected
+  public void setNamingService(NamingService namingService) {
+    this.namingService = namingService;
+  }
+
+  @Override
+  public List<ServiceDTO> getServiceInstances(String serviceId) {
+    try {
+      List<Instance> instances = namingService.selectInstances(serviceId, true);
+      List<ServiceDTO> serviceDTOList = Lists.newLinkedList();
+      instances.forEach(instance -> {
+        ServiceDTO serviceDTO = this.toServiceDTO(instance, serviceId);
+        serviceDTOList.add(serviceDTO);
+      });
+      return serviceDTOList;
+    } catch (NacosException ex) {
+      logger.error(ex.getMessage(), ex);
     }
+    return Collections.emptyList();
+  }
 
-    @Override
-    public List<ServiceDTO> getServiceInstances(String serviceId) {
-        try {
-            List<Instance> instances = namingService.selectInstances(serviceId,true);
-            List<ServiceDTO> serviceDTOList = Lists.newLinkedList();
-            instances.forEach(instance -> {
-                ServiceDTO serviceDTO = this.toServiceDTO(instance, serviceId);
-                serviceDTOList.add(serviceDTO);
-            });
-            return serviceDTOList;
-        } catch (NacosException ex) {
-            logger.error(ex.getMessage(),ex);
-        }
-        return Collections.emptyList();
-    }
-
-    private ServiceDTO toServiceDTO(Instance instance, String appName) {
-        ServiceDTO service = new ServiceDTO();
-        service.setAppName(appName);
-        service.setInstanceId(instance.getInstanceId());
-        String homePageUrl = "http://" + instance.getIp() + ":" + instance.getPort() + "/";
-        service.setHomepageUrl(homePageUrl);
-        return service;
-    }
+  private ServiceDTO toServiceDTO(Instance instance, String appName) {
+    ServiceDTO service = new ServiceDTO();
+    service.setAppName(appName);
+    service.setInstanceId(instance.getInstanceId());
+    String homePageUrl = "http://" + instance.getIp() + ":" + instance.getPort() + "/";
+    service.setHomepageUrl(homePageUrl);
+    return service;
+  }
 }

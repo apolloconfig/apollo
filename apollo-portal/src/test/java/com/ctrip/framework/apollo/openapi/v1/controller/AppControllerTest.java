@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,27 +67,21 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 /**
  * @author wxq
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {
-    "api.pool.max.total=100",
-    "api.pool.max.per.route=100",
-    "api.connectionTimeToLive=30000",
-    "api.connectTimeout=5000",
-    "api.readTimeout=5000"
-})
+@TestPropertySource(properties = {"api.pool.max.total=100", "api.pool.max.per.route=100",
+    "api.connectionTimeToLive=30000", "api.connectTimeout=5000", "api.readTimeout=5000"})
 public class AppControllerTest {
 
   @Autowired
@@ -168,17 +162,16 @@ public class AppControllerTest {
 
     Set<String> authorizedAppIds = Sets.newHashSet("app1", "app2");
     when(this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId))
-            .thenReturn(authorizedAppIds);
+        .thenReturn(authorizedAppIds);
 
-    when(this.appOpenApiService.getAppsInfo(Mockito.anyList()))
-            .thenReturn(Collections.emptyList());
+    when(this.appOpenApiService.getAppsInfo(Mockito.anyList())).thenReturn(Collections.emptyList());
 
     this.mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/authorized"))
-            .andDo(MockMvcResultHandlers.print())
-            .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+        .andDo(MockMvcResultHandlers.print())
+        .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
 
     Mockito.verify(this.consumerService, Mockito.times(1))
-            .findAppIdsAuthorizedByConsumerId(consumerId);
+        .findAppIdsAuthorizedByConsumerId(consumerId);
 
     ArgumentCaptor<List> appIdsCaptor = ArgumentCaptor.forClass(List.class);
     Mockito.verify(this.appOpenApiService).getAppsInfo(appIdsCaptor.capture());
@@ -199,15 +192,15 @@ public class AppControllerTest {
     fatCluster.setClusters(Lists.newArrayList("default", "feature"));
 
     when(appOpenApiService.getEnvClusterInfo(appId))
-            .thenReturn(Lists.newArrayList(devCluster, fatCluster));
+        .thenReturn(Lists.newArrayList(devCluster, fatCluster));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/envclusters"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].env").value("DEV"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].clusters[0]").value("default"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].env").value("FAT"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[0]").value("default"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[1]").value("feature"));
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].env").value("DEV"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].clusters[0]").value("default"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].env").value("FAT"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[0]").value("default"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[1]").value("feature"));
 
     Mockito.verify(appOpenApiService).getEnvClusterInfo(appId);
   }
@@ -226,10 +219,12 @@ public class AppControllerTest {
 
     when(appOpenApiService.getAppsInfo(Mockito.anyList())).thenReturn(apps);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps").param("appIds", String.join(",", appIds)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value(appId1))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value(appId2));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps").param("appIds",
+            String.join(",", appIds)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value(appId1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value(appId2));
 
     ArgumentCaptor<List> requestIdsCaptor = ArgumentCaptor.forClass(List.class);
     Mockito.verify(appOpenApiService).getAppsInfo(requestIdsCaptor.capture());
@@ -249,9 +244,9 @@ public class AppControllerTest {
     when(appOpenApiService.getAllApps()).thenReturn(apps);
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps"))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value("app2"));
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value("app2"));
 
     Mockito.verify(appOpenApiService).getAllApps();
   }
@@ -263,14 +258,13 @@ public class AppControllerTest {
     app.setAppId(appId);
 
     when(appOpenApiService.getAppsInfo(Collections.singletonList(appId)))
-            .thenReturn(Collections.singletonList(app));
+        .thenReturn(Collections.singletonList(app));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.appId").value(appId));
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.appId").value(appId));
 
-    Mockito.verify(appOpenApiService)
-            .getAppsInfo(Collections.singletonList(appId));
+    Mockito.verify(appOpenApiService).getAppsInfo(Collections.singletonList(appId));
   }
 
   @Test
@@ -278,13 +272,12 @@ public class AppControllerTest {
     String appId = "someAppId";
 
     when(appOpenApiService.getAppsInfo(Collections.singletonList(appId)))
-            .thenReturn(Collections.emptyList());
+        .thenReturn(Collections.emptyList());
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    Mockito.verify(appOpenApiService)
-            .getAppsInfo(Collections.singletonList(appId));
+    Mockito.verify(appOpenApiService).getAppsInfo(Collections.singletonList(appId));
   }
 
   @Test
@@ -298,7 +291,7 @@ public class AppControllerTest {
 
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(consumerId);
     when(this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId))
-            .thenReturn(authorizedAppIds);
+        .thenReturn(authorizedAppIds);
 
     OpenAppDTO app1 = new OpenAppDTO();
     app1.setAppId(app1Id);
@@ -308,10 +301,12 @@ public class AppControllerTest {
 
     when(appOpenApiService.getAppsBySelf(authorizedAppIds, page, size)).thenReturn(apps);
 
-    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self").param("page", String.valueOf(page)).param("size", String.valueOf(size)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value(app1Id))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value(app2Id));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self")
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value(app1Id))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value(app2Id));
 
     Mockito.verify(this.consumerService).findAppIdsAuthorizedByConsumerId(consumerId);
     Mockito.verify(this.appOpenApiService).getAppsBySelf(authorizedAppIds, page, size);
@@ -321,9 +316,10 @@ public class AppControllerTest {
   public void testFindMissEnvs() throws Exception {
     String appId = "someAppId";
 
-    when(appOpenApiService.findMissEnvs(appId)).thenReturn(new MultiResponseEntity(HttpStatus.OK.value(), new ArrayList<>()));
+    when(appOpenApiService.findMissEnvs(appId))
+        .thenReturn(new MultiResponseEntity(HttpStatus.OK.value(), new ArrayList<>()));
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/miss_envs"))
-            .andExpect(MockMvcResultMatchers.status().isOk());
+        .andExpect(MockMvcResultMatchers.status().isOk());
 
     Mockito.verify(appOpenApiService).findMissEnvs(appId);
   }
@@ -338,18 +334,18 @@ public class AppControllerTest {
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
-    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     Mockito.doNothing().when(appOpenApiService).updateApp(Mockito.any(OpenAppDTO.class));
     when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
-    mockMvc.perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + appId)
-                    .param("operator", operator)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(gson.toJson(requestDto)))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$.appId").value(appId))
-            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("App One"));
+    mockMvc
+        .perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + appId).param("operator", operator)
+            .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(requestDto)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.appId").value(appId))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("App One"));
 
   }
 
@@ -362,15 +358,16 @@ public class AppControllerTest {
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
-    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     when(unifiedPermissionValidator.isAppAdmin(pathAppId)).thenReturn(true);
 
-    mockMvc.perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + pathAppId)
-                    .param("operator", operator)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(gson.toJson(requestDto)))
-            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.put("/openapi/v1/apps/" + pathAppId).param("operator", operator)
+                .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(requestDto)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
     Mockito.verify(appOpenApiService, Mockito.never()).updateApp(Mockito.any());
   }
@@ -382,15 +379,15 @@ public class AppControllerTest {
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
-    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     when(appOpenApiService.deleteApp(appId)).thenReturn(new OpenAppDTO());
     when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
-    mockMvc.perform(delete("/openapi/v1/apps/" + appId)
-                    .param("operator", operator))
-            .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string(""));
+    mockMvc.perform(delete("/openapi/v1/apps/" + appId).param("operator", operator))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().string(""));
 
     Mockito.verify(appOpenApiService).deleteApp(appId);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public class AppService {
     if (!isAppIdUnique(entity.getAppId())) {
       throw new ServiceException("appId not unique");
     }
-    entity.setId(0);//protection
+    entity.setId(0);// protection
     App app = appRepository.save(entity);
 
     auditService.audit(App.class.getSimpleName(), app.getId(), Audit.OP.INSERT,

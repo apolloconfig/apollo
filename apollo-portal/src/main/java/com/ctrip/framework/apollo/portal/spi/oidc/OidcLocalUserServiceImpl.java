@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,19 +42,18 @@ import org.springframework.util.CollectionUtils;
  */
 public class OidcLocalUserServiceImpl implements OidcLocalUserService {
 
-  private final Collection<? extends GrantedAuthority> authorities = Collections
-      .singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+  private final Collection<? extends GrantedAuthority> authorities =
+      Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
 
-  private final PasswordEncoder placeholderDelegatingPasswordEncoder = new DelegatingPasswordEncoder(
-      PlaceholderPasswordEncoder.ENCODING_ID, Collections
-      .singletonMap(PlaceholderPasswordEncoder.ENCODING_ID, new PlaceholderPasswordEncoder()));
+  private final PasswordEncoder placeholderDelegatingPasswordEncoder =
+      new DelegatingPasswordEncoder(PlaceholderPasswordEncoder.ENCODING_ID, Collections
+          .singletonMap(PlaceholderPasswordEncoder.ENCODING_ID, new PlaceholderPasswordEncoder()));
 
   private final JdbcUserDetailsManager userDetailsManager;
 
   private final UserRepository userRepository;
 
-  public OidcLocalUserServiceImpl(
-      JdbcUserDetailsManager userDetailsManager,
+  public OidcLocalUserServiceImpl(JdbcUserDetailsManager userDetailsManager,
       UserRepository userRepository) {
     this.userDetailsManager = userDetailsManager;
     this.userRepository = userRepository;
@@ -93,8 +92,7 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 
   private List<UserPO> findUsers(String keyword, boolean includeInactiveUsers) {
@@ -111,10 +109,9 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
       if (StringUtils.isEmpty(keyword)) {
         return userRepository.findFirst20ByEnabled(1);
       }
-      byUsername = userRepository
-          .findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-      byUserDisplayName = userRepository
-          .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+      byUsername = userRepository.findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
+      byUserDisplayName =
+          userRepository.findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
     }
     if (!CollectionUtils.isEmpty(byUsername)) {
       for (UserPO user : byUsername) {
@@ -141,7 +138,6 @@ public class OidcLocalUserServiceImpl implements OidcLocalUserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 }

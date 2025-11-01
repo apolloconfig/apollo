@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,20 +29,24 @@ public class NamespaceLockService {
   private final AdminServiceAPI.NamespaceLockAPI namespaceLockAPI;
   private final PortalConfig portalConfig;
 
-  public NamespaceLockService(final AdminServiceAPI.NamespaceLockAPI namespaceLockAPI, final PortalConfig portalConfig) {
+  public NamespaceLockService(final AdminServiceAPI.NamespaceLockAPI namespaceLockAPI,
+      final PortalConfig portalConfig) {
     this.namespaceLockAPI = namespaceLockAPI;
     this.portalConfig = portalConfig;
   }
 
 
-  public NamespaceLockDTO getNamespaceLock(String appId, Env env, String clusterName, String namespaceName) {
+  public NamespaceLockDTO getNamespaceLock(String appId, Env env, String clusterName,
+      String namespaceName) {
     return namespaceLockAPI.getNamespaceLockOwner(appId, env, clusterName, namespaceName);
   }
 
-  public LockInfo getNamespaceLockInfo(String appId, Env env, String clusterName, String namespaceName) {
+  public LockInfo getNamespaceLockInfo(String appId, Env env, String clusterName,
+      String namespaceName) {
     LockInfo lockInfo = new LockInfo();
 
-    NamespaceLockDTO namespaceLockDTO = namespaceLockAPI.getNamespaceLockOwner(appId, env, clusterName, namespaceName);
+    NamespaceLockDTO namespaceLockDTO =
+        namespaceLockAPI.getNamespaceLockOwner(appId, env, clusterName, namespaceName);
     String lockOwner = namespaceLockDTO == null ? "" : namespaceLockDTO.getDataChangeCreatedBy();
     lockInfo.setLockOwner(lockOwner);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,8 +61,8 @@ public class ClusterControllerTest extends AbstractControllerTest {
     ClusterDTO cluster = new ClusterDTO();
     cluster.setAppId("valid");
     cluster.setName("notBlank");
-    ResponseEntity<ClusterDTO> response =
-        restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class, cluster.getAppId());
+    ResponseEntity<ClusterDTO> response = restTemplate.postForEntity(url("/apps/{appId}/clusters"),
+        cluster, ClusterDTO.class, cluster.getAppId());
     ClusterDTO createdCluster = response.getBody();
     Assert.assertNotNull(createdCluster);
     Assert.assertEquals(cluster.getAppId(), createdCluster.getAppId());
@@ -70,10 +70,12 @@ public class ClusterControllerTest extends AbstractControllerTest {
 
     cluster.setName("invalid app name");
     try {
-      restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class, cluster.getAppId());
+      restTemplate.postForEntity(url("/apps/{appId}/clusters"), cluster, ClusterDTO.class,
+          cluster.getAppId());
       Assert.fail("Should throw");
     } catch (HttpClientErrorException e) {
-      Assert.assertThat(new String(e.getResponseBodyAsByteArray()), containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
+      Assert.assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE));
     }
   }
 }

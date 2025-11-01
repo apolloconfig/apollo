@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,11 +50,9 @@ public class SystemInfoController {
   private final RestTemplateFactory restTemplateFactory;
   private final PortalMetaDomainService portalMetaDomainService;
 
-  public SystemInfoController(
-      final PortalSettings portalSettings,
+  public SystemInfoController(final PortalSettings portalSettings,
       final RestTemplateFactory restTemplateFactory,
-      final PortalMetaDomainService portalMetaDomainService
-  ) {
+      final PortalMetaDomainService portalMetaDomainService) {
     this.portalSettings = portalSettings;
     this.restTemplateFactory = restTemplateFactory;
     this.portalMetaDomainService = portalMetaDomainService;
@@ -129,11 +127,14 @@ public class SystemInfoController {
 
     String selectedMetaServerAddress = portalMetaDomainService.getDomain(env);
     try {
-      environmentInfo.setConfigServices(getServerAddress(selectedMetaServerAddress, CONFIG_SERVICE_URL_PATH));
+      environmentInfo
+          .setConfigServices(getServerAddress(selectedMetaServerAddress, CONFIG_SERVICE_URL_PATH));
 
-      environmentInfo.setAdminServices(getServerAddress(selectedMetaServerAddress, ADMIN_SERVICE_URL_PATH));
+      environmentInfo
+          .setAdminServices(getServerAddress(selectedMetaServerAddress, ADMIN_SERVICE_URL_PATH));
     } catch (Throwable ex) {
-      String errorMessage = "Loading config/admin services from meta server: " + selectedMetaServerAddress + " failed!";
+      String errorMessage = "Loading config/admin services from meta server: "
+          + selectedMetaServerAddress + " failed!";
       logger.error(errorMessage, ex);
       environmentInfo.setErrorMessage(errorMessage + " Exception: " + ex.getMessage());
     }

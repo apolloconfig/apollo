@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,16 +36,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 
 @EnableAspectJAutoProxy
-@EnableAutoConfiguration(exclude = {
-    UserDetailsServiceAutoConfiguration.class,
-})
+@EnableAutoConfiguration(exclude = {UserDetailsServiceAutoConfiguration.class,})
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:configservice.properties"})
-@ComponentScan(basePackageClasses = {ApolloCommonConfig.class,
-    ApolloBizConfig.class,
-    ConfigServiceApplication.class,
-    ApolloMetaServiceConfig.class})
+@ComponentScan(basePackageClasses = {ApolloCommonConfig.class, ApolloBizConfig.class,
+    ConfigServiceApplication.class, ApolloMetaServiceConfig.class})
 public class ConfigServiceApplication {
 
   public static void main(String[] args) throws Exception {

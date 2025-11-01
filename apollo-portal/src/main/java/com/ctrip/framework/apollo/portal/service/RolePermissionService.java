@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,7 @@ public interface RolePermissionService {
    *
    * @return the users assigned roles
    */
-  Set<String> assignRoleToUsers(String roleName, Set<String> userIds,
-      String operatorUserId);
+  Set<String> assignRoleToUsers(String roleName, Set<String> userIds, String operatorUserId);
 
   /**
    * Remove role from users
@@ -86,12 +85,14 @@ public interface RolePermissionService {
   /**
    * delete permissions when delete app namespace.
    */
-  void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName, String operator);
+  void deleteRolePermissionsByAppIdAndNamespace(String appId, String namespaceName,
+      String operator);
 
   /**
    * delete permissions when delete cluster.
    */
-  void deleteRolePermissionsByCluster(String appId, String env, String clusterName, String operator);
+  void deleteRolePermissionsByCluster(String appId, String env, String clusterName,
+      String operator);
 
   /**
    * Check if user has any of the given permissions

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
 
-  //do nothing, for default impl
+  // do nothing, for default impl
 
   @Override
   public AutoCloseable appendAuditLog(OpType type, String name) {
@@ -42,12 +42,10 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
 
   @Override
   public void appendDataInfluence(String entityName, String entityId, String fieldName,
-      String fieldCurrentValue) {
-  }
+      String fieldCurrentValue) {}
 
   @Override
-  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {
-  }
+  public void appendDataInfluences(List<Object> entities, Class<?> beanDefinition) {}
 
   @Override
   public List<ApolloAuditLogDTO> queryLogs(int page, int size) {
@@ -55,8 +53,8 @@ public class ApolloAuditLogApiNoOpImpl implements ApolloAuditLogApi {
   }
 
   @Override
-  public List<ApolloAuditLogDTO> queryLogsByOpName(String opName, Date startDate,
-      Date endDate, int page, int size) {
+  public List<ApolloAuditLogDTO> queryLogsByOpName(String opName, Date startDate, Date endDate,
+      int page, int size) {
     return Collections.emptyList();
   }
 

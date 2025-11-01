@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,8 @@ public class DatabaseMessageSender implements MessageSender {
   private final ReleaseMessageRepository releaseMessageRepository;
 
   public DatabaseMessageSender(final ReleaseMessageRepository releaseMessageRepository) {
-    cleanExecutorService = Executors.newSingleThreadExecutor(ApolloThreadFactory.create("DatabaseMessageSender", true));
+    cleanExecutorService = Executors
+        .newSingleThreadExecutor(ApolloThreadFactory.create("DatabaseMessageSender", true));
     cleanStopped = new AtomicBoolean(false);
     this.releaseMessageRepository = releaseMessageRepository;
   }
@@ -69,7 +70,7 @@ public class DatabaseMessageSender implements MessageSender {
     Transaction transaction = Tracer.newTransaction("Apollo.AdminService", "sendMessage");
     try {
       ReleaseMessage newMessage = releaseMessageRepository.save(new ReleaseMessage(message));
-      if(!toClean.offer(newMessage.getId())){
+      if (!toClean.offer(newMessage.getId())) {
         logger.warn("Queue is full, Failed to add message {} to clean queue", newMessage.getId());
       }
       transaction.setStatus(Transaction.SUCCESS);
@@ -101,21 +102,23 @@ public class DatabaseMessageSender implements MessageSender {
   }
 
   private void cleanMessage(Long id) {
-    //double check in case the release message is rolled back
+    // double check in case the release message is rolled back
     ReleaseMessage releaseMessage = releaseMessageRepository.findById(id).orElse(null);
     if (releaseMessage == null) {
       return;
     }
     boolean hasMore = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
-      List<ReleaseMessage> messages = releaseMessageRepository.findFirst100ByMessageAndIdLessThanOrderByIdAsc(
-          releaseMessage.getMessage(), releaseMessage.getId());
+      List<ReleaseMessage> messages =
+          releaseMessageRepository.findFirst100ByMessageAndIdLessThanOrderByIdAsc(
+              releaseMessage.getMessage(), releaseMessage.getId());
 
       releaseMessageRepository.deleteAll(messages);
       hasMore = messages.size() == 100;
 
       messages.forEach(toRemove -> Tracer.logEvent(
-          String.format("ReleaseMessage.Clean.%s", toRemove.getMessage()), String.valueOf(toRemove.getId())));
+          String.format("ReleaseMessage.Clean.%s", toRemove.getMessage()),
+          String.valueOf(toRemove.getId())));
     }
   }
 

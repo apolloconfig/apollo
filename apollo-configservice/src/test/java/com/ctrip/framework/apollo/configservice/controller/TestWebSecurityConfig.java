@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     http.httpBasic();
     http.csrf().disable();
-    http.authorizeRequests().antMatchers("/").permitAll().and()
-        .authorizeRequests().antMatchers("/console/**").permitAll();
+    http.authorizeRequests().antMatchers("/").permitAll().and().authorizeRequests()
+        .antMatchers("/console/**").permitAll();
 
     http.headers().frameOptions().disable();
   }

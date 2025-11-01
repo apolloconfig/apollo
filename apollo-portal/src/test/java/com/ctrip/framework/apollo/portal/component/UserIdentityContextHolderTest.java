@@ -70,7 +70,7 @@ public class UserIdentityContextHolderTest {
     UserIdentityContextHolder.clear();
 
     // Step 3: Verify result after clearing (get value via public method)
-    assertNull(
-        UserIdentityContextHolder.getAuthType()); // Directly verify getAuthType() returns null
+    assertNull(UserIdentityContextHolder.getAuthType()); // Directly verify getAuthType() returns
+                                                         // null
   }
 }

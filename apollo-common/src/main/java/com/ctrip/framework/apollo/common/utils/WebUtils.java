@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public final class WebUtils {
 
-  private static final Splitter X_FORWARDED_FOR_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+  private static final Splitter X_FORWARDED_FOR_SPLITTER =
+      Splitter.on(",").omitEmptyStrings().trimResults();
 
-  private WebUtils(){}
+  private WebUtils() {}
 
   public static String tryToGetClientIp(HttpServletRequest request) {
     String forwardedFor = request.getHeader("X-FORWARDED-FOR");

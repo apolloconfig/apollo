@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,8 @@ import java.util.Map;
  * @author Jason Song(song_s@ctrip.com)
  */
 public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> {
-  private static final ResponseEntity<List<ApolloConfigNotification>>
-      NOT_MODIFIED_RESPONSE_LIST = new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+  private static final ResponseEntity<List<ApolloConfigNotification>> NOT_MODIFIED_RESPONSE_LIST =
+      new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 
   private Map<String, String> normalizedNamespaceNameToOriginalNamespaceName;
   private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result;
@@ -44,11 +44,13 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     result = new DeferredResult<>(timeoutInMilli, NOT_MODIFIED_RESPONSE_LIST);
   }
 
-  public void recordNamespaceNameNormalizedResult(String originalNamespaceName, String normalizedNamespaceName) {
+  public void recordNamespaceNameNormalizedResult(String originalNamespaceName,
+      String normalizedNamespaceName) {
     if (normalizedNamespaceNameToOriginalNamespaceName == null) {
       normalizedNamespaceNameToOriginalNamespaceName = Maps.newHashMap();
     }
-    normalizedNamespaceNameToOriginalNamespaceName.put(normalizedNamespaceName, originalNamespaceName);
+    normalizedNamespaceNameToOriginalNamespaceName.put(normalizedNamespaceName,
+        originalNamespaceName);
   }
 
 
@@ -70,8 +72,10 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
    */
   public void setResult(List<ApolloConfigNotification> notifications) {
     if (normalizedNamespaceNameToOriginalNamespaceName != null) {
-      notifications.stream().filter(notification -> normalizedNamespaceNameToOriginalNamespaceName.containsKey
-          (notification.getNamespaceName())).forEach(notification -> notification.setNamespaceName(
+      notifications.stream()
+          .filter(notification -> normalizedNamespaceNameToOriginalNamespaceName
+              .containsKey(notification.getNamespaceName()))
+          .forEach(notification -> notification.setNamespaceName(
               normalizedNamespaceNameToOriginalNamespaceName.get(notification.getNamespaceName())));
     }
 

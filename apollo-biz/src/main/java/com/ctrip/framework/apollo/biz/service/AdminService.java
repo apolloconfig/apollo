@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,9 @@ public class AdminService {
   private final ClusterService clusterService;
   private final NamespaceService namespaceService;
 
-  public AdminService(
-      final AppService appService,
+  public AdminService(final AppService appService,
       final @Lazy AppNamespaceService appNamespaceService,
-      final @Lazy ClusterService clusterService,
-      final @Lazy NamespaceService namespaceService) {
+      final @Lazy ClusterService clusterService, final @Lazy NamespaceService namespaceService) {
     this.appService = appService;
     this.appNamespaceService = appNamespaceService;
     this.clusterService = clusterService;

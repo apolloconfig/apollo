@@ -87,8 +87,7 @@ public class ClusterControllerParamBindLowLevelTest {
     // put a dummy Authentication into SecurityContext so @PreAuthorize won't fail
     SecurityContextHolder.clearContext();
     SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken(
-            "tester", "N/A", AuthorityUtils.NO_AUTHORITIES));
+        new UsernamePasswordAuthenticationToken("tester", "N/A", AuthorityUtils.NO_AUTHORITIES));
   }
 
   @After
@@ -103,11 +102,11 @@ public class ClusterControllerParamBindLowLevelTest {
     String env = "DEV";
     String clusterName = "default";
 
-    when(clusterOpenApiService.getCluster(appId, env, clusterName)).thenReturn(
-        new OpenClusterDTO());
+    when(clusterOpenApiService.getCluster(appId, env, clusterName))
+        .thenReturn(new OpenClusterDTO());
 
     mockMvc.perform(
-            get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName))
+        get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId, clusterName))
         .andExpect(status().isOk());
 
     ArgumentCaptor<String> appIdCaptor = ArgumentCaptor.forClass(String.class);
@@ -131,12 +130,12 @@ public class ClusterControllerParamBindLowLevelTest {
     dto.setName("new-cluster");
     dto.setDataChangeCreatedBy("tester");
 
-    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class))).thenReturn(
-        dto);
+    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class)))
+        .thenReturn(dto);
 
-    mockMvc.perform(post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(dto)))
+    mockMvc
+        .perform(post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
+            .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto)))
         .andExpect(status().isOk());
 
     ArgumentCaptor<String> envCaptor = ArgumentCaptor.forClass(String.class);
@@ -158,9 +157,7 @@ public class ClusterControllerParamBindLowLevelTest {
     doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName);
 
     mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
-            clusterName)
-            .param("operator", operator))
-        .andExpect(status().isOk());
+        clusterName).param("operator", operator)).andExpect(status().isOk());
 
     ArgumentCaptor<String> envCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> appIdCaptor = ArgumentCaptor.forClass(String.class);
