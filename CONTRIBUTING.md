@@ -35,3 +35,5 @@ We provide template files [intellij-java-google-style.xml](https://github.com/ct
 * For commits, we adhere to the conventional commits format. For more details, refer to [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 * When crafting commit messages, please adhere to the following conventions: if your commit addresses an existing issue, append "Fixes #XXX" to the end of the commit message (where XXX is the issue number).
+
+* Before submitting a pull request, you need to run `mvn spotless:apply` locally to format the code; this is important for maintaining good coding style in the project.
