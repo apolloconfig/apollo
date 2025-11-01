@@ -55,3 +55,18 @@ Spring Cloud Config的精妙之处在于它的配置存储于Git，这就天然�
 
 由于我们自己并非Disconf的资深用户，所以无法主观地给出评价。
 不过之前Apollo技术支持群中的热心网友[@Krast](https://github.com/krast)做了一个[开源配置中心对比矩阵](https://github.com/apolloconfig/apollo/files/983064/default.pdf)，可以参考一下。
+
+## 11. 拉取最新代码后提示找不到 OpenAppDTO 等 `OpenXxxDTO` 类怎么办？
+`apollo-portal` 模块通过 OpenAPI 的 YAML 描述文件在编译阶段生成 `OpenXxxDTO` 类。如果在本地开发时发现这类 DTO 消失或编译报错，请先执行一次 Maven 编译流程触发代码生成：
+
+```bash
+mvn clean compile -pl apollo-portal -am
+```
+
+也可以进入 `apollo-portal` 模块目录直接执行：
+
+```bash
+mvn clean compile
+```
+
+命令完成后，OpenAPI 相关的 DTO 会在 `com.ctrip.framework.apollo.openapi.model` 包下重新生成。

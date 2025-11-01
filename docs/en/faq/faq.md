@@ -56,3 +56,18 @@ Here's a quick summary.
 Since we are not experienced users of `Disconf`, we can't give a subjective evaluation.
 However, an enthusiastic user in the Apollo support group [@Krast](https://github.com/krast) made an [Open Source Configuration Center Comparison Matrix](https://github.com/apolloconfig/apollo/files/983064/default.pdf), which can be consulted.
 
+## 11. I get "OpenAppDTO" or other `OpenXxxDTO` classes not found after pulling the latest code, what should I do?
+The `apollo-portal` module generates the `OpenXxxDTO` classes from OpenAPI YAML definitions at build time.
+Run a Maven compile phase to trigger the code generation:
+
+```bash
+mvn clean compile -pl apollo-portal -am
+```
+
+You can also execute the command inside the `apollo-portal` module:
+
+```bash
+mvn clean compile
+```
+
+After it finishes, the OpenAPI DTOs will be regenerated under `com.ctrip.framework.apollo.openapi.model`.
