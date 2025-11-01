@@ -18,6 +18,23 @@ Apollo本地开发需要以下组件：
 ## 1.2 Apollo总体设计
 具体请参考[Apollo配置中心设计](zh/design/apollo-design)
 
+## 1.3 OpenAPI 代码生成
+`apollo-portal` 模块通过 OpenAPI 的 YAML 描述文件在编译阶段生成 `OpenXxxDTO` 类（例如 `OpenAppDTO`）。
+首次拉取代码或发现在 IDE 中提示这些 DTO 缺失时，请在仓库根目录或 `apollo-portal` 模块目录执行一次
+Maven 编译流程，以触发本地代码生成：
+
+```bash
+mvn clean compile -pl apollo-portal -am
+```
+
+或者直接在 `apollo-portal` 目录执行：
+
+```bash
+mvn clean compile
+```
+
+命令完成后，`com.ctrip.framework.apollo.openapi.model` 包下的 `OpenXxxDTO` 类会重新生成。
+
 # 二、本地启动
 ## 2.1 Apollo Assembly
 我们在本地开发时，一般会在IDE中启动`apollo-assembly`。

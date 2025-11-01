@@ -22,6 +22,23 @@ Please refer to the following sections in [distributed-deployment-guide](en/depl
 
 Please refer to [Apollo Configuration Center Design](en/design/apollo-design) for details.
 
+## 1.3 OpenAPI DTO generation
+
+The `apollo-portal` module generates `OpenXxxDTO` classes (for example `OpenAppDTO`) from OpenAPI YAML definitions during the build.
+If you just cloned the repository or see missing DTO classes reported by the IDE, run a Maven compile phase at the repository root or inside the `apollo-portal` module to regenerate them:
+
+```bash
+mvn clean compile -pl apollo-portal -am
+```
+
+Or run the command directly from the `apollo-portal` directory:
+
+```bash
+mvn clean compile
+```
+
+After the command finishes, the `OpenXxxDTO` classes will appear again under `com.ctrip.framework.apollo.openapi.model`.
+
 # II. Local startup
 
 ## 2.1 Apollo Assembly
