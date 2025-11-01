@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,10 +56,8 @@ public class ReleaseController {
   private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final UserInfoHolder userInfoHolder;
 
-  public ReleaseController(
-      final ReleaseService releaseService,
-      final ApplicationEventPublisher publisher,
-      final PortalConfig portalConfig,
+  public ReleaseController(final ReleaseService releaseService,
+      final ApplicationEventPublisher publisher, final PortalConfig portalConfig,
       final UnifiedPermissionValidator unifiedPermissionValidator,
       final UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
@@ -69,11 +67,13 @@ public class ReleaseController {
     this.userInfoHolder = userInfoHolder;
   }
 
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
-  public ReleaseDTO createRelease(@PathVariable String appId,
-                                  @PathVariable String env, @PathVariable String clusterName,
-                                  @PathVariable String namespaceName, @RequestBody NamespaceReleaseModel model) {
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PostMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
+  public ReleaseDTO createRelease(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @RequestBody NamespaceReleaseModel model) {
     model.setAppId(appId);
     model.setEnv(env);
     model.setClusterName(clusterName);
@@ -86,24 +86,21 @@ public class ReleaseController {
     ReleaseDTO createdRelease = releaseService.publish(model);
 
     ConfigPublishEvent event = ConfigPublishEvent.instance();
-    event.withAppId(appId)
-        .withCluster(clusterName)
-        .withNamespace(namespaceName)
-        .withReleaseId(createdRelease.getId())
-        .setNormalPublishEvent(true)
-        .setEnv(Env.valueOf(env));
+    event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
+        .withReleaseId(createdRelease.getId()).setNormalPublishEvent(true).setEnv(Env.valueOf(env));
 
     publisher.publishEvent(event);
 
     return createdRelease;
   }
 
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PostMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
-  public ReleaseDTO createGrayRelease(@PathVariable String appId,
-                                      @PathVariable String env, @PathVariable String clusterName,
-                                      @PathVariable String namespaceName, @PathVariable String branchName,
-                                      @RequestBody NamespaceReleaseModel model) {
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasReleaseNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @PostMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/releases")
+  public ReleaseDTO createGrayRelease(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @PathVariable String branchName, @RequestBody NamespaceReleaseModel model) {
     model.setAppId(appId);
     model.setEnv(env);
     model.setClusterName(branchName);
@@ -116,12 +113,8 @@ public class ReleaseController {
     ReleaseDTO createdRelease = releaseService.publish(model);
 
     ConfigPublishEvent event = ConfigPublishEvent.instance();
-    event.withAppId(appId)
-        .withCluster(clusterName)
-        .withNamespace(namespaceName)
-        .withReleaseId(createdRelease.getId())
-        .setGrayPublishEvent(true)
-        .setEnv(Env.valueOf(env));
+    event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
+        .withReleaseId(createdRelease.getId()).setGrayPublishEvent(true).setEnv(Env.valueOf(env));
 
     publisher.publishEvent(event);
 
@@ -129,8 +122,7 @@ public class ReleaseController {
   }
 
   @GetMapping("/envs/{env}/releases/{releaseId}")
-  public ReleaseDTO get(@PathVariable String env,
-                        @PathVariable long releaseId) {
+  public ReleaseDTO get(@PathVariable String env, @PathVariable long releaseId) {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
@@ -143,71 +135,74 @@ public class ReleaseController {
     return release;
   }
 
-  @GetMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
-  public List<ReleaseBO> findAllReleases(@PathVariable String appId,
-                                         @PathVariable String env,
-                                         @PathVariable String clusterName,
-                                         @PathVariable String namespaceName,
-                                         @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
-                                         @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
-    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+  @GetMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
+  public List<ReleaseBO> findAllReleases(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @Valid @PositiveOrZero(message = "page should be positive or 0")
+      @RequestParam(defaultValue = "0") int page,
+      @Valid @Positive(message = "size should be positive number")
+      @RequestParam(defaultValue = "5") int size) {
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+        namespaceName)) {
       return Collections.emptyList();
     }
 
-    return releaseService.findAllReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+    return releaseService.findAllReleases(appId, Env.valueOf(env), clusterName, namespaceName, page,
+        size);
   }
 
-  @GetMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active")
-  public List<ReleaseDTO> findActiveReleases(@PathVariable String appId,
-                                             @PathVariable String env,
-                                             @PathVariable String clusterName,
-                                             @PathVariable String namespaceName,
-                                             @Valid @PositiveOrZero(message = "page should be positive or 0") @RequestParam(defaultValue = "0") int page,
-                                             @Valid @Positive(message = "size should be positive number") @RequestParam(defaultValue = "5") int size) {
+  @GetMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active")
+  public List<ReleaseDTO> findActiveReleases(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, @PathVariable String namespaceName,
+      @Valid @PositiveOrZero(message = "page should be positive or 0")
+      @RequestParam(defaultValue = "0") int page,
+      @Valid @Positive(message = "size should be positive number")
+      @RequestParam(defaultValue = "5") int size) {
 
-    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+        namespaceName)) {
       return Collections.emptyList();
     }
 
-    return releaseService.findActiveReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
+    return releaseService.findActiveReleases(appId, Env.valueOf(env), clusterName, namespaceName,
+        page, size);
   }
 
   @GetMapping(value = "/envs/{env}/releases/compare")
   public ReleaseCompareResult compareRelease(@PathVariable String env,
-                                             @RequestParam long baseReleaseId,
-                                             @RequestParam long toCompareReleaseId) {
+      @RequestParam long baseReleaseId, @RequestParam long toCompareReleaseId) {
 
     return releaseService.compare(Env.valueOf(env), baseReleaseId, toCompareReleaseId);
   }
 
 
   @PutMapping(path = "/envs/{env}/releases/{releaseId}/rollback")
-  public void rollback(@PathVariable String env,
-                       @PathVariable long releaseId,
-                       @RequestParam(defaultValue = "-1") long toReleaseId) {
+  public void rollback(@PathVariable String env, @PathVariable long releaseId,
+      @RequestParam(defaultValue = "-1") long toReleaseId) {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
       throw NotFoundException.releaseNotFound(releaseId);
     }
 
-    if (!unifiedPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env, release.getClusterName(), release.getNamespaceName())) {
+    if (!unifiedPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env,
+        release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
 
     if (toReleaseId > -1) {
-      releaseService.rollbackTo(Env.valueOf(env), releaseId, toReleaseId, userInfoHolder.getUser().getUserId());
+      releaseService.rollbackTo(Env.valueOf(env), releaseId, toReleaseId,
+          userInfoHolder.getUser().getUserId());
     } else {
       releaseService.rollback(Env.valueOf(env), releaseId, userInfoHolder.getUser().getUserId());
     }
 
     ConfigPublishEvent event = ConfigPublishEvent.instance();
-    event.withAppId(release.getAppId())
-        .withCluster(release.getClusterName())
-        .withNamespace(release.getNamespaceName())
-        .withPreviousReleaseId(releaseId)
-        .setRollbackEvent(true)
-        .setEnv(Env.valueOf(env));
+    event.withAppId(release.getAppId()).withCluster(release.getClusterName())
+        .withNamespace(release.getNamespaceName()).withPreviousReleaseId(releaseId)
+        .setRollbackEvent(true).setEnv(Env.valueOf(env));
 
     publisher.publishEvent(event);
   }

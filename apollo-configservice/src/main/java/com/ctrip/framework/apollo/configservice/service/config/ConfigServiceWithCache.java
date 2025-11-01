@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,13 +60,14 @@ import org.springframework.util.CollectionUtils;
  */
 public class ConfigServiceWithCache extends AbstractConfigService {
   private static final Logger logger = LoggerFactory.getLogger(ConfigServiceWithCache.class);
-  private static final long DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES = 60;//1 hour
+  private static final long DEFAULT_EXPIRED_AFTER_ACCESS_IN_MINUTES = 60;// 1 hour
   private static final String TRACER_EVENT_CACHE_INVALIDATE = "ConfigCache.Invalidate";
   private static final String TRACER_EVENT_CACHE_LOAD = "ConfigCache.LoadFromDB";
   private static final String TRACER_EVENT_CACHE_LOAD_ID = "ConfigCache.LoadFromDBById";
   private static final String TRACER_EVENT_CACHE_GET = "ConfigCache.Get";
   private static final String TRACER_EVENT_CACHE_GET_ID = "ConfigCache.GetById";
-  private static final String TRACER_EVENT_CACHE_LOAD_RELEASE_KEY = "ConfigCache.LoadFromDBByReleaseKey";
+  private static final String TRACER_EVENT_CACHE_LOAD_RELEASE_KEY =
+      "ConfigCache.LoadFromDBByReleaseKey";
 
   private final ReleaseService releaseService;
   private final ReleaseMessageService releaseMessageService;
@@ -83,8 +84,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   public ConfigServiceWithCache(final ReleaseService releaseService,
       final ReleaseMessageService releaseMessageService,
-      final GrayReleaseRulesHolder grayReleaseRulesHolder,
-      final BizConfig bizConfig,
+      final GrayReleaseRulesHolder grayReleaseRulesHolder, final BizConfig bizConfig,
       final MeterRegistry meterRegistry) {
     super(grayReleaseRulesHolder);
     this.releaseService = releaseService;
@@ -109,7 +109,7 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
   @Override
   protected Release findLatestActiveRelease(String appId, String clusterName, String namespaceName,
-                                            ApolloNotificationMessages clientMessages) {
+      ApolloNotificationMessages clientMessages) {
     String messageKey = ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName);
     String cacheKey = messageKey;
 
@@ -121,10 +121,10 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
     ConfigCacheEntry cacheEntry = configCache.getUnchecked(cacheKey);
 
-    //cache is out-dated
-    if (clientMessages != null && clientMessages.has(messageKey) &&
-        clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
-      //invalidate the cache and try to load from db again
+    // cache is out-dated
+    if (clientMessages != null && clientMessages.has(messageKey)
+        && clientMessages.get(messageKey) > cacheEntry.getNotificationId()) {
+      // invalidate the cache and try to load from db again
       invalidate(cacheKey);
       cacheEntry = configCache.getUnchecked(cacheKey);
     }
@@ -140,7 +140,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
   @Override
   public void handleMessage(ReleaseMessage message, String channel) {
     logger.info("message received - channel: {}, message: {}", channel, message);
-    if (!Topics.APOLLO_RELEASE_TOPIC.equals(channel) || Strings.isNullOrEmpty(message.getMessage())) {
+    if (!Topics.APOLLO_RELEASE_TOPIC.equals(channel)
+        || Strings.isNullOrEmpty(message.getMessage())) {
       return;
     }
 
@@ -151,10 +152,10 @@ public class ConfigServiceWithCache extends AbstractConfigService {
       }
       invalidate(messageKey);
 
-      //warm up the cache
+      // warm up the cache
       configCache.getUnchecked(messageKey);
     } catch (Throwable ex) {
-      //ignore
+      // ignore
     }
   }
 
@@ -174,8 +175,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
         return Collections.emptyMap();
       }
 
-      Map<Long, Optional<Release>> releasesMap = configIdCache.getAll(
-          validReleaseKeyIdMap.values());
+      Map<Long, Optional<Release>> releasesMap =
+          configIdCache.getAll(validReleaseKeyIdMap.values());
       if (CollectionUtils.isEmpty(releasesMap)) {
         return Collections.emptyMap();
       }
@@ -213,15 +214,16 @@ public class ConfigServiceWithCache extends AbstractConfigService {
 
         Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD, key);
         try {
-          ReleaseMessage latestReleaseMessage = releaseMessageService.findLatestReleaseMessageForMessages(Lists
-                                                                                                              .newArrayList(key));
-          Release latestRelease = releaseService.findLatestActiveRelease(namespaceInfo.get(0), namespaceInfo.get(1),
-                                                                         namespaceInfo.get(2));
+          ReleaseMessage latestReleaseMessage =
+              releaseMessageService.findLatestReleaseMessageForMessages(Lists.newArrayList(key));
+          Release latestRelease = releaseService.findLatestActiveRelease(namespaceInfo.get(0),
+              namespaceInfo.get(1), namespaceInfo.get(2));
 
           transaction.setStatus(Transaction.SUCCESS);
 
-          long notificationId = latestReleaseMessage == null ? ConfigConsts.NOTIFICATION_ID_PLACEHOLDER : latestReleaseMessage
-              .getId();
+          long notificationId =
+              latestReleaseMessage == null ? ConfigConsts.NOTIFICATION_ID_PLACEHOLDER
+                  : latestReleaseMessage.getId();
 
           if (notificationId == ConfigConsts.NOTIFICATION_ID_PLACEHOLDER && latestRelease == null) {
             return nullConfigCacheEntry;
@@ -252,8 +254,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     releaseKeyCache = releaseKeyCacheBuilder.build(new CacheLoader<String, Optional<Long>>() {
       @Override
       public Optional<Long> load(String key) throws Exception {
-        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASE_KEY,
-            String.valueOf(key));
+        Transaction transaction =
+            Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_RELEASE_KEY, String.valueOf(key));
         try {
           Release release = releaseService.findByReleaseKey(key);
 
@@ -285,8 +287,8 @@ public class ConfigServiceWithCache extends AbstractConfigService {
     configIdCache = configIdCacheBuilder.build(new CacheLoader<Long, Optional<Release>>() {
       @Override
       public Optional<Release> load(Long key) throws Exception {
-        Transaction transaction = Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID,
-            String.valueOf(key));
+        Transaction transaction =
+            Tracer.newTransaction(TRACER_EVENT_CACHE_LOAD_ID, String.valueOf(key));
         try {
           Release release = releaseService.findActiveOne(key);
 

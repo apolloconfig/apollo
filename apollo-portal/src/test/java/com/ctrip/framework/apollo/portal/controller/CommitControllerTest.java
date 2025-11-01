@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,26 +36,22 @@ public class CommitControllerTest extends AbstractIntegrationTest {
   @Test
   public void shouldFailWhenPageOrSiseIsNegative() {
     try {
-      restTemplate.getForEntity(
-          url("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/commits?page=-1"),
-          List.class, "1", "env", "cl", "ns"
-      );
+      restTemplate.getForEntity(url(
+          "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/commits?page=-1"),
+          List.class, "1", "env", "cl", "ns");
       fail("should throw");
     } catch (final HttpClientErrorException e) {
-     assertThat(
-          new String(e.getResponseBodyAsByteArray()), containsString("page should be positive or 0")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("page should be positive or 0"));
     }
     try {
-      restTemplate.getForEntity(
-          url("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/commits?size=0"),
-          List.class, "1", "env", "cl", "ns"
-      );
+      restTemplate.getForEntity(url(
+          "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/commits?size=0"),
+          List.class, "1", "env", "cl", "ns");
       fail("should throw");
     } catch (final HttpClientErrorException e) {
-      assertThat(
-          new String(e.getResponseBodyAsByteArray()), containsString("size should be positive number")
-      );
+      assertThat(new String(e.getResponseBodyAsByteArray()),
+          containsString("size should be positive number"));
     }
   }
 }

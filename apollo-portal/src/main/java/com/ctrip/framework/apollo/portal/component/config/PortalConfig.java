@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,26 +43,25 @@ public class PortalConfig extends RefreshableConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(PortalConfig.class);
 
-  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND = 5 * 60; //5min
-  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND = 10; //10s
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND =
+      5 * 60; // 5min
+  private static final int DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND =
+      10; // 10s
 
   private static final Gson GSON = new Gson();
-  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
-  }.getType();
+  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {}.getType();
 
-  private static final List<String> DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST = Arrays.asList(
-      "111", "222", "333", "444", "555", "666", "777", "888", "999", "000",
-      "001122", "112233", "223344", "334455", "445566", "556677", "667788", "778899", "889900",
-      "009988", "998877", "887766", "776655", "665544", "554433", "443322", "332211", "221100",
-      "0123", "1234", "2345", "3456", "4567", "5678", "6789", "7890",
-      "0987", "9876", "8765", "7654", "6543", "5432", "4321", "3210",
-      "1q2w", "2w3e", "3e4r", "5t6y", "abcd", "qwer", "asdf", "zxcv"
-  );
+  private static final List<String> DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST = Arrays.asList("111",
+      "222", "333", "444", "555", "666", "777", "888", "999", "000", "001122", "112233", "223344",
+      "334455", "445566", "556677", "667788", "778899", "889900", "009988", "998877", "887766",
+      "776655", "665544", "554433", "443322", "332211", "221100", "0123", "1234", "2345", "3456",
+      "4567", "5678", "6789", "7890", "0987", "9876", "8765", "7654", "6543", "5432", "4321",
+      "3210", "1q2w", "2w3e", "3e4r", "5t6y", "abcd", "qwer", "asdf", "zxcv");
 
   /**
    * meta servers config in "PortalDB.ServerConfig"
    */
-  private static final Type META_SERVERS = new TypeToken<Map<String, String>>(){}.getType();
+  private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {}.getType();
 
   private final PortalDBPropertySource portalDBPropertySource;
 
@@ -79,7 +78,8 @@ public class PortalConfig extends RefreshableConfig {
    * Level: important
    **/
   public List<Env> portalSupportedEnvs() {
-    String[] configurations = getArrayProperty("apollo.portal.envs", new String[]{"FAT", "UAT", "PRO"});
+    String[] configurations =
+        getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
     List<Env> envs = Lists.newLinkedList();
 
     for (String env : configurations) {
@@ -89,7 +89,9 @@ public class PortalConfig extends RefreshableConfig {
     return envs;
   }
 
-  public int getPerEnvSearchMaxResults() {return getIntProperty("apollo.portal.search.perEnvMaxResults", 200);}
+  public int getPerEnvSearchMaxResults() {
+    return getIntProperty("apollo.portal.search.perEnvMaxResults", 200);
+  }
 
   /**
    * @return the relationship between environment and its meta server. empty if meet exception
@@ -152,7 +154,8 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isConfigViewMemberOnly(String env) {
-    String[] configViewMemberOnlyEnvs = getArrayProperty("configView.memberOnly.envs", new String[0]);
+    String[] configViewMemberOnlyEnvs =
+        getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
       if (memberOnlyEnv.equalsIgnoreCase(env)) {
@@ -189,7 +192,8 @@ public class PortalConfig extends RefreshableConfig {
   public List<Organization> organizations() {
 
     String organizations = getValue("organizations");
-    return organizations == null ? Collections.emptyList() : GSON.fromJson(organizations, ORGANIZATION);
+    return organizations == null ? Collections.emptyList()
+        : GSON.fromJson(organizations, ORGANIZATION);
   }
 
   public String portalAddress() {
@@ -197,19 +201,24 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public int refreshAdminServerAddressTaskNormalIntervalSecond() {
-    int interval = getIntProperty("refresh.admin.server.address.task.normal.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
-    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
+    int interval = getIntProperty("refresh.admin.server.address.task.normal.interval.second",
+        DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE,
+        DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_NORMAL_INTERVAL_IN_SECOND);
   }
 
   public int refreshAdminServerAddressTaskOfflineIntervalSecond() {
-    int interval = getIntProperty("refresh.admin.server.address.task.offline.interval.second", DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
-    return checkInt(interval, 5, Integer.MAX_VALUE, DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
+    int interval = getIntProperty("refresh.admin.server.address.task.offline.interval.second",
+        DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
+    return checkInt(interval, 5, Integer.MAX_VALUE,
+        DEFAULT_REFRESH_ADMIN_SERVER_ADDRESS_TASK_OFFLINE_INTERVAL_IN_SECOND);
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {
     String targetEnv = env.getName();
 
-    String[] emergencyPublishSupportedEnvs = getArrayProperty("emergencyPublish.supported.envs", new String[0]);
+    String[] emergencyPublishSupportedEnvs =
+        getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
     for (String supportedEnv : emergencyPublishSupportedEnvs) {
       if (Objects.equals(targetEnv, supportedEnv.toUpperCase().trim())) {
@@ -309,7 +318,7 @@ public class PortalConfig extends RefreshableConfig {
   public boolean supportSearchByItem() {
     return getBooleanProperty("searchByItem.switch", true);
   }
-  
+
   public List<String> getUserPasswordNotAllowList() {
     String[] value = getArrayProperty("apollo.portal.auth.user-password-not-allow-list", null);
     if (value == null || value.length == 0) {
@@ -322,7 +331,8 @@ public class PortalConfig extends RefreshableConfig {
     if (value >= min && value <= max) {
       return value;
     }
-    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.", value, min, max, defaultValue);
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.",
+        value, min, max, defaultValue);
     return defaultValue;
   }
 }

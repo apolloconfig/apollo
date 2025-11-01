@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,12 +33,9 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = {
-    DataSourceAutoConfiguration.class,
-    DataSourceTransactionManagerAutoConfiguration.class,
-    HibernateJpaAutoConfiguration.class,
-    ApolloAuditAutoConfiguration.class,
-})
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
+    ApolloAuditAutoConfiguration.class,})
 public class ApolloApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplication.class);
@@ -50,7 +47,8 @@ public class ApolloApplication {
     MDC.put("starting_context", "[starting:common] ");
     logger.info("commonContext starting...");
     ConfigurableApplicationContext commonContext =
-        new SpringApplicationBuilder(ApolloApplication.class).web(WebApplicationType.NONE).run(args);
+        new SpringApplicationBuilder(ApolloApplication.class).web(WebApplicationType.NONE)
+            .run(args);
     logger.info("commonContext [{}] isActive: {}", commonContext.getId(), commonContext.isActive());
 
     /**
@@ -60,8 +58,7 @@ public class ApolloApplication {
     logger.info("configContext starting...");
     ConfigurableApplicationContext configContext =
         new SpringApplicationBuilder(ConfigServiceApplication.class).parent(commonContext)
-            .profiles("assembly")
-            .sources(RefreshScope.class).run(args);
+            .profiles("assembly").sources(RefreshScope.class).run(args);
     logger.info("configContext [{}] isActive: {}", configContext.getId(), configContext.isActive());
 
     /**
@@ -71,8 +68,7 @@ public class ApolloApplication {
     logger.info("adminContext starting...");
     ConfigurableApplicationContext adminContext =
         new SpringApplicationBuilder(AdminServiceApplication.class).parent(commonContext)
-            .profiles("assembly")
-            .sources(RefreshScope.class).run(args);
+            .profiles("assembly").sources(RefreshScope.class).run(args);
     logger.info("adminContext [{}] isActive: {}", adminContext.getId(), adminContext.isActive());
 
     /**
@@ -82,8 +78,7 @@ public class ApolloApplication {
     logger.info("portalContext starting...");
     ConfigurableApplicationContext portalContext =
         new SpringApplicationBuilder(PortalApplication.class).parent(commonContext)
-            .profiles("assembly")
-            .sources(RefreshScope.class).run(args);
+            .profiles("assembly").sources(RefreshScope.class).run(args);
     logger.info("portalContext [{}] isActive: {}", portalContext.getId(), portalContext.isActive());
 
     MDC.clear();

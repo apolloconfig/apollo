@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class ApolloAuditScope implements AutoCloseable {
   }
 
   @Override
-  public void close(){
+  public void close() {
     // closing span become parent-scope's last span
     if (hangUp != null) {
       hangUp.setLastSpanId(activeSpan().spanId());

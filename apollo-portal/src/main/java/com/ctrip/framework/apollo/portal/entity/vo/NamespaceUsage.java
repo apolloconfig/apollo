@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,9 @@ public class NamespaceUsage {
   private int linkedNamespaceCount;
 
 
-  public NamespaceUsage() {
-  }
+  public NamespaceUsage() {}
 
-  public NamespaceUsage(String namespaceName, String appId, String clusterName,
-      String envName) {
+  public NamespaceUsage(String namespaceName, String appId, String clusterName, String envName) {
     this.namespaceName = namespaceName;
     this.appId = appId;
     this.clusterName = clusterName;

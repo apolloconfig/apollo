@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,10 +50,8 @@ public class NamespaceAcquireLockAspect {
   private final ItemService itemService;
   private final BizConfig bizConfig;
 
-  public NamespaceAcquireLockAspect(
-      final NamespaceLockService namespaceLockService,
-      final NamespaceService namespaceService,
-      final ItemService itemService,
+  public NamespaceAcquireLockAspect(final NamespaceLockService namespaceLockService,
+      final NamespaceService namespaceService, final ItemService itemService,
       final BizConfig bizConfig) {
     this.namespaceLockService = namespaceLockService;
     this.namespaceService = namespaceService;
@@ -62,39 +60,38 @@ public class NamespaceAcquireLockAspect {
   }
 
 
-  //create item
+  // create item
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
-                                ItemDTO item) {
+      ItemDTO item) {
     acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
   }
 
-  //update item
+  // update item
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
-                                ItemDTO item) {
+      ItemDTO item) {
     acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
   }
 
-  //update by change set
+  // update by change set
   @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
-                                ItemChangeSets changeSet) {
+      ItemChangeSets changeSet) {
     acquireLock(appId, clusterName, namespaceName, changeSet.getDataChangeLastModifiedBy());
   }
 
-  //delete item
+  // delete item
   @Before("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
-    if (item == null){
+    if (item == null) {
       throw BadRequestException.itemNotExists(itemId);
     }
     acquireLock(item.getNamespaceId(), operator);
   }
 
-  void acquireLock(String appId, String clusterName, String namespaceName,
-                           String currentUser) {
+  void acquireLock(String appId, String clusterName, String namespaceName, String currentUser) {
     if (bizConfig.isNamespaceLockSwitchOff()) {
       return;
     }
@@ -126,9 +123,9 @@ public class NamespaceAcquireLockAspect {
     if (namespaceLock == null) {
       try {
         tryLock(namespaceId, currentUser);
-        //lock success
+        // lock success
       } catch (DataIntegrityViolationException e) {
-        //lock fail
+        // lock fail
         namespaceLock = namespaceLockService.findLock(namespaceId);
         checkLock(namespace, namespaceLock, currentUser);
       } catch (Exception e) {
@@ -136,7 +133,7 @@ public class NamespaceAcquireLockAspect {
         throw e;
       }
     } else {
-      //check lock owner is current user
+      // check lock owner is current user
       checkLock(namespace, namespaceLock, currentUser);
     }
   }
@@ -149,8 +146,7 @@ public class NamespaceAcquireLockAspect {
     namespaceLockService.tryLock(lock);
   }
 
-  private void checkLock(Namespace namespace, NamespaceLock namespaceLock,
-                         String currentUser) {
+  private void checkLock(Namespace namespace, NamespaceLock namespaceLock, String currentUser) {
     if (namespaceLock == null) {
       throw new ServiceException(
           String.format("Check lock for %s failed, please retry.", namespace.getNamespaceName()));

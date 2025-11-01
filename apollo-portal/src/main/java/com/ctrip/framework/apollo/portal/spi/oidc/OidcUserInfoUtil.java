@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,8 +54,7 @@ public class OidcUserInfoUtil {
    * @param oidcExtendProperties claimName properties
    * @return userDisplayName
    */
-  public static String getJwtUserDisplayName(Jwt jwt,
-      OidcExtendProperties oidcExtendProperties) {
+  public static String getJwtUserDisplayName(Jwt jwt, OidcExtendProperties oidcExtendProperties) {
     String jwtUserDisplayNameClaimName = oidcExtendProperties.getJwtUserDisplayNameClaimName();
     if (!StringUtils.isBlank(jwtUserDisplayNameClaimName)) {
       return jwt.getClaimAsString(jwtUserDisplayNameClaimName);

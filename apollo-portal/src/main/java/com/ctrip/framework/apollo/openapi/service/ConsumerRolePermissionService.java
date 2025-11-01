@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,7 @@ public class ConsumerRolePermissionService {
   private final ConsumerRoleRepository consumerRoleRepository;
   private final RolePermissionRepository rolePermissionRepository;
 
-  public ConsumerRolePermissionService(
-      final PermissionRepository permissionRepository,
+  public ConsumerRolePermissionService(final PermissionRepository permissionRepository,
       final ConsumerRoleRepository consumerRoleRepository,
       final RolePermissionRepository rolePermissionRepository) {
     this.permissionRepository = permissionRepository;

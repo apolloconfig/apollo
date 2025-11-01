@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface ApolloAuditLogDataInfluenceRepository extends
-    PagingAndSortingRepository<ApolloAuditLogDataInfluence, Long> {
+public interface ApolloAuditLogDataInfluenceRepository
+    extends PagingAndSortingRepository<ApolloAuditLogDataInfluence, Long> {
 
   List<ApolloAuditLogDataInfluence> findBySpanId(String spanId);
 

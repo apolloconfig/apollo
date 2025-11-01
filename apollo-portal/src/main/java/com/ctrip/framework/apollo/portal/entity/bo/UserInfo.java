@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,11 +62,12 @@ public class UserInfo {
   public void setEnabled(int enabled) {
     this.enabled = enabled;
   }
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof UserInfo) {
 
-      if (o == this){
+      if (o == this) {
         return true;
       }
 

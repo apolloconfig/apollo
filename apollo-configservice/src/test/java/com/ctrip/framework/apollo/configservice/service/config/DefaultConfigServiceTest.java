@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,8 +72,8 @@ public class DefaultConfigServiceTest {
     someClientIp = "someClientIp";
     someClientLabel = "someClientLabel";
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(anyString(), anyString(), anyString(),
-        anyString(), anyString(), anyString())).thenReturn(null);
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(anyString(), anyString(),
+        anyString(), anyString(), anyString(), anyString())).thenReturn(null);
   }
 
   @Test
@@ -95,16 +95,18 @@ public class DefaultConfigServiceTest {
     Release grayRelease = mock(Release.class);
     long grayReleaseId = 999;
 
-    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId, someClientIp, someClientLabel,
-        someConfigAppId, someClusterName, defaultNamespaceName)).thenReturn(grayReleaseId);
+    when(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId, someClientIp,
+        someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName))
+        .thenReturn(grayReleaseId);
     when(releaseService.findActiveOne(grayReleaseId)).thenReturn(grayRelease);
 
-    Release release = configService
-        .loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId, someClusterName, defaultNamespaceName, someDataCenter,
-            someNotificationMessages);
+    Release release =
+        configService.loadConfig(someClientAppId, someClientIp, someClientLabel, someConfigAppId,
+            someClusterName, defaultNamespaceName, someDataCenter, someNotificationMessages);
 
     verify(releaseService, times(1)).findActiveOne(grayReleaseId);
-    verify(releaseService, never()).findLatestActiveRelease(someConfigAppId, someClusterName, defaultNamespaceName);
+    verify(releaseService, never()).findLatestActiveRelease(someConfigAppId, someClusterName,
+        defaultNamespaceName);
 
     assertEquals(grayRelease, release);
   }

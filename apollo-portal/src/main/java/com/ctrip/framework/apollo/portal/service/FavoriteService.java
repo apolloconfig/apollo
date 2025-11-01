@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,8 @@ public class FavoriteService {
   private final FavoriteRepository favoriteRepository;
   private final UserService userService;
 
-  public FavoriteService(
-      final UserInfoHolder userInfoHolder,
-      final FavoriteRepository favoriteRepository,
-      final UserService userService) {
+  public FavoriteService(final UserInfoHolder userInfoHolder,
+      final FavoriteRepository favoriteRepository, final UserService userService) {
     this.userInfoHolder = userInfoHolder;
     this.favoriteRepository = favoriteRepository;
     this.userService = userService;
@@ -56,13 +54,14 @@ public class FavoriteService {
     }
 
     UserInfo loginUser = userInfoHolder.getUser();
-    //user can only add himself favorite app
+    // user can only add himself favorite app
     if (!loginUser.equals(user)) {
-      throw new BadRequestException("add favorite fail. "
-                                    + "because favorite's user is not current login user.");
+      throw new BadRequestException(
+          "add favorite fail. " + "because favorite's user is not current login user.");
     }
 
-    Favorite checkedFavorite = favoriteRepository.findByUserIdAndAppId(loginUser.getUserId(), favorite.getAppId());
+    Favorite checkedFavorite =
+        favoriteRepository.findByUserIdAndAppId(loginUser.getUserId(), favorite.getAppId());
     if (checkedFavorite != null) {
       return checkedFavorite;
     }
@@ -85,23 +84,24 @@ public class FavoriteService {
 
     if (!isUserIdEmpty) {
       UserInfo loginUser = userInfoHolder.getUser();
-      //user can only search his own favorite app
+      // user can only search his own favorite app
       if (!Objects.equals(loginUser.getUserId(), userId)) {
         userId = loginUser.getUserId();
       }
     }
 
-    //search by userId
+    // search by userId
     if (isAppIdEmpty && !isUserIdEmpty) {
-      return favoriteRepository.findByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId, page);
+      return favoriteRepository.findByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId,
+          page);
     }
 
-    //search by appId
+    // search by appId
     if (!isAppIdEmpty && isUserIdEmpty) {
       return favoriteRepository.findByAppIdOrderByPositionAscDataChangeCreatedTimeAsc(appId, page);
     }
 
-    //search by userId and appId
+    // search by userId and appId
     return Collections.singletonList(favoriteRepository.findByUserIdAndAppId(userId, appId));
   }
 
@@ -119,7 +119,8 @@ public class FavoriteService {
     checkUserOperatePermission(favorite);
 
     String userId = favorite.getUserId();
-    Favorite firstFavorite = favoriteRepository.findFirstByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId);
+    Favorite firstFavorite =
+        favoriteRepository.findFirstByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId);
     long minPosition = firstFavorite.getPosition();
 
     favorite.setPosition(minPosition - 1);

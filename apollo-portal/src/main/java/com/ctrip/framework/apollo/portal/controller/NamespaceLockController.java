@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,18 +34,22 @@ public class NamespaceLockController {
   }
 
   @Deprecated
-  @GetMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
+  @GetMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
   public NamespaceLockDTO getNamespaceLock(@PathVariable String appId, @PathVariable String env,
-                                           @PathVariable String clusterName, @PathVariable String namespaceName) {
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
 
-    return namespaceLockService.getNamespaceLock(appId, Env.valueOf(env), clusterName, namespaceName);
+    return namespaceLockService.getNamespaceLock(appId, Env.valueOf(env), clusterName,
+        namespaceName);
   }
 
-  @GetMapping(value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/lock-info")
+  @GetMapping(
+      value = "/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/lock-info")
   public LockInfo getNamespaceLockInfo(@PathVariable String appId, @PathVariable String env,
-                                       @PathVariable String clusterName, @PathVariable String namespaceName) {
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
 
-    return namespaceLockService.getNamespaceLockInfo(appId, Env.valueOf(env), clusterName, namespaceName);
+    return namespaceLockService.getNamespaceLockInfo(appId, Env.valueOf(env), clusterName,
+        namespaceName);
 
   }
 

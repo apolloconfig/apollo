@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,52 +40,52 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ConsulDiscoveryServiceTest {
 
-    @Mock
-    private ConsulDiscoveryClient consulDiscoveryClient;
+  @Mock
+  private ConsulDiscoveryClient consulDiscoveryClient;
 
-    private SpringCloudInnerDiscoveryService consulDiscoveryService;
+  private SpringCloudInnerDiscoveryService consulDiscoveryService;
 
-    private String someServiceId;
+  private String someServiceId;
 
-    @Before
-    public void setUp() throws Exception {
-        consulDiscoveryService = new SpringCloudInnerDiscoveryService(consulDiscoveryClient);
-        someServiceId = "someServiceId";
-    }
+  @Before
+  public void setUp() throws Exception {
+    consulDiscoveryService = new SpringCloudInnerDiscoveryService(consulDiscoveryClient);
+    someServiceId = "someServiceId";
+  }
 
-    @Test
+  @Test
     public void testGetServiceInstancesWithNullInstances() {
         when(consulDiscoveryClient.getInstances(someServiceId)).thenReturn(null);
         assertTrue(consulDiscoveryService.getServiceInstances(someServiceId).isEmpty());
     }
 
 
-    @Test
-    public void testGetServiceInstances() {
-        String someIp = "1.2.3.4";
-        int somePort = 8080;
-        String someInstanceId = "someInstanceId";
-        ServiceInstance someServiceInstance = mockServiceInstance(someInstanceId, someIp, somePort);
+  @Test
+  public void testGetServiceInstances() {
+    String someIp = "1.2.3.4";
+    int somePort = 8080;
+    String someInstanceId = "someInstanceId";
+    ServiceInstance someServiceInstance = mockServiceInstance(someInstanceId, someIp, somePort);
 
-        when(consulDiscoveryClient.getInstances(someServiceId)).thenReturn(
-                Lists.newArrayList(someServiceInstance));
+    when(consulDiscoveryClient.getInstances(someServiceId))
+        .thenReturn(Lists.newArrayList(someServiceInstance));
 
-        List<ServiceDTO> serviceDTOList = consulDiscoveryService.getServiceInstances(someServiceId);
-        ServiceDTO serviceDTO = serviceDTOList.get(0);
-        assertEquals(1, serviceDTOList.size());
-        assertEquals(someServiceId, serviceDTO.getAppName());
-        assertEquals("http://1.2.3.4:8080/", serviceDTO.getHomepageUrl());
+    List<ServiceDTO> serviceDTOList = consulDiscoveryService.getServiceInstances(someServiceId);
+    ServiceDTO serviceDTO = serviceDTOList.get(0);
+    assertEquals(1, serviceDTOList.size());
+    assertEquals(someServiceId, serviceDTO.getAppName());
+    assertEquals("http://1.2.3.4:8080/", serviceDTO.getHomepageUrl());
 
-    }
+  }
 
-    private ServiceInstance mockServiceInstance(String instanceId, String ip, int port) {
-        ServiceInstance serviceInstance = mock(ServiceInstance.class);
-        when(serviceInstance.getInstanceId()).thenReturn(instanceId);
-        when(serviceInstance.getHost()).thenReturn(ip);
-        when(serviceInstance.getPort()).thenReturn(port);
+  private ServiceInstance mockServiceInstance(String instanceId, String ip, int port) {
+    ServiceInstance serviceInstance = mock(ServiceInstance.class);
+    when(serviceInstance.getInstanceId()).thenReturn(instanceId);
+    when(serviceInstance.getHost()).thenReturn(ip);
+    when(serviceInstance.getPort()).thenReturn(port);
 
-        return serviceInstance;
-    }
+    return serviceInstance;
+  }
 
 
 }

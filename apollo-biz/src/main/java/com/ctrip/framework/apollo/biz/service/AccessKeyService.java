@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,7 @@ public class AccessKeyService {
   private final AccessKeyRepository accessKeyRepository;
   private final AuditService auditService;
 
-  public AccessKeyService(
-      AccessKeyRepository accessKeyRepository,
-      AuditService auditService) {
+  public AccessKeyService(AccessKeyRepository accessKeyRepository, AuditService auditService) {
     this.accessKeyRepository = accessKeyRepository;
     this.auditService = auditService;
   }

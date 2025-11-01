@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ public class EntityPair<E> {
   private E firstEntity;
   private E secondEntity;
 
-  public EntityPair(E firstEntity, E secondEntity){
+  public EntityPair(E firstEntity, E secondEntity) {
     this.firstEntity = firstEntity;
     this.secondEntity = secondEntity;
   }

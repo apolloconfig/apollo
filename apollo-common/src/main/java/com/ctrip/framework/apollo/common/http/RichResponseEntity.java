@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package com.ctrip.framework.apollo.common.http;
 
 import org.springframework.http.HttpStatus;
 
-public class RichResponseEntity<T>{
+public class RichResponseEntity<T> {
 
   private int code;
   private Object message;
   private T body;
 
-  public static <T> RichResponseEntity<T> ok(T body){
+  public static <T> RichResponseEntity<T> ok(T body) {
     RichResponseEntity<T> richResponseEntity = new RichResponseEntity<>();
     richResponseEntity.message = HttpStatus.OK.getReasonPhrase();
     richResponseEntity.code = HttpStatus.OK.value();
@@ -32,7 +32,7 @@ public class RichResponseEntity<T>{
     return richResponseEntity;
   }
 
-  public static <T> RichResponseEntity<T> error(HttpStatus httpCode, Object message){
+  public static <T> RichResponseEntity<T> error(HttpStatus httpCode, Object message) {
     RichResponseEntity<T> richResponseEntity = new RichResponseEntity<>();
     richResponseEntity.message = message;
     richResponseEntity.code = httpCode.value();

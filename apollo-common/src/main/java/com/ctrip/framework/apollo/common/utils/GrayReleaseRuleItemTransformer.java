@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,8 @@ import java.util.Set;
  */
 public class GrayReleaseRuleItemTransformer {
   private static final Gson gson = new Gson();
-  private static final Type grayReleaseRuleItemsType = new TypeToken<Set<GrayReleaseRuleItemDTO>>() {
-  }.getType();
+  private static final Type grayReleaseRuleItemsType =
+      new TypeToken<Set<GrayReleaseRuleItemDTO>>() {}.getType();
 
   public static Set<GrayReleaseRuleItemDTO> batchTransformFromJSON(String content) {
     return gson.fromJson(content, grayReleaseRuleItemsType);

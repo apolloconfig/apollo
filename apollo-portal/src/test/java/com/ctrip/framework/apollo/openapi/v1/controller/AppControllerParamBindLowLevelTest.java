@@ -67,28 +67,46 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @AutoConfigureMockMvc(addFilters = false)
 public class AppControllerParamBindLowLevelTest {
 
-  @Autowired private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
   // Keep the same mocks as your working test to satisfy context wiring
   @MockBean(name = "unifiedPermissionValidator")
   private UnifiedPermissionValidator unifiedPermissionValidator;
-  @MockBean private PortalSettings portalSettings;
-  @MockBean private AppService appService;
-  @MockBean private ClusterService clusterService;
-  @MockBean private ConsumerAuthUtil consumerAuthUtil;
-  @MockBean private PermissionRepository permissionRepository;
-  @MockBean private AppOpenApiService appOpenApiService;
-  @MockBean private ConsumerService consumerService;
-  @MockBean private RolePermissionRepository rolePermissionRepository;
-  @MockBean private UserInfoHolder userInfoHolder;
-  @MockBean private ConsumerTokenRepository consumerTokenRepository;
-  @MockBean private ConsumerRepository consumerRepository;
-  @MockBean private ConsumerAuditRepository consumerAuditRepository;
-  @MockBean private ConsumerRoleRepository consumerRoleRepository;
-  @MockBean private RolePermissionService rolePermissionService;
-  @MockBean private UserService userService;
-  @MockBean private RoleRepository roleRepository;
-  @MockBean private RoleInitializationService roleInitializationService;
+  @MockBean
+  private PortalSettings portalSettings;
+  @MockBean
+  private AppService appService;
+  @MockBean
+  private ClusterService clusterService;
+  @MockBean
+  private ConsumerAuthUtil consumerAuthUtil;
+  @MockBean
+  private PermissionRepository permissionRepository;
+  @MockBean
+  private AppOpenApiService appOpenApiService;
+  @MockBean
+  private ConsumerService consumerService;
+  @MockBean
+  private RolePermissionRepository rolePermissionRepository;
+  @MockBean
+  private UserInfoHolder userInfoHolder;
+  @MockBean
+  private ConsumerTokenRepository consumerTokenRepository;
+  @MockBean
+  private ConsumerRepository consumerRepository;
+  @MockBean
+  private ConsumerAuditRepository consumerAuditRepository;
+  @MockBean
+  private ConsumerRoleRepository consumerRoleRepository;
+  @MockBean
+  private RolePermissionService rolePermissionService;
+  @MockBean
+  private UserService userService;
+  @MockBean
+  private RoleRepository roleRepository;
+  @MockBean
+  private RoleInitializationService roleInitializationService;
 
   private final Gson gson = new Gson();
 
@@ -104,13 +122,13 @@ public class AppControllerParamBindLowLevelTest {
 
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
   }
+
   @Before
   public void setAuthentication() {
     // put a dummy Authentication into SecurityContext so @PreAuthorize won't fail
     SecurityContextHolder.clearContext();
     SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(
-                    "tester", "N/A", AuthorityUtils.NO_AUTHORITIES));
+        new UsernamePasswordAuthenticationToken("tester", "N/A", AuthorityUtils.NO_AUTHORITIES));
   }
 
   @After
@@ -118,6 +136,7 @@ public class AppControllerParamBindLowLevelTest {
     SecurityContextHolder.clearContext();
     UserIdentityContextHolder.clear();
   }
+
   @Test
   public void createAppInEnv_shouldBind_env_query_body() throws Exception {
     OpenAppDTO dto = new OpenAppDTO();
@@ -129,17 +148,16 @@ public class AppControllerParamBindLowLevelTest {
     dto.setOrgName("Org");
 
     // Adjust URL here if your mapping is different
-    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV")
-                    .param("operator", "bob")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(gson.toJson(dto)))
-            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV").param("operator", "bob")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     ArgumentCaptor<String> envCap = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<OpenAppDTO> dtoCap = ArgumentCaptor.forClass(OpenAppDTO.class);
     ArgumentCaptor<String> opCap = ArgumentCaptor.forClass(String.class);
 
-    verify(appOpenApiService, times(1)).createAppInEnv(envCap.capture(), dtoCap.capture(), opCap.capture());
+    verify(appOpenApiService, times(1)).createAppInEnv(envCap.capture(), dtoCap.capture(),
+        opCap.capture());
     assertThat(envCap.getValue()).isEqualTo("DEV");
     assertThat(opCap.getValue()).isEqualTo("bob");
     assertThat(dtoCap.getValue().getAppId()).isEqualTo("demo");
@@ -153,19 +171,18 @@ public class AppControllerParamBindLowLevelTest {
     authorizedAppIds.add("app1");
     authorizedAppIds.add("app2");
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(consumerId);
-    when(consumerService.findAppIdsAuthorizedByConsumerId(consumerId))
-            .thenReturn(authorizedAppIds);
+    when(consumerService.findAppIdsAuthorizedByConsumerId(consumerId)).thenReturn(authorizedAppIds);
 
-    mockMvc.perform(get("/openapi/v1/apps/by-self")
-                    .param("page", "0")
-                    .param("size", "10"))
-            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+    mockMvc.perform(get("/openapi/v1/apps/by-self").param("page", "0").param("size", "10"))
+        .andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     ArgumentCaptor<Set> idsCap = ArgumentCaptor.forClass(Set.class);
     ArgumentCaptor<Integer> pageCap = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> sizeCap = ArgumentCaptor.forClass(Integer.class);
 
-    verify(appOpenApiService, times(1)).getAppsBySelf(idsCap.capture(), pageCap.capture(), sizeCap.capture());
+    verify(appOpenApiService, times(1)).getAppsBySelf(idsCap.capture(), pageCap.capture(),
+        sizeCap.capture());
     assertThat(idsCap.getValue()).containsExactlyInAnyOrder("app1", "app2");
     assertThat(pageCap.getValue()).isEqualTo(0);
     assertThat(sizeCap.getValue()).isEqualTo(10);
@@ -179,11 +196,9 @@ public class AppControllerParamBindLowLevelTest {
 
     doNothing().when(appOpenApiService).updateApp(any(OpenAppDTO.class));
 
-    mockMvc.perform(put("/openapi/v1/apps/{appId}", "app-1")
-                    .param("operator", "david")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(gson.toJson(dto)))
-            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+    mockMvc.perform(put("/openapi/v1/apps/{appId}", "app-1").param("operator", "david")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     ArgumentCaptor<OpenAppDTO> dtoCap = ArgumentCaptor.forClass(OpenAppDTO.class);
     verify(appOpenApiService, times(1)).updateApp(dtoCap.capture());

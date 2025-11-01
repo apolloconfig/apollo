@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,14 +44,13 @@ public class ApolloAuditSpanAspect {
   }
 
   @Pointcut("@annotation(auditLog)")
-  public void setAuditSpan(ApolloAuditLog auditLog) {
-  }
+  public void setAuditSpan(ApolloAuditLog auditLog) {}
 
   @Around(value = "setAuditSpan(auditLog)")
   public Object around(ProceedingJoinPoint pjp, ApolloAuditLog auditLog) throws Throwable {
     String opName = auditLog.name();
-    try (AutoCloseable scope = api.appendAuditLog(auditLog.type(), opName,
-        auditLog.description())) {
+    try (
+        AutoCloseable scope = api.appendAuditLog(auditLog.type(), opName, auditLog.description())) {
       Object proceed = pjp.proceed();
       auditDataInfluenceArg(pjp);
       return proceed;
@@ -115,11 +114,13 @@ public class ApolloAuditSpanAspect {
     if (arg instanceof Collection) {
       for (Object o : (Collection<?>) arg) {
         String matchedValue = String.valueOf(o);
-        api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName, matchedValue);
+        api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName,
+            matchedValue);
       }
     } else {
       String matchedValue = String.valueOf(arg);
-      api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName, matchedValue);
+      api.appendDataInfluence(entityName, ApolloAuditConstants.ANY_MATCHED_ID, fieldName,
+          matchedValue);
     }
   }
 }

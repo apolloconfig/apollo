@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,21 +67,22 @@ public class BizDBPropertySourceTest extends AbstractUnitTest {
 
     List<ServerConfig> configs = Lists.newLinkedList();
 
-    //cluster config
+    // cluster config
     String cluster = "cluster";
     configs.add(MockBeanFactory.mockServerConfig(clusterConfigKey, clusterConfigValue, cluster));
     String dc = "dc";
     configs.add(MockBeanFactory.mockServerConfig(clusterConfigKey, clusterConfigValue + "dc", dc));
-    configs.add(MockBeanFactory.mockServerConfig(clusterConfigKey, clusterConfigValue + ConfigConsts.CLUSTER_NAME_DEFAULT,
-                                   ConfigConsts.CLUSTER_NAME_DEFAULT));
+    configs.add(MockBeanFactory.mockServerConfig(clusterConfigKey,
+        clusterConfigValue + ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.CLUSTER_NAME_DEFAULT));
 
-    //dc config
+    // dc config
     configs.add(MockBeanFactory.mockServerConfig(dcConfigKey, dcConfigValue, dc));
-    configs.add(MockBeanFactory.mockServerConfig(dcConfigKey, dcConfigValue + ConfigConsts.CLUSTER_NAME_DEFAULT,
-                                   ConfigConsts.CLUSTER_NAME_DEFAULT));
+    configs.add(MockBeanFactory.mockServerConfig(dcConfigKey,
+        dcConfigValue + ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.CLUSTER_NAME_DEFAULT));
 
-    //default config
-    configs.add(MockBeanFactory.mockServerConfig(defaultKey, defaultValue, ConfigConsts.CLUSTER_NAME_DEFAULT));
+    // default config
+    configs.add(MockBeanFactory.mockServerConfig(defaultKey, defaultValue,
+        ConfigConsts.CLUSTER_NAME_DEFAULT));
 
     System.setProperty(ConfigConsts.APOLLO_CLUSTER_KEY, cluster);
 

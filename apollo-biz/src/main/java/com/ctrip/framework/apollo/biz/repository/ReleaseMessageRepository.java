@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,5 +38,6 @@ public interface ReleaseMessageRepository extends PagingAndSortingRepository<Rel
   List<ReleaseMessage> findFirst100ByMessageAndIdLessThanOrderByIdAsc(String message, Long id);
 
   @Query("select message, max(id) as id from ReleaseMessage where message in :messages group by message")
-  List<Object[]> findLatestReleaseMessagesGroupByMessages(@Param("messages") Collection<String> messages);
+  List<Object[]> findLatestReleaseMessagesGroupByMessages(
+      @Param("messages") Collection<String> messages);
 }

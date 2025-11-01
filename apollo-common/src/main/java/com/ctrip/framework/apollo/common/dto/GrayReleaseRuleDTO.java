@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,8 @@ public class GrayReleaseRuleDTO extends BaseDTO {
 
   private Long releaseId;
 
-  public GrayReleaseRuleDTO(String appId, String clusterName, String namespaceName, String branchName) {
+  public GrayReleaseRuleDTO(String appId, String clusterName, String namespaceName,
+      String branchName) {
     this.appId = appId;
     this.clusterName = clusterName;
     this.namespaceName = namespaceName;
@@ -79,4 +80,3 @@ public class GrayReleaseRuleDTO extends BaseDTO {
     this.releaseId = releaseId;
   }
 }
-

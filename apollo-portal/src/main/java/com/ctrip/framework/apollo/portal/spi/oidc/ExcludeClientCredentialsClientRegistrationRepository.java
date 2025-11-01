@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 /**
  * @author vdisk <vdisk@foxmail.com>
  */
-public class ExcludeClientCredentialsClientRegistrationRepository implements
-    ClientRegistrationRepository, Iterable<ClientRegistration> {
+public class ExcludeClientCredentialsClientRegistrationRepository
+    implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 
   /**
    * origin clientRegistrationRepository

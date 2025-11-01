@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,13 +57,9 @@ public class AdminServiceAddressLocator {
   private final PortalMetaDomainService portalMetaDomainService;
   private final PortalConfig portalConfig;
 
-  public AdminServiceAddressLocator(
-      final HttpMessageConverters httpMessageConverters,
-      final PortalSettings portalSettings,
-      final RestTemplateFactory restTemplateFactory,
-      final PortalMetaDomainService portalMetaDomainService,
-      final PortalConfig portalConfig
-  ) {
+  public AdminServiceAddressLocator(final HttpMessageConverters httpMessageConverters,
+      final PortalSettings portalSettings, final RestTemplateFactory restTemplateFactory,
+      final PortalMetaDomainService portalMetaDomainService, final PortalConfig portalConfig) {
     this.portalSettings = portalSettings;
     this.restTemplateFactory = restTemplateFactory;
     this.portalMetaDomainService = portalMetaDomainService;
@@ -74,13 +70,14 @@ public class AdminServiceAddressLocator {
   public void init() {
     allEnvs = portalSettings.getAllEnvs();
 
-    //init restTemplate
+    // init restTemplate
     restTemplate = restTemplateFactory.getObject();
 
     refreshServiceAddressService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ServiceLocator", true));
 
-    refreshServiceAddressService.schedule(new RefreshAdminServerAddressTask(), 1, TimeUnit.MILLISECONDS);
+    refreshServiceAddressService.schedule(new RefreshAdminServerAddressTask(), 1,
+        TimeUnit.MILLISECONDS);
   }
 
   public List<ServiceDTO> getServiceList(Env env) {
@@ -93,24 +90,24 @@ public class AdminServiceAddressLocator {
     return randomConfigServices;
   }
 
-  //maintain admin server address
+  // maintain admin server address
   private class RefreshAdminServerAddressTask implements Runnable {
 
     @Override
     public void run() {
       boolean refreshSuccess = true;
-      //refresh fail if get any env address fail
+      // refresh fail if get any env address fail
       for (Env env : allEnvs) {
         boolean currentEnvRefreshResult = refreshServerAddressCache(env);
         refreshSuccess = refreshSuccess && currentEnvRefreshResult;
       }
 
       if (refreshSuccess) {
-        refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskNormalIntervalSecond(), TimeUnit.SECONDS);
+        refreshServiceAddressService.schedule(new RefreshAdminServerAddressTask(),
+            portalConfig.refreshAdminServerAddressTaskNormalIntervalSecond(), TimeUnit.SECONDS);
       } else {
-        refreshServiceAddressService
-            .schedule(new RefreshAdminServerAddressTask(), portalConfig.refreshAdminServerAddressTaskOfflineIntervalSecond(), TimeUnit.SECONDS);
+        refreshServiceAddressService.schedule(new RefreshAdminServerAddressTask(),
+            portalConfig.refreshAdminServerAddressTaskOfflineIntervalSecond(), TimeUnit.SECONDS);
       }
     }
   }
@@ -127,11 +124,12 @@ public class AdminServiceAddressLocator {
         cache.put(env, Arrays.asList(services));
         return true;
       } catch (Throwable e) {
-        logger.error(String.format("Get admin server address from meta server failed. env: %s, meta server address:%s",
-                                   env, portalMetaDomainService.getDomain(env)), e);
-        Tracer
-            .logError(String.format("Get admin server address from meta server failed. env: %s, meta server address:%s",
-                                    env, portalMetaDomainService.getDomain(env)), e);
+        logger.error(String.format(
+            "Get admin server address from meta server failed. env: %s, meta server address:%s",
+            env, portalMetaDomainService.getDomain(env)), e);
+        Tracer.logError(String.format(
+            "Get admin server address from meta server failed. env: %s, meta server address:%s",
+            env, portalMetaDomainService.getDomain(env)), e);
       }
     }
     return false;

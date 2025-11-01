@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,7 +193,8 @@ public class ClientAuthenticationFilterTest {
 
   private void verifySuccessAndDoFilter() throws Exception {
     verify(response, never()).sendError(HttpServletResponse.SC_BAD_REQUEST, "InvalidAppId");
-    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "RequestTimeTooSkewed");
+    verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED,
+        "RequestTimeTooSkewed");
     verify(response, never()).sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
     verify(filterChain, times(1)).doFilter(request, response);
   }

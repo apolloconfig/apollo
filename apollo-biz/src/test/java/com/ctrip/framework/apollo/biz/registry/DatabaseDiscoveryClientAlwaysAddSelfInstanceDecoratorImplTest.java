@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,71 +31,50 @@ class DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImplTest {
   void getInstances_other_service_name() {
     final String otherServiceName = "other-service";
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances(otherServiceName))
-        .thenReturn(
-            Collections.singletonList(
-                newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")
-            )
-        );
+    Mockito.when(client.getInstances(otherServiceName)).thenReturn(Collections.singletonList(
+        newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")));
 
     final String selfServiceName = "self-service";
-    ServiceInstance selfInstance = newServiceInstance(
-        selfServiceName, "http://10.240.34.56:8081/", "beijing"
-    );
+    ServiceInstance selfInstance =
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8081/", "beijing");
 
-    DatabaseDiscoveryClient decorator = new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
-        client, selfInstance
-    );
+    DatabaseDiscoveryClient decorator =
+        new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(client, selfInstance);
 
     List<ServiceInstance> serviceInstances = decorator.getInstances(otherServiceName);
     assertEquals(1, serviceInstances.size());
     ServiceInstance otherServiceNameInstance = serviceInstances.get(0);
     assertEquals(otherServiceName, otherServiceNameInstance.getServiceName());
 
-    Mockito.verify(client, Mockito.times(1))
-        .getInstances(Mockito.eq(otherServiceName));
+    Mockito.verify(client, Mockito.times(1)).getInstances(Mockito.eq(otherServiceName));
 
-    Mockito.verify(client, Mockito.never())
-        .getInstances(Mockito.eq(selfServiceName));
+    Mockito.verify(client, Mockito.never()).getInstances(Mockito.eq(selfServiceName));
   }
 
   @Test
   void getInstances_contain_self() {
     final String otherServiceName = "other-service";
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances(otherServiceName))
-        .thenReturn(
-            Collections.singletonList(
-                newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")
-            )
-        );
+    Mockito.when(client.getInstances(otherServiceName)).thenReturn(Collections.singletonList(
+        newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")));
 
     final String selfServiceName = "self-service";
-    ServiceInstance selfInstance = newServiceInstance(
-        selfServiceName, "http://10.240.34.56:8081/", "beijing"
-    );
-    Mockito.when(client.getInstances(selfServiceName))
-        .thenReturn(
-            Arrays.asList(
-                selfInstance,
-                // same service name but different service instance
-                newServiceInstance(selfServiceName, "http://10.240.34.56:8082/", "beijing"),
-                newServiceInstance(selfServiceName, "http://10.240.34.56:8083/", "beijing")
-            )
-        );
+    ServiceInstance selfInstance =
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8081/", "beijing");
+    Mockito.when(client.getInstances(selfServiceName)).thenReturn(Arrays.asList(selfInstance,
+        // same service name but different service instance
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8082/", "beijing"),
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8083/", "beijing")));
 
-    DatabaseDiscoveryClient decorator = new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
-        client, selfInstance
-    );
+    DatabaseDiscoveryClient decorator =
+        new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(client, selfInstance);
 
     List<ServiceInstance> serviceInstances = decorator.getInstances(selfServiceName);
     assertEquals(3, serviceInstances.size());
 
-    Mockito.verify(client, Mockito.times(1))
-        .getInstances(Mockito.eq(selfServiceName));
+    Mockito.verify(client, Mockito.times(1)).getInstances(Mockito.eq(selfServiceName));
 
-    Mockito.verify(client, Mockito.never())
-        .getInstances(Mockito.eq(otherServiceName));
+    Mockito.verify(client, Mockito.never()).getInstances(Mockito.eq(otherServiceName));
   }
 
   /**
@@ -105,39 +84,27 @@ class DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImplTest {
   void getInstances_same_service_name_without_self() {
     final String otherServiceName = "other-service";
     DatabaseDiscoveryClient client = Mockito.mock(DatabaseDiscoveryClient.class);
-    Mockito.when(client.getInstances(otherServiceName))
-        .thenReturn(
-            Collections.singletonList(
-                newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")
-            )
-        );
+    Mockito.when(client.getInstances(otherServiceName)).thenReturn(Collections.singletonList(
+        newServiceInstance(otherServiceName, "http://10.240.34.56:8081/", "beijing")));
 
     final String selfServiceName = "self-service";
-    ServiceInstance selfInstance = newServiceInstance(
-        selfServiceName, "http://10.240.34.56:8081/", "beijing"
-    );
-    Mockito.when(client.getInstances(selfServiceName))
-        .thenReturn(
-            Arrays.asList(
-                // same service name but different service instance
-                newServiceInstance(selfServiceName, "http://10.240.34.56:8082/", "beijing"),
-                newServiceInstance(selfServiceName, "http://10.240.34.56:8083/", "beijing")
-            )
-        );
+    ServiceInstance selfInstance =
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8081/", "beijing");
+    Mockito.when(client.getInstances(selfServiceName)).thenReturn(Arrays.asList(
+        // same service name but different service instance
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8082/", "beijing"),
+        newServiceInstance(selfServiceName, "http://10.240.34.56:8083/", "beijing")));
 
-    DatabaseDiscoveryClient decorator = new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(
-        client, selfInstance
-    );
+    DatabaseDiscoveryClient decorator =
+        new DatabaseDiscoveryClientAlwaysAddSelfInstanceDecoratorImpl(client, selfInstance);
 
     List<ServiceInstance> serviceInstances = decorator.getInstances(selfServiceName);
     // because mocked data don't contain self instance
     // after add self instance, there are 3 instances now
     assertEquals(3, serviceInstances.size());
 
-    Mockito.verify(client, Mockito.times(1))
-        .getInstances(Mockito.eq(selfServiceName));
+    Mockito.verify(client, Mockito.times(1)).getInstances(Mockito.eq(selfServiceName));
 
-    Mockito.verify(client, Mockito.never())
-        .getInstances(Mockito.eq(otherServiceName));
+    Mockito.verify(client, Mockito.never()).getInstances(Mockito.eq(otherServiceName));
   }
 }

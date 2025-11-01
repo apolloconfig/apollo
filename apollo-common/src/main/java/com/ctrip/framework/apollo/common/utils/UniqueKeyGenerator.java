@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class UniqueKeyGenerator {
 
-  private static final FastDateFormat TIMESTAMP_FORMAT = FastDateFormat.getInstance("yyyyMMddHHmmss");
+  private static final FastDateFormat TIMESTAMP_FORMAT =
+      FastDateFormat.getInstance("yyyyMMddHHmmss");
   private static final AtomicInteger counter = new AtomicInteger(new SecureRandom().nextInt());
   private static final Joiner KEY_JOINER = Joiner.on("-");
 
-  public static String generate(Object... args){
-    String hexIdString =
-        ByteUtil.toHexString(toByteArray(Objects.hash(args), MachineUtil.getMachineIdentifier(),
-                                         counter.incrementAndGet()));
+  public static String generate(Object... args) {
+    String hexIdString = ByteUtil.toHexString(toByteArray(Objects.hash(args),
+        MachineUtil.getMachineIdentifier(), counter.incrementAndGet()));
 
     return KEY_JOINER.join(TIMESTAMP_FORMAT.format(new Date()), hexIdString);
 

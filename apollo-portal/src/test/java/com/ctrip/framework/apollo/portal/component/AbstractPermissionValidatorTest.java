@@ -35,239 +35,243 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractPermissionValidatorTest {
 
-    @Mock
-    private AppNamespace appNamespace;
+  @Mock
+  private AppNamespace appNamespace;
 
-    private AbstractPermissionValidator permissionValidator;
+  private AbstractPermissionValidator permissionValidator;
 
-    @Before
-    public void setUp() {
-        permissionValidator = new AbstractPermissionValidatorImpl();
+  @Before
+  public void setUp() {
+    permissionValidator = new AbstractPermissionValidatorImpl();
+  }
+
+  @Test
+  public void testHasModifyNamespacePermission_WhenNoPermission() {
+    String appId = "testApp";
+    String env = "DEV";
+    String clusterName = "default";
+    String namespaceName = "application";
+    assertFalse(
+        permissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName));
+  }
+
+  @Test
+  public void testHasReleaseNamespacePermission_WhenNoPermission() {
+    String appId = "testApp";
+    String env = "DEV";
+    String clusterName = "default";
+    String namespaceName = "application";
+    assertFalse(
+        permissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName));
+  }
+
+  @Test
+  public void testHasAssignRolePermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasAssignRolePermission("testApp"));
+  }
+
+  @Test
+  public void testHasCreateNamespacePermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasCreateNamespacePermission("testApp"));
+  }
+
+  @Test
+  public void testHasCreateAppNamespacePermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasCreateAppNamespacePermission("testApp", appNamespace));
+  }
+
+  @Test
+  public void testHasCreateClusterPermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasCreateClusterPermission("testApp"));
+  }
+
+  @Test
+  public void testIsSuperAdmin_WhenNoPermission() {
+    assertFalse(permissionValidator.isSuperAdmin());
+  }
+
+  @Test
+  public void testShouldHideConfigToCurrentUser_WhenNoPermission() {
+    assertFalse(permissionValidator.shouldHideConfigToCurrentUser("testApp", "DEV", "default",
+        "application"));
+  }
+
+  @Test
+  public void testHasCreateApplicationPermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasCreateApplicationPermission());
+  }
+
+  @Test
+  public void testHasManageAppMasterPermission_WhenNoPermission() {
+    assertFalse(permissionValidator.hasManageAppMasterPermission("testApp"));
+  }
+
+  @Test
+  public void testHasModifyNamespacePermission_WhenWithPermission() {
+    String appId = "testApp";
+    String env = "DEV";
+    String clusterName = "default";
+    String namespaceName = "application";
+
+    List<Permission> granted = Arrays.asList(
+        new Permission(PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+        new Permission(PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+        new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
+            RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName));
+  }
+
+  @Test
+  public void testHasReleaseNamespacePermission_WhenWithPermission() {
+    String appId = "testApp";
+    String env = "DEV";
+    String clusterName = "default";
+    String namespaceName = "application";
+
+    List<Permission> granted = Arrays.asList(
+        new Permission(PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+        new Permission(PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+        new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
+            RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName));
+  }
+
+  @Test
+  public void testHasAssignRolePermission_WhenWithPermission() {
+    String appId = "testApp";
+    List<Permission> granted =
+        Collections.singletonList(new Permission(PermissionType.ASSIGN_ROLE, appId));
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasAssignRolePermission(appId));
+  }
+
+  @Test
+  public void testHasCreateNamespacePermission_WhenWithPermission() {
+    String appId = "testApp";
+    List<Permission> granted =
+        Collections.singletonList(new Permission(PermissionType.CREATE_NAMESPACE, appId));
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasCreateNamespacePermission(appId));
+  }
+
+  @Test
+  public void testHasCreateClusterPermission_WhenWithPermission() {
+    String appId = "testApp";
+    List<Permission> granted =
+        Collections.singletonList(new Permission(PermissionType.CREATE_CLUSTER, appId));
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasCreateClusterPermission(appId));
+  }
+
+  @Test
+  public void testShouldHideConfigToCurrentUser_WhenWithPermission() {
+    String appId = "testApp";
+    String env = "DEV";
+    String clusterName = "default";
+    String namespaceName = "application";
+
+    List<Permission> granted = Arrays.asList(
+        new Permission(PermissionType.MODIFY_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
+        new Permission(PermissionType.RELEASE_NAMESPACE,
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName)));
+
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertFalse(validator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName));
+  }
+
+  @Test
+  public void testHasManageAppMasterPermission_WhenWithPermission() {
+    String appId = "testApp";
+    List<Permission> granted =
+        Collections.singletonList(new Permission(PermissionType.MANAGE_APP_MASTER, appId));
+    AbstractPermissionValidator validator =
+        new AbstractPermissionValidatorWithPermissionsImpl(granted);
+    assertTrue(validator.hasManageAppMasterPermission(appId));
+  }
+
+  private static class AbstractPermissionValidatorImpl extends AbstractPermissionValidator {
+    @Override
+    public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+      return false;
     }
 
-    @Test
-    public void testHasModifyNamespacePermission_WhenNoPermission() {
-        String appId = "testApp";
-        String env = "DEV";
-        String clusterName = "default";
-        String namespaceName = "application";
-        assertFalse(permissionValidator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName));
+    @Override
+    public boolean isSuperAdmin() {
+      return false;
     }
 
-    @Test
-    public void testHasReleaseNamespacePermission_WhenNoPermission() {
-        String appId = "testApp";
-        String env = "DEV";
-        String clusterName = "default";
-        String namespaceName = "application";
-        assertFalse(permissionValidator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName));
+    @Override
+    public boolean hasCreateApplicationPermission() {
+      return false;
     }
 
-    @Test
-    public void testHasAssignRolePermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasAssignRolePermission("testApp"));
+    @Override
+    public boolean hasManageAppMasterPermission(String appId) {
+      return false;
     }
 
-    @Test
-    public void testHasCreateNamespacePermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasCreateNamespacePermission("testApp"));
+    @Override
+    protected boolean hasPermissions(List<Permission> requiredPerms) {
+      return false;
     }
 
-    @Test
-    public void testHasCreateAppNamespacePermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasCreateAppNamespacePermission("testApp", appNamespace));
+    @Override
+    public boolean hasCreateApplicationPermission(String userId) {
+      return false;
+    }
+  }
+
+  private static class AbstractPermissionValidatorWithPermissionsImpl
+      extends AbstractPermissionValidator {
+    private final List<Permission> allowed;
+
+    AbstractPermissionValidatorWithPermissionsImpl(List<Permission> allowed) {
+      this.allowed = allowed;
     }
 
-    @Test
-    public void testHasCreateClusterPermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasCreateClusterPermission("testApp"));
+    @Override
+    public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+      return true;
     }
 
-    @Test
-    public void testIsSuperAdmin_WhenNoPermission() {
-        assertFalse(permissionValidator.isSuperAdmin());
+    @Override
+    public boolean isSuperAdmin() {
+      return true;
     }
 
-    @Test
-    public void testShouldHideConfigToCurrentUser_WhenNoPermission() {
-        assertFalse(permissionValidator.shouldHideConfigToCurrentUser("testApp", "DEV", "default", "application"));
+    @Override
+    public boolean hasCreateApplicationPermission() {
+      return true;
     }
 
-    @Test
-    public void testHasCreateApplicationPermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasCreateApplicationPermission());
+    @Override
+    public boolean hasManageAppMasterPermission(String appId) {
+      return true;
     }
 
-    @Test
-    public void testHasManageAppMasterPermission_WhenNoPermission() {
-        assertFalse(permissionValidator.hasManageAppMasterPermission("testApp"));
+    @Override
+    protected boolean hasPermissions(List<Permission> requiredPerms) {
+      return requiredPerms.stream().anyMatch(allowed::contains);
     }
 
-    @Test
-    public void testHasModifyNamespacePermission_WhenWithPermission() {
-        String appId = "testApp";
-        String env = "DEV";
-        String clusterName = "default";
-        String namespaceName = "application";
-
-        List<Permission> granted = Arrays.asList(
-                new Permission(PermissionType.MODIFY_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-                new Permission(PermissionType.MODIFY_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
-                new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
-                        RoleUtils.buildClusterTargetId(appId, env, clusterName))
-        );
-
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasModifyNamespacePermission(appId, env, clusterName, namespaceName));
+    @Override
+    public boolean hasCreateApplicationPermission(String userId) {
+      return true;
     }
-
-    @Test
-    public void testHasReleaseNamespacePermission_WhenWithPermission() {
-        String appId = "testApp";
-        String env = "DEV";
-        String clusterName = "default";
-        String namespaceName = "application";
-
-        List<Permission> granted = Arrays.asList(
-                new Permission(PermissionType.RELEASE_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-                new Permission(PermissionType.RELEASE_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
-                new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
-                        RoleUtils.buildClusterTargetId(appId, env, clusterName))
-        );
-
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName));
-    }
-
-    @Test
-    public void testHasAssignRolePermission_WhenWithPermission() {
-        String appId = "testApp";
-        List<Permission> granted = Collections.singletonList(
-                new Permission(PermissionType.ASSIGN_ROLE, appId)
-        );
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasAssignRolePermission(appId));
-    }
-
-    @Test
-    public void testHasCreateNamespacePermission_WhenWithPermission() {
-        String appId = "testApp";
-        List<Permission> granted = Collections.singletonList(
-                new Permission(PermissionType.CREATE_NAMESPACE, appId)
-        );
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasCreateNamespacePermission(appId));
-    }
-
-    @Test
-    public void testHasCreateClusterPermission_WhenWithPermission() {
-        String appId = "testApp";
-        List<Permission> granted = Collections.singletonList(
-                new Permission(PermissionType.CREATE_CLUSTER, appId)
-        );
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasCreateClusterPermission(appId));
-    }
-
-    @Test
-    public void testShouldHideConfigToCurrentUser_WhenWithPermission() {
-        String appId = "testApp";
-        String env = "DEV";
-        String clusterName = "default";
-        String namespaceName = "application";
-
-        List<Permission> granted = Arrays.asList(
-                new Permission(PermissionType.MODIFY_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
-                new Permission(PermissionType.RELEASE_NAMESPACE,
-                        RoleUtils.buildNamespaceTargetId(appId, namespaceName))
-        );
-
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertFalse(validator.shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName));
-    }
-
-    @Test
-    public void testHasManageAppMasterPermission_WhenWithPermission() {
-        String appId = "testApp";
-        List<Permission> granted = Collections.singletonList(
-                new Permission(PermissionType.MANAGE_APP_MASTER, appId)
-        );
-        AbstractPermissionValidator validator = new AbstractPermissionValidatorWithPermissionsImpl(granted);
-        assertTrue(validator.hasManageAppMasterPermission(appId));
-    }
-
-    private static class AbstractPermissionValidatorImpl extends AbstractPermissionValidator {
-        @Override
-        public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-            return false;
-        }
-
-        @Override
-        public boolean isSuperAdmin() {
-            return false;
-        }
-
-        @Override
-        public boolean hasCreateApplicationPermission() {
-            return false;
-        }
-
-        @Override
-        public boolean hasManageAppMasterPermission(String appId) {
-            return false;
-        }
-
-        @Override
-        protected boolean hasPermissions(List<Permission> requiredPerms) {
-            return false;
-        }
-
-        @Override
-        public boolean hasCreateApplicationPermission(String userId) {
-            return false;
-        }
-    }
-
-    private static class AbstractPermissionValidatorWithPermissionsImpl extends AbstractPermissionValidator {
-        private final List<Permission> allowed;
-
-        AbstractPermissionValidatorWithPermissionsImpl(List<Permission> allowed) {
-            this.allowed = allowed;
-        }
-
-        @Override
-        public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
-            return true;
-        }
-
-        @Override
-        public boolean isSuperAdmin() {
-            return true;
-        }
-
-        @Override
-        public boolean hasCreateApplicationPermission() {
-            return true;
-        }
-
-        @Override
-        public boolean hasManageAppMasterPermission(String appId) {
-            return true;
-        }
-
-        @Override
-        protected boolean hasPermissions(List<Permission> requiredPerms) {
-            return requiredPerms.stream().anyMatch(allowed::contains);
-        }
-
-        @Override
-        public boolean hasCreateApplicationPermission(String userId) {
-            return true;
-        }
-    }
+  }
 }

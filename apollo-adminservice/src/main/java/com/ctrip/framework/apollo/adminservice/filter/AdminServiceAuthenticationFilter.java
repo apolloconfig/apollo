@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,10 +35,10 @@ import org.springframework.http.HttpHeaders;
 
 public class AdminServiceAuthenticationFilter implements Filter {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(AdminServiceAuthenticationFilter.class);
-  private static final Splitter ACCESS_TOKEN_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+  private static final Logger logger =
+      LoggerFactory.getLogger(AdminServiceAuthenticationFilter.class);
+  private static final Splitter ACCESS_TOKEN_SPLITTER =
+      Splitter.on(",").omitEmptyStrings().trimResults();
 
   private final BizConfig bizConfig;
   private volatile String lastAccessTokens;

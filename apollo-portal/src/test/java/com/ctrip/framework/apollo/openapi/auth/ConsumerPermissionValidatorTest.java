@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -216,10 +216,8 @@ public class ConsumerPermissionValidatorTest {
   @Test
   public void testHasPermissions_UserHasPermission_ReturnsTrue() {
     // 创建 Permission 对象列表
-    List<Permission> requiredPerms = Arrays.asList(
-        new Permission("a", "b"),
-        new Permission("c", "d")
-    );
+    List<Permission> requiredPerms =
+        Arrays.asList(new Permission("a", "b"), new Permission("c", "d"));
 
     // 模拟 permissionService.hasAnyPermission 返回 true
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
@@ -237,10 +235,8 @@ public class ConsumerPermissionValidatorTest {
    */
   @Test
   public void testHasPermissions_UserHasNoPermission_ReturnsFalse() {
-    List<Permission> requiredPerms = Arrays.asList(
-        new Permission("a", "b"),
-        new Permission("c", "d")
-    );
+    List<Permission> requiredPerms =
+        Arrays.asList(new Permission("a", "b"), new Permission("c", "d"));
 
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
     when(permissionService.hasAnyPermission(CONSUMER_ID, requiredPerms)).thenReturn(false);

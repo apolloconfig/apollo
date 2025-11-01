@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,15 +86,15 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void testInitNamespaceRoleHasExisted(){
+  public void testInitNamespaceRoleHasExisted() {
 
     String modifyNamespaceRoleName = RoleUtils.buildModifyNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName)).
-        thenReturn(mockRole(modifyNamespaceRoleName));
+    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName))
+        .thenReturn(mockRole(modifyNamespaceRoleName));
 
     String releaseNamespaceRoleName = RoleUtils.buildReleaseNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName)).
-        thenReturn(mockRole(releaseNamespaceRoleName));
+    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName))
+        .thenReturn(mockRole(releaseNamespaceRoleName));
 
     roleInitializationService.initNamespaceRoles(APP_ID, NAMESPACE, CURRENT_USER);
 
@@ -104,15 +104,13 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void testInitNamespaceRoleNotExisted(){
+  public void testInitNamespaceRoleNotExisted() {
 
     String modifyNamespaceRoleName = RoleUtils.buildModifyNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName)).
-        thenReturn(null);
+    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName)).thenReturn(null);
 
     String releaseNamespaceRoleName = RoleUtils.buildReleaseNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName)).
-        thenReturn(null);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName)).thenReturn(null);
 
     when(userInfoHolder.getUser()).thenReturn(mockUser());
     when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
@@ -125,15 +123,14 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
   }
 
   @Test
-  public void testInitNamespaceRoleModifyNSExisted(){
+  public void testInitNamespaceRoleModifyNSExisted() {
 
     String modifyNamespaceRoleName = RoleUtils.buildModifyNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName)).
-        thenReturn(mockRole(modifyNamespaceRoleName));
+    when(rolePermissionService.findRoleByRoleName(modifyNamespaceRoleName))
+        .thenReturn(mockRole(modifyNamespaceRoleName));
 
     String releaseNamespaceRoleName = RoleUtils.buildReleaseNamespaceRoleName(APP_ID, NAMESPACE);
-    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName)).
-        thenReturn(null);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespaceRoleName)).thenReturn(null);
 
     when(userInfoHolder.getUser()).thenReturn(mockUser());
     when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
@@ -148,85 +145,93 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
   @Test
   public void testInitClusterNsRole() {
 
-      String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName)).
-          thenReturn(null);
+    String modifyNamespacesInClusterRoleName =
+        RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName))
+        .thenReturn(null);
 
-      String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName)).
-          thenReturn(null);
+    String releaseNamespacesInClusterRoleName =
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName))
+        .thenReturn(null);
 
-      when(userInfoHolder.getUser()).thenReturn(mockUser());
-      when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
+    when(userInfoHolder.getUser()).thenReturn(mockUser());
+    when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
 
-      roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
+    roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
 
-      verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
-      verify(rolePermissionService, times(2)).createPermission(any());
-      verify(rolePermissionService, times(2)).createRoleWithPermissions(any(), anySet());
+    verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
+    verify(rolePermissionService, times(2)).createPermission(any());
+    verify(rolePermissionService, times(2)).createRoleWithPermissions(any(), anySet());
   }
 
   @Test
   public void testInitClusterNsRoleHasExisted() {
 
-      String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName)).
-          thenReturn(mockRole(modifyNamespacesInClusterRoleName));
+    String modifyNamespacesInClusterRoleName =
+        RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName))
+        .thenReturn(mockRole(modifyNamespacesInClusterRoleName));
 
-      String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName)).
-          thenReturn(mockRole(releaseNamespacesInClusterRoleName));
+    String releaseNamespacesInClusterRoleName =
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName))
+        .thenReturn(mockRole(releaseNamespacesInClusterRoleName));
 
-      roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
+    roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
 
-      verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
-      verify(rolePermissionService, times(0)).createPermission(any());
-      verify(rolePermissionService, times(0)).createRoleWithPermissions(any(), anySet());
+    verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
+    verify(rolePermissionService, times(0)).createPermission(any());
+    verify(rolePermissionService, times(0)).createRoleWithPermissions(any(), anySet());
   }
 
   @Test
   public void testInitClusterNsRoleModifyNamespacesInClusterExisted() {
 
-      String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName)).
-          thenReturn(mockRole(modifyNamespacesInClusterRoleName));
+    String modifyNamespacesInClusterRoleName =
+        RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName))
+        .thenReturn(mockRole(modifyNamespacesInClusterRoleName));
 
-      String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName)).
-          thenReturn(null);
+    String releaseNamespacesInClusterRoleName =
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName))
+        .thenReturn(null);
 
-      when(userInfoHolder.getUser()).thenReturn(mockUser());
-      when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
+    when(userInfoHolder.getUser()).thenReturn(mockUser());
+    when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
 
-      roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
+    roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
 
-      verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
-      verify(rolePermissionService, times(1)).createPermission(any());
-      verify(rolePermissionService, times(1)).createRoleWithPermissions(any(), anySet());
+    verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
+    verify(rolePermissionService, times(1)).createPermission(any());
+    verify(rolePermissionService, times(1)).createRoleWithPermissions(any(), anySet());
   }
 
   @Test
   public void testInitClusterNsRoleReleaseNamespacesInClusterExisted() {
 
-      String modifyNamespacesInClusterRoleName = RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName)).
-          thenReturn(null);
+    String modifyNamespacesInClusterRoleName =
+        RoleUtils.buildModifyNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(modifyNamespacesInClusterRoleName))
+        .thenReturn(null);
 
-      String releaseNamespacesInClusterRoleName = RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
-      when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName)).
-          thenReturn(mockRole(releaseNamespacesInClusterRoleName));
+    String releaseNamespacesInClusterRoleName =
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(APP_ID, ENV, CLUSTER);
+    when(rolePermissionService.findRoleByRoleName(releaseNamespacesInClusterRoleName))
+        .thenReturn(mockRole(releaseNamespacesInClusterRoleName));
 
-      when(userInfoHolder.getUser()).thenReturn(mockUser());
-      when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
+    when(userInfoHolder.getUser()).thenReturn(mockUser());
+    when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
 
-      roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
+    roleInitializationService.initClusterNamespaceRoles(APP_ID, ENV, CLUSTER, CURRENT_USER);
 
-      verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
-      verify(rolePermissionService, times(1)).createPermission(any());
-      verify(rolePermissionService, times(1)).createRoleWithPermissions(any(), anySet());
+    verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
+    verify(rolePermissionService, times(1)).createPermission(any());
+    verify(rolePermissionService, times(1)).createRoleWithPermissions(any(), anySet());
   }
 
-  private App mockApp(){
+  private App mockApp() {
     App app = new App();
     app.setAppId(APP_ID);
     app.setName(APP_NAME);
@@ -237,26 +242,26 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
     return app;
   }
 
-  private Role mockRole(String roleName){
+  private Role mockRole(String roleName) {
     Role role = new Role();
     role.setRoleName(roleName);
     return role;
   }
 
-  private UserInfo mockUser(){
+  private UserInfo mockUser() {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(CURRENT_USER);
     return userInfo;
   }
 
-  private Permission mockPermission(){
+  private Permission mockPermission() {
     Permission permission = new Permission();
     permission.setPermissionType(PermissionType.MODIFY_NAMESPACE);
     permission.setTargetId(RoleUtils.buildNamespaceTargetId(APP_ID, NAMESPACE));
     return permission;
   }
 
-  private List<Env> mockPortalSupportedEnvs(){
+  private List<Env> mockPortalSupportedEnvs() {
     List<Env> envArray = new ArrayList<>();
     envArray.add(Env.DEV);
     envArray.add(Env.FAT);

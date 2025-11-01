@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,8 @@ public class ApolloDataSourceScriptDatabaseInitializerFactory {
     String username = properties.getUsername();
     String password = properties.getPassword();
     if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-      return DataSourceBuilder.derivedFrom(dataSource)
-          .username(username)
-          .password(password)
-          .type(SimpleDriverDataSource.class)
-          .build();
+      return DataSourceBuilder.derivedFrom(dataSource).username(username).password(password)
+          .type(SimpleDriverDataSource.class).build();
     }
     return dataSource;
   }
@@ -58,18 +55,18 @@ public class ApolloDataSourceScriptDatabaseInitializerFactory {
   private static DatabaseInitializationSettings getSettings(DataSource dataSource,
       ApolloSqlInitializationProperties properties) {
 
-    PlatformPlaceholderDatabaseDriverResolver platformResolver = new PlatformPlaceholderDatabaseDriverResolver().withDriverPlatform(
-        DatabaseDriver.MARIADB, "mysql");
+    PlatformPlaceholderDatabaseDriverResolver platformResolver =
+        new PlatformPlaceholderDatabaseDriverResolver().withDriverPlatform(DatabaseDriver.MARIADB,
+            "mysql");
 
-    List<String> schemaLocations = resolveLocations(properties.getSchemaLocations(),
-        platformResolver,
-        dataSource, properties);
-    List<String> dataLocations = resolveLocations(properties.getDataLocations(), platformResolver,
-        dataSource, properties);
+    List<String> schemaLocations =
+        resolveLocations(properties.getSchemaLocations(), platformResolver, dataSource, properties);
+    List<String> dataLocations =
+        resolveLocations(properties.getDataLocations(), platformResolver, dataSource, properties);
 
     DatabaseInitializationSettings settings = new DatabaseInitializationSettings();
-    settings.setSchemaLocations(
-        scriptLocations(schemaLocations, "schema", properties.getPlatform()));
+    settings
+        .setSchemaLocations(scriptLocations(schemaLocations, "schema", properties.getPlatform()));
     settings.setDataLocations(scriptLocations(dataLocations, "data", properties.getPlatform()));
     settings.setContinueOnError(properties.isContinueOnError());
     settings.setSeparator(properties.getSeparator());
@@ -128,8 +125,8 @@ public class ApolloDataSourceScriptDatabaseInitializerFactory {
   }
 
   private static String findRepositoryDirectory() {
-    CodeSource codeSource = ApolloDataSourceScriptDatabaseInitializer.class.getProtectionDomain()
-        .getCodeSource();
+    CodeSource codeSource =
+        ApolloDataSourceScriptDatabaseInitializer.class.getProtectionDomain().getCodeSource();
     URL location = codeSource != null ? codeSource.getLocation() : null;
     if (location == null) {
       return null;

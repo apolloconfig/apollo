@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,26 +44,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(MockitoJUnitRunner.class)
 public class GlobalSearchControllerTest {
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @Mock
-    private PortalConfig portalConfig;
+  @Mock
+  private PortalConfig portalConfig;
 
-    @Mock
-    private GlobalSearchService globalSearchService;
+  @Mock
+  private GlobalSearchService globalSearchService;
 
-    @InjectMocks
-    private GlobalSearchController globalSearchController;
+  @InjectMocks
+  private GlobalSearchController globalSearchController;
 
-    private final int perEnvSearchMaxResults = 200;
+  private final int perEnvSearchMaxResults = 200;
 
-    @Before
+  @Before
     public void setUp() {
         when(portalConfig.getPerEnvSearchMaxResults()).thenReturn(perEnvSearchMaxResults);
         mockMvc = MockMvcBuilders.standaloneSetup(globalSearchController).build();
     }
 
-    @Test
+  @Test
     public void testGet_ItemInfo_BySearch_WithKeyAndValueAndActiveEnvs_ReturnEmptyItemInfos() throws Exception {
         when(globalSearchService.getAllEnvItemInfoBySearch(anyString(), anyString(),eq(0),eq(perEnvSearchMaxResults))).thenReturn(SearchResponseEntity.ok(new ArrayList<>()));
         mockMvc.perform(MockMvcRequestBuilders.get("/global-search/item-info/by-key-or-value")
@@ -76,60 +76,67 @@ public class GlobalSearchControllerTest {
         verify(globalSearchService,times(1)).getAllEnvItemInfoBySearch(anyString(), anyString(),eq(0),eq(perEnvSearchMaxResults));
     }
 
-    @Test
-    public void testGet_ItemInfo_BySearch_WithKeyAndValueAndActiveEnvs_ReturnExpectedItemInfos_ButOverPerEnvLimit() throws Exception {
-        List<ItemInfo> allEnvMockItemInfos = new ArrayList<>();
-        allEnvMockItemInfos.add(new ItemInfo("appid1","env1","cluster1","namespace1","query-key","query-value"));
-        allEnvMockItemInfos.add(new ItemInfo("appid2","env2","cluster2","namespace2","query-key","query-value"));
-        when(globalSearchService.getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"),eq(0),eq(perEnvSearchMaxResults))).thenReturn(SearchResponseEntity.okWithMessage(allEnvMockItemInfos,"In DEV , PRO , more than "+perEnvSearchMaxResults+" items found (Exceeded the maximum search quantity for a single environment). Please enter more precise criteria to narrow down the search scope."));
-        mockMvc.perform(MockMvcRequestBuilders.get("/global-search/item-info/by-key-or-value")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("key", "query-key")
-                        .param("value", "query-value"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"body\":[" +
-                        "            { \"appId\": \"appid1\",\n" +
-                        "            \"envName\": \"env1\",\n" +
-                        "            \"clusterName\": \"cluster1\",\n" +
-                        "            \"namespaceName\": \"namespace1\",\n" +
-                        "            \"key\": \"query-key\",\n" +
-                        "            \"value\": \"query-value\"}," +
-                        "            { \"appId\": \"appid2\",\n" +
-                        "            \"envName\": \"env2\",\n" +
-                        "            \"clusterName\": \"cluster2\",\n" +
-                        "            \"namespaceName\": \"namespace2\",\n" +
-                        "            \"key\": \"query-key\",\n" +
-                        "            \"value\": \"query-value\"}],\"hasMoreData\":true,\"message\":\"In DEV , PRO , more than 200 items found (Exceeded the maximum search quantity for a single environment). Please enter more precise criteria to narrow down the search scope.\",\"code\":200}"));
-        verify(portalConfig,times(1)).getPerEnvSearchMaxResults();
-        verify(globalSearchService, times(1)).getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"),eq(0),eq(perEnvSearchMaxResults));
-    }
+  @Test
+  public void testGet_ItemInfo_BySearch_WithKeyAndValueAndActiveEnvs_ReturnExpectedItemInfos_ButOverPerEnvLimit()
+      throws Exception {
+    List<ItemInfo> allEnvMockItemInfos = new ArrayList<>();
+    allEnvMockItemInfos
+        .add(new ItemInfo("appid1", "env1", "cluster1", "namespace1", "query-key", "query-value"));
+    allEnvMockItemInfos
+        .add(new ItemInfo("appid2", "env2", "cluster2", "namespace2", "query-key", "query-value"));
+    when(globalSearchService.getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"), eq(0),
+        eq(perEnvSearchMaxResults)))
+        .thenReturn(SearchResponseEntity.okWithMessage(allEnvMockItemInfos,
+            "In DEV , PRO , more than " + perEnvSearchMaxResults
+                + " items found (Exceeded the maximum search quantity for a single environment). Please enter more precise criteria to narrow down the search scope."));
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/global-search/item-info/by-key-or-value")
+            .contentType(MediaType.APPLICATION_JSON).param("key", "query-key")
+            .param("value", "query-value"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("{\"body\":[" + "            { \"appId\": \"appid1\",\n"
+            + "            \"envName\": \"env1\",\n"
+            + "            \"clusterName\": \"cluster1\",\n"
+            + "            \"namespaceName\": \"namespace1\",\n"
+            + "            \"key\": \"query-key\",\n" + "            \"value\": \"query-value\"},"
+            + "            { \"appId\": \"appid2\",\n" + "            \"envName\": \"env2\",\n"
+            + "            \"clusterName\": \"cluster2\",\n"
+            + "            \"namespaceName\": \"namespace2\",\n"
+            + "            \"key\": \"query-key\",\n"
+            + "            \"value\": \"query-value\"}],\"hasMoreData\":true,\"message\":\"In DEV , PRO , more than 200 items found (Exceeded the maximum search quantity for a single environment). Please enter more precise criteria to narrow down the search scope.\",\"code\":200}"));
+    verify(portalConfig, times(1)).getPerEnvSearchMaxResults();
+    verify(globalSearchService, times(1)).getAllEnvItemInfoBySearch(eq("query-key"),
+        eq("query-value"), eq(0), eq(perEnvSearchMaxResults));
+  }
 
-    @Test
-    public void testGet_ItemInfo_BySearch_WithKeyAndValueAndActiveEnvs_ReturnExpectedItemInfos() throws Exception {
-        List<ItemInfo> allEnvMockItemInfos = new ArrayList<>();
-        allEnvMockItemInfos.add(new ItemInfo("appid1","env1","cluster1","namespace1","query-key","query-value"));
-        allEnvMockItemInfos.add(new ItemInfo("appid2","env2","cluster2","namespace2","query-key","query-value"));
-        when(globalSearchService.getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"),eq(0),eq(perEnvSearchMaxResults))).thenReturn(SearchResponseEntity.ok(allEnvMockItemInfos));
+  @Test
+  public void testGet_ItemInfo_BySearch_WithKeyAndValueAndActiveEnvs_ReturnExpectedItemInfos()
+      throws Exception {
+    List<ItemInfo> allEnvMockItemInfos = new ArrayList<>();
+    allEnvMockItemInfos
+        .add(new ItemInfo("appid1", "env1", "cluster1", "namespace1", "query-key", "query-value"));
+    allEnvMockItemInfos
+        .add(new ItemInfo("appid2", "env2", "cluster2", "namespace2", "query-key", "query-value"));
+    when(globalSearchService.getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"), eq(0),
+        eq(perEnvSearchMaxResults))).thenReturn(SearchResponseEntity.ok(allEnvMockItemInfos));
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/global-search/item-info/by-key-or-value")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("key", "query-key")
-                        .param("value", "query-value"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"body\":[" +
-                        "            { \"appId\": \"appid1\",\n" +
-                        "            \"envName\": \"env1\",\n" +
-                        "            \"clusterName\": \"cluster1\",\n" +
-                        "            \"namespaceName\": \"namespace1\",\n" +
-                        "            \"key\": \"query-key\",\n" +
-                        "            \"value\": \"query-value\"}," +
-                        "            { \"appId\": \"appid2\",\n" +
-                        "            \"envName\": \"env2\",\n" +
-                        "            \"clusterName\": \"cluster2\",\n" +
-                        "            \"namespaceName\": \"namespace2\",\n" +
-                        "            \"key\": \"query-key\",\n" +
-                        "            \"value\": \"query-value\"}],\"hasMoreData\":false,\"message\":\"OK\",\"code\":200}"));
-        verify(globalSearchService, times(1)).getAllEnvItemInfoBySearch(eq("query-key"), eq("query-value"),eq(0),eq(perEnvSearchMaxResults));
-    }
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/global-search/item-info/by-key-or-value")
+            .contentType(MediaType.APPLICATION_JSON).param("key", "query-key")
+            .param("value", "query-value"))
+        .andExpect(status().isOk())
+        .andExpect(content().json("{\"body\":[" + "            { \"appId\": \"appid1\",\n"
+            + "            \"envName\": \"env1\",\n"
+            + "            \"clusterName\": \"cluster1\",\n"
+            + "            \"namespaceName\": \"namespace1\",\n"
+            + "            \"key\": \"query-key\",\n" + "            \"value\": \"query-value\"},"
+            + "            { \"appId\": \"appid2\",\n" + "            \"envName\": \"env2\",\n"
+            + "            \"clusterName\": \"cluster2\",\n"
+            + "            \"namespaceName\": \"namespace2\",\n"
+            + "            \"key\": \"query-key\",\n"
+            + "            \"value\": \"query-value\"}],\"hasMoreData\":false,\"message\":\"OK\",\"code\":200}"));
+    verify(globalSearchService, times(1)).getAllEnvItemInfoBySearch(eq("query-key"),
+        eq("query-value"), eq(0), eq(perEnvSearchMaxResults));
+  }
 
 }

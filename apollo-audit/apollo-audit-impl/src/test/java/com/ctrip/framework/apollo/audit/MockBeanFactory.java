@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public class MockBeanFactory {
     List<Object> mockList = new ArrayList<>();
     for (int i = 0; i < length; i++) {
       MockDataInfluenceEntity e = mockDataInfluenceEntity();
-      e.setId(i+1);
+      e.setId(i + 1);
       mockList.add(e);
     }
     return mockList;

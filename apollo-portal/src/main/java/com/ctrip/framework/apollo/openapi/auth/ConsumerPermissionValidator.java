@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component("consumerPermissionValidator")
-public class ConsumerPermissionValidator extends AbstractPermissionValidator implements
-    PermissionValidator {
+public class ConsumerPermissionValidator extends AbstractPermissionValidator
+    implements PermissionValidator {
 
   private final ConsumerRolePermissionService permissionService;
   private final ConsumerAuthUtil consumerAuthUtil;
@@ -43,16 +43,18 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
   }
 
   @Override
-  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-    if (hasCreateNamespacePermission(appId)){
+  public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (hasCreateNamespacePermission(appId)) {
       return true;
     }
     return super.hasModifyNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override
-  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName, String namespaceName) {
-    if (hasCreateNamespacePermission(appId)){
+  public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (hasCreateNamespacePermission(appId)) {
       return true;
     }
     return super.hasReleaseNamespacePermission(appId, env, clusterName, namespaceName);
@@ -78,7 +80,8 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator imp
   @Override
   public boolean hasCreateApplicationPermission() {
     long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
-    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION, SYSTEM_PERMISSION_TARGET_ID);
+    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_APPLICATION,
+        SYSTEM_PERMISSION_TARGET_ID);
   }
 
   @Override

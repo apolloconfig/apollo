@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,18 +48,16 @@ import java.util.stream.Collectors;
 @RestController
 public class ReleaseController {
 
-  private static final Splitter RELEASES_SPLITTER = Splitter.on(",").omitEmptyStrings()
-      .trimResults();
+  private static final Splitter RELEASES_SPLITTER =
+      Splitter.on(",").omitEmptyStrings().trimResults();
 
   private final ReleaseService releaseService;
   private final NamespaceService namespaceService;
   private final MessageSender messageSender;
   private final NamespaceBranchService namespaceBranchService;
 
-  public ReleaseController(
-      final ReleaseService releaseService,
-      final NamespaceService namespaceService,
-      final MessageSender messageSender,
+  public ReleaseController(final ReleaseService releaseService,
+      final NamespaceService namespaceService, final MessageSender messageSender,
       final NamespaceBranchService namespaceBranchService) {
     this.releaseService = releaseService;
     this.namespaceService = namespaceService;
@@ -89,27 +87,27 @@ public class ReleaseController {
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/all")
   public List<ReleaseDTO> findAllReleases(@PathVariable("appId") String appId,
-                                          @PathVariable("clusterName") String clusterName,
-                                          @PathVariable("namespaceName") String namespaceName,
-                                          Pageable page) {
-    List<Release> releases = releaseService.findAllReleases(appId, clusterName, namespaceName, page);
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, Pageable page) {
+    List<Release> releases =
+        releaseService.findAllReleases(appId, clusterName, namespaceName, page);
     return BeanUtils.batchTransform(ReleaseDTO.class, releases);
   }
 
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/active")
   public List<ReleaseDTO> findActiveReleases(@PathVariable("appId") String appId,
-                                             @PathVariable("clusterName") String clusterName,
-                                             @PathVariable("namespaceName") String namespaceName,
-                                             Pageable page) {
-    List<Release> releases = releaseService.findActiveReleases(appId, clusterName, namespaceName, page);
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, Pageable page) {
+    List<Release> releases =
+        releaseService.findActiveReleases(appId, clusterName, namespaceName, page);
     return BeanUtils.batchTransform(ReleaseDTO.class, releases);
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest")
   public ReleaseDTO getLatest(@PathVariable("appId") String appId,
-                              @PathVariable("clusterName") String clusterName,
-                              @PathVariable("namespaceName") String namespaceName) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName) {
     Release release = releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
@@ -117,19 +115,19 @@ public class ReleaseController {
   @Transactional
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases")
   public ReleaseDTO publish(@PathVariable("appId") String appId,
-                            @PathVariable("clusterName") String clusterName,
-                            @PathVariable("namespaceName") String namespaceName,
-                            @RequestParam("name") String releaseName,
-                            @RequestParam(name = "comment", required = false) String releaseComment,
-                            @RequestParam("operator") String operator,
-                            @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @RequestParam("name") String releaseName,
+      @RequestParam(name = "comment", required = false) String releaseComment,
+      @RequestParam("operator") String operator, @RequestParam(name = "isEmergencyPublish",
+          defaultValue = "false") boolean isEmergencyPublish) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
       throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
-    Release release = releaseService.publish(namespace, releaseName, releaseComment, operator, isEmergencyPublish);
+    Release release = releaseService.publish(namespace, releaseName, releaseComment, operator,
+        isEmergencyPublish);
 
-    //send release message
+    // send release message
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);
     String messageCluster;
     if (parentNamespace != null) {
@@ -137,8 +135,9 @@ public class ReleaseController {
     } else {
       messageCluster = clusterName;
     }
-    messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, messageCluster, namespaceName),
-                              Topics.APOLLO_RELEASE_TOPIC);
+    messageSender.sendMessage(
+        ReleaseMessageKeyGenerator.generate(appId, messageCluster, namespaceName),
+        Topics.APOLLO_RELEASE_TOPIC);
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
 
@@ -151,29 +150,30 @@ public class ReleaseController {
   @Transactional
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/updateAndPublish")
   public ReleaseDTO updateAndPublish(@PathVariable("appId") String appId,
-                                     @PathVariable("clusterName") String clusterName,
-                                     @PathVariable("namespaceName") String namespaceName,
-                                     @RequestParam("releaseName") String releaseName,
-                                     @RequestParam("branchName") String branchName,
-                                     @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
-                                     @RequestParam(name = "releaseComment", required = false) String releaseComment,
-                                     @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish,
-                                     @RequestBody ItemChangeSets changeSets) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName,
+      @RequestParam("releaseName") String releaseName,
+      @RequestParam("branchName") String branchName,
+      @RequestParam(value = "deleteBranch", defaultValue = "true") boolean deleteBranch,
+      @RequestParam(name = "releaseComment", required = false) String releaseComment,
+      @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish,
+      @RequestBody ItemChangeSets changeSets) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
       throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
     }
 
-    Release release = releaseService.mergeBranchChangeSetsAndRelease(namespace, branchName, releaseName,
-                                                                     releaseComment, isEmergencyPublish, changeSets);
+    Release release = releaseService.mergeBranchChangeSetsAndRelease(namespace, branchName,
+        releaseName, releaseComment, isEmergencyPublish, changeSets);
 
     if (deleteBranch) {
       namespaceBranchService.deleteBranch(appId, clusterName, namespaceName, branchName,
-                                          NamespaceBranchStatus.MERGED, changeSets.getDataChangeLastModifiedBy());
+          NamespaceBranchStatus.MERGED, changeSets.getDataChangeLastModifiedBy());
     }
 
-    messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
-                              Topics.APOLLO_RELEASE_TOPIC);
+    messageSender.sendMessage(
+        ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
+        Topics.APOLLO_RELEASE_TOPIC);
 
     return BeanUtils.transform(ReleaseDTO.class, release);
 
@@ -182,8 +182,8 @@ public class ReleaseController {
   @Transactional
   @PutMapping("/releases/{releaseId}/rollback")
   public void rollback(@PathVariable("releaseId") long releaseId,
-                       @RequestParam(name="toReleaseId", defaultValue = "-1") long toReleaseId,
-                       @RequestParam("operator") String operator) {
+      @RequestParam(name = "toReleaseId", defaultValue = "-1") long toReleaseId,
+      @RequestParam("operator") String operator) {
 
     Release release;
     if (toReleaseId > -1) {
@@ -195,21 +195,21 @@ public class ReleaseController {
     String appId = release.getAppId();
     String clusterName = release.getClusterName();
     String namespaceName = release.getNamespaceName();
-    //send release message
-    messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
-                              Topics.APOLLO_RELEASE_TOPIC);
+    // send release message
+    messageSender.sendMessage(
+        ReleaseMessageKeyGenerator.generate(appId, clusterName, namespaceName),
+        Topics.APOLLO_RELEASE_TOPIC);
   }
 
   @Transactional
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/gray-del-releases")
   public ReleaseDTO publish(@PathVariable("appId") String appId,
-                            @PathVariable("clusterName") String clusterName,
-                            @PathVariable("namespaceName") String namespaceName,
-                            @RequestParam("operator") String operator,
-                            @RequestParam("releaseName") String releaseName,
-                            @RequestParam(name = "comment", required = false) String releaseComment,
-                            @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish,
-                            @RequestParam(name = "grayDelKeys") Set<String> grayDelKeys){
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName,
+      @RequestParam("operator") String operator, @RequestParam("releaseName") String releaseName,
+      @RequestParam(name = "comment", required = false) String releaseComment,
+      @RequestParam(name = "isEmergencyPublish", defaultValue = "false") boolean isEmergencyPublish,
+      @RequestParam(name = "grayDelKeys") Set<String> grayDelKeys) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
       throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
@@ -218,7 +218,7 @@ public class ReleaseController {
     Release release = releaseService.grayDeletionPublish(namespace, releaseName, releaseComment,
         operator, isEmergencyPublish, grayDelKeys);
 
-    //send release message
+    // send release message
     Namespace parentNamespace = namespaceService.findParentNamespace(namespace);
     String messageCluster;
     if (parentNamespace != null) {
@@ -226,8 +226,9 @@ public class ReleaseController {
     } else {
       messageCluster = clusterName;
     }
-    messageSender.sendMessage(ReleaseMessageKeyGenerator.generate(appId, messageCluster, namespaceName),
-            Topics.APOLLO_RELEASE_TOPIC);
+    messageSender.sendMessage(
+        ReleaseMessageKeyGenerator.generate(appId, messageCluster, namespaceName),
+        Topics.APOLLO_RELEASE_TOPIC);
     return BeanUtils.transform(ReleaseDTO.class, release);
   }
 

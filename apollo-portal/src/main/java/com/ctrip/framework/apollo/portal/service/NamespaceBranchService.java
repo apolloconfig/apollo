@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,12 +45,9 @@ public class NamespaceBranchService {
   private final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI;
   private final ReleaseService releaseService;
 
-  public NamespaceBranchService(
-      final ItemsComparator itemsComparator,
-      final UserInfoHolder userInfoHolder,
-      final NamespaceService namespaceService,
-      final ItemService itemService,
-      final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI,
+  public NamespaceBranchService(final ItemsComparator itemsComparator,
+      final UserInfoHolder userInfoHolder, final NamespaceService namespaceService,
+      final ItemService itemService, final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI,
       final ReleaseService releaseService) {
     this.itemsComparator = itemsComparator;
     this.userInfoHolder = userInfoHolder;
@@ -62,88 +59,94 @@ public class NamespaceBranchService {
 
 
   @Transactional
-  public NamespaceDTO createBranch(String appId, Env env, String parentClusterName, String namespaceName) {
+  public NamespaceDTO createBranch(String appId, Env env, String parentClusterName,
+      String namespaceName) {
     String operator = userInfoHolder.getUser().getUserId();
     return createBranch(appId, env, parentClusterName, namespaceName, operator);
   }
 
   @Transactional
-  public NamespaceDTO createBranch(String appId, Env env, String parentClusterName, String namespaceName, String operator) {
-    NamespaceDTO createdBranch = namespaceBranchAPI.createBranch(appId, env, parentClusterName, namespaceName,
-            operator);
+  public NamespaceDTO createBranch(String appId, Env env, String parentClusterName,
+      String namespaceName, String operator) {
+    NamespaceDTO createdBranch =
+        namespaceBranchAPI.createBranch(appId, env, parentClusterName, namespaceName, operator);
 
-    Tracer.logEvent(TracerEventType.CREATE_GRAY_RELEASE, String.format("%s+%s+%s+%s", appId, env, parentClusterName,
-            namespaceName));
+    Tracer.logEvent(TracerEventType.CREATE_GRAY_RELEASE,
+        String.format("%s+%s+%s+%s", appId, env, parentClusterName, namespaceName));
     return createdBranch;
 
   }
 
   public GrayReleaseRuleDTO findBranchGrayRules(String appId, Env env, String clusterName,
-                                                String namespaceName, String branchName) {
-    return namespaceBranchAPI.findBranchGrayRules(appId, env, clusterName, namespaceName, branchName);
+      String namespaceName, String branchName) {
+    return namespaceBranchAPI.findBranchGrayRules(appId, env, clusterName, namespaceName,
+        branchName);
 
   }
 
   public void updateBranchGrayRules(String appId, Env env, String clusterName, String namespaceName,
-                                    String branchName, GrayReleaseRuleDTO rules) {
+      String branchName, GrayReleaseRuleDTO rules) {
 
     String operator = userInfoHolder.getUser().getUserId();
     updateBranchGrayRules(appId, env, clusterName, namespaceName, branchName, rules, operator);
   }
 
   public void updateBranchGrayRules(String appId, Env env, String clusterName, String namespaceName,
-                                    String branchName, GrayReleaseRuleDTO rules, String operator) {
+      String branchName, GrayReleaseRuleDTO rules, String operator) {
     rules.setDataChangeCreatedBy(operator);
     rules.setDataChangeLastModifiedBy(operator);
 
-    namespaceBranchAPI.updateBranchGrayRules(appId, env, clusterName, namespaceName, branchName, rules);
+    namespaceBranchAPI.updateBranchGrayRules(appId, env, clusterName, namespaceName, branchName,
+        rules);
 
     Tracer.logEvent(TracerEventType.UPDATE_GRAY_RELEASE_RULE,
-            String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
   }
 
   public void deleteBranch(String appId, Env env, String clusterName, String namespaceName,
-                           String branchName) {
+      String branchName) {
 
     String operator = userInfoHolder.getUser().getUserId();
     deleteBranch(appId, env, clusterName, namespaceName, branchName, operator);
   }
 
   public void deleteBranch(String appId, Env env, String clusterName, String namespaceName,
-                           String branchName, String operator) {
+      String branchName, String operator) {
     namespaceBranchAPI.deleteBranch(appId, env, clusterName, namespaceName, branchName, operator);
 
     Tracer.logEvent(TracerEventType.DELETE_GRAY_RELEASE,
-            String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
   }
 
 
   public ReleaseDTO merge(String appId, Env env, String clusterName, String namespaceName,
-                          String branchName, String title, String comment,
-                          boolean isEmergencyPublish, boolean deleteBranch) {
+      String branchName, String title, String comment, boolean isEmergencyPublish,
+      boolean deleteBranch) {
     String operator = userInfoHolder.getUser().getUserId();
-    return merge(appId, env, clusterName, namespaceName, branchName, title, comment, isEmergencyPublish, deleteBranch, operator);
+    return merge(appId, env, clusterName, namespaceName, branchName, title, comment,
+        isEmergencyPublish, deleteBranch, operator);
   }
 
   public ReleaseDTO merge(String appId, Env env, String clusterName, String namespaceName,
-                          String branchName, String title, String comment,
-                          boolean isEmergencyPublish, boolean deleteBranch, String operator) {
+      String branchName, String title, String comment, boolean isEmergencyPublish,
+      boolean deleteBranch, String operator) {
 
-    ItemChangeSets changeSets = calculateBranchChangeSet(appId, env, clusterName, namespaceName, branchName, operator);
+    ItemChangeSets changeSets =
+        calculateBranchChangeSet(appId, env, clusterName, namespaceName, branchName, operator);
 
-    ReleaseDTO mergedResult =
-            releaseService.updateAndPublish(appId, env, clusterName, namespaceName, title, comment,
-                    branchName, isEmergencyPublish, deleteBranch, changeSets);
+    ReleaseDTO mergedResult = releaseService.updateAndPublish(appId, env, clusterName,
+        namespaceName, title, comment, branchName, isEmergencyPublish, deleteBranch, changeSets);
 
     Tracer.logEvent(TracerEventType.MERGE_GRAY_RELEASE,
-            String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
 
     return mergedResult;
   }
 
-  private ItemChangeSets calculateBranchChangeSet(String appId, Env env, String clusterName, String namespaceName,
-                                                  String branchName, String operator) {
-    NamespaceBO parentNamespace = namespaceService.loadNamespaceBO(appId, env, clusterName, namespaceName);
+  private ItemChangeSets calculateBranchChangeSet(String appId, Env env, String clusterName,
+      String namespaceName, String branchName, String operator) {
+    NamespaceBO parentNamespace =
+        namespaceService.loadNamespaceBO(appId, env, clusterName, namespaceName);
 
     if (parentNamespace == null) {
       throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
@@ -157,14 +160,15 @@ public class NamespaceBranchService {
 
     List<ItemDTO> branchItems = itemService.findItems(appId, env, branchName, namespaceName);
 
-    ItemChangeSets changeSets = itemsComparator.compareIgnoreBlankAndCommentItem(parentNamespace.getBaseInfo().getId(),
-                                                                                 masterItems, branchItems);
+    ItemChangeSets changeSets = itemsComparator.compareIgnoreBlankAndCommentItem(
+        parentNamespace.getBaseInfo().getId(), masterItems, branchItems);
     changeSets.setDeleteItems(Collections.emptyList());
     changeSets.setDataChangeLastModifiedBy(operator);
     return changeSets;
   }
 
-  public NamespaceDTO findBranchBaseInfo(String appId, Env env, String clusterName, String namespaceName) {
+  public NamespaceDTO findBranchBaseInfo(String appId, Env env, String clusterName,
+      String namespaceName) {
     return namespaceBranchAPI.findBranch(appId, env, clusterName, namespaceName);
   }
 
@@ -173,7 +177,8 @@ public class NamespaceBranchService {
     if (namespaceDTO == null) {
       return null;
     }
-    return namespaceService.loadNamespaceBO(appId, env, namespaceDTO.getClusterName(), namespaceName);
+    return namespaceService.loadNamespaceBO(appId, env, namespaceDTO.getClusterName(),
+        namespaceName);
   }
 
 }

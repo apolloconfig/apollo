@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,7 @@ public class SpringSecurityUserService implements UserService {
 
   private final AuthorityRepository authorityRepository;
 
-  public SpringSecurityUserService(
-      PasswordEncoder passwordEncoder,
-      UserRepository userRepository,
+  public SpringSecurityUserService(PasswordEncoder passwordEncoder, UserRepository userRepository,
       AuthorityRepository authorityRepository) {
     this.passwordEncoder = passwordEncoder;
     this.userRepository = userRepository;
@@ -64,12 +62,12 @@ public class SpringSecurityUserService implements UserService {
     if (managedUser != null) {
       throw BadRequestException.userAlreadyExists(username);
     }
-    //create
+    // create
     user.setPassword(newPassword);
     user.setEnabled(user.getEnabled());
     userRepository.save(user);
 
-    //save authorities
+    // save authorities
     Authority authority = new Authority();
     authority.setUsername(username);
     authority.setAuthority("ROLE_user");
@@ -106,8 +104,7 @@ public class SpringSecurityUserService implements UserService {
     if (CollectionUtils.isEmpty(users)) {
       return Collections.emptyList();
     }
-    return users.stream().map(UserPO::toUserInfo)
-        .collect(Collectors.toList());
+    return users.stream().map(UserPO::toUserInfo).collect(Collectors.toList());
   }
 
   private List<UserPO> findUsers(String keyword, boolean includeInactiveUsers) {
@@ -125,8 +122,8 @@ public class SpringSecurityUserService implements UserService {
         return userRepository.findFirst20ByEnabled(1);
       }
       byUsername = userRepository.findByUsernameLikeAndEnabled("%" + keyword + "%", 1);
-      byUserDisplayName = userRepository
-          .findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
+      byUserDisplayName =
+          userRepository.findByUserDisplayNameLikeAndEnabled("%" + keyword + "%", 1);
     }
     if (!CollectionUtils.isEmpty(byUsername)) {
       for (UserPO user : byUsername) {

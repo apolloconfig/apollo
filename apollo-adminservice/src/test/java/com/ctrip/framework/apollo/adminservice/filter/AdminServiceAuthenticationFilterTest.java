@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,8 +102,8 @@ public class AdminServiceAuthenticationFilterTest {
 
     verify(bizConfig, times(1)).isAdminServiceAccessControlEnabled();
     verify(bizConfig, times(1)).getAdminServiceAccessTokens();
-    verify(servletResponse, times(1))
-        .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    verify(servletResponse, times(1)).sendError(HttpServletResponse.SC_UNAUTHORIZED,
+        "Unauthorized");
     verify(filterChain, never()).doFilter(servletRequest, servletResponse);
   }
 
@@ -119,8 +119,8 @@ public class AdminServiceAuthenticationFilterTest {
 
     verify(bizConfig, times(1)).isAdminServiceAccessControlEnabled();
     verify(bizConfig, times(1)).getAdminServiceAccessTokens();
-    verify(servletResponse, times(1))
-        .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    verify(servletResponse, times(1)).sendError(HttpServletResponse.SC_UNAUTHORIZED,
+        "Unauthorized");
     verify(filterChain, never()).doFilter(servletRequest, servletResponse);
   }
 
@@ -201,8 +201,8 @@ public class AdminServiceAuthenticationFilterTest {
 
     authenticationFilter.doFilter(servletRequest, servletResponse, filterChain);
 
-    verify(servletResponse, times(1))
-        .sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+    verify(servletResponse, times(1)).sendError(HttpServletResponse.SC_UNAUTHORIZED,
+        "Unauthorized");
     verify(filterChain, never()).doFilter(servletRequest, servletResponse);
 
     initVariables();

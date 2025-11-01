@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,11 +78,8 @@ public class AppController {
   private final RoleInitializationService roleInitializationService;
   private final AdditionalUserInfoEnrichService additionalUserInfoEnrichService;
 
-  public AppController(
-      final UserInfoHolder userInfoHolder,
-      final AppService appService,
-      final PortalSettings portalSettings,
-      final ApplicationEventPublisher publisher,
+  public AppController(final UserInfoHolder userInfoHolder, final AppService appService,
+      final PortalSettings portalSettings, final ApplicationEventPublisher publisher,
       final RolePermissionService rolePermissionService,
       final RoleInitializationService roleInitializationService,
       final AdditionalUserInfoEnrichService additionalUserInfoEnrichService) {
@@ -107,7 +104,7 @@ public class AppController {
   public List<App> findAppsBySelf(Pageable page) {
     UserInfo loginUser = userInfoHolder.getUser();
     String userId = loginUser.getUserId();
-    
+
     Set<String> appIds = Sets.newHashSet();
 
     List<Role> userRoles = rolePermissionService.findUserRoles(userId);
@@ -157,8 +154,7 @@ public class AppController {
         response.addResponseEntity(RichResponseEntity.ok(appService.createEnvNavNode(env, appId)));
       } catch (Exception e) {
         response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
-            "load env:" + env.getName() + " cluster error." + e
-                .getMessage()));
+            "load env:" + env.getName() + " cluster error." + e.getMessage()));
       }
     }
     return response;
@@ -169,8 +165,8 @@ public class AppController {
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {
     appService.createAppInRemote(Env.valueOf(env), app);
 
-    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(), ConfigConsts.NAMESPACE_APPLICATION,
-            env, userInfoHolder.getUser().getUserId());
+    roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(),
+        ConfigConsts.NAMESPACE_APPLICATION, env, userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();
   }
@@ -202,14 +198,12 @@ public class AppController {
       try {
         appService.load(env, appId);
       } catch (Exception e) {
-        if (e instanceof HttpClientErrorException &&
-            ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
+        if (e instanceof HttpClientErrorException
+            && ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
           response.addResponseEntity(RichResponseEntity.ok(env.toString()));
         } else {
           response.addResponseEntity(RichResponseEntity.error(HttpStatus.INTERNAL_SERVER_ERROR,
-              String.format("load appId:%s from env %s error.", appId,
-                  env)
-                  + e.getMessage()));
+              String.format("load appId:%s from env %s error.", appId, env) + e.getMessage()));
         }
       }
     }
@@ -224,13 +218,8 @@ public class AppController {
     String orgId = appModel.getOrgId();
     String orgName = appModel.getOrgName();
 
-    return App.builder()
-        .appId(appId)
-        .name(appName)
-        .ownerName(ownerName)
-        .orgId(orgId)
-        .orgName(orgName)
-        .build();
+    return App.builder().appId(appId).name(appName).ownerName(ownerName).orgId(orgId)
+        .orgName(orgName).build();
 
   }
 }

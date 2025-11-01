@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "`AccessKey`")
-@SQLDelete(sql = "Update `AccessKey` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
+@SQLDelete(
+    sql = "Update `AccessKey` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
 @Where(clause = "`IsDeleted` = false")
 public class AccessKey extends BaseEntity {
 
@@ -76,7 +77,7 @@ public class AccessKey extends BaseEntity {
 
   @Override
   public String toString() {
-    return toStringHelper().add("appId", appId).add("secret", secret)
-        .add("mode", mode).add("enabled", enabled).toString();
+    return toStringHelper().add("appId", appId).add("secret", secret).add("mode", mode)
+        .add("enabled", enabled).toString();
   }
 }

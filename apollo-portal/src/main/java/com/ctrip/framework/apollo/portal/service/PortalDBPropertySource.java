@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,8 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
   private final Environment env;
 
   @Autowired
-  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository, DataSource dataSource,
-                                final Environment env) {
+  public PortalDBPropertySource(final ServerConfigRepository serverConfigRepository,
+      DataSource dataSource, final Environment env) {
     super("DBConfig", Maps.newConcurrentMap());
     this.serverConfigRepository = serverConfigRepository;
     this.dataSource = dataSource;
@@ -62,7 +62,7 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
 
   @PostConstruct
   public void runSqlScript() throws Exception {
-    if (env.acceptsProfiles(Profiles.of("h2"))  && !env.acceptsProfiles(Profiles.of("assembly"))) {
+    if (env.acceptsProfiles(Profiles.of("h2")) && !env.acceptsProfiles(Profiles.of("assembly"))) {
       Resource resource = new ClassPathResource("jpa/portaldb.init.h2.sql");
       if (resource.exists()) {
         DatabasePopulatorUtils.execute(new ResourceDatabasePopulator(resource), dataSource);
@@ -74,15 +74,15 @@ public class PortalDBPropertySource extends RefreshablePropertySource {
   protected void refresh() {
     Iterable<ServerConfig> dbConfigs = serverConfigRepository.findAll();
 
-    for (ServerConfig config: dbConfigs) {
+    for (ServerConfig config : dbConfigs) {
       String key = config.getKey();
       Object value = config.getValue();
 
       if (this.source.isEmpty()) {
         logger.info("Load config from DB : {} = {}", key, value);
       } else if (!Objects.equals(this.source.get(key), value)) {
-        logger.info("Load config from DB : {} = {}. Old value = {}", key,
-                    value, this.source.get(key));
+        logger.info("Load config from DB : {} = {}. Old value = {}", key, value,
+            this.source.get(key));
       }
 
       this.source.put(key, value);

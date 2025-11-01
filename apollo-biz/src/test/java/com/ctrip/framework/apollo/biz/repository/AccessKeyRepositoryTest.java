@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,13 +69,13 @@ public class AccessKeyRepositoryTest extends AbstractIntegrationTest {
   @Sql(scripts = "/sql/accesskey-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTime() {
-    Instant instant = LocalDateTime.of(2019, 12, 19, 13, 44, 20)
-        .atZone(ZoneId.systemDefault())
-        .toInstant();
+    Instant instant =
+        LocalDateTime.of(2019, 12, 19, 13, 44, 20).atZone(ZoneId.systemDefault()).toInstant();
     Date date = Date.from(instant);
 
     List<AccessKey> accessKeyList = accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(date);
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+            date);
 
     assertThat(accessKeyList).hasSize(2);
     assertThat(accessKeyList.get(0).getAppId()).isEqualTo("100004458");

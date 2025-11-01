@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,8 @@ import javax.annotation.PostConstruct;
  * @author Jason Song(song_s@ctrip.com)
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = AbstractBaseIntegrationTest.TestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AbstractBaseIntegrationTest.TestConfiguration.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractBaseIntegrationTest {
   @Autowired
   private ReleaseMessageRepository releaseMessageRepository;
@@ -66,8 +67,9 @@ public abstract class AbstractBaseIntegrationTest {
 
   private static final Gson GSON = new Gson();
 
-  protected RestTemplate restTemplate = (new TestRestTemplate(new RestTemplateBuilder()
-      .setConnectTimeout(Duration.ofSeconds(5)))).getRestTemplate();
+  protected RestTemplate restTemplate =
+      (new TestRestTemplate(new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(5))))
+          .getRestTemplate();
 
   @PostConstruct
   private void postConstruct() {
@@ -96,7 +98,7 @@ public abstract class AbstractBaseIntegrationTest {
   }
 
   public Release buildRelease(String name, String comment, Namespace namespace,
-                              Map<String, String> configurations, String owner) {
+      Map<String, String> configurations, String owner) {
     Release release = new Release();
     release.setReleaseKey(ReleaseKeyGenerator.generateReleaseKey(namespace));
     release.setDataChangeCreatedTime(new Date());
@@ -113,16 +115,17 @@ public abstract class AbstractBaseIntegrationTest {
     return release;
   }
 
-  protected void periodicSendMessage(ExecutorService executorService, String message, AtomicBoolean stop) {
+  protected void periodicSendMessage(ExecutorService executorService, String message,
+      AtomicBoolean stop) {
     executorService.submit(() -> {
-      //wait for the request connected to server
+      // wait for the request connected to server
       while (!stop.get() && !Thread.currentThread().isInterrupted()) {
         try {
           TimeUnit.MILLISECONDS.sleep(100);
         } catch (InterruptedException e) {
         }
 
-        //double check
+        // double check
         if (stop.get()) {
           break;
         }
@@ -139,7 +142,7 @@ public abstract class AbstractBaseIntegrationTest {
 
     @Override
     public int appNamespaceCacheScanInterval() {
-      //should be short enough to update the AppNamespace cache in time
+      // should be short enough to update the AppNamespace cache in time
       return 1;
     }
 

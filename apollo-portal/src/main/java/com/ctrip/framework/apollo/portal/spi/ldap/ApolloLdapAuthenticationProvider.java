@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  *
  */
-
-
 package com.ctrip.framework.apollo.portal.spi.ldap;
 
 import com.ctrip.framework.apollo.portal.spi.configuration.LdapExtendProperties;
@@ -42,27 +40,22 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
 
   private LdapExtendProperties properties;
 
-  public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator,
+  public ApolloLdapAuthenticationProvider(LdapAuthenticator authenticator,
       LdapAuthoritiesPopulator authoritiesPopulator) {
     super(authenticator, authoritiesPopulator);
   }
 
-  public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator) {
+  public ApolloLdapAuthenticationProvider(LdapAuthenticator authenticator) {
     super(authenticator);
   }
 
-  public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator,
-      LdapAuthoritiesPopulator authoritiesPopulator,
-      LdapExtendProperties properties) {
+  public ApolloLdapAuthenticationProvider(LdapAuthenticator authenticator,
+      LdapAuthoritiesPopulator authoritiesPopulator, LdapExtendProperties properties) {
     super(authenticator, authoritiesPopulator);
     this.properties = properties;
   }
 
-  public ApolloLdapAuthenticationProvider(
-      LdapAuthenticator authenticator,
+  public ApolloLdapAuthenticationProvider(LdapAuthenticator authenticator,
       LdapExtendProperties properties) {
     super(authenticator);
     this.properties = properties;
@@ -70,10 +63,11 @@ public class ApolloLdapAuthenticationProvider extends LdapAuthenticationProvider
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-    Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication, this.messages
-        .getMessage("LdapAuthenticationProvider.onlySupports",
+    Assert.isInstanceOf(UsernamePasswordAuthenticationToken.class, authentication,
+        this.messages.getMessage("LdapAuthenticationProvider.onlySupports",
             "Only UsernamePasswordAuthenticationToken is supported"));
-    UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken) authentication;
+    UsernamePasswordAuthenticationToken userToken =
+        (UsernamePasswordAuthenticationToken) authentication;
     String username = userToken.getName();
     String password = (String) authentication.getCredentials();
     if (this.logger.isDebugEnabled()) {

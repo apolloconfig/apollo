@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   private String nonGrayClientLabel;
   private static final Gson GSON = new Gson();
   private ExecutorService executorService;
-  private Type mapResponseType = new TypeToken<Map<String, String>>(){}.getType();
+  private Type mapResponseType = new TypeToken<Map<String, String>>() {}.getType();
 
   @Autowired
   private AppNamespaceServiceWithCache appNamespaceServiceWithCache;
@@ -86,13 +86,14 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryConfigAsProperties() throws Exception {
     ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace);
+        restTemplate.getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}",
+            String.class, getHostUrl(), someAppId, someCluster, someNamespace);
 
     String result = response.getBody();
 
@@ -101,27 +102,30 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-gray-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-gray-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryConfigAsPropertiesWithGrayRelease() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, ConfigConsts.NAMESPACE_APPLICATION),
-        stop);
+    periodicSendMessage(executorService, assembleKey(someAppId, ConfigConsts.CLUSTER_NAME_DEFAULT,
+        ConfigConsts.NAMESPACE_APPLICATION), stop);
 
     TimeUnit.MILLISECONDS.sleep(500);
 
     stop.set(true);
 
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}", String.class,
-                getHostUrl(), someAppId, someDefaultCluster, ConfigConsts.NAMESPACE_APPLICATION, grayClientIp, grayClientLabel);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster,
+        ConfigConsts.NAMESPACE_APPLICATION, grayClientIp, grayClientLabel);
 
-    ResponseEntity<String> anotherResponse =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}", String.class,
-                getHostUrl(), someAppId, someDefaultCluster, ConfigConsts.NAMESPACE_APPLICATION, nonGrayClientIp, nonGrayClientLabel);
+    ResponseEntity<String> anotherResponse = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster,
+        ConfigConsts.NAMESPACE_APPLICATION, nonGrayClientIp, nonGrayClientLabel);
 
     String result = response.getBody();
     String anotherResult = anotherResponse.getBody();
@@ -135,16 +139,16 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryPublicConfigAsProperties() throws Exception {
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, someDC);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, someDC);
 
     String result = response.getBody();
 
@@ -154,13 +158,14 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryConfigAsJson() throws Exception {
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
+        getHostUrl(), someAppId, someCluster, someNamespace);
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
@@ -169,13 +174,14 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryConfigAsJsonWithIncorrectCase() throws Exception {
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace.toUpperCase());
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}", String.class,
+        getHostUrl(), someAppId, someCluster, someNamespace.toUpperCase());
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
@@ -184,16 +190,16 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryPublicConfigAsJson() throws Exception {
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, someDC);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, someDC);
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
@@ -203,16 +209,17 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-public-dc-override.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryPublicConfigAsJsonWithIncorrectCase() throws Exception {
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace.toUpperCase(), someDC);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?dataCenter={dateCenter}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster,
+        somePublicNamespace.toUpperCase(), someDC);
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
 
@@ -222,32 +229,32 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-public-default-override.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-gray-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-public-default-override.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-gray-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryPublicConfigAsJsonWithGrayRelease() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(somePublicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace),
-        stop);
+    periodicSendMessage(executorService,
+        assembleKey(somePublicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
 
     TimeUnit.MILLISECONDS.sleep(500);
 
     stop.set(true);
 
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, grayClientIp, grayClientLabel);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace,
+        grayClientIp, grayClientLabel);
 
-    ResponseEntity<String> anotherResponse =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace, nonGrayClientIp, nonGrayClientLabel);
+    ResponseEntity<String> anotherResponse = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace,
+        nonGrayClientIp, nonGrayClientLabel);
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
     Map<String, String> anotherConfigs = GSON.fromJson(anotherResponse.getBody(), mapResponseType);
@@ -263,32 +270,32 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-release-public-default-override.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/test-gray-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release-public-default-override.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-gray-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testQueryPublicConfigAsJsonWithGrayReleaseAndIncorrectCase() throws Exception {
     AtomicBoolean stop = new AtomicBoolean();
-    periodicSendMessage(executorService, assembleKey(somePublicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace),
-        stop);
+    periodicSendMessage(executorService,
+        assembleKey(somePublicAppId, ConfigConsts.CLUSTER_NAME_DEFAULT, somePublicNamespace), stop);
 
     TimeUnit.MILLISECONDS.sleep(500);
 
     stop.set(true);
 
-    ResponseEntity<String> response =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace.toUpperCase(), grayClientIp, grayClientLabel);
+    ResponseEntity<String> response = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster,
+        somePublicNamespace.toUpperCase(), grayClientIp, grayClientLabel);
 
-    ResponseEntity<String> anotherResponse =
-        restTemplate
-            .getForEntity(
-                "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
-                String.class,
-                getHostUrl(), someAppId, someDefaultCluster, somePublicNamespace.toUpperCase(), nonGrayClientIp, nonGrayClientLabel);
+    ResponseEntity<String> anotherResponse = restTemplate.getForEntity(
+        "http://{baseurl}/configfiles/json/{appId}/{clusterName}/{namespace}?ip={clientIp}&label={clientLabel}",
+        String.class, getHostUrl(), someAppId, someDefaultCluster,
+        somePublicNamespace.toUpperCase(), nonGrayClientIp, nonGrayClientLabel);
 
     Map<String, String> configs = GSON.fromJson(response.getBody(), mapResponseType);
     Map<String, String> anotherConfigs = GSON.fromJson(anotherResponse.getBody(), mapResponseType);
@@ -304,13 +311,14 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
   }
 
   @Test
-  @Sql(scripts = "/integration-test/test-release.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/integration-test/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  @Sql(scripts = "/integration-test/test-release.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/integration-test/cleanup.sql",
+      executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testConfigChanged() throws Exception {
     ResponseEntity<String> response =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace);
+        restTemplate.getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}",
+            String.class, getHostUrl(), someAppId, someCluster, someNamespace);
 
     String result = response.getBody();
 
@@ -330,9 +338,8 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
     buildRelease(someReleaseName, someReleaseComment, namespace, newConfigurations, someOwner);
 
     ResponseEntity<String> anotherResponse =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace);
+        restTemplate.getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}",
+            String.class, getHostUrl(), someAppId, someCluster, someNamespace);
 
     assertEquals(response.getBody(), anotherResponse.getBody());
 
@@ -343,9 +350,8 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
     TimeUnit.MILLISECONDS.sleep(500);
 
     ResponseEntity<String> newResponse =
-        restTemplate
-            .getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}", String.class,
-                getHostUrl(), someAppId, someCluster, someNamespace);
+        restTemplate.getForEntity("http://{baseurl}/configfiles/{appId}/{clusterName}/{namespace}",
+            String.class, getHostUrl(), someAppId, someCluster, someNamespace);
 
     result = newResponse.getBody();
     assertEquals(HttpStatus.OK, response.getStatusCode());

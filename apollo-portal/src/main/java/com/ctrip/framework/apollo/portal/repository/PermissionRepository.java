@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,9 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   @Query("SELECT p.id from Permission p where p.targetId like ?1 or p.targetId like CONCAT(?1, '+%')")
   List<Long> findPermissionIdsByAppId(String appId);
 
-  @Query("SELECT p.id from Permission p "
-      + "where ("
+  @Query("SELECT p.id from Permission p " + "where ("
       + "p.targetId like CONCAT(?1, '+', ?2) OR p.targetId like CONCAT(?1, '+', ?2, '+%')"
-      + ") AND ( "
-      + "p.permissionType = 'ModifyNamespace' OR p.permissionType = 'ReleaseNamespace'"
+      + ") AND ( " + "p.permissionType = 'ModifyNamespace' OR p.permissionType = 'ReleaseNamespace'"
       + ")")
   List<Long> findPermissionIdsByAppIdAndNamespace(String appId, String namespaceName);
 

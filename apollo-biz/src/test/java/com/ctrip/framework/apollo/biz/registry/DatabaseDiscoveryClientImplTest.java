@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,9 +33,8 @@ import org.mockito.Mockito;
 
 class DatabaseDiscoveryClientImplTest {
 
-  private static ServiceRegistry newServiceRegistry(
-      String serviceName, String uri, String cluster, LocalDateTime dataChangeLastModifiedTime
-  ) {
+  private static ServiceRegistry newServiceRegistry(String serviceName, String uri, String cluster,
+      LocalDateTime dataChangeLastModifiedTime) {
     ServiceRegistry serviceRegistry = new ServiceRegistry();
     serviceRegistry.setServiceName(serviceName);
     serviceRegistry.setUri(uri);
@@ -56,23 +55,16 @@ class DatabaseDiscoveryClientImplTest {
     final String serviceName = "a-service";
     ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
     {
-      List<ServiceRegistry> serviceRegistryList = Arrays.asList(
-          newServiceRegistry(serviceName, "http://localhost:8081/", "1"),
-          newServiceRegistry("b-service", "http://localhost:8082/", "2"),
-          newServiceRegistry("c-service", "http://localhost:8082/", "3")
-      );
-      Mockito.when(
-              serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
-                  eq(serviceName),
-                  any(LocalDateTime.class)))
-          .thenReturn(serviceRegistryList);
+      List<ServiceRegistry> serviceRegistryList =
+          Arrays.asList(newServiceRegistry(serviceName, "http://localhost:8081/", "1"),
+              newServiceRegistry("b-service", "http://localhost:8082/", "2"),
+              newServiceRegistry("c-service", "http://localhost:8082/", "3"));
+      Mockito.when(serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
+          eq(serviceName), any(LocalDateTime.class))).thenReturn(serviceRegistryList);
     }
 
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        serviceRegistryService,
-        new ApolloServiceDiscoveryProperties(),
-        "1"
-    );
+        serviceRegistryService, new ApolloServiceDiscoveryProperties(), "1");
 
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
     assertEquals(1, serviceInstances.size());
@@ -85,19 +77,15 @@ class DatabaseDiscoveryClientImplTest {
     final String serviceName = "a-service";
     ServiceRegistryService serviceRegistryService = Mockito.mock(ServiceRegistryService.class);
 
-    ServiceRegistry healthy = newServiceRegistry(serviceName, "http://localhost:8081/", "1",
-        LocalDateTime.now());
-    Mockito.when(
-            serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
-                eq(serviceName),
-                any(LocalDateTime.class)))
+    ServiceRegistry healthy =
+        newServiceRegistry(serviceName, "http://localhost:8081/", "1", LocalDateTime.now());
+    Mockito
+        .when(serviceRegistryService.findByServiceNameDataChangeLastModifiedTimeGreaterThan(
+            eq(serviceName), any(LocalDateTime.class)))
         .thenReturn(Collections.singletonList(healthy));
 
     DatabaseDiscoveryClient discoveryClient = new DatabaseDiscoveryClientImpl(
-        serviceRegistryService,
-        new ApolloServiceDiscoveryProperties(),
-        "1"
-    );
+        serviceRegistryService, new ApolloServiceDiscoveryProperties(), "1");
 
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
     assertEquals(1, serviceInstances.size());

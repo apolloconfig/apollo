@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,17 +41,11 @@ public class ApolloAuditLogService {
 
   public void logSpan(ApolloAuditSpan span) {
 
-    ApolloAuditLog auditLog = ApolloAuditLog.builder()
-        .traceId(span.traceId())
-        .spanId(span.spanId())
-        .parentSpanId(span.parentId())
-        .followsFromSpanId(span.followsFromId())
-        .operator(span.operator() != null ? span.operator() : "anonymous")
-        .opName(span.getOpName())
-        .opType(span.getOpType().toString())
-        .description(span.getDescription())
-        .happenedTime(new Date())
-        .build();
+    ApolloAuditLog auditLog = ApolloAuditLog.builder().traceId(span.traceId()).spanId(span.spanId())
+        .parentSpanId(span.parentId()).followsFromSpanId(span.followsFromId())
+        .operator(span.operator() != null ? span.operator() : "anonymous").opName(span.getOpName())
+        .opType(span.getOpType().toString()).description(span.getDescription())
+        .happenedTime(new Date()).build();
     logRepository.save(auditLog);
   }
 
@@ -69,11 +63,12 @@ public class ApolloAuditLogService {
     return logRepository.findByOpName(opName, pageable);
   }
 
-  public List<ApolloAuditLog> findByOpNameAndTime(String opName, Date startDate,
-      Date endDate, int page, int size) {
+  public List<ApolloAuditLog> findByOpNameAndTime(String opName, Date startDate, Date endDate,
+      int page, int size) {
     Pageable pageable = pageSortByTime(page, size);
-    return logRepository.findByOpNameAndDataChangeCreatedTimeGreaterThanEqualAndDataChangeCreatedTimeLessThanEqual(
-        opName, startDate, endDate, pageable);
+    return logRepository
+        .findByOpNameAndDataChangeCreatedTimeGreaterThanEqualAndDataChangeCreatedTimeLessThanEqual(
+            opName, startDate, endDate, pageable);
   }
 
   public List<ApolloAuditLog> searchLogByNameOrTypeOrOperator(String query, int page, int size) {

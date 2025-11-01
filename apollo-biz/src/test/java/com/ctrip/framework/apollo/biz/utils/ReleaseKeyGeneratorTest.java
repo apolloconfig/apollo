@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,8 @@ public class ReleaseKeyGeneratorTest {
     String anotherAppId = "anotherAppId";
 
     Namespace namespace = MockBeanFactory.mockNamespace(someAppId, someCluster, someNamespace);
-    Namespace anotherNamespace = MockBeanFactory.mockNamespace(anotherAppId, someCluster, someNamespace);
+    Namespace anotherNamespace =
+        MockBeanFactory.mockNamespace(anotherAppId, someCluster, someNamespace);
     int generateTimes = 50000;
     Set<String> releaseKeys = Sets.newConcurrentHashSet();
 
@@ -54,14 +55,15 @@ public class ReleaseKeyGeneratorTest {
     CountDownLatch latch = new CountDownLatch(1);
 
     executorService.submit(generateReleaseKeysTask(namespace, releaseKeys, generateTimes, latch));
-    executorService.submit(generateReleaseKeysTask(anotherNamespace, releaseKeys, generateTimes, latch));
+    executorService
+        .submit(generateReleaseKeysTask(anotherNamespace, releaseKeys, generateTimes, latch));
 
     latch.countDown();
 
     executorService.shutdown();
     executorService.awaitTermination(10, TimeUnit.SECONDS);
 
-    //make sure keys are unique
+    // make sure keys are unique
     assertEquals(generateTimes * 2, releaseKeys.size());
   }
 
@@ -82,12 +84,12 @@ public class ReleaseKeyGeneratorTest {
   }
 
   private Runnable generateReleaseKeysTask(Namespace namespace, Set<String> releaseKeys,
-                                   int generateTimes, CountDownLatch latch) {
+      int generateTimes, CountDownLatch latch) {
     return () -> {
       try {
         latch.await();
       } catch (InterruptedException e) {
-        //ignore
+        // ignore
       }
       for (int i = 0; i < generateTimes; i++) {
         releaseKeys.add(ReleaseKeyGenerator.generateReleaseKey(namespace));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,18 +35,16 @@ public class NamespaceLockController {
   private final NamespaceService namespaceService;
   private final BizConfig bizConfig;
 
-  public NamespaceLockController(
-      final NamespaceLockService namespaceLockService,
-      final NamespaceService namespaceService,
-      final BizConfig bizConfig) {
+  public NamespaceLockController(final NamespaceLockService namespaceLockService,
+      final NamespaceService namespaceService, final BizConfig bizConfig) {
     this.namespaceLockService = namespaceLockService;
     this.namespaceService = namespaceService;
     this.bizConfig = bizConfig;
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
-  public NamespaceLockDTO getNamespaceLockOwner(@PathVariable String appId, @PathVariable String clusterName,
-                                                @PathVariable String namespaceName) {
+  public NamespaceLockDTO getNamespaceLockOwner(@PathVariable String appId,
+      @PathVariable String clusterName, @PathVariable String namespaceName) {
     Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
     if (namespace == null) {
       throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.google.common.base.MoreObjects;
@@ -36,7 +35,7 @@ public class Authority {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "`Id`")
-  private long   id;
+  private long id;
   @Column(name = "`Username`", nullable = false)
   private String username;
   @Column(name = "`Authority`", nullable = false)
@@ -68,8 +67,7 @@ public class Authority {
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).omitNullValues().add("id", id)
-        .add("username", username)
+    return MoreObjects.toStringHelper(this).omitNullValues().add("id", id).add("username", username)
         .add("authority", authority).toString();
   }
 }

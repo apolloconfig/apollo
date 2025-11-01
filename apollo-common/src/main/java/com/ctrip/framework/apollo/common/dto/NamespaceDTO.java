@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,15 @@ package com.ctrip.framework.apollo.common.dto;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import javax.validation.constraints.Pattern;
 
-public class NamespaceDTO extends BaseDTO{
+public class NamespaceDTO extends BaseDTO {
   private long id;
 
   private String appId;
 
   private String clusterName;
 
-  @Pattern(
-      regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
-      message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE
-  )
+  @Pattern(regexp = InputValidator.CLUSTER_NAMESPACE_VALIDATOR,
+      message = "Invalid Namespace format: " + InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE)
   private String namespaceName;
 
   public long getId() {

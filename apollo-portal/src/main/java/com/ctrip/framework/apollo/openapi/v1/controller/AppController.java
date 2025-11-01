@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,11 +50,9 @@ public class AppController implements AppManagementApi {
   private final AppOpenApiService appOpenApiService;
   private final UserService userService;
 
-  public AppController(
-          final ConsumerAuthUtil consumerAuthUtil,
-          final ConsumerService consumerService,
-          final AppOpenApiService appOpenApiService,
-          final UserService userService) {
+  public AppController(final ConsumerAuthUtil consumerAuthUtil,
+      final ConsumerService consumerService, final AppOpenApiService appOpenApiService,
+      final UserService userService) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerService = consumerService;
     this.appOpenApiService = appOpenApiService;
@@ -92,7 +90,8 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<List<OpenAppDTO>> findApps(String appIds) {
     if (StringUtils.hasText(appIds)) {
-      return ResponseEntity.ok(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(","))));
+      return ResponseEntity
+          .ok(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(","))));
     } else {
       return ResponseEntity.ok(this.appOpenApiService.getAllApps());
     }
@@ -146,7 +145,8 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<List<OpenAppDTO>> getAppsBySelf(Integer page, Integer size) {
     long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
-    Set<String> authorizedAppIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+    Set<String> authorizedAppIds =
+        this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
     List<OpenAppDTO> apps = appOpenApiService.getAppsBySelf(authorizedAppIds, page, size);
     return ResponseEntity.ok(apps);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,8 +56,8 @@ public class BizDBPropertySource extends RefreshablePropertySource {
   private final Environment env;
 
   @Autowired
-  public BizDBPropertySource(final ServerConfigRepository serverConfigRepository, DataSource dataSource,
-                             final Environment env) {
+  public BizDBPropertySource(final ServerConfigRepository serverConfigRepository,
+      DataSource dataSource, final Environment env) {
     super("DBConfig", Maps.newConcurrentMap());
     this.serverConfigRepository = serverConfigRepository;
     this.dataSource = dataSource;
@@ -83,14 +83,14 @@ public class BizDBPropertySource extends RefreshablePropertySource {
     Iterable<ServerConfig> dbConfigs = serverConfigRepository.findAll();
 
     Map<String, Object> newConfigs = Maps.newHashMap();
-    //default cluster's configs
+    // default cluster's configs
     for (ServerConfig config : dbConfigs) {
       if (Objects.equals(ConfigConsts.CLUSTER_NAME_DEFAULT, config.getCluster())) {
         newConfigs.put(config.getKey(), config.getValue());
       }
     }
 
-    //data center's configs
+    // data center's configs
     String dataCenter = getCurrentDataCenter();
     for (ServerConfig config : dbConfigs) {
       if (Objects.equals(dataCenter, config.getCluster())) {
@@ -98,7 +98,7 @@ public class BizDBPropertySource extends RefreshablePropertySource {
       }
     }
 
-    //cluster's config
+    // cluster's config
     if (!Strings.isNullOrEmpty(System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY))) {
       String cluster = System.getProperty(ConfigConsts.APOLLO_CLUSTER_KEY);
       for (ServerConfig config : dbConfigs) {
@@ -108,16 +108,16 @@ public class BizDBPropertySource extends RefreshablePropertySource {
       }
     }
 
-    //put to environment
-    for (Map.Entry<String, Object> config: newConfigs.entrySet()){
+    // put to environment
+    for (Map.Entry<String, Object> config : newConfigs.entrySet()) {
       String key = config.getKey();
       Object value = config.getValue();
 
       if (this.source.get(key) == null) {
         logger.info("Load config from DB : {} = {}", key, value);
       } else if (!Objects.equals(this.source.get(key), value)) {
-        logger.info("Load config from DB : {} = {}. Old value = {}", key,
-                    value, this.source.get(key));
+        logger.info("Load config from DB : {} = {}. Old value = {}", key, value,
+            this.source.get(key));
       }
 
       this.source.put(key, value);

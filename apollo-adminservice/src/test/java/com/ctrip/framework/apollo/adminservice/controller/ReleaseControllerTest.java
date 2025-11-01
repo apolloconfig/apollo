@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import static org.mockito.Mockito.*;
 
 public class ReleaseControllerTest extends AbstractControllerTest {
 
-  private static final  Gson GSON = new Gson();
+  private static final Gson GSON = new Gson();
   @Autowired
   ReleaseRepository releaseRepository;
 
@@ -62,19 +62,20 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
 
     Assert.assertNotNull(app);
-    ClusterDTO cluster = restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
+    ClusterDTO cluster =
+        restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
 
     Assert.assertNotNull(cluster);
-    NamespaceDTO namespace =
-        restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class, app.getAppId(), cluster.getName(), "application");
+    NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "application");
 
     Assert.assertNotNull(namespace);
     Assert.assertEquals("someAppId", app.getAppId());
     Assert.assertEquals("default", cluster.getName());
     Assert.assertEquals("application", namespace.getNamespaceName());
 
-    ItemDTO[] items = restTemplate.getForObject(itemBaseUrl(),
-            ItemDTO[].class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    ItemDTO[] items = restTemplate.getForObject(itemBaseUrl(), ItemDTO[].class, app.getAppId(),
+        cluster.getName(), namespace.getNamespaceName());
     Assert.assertNotNull(items);
     Assert.assertEquals(3, items.length);
 
@@ -85,8 +86,9 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     parameters.add("comment", "someComment");
     parameters.add("operator", "test");
     HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(parameters, headers);
-    ResponseEntity<ReleaseDTO> response = restTemplate.postForEntity(url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases"),
-        entity, ReleaseDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    ResponseEntity<ReleaseDTO> response = restTemplate.postForEntity(
+        url("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases"), entity,
+        ReleaseDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
     Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
     ReleaseDTO release = response.getBody();
     Assert.assertNotNull(release);
@@ -117,18 +119,18 @@ public class ReleaseControllerTest extends AbstractControllerTest {
     MessageSender someMessageSender = mock(MessageSender.class);
     Namespace someNamespace = mock(Namespace.class);
 
-    ReleaseController releaseController = new ReleaseController(someReleaseService, someNamespaceService, someMessageSender, null);
+    ReleaseController releaseController =
+        new ReleaseController(someReleaseService, someNamespaceService, someMessageSender, null);
 
     when(someNamespaceService.findOne(someAppId, someCluster, someNamespaceName))
         .thenReturn(someNamespace);
 
-    releaseController
-        .publish(someAppId, someCluster, someNamespaceName, someName, someComment, "test", false);
+    releaseController.publish(someAppId, someCluster, someNamespaceName, someName, someComment,
+        "test", false);
 
     verify(someMessageSender, times(1))
-        .sendMessage(Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR)
-                .join(someAppId, someCluster, someNamespaceName),
-            Topics.APOLLO_RELEASE_TOPIC);
+        .sendMessage(Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(someAppId,
+            someCluster, someNamespaceName), Topics.APOLLO_RELEASE_TOPIC);
 
   }
 }

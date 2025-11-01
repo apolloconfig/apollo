@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ public class ConfigFileUtilsTest {
 
   @Test
   public void getFormat() {
-    final String properties = ConfigFileUtils.getFormat("application+default+application.properties");
+    final String properties =
+        ConfigFileUtils.getFormat("application+default+application.properties");
     assertEquals("properties", properties);
 
     final String yml = ConfigFileUtils.getFormat("application+default+application.yml");
@@ -61,7 +62,8 @@ public class ConfigFileUtilsTest {
 
   @Test
   public void getAppId() {
-    final String application = ConfigFileUtils.getAppId("application+default+application.properties");
+    final String application =
+        ConfigFileUtils.getAppId("application+default+application.properties");
     assertEquals("application", application);
 
     final String abc = ConfigFileUtils.getAppId("abc+default+application.yml");
@@ -70,7 +72,8 @@ public class ConfigFileUtilsTest {
 
   @Test
   public void getClusterName() {
-    final String cluster = ConfigFileUtils.getClusterName("application+default+application.properties");
+    final String cluster =
+        ConfigFileUtils.getClusterName("application+default+application.properties");
     assertEquals("default", cluster);
 
     final String Beijing = ConfigFileUtils.getClusterName("abc+Beijing+application.yml");
@@ -88,11 +91,13 @@ public class ConfigFileUtilsTest {
 
   @Test
   public void toFilename() {
-    final String propertiesFilename0 = ConfigFileUtils.toFilename("123", "default", "application", ConfigFileFormat.Properties);
+    final String propertiesFilename0 =
+        ConfigFileUtils.toFilename("123", "default", "application", ConfigFileFormat.Properties);
     logger.info("propertiesFilename0 {}", propertiesFilename0);
     assertEquals("123+default+application.properties", propertiesFilename0);
 
-    final String ymlFilename0 = ConfigFileUtils.toFilename("666", "none", "cc.yml", ConfigFileFormat.YML);
+    final String ymlFilename0 =
+        ConfigFileUtils.toFilename("666", "none", "cc.yml", ConfigFileFormat.YML);
     logger.info("ymlFilename0 {}", ymlFilename0);
     assertEquals("666+none+cc.yml", ymlFilename0);
   }

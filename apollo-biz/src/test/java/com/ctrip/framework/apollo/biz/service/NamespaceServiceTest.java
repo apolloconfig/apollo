@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,13 +64,15 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testFindPublicAppNamespace() {
 
-    AppNamespace publicAppNamespace = MockBeanFactory.mockAppNamespace(null, testPublicAppNamespace, true);
-    when(appNamespaceService.findPublicNamespaceByName(testPublicAppNamespace)).thenReturn(publicAppNamespace);
+    AppNamespace publicAppNamespace =
+        MockBeanFactory.mockAppNamespace(null, testPublicAppNamespace, true);
+    when(appNamespaceService.findPublicNamespaceByName(testPublicAppNamespace))
+        .thenReturn(publicAppNamespace);
 
-    Namespace firstParentNamespace =
-        MockBeanFactory.mockNamespace("app", ConfigConsts.CLUSTER_NAME_DEFAULT, testPublicAppNamespace);
-    Namespace secondParentNamespace =
-        MockBeanFactory.mockNamespace("app1", ConfigConsts.CLUSTER_NAME_DEFAULT, testPublicAppNamespace);
+    Namespace firstParentNamespace = MockBeanFactory.mockNamespace("app",
+        ConfigConsts.CLUSTER_NAME_DEFAULT, testPublicAppNamespace);
+    Namespace secondParentNamespace = MockBeanFactory.mockNamespace("app1",
+        ConfigConsts.CLUSTER_NAME_DEFAULT, testPublicAppNamespace);
 
     Pageable page = PageRequest.of(0, 10);
 
@@ -80,7 +82,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     doReturn(false).when(namespaceService).isChildNamespace(firstParentNamespace);
     doReturn(false).when(namespaceService).isChildNamespace(secondParentNamespace);
 
-    List<Namespace> namespaces = namespaceService.findPublicAppNamespaceAllNamespaces(testPublicAppNamespace, page);
+    List<Namespace> namespaces =
+        namespaceService.findPublicAppNamespaceAllNamespaces(testPublicAppNamespace, page);
 
     assertEquals(2, namespaces.size());
   }

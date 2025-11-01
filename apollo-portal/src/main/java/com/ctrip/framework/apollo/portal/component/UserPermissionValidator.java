@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component("userPermissionValidator")
-public class UserPermissionValidator extends AbstractPermissionValidator implements
-    PermissionValidator {
+public class UserPermissionValidator extends AbstractPermissionValidator
+    implements PermissionValidator {
 
   private final UserInfoHolder userInfoHolder;
   private final RolePermissionService rolePermissionService;
@@ -36,12 +36,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
   private final AppNamespaceService appNamespaceService;
   private final SystemRoleManagerService systemRoleManagerService;
 
-  public UserPermissionValidator(
-          final UserInfoHolder userInfoHolder,
-          final RolePermissionService rolePermissionService,
-          final PortalConfig portalConfig,
-          final AppNamespaceService appNamespaceService,
-          final SystemRoleManagerService systemRoleManagerService) {
+  public UserPermissionValidator(final UserInfoHolder userInfoHolder,
+      final RolePermissionService rolePermissionService, final PortalConfig portalConfig,
+      final AppNamespaceService appNamespaceService,
+      final SystemRoleManagerService systemRoleManagerService) {
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
     this.portalConfig = portalConfig;
@@ -83,12 +81,14 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
     }
 
     // 3. check app admin and operate permissions
-    return !isAppAdmin(appId) && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
+    return !isAppAdmin(appId)
+        && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
   }
 
   @Override
   public boolean hasCreateApplicationPermission() {
-    return systemRoleManagerService.hasCreateApplicationPermission(userInfoHolder.getUser().getUserId());
+    return systemRoleManagerService
+        .hasCreateApplicationPermission(userInfoHolder.getUser().getUserId());
   }
 
   @Override
@@ -98,11 +98,10 @@ public class UserPermissionValidator extends AbstractPermissionValidator impleme
 
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
-    // the manage app master permission might not be initialized, so we need to check isSuperAdmin first
-    return isSuperAdmin() ||
-        (hasAssignRolePermission(appId) &&
-         systemRoleManagerService.hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId)
-        );
+    // the manage app master permission might not be initialized, so we need to check isSuperAdmin
+    // first
+    return isSuperAdmin() || (hasAssignRolePermission(appId) && systemRoleManagerService
+        .hasManageAppMasterPermission(userInfoHolder.getUser().getUserId(), appId));
   }
 
   @Override

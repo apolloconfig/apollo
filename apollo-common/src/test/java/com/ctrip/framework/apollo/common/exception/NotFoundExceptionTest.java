@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ public class NotFoundExceptionTest {
   public void testConstructor() {
     String key = "test.key";
     NotFoundException e1, e2;
-    e1 = new NotFoundException("item not found for %s %s %s %s", appId,
-        clusterName, namespaceName, key);
+    e1 = new NotFoundException("item not found for %s %s %s %s", appId, clusterName, namespaceName,
+        key);
     e2 = new NotFoundException(
         String.format("item not found for %s %s %s %s", appId, clusterName, namespaceName, key));
     assertEquals(e1.getMessage(), e2.getMessage());
@@ -51,8 +51,10 @@ public class NotFoundExceptionTest {
 
   @Test
   public void testNamespaceNotFoundException() {
-    NotFoundException exception = NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
-    assertEquals(exception.getMessage(), "namespace not found for appId:app-1001 clusterName:test namespaceName:application");
+    NotFoundException exception =
+        NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
+    assertEquals(exception.getMessage(),
+        "namespace not found for appId:app-1001 clusterName:test namespaceName:application");
 
     exception = NotFoundException.namespaceNotFound(66);
     assertEquals(exception.getMessage(), "namespace not found for namespaceId:66");
@@ -65,7 +67,7 @@ public class NotFoundExceptionTest {
   }
 
   @Test
-  public void testItemNotFoundException(){
+  public void testItemNotFoundException() {
     NotFoundException exception = NotFoundException.itemNotFound(66);
     assertEquals(exception.getMessage(), "item not found for itemId:66");
 
@@ -73,15 +75,18 @@ public class NotFoundExceptionTest {
     assertEquals(exception.getMessage(), "item not found for itemKey:test.key");
 
     exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, "test.key");
-    assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemKey:test.key");
+    assertEquals(exception.getMessage(),
+        "item not found for appId:app-1001 clusterName:test namespaceName:application itemKey:test.key");
 
     exception = NotFoundException.itemNotFound(appId, clusterName, namespaceName, 66);
-    assertEquals(exception.getMessage(), "item not found for appId:app-1001 clusterName:test namespaceName:application itemId:66");
+    assertEquals(exception.getMessage(),
+        "item not found for appId:app-1001 clusterName:test namespaceName:application itemId:66");
   }
 
   @Test
   void roleNotFound() {
     NotFoundException exception = NotFoundException.roleNotFound("CreateApplication+SystemRole");
-    assertEquals(exception.getMessage(), "role not found for roleName:CreateApplication+SystemRole, please check apollo portal DB table 'Role'");
+    assertEquals(exception.getMessage(),
+        "role not found for roleName:CreateApplication+SystemRole, please check apollo portal DB table 'Role'");
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,17 +37,20 @@ public class CommitService {
     this.additionalUserInfoEnrichService = additionalUserInfoEnrichService;
   }
 
-  public List<CommitDTO> find(String appId, Env env, String clusterName, String namespaceName, int page, int size) {
+  public List<CommitDTO> find(String appId, Env env, String clusterName, String namespaceName,
+      int page, int size) {
     List<CommitDTO> dtoList = commitAPI.find(appId, env, clusterName, namespaceName, page, size);
     this.additionalUserInfoEnrichService.enrichAdditionalUserInfo(dtoList,
         BaseDtoUserInfoEnrichedAdapter::new);
     return dtoList;
   }
 
-  public List<CommitDTO> findByKey(String appId, Env env, String clusterName, String namespaceName, String key, int page, int size) {
-    List<CommitDTO> dtoList = commitAPI.findByKey(appId, env, clusterName, namespaceName, key, page, size);
+  public List<CommitDTO> findByKey(String appId, Env env, String clusterName, String namespaceName,
+      String key, int page, int size) {
+    List<CommitDTO> dtoList =
+        commitAPI.findByKey(appId, env, clusterName, namespaceName, key, page, size);
     this.additionalUserInfoEnrichService.enrichAdditionalUserInfo(dtoList,
-            BaseDtoUserInfoEnrichedAdapter::new);
+        BaseDtoUserInfoEnrichedAdapter::new);
     return dtoList;
   }
 

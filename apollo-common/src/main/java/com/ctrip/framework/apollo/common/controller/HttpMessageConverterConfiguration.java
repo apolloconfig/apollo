@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,12 @@ public class HttpMessageConverterConfiguration {
   @Bean
   public HttpMessageConverters messageConverters() {
     // Custom Gson TypeAdapter for Instant
-    JsonSerializer<Instant> instantJsonSerializer = (src, typeOfSrc, context) ->
-        src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString()); // Serialize Instant as ISO-8601 string
+    JsonSerializer<Instant> instantJsonSerializer = (src, typeOfSrc,
+        context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString()); // Serialize
+                                                                                         // Instant
+                                                                                         // as
+                                                                                         // ISO-8601
+                                                                                         // string
 
     JsonDeserializer<Instant> instantJsonDeserializer = (json, typeOfT, context) -> {
       if (json == null || json.isJsonNull()) {
@@ -54,13 +58,11 @@ public class HttpMessageConverterConfiguration {
     };
 
     GsonHttpMessageConverter gsonHttpMessageConverter = new GsonHttpMessageConverter();
-    gsonHttpMessageConverter.setGson(
-            new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
-                .registerTypeAdapter(Instant.class, instantJsonSerializer)
-                .registerTypeAdapter(Instant.class, instantJsonDeserializer)
-                .create());
-    final List<HttpMessageConverter<?>> converters = Lists.newArrayList(
-            new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
+    gsonHttpMessageConverter.setGson(new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
+        .registerTypeAdapter(Instant.class, instantJsonSerializer)
+        .registerTypeAdapter(Instant.class, instantJsonDeserializer).create());
+    final List<HttpMessageConverter<?>> converters =
+        Lists.newArrayList(new ByteArrayHttpMessageConverter(), new StringHttpMessageConverter(),
             new AllEncompassingFormHttpMessageConverter(), gsonHttpMessageConverter);
     return new HttpMessageConverters() {
       @Override

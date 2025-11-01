@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,57 +40,57 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class NacosDiscoveryServiceTest {
 
-    private NacosDiscoveryService nacosDiscoveryService;
+  private NacosDiscoveryService nacosDiscoveryService;
 
-    @Mock
-    private NamingService nacosNamingService;
+  @Mock
+  private NamingService nacosNamingService;
 
-    private String someServiceId;
-
-
-    @Before
-    public void setUp() throws Exception {
-        nacosDiscoveryService = new NacosDiscoveryService();
-        nacosDiscoveryService.setNamingService(nacosNamingService);
-        someServiceId = "someServiceId";
-    }
-
-    @Test
-    public void testGetServiceInstancesWithEmptyInstances() throws Exception {
-        assertTrue(nacosNamingService.selectInstances(someServiceId, true).isEmpty());
-    }
+  private String someServiceId;
 
 
-    @Test
-    public void testGetServiceInstancesWithInvalidServiceId() {
-        assertTrue(nacosDiscoveryService.getServiceInstances(someServiceId).isEmpty());
-    }
+  @Before
+  public void setUp() throws Exception {
+    nacosDiscoveryService = new NacosDiscoveryService();
+    nacosDiscoveryService.setNamingService(nacosNamingService);
+    someServiceId = "someServiceId";
+  }
 
-    @Test
-    public void testGetServiceInstances() throws Exception {
-        String someIp = "1.2.3.4";
-        int somePort = 8080;
-        String someInstanceId = "someInstanceId";
-        Instance someServiceInstance = mockServiceInstance(someInstanceId, someIp, somePort);
+  @Test
+  public void testGetServiceInstancesWithEmptyInstances() throws Exception {
+    assertTrue(nacosNamingService.selectInstances(someServiceId, true).isEmpty());
+  }
 
-        when(nacosNamingService.selectInstances(someServiceId, true)).thenReturn(
-                Lists.newArrayList(someServiceInstance));
 
-        List<ServiceDTO> serviceDTOList = nacosDiscoveryService.getServiceInstances(someServiceId);
-        ServiceDTO serviceDTO = serviceDTOList.get(0);
-        assertEquals(1, serviceDTOList.size());
-        assertEquals(someServiceId, serviceDTO.getAppName());
-        assertEquals("http://1.2.3.4:8080/", serviceDTO.getHomepageUrl());
+  @Test
+  public void testGetServiceInstancesWithInvalidServiceId() {
+    assertTrue(nacosDiscoveryService.getServiceInstances(someServiceId).isEmpty());
+  }
 
-    }
+  @Test
+  public void testGetServiceInstances() throws Exception {
+    String someIp = "1.2.3.4";
+    int somePort = 8080;
+    String someInstanceId = "someInstanceId";
+    Instance someServiceInstance = mockServiceInstance(someInstanceId, someIp, somePort);
 
-    private Instance mockServiceInstance(String instanceId, String ip, int port) {
-        Instance serviceInstance = mock(Instance.class);
-        when(serviceInstance.getInstanceId()).thenReturn(instanceId);
-        when(serviceInstance.getIp()).thenReturn(ip);
-        when(serviceInstance.getPort()).thenReturn(port);
+    when(nacosNamingService.selectInstances(someServiceId, true))
+        .thenReturn(Lists.newArrayList(someServiceInstance));
 
-        return serviceInstance;
-    }
+    List<ServiceDTO> serviceDTOList = nacosDiscoveryService.getServiceInstances(someServiceId);
+    ServiceDTO serviceDTO = serviceDTOList.get(0);
+    assertEquals(1, serviceDTOList.size());
+    assertEquals(someServiceId, serviceDTO.getAppName());
+    assertEquals("http://1.2.3.4:8080/", serviceDTO.getHomepageUrl());
+
+  }
+
+  private Instance mockServiceInstance(String instanceId, String ip, int port) {
+    Instance serviceInstance = mock(Instance.class);
+    when(serviceInstance.getInstanceId()).thenReturn(instanceId);
+    when(serviceInstance.getIp()).thenReturn(ip);
+    when(serviceInstance.getPort()).thenReturn(port);
+
+    return serviceInstance;
+  }
 
 }

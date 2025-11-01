@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ public class AppInfoChangedListener {
   private final AdminServiceAPI.AppAPI appAPI;
   private final PortalSettings portalSettings;
 
-  public AppInfoChangedListener(final AdminServiceAPI.AppAPI appAPI, final PortalSettings portalSettings) {
+  public AppInfoChangedListener(final AdminServiceAPI.AppAPI appAPI,
+      final PortalSettings portalSettings) {
     this.appAPI = appAPI;
     this.portalSettings = portalSettings;
   }
@@ -52,7 +53,8 @@ public class AppInfoChangedListener {
         appAPI.updateApp(env, appDTO);
       } catch (Throwable e) {
         logger.error("Update app's info failed. Env = {}, AppId = {}", env, appId, e);
-        Tracer.logError(String.format("Update app's info failed. Env = %s, AppId = %s", env, appId), e);
+        Tracer.logError(String.format("Update app's info failed. Env = %s, AppId = %s", env, appId),
+            e);
       }
     }
   }

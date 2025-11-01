@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,7 @@ public class AdditionalUserInfoEnrichServiceImpl implements AdditionalUserInfoEn
 
   private final List<AdditionalUserInfoEnricher> enricherList;
 
-  public AdditionalUserInfoEnrichServiceImpl(
-      UserService userService,
+  public AdditionalUserInfoEnrichServiceImpl(UserService userService,
       List<AdditionalUserInfoEnricher> enricherList) {
     this.userService = userService;
     this.enricherList = enricherList;
@@ -69,8 +68,8 @@ public class AdditionalUserInfoEnrichServiceImpl implements AdditionalUserInfoEn
     if (CollectionUtils.isEmpty(userInfoList)) {
       return;
     }
-    Map<String, UserInfo> userInfoMap = userInfoList.stream()
-        .collect(Collectors.toMap(UserInfo::getUserId, Function.identity()));
+    Map<String, UserInfo> userInfoMap =
+        userInfoList.stream().collect(Collectors.toMap(UserInfo::getUserId, Function.identity()));
     for (UserInfoEnrichedAdapter adapter : adapterList) {
       for (AdditionalUserInfoEnricher enricher : this.enricherList) {
         enricher.enrichAdditionalUserInfo(adapter, userInfoMap);

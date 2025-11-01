@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
  * limitations under the License.
  *
  */
-
-
 package com.ctrip.framework.apollo.portal.spi.ldap;
 
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
@@ -53,9 +51,9 @@ public class FilterLdapByGroupUserSearch extends FilterBasedLdapUserSearch {
 
   private final BaseLdapPathContextSource contextSource;
 
-  public FilterLdapByGroupUserSearch(String searchBase, String searchFilter,
-      String groupBase, BaseLdapPathContextSource contextSource, String groupSearch,
-      String rdnKey, String groupMembershipAttrName, String loginIdAttrName) {
+  public FilterLdapByGroupUserSearch(String searchBase, String searchFilter, String groupBase,
+      BaseLdapPathContextSource contextSource, String groupSearch, String rdnKey,
+      String groupMembershipAttrName, String loginIdAttrName) {
     super(searchBase, searchFilter, contextSource);
     this.searchBase = searchBase;
     this.groupBase = groupBase;
@@ -81,34 +79,29 @@ public class FilterLdapByGroupUserSearch extends FilterBasedLdapUserSearch {
     }
     SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
     template.setSearchControls(searchControls);
-    return template
-        .searchForObject(groupBase, groupSearch, ctx -> {
-          if (!MEMBER_UID_ATTR_NAME.equals(groupMembershipAttrName)) {
-            String[] members = ((DirContextAdapter) ctx)
-                .getStringAttributes(groupMembershipAttrName);
-            for (String item : members) {
-              LdapName memberDn = LdapUtils.newLdapName(item);
-              LdapName memberRdn = LdapUtils
-                  .removeFirst(memberDn, LdapUtils.newLdapName(searchBase));
-              String rdnValue = LdapUtils.getValue(memberRdn, rdnKey).toString();
-              if (rdnValue.equalsIgnoreCase(username)) {
-                return new DirContextAdapter(memberRdn.toString());
-              }
-            }
-            throw new UsernameNotFoundException("User " + username + " not found in directory.");
+    return template.searchForObject(groupBase, groupSearch, ctx -> {
+      if (!MEMBER_UID_ATTR_NAME.equals(groupMembershipAttrName)) {
+        String[] members = ((DirContextAdapter) ctx).getStringAttributes(groupMembershipAttrName);
+        for (String item : members) {
+          LdapName memberDn = LdapUtils.newLdapName(item);
+          LdapName memberRdn = LdapUtils.removeFirst(memberDn, LdapUtils.newLdapName(searchBase));
+          String rdnValue = LdapUtils.getValue(memberRdn, rdnKey).toString();
+          if (rdnValue.equalsIgnoreCase(username)) {
+            return new DirContextAdapter(memberRdn.toString());
           }
-          String[] memberUids = ((DirContextAdapter) ctx)
-              .getStringAttributes(groupMembershipAttrName);
-          for (String memberUid : memberUids) {
-            if (memberUid.equalsIgnoreCase(username)) {
-              Name name = searchUserById(memberUid);
-              LdapName ldapName = LdapUtils.newLdapName(name);
-              LdapName ldapRdn = LdapUtils
-                  .removeFirst(ldapName, LdapUtils.newLdapName(searchBase));
-              return new DirContextAdapter(ldapRdn);
-            }
-          }
-          throw new UsernameNotFoundException("User " + username + " not found in directory.");
-        });
+        }
+        throw new UsernameNotFoundException("User " + username + " not found in directory.");
+      }
+      String[] memberUids = ((DirContextAdapter) ctx).getStringAttributes(groupMembershipAttrName);
+      for (String memberUid : memberUids) {
+        if (memberUid.equalsIgnoreCase(username)) {
+          Name name = searchUserById(memberUid);
+          LdapName ldapName = LdapUtils.newLdapName(name);
+          LdapName ldapRdn = LdapUtils.removeFirst(ldapName, LdapUtils.newLdapName(searchBase));
+          return new DirContextAdapter(ldapRdn);
+        }
+      }
+      throw new UsernameNotFoundException("User " + username + " not found in directory.");
+    });
   }
 }

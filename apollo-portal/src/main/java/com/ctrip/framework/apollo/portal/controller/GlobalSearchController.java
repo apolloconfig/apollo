@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,24 +31,28 @@ import java.util.List;
 
 @RestController
 public class GlobalSearchController {
-    private final GlobalSearchService globalSearchService;
-    private final PortalConfig portalConfig;
+  private final GlobalSearchService globalSearchService;
+  private final PortalConfig portalConfig;
 
-    public GlobalSearchController(final GlobalSearchService globalSearchService, final PortalConfig portalConfig) {
-        this.globalSearchService = globalSearchService;
-        this.portalConfig = portalConfig;
+  public GlobalSearchController(final GlobalSearchService globalSearchService,
+      final PortalConfig portalConfig) {
+    this.globalSearchService = globalSearchService;
+    this.portalConfig = portalConfig;
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @GetMapping("/global-search/item-info/by-key-or-value")
+  public SearchResponseEntity<List<ItemInfo>> getItemInfoBySearch(
+      @RequestParam(value = "key", required = false, defaultValue = "") String key,
+      @RequestParam(value = "value", required = false, defaultValue = "") String value) {
+
+    if (key.isEmpty() && value.isEmpty()) {
+      throw new BadRequestException(
+          "Please enter at least one search criterion in either key or value.");
     }
 
-    @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-    @GetMapping("/global-search/item-info/by-key-or-value")
-    public SearchResponseEntity<List<ItemInfo>> getItemInfoBySearch(@RequestParam(value = "key", required = false, defaultValue = "") String key,
-                                                                    @RequestParam(value = "value", required = false , defaultValue = "") String value) {
-
-        if(key.isEmpty() && value.isEmpty()) {
-            throw new BadRequestException("Please enter at least one search criterion in either key or value.");
-        }
-
-        return globalSearchService.getAllEnvItemInfoBySearch(key, value, 0, portalConfig.getPerEnvSearchMaxResults());
-    }
+    return globalSearchService.getAllEnvItemInfoBySearch(key, value, 0,
+        portalConfig.getPerEnvSearchMaxResults());
+  }
 
 }

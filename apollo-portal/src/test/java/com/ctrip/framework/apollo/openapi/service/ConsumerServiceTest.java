@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,8 +100,8 @@ public class ConsumerServiceTest {
     Long consumerId = consumerService.getConsumerIdByToken(null);
 
     assertNull(consumerId);
-    verify(consumerTokenRepository, never()).findTopByTokenAndExpiresAfter(anyString(), any(Date
-                                                                                                .class));
+    verify(consumerTokenRepository, never()).findTopByTokenAndExpiresAfter(anyString(),
+        any(Date.class));
   }
 
   @Test
@@ -132,7 +132,8 @@ public class ConsumerServiceTest {
     String tokenSalt = "apollo";
     String expectedToken = "151067a53d08d70de161fa06b455623741877ce2f019f6e3018844c1a16dd8c6";
 
-    String actualToken = consumerService.generateToken(someConsumerAppId, generationTime, tokenSalt);
+    String actualToken =
+        consumerService.generateToken(someConsumerAppId, generationTime, tokenSalt);
 
     assertEquals(expectedToken, actualToken);
   }
@@ -167,8 +168,7 @@ public class ConsumerServiceTest {
     consumerToken.setConsumerId(someConsumerIdNotExist);
 
     assertThrows(IllegalArgumentException.class,
-        () -> consumerService.generateAndEnrichToken(null, consumerToken)
-    );
+        () -> consumerService.generateAndEnrichToken(null, consumerToken));
   }
 
   @Test
@@ -195,8 +195,10 @@ public class ConsumerServiceTest {
     String testNamespace = "namespace";
     String modifyRoleName = RoleUtils.buildModifyNamespaceRoleName(testAppId, testNamespace);
     String releaseRoleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, testNamespace);
-    String envModifyRoleName = RoleUtils.buildModifyNamespaceRoleName(testAppId, testNamespace, Env.DEV.toString());
-    String envReleaseRoleName = RoleUtils.buildReleaseNamespaceRoleName(testAppId, testNamespace, Env.DEV.toString());
+    String envModifyRoleName =
+        RoleUtils.buildModifyNamespaceRoleName(testAppId, testNamespace, Env.DEV.toString());
+    String envReleaseRoleName =
+        RoleUtils.buildReleaseNamespaceRoleName(testAppId, testNamespace, Env.DEV.toString());
     long modifyRoleId = 1;
     long releaseRoleId = 2;
     long envModifyRoleId = 3;
@@ -210,7 +212,8 @@ public class ConsumerServiceTest {
     when(rolePermissionService.findRoleByRoleName(envModifyRoleName)).thenReturn(envModifyRole);
     when(rolePermissionService.findRoleByRoleName(envReleaseRoleName)).thenReturn(envReleaseRole);
 
-    when(consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, modifyRoleId)).thenReturn(null);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, modifyRoleId))
+        .thenReturn(null);
 
     UserInfo owner = createUser(testOwner);
     when(userInfoHolder.getUser()).thenReturn(owner);
@@ -219,13 +222,18 @@ public class ConsumerServiceTest {
     ConsumerRole namespaceEnvModifyConsumerRole = createConsumerRole(consumerId, envModifyRoleId);
     ConsumerRole namespaceReleaseConsumerRole = createConsumerRole(consumerId, releaseRoleId);
     ConsumerRole namespaceEnvReleaseConsumerRole = createConsumerRole(consumerId, envReleaseRoleId);
-    doReturn(namespaceModifyConsumerRole).when(consumerService).createConsumerRole(consumerId, modifyRoleId, testOwner);
-    doReturn(namespaceEnvModifyConsumerRole).when(consumerService).createConsumerRole(consumerId, envModifyRoleId, testOwner);
-    doReturn(namespaceReleaseConsumerRole).when(consumerService).createConsumerRole(consumerId, releaseRoleId, testOwner);
-    doReturn(namespaceEnvReleaseConsumerRole).when(consumerService).createConsumerRole(consumerId, envReleaseRoleId, testOwner);
+    doReturn(namespaceModifyConsumerRole).when(consumerService).createConsumerRole(consumerId,
+        modifyRoleId, testOwner);
+    doReturn(namespaceEnvModifyConsumerRole).when(consumerService).createConsumerRole(consumerId,
+        envModifyRoleId, testOwner);
+    doReturn(namespaceReleaseConsumerRole).when(consumerService).createConsumerRole(consumerId,
+        releaseRoleId, testOwner);
+    doReturn(namespaceEnvReleaseConsumerRole).when(consumerService).createConsumerRole(consumerId,
+        envReleaseRoleId, testOwner);
 
     consumerService.assignNamespaceRoleToConsumer(token, testAppId, testNamespace);
-    consumerService.assignNamespaceRoleToConsumer(token, testAppId, testNamespace, Env.DEV.toString());
+    consumerService.assignNamespaceRoleToConsumer(token, testAppId, testNamespace,
+        Env.DEV.toString());
 
     verify(consumerRoleRepository).save(namespaceModifyConsumerRole);
     verify(consumerRoleRepository).save(namespaceEnvModifyConsumerRole);
@@ -246,14 +254,12 @@ public class ConsumerServiceTest {
       Consumer consumer = new Consumer();
       consumer.setAppId(appId);
       consumer.setId(consumerId);
-      when(consumerRepository.findByAppId(eq(appId)))
-          .thenReturn(consumer);
+      when(consumerRepository.findByAppId(eq(appId))).thenReturn(consumer);
 
       ConsumerToken consumerToken = new ConsumerToken();
       consumerToken.setToken(token);
       consumerToken.setRateLimit(0);
-      when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
-          .thenReturn(consumerToken);
+      when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
     }
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
     assertFalse(consumerInfo.isAllowCreateApplication());
@@ -272,21 +278,18 @@ public class ConsumerServiceTest {
       Consumer consumer = new Consumer();
       consumer.setAppId(appId);
       consumer.setId(consumerId);
-      when(consumerRepository.findByAppId(eq(appId)))
-          .thenReturn(consumer);
+      when(consumerRepository.findByAppId(eq(appId))).thenReturn(consumer);
 
       ConsumerToken consumerToken = new ConsumerToken();
       consumerToken.setToken(token);
       consumerToken.setRateLimit(0);
-      when(consumerTokenRepository.findByConsumerId(eq(consumerId)))
-          .thenReturn(consumerToken);
+      when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
     }
 
     {
       Role role = new Role();
       role.setId(roleId);
-      when(rolePermissionService.findRoleByRoleName(any()))
-          .thenReturn(role);
+      when(rolePermissionService.findRoleByRoleName(any())).thenReturn(role);
 
       ConsumerRole consumerRole = new ConsumerRole();
       consumerRole.setConsumerId(consumerId);

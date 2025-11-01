@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,26 +41,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 public class ConsumerAuditUtil implements InitializingBean {
   private static final int CONSUMER_AUDIT_MAX_SIZE = 10000;
-  private final BlockingQueue<ConsumerAudit> audits = Queues.newLinkedBlockingQueue(CONSUMER_AUDIT_MAX_SIZE);
+  private final BlockingQueue<ConsumerAudit> audits =
+      Queues.newLinkedBlockingQueue(CONSUMER_AUDIT_MAX_SIZE);
   private final ExecutorService auditExecutorService;
   private final AtomicBoolean auditStopped;
   private static final int BATCH_SIZE = 100;
 
-  // ConsumerAuditUtilTest used reflection to set BATCH_TIMEOUT and BATCH_TIMEUNIT, so without `final` now
-  private static long BATCH_TIMEOUT = 5; 
+  // ConsumerAuditUtilTest used reflection to set BATCH_TIMEOUT and BATCH_TIMEUNIT, so without
+  // `final` now
+  private static long BATCH_TIMEOUT = 5;
   private static TimeUnit BATCH_TIMEUNIT = TimeUnit.SECONDS;
 
   private final ConsumerService consumerService;
 
   public ConsumerAuditUtil(final ConsumerService consumerService) {
     this.consumerService = consumerService;
-    auditExecutorService = Executors.newSingleThreadExecutor(
-        ApolloThreadFactory.create("ConsumerAuditUtil", true));
+    auditExecutorService =
+        Executors.newSingleThreadExecutor(ApolloThreadFactory.create("ConsumerAuditUtil", true));
     auditStopped = new AtomicBoolean(false);
   }
 
   public boolean audit(HttpServletRequest request, long consumerId) {
-    //ignore GET request
+    // ignore GET request
     if ("GET".equalsIgnoreCase(request.getMethod())) {
       return true;
     }
@@ -77,7 +79,7 @@ public class ConsumerAuditUtil implements InitializingBean {
     consumerAudit.setDataChangeCreatedTime(now);
     consumerAudit.setDataChangeLastModifiedTime(now);
 
-    //throw away audits if exceeds the max size
+    // throw away audits if exceeds the max size
     return this.audits.offer(consumerAudit);
   }
 

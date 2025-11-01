@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -98,20 +97,19 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
 
     namespaceService.deleteNamespace(namespace, testUser);
 
-    List<Item> items = itemService.findItemsWithoutOrdered(testApp, testCluster, testPrivateNamespace);
-    List<Commit> commits = commitService.find(testApp, testCluster, testPrivateNamespace, PageRequest.of(0, 10));
+    List<Item> items =
+        itemService.findItemsWithoutOrdered(testApp, testCluster, testPrivateNamespace);
+    List<Commit> commits =
+        commitService.find(testApp, testCluster, testPrivateNamespace, PageRequest.of(0, 10));
     AppNamespace appNamespace = appNamespaceService.findOne(testApp, testPrivateNamespace);
     List<Cluster> childClusters = clusterService.findChildClusters(testApp, testCluster);
     InstanceConfig instanceConfig = instanceConfigRepository.findById(1L).orElse(null);
     List<Release> parentNamespaceReleases = releaseService.findActiveReleases(testApp, testCluster,
-                                                                              testPrivateNamespace,
-                                                                              PageRequest.of(0, 10));
-    List<Release> childNamespaceReleases = releaseService.findActiveReleases(testApp, testChildCluster,
-                                                                             testPrivateNamespace,
-                                                                             PageRequest.of(0, 10));
-    Page<ReleaseHistory> releaseHistories =
-        releaseHistoryService
-            .findReleaseHistoriesByNamespace(testApp, testCluster, testPrivateNamespace, PageRequest.of(0, 10));
+        testPrivateNamespace, PageRequest.of(0, 10));
+    List<Release> childNamespaceReleases = releaseService.findActiveReleases(testApp,
+        testChildCluster, testPrivateNamespace, PageRequest.of(0, 10));
+    Page<ReleaseHistory> releaseHistories = releaseHistoryService.findReleaseHistoriesByNamespace(
+        testApp, testCluster, testPrivateNamespace, PageRequest.of(0, 10));
 
     assertEquals(0, items.size());
     assertEquals(0, commits.size());
@@ -132,14 +130,17 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
 
     Date lastModifiedTime = simpleDateFormat.parse("2020-08-22 09:00:00");
 
-    List<Commit> commitsByDate = commitService.find(commitTestApp, testCluster, testPrivateNamespace, lastModifiedTime, null);
+    List<Commit> commitsByDate = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, lastModifiedTime, null);
 
     Date lastModifiedTimeGreater = simpleDateFormat.parse("2020-08-22 11:00:00");
-    List<Commit> commitsByDateGreater = commitService.find(commitTestApp, testCluster, testPrivateNamespace, lastModifiedTimeGreater, null);
+    List<Commit> commitsByDateGreater = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, lastModifiedTimeGreater, null);
 
 
     Date lastModifiedTimePage = simpleDateFormat.parse("2020-08-22 09:30:00");
-    List<Commit> commitsByDatePage = commitService.find(commitTestApp, testCluster, testPrivateNamespace, lastModifiedTimePage, PageRequest.of(0, 1));
+    List<Commit> commitsByDatePage = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, lastModifiedTimePage, PageRequest.of(0, 1));
 
     assertEquals(1, commitsByDate.size());
     assertEquals(0, commitsByDateGreater.size());

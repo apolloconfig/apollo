@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,11 +65,13 @@ public class BadRequestException extends AbstractApolloHttpException {
   }
 
   public static BadRequestException appNamespaceNotExists(String appId, String namespaceName) {
-    return new BadRequestException("appNamespace not exist for appId:%s namespaceName:%s", appId, namespaceName);
+    return new BadRequestException("appNamespace not exist for appId:%s namespaceName:%s", appId,
+        namespaceName);
   }
 
   public static BadRequestException appNamespaceAlreadyExists(String appId, String namespaceName) {
-    return new BadRequestException("appNamespace already exists for appId:%s namespaceName:%s", appId, namespaceName);
+    return new BadRequestException("appNamespace already exists for appId:%s namespaceName:%s",
+        appId, namespaceName);
   }
 
   public static BadRequestException invalidNamespaceFormat(String format) {

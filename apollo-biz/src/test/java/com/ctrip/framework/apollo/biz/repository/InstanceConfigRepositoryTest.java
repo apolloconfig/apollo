@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,19 +55,16 @@ public class InstanceConfigRepositoryTest extends AbstractIntegrationTest {
       instanceConfig.setConfigNamespaceName("namespace");
       instanceConfigRepository.save(instanceConfig);
     }
-    Page<Object> ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId(
-        "appId", "appId", "cluster", "namespace", new Date(0), PageRequest.of(0, 10)
-    );
+    Page<Object> ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId("appId",
+        "appId", "cluster", "namespace", new Date(0), PageRequest.of(0, 10));
     assertThat(ids.getContent(), hasSize(10));
 
-    ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId(
-        "appId", "appId", "cluster", "namespace", new Date(0), PageRequest.of(1, 10)
-    );
+    ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId("appId", "appId",
+        "cluster", "namespace", new Date(0), PageRequest.of(1, 10));
     assertThat(ids.getContent(), hasSize(10));
 
-    ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId(
-        "appId", "appId", "cluster", "namespace", new Date(0), PageRequest.of(2, 10)
-    );
+    ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId("appId", "appId",
+        "cluster", "namespace", new Date(0), PageRequest.of(2, 10));
     assertThat(ids.getContent(), hasSize(5));
   }
 }

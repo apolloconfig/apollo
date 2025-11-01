@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,10 +39,14 @@ public class ConsumerRolePermissionServiceTest extends AbstractIntegrationTest {
   }
 
   @Test
-  @Sql(scripts = "/sql/permission/insert-test-roles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-permissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-consumerroles.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-  @Sql(scripts = "/sql/permission/insert-test-rolepermissions.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-roles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-consumerroles.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/permission/insert-test-rolepermissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
   public void testConsumerHasPermission() throws Exception {
     String someTargetId = "someTargetId";
@@ -53,13 +57,19 @@ public class ConsumerRolePermissionServiceTest extends AbstractIntegrationTest {
     long anotherConsumerId = 2;
     long someConsumerWithNoPermission = 3;
 
-    assertTrue(consumerRolePermissionService.consumerHasPermission(someConsumerId, somePermissionType, someTargetId));
-    assertTrue(consumerRolePermissionService.consumerHasPermission(someConsumerId, anotherPermissionType, anotherTargetId));
-    assertTrue(consumerRolePermissionService.consumerHasPermission(anotherConsumerId, somePermissionType, someTargetId));
-    assertTrue(consumerRolePermissionService.consumerHasPermission(anotherConsumerId, anotherPermissionType, anotherTargetId));
+    assertTrue(consumerRolePermissionService.consumerHasPermission(someConsumerId,
+        somePermissionType, someTargetId));
+    assertTrue(consumerRolePermissionService.consumerHasPermission(someConsumerId,
+        anotherPermissionType, anotherTargetId));
+    assertTrue(consumerRolePermissionService.consumerHasPermission(anotherConsumerId,
+        somePermissionType, someTargetId));
+    assertTrue(consumerRolePermissionService.consumerHasPermission(anotherConsumerId,
+        anotherPermissionType, anotherTargetId));
 
-    assertFalse(consumerRolePermissionService.consumerHasPermission(someConsumerWithNoPermission, somePermissionType, someTargetId));
-    assertFalse(consumerRolePermissionService.consumerHasPermission(someConsumerWithNoPermission, anotherPermissionType, anotherTargetId));
+    assertFalse(consumerRolePermissionService.consumerHasPermission(someConsumerWithNoPermission,
+        somePermissionType, someTargetId));
+    assertFalse(consumerRolePermissionService.consumerHasPermission(someConsumerWithNoPermission,
+        anotherPermissionType, anotherTargetId));
 
   }
 

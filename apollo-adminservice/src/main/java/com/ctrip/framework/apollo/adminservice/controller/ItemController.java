@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,9 @@ public class ItemController {
   private final ReleaseService releaseService;
   private final BizConfig bizConfig;
 
-  public ItemController(final ItemService itemService, final NamespaceService namespaceService, final CommitService commitService, final ReleaseService releaseService, final BizConfig bizConfig) {
+  public ItemController(final ItemService itemService, final NamespaceService namespaceService,
+      final CommitService commitService, final ReleaseService releaseService,
+      final BizConfig bizConfig) {
     this.itemService = itemService;
     this.namespaceService = namespaceService;
     this.commitService = commitService;
@@ -72,8 +74,8 @@ public class ItemController {
   @PreAcquireNamespaceLock
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public ItemDTO create(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
     Item entity = BeanUtils.transform(Item.class, dto);
 
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
@@ -84,23 +86,24 @@ public class ItemController {
     if (bizConfig.isItemNumLimitEnabled()) {
       int itemCount = itemService.findNonEmptyItemCount(entity.getNamespaceId());
       if (itemCount >= bizConfig.itemNumLimit()) {
-        throw new BadRequestException("The maximum number of items (" + bizConfig.itemNumLimit() + ") for this namespace has been reached. Current item count is " + itemCount + ".");
+        throw new BadRequestException("The maximum number of items (" + bizConfig.itemNumLimit()
+            + ") for this namespace has been reached. Current item count is " + itemCount + ".");
       }
     }
 
     entity = itemService.save(entity);
     dto = BeanUtils.transform(ItemDTO.class, entity);
-    commitService.createCommit(appId, clusterName, namespaceName, new ConfigChangeContentBuilder().createItem(entity).build(),
-        dto.getDataChangeLastModifiedBy()
-    );
+    commitService.createCommit(appId, clusterName, namespaceName,
+        new ConfigChangeContentBuilder().createItem(entity).build(),
+        dto.getDataChangeLastModifiedBy());
 
     return dto;
   }
 
   @PostMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/comment_items")
   public ItemDTO createComment(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
     if (!StringUtils.isBlank(dto.getKey()) || !StringUtils.isBlank(dto.getValue())) {
       throw new BadRequestException("Comment item's key or value should be blank.");
     }
@@ -111,8 +114,8 @@ public class ItemController {
     // check if comment existed
     List<Item> allItems = itemService.findItemsWithOrdered(appId, clusterName, namespaceName);
     for (Item item : allItems) {
-      if (StringUtils.isBlank(item.getKey()) && StringUtils.isBlank(item.getValue()) &&
-          Objects.equals(item.getComment(), dto.getComment())) {
+      if (StringUtils.isBlank(item.getKey()) && StringUtils.isBlank(item.getValue())
+          && Objects.equals(item.getComment(), dto.getComment())) {
         return BeanUtils.transform(ItemDTO.class, item);
       }
     }
@@ -127,10 +130,9 @@ public class ItemController {
   @PreAcquireNamespaceLock
   @PutMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{itemId}")
   public ItemDTO update(@PathVariable("appId") String appId,
-                        @PathVariable("clusterName") String clusterName,
-                        @PathVariable("namespaceName") String namespaceName,
-                        @PathVariable("itemId") long itemId,
-                        @RequestBody ItemDTO itemDTO) {
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, @PathVariable("itemId") long itemId,
+      @RequestBody ItemDTO itemDTO) {
     Item managedEntity = itemService.findOne(itemId);
     if (managedEntity == null) {
       throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, itemId);
@@ -148,7 +150,7 @@ public class ItemController {
 
     Item beforeUpdateItem = BeanUtils.transform(Item.class, managedEntity);
 
-    //protect. only value,type,comment,lastModifiedBy can be modified
+    // protect. only value,type,comment,lastModifiedBy can be modified
     managedEntity.setType(entity.getType());
     managedEntity.setValue(entity.getValue());
     managedEntity.setComment(entity.getComment());
@@ -159,7 +161,8 @@ public class ItemController {
     itemDTO = BeanUtils.transform(ItemDTO.class, entity);
 
     if (builder.hasContent()) {
-      commitService.createCommit(appId, clusterName, namespaceName, builder.build(), itemDTO.getDataChangeLastModifiedBy());
+      commitService.createCommit(appId, clusterName, namespaceName, builder.build(),
+          itemDTO.getDataChangeLastModifiedBy());
     }
 
     return itemDTO;
@@ -176,46 +179,50 @@ public class ItemController {
 
     Namespace namespace = namespaceService.findOne(entity.getNamespaceId());
 
-    commitService.createCommit(namespace.getAppId(), namespace.getClusterName(), namespace.getNamespaceName(),
-        new ConfigChangeContentBuilder().deleteItem(entity).build(), operator
-    );
+    commitService.createCommit(namespace.getAppId(), namespace.getClusterName(),
+        namespace.getNamespaceName(), new ConfigChangeContentBuilder().deleteItem(entity).build(),
+        operator);
 
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
   public List<ItemDTO> findItems(@PathVariable("appId") String appId,
-                                 @PathVariable("clusterName") String clusterName,
-                                 @PathVariable("namespaceName") String namespaceName) {
-    return BeanUtils.batchTransform(ItemDTO.class, itemService.findItemsWithOrdered(appId, clusterName, namespaceName));
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName) {
+    return BeanUtils.batchTransform(ItemDTO.class,
+        itemService.findItemsWithOrdered(appId, clusterName, namespaceName));
   }
 
   @GetMapping("/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/deleted")
   public List<ItemDTO> findDeletedItems(@PathVariable("appId") String appId,
-                                        @PathVariable("clusterName") String clusterName,
-                                        @PathVariable("namespaceName") String namespaceName) {
-    //get latest release time
-    Release latestActiveRelease = releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName) {
+    // get latest release time
+    Release latestActiveRelease =
+        releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
     List<Commit> commits;
     if (Objects.nonNull(latestActiveRelease)) {
-      commits = commitService.find(appId, clusterName, namespaceName, latestActiveRelease.getDataChangeCreatedTime(), null);
+      commits = commitService.find(appId, clusterName, namespaceName,
+          latestActiveRelease.getDataChangeCreatedTime(), null);
     } else {
       commits = commitService.find(appId, clusterName, namespaceName, null);
     }
 
     if (Objects.nonNull(commits)) {
-      List<Item> deletedItems = commits.stream()
-          .map(item -> ConfigChangeContentBuilder.convertJsonString(item.getChangeSets()).getDeleteItems())
-          .flatMap(Collection::stream)
-          .collect(Collectors.toList());
+      List<Item> deletedItems =
+          commits
+              .stream().map(item -> ConfigChangeContentBuilder
+                  .convertJsonString(item.getChangeSets()).getDeleteItems())
+              .flatMap(Collection::stream).collect(Collectors.toList());
       return BeanUtils.batchTransform(ItemDTO.class, deletedItems);
     }
     return Collections.emptyList();
   }
 
   @GetMapping("/items-search/key-and-value")
-  public PageDTO<ItemInfoDTO> getItemInfoBySearch(@RequestParam(value = "key", required = false) String key,
-                                                  @RequestParam(value = "value", required = false) String value,
-                                                  Pageable limit) {
+  public PageDTO<ItemInfoDTO> getItemInfoBySearch(
+      @RequestParam(value = "key", required = false) String key,
+      @RequestParam(value = "value", required = false) String value, Pageable limit) {
     Page<ItemInfoDTO> pageItemInfoDTO = itemService.getItemInfoBySearch(key, value, limit);
     return new PageDTO<>(pageItemInfoDTO.getContent(), limit, pageItemInfoDTO.getTotalElements());
   }
@@ -248,12 +255,13 @@ public class ItemController {
         new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")
+  @GetMapping(
+      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page")
   public PageDTO<ItemDTO> findItemsByNamespace(@PathVariable("appId") String appId,
-                                               @PathVariable("clusterName") String clusterName,
-                                               @PathVariable("namespaceName") String namespaceName,
-                                               Pageable pageable) {
-    Page<Item> itemPage = itemService.findItemsByNamespace(appId, clusterName, namespaceName, pageable);
+      @PathVariable("clusterName") String clusterName,
+      @PathVariable("namespaceName") String namespaceName, Pageable pageable) {
+    Page<Item> itemPage =
+        itemService.findItemsByNamespace(appId, clusterName, namespaceName, pageable);
 
     List<ItemDTO> itemDTOS = BeanUtils.batchTransform(ItemDTO.class, itemPage.getContent());
     return new PageDTO<>(itemDTOS, pageable, itemPage.getTotalElements());

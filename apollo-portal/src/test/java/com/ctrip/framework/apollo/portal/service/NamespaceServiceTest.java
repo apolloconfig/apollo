@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,8 +86,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   private Env testEnv = Env.DEV;
 
   @Before
-  public void setup() {
-  }
+  public void setup() {}
 
   @Test
   public void testFindNamespace() {
@@ -122,16 +121,21 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
         .thenReturn(applicationAppNamespace);
     when(appNamespaceService.findPublicAppNamespace("hermes")).thenReturn(hermesAppNamespace);
-    when(namespaceAPI.findNamespaceByCluster(testAppId, Env.DEV, testClusterName)).thenReturn(namespaces);
-    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName,
-                                          testNamespaceName)).thenReturn(someRelease);
-    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, "hermes")).thenReturn(someRelease);
-    when(itemService.findItems(testAppId, Env.DEV, testClusterName, testNamespaceName)).thenReturn(someItems);
+    when(namespaceAPI.findNamespaceByCluster(testAppId, Env.DEV, testClusterName))
+        .thenReturn(namespaces);
+    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, testNamespaceName))
+        .thenReturn(someRelease);
+    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, "hermes"))
+        .thenReturn(someRelease);
+    when(itemService.findItems(testAppId, Env.DEV, testClusterName, testNamespaceName))
+        .thenReturn(someItems);
 
-    List<NamespaceBO> namespaceVOs = namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName);
+    List<NamespaceBO> namespaceVOs =
+        namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName);
     assertEquals(2, namespaceVOs.size());
 
-    when(namespaceAPI.findNamespaceByCluster(testAppId, Env.DEV, testClusterName)).thenReturn(Lists.list(application));
+    when(namespaceAPI.findNamespaceByCluster(testAppId, Env.DEV, testClusterName))
+        .thenReturn(Lists.list(application));
     namespaceVOs = namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName);
     assertEquals(1, namespaceVOs.size());
     NamespaceBO namespaceVO = namespaceVOs.get(0);
@@ -144,10 +148,12 @@ public class NamespaceServiceTest extends AbstractUnitTest {
 
     ReleaseDTO errorRelease = new ReleaseDTO();
     errorRelease.setConfigurations("\"a\":\"123\",\"b\":\"123\"");
-    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, testNamespaceName)).thenReturn(errorRelease);
+    when(releaseService.loadLatestRelease(testAppId, Env.DEV, testClusterName, testNamespaceName))
+        .thenReturn(errorRelease);
     assertThatExceptionOfType(RuntimeException.class)
-        .isThrownBy(()-> namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName))
-        .withMessageStartingWith("Parse namespaces error, expected: 1, but actual: 0, cannot get those namespaces: [application]");
+        .isThrownBy(() -> namespaceService.findNamespaceBOs(testAppId, Env.DEV, testClusterName))
+        .withMessageStartingWith(
+            "Parse namespaces error, expected: 1, but actual: 0, cannot get those namespaces: [application]");
 
   }
 
@@ -156,13 +162,15 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     String operator = "user";
     AppNamespace privateNamespace = createAppNamespace(testAppId, testNamespaceName, false);
 
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(privateNamespace);
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(privateNamespace);
 
     when(userInfoHolder.getUser()).thenReturn(createUser(operator));
 
     namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
 
-    verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName, testNamespaceName, operator);
+    verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName,
+        testNamespaceName, operator);
   }
 
   @Test
@@ -177,22 +185,28 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     cluster.setName(testClusterName);
     cluster.setAppId(testAppId);
     when(clusterService.findClusters(testEnv, testAppId)).thenReturn(Lists.newArrayList(cluster));
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
-        .thenReturn(8);
-    when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(9);
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(publicNamespace);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName,
+        testNamespaceName)).thenReturn(8);
+    when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(branch);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName,
+        testNamespaceName)).thenReturn(9);
     when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicNamespace);
 
-    when(namespaceAPI.countPublicAppNamespaceAssociatedNamespaces(testEnv, testNamespaceName)).thenReturn(10);
+    when(namespaceAPI.countPublicAppNamespaceAssociatedNamespaces(testEnv, testNamespaceName))
+        .thenReturn(10);
 
-    List<NamespaceUsage> usages = namespaceService.getNamespaceUsageByAppId(testAppId, testNamespaceName);
+    List<NamespaceUsage> usages =
+        namespaceService.getNamespaceUsageByAppId(testAppId, testNamespaceName);
     assertThat(usages).asList().hasSize(1);
     assertThat(usages.get(0).getInstanceCount()).isEqualTo(8);
     assertThat(usages.get(0).getBranchInstanceCount()).isEqualTo(9);
     assertThat(usages.get(0).getLinkedNamespaceCount()).isEqualTo(10);
 
-    NamespaceUsage usage = namespaceService.getNamespaceUsageByEnv(testAppId, testNamespaceName, testEnv, testClusterName);
+    NamespaceUsage usage = namespaceService.getNamespaceUsageByEnv(testAppId, testNamespaceName,
+        testEnv, testClusterName);
     assertThat(usage).isNotNull();
     assertThat(usage.getInstanceCount()).isEqualTo(8);
     assertThat(usage.getBranchInstanceCount()).isEqualTo(9);
@@ -207,21 +221,25 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     AppNamespace publicNamespace = createAppNamespace(testAppId, testNamespaceName, true);
     NamespaceDTO branch = createNamespace(testAppId, branchName, testNamespaceName);
 
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(publicNamespace);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
-        .thenReturn(0);
-    when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(branch);
-    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName, testNamespaceName)).thenReturn(0);
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(publicNamespace);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, testClusterName,
+        testNamespaceName)).thenReturn(0);
+    when(branchService.findBranchBaseInfo(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(branch);
+    when(instanceService.getInstanceCountByNamespace(testAppId, testEnv, branchName,
+        testNamespaceName)).thenReturn(0);
     when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicNamespace);
 
     NamespaceDTO namespace = createNamespace(testAppId, testClusterName, testNamespaceName);
-    when(namespaceAPI.getPublicAppNamespaceAllNamespaces(testEnv, testNamespaceName, 0, 10)).thenReturn(
-        Collections.singletonList(namespace));
+    when(namespaceAPI.getPublicAppNamespaceAllNamespaces(testEnv, testNamespaceName, 0, 10))
+        .thenReturn(Collections.singletonList(namespace));
     when(userInfoHolder.getUser()).thenReturn(createUser(operator));
 
     namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
 
-    verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName, testNamespaceName, operator);
+    verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName,
+        testNamespaceName, operator);
 
   }
 
@@ -230,7 +248,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     boolean fillItemDetail = true;
     NamespaceBO namespaceBO = loadNamespaceBO(fillItemDetail);
 
-    List<String> namespaceKey2 = namespaceBO.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
+    List<String> namespaceKey2 =
+        namespaceBO.getItems().stream().map(s -> s.getItem().getKey()).collect(Collectors.toList());
     assertThat(namespaceBO.getItemModifiedCnt()).isEqualTo(2);
     assertThat(namespaceBO.getItems().size()).isEqualTo(2);
     assertThat(namespaceKey2).isEqualTo(Arrays.asList("k1", "k2"));

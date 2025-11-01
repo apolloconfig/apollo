@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,11 +63,8 @@ public class ItemService {
   private final ConfigTextResolver fileTextResolver;
   private final ConfigTextResolver propertyResolver;
 
-  public ItemService(
-      final UserInfoHolder userInfoHolder,
-      final NamespaceAPI namespaceAPI,
-      final ItemAPI itemAPI,
-      final ReleaseAPI releaseAPI,
+  public ItemService(final UserInfoHolder userInfoHolder, final NamespaceAPI namespaceAPI,
+      final ItemAPI itemAPI, final ReleaseAPI releaseAPI,
       final @Qualifier("fileTextResolver") ConfigTextResolver fileTextResolver,
       final @Qualifier("propertyResolver") ConfigTextResolver propertyResolver) {
     this.userInfoHolder = userInfoHolder;
@@ -122,15 +119,18 @@ public class ItemService {
 
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE_BY_TEXT,
         String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
-    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE,
+        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
   }
 
-  public void updateItems(String appId, Env env, String clusterName, String namespaceName, ItemChangeSets changeSets){
+  public void updateItems(String appId, Env env, String clusterName, String namespaceName,
+      ItemChangeSets changeSets) {
     itemAPI.updateItemsByChangeSet(appId, env, clusterName, namespaceName, changeSets);
   }
 
 
-  public ItemDTO createItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
+  public ItemDTO createItem(String appId, Env env, String clusterName, String namespaceName,
+      ItemDTO item) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
       throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
@@ -138,11 +138,13 @@ public class ItemService {
     item.setNamespaceId(namespace.getId());
 
     ItemDTO itemDTO = itemAPI.createItem(appId, env, clusterName, namespaceName, item);
-    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+    Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE,
+        String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
     return itemDTO;
   }
 
-  public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
+  public ItemDTO createCommentItem(String appId, Env env, String clusterName, String namespaceName,
+      ItemDTO item) {
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
       throw BadRequestException.namespaceNotExists(appId, clusterName, namespaceName);
@@ -152,7 +154,8 @@ public class ItemService {
     return itemAPI.createCommentItem(appId, env, clusterName, namespaceName, item);
   }
 
-  public void updateItem(String appId, Env env, String clusterName, String namespaceName, ItemDTO item) {
+  public void updateItem(String appId, Env env, String clusterName, String namespaceName,
+      ItemDTO item) {
     itemAPI.updateItem(appId, env, clusterName, namespaceName, item.getId(), item);
   }
 
@@ -164,11 +167,13 @@ public class ItemService {
     return itemAPI.findItems(appId, env, clusterName, namespaceName);
   }
 
-  public List<ItemDTO> findDeletedItems(String appId, Env env, String clusterName, String namespaceName) {
+  public List<ItemDTO> findDeletedItems(String appId, Env env, String clusterName,
+      String namespaceName) {
     return itemAPI.findDeletedItems(appId, env, clusterName, namespaceName);
   }
 
-  public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName, String key) {
+  public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName,
+      String key) {
     if (UrlUtils.hasIllegalChar(key)) {
       return itemAPI.loadItemByEncodeKey(env, appId, clusterName, namespaceName, key);
     }
@@ -197,7 +202,8 @@ public class ItemService {
 
       itemAPI.updateItemsByChangeSet(appId, env, clusterName, namespaceName, changeSets);
 
-      Tracer.logEvent(TracerEventType.SYNC_NAMESPACE, String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+      Tracer.logEvent(TracerEventType.SYNC_NAMESPACE,
+          String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
     }
   }
 
@@ -211,30 +217,34 @@ public class ItemService {
     long namespaceId = namespace.getId();
 
     Map<String, String> releaseItemDTOs = new HashMap<>();
-    ReleaseDTO latestRelease = releaseAPI.loadLatestRelease(appId,env,clusterName,namespaceName);
+    ReleaseDTO latestRelease = releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName);
     if (latestRelease != null) {
       releaseItemDTOs = GSON.fromJson(latestRelease.getConfigurations(), GsonType.CONFIG);
     }
     List<ItemDTO> baseItems = itemAPI.findItems(appId, env, clusterName, namespaceName);
     Map<String, ItemDTO> oldKeyMapItem = BeanUtils.mapByKey("key", baseItems);
-    //remove comment and blank item map.
+    // remove comment and blank item map.
     oldKeyMapItem.remove("");
 
-    //deleted items for comment
-    Map<String, ItemDTO> deletedItemDTOs = findDeletedItems(appId, env, clusterName, namespaceName).stream()
-            .filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
-            .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
+    // deleted items for comment
+    Map<String, ItemDTO> deletedItemDTOs = findDeletedItems(appId, env, clusterName, namespaceName)
+        .stream().filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
+        .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
 
     ItemChangeSets changeSets = new ItemChangeSets();
     AtomicInteger lineNum = new AtomicInteger(1);
-    releaseItemDTOs.forEach((key,value) -> {
+    releaseItemDTOs.forEach((key, value) -> {
       ItemDTO oldItem = oldKeyMapItem.get(key);
       if (oldItem == null) {
         ItemDTO deletedItemDto = deletedItemDTOs.computeIfAbsent(key, k -> new ItemDTO());
-        int newLineNum = 0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
-        changeSets.addCreateItem(buildNormalItem(0L, namespaceId, key, value, deletedItemDto.getComment(), newLineNum));
-      } else if (!StringUtils.equals(oldItem.getValue(), value) || lineNum.get() != oldItem.getLineNum()) {
-        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key, value, oldItem.getComment(), oldItem.getLineNum()));
+        int newLineNum =
+            0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
+        changeSets.addCreateItem(
+            buildNormalItem(0L, namespaceId, key, value, deletedItemDto.getComment(), newLineNum));
+      } else if (!StringUtils.equals(oldItem.getValue(), value)
+          || lineNum.get() != oldItem.getLineNum()) {
+        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key, value,
+            oldItem.getComment(), oldItem.getLineNum()));
       }
       oldKeyMapItem.remove(key);
       lineNum.set(lineNum.get() + 1);
@@ -249,7 +259,8 @@ public class ItemService {
     Tracer.logEvent(TracerEventType.MODIFY_NAMESPACE, formatStr);
   }
 
-  public List<ItemDiffs> compare(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+  public List<ItemDiffs> compare(List<NamespaceIdentifier> comparedNamespaces,
+      List<ItemDTO> sourceItems) {
 
     List<ItemDiffs> result = new LinkedList<>();
 
@@ -269,7 +280,7 @@ public class ItemService {
   }
 
   public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
-                                                   String namespaceName, int page, int size) {
+      String namespaceName, int page, int size) {
     return itemAPI.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
   }
 
@@ -292,14 +303,12 @@ public class ItemService {
 
   private ItemChangeSets parseChangeSets(NamespaceIdentifier namespace, List<ItemDTO> sourceItems) {
     ItemChangeSets changeSets = new ItemChangeSets();
-    List<ItemDTO>
-        targetItems =
-        itemAPI.findItems(namespace.getAppId(), namespace.getEnv(),
-            namespace.getClusterName(), namespace.getNamespaceName());
+    List<ItemDTO> targetItems = itemAPI.findItems(namespace.getAppId(), namespace.getEnv(),
+        namespace.getClusterName(), namespace.getNamespaceName());
 
     long namespaceId = getNamespaceId(namespace);
 
-    if (CollectionUtils.isEmpty(targetItems)) {//all source items is added
+    if (CollectionUtils.isEmpty(targetItems)) {// all source items is added
       int lineNum = 1;
       for (ItemDTO sourceItem : sourceItems) {
         changeSets.addCreateItem(buildItem(namespaceId, lineNum++, sourceItem));
@@ -308,19 +317,19 @@ public class ItemService {
       Map<String, ItemDTO> targetItemMap = BeanUtils.mapByKey("key", targetItems);
       String key, sourceValue, sourceComment;
       ItemDTO targetItem = null;
-      int maxLineNum = targetItems.size();//append to last
+      int maxLineNum = targetItems.size();// append to last
       for (ItemDTO sourceItem : sourceItems) {
         key = sourceItem.getKey();
         sourceValue = sourceItem.getValue();
         sourceComment = sourceItem.getComment();
         targetItem = targetItemMap.get(key);
 
-        if (targetItem == null) {//added items
+        if (targetItem == null) {// added items
 
           changeSets.addCreateItem(buildItem(namespaceId, ++maxLineNum, sourceItem));
 
         } else if (isModified(sourceValue, targetItem.getValue(), sourceComment,
-            targetItem.getComment())) {//modified items
+            targetItem.getComment())) {// modified items
           targetItem.setValue(sourceValue);
           targetItem.setComment(sourceComment);
           changeSets.addUpdateItem(targetItem);
@@ -339,14 +348,16 @@ public class ItemService {
     return createdItem;
   }
 
-  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, String value, String comment, int lineNum) {
+  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, String value,
+      String comment, int lineNum) {
     ItemDTO item = new ItemDTO(key, value, comment, lineNum);
     item.setId(id);
     item.setNamespaceId(namespaceId);
     return item;
   }
 
-  private boolean isModified(String sourceValue, String targetValue, String sourceComment, String targetComment) {
+  private boolean isModified(String sourceValue, String targetValue, String sourceComment,
+      String targetComment) {
 
     if (!sourceValue.equals(targetValue)) {
       return true;

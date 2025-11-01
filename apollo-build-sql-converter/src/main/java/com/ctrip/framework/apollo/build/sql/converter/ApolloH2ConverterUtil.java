@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,7 @@ public class ApolloH2ConverterUtil {
 
     List<SqlStatement> sqlStatements = ApolloSqlConverterUtil.toStatements(rawText);
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(targetSql),
-        StandardCharsets.UTF_8, StandardOpenOption.CREATE,
-        StandardOpenOption.TRUNCATE_EXISTING)) {
+        StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
       for (SqlStatement sqlStatement : sqlStatements) {
         String convertedText;
         try {
@@ -106,14 +105,14 @@ public class ApolloH2ConverterUtil {
     return convertedText;
   }
 
-  private static final Pattern ENGINE_PATTERN = Pattern.compile(
-      "ENGINE\\s*=\\s*InnoDB", Pattern.CASE_INSENSITIVE);
+  private static final Pattern ENGINE_PATTERN =
+      Pattern.compile("ENGINE\\s*=\\s*InnoDB", Pattern.CASE_INSENSITIVE);
 
-  private static final Pattern DEFAULT_CHARSET_PATTERN = Pattern.compile(
-      "DEFAULT\\s+CHARSET\\s*=\\s*utf8mb4", Pattern.CASE_INSENSITIVE);
+  private static final Pattern DEFAULT_CHARSET_PATTERN =
+      Pattern.compile("DEFAULT\\s+CHARSET\\s*=\\s*utf8mb4", Pattern.CASE_INSENSITIVE);
 
-  private static final Pattern ROW_FORMAT_PATTERN = Pattern.compile(
-      "ROW_FORMAT\\s*=\\s*DYNAMIC", Pattern.CASE_INSENSITIVE);
+  private static final Pattern ROW_FORMAT_PATTERN =
+      Pattern.compile("ROW_FORMAT\\s*=\\s*DYNAMIC", Pattern.CASE_INSENSITIVE);
 
   private static String convertTableConfig(String convertedText, SqlStatement sqlStatement) {
     Matcher engineMatcher = ENGINE_PATTERN.matcher(convertedText);
@@ -135,12 +134,8 @@ public class ApolloH2ConverterUtil {
       // KEY `AppId_ClusterName_GroupName`
       "(KEY\\s*`|KEY\\s+)(?<indexName>[a-zA-Z0-9\\-_]+)(`)?\\s*"
           // (`AppId`,`ClusterName`(191),`NamespaceName`(191))
-          + "\\((?<indexColumns>"
-          + "(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?"
-          + "(,"
-          + "(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?"
-          + ")*"
-          + ")\\)",
+          + "\\((?<indexColumns>" + "(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?" + "(,"
+          + "(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?" + ")*" + ")\\)",
       Pattern.CASE_INSENSITIVE);
 
   private static String convertIndexWithTable(String convertedText, String tableName,
@@ -153,11 +148,12 @@ public class ApolloH2ConverterUtil {
         // replace index name
         // KEY `AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191))
         // ->
-        // KEY `tableName_AppId_ClusterName_GroupName` (`AppId`,`ClusterName`(191),`NamespaceName`(191))
+        // KEY `tableName_AppId_ClusterName_GroupName`
+        // (`AppId`,`ClusterName`(191),`NamespaceName`(191))
         Matcher indexNameMatcher = INDEX_NAME_PATTERN.matcher(convertedLine);
         if (indexNameMatcher.find()) {
-          convertedLine = indexNameMatcher.replaceAll(
-              "KEY `" + tableName + "_${indexName}` (${indexColumns})");
+          convertedLine =
+              indexNameMatcher.replaceAll("KEY `" + tableName + "_${indexName}` (${indexColumns})");
         }
         convertedLine = removePrefixIndex(convertedLine);
       }
@@ -203,18 +199,18 @@ public class ApolloH2ConverterUtil {
   private static final Pattern CHANGE_PATTERN = Pattern.compile(
       "\\s*CHANGE\\s+(`)?(?<oldColumnName>[a-zA-Z0-9\\-_]+)(`)?\\s+(`)?(?<newColumnName>[a-zA-Z0-9\\-_]+)(`)?(?<subStatement>.*)[,;]",
       Pattern.CASE_INSENSITIVE);
-  private static final Pattern DROP_COLUMN_PATTERN = Pattern.compile(
-      "\\s*DROP\\s+(COLUMN\\s+)?(`)?(?<columnName>[a-zA-Z0-9\\-_]+)(`)?\\s*[,;]",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern DROP_COLUMN_PATTERN =
+      Pattern.compile("\\s*DROP\\s+(COLUMN\\s+)?(`)?(?<columnName>[a-zA-Z0-9\\-_]+)(`)?\\s*[,;]",
+          Pattern.CASE_INSENSITIVE);
   private static final Pattern ADD_KEY_PATTERN = Pattern.compile(
       "\\s*ADD\\s+(?<indexType>(UNIQUE\\s+)?KEY)\\s+(`)?(?<indexName>[a-zA-Z0-9\\-_]+)(`)?(?<subStatement>.*)[,;]",
       Pattern.CASE_INSENSITIVE);
   private static final Pattern ADD_INDEX_PATTERN = Pattern.compile(
       "\\s*ADD\\s+(?<indexType>(UNIQUE\\s+)?INDEX)\\s+(`)?(?<indexName>[a-zA-Z0-9\\-_]+)(`)?(?<subStatement>.*)[,;]",
       Pattern.CASE_INSENSITIVE);
-  private static final Pattern DROP_INDEX_PATTERN = Pattern.compile(
-      "\\s*DROP\\s+INDEX\\s+(`)?(?<indexName>[a-zA-Z0-9\\-_]+)(`)?\\s*[,;]",
-      Pattern.CASE_INSENSITIVE);
+  private static final Pattern DROP_INDEX_PATTERN =
+      Pattern.compile("\\s*DROP\\s+INDEX\\s+(`)?(?<indexName>[a-zA-Z0-9\\-_]+)(`)?\\s*[,;]",
+          Pattern.CASE_INSENSITIVE);
 
   private static String convertAlterTableMulti(String convertedText, SqlStatement sqlStatement,
       String tableName) {
@@ -236,21 +232,19 @@ public class ApolloH2ConverterUtil {
 
     Matcher dropColumnMatcher = DROP_COLUMN_PATTERN.matcher(convertedText);
     if (dropColumnMatcher.find()) {
-      convertedText = dropColumnMatcher.replaceAll(
-          "\nALTER TABLE `" + tableName + "` DROP `${columnName}`;");
+      convertedText =
+          dropColumnMatcher.replaceAll("\nALTER TABLE `" + tableName + "` DROP `${columnName}`;");
     }
     Matcher addKeyMatcher = ADD_KEY_PATTERN.matcher(convertedText);
     if (addKeyMatcher.find()) {
-      convertedText = addKeyMatcher.replaceAll(
-          "\nALTER TABLE `" + tableName + "` ADD ${indexType} `" + tableName
-              + "_${indexName}` ${subStatement};");
+      convertedText = addKeyMatcher.replaceAll("\nALTER TABLE `" + tableName
+          + "` ADD ${indexType} `" + tableName + "_${indexName}` ${subStatement};");
       convertedText = removePrefixIndex(convertedText);
     }
     Matcher addIndexMatcher = ADD_INDEX_PATTERN.matcher(convertedText);
     if (addIndexMatcher.find()) {
-      convertedText = addIndexMatcher.replaceAll(
-          "\nALTER TABLE `" + tableName + "` ADD ${indexType} `" + tableName
-              + "_${indexName}` ${subStatement};");
+      convertedText = addIndexMatcher.replaceAll("\nALTER TABLE `" + tableName
+          + "` ADD ${indexType} `" + tableName + "_${indexName}` ${subStatement};");
       convertedText = removePrefixIndex(convertedText);
     }
     Matcher dropIndexMatcher = DROP_INDEX_PATTERN.matcher(convertedText);
@@ -269,31 +263,29 @@ public class ApolloH2ConverterUtil {
       SqlStatement sqlStatement) {
     Matcher createIndexMatcher = CREATE_INDEX_PATTERN.matcher(convertedText);
     if (createIndexMatcher.find()) {
-      convertedText = createIndexMatcher.replaceAll(
-          "CREATE ${indexType} `" + tableName + "_${indexName}`");
+      convertedText =
+          createIndexMatcher.replaceAll("CREATE ${indexType} `" + tableName + "_${indexName}`");
       convertedText = removePrefixIndex(convertedText);
     }
     return convertedText;
   }
 
-  private static final Pattern PREFIX_INDEX_PATTERN = Pattern.compile(
-      "(?<prefix>\\("
-          // other columns
-          + "((`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?,)*)"
-          // `<columnName>`(191)
-          + "(`)?(?<columnName>[a-zA-Z0-9\\-_]+)(`)?\\s*\\([0-9]+\\)"
-          // other columns
-          + "(?<suffix>(,(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?)*"
-          + "\\))");
+  private static final Pattern PREFIX_INDEX_PATTERN = Pattern.compile("(?<prefix>\\("
+      // other columns
+      + "((`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?,)*)"
+      // `<columnName>`(191)
+      + "(`)?(?<columnName>[a-zA-Z0-9\\-_]+)(`)?\\s*\\([0-9]+\\)"
+      // other columns
+      + "(?<suffix>(,(`)?[a-zA-Z0-9\\-_]+(`)?\\s*(\\([0-9]+\\))?)*" + "\\))");
 
   private static String removePrefixIndex(String convertedText) {
     // convert prefix index
     // (`AppId`,`ClusterName`(191),`NamespaceName`(191))
     // ->
     // (`AppId`,`ClusterName`,`NamespaceName`)
-    for (Matcher prefixIndexMatcher = PREFIX_INDEX_PATTERN.matcher(convertedText);
-        prefixIndexMatcher.find();
-        prefixIndexMatcher = PREFIX_INDEX_PATTERN.matcher(convertedText)) {
+    for (Matcher prefixIndexMatcher =
+        PREFIX_INDEX_PATTERN.matcher(convertedText); prefixIndexMatcher
+            .find(); prefixIndexMatcher = PREFIX_INDEX_PATTERN.matcher(convertedText)) {
       convertedText = prefixIndexMatcher.replaceAll("${prefix}`${columnName}`${suffix}");
     }
     return convertedText;

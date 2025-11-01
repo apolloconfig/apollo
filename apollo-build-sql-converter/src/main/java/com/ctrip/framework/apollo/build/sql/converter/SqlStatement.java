@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,7 @@ public class SqlStatement {
   public String toString() {
     return new StringJoiner(", ", SqlStatement.class.getSimpleName() + "[", "]")
         // fields
-        .add("rawText='" + this.rawText + "'")
-        .toString();
+        .add("rawText='" + this.rawText + "'").toString();
   }
 
   public static final class Builder {
@@ -72,8 +71,7 @@ public class SqlStatement {
     private String singleLineText;
     private List<String> textLines;
 
-    Builder() {
-    }
+    Builder() {}
 
     public Builder rawText(String rawText) {
       this.rawText = rawText;
@@ -87,7 +85,7 @@ public class SqlStatement {
 
     public Builder textLines(List<String> textLines) {
       this.textLines = textLines == null ? null :
-          // nonnull
+      // nonnull
           (textLines.isEmpty() ? Collections.emptyList() : Collections.unmodifiableList(textLines));
       return this;
     }

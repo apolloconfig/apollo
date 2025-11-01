@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,9 +60,8 @@ public class ReleaseMessageServiceWithCacheTest {
   @Before
 
   public void setUp() throws Exception {
-    releaseMessageServiceWithCache = new ReleaseMessageServiceWithCache(
-        releaseMessageRepository, bizConfig
-    );
+    releaseMessageServiceWithCache =
+        new ReleaseMessageServiceWithCache(releaseMessageRepository, bizConfig);
 
     scanInterval = 10;
     scanIntervalTimeUnit = TimeUnit.MILLISECONDS;
@@ -101,19 +100,16 @@ public class ReleaseMessageServiceWithCacheTest {
 
     verify(bizConfig).releaseMessageCacheScanInterval();
 
-    ReleaseMessage latestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMsgContent, anotherMsgContent));
+    ReleaseMessage latestReleaseMsg = releaseMessageServiceWithCache
+        .findLatestReleaseMessageForMessages(Sets.newHashSet(someMsgContent, anotherMsgContent));
 
     assertNotNull(latestReleaseMsg);
     assertEquals(3, latestReleaseMsg.getId());
     assertEquals(anotherMsgContent, latestReleaseMsg.getMessage());
 
     List<ReleaseMessage> latestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newLinkedHashSet(
-                    Arrays.asList(someMsgContent, anotherMsgContent))
-            );
+        releaseMessageServiceWithCache.findLatestReleaseMessagesGroupByMessages(
+            Sets.newLinkedHashSet(Arrays.asList(someMsgContent, anotherMsgContent)));
 
     assertEquals(2, latestReleaseMsgGroupByMsgContent.size());
     assertEquals(3, latestReleaseMsgGroupByMsgContent.get(1).getId());
@@ -143,18 +139,16 @@ public class ReleaseMessageServiceWithCacheTest {
 
     verify(releaseMessageRepository, times(1)).findFirst500ByIdGreaterThanOrderByIdAsc(500L);
 
-    ReleaseMessage latestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMsgContent, antherMsgContent));
+    ReleaseMessage latestReleaseMsg = releaseMessageServiceWithCache
+        .findLatestReleaseMessageForMessages(Sets.newHashSet(someMsgContent, antherMsgContent));
 
     assertNotNull(latestReleaseMsg);
     assertEquals(501, latestReleaseMsg.getId());
     assertEquals(antherMsgContent, latestReleaseMsg.getMessage());
-    
+
     List<String> msgContentList = Arrays.asList(someMsgContent, antherMsgContent);
-    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newLinkedHashSet(msgContentList));
+    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent = releaseMessageServiceWithCache
+        .findLatestReleaseMessagesGroupByMessages(Sets.newLinkedHashSet(msgContentList));
 
     assertEquals(2, latestReleaseMsgGroupByMsgContent.size());
     assertEquals(500, latestReleaseMsgGroupByMsgContent.get(0).getId());
@@ -167,18 +161,16 @@ public class ReleaseMessageServiceWithCacheTest {
     long someMessageId = 1;
     ReleaseMessage someMessage = assembleReleaseMsg(someMessageId, someMessageContent);
 
-    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0L)).thenReturn(Lists.newArrayList
-        (someMessage));
+    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0L))
+        .thenReturn(Lists.newArrayList(someMessage));
 
     releaseMessageServiceWithCache.afterPropertiesSet();
 
-    ReleaseMessage latestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
+    ReleaseMessage latestReleaseMsg = releaseMessageServiceWithCache
+        .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
 
-    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
+    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent = releaseMessageServiceWithCache
+        .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
 
     assertEquals(someMessageId, latestReleaseMsg.getId());
     assertEquals(someMessageContent, latestReleaseMsg.getMessage());
@@ -187,17 +179,15 @@ public class ReleaseMessageServiceWithCacheTest {
     long newMessageId = 2;
     ReleaseMessage newMessage = assembleReleaseMsg(newMessageId, someMessageContent);
 
-    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(someMessageId)).thenReturn(Lists
-        .newArrayList(newMessage));
+    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(someMessageId))
+        .thenReturn(Lists.newArrayList(newMessage));
 
     await().atMost(scanInterval * 500, scanIntervalTimeUnit).untilAsserted(() -> {
-      ReleaseMessage newLatestReleaseMsg =
-          releaseMessageServiceWithCache
-              .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
+      ReleaseMessage newLatestReleaseMsg = releaseMessageServiceWithCache
+          .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
 
-      List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent =
-          releaseMessageServiceWithCache
-              .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
+      List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent = releaseMessageServiceWithCache
+          .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
 
       assertEquals(newMessageId, newLatestReleaseMsg.getId());
       assertEquals(someMessageContent, newLatestReleaseMsg.getMessage());
@@ -211,18 +201,16 @@ public class ReleaseMessageServiceWithCacheTest {
     long someMessageId = 1;
     ReleaseMessage someMessage = assembleReleaseMsg(someMessageId, someMessageContent);
 
-    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0L)).thenReturn(Lists.newArrayList
-        (someMessage));
+    when(releaseMessageRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0L))
+        .thenReturn(Lists.newArrayList(someMessage));
 
     releaseMessageServiceWithCache.afterPropertiesSet();
 
-    ReleaseMessage latestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
+    ReleaseMessage latestReleaseMsg = releaseMessageServiceWithCache
+        .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
 
-    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
+    List<ReleaseMessage> latestReleaseMsgGroupByMsgContent = releaseMessageServiceWithCache
+        .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
 
     assertEquals(someMessageId, latestReleaseMsg.getId());
     assertEquals(someMessageContent, latestReleaseMsg.getMessage());
@@ -233,13 +221,11 @@ public class ReleaseMessageServiceWithCacheTest {
 
     releaseMessageServiceWithCache.handleMessage(newMessage, Topics.APOLLO_RELEASE_TOPIC);
 
-    ReleaseMessage newLatestReleaseMsg =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
+    ReleaseMessage newLatestReleaseMsg = releaseMessageServiceWithCache
+        .findLatestReleaseMessageForMessages(Sets.newHashSet(someMessageContent));
 
-    List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent =
-        releaseMessageServiceWithCache
-            .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
+    List<ReleaseMessage> newLatestReleaseMsgGroupByMsgContent = releaseMessageServiceWithCache
+        .findLatestReleaseMessagesGroupByMessages(Sets.newHashSet(someMessageContent));
 
     assertEquals(newMessageId, newLatestReleaseMsg.getId());
     assertEquals(someMessageContent, newLatestReleaseMsg.getMessage());

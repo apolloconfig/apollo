@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableConfigurationProperties(ApolloAuditProperties.class)
-@ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "apollo.audit.log", name = "enabled", havingValue = "false",
+    matchIfMissing = true)
 public class ApolloAuditNoOpAutoConfiguration {
 
   private final ApolloAuditProperties apolloAuditProperties;
@@ -75,7 +76,8 @@ public class ApolloAuditNoOpAutoConfiguration {
   }
 
   @Bean
-  public ApolloAuditController apolloAuditController(ApolloAuditLogApi api, ApolloAuditProperties apolloAuditProperties) {
+  public ApolloAuditController apolloAuditController(ApolloAuditLogApi api,
+      ApolloAuditProperties apolloAuditProperties) {
     return new ApolloAuditController(api, apolloAuditProperties);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,11 +64,8 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final RoleInitializationService roleInitializationService;
   private static final Logger logger = LoggerFactory.getLogger(ServerAppOpenApiService.class);
 
-  public ServerAppOpenApiService(
-      PortalSettings portalSettings,
-      ClusterService clusterService,
-      AppService appService,
-      ApplicationEventPublisher publisher,
+  public ServerAppOpenApiService(PortalSettings portalSettings, ClusterService clusterService,
+      AppService appService, ApplicationEventPublisher publisher,
       RoleInitializationService roleInitializationService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
@@ -78,14 +75,8 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   }
 
   private App convert(OpenAppDTO dto) {
-    return App.builder()
-        .appId(dto.getAppId())
-        .name(dto.getName())
-        .ownerName(dto.getOwnerName())
-        .orgId(dto.getOrgId())
-        .orgName(dto.getOrgName())
-        .ownerEmail(dto.getOwnerEmail())
-        .build();
+    return App.builder().appId(dto.getAppId()).name(dto.getName()).ownerName(dto.getOwnerName())
+        .orgId(dto.getOrgId()).orgName(dto.getOrgName()).ownerEmail(dto.getOwnerEmail()).build();
   }
 
   /**
@@ -111,7 +102,8 @@ public class ServerAppOpenApiService implements AppOpenApiService {
 
       envCluster.setEnv(env.getName());
       List<ClusterDTO> clusterDTOs = clusterService.findClusters(env, appId);
-      Set<String> clusterNames = clusterDTOs == null ? Collections.emptySet() : BeanUtils.toPropertySet("name", clusterDTOs);
+      Set<String> clusterNames = clusterDTOs == null ? Collections.emptySet()
+          : BeanUtils.toPropertySet("name", clusterDTOs);
       envCluster.setClusters(new ArrayList<>(clusterNames));
 
       envClusters.add(envCluster);
@@ -190,7 +182,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
     appService.createAppInRemote(envEnum, appEntity);
 
     roleInitializationService.initNamespaceSpecificEnvRoles(appEntity.getAppId(),
-            ConfigConsts.NAMESPACE_APPLICATION, env, operator);
+        ConfigConsts.NAMESPACE_APPLICATION, env, operator);
   }
 
   /**
@@ -218,13 +210,13 @@ public class ServerAppOpenApiService implements AppOpenApiService {
         appService.load(env, appId);
       } catch (Exception e) {
         RichResponseEntity entity;
-        if (e instanceof HttpClientErrorException &&
-                ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
+        if (e instanceof HttpClientErrorException
+            && ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
           entity = new RichResponseEntity(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase());
           entity.setBody(env.toString());
-        }  else {
+        } else {
           entity = new RichResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                  "load env:" + env.getName() + " cluster error." + e.getMessage());
+              "load env:" + env.getName() + " cluster error." + e.getMessage());
         }
         response.addEntitiesItem(entity);
       }
@@ -240,18 +232,20 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   @Override
   public MultiResponseEntity getAppNavTree(String appId) {
     List<RichResponseEntity> entities = new ArrayList<>();
-    MultiResponseEntity response = new MultiResponseEntity(HttpStatus.OK.value(),entities);
+    MultiResponseEntity response = new MultiResponseEntity(HttpStatus.OK.value(), entities);
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       try {
-        OpenEnvClusterInfo openEnvClusterInfo = OpenApiModelConverters.fromEnvClusterInfo(appService.createEnvNavNode(env, appId));
-        RichResponseEntity entity = new RichResponseEntity(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase());
+        OpenEnvClusterInfo openEnvClusterInfo =
+            OpenApiModelConverters.fromEnvClusterInfo(appService.createEnvNavNode(env, appId));
+        RichResponseEntity entity =
+            new RichResponseEntity(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase());
         entity.setBody(openEnvClusterInfo);
         response.addEntitiesItem(entity);
       } catch (Exception e) {
         logger.warn("Failed to load env {} navigation for app {}", env, appId, e);
         RichResponseEntity entity = new RichResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "load env:" + env.getName() + " cluster error." + e.getMessage());
+            "load env:" + env.getName() + " cluster error." + e.getMessage());
         response.addEntitiesItem(entity);
       }
     }

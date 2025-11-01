@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,16 +55,15 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     String someDataCenter = "someDataCenter";
     String someIp = "someIp";
 
-    Instance instance = instanceService.findInstance(someAppId, someClusterName, someDataCenter,
-        someIp);
+    Instance instance =
+        instanceService.findInstance(someAppId, someClusterName, someDataCenter, someIp);
 
     assertNull(instance);
 
-    instanceService.createInstance(assembleInstance(someAppId, someClusterName, someDataCenter,
-        someIp));
+    instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, someIp));
 
-    instance = instanceService.findInstance(someAppId, someClusterName, someDataCenter,
-        someIp);
+    instance = instanceService.findInstance(someAppId, someClusterName, someDataCenter, someIp);
 
     assertNotEquals(0, instance.getId());
   }
@@ -78,13 +77,13 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     String someIp = "someIp";
     String anotherIp = "anotherIp";
 
-    Instance someInstance = instanceService.createInstance(assembleInstance(someAppId,
-        someClusterName, someDataCenter, someIp));
-    Instance anotherInstance = instanceService.createInstance(assembleInstance(someAppId,
-        someClusterName, someDataCenter, anotherIp));
+    Instance someInstance = instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, someIp));
+    Instance anotherInstance = instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, anotherIp));
 
-    List<Instance> instances = instanceService.findInstancesByIds(Sets.newHashSet(someInstance
-        .getId(), anotherInstance.getId()));
+    List<Instance> instances = instanceService
+        .findInstancesByIds(Sets.newHashSet(someInstance.getId(), anotherInstance.getId()));
 
     Set<String> ips = instances.stream().map(Instance::getIp).collect(Collectors.toSet());
     assertEquals(2, instances.size());
@@ -147,8 +146,8 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     prepareInstanceConfigForInstance(anotherInstanceId, someConfigAppId, someConfigClusterName,
         someConfigNamespaceName, someReleaseKey, someInvalidDate);
 
-    Page<InstanceConfig> validInstanceConfigs = instanceService
-        .findActiveInstanceConfigsByReleaseKey(someReleaseKey, pageable);
+    Page<InstanceConfig> validInstanceConfigs =
+        instanceService.findActiveInstanceConfigsByReleaseKey(someReleaseKey, pageable);
 
     assertEquals(1, validInstanceConfigs.getContent().size());
     assertEquals(someInstanceId, validInstanceConfigs.getContent().get(0).getInstanceId());
@@ -169,16 +168,15 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     String someIp = "someIp";
     String anotherIp = "anotherIp";
 
-    Instance someInstance = instanceService.createInstance(assembleInstance(someAppId,
-        someClusterName, someDataCenter, someIp));
-    Instance anotherInstance = instanceService.createInstance(assembleInstance(someAppId,
-        someClusterName, someDataCenter, anotherIp));
+    Instance someInstance = instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, someIp));
+    Instance anotherInstance = instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, anotherIp));
 
     prepareInstanceConfigForInstance(someInstance.getId(), someConfigAppId, someConfigClusterName,
         someConfigNamespaceName, someReleaseKey, someValidDate);
     prepareInstanceConfigForInstance(anotherInstance.getId(), someConfigAppId,
-        someConfigClusterName,
-        someConfigNamespaceName, someReleaseKey, someValidDate);
+        someConfigClusterName, someConfigNamespaceName, someReleaseKey, someValidDate);
 
     Page<Instance> result = instanceService.findInstancesByNamespace(someConfigAppId,
         someConfigClusterName, someConfigNamespaceName, PageRequest.of(0, 10));
@@ -201,21 +199,21 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     String someDataCenter = "someDataCenter";
     String someIp = "someIp";
 
-    Instance someInstance = instanceService.createInstance(assembleInstance(someAppId,
-        someClusterName, someDataCenter, someIp));
-    Instance anotherInstance = instanceService.createInstance(assembleInstance(anotherAppId,
-        someClusterName, someDataCenter, someIp));
+    Instance someInstance = instanceService
+        .createInstance(assembleInstance(someAppId, someClusterName, someDataCenter, someIp));
+    Instance anotherInstance = instanceService
+        .createInstance(assembleInstance(anotherAppId, someClusterName, someDataCenter, someIp));
 
     prepareInstanceConfigForInstance(someInstance.getId(), someConfigAppId, someConfigClusterName,
         someConfigNamespaceName, someReleaseKey, someValidDate);
     prepareInstanceConfigForInstance(anotherInstance.getId(), someConfigAppId,
-        someConfigClusterName,
-        someConfigNamespaceName, someReleaseKey, someValidDate);
+        someConfigClusterName, someConfigNamespaceName, someReleaseKey, someValidDate);
 
     Page<Instance> result = instanceService.findInstancesByNamespaceAndInstanceAppId(someAppId,
         someConfigAppId, someConfigClusterName, someConfigNamespaceName, PageRequest.of(0, 10));
-    Page<Instance> anotherResult = instanceService.findInstancesByNamespaceAndInstanceAppId(anotherAppId,
-        someConfigAppId, someConfigClusterName, someConfigNamespaceName, PageRequest.of(0, 10));
+    Page<Instance> anotherResult =
+        instanceService.findInstancesByNamespaceAndInstanceAppId(anotherAppId, someConfigAppId,
+            someConfigClusterName, someConfigNamespaceName, PageRequest.of(0, 10));
 
     assertEquals(Lists.newArrayList(someInstance), result.getContent());
     assertEquals(Lists.newArrayList(anotherInstance), anotherResult.getContent());
@@ -236,27 +234,24 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     String anotherReleaseKey = "anotherReleaseKey";
     String yetAnotherReleaseKey = "yetAnotherReleaseKey";
 
-    InstanceConfig someInstanceConfig = prepareInstanceConfigForInstance(someInstanceId,
-        someConfigAppId, someConfigClusterName,
-        someConfigNamespaceName, someReleaseKey, someValidDate);
-    InstanceConfig anotherInstanceConfig = prepareInstanceConfigForInstance(anotherInstanceId,
-        someConfigAppId, someConfigClusterName,
-        someConfigNamespaceName, someReleaseKey, someValidDate);
+    InstanceConfig someInstanceConfig =
+        prepareInstanceConfigForInstance(someInstanceId, someConfigAppId, someConfigClusterName,
+            someConfigNamespaceName, someReleaseKey, someValidDate);
+    InstanceConfig anotherInstanceConfig =
+        prepareInstanceConfigForInstance(anotherInstanceId, someConfigAppId, someConfigClusterName,
+            someConfigNamespaceName, someReleaseKey, someValidDate);
     prepareInstanceConfigForInstance(yetAnotherInstanceId, someConfigAppId, someConfigClusterName,
         someConfigNamespaceName, anotherReleaseKey, someValidDate);
 
     List<InstanceConfig> instanceConfigs = instanceService
-        .findInstanceConfigsByNamespaceWithReleaseKeysNotIn(someConfigAppId,
-            someConfigClusterName, someConfigNamespaceName, Sets.newHashSet(anotherReleaseKey,
-                yetAnotherReleaseKey));
+        .findInstanceConfigsByNamespaceWithReleaseKeysNotIn(someConfigAppId, someConfigClusterName,
+            someConfigNamespaceName, Sets.newHashSet(anotherReleaseKey, yetAnotherReleaseKey));
 
     assertEquals(Lists.newArrayList(someInstanceConfig, anotherInstanceConfig), instanceConfigs);
   }
 
   private InstanceConfig prepareInstanceConfigForInstance(long instanceId, String configAppId,
-                                                          String configClusterName, String
-                                                              configNamespace, String releaseKey,
-                                                          Date lastModifiedTime) {
+      String configClusterName, String configNamespace, String releaseKey, Date lastModifiedTime) {
 
     InstanceConfig someConfig = assembleInstanceConfig(instanceId, configAppId, configClusterName,
         configNamespace, releaseKey);
@@ -266,8 +261,8 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     return instanceService.createInstanceConfig(someConfig);
   }
 
-  private Instance assembleInstance(String appId, String clusterName, String dataCenter, String
-      ip) {
+  private Instance assembleInstance(String appId, String clusterName, String dataCenter,
+      String ip) {
     Instance instance = new Instance();
     instance.setAppId(appId);
     instance.setIp(ip);
@@ -277,8 +272,8 @@ public class InstanceServiceTest extends AbstractIntegrationTest {
     return instance;
   }
 
-  private InstanceConfig assembleInstanceConfig(long instanceId, String configAppId, String
-      configClusterName, String configNamespaceName, String releaseKey) {
+  private InstanceConfig assembleInstanceConfig(long instanceId, String configAppId,
+      String configClusterName, String configNamespaceName, String releaseKey) {
     InstanceConfig instanceConfig = new InstanceConfig();
     instanceConfig.setInstanceId(instanceId);
     instanceConfig.setConfigAppId(configAppId);

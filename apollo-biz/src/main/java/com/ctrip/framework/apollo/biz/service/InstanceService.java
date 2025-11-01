@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ public class InstanceService {
   private final InstanceRepository instanceRepository;
   private final InstanceConfigRepository instanceConfigRepository;
 
-  public InstanceService(
-      final InstanceRepository instanceRepository,
+  public InstanceService(final InstanceRepository instanceRepository,
       final InstanceConfigRepository instanceConfigRepository) {
     this.instanceRepository = instanceRepository;
     this.instanceConfigRepository = instanceConfigRepository;
@@ -65,47 +64,44 @@ public class InstanceService {
 
   @Transactional
   public Instance createInstance(Instance instance) {
-    instance.setId(0); //protection
+    instance.setId(0); // protection
 
     return instanceRepository.save(instance);
   }
 
-  public InstanceConfig findInstanceConfig(long instanceId, String configAppId, String
-      configNamespaceName) {
-    return instanceConfigRepository
-        .findByInstanceIdAndConfigAppIdAndConfigNamespaceName(
-            instanceId, configAppId, configNamespaceName);
+  public InstanceConfig findInstanceConfig(long instanceId, String configAppId,
+      String configNamespaceName) {
+    return instanceConfigRepository.findByInstanceIdAndConfigAppIdAndConfigNamespaceName(instanceId,
+        configAppId, configNamespaceName);
   }
 
-  public Page<InstanceConfig> findActiveInstanceConfigsByReleaseKey(String releaseKey, Pageable
-      pageable) {
+  public Page<InstanceConfig> findActiveInstanceConfigsByReleaseKey(String releaseKey,
+      Pageable pageable) {
     return instanceConfigRepository.findByReleaseKeyAndDataChangeLastModifiedTimeAfter(releaseKey,
-            getValidInstanceConfigDate(), pageable);
+        getValidInstanceConfigDate(), pageable);
   }
 
-  public Page<Instance> findInstancesByNamespace(String appId, String clusterName, String
-      namespaceName, Pageable pageable) {
-    Page<InstanceConfig> instanceConfigs = instanceConfigRepository.
-        findByConfigAppIdAndConfigClusterNameAndConfigNamespaceNameAndDataChangeLastModifiedTimeAfter(appId, clusterName,
-            namespaceName, getValidInstanceConfigDate(), pageable);
+  public Page<Instance> findInstancesByNamespace(String appId, String clusterName,
+      String namespaceName, Pageable pageable) {
+    Page<InstanceConfig> instanceConfigs = instanceConfigRepository
+        .findByConfigAppIdAndConfigClusterNameAndConfigNamespaceNameAndDataChangeLastModifiedTimeAfter(
+            appId, clusterName, namespaceName, getValidInstanceConfigDate(), pageable);
 
     List<Instance> instances = Collections.emptyList();
     if (instanceConfigs.hasContent()) {
-      Set<Long> instanceIds = instanceConfigs.getContent().stream().map
-          (InstanceConfig::getInstanceId).collect(Collectors.toSet());
+      Set<Long> instanceIds = instanceConfigs.getContent().stream()
+          .map(InstanceConfig::getInstanceId).collect(Collectors.toSet());
       instances = findInstancesByIds(instanceIds);
     }
 
     return new PageImpl<>(instances, pageable, instanceConfigs.getTotalElements());
   }
 
-  public Page<Instance> findInstancesByNamespaceAndInstanceAppId(String instanceAppId, String
-      appId, String clusterName, String
-                                                                     namespaceName, Pageable
-                                                                     pageable) {
-    Page<Object> instanceIdResult = instanceConfigRepository
-        .findInstanceIdsByNamespaceAndInstanceAppId(instanceAppId, appId, clusterName,
-            namespaceName, getValidInstanceConfigDate(), pageable);
+  public Page<Instance> findInstancesByNamespaceAndInstanceAppId(String instanceAppId, String appId,
+      String clusterName, String namespaceName, Pageable pageable) {
+    Page<Object> instanceIdResult =
+        instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId(instanceAppId, appId,
+            clusterName, namespaceName, getValidInstanceConfigDate(), pageable);
 
     List<Instance> instances = Collections.emptyList();
     if (instanceIdResult.hasContent()) {
@@ -115,14 +111,14 @@ public class InstanceService {
         }
 
         if (o instanceof Integer) {
-          return ((Integer)o).longValue();
+          return ((Integer) o).longValue();
         }
 
         if (o instanceof Long) {
           return (Long) o;
         }
 
-        //for h2 test
+        // for h2 test
         if (o instanceof BigInteger) {
           return ((BigInteger) o).longValue();
         }
@@ -136,14 +132,10 @@ public class InstanceService {
   }
 
   public List<InstanceConfig> findInstanceConfigsByNamespaceWithReleaseKeysNotIn(String appId,
-                                                                                 String clusterName,
-                                                                                 String
-                                                                                     namespaceName,
-                                                                                 Set<String>
-                                                                                     releaseKeysNotIn) {
-    List<InstanceConfig> instanceConfigs = instanceConfigRepository.
-        findByConfigAppIdAndConfigClusterNameAndConfigNamespaceNameAndDataChangeLastModifiedTimeAfterAndReleaseKeyNotIn(appId, clusterName,
-            namespaceName, getValidInstanceConfigDate(), releaseKeysNotIn);
+      String clusterName, String namespaceName, Set<String> releaseKeysNotIn) {
+    List<InstanceConfig> instanceConfigs = instanceConfigRepository
+        .findByConfigAppIdAndConfigClusterNameAndConfigNamespaceNameAndDataChangeLastModifiedTimeAfterAndReleaseKeyNotIn(
+            appId, clusterName, namespaceName, getValidInstanceConfigDate(), releaseKeysNotIn);
 
     if (CollectionUtils.isEmpty(instanceConfigs)) {
       return Collections.emptyList();
@@ -165,28 +157,31 @@ public class InstanceService {
 
   @Transactional
   public InstanceConfig createInstanceConfig(InstanceConfig instanceConfig) {
-    instanceConfig.setId(0); //protection
+    instanceConfig.setId(0); // protection
 
     return instanceConfigRepository.save(instanceConfig);
   }
 
   @Transactional
   public InstanceConfig updateInstanceConfig(InstanceConfig instanceConfig) {
-    InstanceConfig existedInstanceConfig = instanceConfigRepository.findById(instanceConfig.getId()).orElse(null);
-    Preconditions.checkArgument(existedInstanceConfig != null, String.format(
-        "Instance config %d doesn't exist", instanceConfig.getId()));
+    InstanceConfig existedInstanceConfig =
+        instanceConfigRepository.findById(instanceConfig.getId()).orElse(null);
+    Preconditions.checkArgument(existedInstanceConfig != null,
+        String.format("Instance config %d doesn't exist", instanceConfig.getId()));
 
     existedInstanceConfig.setConfigClusterName(instanceConfig.getConfigClusterName());
     existedInstanceConfig.setReleaseKey(instanceConfig.getReleaseKey());
     existedInstanceConfig.setReleaseDeliveryTime(instanceConfig.getReleaseDeliveryTime());
-    existedInstanceConfig.setDataChangeLastModifiedTime(instanceConfig
-        .getDataChangeLastModifiedTime());
+    existedInstanceConfig
+        .setDataChangeLastModifiedTime(instanceConfig.getDataChangeLastModifiedTime());
 
     return instanceConfigRepository.save(existedInstanceConfig);
   }
 
   @Transactional
-  public int batchDeleteInstanceConfig(String configAppId, String configClusterName, String configNamespaceName){
-    return instanceConfigRepository.batchDelete(configAppId, configClusterName, configNamespaceName);
+  public int batchDeleteInstanceConfig(String configAppId, String configClusterName,
+      String configNamespaceName) {
+    return instanceConfigRepository.batchDelete(configAppId, configClusterName,
+        configNamespaceName);
   }
 }

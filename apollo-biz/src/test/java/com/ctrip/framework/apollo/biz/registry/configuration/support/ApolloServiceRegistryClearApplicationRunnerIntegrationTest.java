@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-@TestPropertySource(
-    properties = {
-        "apollo.service.registry.enabled=true",
-        "apollo.service.registry.cluster=default",
-        "apollo.service.discovery.enabled=true",
-        "spring.application.name=for-test-service",
-        "server.port=10000",
-    }
-)
-@ContextConfiguration(classes = {
-    ApolloServiceRegistryAutoConfiguration.class,
-    ApolloServiceDiscoveryAutoConfiguration.class,
-})
+@TestPropertySource(properties = {"apollo.service.registry.enabled=true",
+    "apollo.service.registry.cluster=default", "apollo.service.discovery.enabled=true",
+    "spring.application.name=for-test-service", "server.port=10000",})
+@ContextConfiguration(classes = {ApolloServiceRegistryAutoConfiguration.class,
+    ApolloServiceDiscoveryAutoConfiguration.class,})
 public class ApolloServiceRegistryClearApplicationRunnerIntegrationTest
     extends AbstractIntegrationTest {
 
@@ -75,20 +67,18 @@ public class ApolloServiceRegistryClearApplicationRunnerIntegrationTest
     this.repository.save(unhealthy);
 
     {
-      List<ServiceRegistry> serviceRegistryList = this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(
-          serviceName,
-          LocalDateTime.now().minusDays(3L)
-      );
+      List<ServiceRegistry> serviceRegistryList =
+          this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(serviceName,
+              LocalDateTime.now().minusDays(3L));
       assertEquals(2, serviceRegistryList.size());
     }
 
     runner.clearUnhealthyInstances();
 
     {
-      List<ServiceRegistry> serviceRegistryList = this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(
-          serviceName,
-          LocalDateTime.now().minusDays(3L)
-      );
+      List<ServiceRegistry> serviceRegistryList =
+          this.repository.findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(serviceName,
+              LocalDateTime.now().minusDays(3L));
       assertEquals(1, serviceRegistryList.size());
       ServiceRegistry registry = serviceRegistryList.get(0);
       assertEquals(serviceName, registry.getServiceName());

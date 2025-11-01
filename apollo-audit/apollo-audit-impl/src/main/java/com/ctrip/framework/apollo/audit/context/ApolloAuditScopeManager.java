@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,7 @@ public class ApolloAuditScopeManager {
 
   private ApolloAuditScope scope;
 
-  public ApolloAuditScopeManager() {
-  }
+  public ApolloAuditScopeManager() {}
 
   public ApolloAuditScope activate(ApolloAuditSpan span) {
     setScope(new ApolloAuditScope(span, this));

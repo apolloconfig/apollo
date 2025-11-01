@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 
 @Configuration
-@ComponentScan(excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE, value = {
-        LocalAdminServiceApplication.class, AdminServiceApplication.class,
+@ComponentScan(excludeFilters = {@Filter(type = FilterType.ASSIGNABLE_TYPE,
+    value = {LocalAdminServiceApplication.class, AdminServiceApplication.class,
         HttpMessageConverterConfiguration.class})})
 @EnableAutoConfiguration
 public class AdminServiceTestConfiguration {

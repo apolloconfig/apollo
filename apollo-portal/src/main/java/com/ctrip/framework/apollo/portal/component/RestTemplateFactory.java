@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   private RestTemplate restTemplate;
 
   public RestTemplateFactory(final HttpMessageConverters httpMessageConverters,
-      final PortalConfig portalConfig, final ApolloAuditHttpInterceptor apolloAuditHttpInterceptor) {
+      final PortalConfig portalConfig,
+      final ApolloAuditHttpInterceptor apolloAuditHttpInterceptor) {
     this.httpMessageConverters = httpMessageConverters;
     this.portalConfig = portalConfig;
     this.apolloAuditHttpInterceptor = apolloAuditHttpInterceptor;
@@ -71,8 +72,7 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
 
     CloseableHttpClient httpClient = HttpClientBuilder.create()
         .setConnectionTimeToLive(portalConfig.connectionTimeToLive(), TimeUnit.MILLISECONDS)
-        .setConnectionManager(connectionManager)
-        .build();
+        .setConnectionManager(connectionManager).build();
 
     restTemplate = new RestTemplate(httpMessageConverters.getConverters());
     HttpComponentsClientHttpRequestFactory requestFactory =
