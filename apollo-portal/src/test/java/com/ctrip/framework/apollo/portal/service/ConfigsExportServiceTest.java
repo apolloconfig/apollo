@@ -155,7 +155,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(appService.findAll()).thenReturn(exportApps);
     when(appNamespaceService.findAll()).thenReturn(appNamespaces);
     when(userPermissionValidator.isAppAdmin(any())).thenReturn(true);
-    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn( true);
+    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn(true);
     when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
     when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     when(clusterService.findClusters(env, appId1)).thenReturn(app1Clusters);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,11 +117,8 @@ public class ConsumerPermissionValidatorTest {
   public void testHasCreateApplicationPermission_UserHasPermission_ReturnsTrue() {
     // Arrange
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
-    when(permissionService.consumerHasPermission(
-        CONSUMER_ID,
-        PermissionType.CREATE_APPLICATION,
-        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID))
-        .thenReturn(true);
+    when(permissionService.consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID)).thenReturn(true);
 
     // Act
     boolean result = validator.hasCreateApplicationPermission();
@@ -129,9 +126,8 @@ public class ConsumerPermissionValidatorTest {
     // Assert
     assertTrue(result);
     verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
-    verify(permissionService, times(1))
-        .consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
-            SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    verify(permissionService, times(1)).consumerHasPermission(CONSUMER_ID,
+        PermissionType.CREATE_APPLICATION, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
   }
 
   /**
@@ -141,11 +137,8 @@ public class ConsumerPermissionValidatorTest {
   public void testHasCreateApplicationPermission_UserHasNoPermission_ReturnsFalse() {
     // Arrange
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
-    when(permissionService.consumerHasPermission(
-        CONSUMER_ID,
-        PermissionType.CREATE_APPLICATION,
-        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID))
-        .thenReturn(false);
+    when(permissionService.consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID)).thenReturn(false);
 
     // Act
     boolean result = validator.hasCreateApplicationPermission();
@@ -153,9 +146,8 @@ public class ConsumerPermissionValidatorTest {
     // Assert
     assertFalse(result);
     verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
-    verify(permissionService, times(1))
-        .consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
-            SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    verify(permissionService, times(1)).consumerHasPermission(CONSUMER_ID,
+        PermissionType.CREATE_APPLICATION, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
   }
 
   /**
@@ -164,8 +156,8 @@ public class ConsumerPermissionValidatorTest {
   @Test
   public void testHasCreateApplicationPermission_RetrieveConsumerIdThrowsException_ThrowsException() {
     // Arrange
-    when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenThrow(
-        new RuntimeException("Consumer ID not found"));
+    when(consumerAuthUtil.retrieveConsumerIdFromCtx())
+        .thenThrow(new RuntimeException("Consumer ID not found"));
 
     // Act & Assert
     assertThrows(RuntimeException.class, () -> {
@@ -173,8 +165,7 @@ public class ConsumerPermissionValidatorTest {
     });
 
     verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
-    verify(permissionService, never())
-        .consumerHasPermission(anyLong(), anyString(), anyString());
+    verify(permissionService, never()).consumerHasPermission(anyLong(), anyString(), anyString());
   }
 
   /**
@@ -184,11 +175,9 @@ public class ConsumerPermissionValidatorTest {
   public void testHasCreateApplicationPermission_ConsumerHasPermissionThrowsException_ThrowsException() {
     // Arrange
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
-    when(permissionService.consumerHasPermission(
-        CONSUMER_ID,
-        PermissionType.CREATE_APPLICATION,
+    when(permissionService.consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
         SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID))
-        .thenThrow(new RuntimeException("Permission check failed"));
+            .thenThrow(new RuntimeException("Permission check failed"));
 
     // Act & Assert
     assertThrows(RuntimeException.class, () -> {
@@ -196,9 +185,8 @@ public class ConsumerPermissionValidatorTest {
     });
 
     verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
-    verify(permissionService, times(1))
-        .consumerHasPermission(CONSUMER_ID, PermissionType.CREATE_APPLICATION,
-            SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    verify(permissionService, times(1)).consumerHasPermission(CONSUMER_ID,
+        PermissionType.CREATE_APPLICATION, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
   }
 
   @Test
@@ -216,10 +204,8 @@ public class ConsumerPermissionValidatorTest {
   @Test
   public void testHasPermissions_UserHasPermission_ReturnsTrue() {
     // 创建 Permission 对象列表
-    List<Permission> requiredPerms = Arrays.asList(
-        new Permission("a", "b"),
-        new Permission("c", "d")
-    );
+    List<Permission> requiredPerms =
+        Arrays.asList(new Permission("a", "b"), new Permission("c", "d"));
 
     // 模拟 permissionService.hasAnyPermission 返回 true
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
@@ -237,10 +223,8 @@ public class ConsumerPermissionValidatorTest {
    */
   @Test
   public void testHasPermissions_UserHasNoPermission_ReturnsFalse() {
-    List<Permission> requiredPerms = Arrays.asList(
-        new Permission("a", "b"),
-        new Permission("c", "d")
-    );
+    List<Permission> requiredPerms =
+        Arrays.asList(new Permission("a", "b"), new Permission("c", "d"));
 
     when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
     when(permissionService.hasAnyPermission(CONSUMER_ID, requiredPerms)).thenReturn(false);

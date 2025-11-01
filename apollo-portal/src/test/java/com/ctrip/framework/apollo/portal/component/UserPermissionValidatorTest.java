@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,8 +75,8 @@ class UserPermissionValidatorTest {
   void hasCreateAppNamespacePermission_publicNamespace() {
     AppNamespace publicNs = new AppNamespace();
     publicNs.setPublic(true);
-    List<Permission> requiredPermissions = Collections.singletonList(
-        new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
+    List<Permission> requiredPermissions =
+        Collections.singletonList(new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
     assertThat(validator.hasCreateAppNamespacePermission(APP_ID, publicNs)).isTrue();
   }
@@ -87,8 +87,8 @@ class UserPermissionValidatorTest {
     privateNs.setPublic(false);
 
     when(portalConfig.canAppAdminCreatePrivateNamespace()).thenReturn(true);
-    List<Permission> requiredPermissions = Collections.singletonList(
-        new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
+    List<Permission> requiredPermissions =
+        Collections.singletonList(new Permission(PermissionType.CREATE_NAMESPACE, APP_ID));
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
 
     assertThat(validator.hasCreateAppNamespacePermission(APP_ID, privateNs)).isTrue();
@@ -129,6 +129,7 @@ class UserPermissionValidatorTest {
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
     assertThat(validator.isSuperAdmin()).isFalse();
   }
+
   @Test
   void shouldHideConfigToCurrentUser_publicNamespace() {
     when(portalConfig.isConfigViewMemberOnly(ENV)).thenReturn(true);
@@ -178,8 +179,8 @@ class UserPermissionValidatorTest {
   @Test
   void hasManageAppMasterPermission_normalUser_withAssignRole_andManageAppMaster() {
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-    List<Permission> requiredPermissions = Collections.singletonList(
-        new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
+    List<Permission> requiredPermissions =
+        Collections.singletonList(new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
 
     when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID)).thenReturn(true);
@@ -190,8 +191,8 @@ class UserPermissionValidatorTest {
   @Test
   void hasManageAppMasterPermission_normalUser_withoutManageAppMaster() {
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-    List<Permission> requiredPermissions = Collections.singletonList(
-            new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
+    List<Permission> requiredPermissions =
+        Collections.singletonList(new Permission(PermissionType.ASSIGN_ROLE, APP_ID));
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPermissions)).thenReturn(true);
     when(systemRoleManagerService.hasManageAppMasterPermission(USER_ID, APP_ID)).thenReturn(false);
 

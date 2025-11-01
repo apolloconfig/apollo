@@ -94,10 +94,8 @@ public class PortalOpenApiAuthenticationScenariosTest {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
       http.csrf().disable();
-      http.authorizeRequests()
-          .antMatchers("/signin").permitAll()
-          .antMatchers("/openapi/**").permitAll()
-          .anyRequest().hasRole("user");
+      http.authorizeRequests().antMatchers("/signin").permitAll().antMatchers("/openapi/**")
+          .permitAll().anyRequest().hasRole("user");
       http.formLogin().loginPage("/signin");
       http.exceptionHandling()
           .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
@@ -105,8 +103,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth.inMemoryAuthentication()
-          .withUser("apollo").password("{noop}password").roles("user");
+      auth.inMemoryAuthentication().withUser("apollo").password("{noop}password").roles("user");
     }
   }
 
@@ -155,8 +152,8 @@ public class PortalOpenApiAuthenticationScenariosTest {
   private MockHttpSession authenticatedPortalSession() {
     MockHttpSession session = new MockHttpSession();
     SecurityContextImpl securityContext = new SecurityContextImpl();
-    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(
-        "apollo", "password", AuthorityUtils.createAuthorityList("ROLE_user")));
+    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("apollo", "password",
+        AuthorityUtils.createAuthorityList("ROLE_user")));
     session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
         securityContext);
     return session;
@@ -167,17 +164,16 @@ public class PortalOpenApiAuthenticationScenariosTest {
   public void portalRequestWithValidSession_shouldReturnOk() throws Exception {
     MockHttpSession session = authenticatedPortalSession();
 
-    mockMvc.perform(get(PORTAL_URI).session(session))
-        .andExpect(status().isOk());
+    mockMvc.perform(get(PORTAL_URI).session(session)).andExpect(status().isOk());
   }
 
-  // Scenario 2.1-2: Portal endpoint with expired session redirects to /signin (auth/ldap) or returns 401 (oidc).
+  // Scenario 2.1-2: Portal endpoint with expired session redirects to /signin (auth/ldap) or
+  // returns 401 (oidc).
   @Test
   public void portalRequestWithExpiredSession_shouldRedirectToSignin() throws Exception {
     // auth/ldap path is handled via Spring Security entry point
     mockMvc.perform(get(PORTAL_URI).cookie(new Cookie("SESSION", "expired")))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl("http://localhost/signin"));
+        .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/signin"));
 
     // oidc path is handled by PortalUserSessionFilter
     MockEnvironment oidcEnvironment = new MockEnvironment();
@@ -199,19 +195,24 @@ public class PortalOpenApiAuthenticationScenariosTest {
   public void openApiRequestWithPortalSession_shouldReturnOk() throws Exception {
     MockHttpSession session = authenticatedPortalSession();
 
-    mockMvc.perform(get(OPEN_API_URI).session(session))
-        .andExpect(status().isOk());
+    mockMvc.perform(get(OPEN_API_URI).session(session)).andExpect(status().isOk());
   }
 
-  // Scenario 2.2-2: OpenAPI with expired portal session redirects (auth/ldap) or returns 401 (oidc).
+  // Scenario 2.2-2: OpenAPI with expired portal session redirects (auth/ldap) or returns 401
+  // (oidc).
   @Test
   public void openApiRequestWithExpiredSession_shouldFollowProfileSpecificHandling()
       throws Exception {
     // auth/ldap
     mockMvc.perform(get(OPEN_API_URI).cookie(new Cookie("SESSION", "expired")))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(redirectedUrl(
-            "http://localhost/signin")); // should be aligned with 2.1-2 portal calling portal
+        .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/signin")); // should
+                                                                                                     // be
+                                                                                                     // aligned
+                                                                                                     // with
+                                                                                                     // 2.1-2
+                                                                                                     // portal
+                                                                                                     // calling
+                                                                                                     // portal
 
     // oidc
     MockEnvironment oidcEnvironment = new MockEnvironment();
@@ -248,7 +249,6 @@ public class PortalOpenApiAuthenticationScenariosTest {
   public void openApiRequestWithoutLoginOrToken_shouldReturn401() throws Exception {
     when(consumerAuthUtil.getConsumerToken(null)).thenReturn(null);
 
-    mockMvc.perform(get(OPEN_API_URI))
-        .andExpect(status().isUnauthorized());
+    mockMvc.perform(get(OPEN_API_URI)).andExpect(status().isUnauthorized());
   }
 }

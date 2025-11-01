@@ -51,7 +51,6 @@ import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {PortalApplication.class, ControllableAuthorizationConfiguration.class},

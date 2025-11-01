@@ -51,4 +51,3 @@ public class ServerClusterOpenApiService implements ClusterOpenApiService {
     clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
   }
 }
-

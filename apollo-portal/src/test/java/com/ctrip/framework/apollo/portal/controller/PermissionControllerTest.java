@@ -53,9 +53,8 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
   @Before
   public void setUp() {
     roleInitializationService.initClusterNamespaceRoles(appId, env, clusterName, "apollo");
-    Authentication auth = new UsernamePasswordAuthenticationToken(
-            "test-user", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-    );
+    Authentication auth = new UsernamePasswordAuthenticationToken("test-user", null,
+        Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
     SecurityContextHolder.getContext().setAuthentication(auth);
   }
 
