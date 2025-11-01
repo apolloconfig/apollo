@@ -24,7 +24,7 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 ### Committer
 
 | GitHub ID   | Name          | Organization |
-| ----------- | ------------- | ------------ |
+|-------------|---------------|--------------|
 | Accelerater | Zhuohao Li    | Daocloud     |
 | Anilople    | Xiaoquan Wang | Some Bank    |
 | hezhangjian | ZhangJian He  | Huawei       |
@@ -37,6 +37,7 @@ Member 包括 PMC 成员和 Committer，该列表按字母顺序排列。
 | pengweiqhca | Wei Peng      | Tuhu         |
 | vdisk-group | Lvqiu Ye      | Hundsun      |
 | zouyx       | Joe Zou       | Shein        |
+| spaceluke   | Zhile Wei     | ByteDance    |
 
 ## Contributor
 
