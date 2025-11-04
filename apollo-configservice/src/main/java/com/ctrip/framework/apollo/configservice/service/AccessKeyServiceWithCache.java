@@ -32,6 +32,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -146,17 +147,18 @@ public class AccessKeyServiceWithCache implements InitializingBean {
 
   private void loadNewAndUpdatedAccessKeys() {
     boolean hasMore = true;
+    boolean needAddLastTimeScanned = true;
     while (hasMore && !Thread.currentThread().isInterrupted()) {
       // current batch is 500
       List<AccessKey> accessKeys = accessKeyRepository
-          .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+          .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
               lastTimeScanned);
       if (CollectionUtils.isEmpty(accessKeys)) {
         break;
       }
 
       int scanned = accessKeys.size();
-      mergeAccessKeys(accessKeys);
+      needAddLastTimeScanned = mergeAccessKeys(accessKeys);
       logger.info("Loaded {} new/updated Accesskey from startTime {}", scanned, lastTimeScanned);
 
       hasMore = scanned == 500;
@@ -167,26 +169,40 @@ public class AccessKeyServiceWithCache implements InitializingBean {
       if (hasMore) {
         List<AccessKey> lastModifiedTimeAccessKeys =
             accessKeyRepository.findByDataChangeLastModifiedTime(lastTimeScanned);
-        mergeAccessKeys(lastModifiedTimeAccessKeys);
+        needAddLastTimeScanned = mergeAccessKeys(lastModifiedTimeAccessKeys);
         logger.info("Loaded {} new/updated Accesskey at lastModifiedTime {}", scanned,
             lastTimeScanned);
+      }
+
+      if (needAddLastTimeScanned) {
+        lastTimeScanned = new Date(lastTimeScanned.getTime() + 1000);
       }
     }
   }
 
-  private void mergeAccessKeys(List<AccessKey> accessKeys) {
-    for (AccessKey accessKey : accessKeys) {
+  private boolean mergeAccessKeys(List<AccessKey> accessKeys) {
+    Iterator<AccessKey> iterator = accessKeys.iterator();
+    while (iterator.hasNext()) {
+      AccessKey accessKey = iterator.next();
       AccessKey thatInCache = accessKeyIdCache.get(accessKey.getId());
 
-      accessKeyIdCache.put(accessKey.getId(), accessKey);
-      accessKeyCache.put(accessKey.getAppId(), accessKey);
-
-      if (thatInCache != null && accessKey.getDataChangeLastModifiedTime()
-          .after(thatInCache.getDataChangeLastModifiedTime())) {
-        accessKeyCache.remove(accessKey.getAppId(), thatInCache);
-        logger.info("Found Accesskey changes, old: {}, new: {}", thatInCache, accessKey);
+      // It is consistent with the value in the current cache
+      if (accessKey.equals(thatInCache)) {
+        // last element
+        if (!iterator.hasNext()) {
+          return true;
+        }
+      } else {
+        accessKeyIdCache.put(accessKey.getId(), accessKey);
+        accessKeyCache.put(accessKey.getAppId(), accessKey);
+        if (thatInCache != null) {
+          accessKeyCache.remove(accessKey.getAppId(), thatInCache);
+          logger.info("Found Accesskey changes, old: {}, new: {}", thatInCache, accessKey);
+        }
       }
     }
+
+    return false;
   }
 
   private void deleteAccessKeyCache() {

@@ -33,5 +33,8 @@ public interface AccessKeyRepository extends PagingAndSortingRepository<AccessKe
   List<AccessKey> findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
       Date date);
 
+  List<AccessKey> findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
+      Date date);
+
   List<AccessKey> findByDataChangeLastModifiedTime(Date date);
 }

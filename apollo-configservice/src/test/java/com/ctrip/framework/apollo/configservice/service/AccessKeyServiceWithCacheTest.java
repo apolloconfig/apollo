@@ -81,7 +81,7 @@ public class AccessKeyServiceWithCacheTest {
 
     // Add access key, disable by default
     when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
             new Date(0L)))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
@@ -94,7 +94,7 @@ public class AccessKeyServiceWithCacheTest {
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", true, false, 1577808002000L);
     secondAccessKey = assembleAccessKey(2L, appId, "secret-2", true, false, 1577808003000L);
     when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
             new Date(1577808001000L)))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
@@ -111,7 +111,7 @@ public class AccessKeyServiceWithCacheTest {
     // Update access key, disable the first one
     firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false, false, 1577808004000L);
     when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
             new Date(1577808003000L)))
         .thenReturn(Lists.newArrayList(firstAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
@@ -128,7 +128,7 @@ public class AccessKeyServiceWithCacheTest {
 
     // Add new access key in runtime, enable by default
     when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
             new Date(1577808004000L)))
         .thenReturn(Lists.newArrayList(thirdAccessKey));
     when(accessKeyRepository.findAllById(anyList()))

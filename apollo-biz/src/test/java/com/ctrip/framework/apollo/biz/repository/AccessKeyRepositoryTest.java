@@ -84,4 +84,23 @@ public class AccessKeyRepositoryTest extends AbstractIntegrationTest {
     assertThat(accessKeyList.get(1).getSecret()).isEqualTo("c715cbc80fc44171b43732c3119c9456");
   }
 
+  @Test
+  @Sql(scripts = "/sql/accesskey-test.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testFindFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTime() {
+    Instant instant =
+        LocalDateTime.of(2019, 12, 19, 13, 44, 21).atZone(ZoneId.systemDefault()).toInstant();
+    Date date = Date.from(instant);
+
+    List<AccessKey> accessKeyList = accessKeyRepository
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualOrderByDataChangeLastModifiedTimeAsc(
+            date);
+
+    assertThat(accessKeyList).hasSize(2);
+    assertThat(accessKeyList.get(0).getAppId()).isEqualTo("100004458");
+    assertThat(accessKeyList.get(0).getSecret()).isEqualTo("4003c4d7783443dc9870932bebf3b7fe");
+    assertThat(accessKeyList.get(1).getAppId()).isEqualTo("100004458");
+    assertThat(accessKeyList.get(1).getSecret()).isEqualTo("c715cbc80fc44171b43732c3119c9456");
+  }
+
 }

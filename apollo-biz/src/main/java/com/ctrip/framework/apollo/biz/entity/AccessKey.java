@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
+import java.util.Objects;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
@@ -80,4 +81,27 @@ public class AccessKey extends BaseEntity {
     return toStringHelper().add("appId", appId).add("secret", secret).add("mode", mode)
         .add("enabled", enabled).toString();
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    AccessKey accessKey = (AccessKey) o;
+
+    return mode == accessKey.mode &&
+        enabled == accessKey.enabled &&
+        Objects.equals(appId, accessKey.appId) &&
+        Objects.equals(secret, accessKey.secret);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(appId, secret, mode, enabled);
+  }
+
 }
