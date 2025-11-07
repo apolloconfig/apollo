@@ -51,9 +51,12 @@ jobs:
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
     - name: JDK 17
       if: matrix.jdk == '17'
-      run: mvn -B clean compile spotless:check -Dmaven.gitcommitid.skip=true
+      run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
     - name: Upload coverage to Codecov
       if: matrix.jdk == '8'
       uses: codecov/codecov-action@v1
       with:
         file: ${{ github.workspace }}/apollo-*/target/site/jacoco/jacoco.xml
+    - name: Code Style Check
+      if: matrix.jdk == '17'
+      run: mvn spotless:check
