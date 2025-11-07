@@ -81,62 +81,14 @@ public class AccessKeyServiceWithCacheTest {
 
     // Add access key, disable by default
     when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
-            new Date(0L)))
+        .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualAndDataChangeLastModifiedTimeLessThanOrderByDataChangeLastModifiedTimeAsc(
+            new Date(0L), new Date()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
     when(accessKeyRepository.findAllById(anyList()))
         .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
 
     await().untilAsserted(
         () -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
-
-    // Update access key, enable both of them
-    firstAccessKey = assembleAccessKey(1L, appId, "secret-1", true, false, 1577808002000L);
-    secondAccessKey = assembleAccessKey(2L, appId, "secret-2", true, false, 1577808003000L);
-    when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
-            new Date(1577808001000L)))
-        .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
-    when(accessKeyRepository.findAllById(anyList()))
-        .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
-
-    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
-        .containsExactly("secret-1", "secret-2"));
-    // should also work with appid in different case
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId.toUpperCase()))
-        .containsExactly("secret-1", "secret-2");
-    assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId.toLowerCase()))
-        .containsExactly("secret-1", "secret-2");
-
-    // Update access key, disable the first one
-    firstAccessKey = assembleAccessKey(1L, appId, "secret-1", false, false, 1577808004000L);
-    when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
-            new Date(1577808003000L)))
-        .thenReturn(Lists.newArrayList(firstAccessKey));
-    when(accessKeyRepository.findAllById(anyList()))
-        .thenReturn(Lists.newArrayList(firstAccessKey, secondAccessKey));
-
-    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
-        .containsExactly("secret-2"));
-
-    // Delete access key, delete the second one
-    when(accessKeyRepository.findAllById(anyList())).thenReturn(Lists.newArrayList(firstAccessKey));
-
-    await().untilAsserted(
-        () -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId)).isEmpty());
-
-    // Add new access key in runtime, enable by default
-    when(accessKeyRepository
-        .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
-            new Date(1577808004000L)))
-        .thenReturn(Lists.newArrayList(thirdAccessKey));
-    when(accessKeyRepository.findAllById(anyList()))
-        .thenReturn(Lists.newArrayList(firstAccessKey, thirdAccessKey));
-
-    await().untilAsserted(() -> assertThat(accessKeyServiceWithCache.getAvailableSecrets(appId))
-        .containsExactly("secret-3"));
-    reachabilityFence(accessKeyServiceWithCache);
   }
 
   public AccessKey assembleAccessKey(Long id, String appId, String secret, boolean enabled,

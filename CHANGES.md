@@ -21,5 +21,6 @@ Apollo 2.5.0
 * [Feature support incremental configuration synchronization client](https://github.com/apolloconfig/apollo/pull/5288)
 * [optimize: Implement unified permission verification logic and Optimize the implementation of permission verification](https://github.com/apolloconfig/apollo/pull/5456)
 * [CI: Add code and header formatter by spotless plugin](https://github.com/apolloconfig/apollo/pull/5485)
+* [Fix: Operate the AccessKey multiple times within one second](https://github.com/apolloconfig/apollo/pull/5490)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)

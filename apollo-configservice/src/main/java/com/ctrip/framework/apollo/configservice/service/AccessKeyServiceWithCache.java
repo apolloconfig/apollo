@@ -146,30 +146,37 @@ public class AccessKeyServiceWithCache implements InitializingBean {
 
   private void loadNewAndUpdatedAccessKeys() {
     boolean hasMore = true;
+    Date currentTime = new Date();
+
+    if (!lastTimeScanned.equals(new Date(0L))) {
+      // prevent time drift
+      lastTimeScanned = new Date(lastTimeScanned.getTime() - 1000);
+    }
+
     while (hasMore && !Thread.currentThread().isInterrupted()) {
       // current batch is 500
       List<AccessKey> accessKeys = accessKeyRepository
-          .findFirst500ByDataChangeLastModifiedTimeGreaterThanOrderByDataChangeLastModifiedTimeAsc(
-              lastTimeScanned);
-      if (CollectionUtils.isEmpty(accessKeys)) {
-        break;
-      }
+          .findFirst500ByDataChangeLastModifiedTimeGreaterThanEqualAndDataChangeLastModifiedTimeLessThanOrderByDataChangeLastModifiedTimeAsc(
+              lastTimeScanned, currentTime);
 
       int scanned = accessKeys.size();
       mergeAccessKeys(accessKeys);
       logger.info("Loaded {} new/updated Accesskey from startTime {}", scanned, lastTimeScanned);
 
       hasMore = scanned == 500;
-      lastTimeScanned = accessKeys.get(scanned - 1).getDataChangeLastModifiedTime();
 
       // In order to avoid missing some records at the last time, we need to scan records at this
       // time individually
       if (hasMore) {
+        lastTimeScanned = accessKeys.get(scanned - 1).getDataChangeLastModifiedTime();
         List<AccessKey> lastModifiedTimeAccessKeys =
             accessKeyRepository.findByDataChangeLastModifiedTime(lastTimeScanned);
         mergeAccessKeys(lastModifiedTimeAccessKeys);
         logger.info("Loaded {} new/updated Accesskey at lastModifiedTime {}", scanned,
             lastTimeScanned);
+        lastTimeScanned = new Date(lastTimeScanned.getTime() + 1000);
+      } else {
+        lastTimeScanned = currentTime;
       }
     }
   }
@@ -182,7 +189,7 @@ public class AccessKeyServiceWithCache implements InitializingBean {
       accessKeyCache.put(accessKey.getAppId(), accessKey);
 
       if (thatInCache != null && accessKey.getDataChangeLastModifiedTime()
-          .after(thatInCache.getDataChangeLastModifiedTime())) {
+          .compareTo(thatInCache.getDataChangeLastModifiedTime()) >= 0) {
         accessKeyCache.remove(accessKey.getAppId(), thatInCache);
         logger.info("Found Accesskey changes, old: {}, new: {}", thatInCache, accessKey);
       }
