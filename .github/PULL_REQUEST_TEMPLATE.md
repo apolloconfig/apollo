@@ -15,4 +15,5 @@ Follow this checklist to help us incorporate your contribution quickly and easil
 - [ ] Write a pull request description that is detailed enough to understand what the pull request does, how, and why.
 - [ ] Write necessary unit tests to verify the code.
 - [ ] Run `mvn clean test` to make sure this pull request doesn't break anything.
+- [ ] Run `mvn spotless:apply` to format your code.
 - [ ] Update the [`CHANGES` log](https://github.com/apolloconfig/apollo/blob/master/CHANGES.md).
