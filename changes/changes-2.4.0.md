@@ -28,6 +28,7 @@ Apollo 2.4.0
 * [Fix: support java.time.Instant serialization with gson](https://github.com/apolloconfig/apollo/pull/5298)
 * [Feature: support to assign users management authority by the cluster (modify, publish)](https://github.com/apolloconfig/apollo/pull/5302)
 * [Feature: notification by email when releasing by OpenApi also](https://github.com/apolloconfig/apollo/pull/5324)
+* [Security: bump spring-boot from 2.7.11 to 2.7.18 to fix CVE-2024-38816](https://github.com/apolloconfig/apollo/pull/5455)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/15?closed=1)
