@@ -414,8 +414,7 @@ public class NotificationControllerV2Test {
 
   private ApolloConfigNotification assembleApolloConfigNotification(String namespace,
       long notificationId) {
-    ApolloConfigNotification notification = new ApolloConfigNotification(namespace, notificationId);
-    return notification;
+    return new ApolloConfigNotification(namespace, notificationId);
   }
 
   private Multimap<String, String> assembleMultiMap(String key, Iterable<String> values) {

@@ -37,7 +37,6 @@ public class ApolloAuditHttpInterceptor implements ClientHttpRequestInterceptor 
     if (traceContext.tracer() != null) {
       request = traceContext.tracer().inject(request);
     }
-    ClientHttpResponse response = execution.execute(request, body);
-    return response;
+    return execution.execute(request, body);
   }
 }

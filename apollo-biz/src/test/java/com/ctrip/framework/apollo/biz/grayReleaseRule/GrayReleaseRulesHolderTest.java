@@ -198,8 +198,6 @@ public class GrayReleaseRulesHolderTest {
   private ReleaseMessage assembleReleaseMessage(String appId, String clusterName,
       String namespaceName) {
     String message = STRING_JOINER.join(appId, clusterName, namespaceName);
-    ReleaseMessage releaseMessage = new ReleaseMessage(message);
-
-    return releaseMessage;
+    return new ReleaseMessage(message);
   }
 }

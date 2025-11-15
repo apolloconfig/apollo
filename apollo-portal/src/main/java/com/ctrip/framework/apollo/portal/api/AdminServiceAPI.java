@@ -373,10 +373,9 @@ public class AdminServiceAPI {
 
     public ReleaseDTO loadLatestRelease(String appId, Env env, String clusterName,
         String namespace) {
-      ReleaseDTO releaseDTO = restTemplate.get(env,
+      return restTemplate.get(env,
           "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases/latest",
           ReleaseDTO.class, appId, clusterName, namespace);
-      return releaseDTO;
     }
 
     public ReleaseDTO createRelease(String appId, Env env, String clusterName, String namespace,
@@ -390,10 +389,9 @@ public class AdminServiceAPI {
       parameters.add("operator", operator);
       parameters.add("isEmergencyPublish", String.valueOf(isEmergencyPublish));
       HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(parameters, headers);
-      ReleaseDTO response = restTemplate.post(env,
+      return restTemplate.post(env,
           "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/releases", entity,
           ReleaseDTO.class, appId, clusterName, namespace);
-      return response;
     }
 
     public ReleaseDTO createGrayDeletionRelease(String appId, Env env, String clusterName,
@@ -409,10 +407,9 @@ public class AdminServiceAPI {
       parameters.add("isEmergencyPublish", String.valueOf(isEmergencyPublish));
       grayDelKeys.forEach(key -> parameters.add("grayDelKeys", key));
       HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(parameters, headers);
-      ReleaseDTO response = restTemplate.post(env,
+      return restTemplate.post(env,
           "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/gray-del-releases",
           entity, ReleaseDTO.class, appId, clusterName, namespace);
-      return response;
     }
 
     public ReleaseDTO updateAndPublish(String appId, Env env, String clusterName, String namespace,
