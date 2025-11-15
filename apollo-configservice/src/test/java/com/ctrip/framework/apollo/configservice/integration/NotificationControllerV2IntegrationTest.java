@@ -706,7 +706,6 @@ public class NotificationControllerV2IntegrationTest extends AbstractBaseIntegra
 
   private ApolloConfigNotification assembleApolloConfigNotification(String namespace,
       long notificationId) {
-    ApolloConfigNotification notification = new ApolloConfigNotification(namespace, notificationId);
-    return notification;
+    return new ApolloConfigNotification(namespace, notificationId);
   }
 }

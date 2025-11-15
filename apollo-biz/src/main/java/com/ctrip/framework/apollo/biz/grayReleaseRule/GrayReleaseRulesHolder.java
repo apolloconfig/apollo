@@ -283,13 +283,9 @@ public class GrayReleaseRulesHolder implements ReleaseMessageListener, Initializ
       Tracer.logError(ex);
       logger.error("parse rule for gray release rule {} failed", grayReleaseRule.getId(), ex);
     }
-
-    GrayReleaseRuleCache ruleCache =
-        new GrayReleaseRuleCache(grayReleaseRule.getId(), grayReleaseRule.getBranchName(),
-            grayReleaseRule.getNamespaceName(), grayReleaseRule.getReleaseId(),
-            grayReleaseRule.getBranchStatus(), loadVersion.get(), ruleItems);
-
-    return ruleCache;
+    return new GrayReleaseRuleCache(grayReleaseRule.getId(), grayReleaseRule.getBranchName(),
+        grayReleaseRule.getNamespaceName(), grayReleaseRule.getReleaseId(),
+        grayReleaseRule.getBranchStatus(), loadVersion.get(), ruleItems);
   }
 
   private void populateDataBaseInterval() {

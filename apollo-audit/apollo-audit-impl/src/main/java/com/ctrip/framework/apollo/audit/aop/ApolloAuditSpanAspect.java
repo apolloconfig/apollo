@@ -99,8 +99,7 @@ public class ApolloAuditSpanAspect {
       parameterTypes = ((MethodSignature) pjpSignature).getParameterTypes();
     }
     try {
-      Method method = ReflectUtils.findDeclaredMethod(clazz, methodName, parameterTypes);
-      return method;
+      return ReflectUtils.findDeclaredMethod(clazz, methodName, parameterTypes);
     } catch (NoSuchMethodException e) {
       return null;
     }
