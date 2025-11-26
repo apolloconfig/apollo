@@ -122,7 +122,7 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
     function findMissEnvs() {
         $scope.missEnvs = [];
         AppService.find_miss_envs($rootScope.pageContext.appId).then(function (result) {
-            $scope.missEnvs = AppUtil.collectData(result);
+            $scope.missEnvs = AppUtil.gatherData(result);
 
             if ($scope.missEnvs.length > 0) {
                 toastr.warning($translate.instant('Config.ProjectMissEnvInfos'));
@@ -192,7 +192,7 @@ function ConfigBaseInfoController($rootScope, $scope, $window, $location, $trans
 
         AppService.load_nav_tree($rootScope.pageContext.appId).then(function (result) {
             var navTree = [];
-            var nodes = AppUtil.collectData(result);
+            var nodes = AppUtil.gatherData(result);
 
             if (!nodes || nodes.length == 0) {
                 toastr.error($translate.instant('Config.SystemError'));
