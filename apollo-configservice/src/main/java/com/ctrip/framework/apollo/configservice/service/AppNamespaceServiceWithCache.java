@@ -37,10 +37,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -261,7 +258,13 @@ public class AppNamespaceServiceWithCache implements InitializingBean {
       if (deleted == null) {
         continue;
       }
-      appNamespaceCache.remove(assembleAppNamespaceKey(deleted));
+
+      String appNamespaceKey = assembleAppNamespaceKey(deleted);
+      AppNamespace appNamespace = appNamespaceCache.get(appNamespaceKey);
+      if (appNamespace != null && Objects.equals(appNamespace.getId(), deletedId)) {
+        appNamespaceCache.remove(appNamespaceKey);
+      }
+
       if (deleted.isPublic()) {
         AppNamespace publicAppNamespace = publicAppNamespaceCache.get(deleted.getName());
         // in case there is some dirty data, e.g. public namespace deleted in some app and now

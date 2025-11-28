@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
 /**
@@ -311,4 +312,54 @@ public class AppNamespaceServiceWithCacheTest {
     appNamespace.setDataChangeLastModifiedTime(new Date());
     return appNamespace;
   }
+
+  /**
+   * fix issue #5502
+   */
+  @Test
+  public void doubleCheckForAppNamespaceCache() throws Exception {
+    String appId = "app1";
+    String namespaceName = "name1";
+
+    AppNamespace oldNs = assembleAppNamespace(1, appId, namespaceName, false);
+
+    AppNamespace newNs = assembleAppNamespace(2, appId, namespaceName, false);
+
+    when(appNamespaceRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0))
+        .thenReturn(Lists.newArrayList(oldNs));
+
+    invokePrivateMethod("scanNewAppNamespaces");
+
+    AppNamespace cached =
+        appNamespaceServiceWithCache.findByAppIdAndNamespace(appId, namespaceName);
+    assertNotNull(cached);
+    assertEquals(1, cached.getId());
+
+    when(appNamespaceRepository.findFirst500ByIdGreaterThanOrderByIdAsc(1))
+        .thenReturn(Lists.newArrayList(newNs));
+
+    invokePrivateMethod("scanNewAppNamespaces");
+
+    cached = appNamespaceServiceWithCache.findByAppIdAndNamespace(appId, namespaceName);
+    assertNotNull(cached);
+    assertEquals(2, cached.getId());
+
+    when(appNamespaceRepository.findAllById(anyList()))
+        .thenAnswer(invocation -> Lists.newArrayList(newNs));
+
+    invokePrivateMethod("updateAndDeleteCache");
+
+    cached = appNamespaceServiceWithCache.findByAppIdAndNamespace(appId, namespaceName);
+
+    assertNotNull("new cache is accidentally deleted", cached);
+    assertEquals(2, cached.getId());
+  }
+
+  private void invokePrivateMethod(String methodName) throws Exception {
+    java.lang.reflect.Method method =
+        AppNamespaceServiceWithCache.class.getDeclaredMethod(methodName);
+    method.setAccessible(true);
+    method.invoke(appNamespaceServiceWithCache);
+  }
+
 }
