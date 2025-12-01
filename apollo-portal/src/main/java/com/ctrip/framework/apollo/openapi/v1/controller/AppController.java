@@ -20,15 +20,25 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.api.AppManagementApi;
-import com.ctrip.framework.apollo.openapi.model.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
+import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
+import java.util.HashMap;
+import java.util.HashSet;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
@@ -49,14 +59,19 @@ public class AppController implements AppManagementApi {
   private final ConsumerService consumerService;
   private final AppOpenApiService appOpenApiService;
   private final UserService userService;
+  private final RolePermissionService rolePermissionService;
+  private final UserInfoHolder userInfoHolder;
 
   public AppController(final ConsumerAuthUtil consumerAuthUtil,
       final ConsumerService consumerService, final AppOpenApiService appOpenApiService,
-      final UserService userService) {
+      final UserService userService, final RolePermissionService rolePermissionService,
+      final UserInfoHolder userInfoHolder) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerService = consumerService;
     this.appOpenApiService = appOpenApiService;
     this.userService = userService;
+    this.rolePermissionService = rolePermissionService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   /**
@@ -65,7 +80,7 @@ public class AppController implements AppManagementApi {
   @Transactional
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @Override
-  public ResponseEntity<Object> createApp(OpenCreateAppDTO req) {
+  public ResponseEntity<OpenAppDTO> createApp(OpenCreateAppDTO req) {
     if (null == req.getApp()) {
       throw new BadRequestException("App is null");
     }
@@ -73,18 +88,25 @@ public class AppController implements AppManagementApi {
     if (null == app.getAppId()) {
       throw new BadRequestException("AppId is null");
     }
+    String operator =
+        app.getDataChangeCreatedBy() == null ? app.getOwnerName() : app.getDataChangeCreatedBy();
+    if (userService.findByUserId(operator) == null) {
+      throw new BadRequestException("operator missing or not exist: " + operator);
+    }
+    UserIdentityContextHolder.setOperator(new UserInfo(operator));
     // create app
-    this.appOpenApiService.createApp(req);
-    if (Boolean.TRUE.equals(req.getAssignAppRoleToSelf())) {
+    OpenAppDTO openAppDTO = this.appOpenApiService.createApp(req);
+    if (Boolean.TRUE.equals(req.getAssignAppRoleToSelf())
+        && UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
       long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId());
     }
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(openAppDTO);
   }
 
   @Override
-  public ResponseEntity<List<OpenEnvClusterDTO>> getEnvClusterInfo(String appId) {
-    return ResponseEntity.ok(appOpenApiService.getEnvClusterInfo(appId));
+  public ResponseEntity<List<OpenEnvClusterDTO>> getEnvClusters(String appId) {
+    return ResponseEntity.ok(appOpenApiService.getEnvClusters(appId));
   }
 
   @Override
@@ -114,11 +136,22 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<OpenAppDTO> getApp(String appId) {
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      // to ensure this app is authorized to this consumer
+      long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
+      Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+      if (!appIds.contains(appId)) {
+        throw new BadRequestException("Trying to access unauthorized app: " + appId);
+      }
+    }
     List<OpenAppDTO> apps = appOpenApiService.getAppsInfo(Collections.singletonList(appId));
     if (null == apps || apps.isEmpty()) {
       throw new BadRequestException("App not found: " + appId);
     }
-    return ResponseEntity.ok(apps.get(0));
+    OpenAppDTO result = apps.get(0);
+    result.setOwnerDisplayName(result.getOwnerName());
+
+    return ResponseEntity.ok(result);
   }
 
   /**
@@ -127,16 +160,19 @@ public class AppController implements AppManagementApi {
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
-  public ResponseEntity<OpenAppDTO> updateApp(String appId, String operator, OpenAppDTO dto) {
+  public ResponseEntity<Object> updateApp(String appId, OpenAppDTO dto, String operator) {
     if (!Objects.equals(appId, dto.getAppId())) {
       throw new BadRequestException("The App Id of path variable and request body is different");
     }
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      if (userService.findByUserId(operator) == null) {
+        throw BadRequestException.userNotExists(operator);
+      }
+      UserIdentityContextHolder.setOperator(new UserInfo(operator));
     }
     appOpenApiService.updateApp(dto);
 
-    return ResponseEntity.ok(dto);
+    return ResponseEntity.ok(new HashMap<>());
   }
 
   /**
@@ -144,27 +180,42 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenAppDTO>> getAppsBySelf(Integer page, Integer size) {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
-    Set<String> authorizedAppIds =
-        this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
-    List<OpenAppDTO> apps = appOpenApiService.getAppsBySelf(authorizedAppIds, page, size);
+    Set<String> appIds = new HashSet<>();
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
+      appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+    } else {
+      String userId = userInfoHolder.getUser().getUserId();
+      List<Role> userRoles = rolePermissionService.findUserRoles(userId);
+
+      for (Role role : userRoles) {
+        String appId = RoleUtils.extractAppIdFromRoleName(role.getRoleName());
+        if (appId != null) {
+          appIds.add(appId);
+        }
+      }
+    }
+
+    List<OpenAppDTO> apps = appOpenApiService.getAppsWithPageAndSize(appIds, page, size);
     return ResponseEntity.ok(apps);
   }
 
   /**
-   * Create an application in a specified environment (new added)
-   * POST /openapi/v1/apps/envs/{env}
+   * Create an application in a specified environment (new added) POST /openapi/v1/apps/envs/{env}
    */
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
-  public ResponseEntity<Object> createAppInEnv(String env, String operator, OpenAppDTO app) {
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
+  public ResponseEntity<Object> createAppInEnv(String env, OpenAppDTO app, String operator) {
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      if (userService.findByUserId(operator) == null) {
+        throw BadRequestException.userNotExists(operator);
+      }
+      UserIdentityContextHolder.setOperator(new UserInfo(operator));
     }
-    appOpenApiService.createAppInEnv(env, app, operator);
+    appOpenApiService.createAppInEnv(env, app);
 
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(new HashMap());
   }
 
   /**
@@ -172,20 +223,23 @@ public class AppController implements AppManagementApi {
    */
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
-  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
+  @ApolloAuditLog(type = OpType.RPC, name = "App.delete")
   public ResponseEntity<Object> deleteApp(String appId, String operator) {
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      if (userService.findByUserId(operator) == null) {
+        throw BadRequestException.userNotExists(operator);
+      }
+      UserIdentityContextHolder.setOperator(new UserInfo(operator));
     }
     appOpenApiService.deleteApp(appId);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(new HashMap());
   }
 
   /**
    * Find miss env (new added)
    */
   @Override
-  public ResponseEntity<MultiResponseEntity> findMissEnvs(String appId) {
+  public ResponseEntity<List<OpenMissEnvDTO>> findMissEnvs(String appId) {
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
   }
 
@@ -193,7 +247,7 @@ public class AppController implements AppManagementApi {
    * Find appNavTree (new added)
    */
   @Override
-  public ResponseEntity<MultiResponseEntity> getAppNavTree(String appId) {
-    return ResponseEntity.ok(appOpenApiService.getAppNavTree(appId));
+  public ResponseEntity<List<OpenEnvClusterInfo>> getEnvClusterInfo(String appId) {
+    return ResponseEntity.ok(appOpenApiService.getEnvClusterInfos(appId));
   }
 }

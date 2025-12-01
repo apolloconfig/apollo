@@ -56,6 +56,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -72,8 +73,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Non-invasive converters for OpenAPI generated model classes.
- * This class mirrors/OpenApiBeanUtils functions but targets com.ctrip.framework.apollo.openapi.model.* types.
+ * Non-invasive converters for OpenAPI generated model classes. This class mirrors/OpenApiBeanUtils
+ * functions but targets com.ctrip.framework.apollo.openapi.model.* types.
  */
 public final class OpenApiModelConverters {
 
@@ -397,7 +398,17 @@ public final class OpenApiModelConverters {
   // newly added
   public static OpenEnvClusterInfo fromEnvClusterInfo(final EnvClusterInfo envClusterInfo) {
     Preconditions.checkArgument(envClusterInfo != null);
-    return BeanUtils.transform(OpenEnvClusterInfo.class, envClusterInfo);
+    OpenEnvClusterInfo openEnvClusterInfo = new OpenEnvClusterInfo();
+    Env env = envClusterInfo.getEnv();
+    if (env != null) {
+      openEnvClusterInfo.setEnv(env.toString());
+    }
+    List<ClusterDTO> clusters = envClusterInfo.getClusters();
+    if (!CollectionUtils.isEmpty(clusters)) {
+      openEnvClusterInfo.setClusters(clusters.stream().map(OpenApiModelConverters::fromClusterDTO)
+          .collect(Collectors.toList()));
+    }
+    return openEnvClusterInfo;
   }
 
   // newly added
