@@ -24,6 +24,8 @@ import com.ctrip.framework.apollo.biz.repository.ItemRepository;
 import com.ctrip.framework.apollo.biz.service.ItemService;
 import com.ctrip.framework.apollo.common.dto.*;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import org.junit.Assert;
@@ -174,5 +176,75 @@ public class ItemControllerTest extends AbstractControllerTest {
         itemValue, 0, 200);
     assertThat(itemInfoDTOS.getContent().toString())
         .isEqualTo(response.getBody().getContent().toString());
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testGetByEncodedKey() {
+    this.testCreate();
+
+    String appId = "someAppId";
+    AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
+    assert app != null;
+    ClusterDTO cluster =
+        restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
+    assert cluster != null;
+    NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "application");
+
+    String itemKey = "test-key";
+    
+    // Test with URL-safe Base64 encoding without padding
+    String encodedKey = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(itemKey.getBytes(StandardCharsets.UTF_8));
+    
+    String getByEncodedKeyUrl = url(
+        "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}");
+    assert namespace != null;
+    ResponseEntity<ItemDTO> response = restTemplate.getForEntity(getByEncodedKeyUrl, ItemDTO.class,
+        app.getAppId(), cluster.getName(), namespace.getNamespaceName(), encodedKey);
+    
+    Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assert.assertEquals(itemKey, Objects.requireNonNull(response.getBody()).getKey());
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testGetByEncodedKeyWithComplexKey() {
+    String appId = "someAppId";
+    AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
+    assert app != null;
+    ClusterDTO cluster =
+        restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
+    assert cluster != null;
+    NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "application");
+
+    // Create an item with a complex key containing special characters
+    String complexKey = "wonfu.soa.circuit-breaker.enable.gitea-svc@/api/v1/fetchWorkflows";
+    String itemValue = "test-value";
+    ItemDTO item = new ItemDTO(complexKey, itemValue, "", 1);
+    assert namespace != null;
+    item.setNamespaceId(namespace.getId());
+    item.setDataChangeLastModifiedBy("apollo");
+
+    ResponseEntity<ItemDTO> createResponse = restTemplate.postForEntity(itemBaseUrl(), item,
+        ItemDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    Assert.assertEquals(HttpStatus.OK, createResponse.getStatusCode());
+    
+    // Now retrieve it using the encoded key
+    String encodedKey = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(complexKey.getBytes(StandardCharsets.UTF_8));
+    
+    String getByEncodedKeyUrl = url(
+        "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}");
+    ResponseEntity<ItemDTO> response = restTemplate.getForEntity(getByEncodedKeyUrl, ItemDTO.class,
+        app.getAppId(), cluster.getName(), namespace.getNamespaceName(), encodedKey);
+    
+    Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assert.assertEquals(complexKey, Objects.requireNonNull(response.getBody()).getKey());
+    Assert.assertEquals(itemValue, response.getBody().getValue());
   }
 }

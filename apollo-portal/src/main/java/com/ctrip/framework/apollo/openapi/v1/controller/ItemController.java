@@ -78,7 +78,7 @@ public class ItemController {
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String key) {
     return this.getItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
+        new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))));
   }
 
   @PreAuthorize(
@@ -158,7 +158,7 @@ public class ItemController {
       @PathVariable String key, @RequestBody OpenItemDTO item,
       @RequestParam(defaultValue = "false") boolean createIfNotExists) {
     this.updateItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
+        new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), item,
         createIfNotExists);
   }
 
@@ -191,7 +191,7 @@ public class ItemController {
       @PathVariable String clusterName, @PathVariable String namespaceName,
       @PathVariable String key, @RequestParam String operator) {
     this.deleteItem(appId, env, clusterName, namespaceName,
-        new String(Base64.getDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator);
+        new String(Base64.getUrlDecoder().decode(key.getBytes(StandardCharsets.UTF_8))), operator);
   }
 
   @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items")
