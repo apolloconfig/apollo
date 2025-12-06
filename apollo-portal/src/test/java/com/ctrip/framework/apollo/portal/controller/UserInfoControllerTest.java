@@ -17,7 +17,10 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
@@ -38,15 +41,108 @@ public class UserInfoControllerTest {
   private SpringSecurityUserService userService;
   @Mock
   private AuthUserPasswordChecker userPasswordChecker;
+  @Mock
+  private UnifiedPermissionValidator unifiedPermissionValidator;
+  @Mock
+  private UserInfoHolder userInfoHolder;
 
   @Test
-  public void testCreateOrUpdateUser() {
+  public void testCreateOrUpdateUserForAdmin() {
     UserPO user = new UserPO();
     user.setUsername("username");
     user.setPassword("password");
+    user.setEnabled(1);
 
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     Mockito.when(userPasswordChecker.checkWeakPassword(Mockito.anyString()))
         .thenReturn(new CheckResult(Boolean.TRUE, ""));
+
+    userInfoController.createOrUpdateUser(true, user);
+  }
+
+  @Test
+  public void testDisableUserForAdmin() {
+    UserPO user = new UserPO();
+    user.setUsername("username");
+    user.setPassword("password");
+    user.setEnabled(0);
+
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+    Mockito.when(userPasswordChecker.checkWeakPassword(Mockito.anyString()))
+        .thenReturn(new CheckResult(Boolean.TRUE, ""));
+
+    userInfoController.createOrUpdateUser(true, user);
+  }
+
+  @Test
+  public void testUpdateUserForNoAdmin() {
+    UserPO user = new UserPO();
+    user.setUsername("username");
+    user.setUserDisplayName("displayName");
+    user.setPassword("password");
+    user.setEnabled(1);
+
+    UserInfo currentUserInfo = new UserInfo();
+    currentUserInfo.setUserId("username");
+    currentUserInfo.setName("displayName");
+
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    Mockito.when(userInfoHolder.getUser()).thenReturn(currentUserInfo);
+    Mockito.when(userPasswordChecker.checkWeakPassword(Mockito.anyString()))
+        .thenReturn(new CheckResult(Boolean.TRUE, ""));
+
+    userInfoController.createOrUpdateUser(true, user);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testUpdateOtherUserFailedForNoAdmin() {
+    UserPO user = new UserPO();
+    user.setUsername("username");
+    user.setUserDisplayName("displayName");
+    user.setPassword("password");
+
+    UserInfo currentUserInfo = new UserInfo();
+    currentUserInfo.setUserId("username_other");
+    currentUserInfo.setName("displayName_other");
+
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    Mockito.when(userInfoHolder.getUser()).thenReturn(currentUserInfo);
+
+    userInfoController.createOrUpdateUser(true, user);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testDisableUserFailedForNoAdmin() {
+    UserPO user = new UserPO();
+    user.setUsername("username");
+    user.setUserDisplayName("displayName");
+    user.setPassword("password");
+    user.setEnabled(0);
+
+    UserInfo currentUserInfo = new UserInfo();
+    currentUserInfo.setUserId("username");
+    currentUserInfo.setName("displayName");
+
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    Mockito.when(userInfoHolder.getUser()).thenReturn(currentUserInfo);
+
+    userInfoController.createOrUpdateUser(true, user);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testDisableOtherUserFailedForNoAdmin() {
+    UserPO user = new UserPO();
+    user.setUsername("username");
+    user.setUserDisplayName("displayName");
+    user.setPassword("password");
+    user.setEnabled(0);
+
+    UserInfo currentUserInfo = new UserInfo();
+    currentUserInfo.setUserId("username_other");
+    currentUserInfo.setName("displayName_other");
+
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    Mockito.when(userInfoHolder.getUser()).thenReturn(currentUserInfo);
 
     userInfoController.createOrUpdateUser(true, user);
   }
@@ -58,7 +154,7 @@ public class UserInfoControllerTest {
     user.setPassword("password");
 
     String msg = "fake error message";
-
+    Mockito.when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     Mockito.when(userPasswordChecker.checkWeakPassword(Mockito.anyString()))
         .thenReturn(new CheckResult(Boolean.FALSE, msg));
 

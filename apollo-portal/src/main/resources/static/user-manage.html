@@ -35,7 +35,7 @@
     <apollonav></apollonav>
     <div id ="user-list" class="container-fluid apollo-container" ng-controller="UserController">
         <div class="col-md-10 col-md-offset-1 panel">
-            <section class="panel-body" ng-show="isRootUser">
+            <section class="panel-body">
                 <div class="main-table"></div>
                 <div class="row">
                     <header class="panel-heading">
@@ -46,7 +46,7 @@
                     </header>
 
                     <div class="table-responsive" ng-show="status==='1'  && createdUsers.length > 0">
-                        <div>
+                        <div ng-show="isRootUser">
                             <div style="height: 15px"></div>
                             <div>
                                 <button type="button" ng-click="changeStatus('2')"
@@ -96,7 +96,7 @@
                                     <span class="btn btn-primary" ng-click="changeStatus('3', user)">
                                         {{'UserMange.Edit' | translate }}
                                     </span>
-                                    <span class="btn btn-primary" ng-click="changeUserEnabled(user)">
+                                    <span class="btn btn-primary" ng-click="changeUserEnabled(user)" ng-show="isRootUser">
                                         {{user.enabled === 1 ? ('UserMange.Disable' | translate) : ('UserMange.Enable' | translate) }}
                                     </span>
                                 </td>
@@ -155,7 +155,7 @@
                                 <input type="text" class="form-control" name="email" ng-model="user.email">
                             </div>
                         </div>
-                            <div class="form-group" valdr-form-group>
+                            <div class="form-group" valdr-form-group ng-show="isRootUser">
                                 <label class="col-sm-2 control-label">
                                     <apollorequiredfield></apollorequiredfield>
                                     {{'UserMange.Enabled' | translate }}
@@ -178,9 +178,6 @@
                     </div>
                     <div style="height: 15px"></div>
                 </div>
-            </section>
-            <section class="panel-body text-center" ng-if="!isRootUser">
-                <h4>{{'Common.IsRootUser' | translate }}</h4>
             </section>
         </div>
     </div>

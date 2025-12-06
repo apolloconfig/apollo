@@ -70,6 +70,16 @@
                     </ul>
                 </li>
 
+                <!-- normal user tool (not admin)-->
+                <li class="dropdown" ng-if="hasRootPermission == false">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.NonAdminTools' | translate }}
+                        <span class="caret"></span></a>
+                    <ul class="dropdown-menu" >
+                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
+                    </ul>
+                </li>
+
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-user"></span>&nbsp;{{userDisplayName}}({{userName}})

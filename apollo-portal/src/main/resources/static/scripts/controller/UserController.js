@@ -32,28 +32,38 @@ function UserController($scope, $window, $translate, toastr, AppUtil, UserServic
 
     initPermission();
 
-    getCreatedUsers();
-
     function initPermission() {
         PermissionService.has_root_permission()
         .then(function (result) {
             $scope.isRootUser = result.hasPermission;
+            getCreatedUsers();
         })
     }
 
     function getCreatedUsers() {
-        UserService.find_users("",true)
-        .then(function (result) {
-            if (!result || result.length === 0) {
-                return;
-            }
-            $scope.createdUsers = [];
-            $scope.filterUser = [];
-            result.forEach(function (user) {
-                $scope.createdUsers.push(user);
-                $scope.filterUser.push(user);
+        if ($scope.isRootUser) {
+            UserService.find_users("",true)
+            .then(function (result) {
+                if (!result || result.length === 0) {
+                    return;
+                }
+                $scope.createdUsers = [];
+                $scope.filterUser = [];
+                result.forEach(function (user) {
+                    $scope.createdUsers.push(user);
+                    $scope.filterUser.push(user);
+                });
             });
-        })
+        } else {
+            UserService.load_user()
+            .then(function (result) {
+                if (!result) {
+                    return;
+                }
+                $scope.createdUsers = [result];
+                $scope.filterUser = [result];
+            });
+        }
     }
 
     function changeStatus(status, user){
