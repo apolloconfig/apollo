@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
@@ -41,27 +42,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class UserInfoController {
+  private static final int USER_ENABLED = 1;
 
   private final UserInfoHolder userInfoHolder;
   private final LogoutHandler logoutHandler;
   private final UserService userService;
   private final AuthUserPasswordChecker passwordChecker;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public UserInfoController(final UserInfoHolder userInfoHolder, final LogoutHandler logoutHandler,
-      final UserService userService, final AuthUserPasswordChecker passwordChecker) {
+      final UserService userService, final AuthUserPasswordChecker passwordChecker,
+      UnifiedPermissionValidator unifiedPermissionValidator) {
     this.userInfoHolder = userInfoHolder;
     this.logoutHandler = logoutHandler;
     this.userService = userService;
     this.passwordChecker = passwordChecker;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
-  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping("/users")
   public void createOrUpdateUser(
       @RequestParam(value = "isCreate", defaultValue = "false") boolean isCreate,
       @RequestBody UserPO user) {
     if (StringUtils.isContainEmpty(user.getUsername(), user.getPassword())) {
       throw new BadRequestException("Username and password can not be empty.");
+    }
+
+    if (!unifiedPermissionValidator.isSuperAdmin()
+        && (!user.getUsername().equals(userInfoHolder.getUser().getUserId())
+            || user.getEnabled() != USER_ENABLED)) {
+      throw new UnsupportedOperationException("Create or update user operation is unsupported");
     }
 
     CheckResult pwdCheckRes = passwordChecker.checkWeakPassword(user.getPassword());
