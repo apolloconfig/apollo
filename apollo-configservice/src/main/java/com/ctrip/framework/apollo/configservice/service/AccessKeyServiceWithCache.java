@@ -161,7 +161,9 @@ public class AccessKeyServiceWithCache implements InitializingBean {
 
       int scanned = accessKeys.size();
       mergeAccessKeys(accessKeys);
-      logger.info("Loaded {} new/updated Accesskey from startTime {}", scanned, lastTimeScanned);
+      if (scanned > 0) {
+        logger.info("Loaded {} new/updated Accesskey from startTime {}", scanned, lastTimeScanned);
+      }
 
       hasMore = scanned == 500;
 
