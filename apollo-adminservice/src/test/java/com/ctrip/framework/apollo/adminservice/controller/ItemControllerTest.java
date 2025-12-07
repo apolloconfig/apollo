@@ -247,4 +247,58 @@ public class ItemControllerTest extends AbstractControllerTest {
     Assert.assertEquals(complexKey, Objects.requireNonNull(response.getBody()).getKey());
     Assert.assertEquals(itemValue, response.getBody().getValue());
   }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testGetByEncodedKeyBackwardCompatibility() {
+    String appId = "someAppId";
+    AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
+    assert app != null;
+    ClusterDTO cluster =
+        restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
+    assert cluster != null;
+    NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "application");
+
+    // Create an item with a complex key
+    String complexKey = "wonfu.soa.circuit-breaker.enable.gitea-svc@/api/v1/fetchWorkflows";
+    String itemValue = "backward-compatible-test";
+    ItemDTO item = new ItemDTO(complexKey, itemValue, "", 1);
+    assert namespace != null;
+    item.setNamespaceId(namespace.getId());
+    item.setDataChangeLastModifiedBy("apollo");
+
+    ResponseEntity<ItemDTO> createResponse = restTemplate.postForEntity(itemBaseUrl(), item,
+        ItemDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    Assert.assertEquals(HttpStatus.OK, createResponse.getStatusCode());
+    
+    String getByEncodedKeyUrl = url(
+        "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}");
+
+    // Test 1: Server can decode URL-safe Base64 without padding (new client)
+    String urlSafeEncoded = Base64.getUrlEncoder().withoutPadding()
+        .encodeToString(complexKey.getBytes(StandardCharsets.UTF_8));
+    ResponseEntity<ItemDTO> response1 = restTemplate.getForEntity(getByEncodedKeyUrl, ItemDTO.class,
+        app.getAppId(), cluster.getName(), namespace.getNamespaceName(), urlSafeEncoded);
+    Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+    Assert.assertEquals(complexKey, Objects.requireNonNull(response1.getBody()).getKey());
+    Assert.assertEquals(itemValue, response1.getBody().getValue());
+
+    // Test 2: Server can decode standard Base64 with padding (old client)
+    // This proves backward compatibility - Base64.getUrlDecoder() can decode both formats
+    String standardEncoded = Base64.getEncoder()
+        .encodeToString(complexKey.getBytes(StandardCharsets.UTF_8));
+    ResponseEntity<ItemDTO> response2 = restTemplate.getForEntity(getByEncodedKeyUrl, ItemDTO.class,
+        app.getAppId(), cluster.getName(), namespace.getNamespaceName(), standardEncoded);
+    Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
+    Assert.assertEquals(complexKey, Objects.requireNonNull(response2.getBody()).getKey());
+    Assert.assertEquals(itemValue, response2.getBody().getValue());
+
+    // Verify the encodings are actually different
+    Assert.assertNotEquals("Encodings should be different (padding vs no padding)", 
+        standardEncoded, urlSafeEncoded);
+    Assert.assertTrue("Standard encoding should have padding", standardEncoded.contains("="));
+    Assert.assertFalse("URL-safe encoding should not have padding", urlSafeEncoded.contains("="));
+  }
 }
