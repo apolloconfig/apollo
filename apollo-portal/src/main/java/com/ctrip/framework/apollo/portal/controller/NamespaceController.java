@@ -101,6 +101,11 @@ public class NamespaceController {
     return appNamespaceService.findPublicAppNamespaces();
   }
 
+    @GetMapping("/appNamespaceNames/public")
+    public List<String> findPublicAppNamespaceNames() {
+        return appNamespaceService.findPublicAppNamespaceNames();
+    }
+
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces")
   public List<NamespaceBO> findNamespaces(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName) {

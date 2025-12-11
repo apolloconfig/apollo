@@ -37,12 +37,12 @@ namespace_module.controller("LinkNamespaceController",
                 $scope.pageSetting = setting;
             });
 
-            NamespaceService.find_public_namespaces().then(function (result) {
+            NamespaceService.findPublicNamespaceNames().then(function (result) {
                 var publicNamespaces = [];
                 result.forEach(function (item) {
                     var namespace = {};
-                    namespace.id = item.name;
-                    namespace.text = item.name;
+                    namespace.id = item;
+                    namespace.text = item;
                     publicNamespaces.push(namespace);
                 });
                 $('#namespaces').select2({

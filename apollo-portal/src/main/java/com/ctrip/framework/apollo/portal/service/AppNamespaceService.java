@@ -70,6 +70,13 @@ public class AppNamespaceService {
     return appNamespaceRepository.findByIsPublicTrue();
   }
 
+    /**
+     * 公共的命名空间名称,能被其它项目关联到的命名空间名称
+     */
+    public List<String> findPublicAppNamespaceNames() {
+        return appNamespaceRepository.findNamesByIsPublicTrue();
+    }
+
   public AppNamespace findPublicAppNamespace(String namespaceName) {
     List<AppNamespace> appNamespaces =
         appNamespaceRepository.findByNameAndIsPublic(namespaceName, true);
