@@ -180,6 +180,15 @@ public class ConfigFileUtils {
   }
 
   /**
+   * file path = appId/env/configFilename
+   * @return file path in compressed file
+   */
+  public static String genNamespacePathIgnoreUser(final String appId, final Env env,
+      final String configFilename) {
+    return String.join(File.separator, appId, env.getName(), configFilename);
+  }
+
+  /**
    * path = ownerName/appId/app.metadata
    */
   public static String genAppInfoPath(App app) {

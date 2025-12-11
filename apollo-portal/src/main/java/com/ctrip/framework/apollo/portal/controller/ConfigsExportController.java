@@ -124,11 +124,32 @@ public class ConfigsExportController {
     // set downloaded filename
     response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
 
-    List<Env> exportEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream()
-        .map(env -> Env.valueOf(env)).collect(Collectors.toList());
+    List<Env> exportEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(Env::valueOf)
+        .collect(Collectors.toList());
 
     try (OutputStream outputStream = response.getOutputStream()) {
       configsExportService.exportData(outputStream, exportEnvs);
+    }
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
+  @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/export")
+  public void exportAppConfig(@PathVariable String appId, @PathVariable String env,
+      @PathVariable String clusterName, HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    // filename must contain the information of time
+    final String filename = String.format("%s+%s+%s+%s.zip", appId, env, clusterName,
+        DateFormatUtils.format(new Date(), "yyyy_MMdd_HH_mm_ss"));
+    // log who download the configs
+    logger.info(
+        "Download configs, remote addr [{}], remote host [{}]. Filename is [{}]. AppId is [{}], env is [{}], clusterName is [{}]",
+        request.getRemoteAddr(), request.getRemoteHost(), filename, appId, env, clusterName);
+    // set downloaded filename
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename);
+
+    try (OutputStream outputStream = response.getOutputStream()) {
+      configsExportService.exportAppConfigByEnvAndCluster(appId, Env.valueOf(env), clusterName,
+          outputStream);
     }
   }
 
