@@ -61,6 +61,11 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
             method: 'GET',
             url: AppUtil.prefixPath() + '/apps/:appId/namespaces/:namespaceName/usage',
             isArray: true
+        },
+        findPublicNamespaceNames: {
+            method: 'GET',
+            isArray: true,
+            url: AppUtil.prefixPath() + '/appNamespaceNames/public'
         }
     });
 
@@ -211,6 +216,16 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         return d.promise;
     }
 
+    function findPublicNamespaceNames() {
+        var d = $q.defer();
+        namespace_source.findPublicNamespaceNames({}, function (result) {
+            d.resolve(result);
+        }, function (result) {
+            d.reject(result);
+        });
+        return d.promise;
+    }
+
     return {
         find_public_namespaces: find_public_namespaces,
         createNamespace: createNamespace,
@@ -221,7 +236,8 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         loadAppNamespace: loadAppNamespace,
         deleteAppNamespace: deleteAppNamespace,
         getLinkedNamespaceUsage: getLinkedNamespaceUsage,
-        getNamespaceUsage: getNamespaceUsage
+        getNamespaceUsage: getNamespaceUsage,
+        findPublicNamespaceNames: findPublicNamespaceNames
     }
 
 }]);

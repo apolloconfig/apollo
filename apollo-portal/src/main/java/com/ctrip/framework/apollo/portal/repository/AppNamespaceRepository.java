@@ -32,6 +32,9 @@ public interface AppNamespaceRepository extends PagingAndSortingRepository<AppNa
 
   List<AppNamespace> findByIsPublicTrue();
 
+  @Query("SELECT a.name FROM AppNamespace a WHERE a.isPublic = true AND a.isDeleted = false")
+  List<String> findNamesByIsPublicTrue();
+
   List<AppNamespace> findByAppId(String appId);
 
   @Modifying
