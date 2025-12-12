@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
@@ -33,6 +34,7 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 
 import org.assertj.core.util.Files;
 import org.assertj.core.util.Lists;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -95,6 +97,11 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
   public void testNamespaceExportImportWithFillItemDetail() throws FileNotFoundException {
     // Test with fillItemDetail = false
     testExportImportScenario(false);
+  }
+
+  @Test
+  public void testAppConfigExportImportWithFillItemDetail() throws FileNotFoundException {
+    testAppConfigExportImportScenario();
   }
 
   private void testExportImportScenario(boolean fillItemDetail) throws FileNotFoundException {
@@ -219,6 +226,110 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
       verify(roleInitializationService, times(6)).initNamespaceEnvRoles(any(), any(), anyString());
       verify(itemService, times(12)).createItem(any(), any(), any(), any(), any());
     }
+  }
+
+  private void testAppConfigExportImportScenario() throws FileNotFoundException {
+
+    File temporaryFolder = Files.newTemporaryFolder();
+    temporaryFolder.deleteOnExit();
+    String filePath = temporaryFolder + File.separator + "export.zip";
+
+    // export config
+    UserInfo userInfo = genUser();
+    when(userInfoHolder.getUser()).thenReturn(userInfo);
+
+    Env env = Env.DEV;
+    String appId1 = "app1";
+    String appId2 = "app2";
+
+    App app1 = genApp(appId1, appId1, "org1", "org2");
+
+    String clusterName1 = "c1";
+    String clusterName2 = "c2";
+    ClusterDTO app1Cluster1 = genCluster(clusterName1, appId1);
+    ClusterDTO app1Cluster2 = genCluster(clusterName2, appId1);
+
+    ItemBO item1 = genItem("k1", "v1");
+    ItemBO item2 = genItem("k2", "v2");
+    List<ItemBO> items = Lists.newArrayList(item1, item2);
+
+    String namespaceName1 = "namespace1";
+    String namespaceName2 = "namespace2";
+    NamespaceBO app1Cluster1Namespace1 = genNamespace(app1, app1Cluster1, items, namespaceName1);
+    NamespaceBO app1Cluster1Namespace2 = genNamespace(app1, app1Cluster1, items, namespaceName2);
+    List<NamespaceBO> app1Cluster1Namespace =
+        Lists.newArrayList(app1Cluster1Namespace1, app1Cluster1Namespace2);
+
+    when(appService.load(appId1)).thenReturn(app1);
+    when(userPermissionValidator.isAppAdmin(any())).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(any())).thenReturn(true);
+    when(unifiedPermissionValidator.hasAssignRolePermission(anyString())).thenReturn(true);
+    when(clusterService.loadCluster(appId1, env, clusterName1)).thenReturn(app1Cluster1);
+    when(namespaceService.findNamespaceBOs(appId1, Env.DEV, clusterName1, true, false))
+        .thenReturn(app1Cluster1Namespace);
+
+    FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+
+    try {
+      configsExportService.exportAppConfigByEnvAndCluster(appId2, env, clusterName1,
+          fileOutputStream);
+    } catch (BadRequestException e) {
+      Assert.assertEquals("App not found: " + appId2, e.getMessage());
+    }
+    try {
+      configsExportService.exportAppConfigByEnvAndCluster(appId1, env, clusterName2,
+          fileOutputStream);
+    } catch (BadRequestException e) {
+      Assert.assertEquals("The app does not exist in the specified environment and cluster.",
+          e.getMessage());
+    }
+    configsExportService.exportAppConfigByEnvAndCluster(appId1, env, clusterName1,
+        fileOutputStream);
+
+    // import config
+    when(clusterService.loadCluster(appId1, env, clusterName2)).thenReturn(app1Cluster2);
+    when(namespaceService.loadNamespaceBaseInfo(any(), any(), any(), any()))
+        .thenThrow(new RuntimeException());
+    when(namespaceService.createNamespace(any(), any())).thenReturn(genNamespaceDTO(1));
+
+    when(itemService.findItems(any(), any(), any(), any())).thenReturn(Lists.newArrayList());
+    HttpStatusCodeException itemNotFoundException =
+        new HttpClientErrorException(HttpStatus.NOT_FOUND);
+    when(itemService.loadItem(any(), any(), any(), any(), anyString()))
+        .thenThrow(itemNotFoundException);
+
+
+    FileInputStream fileInputStream = new FileInputStream(filePath);
+    ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
+    try {
+      configsImportService.importAppConfigFromZipFile(appId2, env, clusterName1, zipInputStream,
+          false);
+    } catch (Exception e) {
+      Assert.assertEquals("The app does not exist in the specified environment and cluster.",
+          e.getMessage());
+    }
+
+    fileInputStream = new FileInputStream(filePath);
+    zipInputStream = new ZipInputStream(fileInputStream);
+    try {
+      configsImportService.importAppConfigFromZipFile(appId1, env, clusterName2, zipInputStream,
+          false);
+    } catch (Exception e) {
+      Assert.assertEquals("The content of the file to be imported is incorrect.", e.getMessage());
+    }
+
+    fileInputStream = new FileInputStream(filePath);
+    zipInputStream = new ZipInputStream(fileInputStream);
+    try {
+      configsImportService.importAppConfigFromZipFile(appId1, env, clusterName1, zipInputStream,
+          false);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    verify(namespaceService, times(2)).createNamespace(any(), any());
+    verify(roleInitializationService, times(2)).initNamespaceRoles(any(), any(), anyString());
+    verify(roleInitializationService, times(2)).initNamespaceEnvRoles(any(), any(), anyString());
+    verify(itemService, times(4)).createItem(any(), any(), any(), any(), any());
   }
 
   private App genApp(String name, String appId, String orgId, String orgName) {

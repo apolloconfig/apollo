@@ -33,83 +33,192 @@
 <apollonav></apollonav>
 <div class="container-fluid" ng-controller="ConfigExportController">
     <div class="col-md-10 col-md-offset-1 panel">
-        <section class="panel-body">
-            <header class="panel-heading">
-                {{'ConfigExport.Title' | translate }}
-                <small>{{'ConfigExport.TitleTips' | translate }}</small>
-            </header>
-            <form class="form-horizontal" style="padding-top: 15px;">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'ConfigExport.SelectExportEnv' | translate }}</label>
-                    <div class="col-sm-2">
-                        <table class="table table-hover">
-                            <tbody>
-                            <tr style="cursor: pointer" ng-repeat="env in exportEnvs"
-                                ng-click="toggleEnvCheckedStatus(env)">
-                                <td width="10%"><input type="checkbox" ng-checked="env.checked"
-                                                       ng-click="switchChecked(env, $event)"></td>
-                                <td width="30%" ng-bind="env.name"></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label"></label>
-                    <div class="col-sm-9">
-                        <a type="button" class="btn btn-primary" ng-click="export()">{{'ConfigExport.Export' | translate }}</a>
-                        <p class="help-block">（{{'ConfigExport.ExportTips' | translate }}）</p>
-                    </div>
-                </div>
-            </form>
+        <ul class="nav nav-tabs">
+            <li role="presentation" ng-class="{false:'disabled'}[allowSwitchingTabs]" class="active" ng-if="hasRootPermission">
+                <a ng-disabled="!allowSwitchingTabs" style="border-left-style:none" href="#env_config" data-toggle="tab">{{'ConfigExport.Env.Tab' | translate}}</a>
+            </li>
+            <li role="presentation" ng-class="{false:'disabled'}[allowSwitchingTabs]">
+                <a ng-disabled="!allowSwitchingTabs" href="#app_config"  data-toggle="tab">{{'ConfigExport.App.Tab' | translate}}</a>
+            </li>
+        </ul>
 
-            <hr>
+        <div class="tab-content">
+            <div class="tab-pane fade in active" id="env_config" style="background-color:#fff" ng-if="hasRootPermission">
+                <section class="panel-body">
+                    <header class="panel-heading">
+                        {{'ConfigExport.Title' | translate }}
+                        <small>{{'ConfigExport.Env.TitleTips' | translate }}</small>
+                    </header>
+                    <form class="form-horizontal" style="padding-top: 15px;">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.SelectExportEnv' | translate }}</label>
+                            <div class="col-sm-2">
+                                <table class="table table-hover">
+                                    <tbody>
+                                    <tr style="cursor: pointer" ng-repeat="env in exportEnvs"
+                                        ng-click="toggleEnvCheckedStatus(env)">
+                                        <td width="10%"><input type="checkbox" ng-checked="env.checked"
+                                                               ng-click="switchChecked(env, $event)"></td>
+                                        <td width="30%" ng-bind="env.name"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <div class="col-sm-9">
+                                <a type="button" class="btn btn-primary" ng-click="export()">{{'ConfigExport.Export' | translate }}</a>
+                                <p class="help-block">（{{'ConfigExport.ExportTips' | translate }}）</p>
+                            </div>
+                        </div>
+                    </form>
 
-            <form class="form-horizontal">
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'ConfigExport.SelectImportEnv' | translate }}</label>
-                    <div class="col-sm-2">
-                        <table class="table table-hover">
-                            <tbody>
-                            <tr style="cursor: pointer" ng-repeat="env in importEnvs"
-                                ng-click="toggleEnvCheckedStatus(env)">
-                                <td width="10%"><input type="checkbox" ng-checked="env.checked"
-                                                       ng-click="switchChecked(env, $event)"></td>
-                                <td width="30%" ng-bind="env.name"></td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
-                    <div class="col-sm-9">
-                        <div class="radio">
-                            <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
-                            {{'ConfigExport.IgnoreExistedNamespace' | translate }}
+                    <hr>
+
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.SelectImportEnv' | translate }}</label>
+                            <div class="col-sm-2">
+                                <table class="table table-hover">
+                                    <tbody>
+                                    <tr style="cursor: pointer" ng-repeat="env in importEnvs"
+                                        ng-click="toggleEnvCheckedStatus(env)">
+                                        <td width="10%"><input type="checkbox" ng-checked="env.checked"
+                                                               ng-click="switchChecked(env, $event)"></td>
+                                        <td width="30%" ng-bind="env.name"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="radio">
-                            <input type="radio" name="conflictAction" value="cover" ng-model="conflictAction">
-                            {{'ConfigExport.OverwriteExistedNamespace' | translate }}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
+                            <div class="col-sm-9">
+                                <div class="radio">
+                                    <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
+                                    {{'ConfigExport.IgnoreExistedNamespace' | translate }}
+                                </div>
+                                <div class="radio">
+                                    <input type="radio" name="conflictAction" value="cover" ng-model="conflictAction">
+                                    {{'ConfigExport.OverwriteExistedNamespace' | translate }}
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">{{'ConfigExport.UploadFile' | translate }}</label>
-                    <div class="col-sm-9">
-                        <input type="file" id="fileUpload">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label"></label>
-                    <div class=" col-sm-9">
-                        <a type="button" class="btn btn-primary" ng-click="import()">{{'ConfigExport.Import' | translate }}</a>
-                        <br>
-                        <p class="help-block">（{{'ConfigExport.ImportTips' | translate }}）</p>
-                    </div>
-                </div>
-            </form>
-        </section>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.UploadFile' | translate }}</label>
+                            <div class="col-sm-9">
+                                <input type="file" id="envFileUpload">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <div class=" col-sm-9">
+                                <a type="button" class="btn btn-primary" ng-click="import()">{{'ConfigExport.Import' | translate }}</a>
+                                <br>
+                                <p class="help-block">（{{'ConfigExport.ImportTips' | translate }}）</p>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+
+            <div class="tab-pane fade" ng-class="{'in active': !hasRootPermission}" id="app_config" style="background-color:#fff">
+                <section class="panel-body">
+                    <header class="panel-heading">
+                        {{'ConfigExport.Title' | translate }}
+                        <small>{{'ConfigExport.App.TitleTips' | translate }}</small>
+                    </header>
+                    <form class="form-horizontal" style="padding-top: 15px;">
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.AppId' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.appId">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'ConfigExport.EnvName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.env">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                <apollorequiredfield></apollorequiredfield>
+                                {{'Common.ClusterName' | translate }}
+                            </label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control" ng-model="cluster.name">
+                                <small>{{'ConfigExport.ClusterNameTips' | translate }}</small>
+                            </div>
+                            <div class="col-sm-1">
+                                <button class="btn btn-info"
+                                        ng-click="getClusterInfo()">{{'Common.Search' | translate }}</button>
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                {{'ConfigExport.ClusterInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 style="color: red" ng-show="cluster.info" ng-bind="cluster.info"></h5>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <div class="col-sm-9">
+                                <a type="button" class="btn btn-primary" ng-click="exportAppConfig()" ng-disabled="appConfigBtnDisabled">{{'ConfigExport.Export' | translate }}</a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr>
+
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
+                            <div class="col-sm-9">
+                                <div class="radio">
+                                    <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
+                                    {{'ConfigExport.IgnoreExistedNamespace' | translate }}
+                                </div>
+                                <div class="radio">
+                                    <input type="radio" name="conflictAction" value="cover" ng-model="conflictAction">
+                                    {{'ConfigExport.OverwriteExistedNamespace' | translate }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">{{'ConfigExport.UploadFile' | translate }}</label>
+                            <div class="col-sm-9">
+                                <input type="file" id="appFileUpload">
+                            </div>
+                        </div>
+                        <div class="form-group" valdr-form-group>
+                            <label class="col-sm-2 control-label">
+                                {{'ConfigExport.ClusterInfo' | translate }}</label>
+                            <div class="col-sm-5">
+                                <h5 style="color: red" ng-show="cluster.info" ng-bind="cluster.info"></h5>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <div class=" col-sm-9">
+                                <a type="button" class="btn btn-primary" ng-click="importAppConfig()" ng-disabled="appConfigBtnDisabled">{{'ConfigExport.Import' | translate }}</a>
+                                <br>
+                                <p class="help-block">（{{'ConfigExport.ImportTips' | translate }}）</p>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -152,8 +261,6 @@
 <script type="application/javascript" src="scripts/services/NamespaceService.js"></script>
 <script type="application/javascript" src="scripts/services/SystemInfoService.js"></script>
 <script type="application/javascript" src="scripts/services/ExportService.js"></script>
-
-<script type="application/javascript" src="scripts/AppUtils.js"></script>
 
 <script type="application/javascript" src="scripts/PageCommon.js"></script>
 <script type="application/javascript" src="scripts/directive/directive.js"></script>
