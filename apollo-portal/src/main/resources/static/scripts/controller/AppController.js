@@ -108,7 +108,19 @@ function createAppController($scope, $window, $translate, toastr, AppService, Ap
             })
         }
 
-        AppService.create($scope.app).then(function (result) {
+        var openCreateAppDTO = {
+            assignAppRoleToSelf: false,
+            admins: $scope.app.admins || [],
+            app: {
+                name: $scope.app.name,
+                appId: $scope.app.appId,
+                orgId: $scope.app.orgId,
+                orgName: $scope.app.orgName,
+                ownerName: $scope.app.ownerName
+            }
+        };
+
+        AppService.create(openCreateAppDTO).then(function (result) {
             toastr.success($translate.instant('Common.Created'));
             setInterval(function () {
                 $scope.submitBtnDisabled = false;

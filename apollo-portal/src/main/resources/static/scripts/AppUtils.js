@@ -94,6 +94,17 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
             });
             return result;
         },
+        gatherData: function (response) {
+            var data = [];
+            response.forEach(function (entity) {
+                if (entity.code === 200) {
+                  data.push(entity);
+                } else {
+                  toastr.warning(entity.message);
+                }
+            });
+            return data;
+        },
         collectData: function (response) {
             var data = [];
             response.entities.forEach(function (entity) {

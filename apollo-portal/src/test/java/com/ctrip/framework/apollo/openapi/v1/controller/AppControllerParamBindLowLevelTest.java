@@ -17,27 +17,14 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
-import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
-import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
-import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
-import com.ctrip.framework.apollo.portal.service.AppService;
-import com.ctrip.framework.apollo.portal.service.ClusterService;
-import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
-import com.ctrip.framework.apollo.portal.service.RolePermissionService;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import com.ctrip.framework.apollo.portal.repository.RoleRepository;
 import com.google.gson.Gson;
 import org.junit.After;
 import org.junit.Before;
@@ -74,39 +61,13 @@ public class AppControllerParamBindLowLevelTest {
   @MockBean(name = "unifiedPermissionValidator")
   private UnifiedPermissionValidator unifiedPermissionValidator;
   @MockBean
-  private PortalSettings portalSettings;
-  @MockBean
-  private AppService appService;
-  @MockBean
-  private ClusterService clusterService;
-  @MockBean
   private ConsumerAuthUtil consumerAuthUtil;
-  @MockBean
-  private PermissionRepository permissionRepository;
   @MockBean
   private AppOpenApiService appOpenApiService;
   @MockBean
   private ConsumerService consumerService;
   @MockBean
-  private RolePermissionRepository rolePermissionRepository;
-  @MockBean
-  private UserInfoHolder userInfoHolder;
-  @MockBean
-  private ConsumerTokenRepository consumerTokenRepository;
-  @MockBean
-  private ConsumerRepository consumerRepository;
-  @MockBean
-  private ConsumerAuditRepository consumerAuditRepository;
-  @MockBean
-  private ConsumerRoleRepository consumerRoleRepository;
-  @MockBean
-  private RolePermissionService rolePermissionService;
-  @MockBean
   private UserService userService;
-  @MockBean
-  private RoleRepository roleRepository;
-  @MockBean
-  private RoleInitializationService roleInitializationService;
 
   private final Gson gson = new Gson();
 
@@ -156,12 +117,13 @@ public class AppControllerParamBindLowLevelTest {
     ArgumentCaptor<OpenAppDTO> dtoCap = ArgumentCaptor.forClass(OpenAppDTO.class);
     ArgumentCaptor<String> opCap = ArgumentCaptor.forClass(String.class);
 
-    verify(appOpenApiService, times(1)).createAppInEnv(envCap.capture(), dtoCap.capture(),
-        opCap.capture());
+    verify(appOpenApiService, times(1)).createAppInEnv(envCap.capture(), dtoCap.capture());
     assertThat(envCap.getValue()).isEqualTo("DEV");
-    assertThat(opCap.getValue()).isEqualTo("bob");
     assertThat(dtoCap.getValue().getAppId()).isEqualTo("demo");
     assertThat(dtoCap.getValue().getName()).isEqualTo("demo-name");
+
+    verify(userService, times(1)).findByUserId(opCap.capture());
+    assertThat(opCap.getValue()).isEqualTo("bob");
   }
 
   @Test
@@ -181,7 +143,7 @@ public class AppControllerParamBindLowLevelTest {
     ArgumentCaptor<Integer> pageCap = ArgumentCaptor.forClass(Integer.class);
     ArgumentCaptor<Integer> sizeCap = ArgumentCaptor.forClass(Integer.class);
 
-    verify(appOpenApiService, times(1)).getAppsBySelf(idsCap.capture(), pageCap.capture(),
+    verify(appOpenApiService, times(1)).getAppsWithPageAndSize(idsCap.capture(), pageCap.capture(),
         sizeCap.capture());
     assertThat(idsCap.getValue()).containsExactlyInAnyOrder("app1", "app2");
     assertThat(pageCap.getValue()).isEqualTo(0);
@@ -211,8 +173,9 @@ public class AppControllerParamBindLowLevelTest {
     when(appOpenApiService.deleteApp("app-1")).thenReturn(new OpenAppDTO());
 
     mockMvc.perform(delete("/openapi/v1/apps/{appId}", "app-1")
-                    .param("operator", "alice"))
-            .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+            .param("operator", "alice"))
+        .andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(appOpenApiService, times(1)).deleteApp("app-1");
   }

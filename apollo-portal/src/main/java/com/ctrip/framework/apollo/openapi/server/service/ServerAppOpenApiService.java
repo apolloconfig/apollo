@@ -24,11 +24,11 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
-import com.ctrip.framework.apollo.openapi.model.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
-import com.ctrip.framework.apollo.openapi.model.RichResponseEntity;
+import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppDeletionEvent;
@@ -83,17 +83,17 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
    */
   @Override
-  public void createApp(OpenCreateAppDTO req) {
+  public OpenAppDTO createApp(OpenCreateAppDTO req) {
     App app = convert(req.getApp());
-    List<String> admins = req.getAdmins();
+    Set<String> admins = req.getAdmins();
     if (admins == null) {
-      admins = Collections.emptyList();
+      admins = Collections.emptySet();
     }
-    appService.createAppAndAddRolePermission(app, new HashSet<>(admins));
+    return OpenApiModelConverters.fromApp(appService.createAppAndAddRolePermission(app, admins));
   }
 
   @Override
-  public List<OpenEnvClusterDTO> getEnvClusterInfo(String appId) {
+  public List<OpenEnvClusterDTO> getEnvClusters(String appId) {
     List<OpenEnvClusterDTO> envClusters = new LinkedList<>();
 
     List<Env> envs = portalSettings.getActiveEnvs();
@@ -134,6 +134,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
 
   /**
    * Updating Application Information - Using OpenAPI DTOs
+   *
    * @param openAppDTO OpenAPI application DTO
    */
   @Override
@@ -145,11 +146,12 @@ public class ServerAppOpenApiService implements AppOpenApiService {
 
   /**
    * Get the current user's app list (paginated)
+   *
    * @param page Pagination parameter
    * @return App list
    */
   @Override
-  public List<OpenAppDTO> getAppsBySelf(Set<String> appIds, Integer page, Integer size) {
+  public List<OpenAppDTO> getAppsWithPageAndSize(Set<String> appIds, Integer page, Integer size) {
     int pageIndex = page == null ? 0 : page;
     int pageSize = (size == null || size <= 0) ? 20 : size;
     Pageable pageable = Pageable.ofSize(pageSize).withPage(pageIndex);
@@ -163,12 +165,12 @@ public class ServerAppOpenApiService implements AppOpenApiService {
 
   /**
    * Create an application in a specified environment
+   *
    * @param env Environment
    * @param app Application information
-   * @param operator Operator
    */
   @Override
-  public void createAppInEnv(String env, OpenAppDTO app, String operator) {
+  public void createAppInEnv(String env, OpenAppDTO app) {
     if (env == null) {
       throw BadRequestException.invalidEnvFormat("null");
     }
@@ -179,14 +181,16 @@ public class ServerAppOpenApiService implements AppOpenApiService {
       throw BadRequestException.invalidEnvFormat(env);
     }
     App appEntity = convert(app);
-    appService.createAppInRemote(envEnum, appEntity);
+    appService.createAppInRemoteNew(envEnum, appEntity);
 
     roleInitializationService.initNamespaceSpecificEnvRoles(appEntity.getAppId(),
-        ConfigConsts.NAMESPACE_APPLICATION, env, operator);
+        ConfigConsts.NAMESPACE_APPLICATION, env,
+        UserIdentityContextHolder.getOperator().getUserId());
   }
 
   /**
    * Delete an application
+   *
    * @param appId application ID
    * @return the deleted application
    */
@@ -199,56 +203,57 @@ public class ServerAppOpenApiService implements AppOpenApiService {
 
   /**
    * Find missing environments
+   *
    * @param appId application ID
    * @return list of missing environments
    */
-  public MultiResponseEntity findMissEnvs(String appId) {
-    List<RichResponseEntity> entities = new ArrayList<>();
-    MultiResponseEntity response = new MultiResponseEntity(HttpStatus.OK.value(), entities);
+  public List<OpenMissEnvDTO> findMissEnvs(String appId) {
+    List<OpenMissEnvDTO> missEnvs = new ArrayList<>();
+
     for (Env env : portalSettings.getActiveEnvs()) {
       try {
         appService.load(env, appId);
       } catch (Exception e) {
-        RichResponseEntity entity;
+        OpenMissEnvDTO missEnv = new OpenMissEnvDTO();
         if (e instanceof HttpClientErrorException
             && ((HttpClientErrorException) e).getStatusCode() == HttpStatus.NOT_FOUND) {
-          entity = new RichResponseEntity(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase());
-          entity.setBody(env.toString());
+          missEnv.setCode(HttpStatus.OK.value());
+          missEnv.setMessage(env.toString());
         } else {
-          entity = new RichResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-              "load env:" + env.getName() + " cluster error." + e.getMessage());
+          missEnv.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+          missEnv.setMessage(
+              String.format("load appId:%s from env %s error.", appId, env) + e.getMessage());
         }
-        response.addEntitiesItem(entity);
+        missEnvs.add(missEnv);
       }
     }
-    return response;
+    return missEnvs;
   }
 
   /**
    * Find AppNavTree
+   *
    * @param appId
    * @return list of EnvClusterInfos
    */
   @Override
-  public MultiResponseEntity getAppNavTree(String appId) {
-    List<RichResponseEntity> entities = new ArrayList<>();
-    MultiResponseEntity response = new MultiResponseEntity(HttpStatus.OK.value(), entities);
+  public List<OpenEnvClusterInfo> getEnvClusterInfos(String appId) {
+    List<OpenEnvClusterInfo> envClusterInfos = new ArrayList<>();
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       try {
         OpenEnvClusterInfo openEnvClusterInfo =
             OpenApiModelConverters.fromEnvClusterInfo(appService.createEnvNavNode(env, appId));
-        RichResponseEntity entity =
-            new RichResponseEntity(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase());
-        entity.setBody(openEnvClusterInfo);
-        response.addEntitiesItem(entity);
+        openEnvClusterInfo.setCode(HttpStatus.OK.value());
+        envClusterInfos.add(openEnvClusterInfo);
       } catch (Exception e) {
-        logger.warn("Failed to load env {} navigation for app {}", env, appId, e);
-        RichResponseEntity entity = new RichResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR.value(),
-            "load env:" + env.getName() + " cluster error." + e.getMessage());
-        response.addEntitiesItem(entity);
+        OpenEnvClusterInfo envClusterInfo = new OpenEnvClusterInfo();
+        envClusterInfo.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        envClusterInfo.setEnv(env.getName());
+        envClusterInfo.setMessage("load env:" + env.getName() + " cluster error." + e.getMessage());
+        envClusterInfos.add(envClusterInfo);
       }
     }
-    return response;
+    return envClusterInfos;
   }
 }
