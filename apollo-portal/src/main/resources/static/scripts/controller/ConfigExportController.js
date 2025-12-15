@@ -18,13 +18,17 @@ config_export_module.controller('ConfigExportController',
                                 ['$scope', '$location', '$window', '$http', '$translate', 'toastr', 'AppService',
                                  'EnvService',
                                  'ExportService',
+                                 'ClusterService',
                                  'AppUtil',
                                  function ($scope, $location, $window, $http, $translate, toastr, AppService,
                                            EnvService,
                                            ExportService,
+                                           ClusterService,
                                            AppUtil) {
 
                                      $scope.conflictAction = 'ignore';
+                                     $scope.cluster = {};
+                                     $scope.appConfigBtnDisabled = true;
 
                                      EnvService.find_all_envs().then(function (result) {
                                          $scope.exportEnvs = [];
@@ -50,22 +54,22 @@ config_export_module.controller('ConfigExportController',
                                      };
 
                                      $scope.export = function () {
-                                         var selectedEnvs = []
-                                         $scope.exportEnvs.forEach(function (env) {
-                                             if (env.checked) {
-                                                 selectedEnvs.push(env.name);
-                                             }
-                                         });
+                                          var selectedEnvs = [];
+                                          $scope.exportEnvs.forEach(function (env) {
+                                              if (env.checked) {
+                                                  selectedEnvs.push(env.name);
+                                              }
+                                          });
 
-                                         if (selectedEnvs.length === 0) {
-                                             toastr.warning($translate.instant('Cluster.PleaseChooseEnvironment'));
-                                             return
-                                         }
+                                          if (selectedEnvs.length === 0) {
+                                              toastr.warning($translate.instant('Cluster.PleaseChooseEnvironment'));
+                                              return;
+                                          }
 
-                                         var selectedEnvStr = selectedEnvs.join(",");
-                                         $window.location.href = AppUtil.prefixPath() + '/configs/export?envs=' + selectedEnvStr;
+                                          var selectedEnvStr = selectedEnvs.join(",");
+                                          $window.location.href = AppUtil.prefixPath() + '/configs/export?envs=' + selectedEnvStr;
 
-                                         toastr.success($translate.instant('ConfigExport.ExportSuccess'));
+                                          toastr.success($translate.instant('ConfigExport.ExportSuccess'));
                                      };
 
                                      $scope.import = function () {
@@ -82,7 +86,7 @@ config_export_module.controller('ConfigExportController',
                                          }
 
                                          var selectedEnvStr = selectedEnvs.join(",");
-                                         var file = document.getElementById("fileUpload").files[0];
+                                         var file = document.getElementById("envFileUpload").files[0];
 
                                          if (file == null) {
                                              toastr.warning($translate.instant('ConfigExport.UploadFileTip'))
@@ -104,6 +108,84 @@ config_export_module.controller('ConfigExportController',
                                              toastr.error(data, $translate.instant('ConfigExport.ImportFailed'))
                                          })
                                          toastr.info($translate.instant('ConfigExport.ImportingTip'))
-                                     }
+                                     };
 
+                                     $scope.getClusterInfo = function () {
+                                         if (!$scope.cluster.appId || !$scope.cluster.env || !$scope.cluster.name) {
+                                             $scope.appConfigBtnDisabled = true;
+                                             toastr.warning($translate.instant('ConfigExport.PleaseEnterAppIdAndEnvAndCluster'));
+                                             return;
+                                         }
+                                         $scope.cluster.info = "";
+                                         ClusterService.load_cluster($scope.cluster.appId, $scope.cluster.env, $scope.cluster.name).then(function (result) {
+                                             $scope.cluster.info = $translate.instant('ConfigExport.ClusterInfoContent', {
+                                                 appId: result.appId,
+                                                 env: $scope.cluster.env,
+                                                 clusterName: result.name
+                                             });
+                                             $scope.appConfigBtnDisabled = false;
+                                         }, function (result) {
+                                             $scope.appConfigBtnDisabled = true;
+                                             AppUtil.showErrorMsg(result);
+                                         });
+                                     };
+
+                                     $scope.exportAppConfig = function () {
+                                         if (!$scope.cluster.appId || !$scope.cluster.env || !$scope.cluster.name || !$scope.cluster.info) {
+                                              toastr.warning($translate.instant('ConfigExport.PleaseEnterAppIdAndEnvAndCluster'));
+                                              return;
+                                         }
+
+                                         var exportUrl = AppUtil.prefixPath() + '/apps/' + $scope.cluster.appId +
+                                         '/envs/' + $scope.cluster.env + '/clusters/' + $scope.cluster.name + '/export';
+
+                                         $http({
+                                             method: 'HEAD',
+                                             url: exportUrl
+                                         }).then(function(response) {
+                                             $window.location.href = exportUrl;
+                                             setTimeout(function() {
+                                                 toastr.success($translate.instant('ConfigExport.ExportSuccess'));
+                                             }, 1000);
+                                         }).catch(function(response) {
+                                             if (response.status === 403) {
+                                                 toastr.warning($translate.instant('ConfigExport.NoPermissionTip'));
+                                                 return;
+                                             }
+                                             toastr.error($translate.instant('ConfigExport.ExportFailed'));
+                                         });
+                                     };
+
+                                     $scope.importAppConfig = function () {
+                                          if (!$scope.cluster.appId || !$scope.cluster.env || !$scope.cluster.name || !$scope.cluster.info) {
+                                               toastr.warning($translate.instant('ConfigExport.PleaseEnterAppIdAndEnvAndCluster'));
+                                               return;
+                                          }
+
+                                          var file = document.getElementById("appFileUpload").files[0];
+                                           if (file == null) {
+                                               toastr.warning($translate.instant('ConfigExport.UploadFileTip'));
+                                               return;
+                                           }
+
+                                           var form = new FormData();
+                                           form.append('file', file);
+                                           $http({
+                                                     method: 'POST',
+                                                     url: AppUtil.prefixPath() + '/apps/' + $scope.cluster.appId + '/envs/' + $scope.cluster.env +
+                                                     '/clusters/' + $scope.cluster.name + '/import?conflictAction=' + $scope.conflictAction,
+                                                     data: form,
+                                                     headers: {'Content-Type': undefined},
+                                                     transformRequest: angular.identity
+                                                 }).success(function (data) {
+                                               toastr.success(data, $translate.instant('ConfigExport.ImportSuccess'));
+                                           }).error(function (data, status) {
+                                               if (status === 403) {
+                                                    toastr.warning($translate.instant('ConfigExport.NoPermissionTip'));
+                                                    return;
+                                               }
+                                               toastr.error(data, $translate.instant('ConfigExport.ImportFailed'));
+                                           });
+                                           toastr.info($translate.instant('ConfigExport.ImportingTip'));
+                                      };
                                  }]);

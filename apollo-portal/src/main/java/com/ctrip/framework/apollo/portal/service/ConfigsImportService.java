@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.service;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 
@@ -46,7 +47,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.rmi.ServerException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -167,7 +167,62 @@ public class ConfigsImportService {
 
     } catch (Exception e) {
       LOGGER.error("import config error.", e);
-      throw new ServerException("import config error.", e);
+      throw new ServiceException("import config error.", e);
+    }
+  }
+
+  /**
+   * import all configurations of an application in a specified environment and cluster
+   */
+  public void importAppConfigFromZipFile(String appId, Env env, String clusterName,
+      ZipInputStream dataZip, boolean ignoreConflictNamespace) throws IOException {
+    ClusterDTO clusterDTO = clusterService.loadCluster(appId, env, clusterName);
+    if (clusterDTO == null) {
+      throw new BadRequestException(
+          "The app does not exist in the specified environment and cluster.");
+    }
+
+    List<ImportNamespaceData> toImportNSs = Lists.newArrayList();
+    ZipEntry entry;
+    while ((entry = dataZip.getNextEntry()) != null) {
+      if (entry.isDirectory()) {
+        continue;
+      }
+
+      // file.path format :
+      // ${appId}/${env}/${appId}+${cluster}+${namespaceName}
+      String filePath = entry.getName();
+      String content = readContent(dataZip);
+      if (content == null) {
+        throw new BadRequestException("Failed to read file content.");
+      }
+      String[] info = filePath.replace('\\', '/').split("/");
+      if (info.length != 3) {
+        throw new BadRequestException("Invalid file path in ZIP.");
+      }
+      String fileName = info[2];
+      String fileNamePrefix = String.format("%s+%s+", appId, clusterName);
+
+      if (!info[0].equals(appId) || !info[1].equalsIgnoreCase(env.getName())
+          || !fileName.startsWith(fileNamePrefix)) {
+        throw new BadRequestException("The content of the file to be imported is incorrect.");
+      }
+      if (!fileName.endsWith(ConfigFileUtils.CLUSTER_METADATA_FILE_SUFFIX)) {
+        toImportNSs.add(new ImportNamespaceData(env, fileName, content, ignoreConflictNamespace));
+      }
+    }
+
+    if (CollectionUtils.isEmpty(toImportNSs)) {
+      throw new BadRequestException("The configuration to be imported is empty.");
+    }
+
+    try {
+      LOGGER.info("Import namespace. namespace = {}", toImportNSs.size());
+      doImport(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
+          Lists.newArrayList(), toImportNSs);
+    } catch (Exception e) {
+      LOGGER.error("import app config error.", e);
+      throw new ServiceException("import app config error.", e);
     }
   }
 

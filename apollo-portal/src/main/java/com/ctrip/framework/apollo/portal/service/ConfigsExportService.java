@@ -100,6 +100,43 @@ public class ConfigsExportService {
     exportApps(exportEnvs, outputStream);
   }
 
+  /**
+   * Export all configurations of an application in a specified environment and cluster
+   * <p>
+   * File Struts:
+   * <p>
+   *
+   * List<App> -> List<Env> -> List<Namespace>
+   *
+   * @param outputStream network file download stream to user
+   */
+  public void exportAppConfigByEnvAndCluster(String appId, Env env, String clusterName,
+      OutputStream outputStream) {
+    App app = appService.load(appId);
+    if (app == null) {
+      throw new BadRequestException("App not found: " + appId);
+    }
+    ClusterDTO cluster = clusterService.loadCluster(appId, env, clusterName);
+    if (cluster == null) {
+      throw new BadRequestException(
+          "The app does not exist in the specified environment and cluster.");
+    }
+
+    try (final ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
+      try {
+        this.exportNamespaces(env, app, cluster, zipOutputStream, true);
+      } catch (BadRequestException badRequestException) {
+        // ignore
+      } catch (Exception e) {
+        logger.error("export namespace error. appId = {}, env = {}, cluster = {}", app.getAppId(),
+            env.getName(), cluster.getName(), e);
+      }
+    } catch (IOException e) {
+      logger.error("export app config error", e);
+      throw new ServiceException("export app config error", e);
+    }
+  }
+
   private void exportApps(final Collection<Env> exportEnvs, OutputStream outputStream) {
     List<App> hasPermissionApps = findHasPermissionApps();
 
@@ -217,7 +254,7 @@ public class ConfigsExportService {
     // export namespaces
     exportClusters.parallelStream().forEach(cluster -> {
       try {
-        this.exportNamespaces(env, exportApp, cluster, zipOutputStream);
+        this.exportNamespaces(env, exportApp, cluster, zipOutputStream, false);
       } catch (BadRequestException badRequestException) {
         // ignore
       } catch (Exception e) {
@@ -228,7 +265,7 @@ public class ConfigsExportService {
   }
 
   private void exportNamespaces(final Env env, final App exportApp, final ClusterDTO exportCluster,
-      ZipOutputStream zipOutputStream) {
+      ZipOutputStream zipOutputStream, boolean ignoreUserDir) {
     String clusterName = exportCluster.getName();
 
     List<NamespaceBO> namespaceBOS =
@@ -241,11 +278,11 @@ public class ConfigsExportService {
     Stream<ConfigBO> configBOStream = namespaceBOS.stream().map(namespaceBO -> new ConfigBO(env,
         exportApp.getOwnerName(), exportApp.getAppId(), clusterName, namespaceBO));
 
-    writeNamespacesToZip(configBOStream, zipOutputStream);
+    writeNamespacesToZip(configBOStream, zipOutputStream, ignoreUserDir);
   }
 
   private void writeNamespacesToZip(Stream<ConfigBO> configBOStream,
-      ZipOutputStream zipOutputStream) {
+      ZipOutputStream zipOutputStream, boolean ignoreUserDir) {
     final Consumer<ConfigBO> configBOConsumer = configBO -> {
       try {
         synchronized (zipOutputStream) {
@@ -257,8 +294,10 @@ public class ConfigsExportService {
 
           String configFileName =
               ConfigFileUtils.toFilename(appId, clusterName, namespace, configFileFormat);
-          String filePath = ConfigFileUtils.genNamespacePath(configBO.getOwnerName(), appId,
-              configBO.getEnv(), configFileName);
+          String filePath = ignoreUserDir
+              ? ConfigFileUtils.genNamespacePathIgnoreUser(appId, configBO.getEnv(), configFileName)
+              : ConfigFileUtils.genNamespacePath(configBO.getOwnerName(), appId, configBO.getEnv(),
+                  configFileName);
 
           writeToZip(filePath, configFileContent, zipOutputStream);
         }
