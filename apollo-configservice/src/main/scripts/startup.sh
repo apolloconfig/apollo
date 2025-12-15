@@ -16,9 +16,11 @@
 #
 SERVICE_NAME=apollo-configservice
 ## Adjust log dir if necessary
-LOG_DIR=/opt/logs
+LOG_DIR=${LOG_DIR:=/opt/logs}
 ## Adjust server port if necessary
 SERVER_PORT=${SERVER_PORT:=8080}
+## Adjust context path if necessary
+CONTEXT_PATH=${CONTEXT_PATH:=/}
 
 ## Create log directory if not existed because JDK 8+ won't do that
 mkdir -p $LOG_DIR
@@ -45,7 +47,7 @@ export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$LOG
 export APP_NAME=$SERVICE_NAME
 
 PATH_TO_JAR=$SERVICE_NAME".jar"
-SERVER_URL="http://localhost:$SERVER_PORT"
+SERVER_URL="http://localhost:$SERVER_PORT/${CONTEXT_PATH#/}"
 
 function getPid() {
     pgrep -f $SERVICE_NAME
