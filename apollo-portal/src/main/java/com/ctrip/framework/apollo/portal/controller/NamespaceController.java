@@ -101,7 +101,7 @@ public class NamespaceController {
     return appNamespaceService.findPublicAppNamespaces();
   }
 
-  @GetMapping("/appNamespaceNames/public")
+  @GetMapping("/appnamespaces/public/names")
   public List<String> findPublicAppNamespaceNames() {
     return appNamespaceService.findPublicAppNamespaceNames();
   }

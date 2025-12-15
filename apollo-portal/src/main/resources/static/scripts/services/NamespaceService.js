@@ -65,7 +65,7 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         findPublicNamespaceNames: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/appNamespaceNames/public'
+            url: AppUtil.prefixPath() + '/appnamespaces/public/names'
         }
     });
 
