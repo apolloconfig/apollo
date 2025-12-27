@@ -47,7 +47,8 @@ export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$LOG
 export APP_NAME=$SERVICE_NAME
 
 PATH_TO_JAR=$SERVICE_NAME".jar"
-SERVER_URL="http://localhost:$SERVER_PORT/${CONTEXT_PATH#/}"
+CONTEXT_PATH=$(echo "$CONTEXT_PATH" | sed 's/^\/*//; s/\/*$//')
+SERVER_URL="http://localhost:${SERVER_PORT}${CONTEXT_PATH:+/$CONTEXT_PATH}"
 
 function getPid() {
     pgrep -f $SERVICE_NAME
