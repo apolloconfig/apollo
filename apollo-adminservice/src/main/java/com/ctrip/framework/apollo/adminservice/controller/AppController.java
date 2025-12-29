@@ -83,7 +83,7 @@ public class AppController {
   @GetMapping("/apps")
   public List<AppDTO> find(@RequestParam(value = "name", required = false) String name,
       Pageable pageable) {
-    List<App> app = null;
+    List<App> app;
     if (StringUtils.isBlank(name)) {
       app = appService.findAll(pageable);
     } else {

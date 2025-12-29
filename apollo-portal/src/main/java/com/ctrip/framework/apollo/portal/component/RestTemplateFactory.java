@@ -28,7 +28,6 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -64,7 +63,7 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   }
 
   @Override
-  public void afterPropertiesSet() throws UnsupportedEncodingException {
+  public void afterPropertiesSet() {
 
     PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
     connectionManager.setMaxTotal(portalConfig.connectPoolMaxTotal());

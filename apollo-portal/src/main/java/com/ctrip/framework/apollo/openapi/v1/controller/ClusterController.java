@@ -64,7 +64,7 @@ public class ClusterController implements ClusterManagementApi {
     }
 
     String clusterName = cluster.getName();
-    String operator = null;
+    String operator;
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
       operator = userInfoHolder.getUser().getUserId();
       cluster.setDataChangeLastModifiedBy(operator);

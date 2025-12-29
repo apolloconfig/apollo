@@ -16,8 +16,6 @@
  */
 package com.ctrip.framework.apollo.audit.context;
 
-import java.io.IOException;
-
 public class ApolloAuditScopeManager {
 
   private ApolloAuditScope scope;
@@ -29,7 +27,7 @@ public class ApolloAuditScopeManager {
     return getScope();
   }
 
-  public void deactivate() throws IOException {
+  public void deactivate() {
     getScope().close();
   }
 

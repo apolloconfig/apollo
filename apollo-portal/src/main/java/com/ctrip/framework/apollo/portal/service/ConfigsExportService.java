@@ -210,7 +210,7 @@ public class ConfigsExportService {
   private void exportAppNamespaces(ZipOutputStream zipOutputStream) {
     List<AppNamespace> appNamespaces = appNamespaceService.findAll();
 
-    logger.info("to import appnamespace size = " + appNamespaces.size());
+    logger.info("to import appnamespace size = {}", appNamespaces.size());
 
     Consumer<AppNamespace> appNamespaceConsumer = appNamespace -> {
       try {

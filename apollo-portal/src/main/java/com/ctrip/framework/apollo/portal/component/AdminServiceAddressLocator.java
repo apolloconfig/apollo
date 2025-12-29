@@ -124,9 +124,9 @@ public class AdminServiceAddressLocator {
         cache.put(env, Arrays.asList(services));
         return true;
       } catch (Throwable e) {
-        logger.error(String.format(
-            "Get admin server address from meta server failed. env: %s, meta server address:%s",
-            env, portalMetaDomainService.getDomain(env)), e);
+        logger.error(
+            "Get admin server address from meta server failed. env: {}, meta server address:{}",
+            env, portalMetaDomainService.getDomain(env), e);
         Tracer.logError(String.format(
             "Get admin server address from meta server failed. env: %s, meta server address:%s",
             env, portalMetaDomainService.getDomain(env)), e);

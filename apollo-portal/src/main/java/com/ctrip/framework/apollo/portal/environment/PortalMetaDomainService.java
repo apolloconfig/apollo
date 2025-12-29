@@ -222,8 +222,8 @@ public class PortalMetaDomainService {
           updateMetaServerAddresses(metaServerAddresses);
         }
       } catch (Throwable ex) {
-        logger.warn(String.format("Refreshing meta server address failed, will retry in %d seconds",
-            REFRESH_INTERVAL_IN_SECOND), ex);
+        logger.warn("Refreshing meta server address failed, will retry in {} seconds",
+            REFRESH_INTERVAL_IN_SECOND, ex);
       }
     }, REFRESH_INTERVAL_IN_SECOND, REFRESH_INTERVAL_IN_SECOND, TimeUnit.SECONDS);
   }

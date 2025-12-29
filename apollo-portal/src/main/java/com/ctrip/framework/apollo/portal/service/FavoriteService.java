@@ -91,13 +91,13 @@ public class FavoriteService {
     }
 
     // search by userId
-    if (isAppIdEmpty && !isUserIdEmpty) {
+    if (isAppIdEmpty) {
       return favoriteRepository.findByUserIdOrderByPositionAscDataChangeCreatedTimeAsc(userId,
           page);
     }
 
     // search by appId
-    if (!isAppIdEmpty && isUserIdEmpty) {
+    if (isUserIdEmpty) {
       return favoriteRepository.findByAppIdOrderByPositionAscDataChangeCreatedTimeAsc(appId, page);
     }
 

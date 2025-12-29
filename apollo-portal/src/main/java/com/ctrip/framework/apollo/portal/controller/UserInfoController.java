@@ -27,7 +27,6 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
-import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -106,7 +105,7 @@ public class UserInfoController {
   }
 
   @GetMapping("/user/logout")
-  public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void logout(HttpServletRequest request, HttpServletResponse response) {
     logoutHandler.logout(request, response);
   }
 

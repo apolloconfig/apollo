@@ -191,7 +191,7 @@ public class NamespaceService {
       boolean fillItemDetail, boolean includeDeletedItems) {
 
     List<NamespaceDTO> namespaces = namespaceAPI.findNamespaceByCluster(appId, env, clusterName);
-    if (namespaces == null || namespaces.size() == 0) {
+    if (namespaces == null || namespaces.isEmpty()) {
       throw BadRequestException.namespaceNotExists();
     }
 
@@ -340,7 +340,7 @@ public class NamespaceService {
       Map<String, ItemDTO> deletedItemDTOs =
           itemService.findDeletedItems(appId, env, clusterName, namespaceName).stream()
               .filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
-              .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
+              .collect(Collectors.toMap(ItemDTO::getKey, v -> v, (v1, v2) -> v2));
 
       List<ItemBO> deletedItems = parseDeletedItems(items, releaseItems, deletedItemDTOs);
       itemBOs.addAll(deletedItems);

@@ -60,11 +60,11 @@ public class PropertyResolver implements ConfigTextResolver {
     List<ItemDTO> baseBlankItems = new LinkedList<>();
     if (!CollectionUtils.isEmpty(baseItems)) {
 
-      baseCommentItems = baseItems.stream().filter(itemDTO -> isCommentItem(itemDTO))
+      baseCommentItems = baseItems.stream().filter(this::isCommentItem)
           .sorted(Comparator.comparing(ItemDTO::getLineNum))
           .collect(Collectors.toCollection(LinkedList::new));
 
-      baseBlankItems = baseItems.stream().filter(itemDTO -> isBlankItem(itemDTO))
+      baseBlankItems = baseItems.stream().filter(this::isBlankItem)
           .sorted(Comparator.comparing(ItemDTO::getLineNum))
           .collect(Collectors.toCollection(LinkedList::new));
     }
@@ -221,8 +221,8 @@ public class PropertyResolver implements ConfigTextResolver {
 
   private void deleteCommentAndBlankItem(List<ItemDTO> baseCommentItems,
       List<ItemDTO> baseBlankItems, ItemChangeSets changeSets) {
-    baseCommentItems.forEach(oldItemDTO -> changeSets.addDeleteItem(oldItemDTO));
-    baseBlankItems.forEach(oldItemDTO -> changeSets.addDeleteItem(oldItemDTO));
+    baseCommentItems.forEach(changeSets::addDeleteItem);
+    baseBlankItems.forEach(changeSets::addDeleteItem);
   }
 
   private ItemDTO buildCommentItem(Long id, Long namespaceId, String comment, int lineNum) {

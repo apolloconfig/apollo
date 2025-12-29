@@ -229,7 +229,7 @@ public class ItemService {
     // deleted items for comment
     Map<String, ItemDTO> deletedItemDTOs = findDeletedItems(appId, env, clusterName, namespaceName)
         .stream().filter(itemDTO -> !StringUtils.isEmpty(itemDTO.getKey()))
-        .collect(Collectors.toMap(itemDTO -> itemDTO.getKey(), v -> v, (v1, v2) -> v2));
+        .collect(Collectors.toMap(ItemDTO::getKey, v -> v, (v1, v2) -> v2));
 
     ItemChangeSets changeSets = new ItemChangeSets();
     AtomicInteger lineNum = new AtomicInteger(1);
@@ -316,7 +316,7 @@ public class ItemService {
     } else {
       Map<String, ItemDTO> targetItemMap = BeanUtils.mapByKey("key", targetItems);
       String key, sourceValue, sourceComment;
-      ItemDTO targetItem = null;
+      ItemDTO targetItem;
       int maxLineNum = targetItems.size();// append to last
       for (ItemDTO sourceItem : sourceItems) {
         key = sourceItem.getKey();

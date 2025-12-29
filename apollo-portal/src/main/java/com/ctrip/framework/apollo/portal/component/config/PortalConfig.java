@@ -127,7 +127,7 @@ public class PortalConfig extends RefreshableConfig {
     String[] configurations = getArrayProperty("email.supported.envs", null);
 
     Set<Env> result = Sets.newHashSet();
-    if (configurations == null || configurations.length == 0) {
+    if (configurations == null) {
       return result;
     }
 
@@ -142,7 +142,7 @@ public class PortalConfig extends RefreshableConfig {
     String[] configurations = getArrayProperty("webhook.supported.envs", null);
 
     Set<Env> result = Sets.newHashSet();
-    if (configurations == null || configurations.length == 0) {
+    if (configurations == null) {
       return result;
     }
 
@@ -236,7 +236,7 @@ public class PortalConfig extends RefreshableConfig {
     String[] configurations = getArrayProperty("namespace.publish.tips.supported.envs", null);
 
     Set<Env> result = Sets.newHashSet();
-    if (configurations == null || configurations.length == 0) {
+    if (configurations == null) {
       return result;
     }
 

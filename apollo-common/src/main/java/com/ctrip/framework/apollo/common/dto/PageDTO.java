@@ -54,6 +54,6 @@ public class PageDTO<T> {
   }
 
   public boolean hasContent() {
-    return content != null && content.size() > 0;
+    return content != null && !content.isEmpty();
   }
 }

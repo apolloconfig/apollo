@@ -242,7 +242,7 @@ public class ReleaseService {
     Map<String, String> configsToPublish =
         mergeConfiguration(parentConfigurations, childNamespaceItems);
 
-    if (!(grayDelKeys == null || grayDelKeys.size() == 0)) {
+    if (!(grayDelKeys == null || grayDelKeys.isEmpty())) {
       for (String key : grayDelKeys) {
         configsToPublish.remove(key);
       }

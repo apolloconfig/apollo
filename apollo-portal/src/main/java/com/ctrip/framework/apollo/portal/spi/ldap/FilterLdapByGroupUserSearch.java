@@ -75,7 +75,7 @@ public class FilterLdapByGroupUserSearch extends FilterBasedLdapUserSearch {
   @Override
   public DirContextOperations searchForUser(String username) {
     if (logger.isDebugEnabled()) {
-      logger.debug("Searching for user '" + username + "', with user search " + this);
+      logger.debug("Searching for user '{}', with user search {}", username, this);
     }
     SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
     template.setSearchControls(searchControls);
