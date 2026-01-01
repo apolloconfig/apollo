@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.portal.filter;
 
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -56,9 +58,11 @@ public class PortalUserSessionFilter implements Filter {
       new LoginUrlAuthenticationEntryPoint("/signin");
 
   private final Environment environment;
+  private final UserInfoHolder userInfoHolder;
 
-  public PortalUserSessionFilter(Environment environment) {
+  public PortalUserSessionFilter(Environment environment, UserInfoHolder userInfoHolder) {
     this.environment = environment;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @Override
@@ -77,7 +81,18 @@ public class PortalUserSessionFilter implements Filter {
       // Portal user is authenticated, allow access to OpenAPI
       logger.debug("Authenticated portal user accessing OpenAPI: {}", request.getRequestURI());
       request.setAttribute(PORTAL_USER_AUTHENTICATED, true);
-      chain.doFilter(req, resp);
+      if (request.getParameterMap().containsKey("operator")
+          || request.getAttribute("operator") != null) {
+        // a portal call with operator param in the query should add the operator to the current
+        // thread
+        UserIdentityContextHolder.setOperator(userInfoHolder.getUser());
+      }
+      try {
+        chain.doFilter(req, resp);
+      } finally {
+        // avoid memory leaking
+        UserIdentityContextHolder.clear();
+      }
       return;
     }
 

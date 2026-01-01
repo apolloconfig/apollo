@@ -27,7 +27,7 @@ manage_cluster_module.controller('ManageClusterController',
 
         function loadClusters() {
           AppService.load_nav_tree($scope.appId).then(function (result) {
-            var nodes = AppUtil.collectData(result);
+            var nodes = AppUtil.gatherData(result);
             if (!nodes || nodes.length == 0) {
               toastr.error($translate.instant('Config.SystemError'));
               return;
