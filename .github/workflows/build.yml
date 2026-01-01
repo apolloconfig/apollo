@@ -45,8 +45,13 @@ jobs:
           ${{ runner.os }}-maven-
     - name: JDK 8
       if: matrix.jdk == '8'
-      run: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
-    - name: JDK 11 
+      uses: nick-fields/retry@v3
+      with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 1
+          command: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
+    - name: JDK 11
       if: matrix.jdk == '11'
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
     - name: JDK 17
