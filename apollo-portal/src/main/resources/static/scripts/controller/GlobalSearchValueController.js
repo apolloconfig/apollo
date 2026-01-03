@@ -260,10 +260,43 @@ function GlobalSearchValueController($scope, $window, $translate, toastr, AppUti
         window.open(url, '_blank');
     }
 
-    function highlightKeyword(fulltext,keyword) {
-        if (!keyword || keyword.length === 0) return fulltext;
-        let regex = new RegExp("(" + keyword + ")", "g");
-        return fulltext.replace(regex, '<span class="highlight" style="background: yellow;padding: 1px 4px;">$1</span>');
+    function highlightKeyword(fulltext, keyword) {
+        fulltext = fulltext || '';
+        if (!keyword || keyword.length === 0) {
+            return escapeHtml(fulltext);
+        }
+
+        try {
+            const escapedKeyword = keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp('(' + escapedKeyword + ')', 'g');
+
+            return fulltext.split(regex).map(function (part, index) {
+                return (index % 2 === 1)
+                    ? '<span class="highlight" style="background: yellow;padding: 1px 4px;">' + escapeHtml(part) + '</span>'
+                    : escapeHtml(part);
+            }).join('');
+        } catch (e) {
+            return escapeHtml(fulltext);
+        }
+    }
+
+    function escapeHtml(text) {
+        return (text || '').replace(/[&<>"']/g, function (char) {
+            switch (char) {
+                case '&':
+                    return '&amp;';
+                case '<':
+                    return '&lt;';
+                case '>':
+                    return '&gt;';
+                case '"':
+                    return '&quot;';
+                case "'":
+                    return '&#39;';
+                default:
+                    return char;
+            }
+        });
     }
 
     function isShowAllValue(index){
