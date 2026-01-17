@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.biz.utils.EntityManagerUtil;
 import com.ctrip.framework.apollo.configservice.service.ReleaseMessageServiceWithCache;
 import com.ctrip.framework.apollo.configservice.util.NamespaceUtil;
 import com.ctrip.framework.apollo.configservice.util.WatchKeysUtil;
+import com.ctrip.framework.apollo.configservice.wrapper.CaseInsensitiveMultimapWrapper;
 import com.ctrip.framework.apollo.configservice.wrapper.DeferredResultWrapper;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.dto.ApolloConfigNotification;
@@ -79,7 +80,7 @@ public class NotificationControllerV2Test {
 
   private Gson gson;
 
-  private Multimap<String, DeferredResultWrapper> deferredResults;
+  private CaseInsensitiveMultimapWrapper<DeferredResultWrapper> deferredResults;
 
   @Before
   public void setUp() throws Exception {
@@ -106,7 +107,7 @@ public class NotificationControllerV2Test {
     when(namespaceUtil.normalizeNamespace(someAppId, somePublicNamespace))
         .thenReturn(somePublicNamespace);
 
-    deferredResults = (Multimap<String, DeferredResultWrapper>) ReflectionTestUtils
+    deferredResults = (CaseInsensitiveMultimapWrapper<DeferredResultWrapper>) ReflectionTestUtils
         .getField(controller, "deferredResults");
   }
 
