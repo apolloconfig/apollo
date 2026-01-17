@@ -49,6 +49,9 @@ public class CaseInsensitiveConcurrentMultimap<K, V> implements Multimap<K, V> {
   /**
    * Associates the specified value with the specified key.
    * The key is normalized to lowercase for case-insensitive behavior.
+   * 
+   * This implementation uses compute() to ensure atomicity and avoid race conditions
+   * where a set could be removed after being retrieved but before adding a value.
    */
   @Override
   public boolean put(K key, V value) {
@@ -57,13 +60,26 @@ public class CaseInsensitiveConcurrentMultimap<K, V> implements Multimap<K, V> {
     }
     
     String normalizedKey = normalizeKey(key);
-    Set<V> values = map.computeIfAbsent(normalizedKey, k -> ConcurrentHashMap.newKeySet());
-    return values.add(value);
+    boolean[] added = new boolean[1];
+    
+    map.compute(normalizedKey, (k, existingSet) -> {
+      Set<V> values = existingSet;
+      if (values == null) {
+        values = ConcurrentHashMap.newKeySet();
+      }
+      added[0] = values.add(value);
+      return values;
+    });
+    
+    return added[0];
   }
 
   /**
    * Removes a single key-value pair from the multimap.
    * The key is normalized to lowercase for case-insensitive behavior.
+   * 
+   * This implementation uses computeIfPresent() to ensure atomicity and avoid race conditions
+   * where a value could be added to a set that is being removed from the map.
    */
   @Override
   public boolean remove(Object key, Object value) {
@@ -72,19 +88,16 @@ public class CaseInsensitiveConcurrentMultimap<K, V> implements Multimap<K, V> {
     }
     
     String normalizedKey = normalizeKey(key);
-    Set<V> values = map.get(normalizedKey);
-    if (values == null) {
-      return false;
-    }
+    boolean[] removed = new boolean[1];
     
-    boolean removed = values.remove(value);
+    map.computeIfPresent(normalizedKey, (k, existingSet) -> {
+      removed[0] = existingSet.remove(value);
+      // Clean up empty sets to avoid memory leaks
+      // Return null to remove the entry from the map
+      return existingSet.isEmpty() ? null : existingSet;
+    });
     
-    // Clean up empty sets to avoid memory leaks  
-    if (removed && values.isEmpty()) {
-      map.remove(normalizedKey, values);
-    }
-    
-    return removed;
+    return removed[0];
   }
 
   /**

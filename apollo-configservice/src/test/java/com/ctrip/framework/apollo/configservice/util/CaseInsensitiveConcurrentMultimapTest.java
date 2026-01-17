@@ -202,4 +202,86 @@ public class CaseInsensitiveConcurrentMultimapTest {
     assertFalse(multimap.containsKey("key1"));
     assertTrue(multimap.get("key1").isEmpty());
   }
+
+  @Test
+  public void testConcurrentPutAndRemoveRaceCondition() throws InterruptedException {
+    // This test specifically targets the race condition described in the issue:
+    // Thread A checks if values set is empty
+    // Thread B retrieves the values set
+    // Thread A removes the values set from the map
+    // Thread B adds a value to the now-removed set
+    
+    final int iterations = 1000;
+    final String testKey = "testKey";
+    final CountDownLatch startLatch = new CountDownLatch(1);
+    final CountDownLatch endLatch = new CountDownLatch(2);
+    final AtomicInteger putSuccessCount = new AtomicInteger(0);
+    final AtomicInteger removeSuccessCount = new AtomicInteger(0);
+    
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    
+    // Thread that continuously adds and removes the same value (causing set to become empty)
+    executor.submit(() -> {
+      try {
+        startLatch.await();
+        for (int i = 0; i < iterations; i++) {
+          multimap.put(testKey, "removeValue");
+          if (multimap.remove(testKey, "removeValue")) {
+            removeSuccessCount.incrementAndGet();
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } finally {
+        endLatch.countDown();
+      }
+    });
+    
+    // Thread that continuously adds values
+    executor.submit(() -> {
+      try {
+        startLatch.await();
+        for (int i = 0; i < iterations; i++) {
+          if (multimap.put(testKey, "putValue" + i)) {
+            putSuccessCount.incrementAndGet();
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } finally {
+        endLatch.countDown();
+      }
+    });
+    
+    // Start both threads
+    startLatch.countDown();
+    
+    // Wait for completion
+    assertTrue("All threads should complete within 10 seconds", 
+               endLatch.await(10, TimeUnit.SECONDS));
+    
+    executor.shutdown();
+    
+    // Verify that no values were lost
+    // All successfully added values should either still be in the map or have been explicitly removed
+    Collection<String> remainingValues = multimap.get(testKey);
+    
+    // Count how many unique put values are still in the map
+    int remainingPutValues = 0;
+    for (String value : remainingValues) {
+      if (value.startsWith("putValue")) {
+        remainingPutValues++;
+      }
+    }
+    
+    // The key insight: if the race condition existed, values would be lost
+    // (added to a removed set). With the fix using compute(), all successfully
+    // added values must be accounted for (either still in map or were in it).
+    // Since we never explicitly remove "putValue*" entries, they should all be present.
+    assertEquals("All put values should be in the multimap", 
+                 putSuccessCount.get(), remainingPutValues);
+    
+    assertTrue("Should have successful puts", putSuccessCount.get() > 0);
+    assertTrue("Should have successful removes", removeSuccessCount.get() > 0);
+  }
 }
