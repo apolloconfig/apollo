@@ -531,6 +531,8 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 
 > Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
 
+> Note 4: Starting from version 2.5.0, apollo-adminservice supports graceful shutdown. When the service receives a stop signal, it will wait for in-flight requests to complete before shutting down, with a default timeout of 30 seconds. This feature is enabled via Spring Boot's `server.shutdown=graceful` and `spring.lifecycle.timeout-per-shutdown-phase=30s` configuration. To adjust the timeout, you can modify the settings in application.yml.
+
 #### 2.2.2.3 Deploy apollo-portal
 
 Upload `apollo-portal-x.x.x-github.zip` to the server, unzip it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
