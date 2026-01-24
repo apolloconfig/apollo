@@ -511,6 +511,8 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
 
+> 注4：apollo-adminservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为30秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=30s`配置启用。如需调整超时时间，可以修改application.yml中的配置。
+
 #### 2.2.2.3 部署apollo-portal
 将`apollo-portal-x.x.x-github.zip`上传到服务器上，解压后执行scripts/startup.sh即可。如需停止服务，执行scripts/shutdown.sh.
 
