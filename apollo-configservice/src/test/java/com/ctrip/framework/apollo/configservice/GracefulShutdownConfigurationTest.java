@@ -14,9 +14,9 @@
  * limitations under the License.
  *
  */
-package com.ctrip.framework.apollo.adminservice;
+package com.ctrip.framework.apollo.configservice;
 
-import com.ctrip.framework.apollo.AdminServiceTestConfiguration;
+import com.ctrip.framework.apollo.ConfigServiceTestConfiguration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
  * - Monitoring of shutdown metrics and logs
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = AdminServiceTestConfiguration.class,
+@SpringBootTest(classes = ConfigServiceTestConfiguration.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {
         "server.shutdown=graceful",

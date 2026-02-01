@@ -495,7 +495,9 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注4：如果ApolloConfigDB.ServerConfig的eureka.service.url只配了当前正在启动的机器的话，在启动apollo-configservice的过程中会在日志中输出eureka注册失败的信息，如`com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused`。需要注意的是，这个是预期的情况，因为apollo-configservice需要向Meta Server（它自己）注册服务，但是因为在启动过程中，自己还没起来，所以会报这个错。后面会进行重试的动作，所以等自己服务起来后就会注册正常了。
 
-> 注5：如果你看到了这里，相信你一定是一个细心阅读文档的人，而且离成功就差一点点了，继续加油，应该很快就能完成Apollo的分布式部署了！不过你是否有感觉Apollo的分布式部署步骤有点繁琐？是否有啥建议想要和作者说？如果答案是肯定的话，请移步 [#1424](https://github.com/apolloconfig/apollo/issues/1424)，期待你的建议！
+> 注5：apollo-configservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为30秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:30s}`配置启用。如需调整超时时间，可以通过环境变量`GRACEFUL_SHUTDOWN_TIMEOUT`设置（如`60s`、`2m`等），或直接修改application.yml中的配置。在Kubernetes环境中，请确保Pod的`terminationGracePeriodSeconds`大于配置的超时时间（建议至少多10秒）。
+
+> 注6：如果你看到了这里，相信你一定是一个细心阅读文档的人，而且离成功就差一点点了，继续加油，应该很快就能完成Apollo的分布式部署了！不过你是否有感觉Apollo的分布式部署步骤有点繁琐？是否有啥建议想要和作者说？如果答案是肯定的话，请移步 [#1424](https://github.com/apolloconfig/apollo/issues/1424)，期待你的建议！
 
 #### 2.2.2.2 部署apollo-adminservice
 将对应环境的`apollo-adminservice-x.x.x-github.zip`上传到服务器上，解压后执行scripts/startup.sh即可。如需停止服务，执行scripts/shutdown.sh.
@@ -511,7 +513,7 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
 
-> 注4：apollo-adminservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为30秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=30s`配置启用。如需调整超时时间，可以修改application.yml中的配置。
+> 注4：apollo-adminservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为30秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:30s}`配置启用。如需调整超时时间，可以通过环境变量`GRACEFUL_SHUTDOWN_TIMEOUT`设置（如`60s`、`2m`等），或直接修改application.yml中的配置。在Kubernetes环境中，请确保Pod的`terminationGracePeriodSeconds`大于配置的超时时间（建议至少多10秒）。
 
 #### 2.2.2.3 部署apollo-portal
 将`apollo-portal-x.x.x-github.zip`上传到服务器上，解压后执行scripts/startup.sh即可。如需停止服务，执行scripts/shutdown.sh.
