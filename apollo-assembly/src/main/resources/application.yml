@@ -27,6 +27,8 @@ spring:
     properties:
       hibernate:
         metadata_builder_contributor: com.ctrip.framework.apollo.common.jpa.SqlFunctionsMetadataBuilderContributor
+  lifecycle:
+    timeout-per-shutdown-phase: ${GRACEFUL_SHUTDOWN_TIMEOUT:30s}
 
 logging:
   file:
@@ -60,6 +62,7 @@ eureka:
     register-with-eureka: false
 
 server:
+  shutdown: graceful
   compression:
     enabled: true
   tomcat:

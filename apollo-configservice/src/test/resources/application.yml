@@ -16,9 +16,12 @@
 spring:
   application:
     name: apollo-configservice
+  lifecycle:
+    timeout-per-shutdown-phase: ${GRACEFUL_SHUTDOWN_TIMEOUT:30s}
 
 server:
   port: ${port:8080}
+  shutdown: graceful
 
 eureka:
   instance:

@@ -5,7 +5,6 @@ Release Notes.
 Apollo 2.5.0
 
 ------------------
-* [Feature: Enable graceful shutdown for apollo-adminservice and apollo-configservice](https://github.com/apolloconfig/apollo/pull/5536)
 * [Refactor: align permission validator api between openapi and portal](https://github.com/apolloconfig/apollo/pull/5337)
 * [Feature: Provide a new configfiles API to return the raw content of configuration files directly](https://github.com/apolloconfig/apollo/pull/5336)
 * [Feature: Enhanced instance configuration auditing and caching](https://github.com/apolloconfig/apollo/pull/5361)
@@ -29,5 +28,6 @@ Apollo 2.5.0
 * [doc: Add rust apollo client link](https://github.com/apolloconfig/apollo/pull/5514)
 * [Perf: optimize namespace-related interface](https://github.com/apolloconfig/apollo/pull/5518)
 * [Perf: Replace synchronized multimap with concurrent hashmap in NotificationControllerV2 for better performance](https://github.com/apolloconfig/apollo/pull/5532)
+* [Feature: Enable graceful shutdown for apollo-adminservice and apollo-configservice](https://github.com/apolloconfig/apollo/pull/5536)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
