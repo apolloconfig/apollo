@@ -30,6 +30,7 @@
 - Use Conventional Commits format (e.g., `feat:`, `fix:`).
 - If a commit fixes an issue, append `Fixes #123` in the commit message.
 - Rebase onto `master` and squash feature work into a single commit before merge.
+- When merging a PR on GitHub: if it has a single commit, use rebase and merge; if it has multiple commits, use squash and merge.
 - Non-trivial contributions require signing the CLA.
 - Open a feature branch for your change and submit a PR using `.github/PULL_REQUEST_TEMPLATE.md`.
 - PRs should include a clear description, tests run, and any relevant screenshots/logs; use GitHub issues for tracking.
