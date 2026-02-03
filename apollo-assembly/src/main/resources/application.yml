@@ -28,7 +28,7 @@ spring:
       hibernate:
         metadata_builder_contributor: com.ctrip.framework.apollo.common.jpa.SqlFunctionsMetadataBuilderContributor
   lifecycle:
-    timeout-per-shutdown-phase: ${GRACEFUL_SHUTDOWN_TIMEOUT:30s}
+    timeout-per-shutdown-phase: ${GRACEFUL_SHUTDOWN_TIMEOUT:10s}
 
 logging:
   file:
