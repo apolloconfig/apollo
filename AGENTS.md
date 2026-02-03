@@ -33,6 +33,7 @@
 - Open a feature branch for your change and submit a PR using `.github/PULL_REQUEST_TEMPLATE.md`.
 - PRs should include a clear description, tests run, and any relevant screenshots/logs; use GitHub issues for tracking.
 - The PR checklist expects `mvn clean test`, `mvn spotless:apply`, and an update to `CHANGES.md`.
+- For upstream contributions, open PRs against `apolloconfig/apollo` and fill the template with real content (not the raw template text).
 
 ## Security & Configuration Notes
 - Apollo supports H2 in-memory for local development and MySQL for production; prefer H2 locally unless you need a real database.
