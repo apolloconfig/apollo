@@ -1,7 +1,8 @@
 # Repository Guidelines
 
 ## Project Structure & Module Organization
-- Multi-module Maven repo with root `pom.xml` and service modules like `apollo-configservice`, `apollo-adminservice`, `apollo-portal`, shared libs in `apollo-common`, and packaging in `apollo-assembly`.
+- Multi-module Maven repo with root `pom.xml` and service modules like `apollo-configservice`, `apollo-adminservice`, and `apollo-portal`, shared libs in `apollo-common`, and packaging in `apollo-assembly`.
+- `apollo-biz` is a shared business-logic module used by services like config/admin (not a standalone service).
 - Build and release tooling lives in `scripts/` (e.g., `scripts/build.sh`) and `apollo-buildtools/` (code style configs).
 - Database and schema assets are under `scripts/sql` and module `src/main/resources` folders.
 - Tests follow standard Maven layout: `*/src/test/java` and `*/src/test/resources` inside each module.
