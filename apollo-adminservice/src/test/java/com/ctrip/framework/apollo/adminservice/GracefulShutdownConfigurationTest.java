@@ -31,10 +31,10 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Configuration validation test for graceful shutdown feature.
- * 
+ *
  * This test verifies that the graceful shutdown configuration is properly loaded
  * from application.yml by checking ServerProperties and the web server lifecycle.
- * 
+ *
  * Note: This test does NOT verify the actual behavior of graceful shutdown
  * (e.g., waiting for in-flight requests). Full behavioral testing requires:
  * - Integration tests with real HTTP requests during shutdown
@@ -56,13 +56,13 @@ public class GracefulShutdownConfigurationTest {
   public void testGracefulShutdownIsConfigured() {
     assertNotNull("WebServer should be available", webServerAppContext);
     assertTrue("Server should be running", webServerAppContext.getWebServer().getPort() > 0);
-    
+
     // Verify graceful shutdown is enabled in application.yml
-    assertEquals("Graceful shutdown should be enabled in application.yml",
-        "graceful", serverProperties.getShutdown().name().toLowerCase());
-    
+    assertEquals("Graceful shutdown should be enabled in application.yml", "graceful",
+        serverProperties.getShutdown().name().toLowerCase());
+
     // Verify the lifecycle processor exists (indicates graceful shutdown is enabled)
-    assertNotNull("Lifecycle processor should be present for graceful shutdown", 
+    assertNotNull("Lifecycle processor should be present for graceful shutdown",
         webServerAppContext.getBean("lifecycleProcessor"));
   }
 }
