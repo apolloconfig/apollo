@@ -84,7 +84,7 @@ function showTextModalDirective(AppUtil) {
 
             function init() {
                 scope.jsonObject = undefined;
-                if (isJsonText(scope.text)) {
+                if (isJsonText(scope.text) && !AppUtil.hasDuplicateKeys(scope.text)) {
                     scope.jsonObject = parseBigInt(scope.text);
                 }
             }

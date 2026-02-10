@@ -766,6 +766,10 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             function formatContent(namespace) {
                 try {
                     if (namespace.format === 'json') {
+                        if (AppUtil.hasDuplicateKeys(namespace.editText)) {
+                            toastr.warning($translate.instant('ApolloNsPanel.JsonDuplicateKeyWarning'));
+                            return;
+                        }
                         namespace.editText = JSON.stringify(JSON.parse(namespace.editText), null, 4);
                     }
                 } catch (e) {
