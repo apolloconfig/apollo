@@ -85,6 +85,10 @@
 		<!-- database driver -->
 		<mysql-connector-j.version>8.2.0</mysql-connector-j.version>
 		<postgre.version>42.7.2</postgre.version>
+		<!-- override transitive dependency versions to fix CVEs -->
+		<nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
+		<woodstox-core.version>6.5.1</woodstox-core.version>
+		<jettison.version>1.5.4</jettison.version>
 		<!-- Plugins Version sort by alphabet -->
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -256,6 +260,24 @@
 				<groupId>org.apache.zookeeper</groupId>
 				<artifactId>zookeeper</artifactId>
 				<version>3.8.4</version>
+			</dependency>
+			<!-- to fix CVE-2023-52428 -->
+			<dependency>
+				<groupId>com.nimbusds</groupId>
+				<artifactId>nimbus-jose-jwt</artifactId>
+				<version>${nimbus-jose-jwt.version}</version>
+			</dependency>
+			<!-- to fix CVE-2022-40152 -->
+			<dependency>
+				<groupId>com.fasterxml.woodstox</groupId>
+				<artifactId>woodstox-core</artifactId>
+				<version>${woodstox-core.version}</version>
+			</dependency>
+			<!-- to fix CVE-2022-40149, CVE-2022-45685, CVE-2022-45693, CVE-2023-1436 -->
+			<dependency>
+				<groupId>org.codehaus.jettison</groupId>
+				<artifactId>jettison</artifactId>
+				<version>${jettison.version}</version>
 			</dependency>
 			<!--for test -->
 			<dependency>
