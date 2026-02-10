@@ -113,4 +113,58 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     assertEquals(clusterName, body.getCluster());
     assertTrue(body.getModifyRoleUsers() == null || body.getModifyRoleUsers().isEmpty());
   }
+
+  /**
+   * Verify that env name aliases (e.g. "prod", "PROD") are normalized to the canonical form "PRO"
+   * so that role lookup and permission check remain consistent.
+   *
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testEnvNameNormalizationForClusterRoles() {
+    // Roles were initialized with env = "LOCAL" in setUp().
+    // Querying with lowercase "local" should still resolve to the same roles.
+    ResponseEntity<ClusterNamespaceRolesAssignedUsers> response = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
+        ClusterNamespaceRolesAssignedUsers.class, appId, "local", clusterName);
+    assertEquals(200, response.getStatusCodeValue());
+    ClusterNamespaceRolesAssignedUsers body = response.getBody();
+    assertNotNull(body);
+    // The returned env should be the normalized form "LOCAL", not the raw input "local"
+    assertEquals("LOCAL", body.getEnv());
+  }
+
+  /**
+   * Verify that "prod" is normalized to "PRO" (the canonical env name in Apollo)
+   * when assigning and querying cluster namespace roles.
+   *
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testProdEnvNormalizationForClusterRoles() {
+    // Initialize roles with canonical env name "PRO"
+    roleInitializationService.initClusterNamespaceRoles(appId, "PRO", clusterName, "apollo");
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Content-Type", "application/json");
+    HttpEntity<String> entity = new HttpEntity<>(user, headers);
+
+    // Assign role using "prod" (alias for "PRO")
+    restTemplate.postForEntity(
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_roles/{roleType}"), entity,
+        Void.class, appId, "prod", clusterName, roleType);
+
+    // Query using "PROD" (another alias) — should still find the assigned role
+    ResponseEntity<ClusterNamespaceRolesAssignedUsers> response = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
+        ClusterNamespaceRolesAssignedUsers.class, appId, "PROD", clusterName);
+    assertEquals(200, response.getStatusCodeValue());
+    ClusterNamespaceRolesAssignedUsers body = response.getBody();
+    assertNotNull(body);
+    assertEquals("PRO", body.getEnv());
+    assertTrue(
+        body.getModifyRoleUsers().stream().anyMatch(userInfo -> userInfo.getUserId().equals(user)));
+  }
 }
