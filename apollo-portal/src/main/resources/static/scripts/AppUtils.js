@@ -95,8 +95,8 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
 
                     // Check if this string is a key (followed by ':')
                     var j = i;
-                    while (j < len && (text.charAt(j) === ' ' || text.charAt(j) === '\t'
-                           || text.charAt(j) === '\n' || text.charAt(j) === '\r')) {
+                    while (j < len && (text.charAt(j) === ' ' || text.charAt(j) === '\t' ||
+                           text.charAt(j) === '\n' || text.charAt(j) === '\r')) {
                         j++;
                     }
                     if (j < len && text.charAt(j) === ':') {
@@ -111,9 +111,9 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
                 } else if (ch === '{') {
                     depth++;
                     while (keySets.length <= depth) {
-                        keySets.push({});
+                        keySets.push(Object.create(null));
                     }
-                    keySets[depth] = {};
+                    keySets[depth] = Object.create(null);
                     i++;
                 } else if (ch === '}') {
                     depth--;
