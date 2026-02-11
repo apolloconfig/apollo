@@ -102,7 +102,7 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
                     if (j < len && text.charAt(j) === ':') {
                         var key = text.substring(strStart + 1, strEnd);
                         if (depth >= 0 && depth < keySets.length) {
-                            if (keySets[depth][key]) {
+                            if (key in keySets[depth]) {
                                 return true;
                             }
                             keySets[depth][key] = true;
