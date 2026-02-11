@@ -86,7 +86,7 @@
 		<mysql-connector-j.version>8.2.0</mysql-connector-j.version>
 		<postgre.version>42.7.2</postgre.version>
 		<!-- override transitive dependency versions to fix CVEs -->
-		<nimbus-jose-jwt.version>10.7</nimbus-jose-jwt.version>
+		<nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
 		<woodstox-core.version>7.1.1</woodstox-core.version>
 		<jettison.version>1.5.4</jettison.version>
 		<!-- Plugins Version sort by alphabet -->
