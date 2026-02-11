@@ -60,15 +60,15 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
 
     /**
      * Check if a JSON string contains duplicate keys at any nesting level.
-     * Uses JSON.parse with a reviver that tracks keys per object scope.
+     * Performs a character-level scan to detect duplicate keys per object scope,
+     * since JSON.parse silently deduplicates keys.
      * Returns true if duplicate keys are found.
      */
     function hasDuplicateKeys(text) {
         try {
-            // Use a stack to track keys at each nesting level
-            var keyStack = [{}];
-            // We need a character-level scan because JSON.parse reviver
-            // cannot detect duplicates (browser already deduplicates).
+            // Character-level scan because JSON.parse reviver cannot detect
+            // duplicates (browser already deduplicates).
+            // Note: keys are compared by raw text; unicode escape equivalences are not resolved.
             // Strategy: scan for "key": patterns respecting nesting depth.
             var i = 0;
             var len = text.length;
