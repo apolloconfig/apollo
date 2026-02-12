@@ -1,9 +1,26 @@
 /*
+ * Copyright 2024 Apollo Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+/*
  * Test for hasDuplicateKeys function.
  * Run with Node.js: node test_hasDuplicateKeys.js
  */
 
-// Copy of the function from AppUtils.js (modified)
+// Test harness for hasDuplicateKeys function (not a direct copy)
 function hasDuplicateKeys(text) {
     try {
         // Character-level scan because JSON.parse reviver cannot detect
@@ -112,6 +129,11 @@ function runTests() {
 
     // Invalid JSON (should not crash)
     assert('Invalid JSON missing quote', false, hasDuplicateKeys('{"a:1}'));
+
+    // Edge cases suggested by CodeRabbit
+    assert('Object inside array with duplicate', true, hasDuplicateKeys('[{"a":1,"a":2}]'));
+    assert('String value resembling a key', false, hasDuplicateKeys('{"a":"b:c","d":1}'));
+    assert('Sibling objects with same keys', false, hasDuplicateKeys('{"x":{"a":1},"y":{"a":1}}'));
 
     console.log('\n' + passed + '/' + total + ' tests passed');
     return passed === total;
