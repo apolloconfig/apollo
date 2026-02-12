@@ -187,7 +187,7 @@ function runTests() {
 
 if (typeof module !== 'undefined' && module.exports) {
     // Node.js environment
-    module.exports = { hasDuplicateKeys, runTests };
+    module.exports = { hasDuplicateKeys: hasDuplicateKeys, runTests: runTests };
     if (require.main === module) {
         process.exit(runTests() ? 0 : 1);
     }
