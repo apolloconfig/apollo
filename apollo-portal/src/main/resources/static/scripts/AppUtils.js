@@ -68,7 +68,7 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
         try {
             // Character-level scan because JSON.parse reviver cannot detect
             // duplicates (browser already deduplicates).
-            // Note: keys are compared by raw text; unicode escape equivalences are not resolved.
+            // Note: keys are compared after JSON decoding, so unicode escape equivalences are resolved.
             // Strategy: scan for "key": patterns respecting nesting depth.
             var i = 0;
             var len = text.length;
@@ -100,7 +100,14 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
                         j++;
                     }
                     if (j < len && text.charAt(j) === ':') {
-                        var key = text.substring(strStart + 1, strEnd);
+                        var rawKey = text.substring(strStart + 1, strEnd);
+                        var key;
+                        try {
+                            key = JSON.parse('"' + rawKey + '"');
+                        } catch (e) {
+                            // If decoding fails, fall back to raw key (invalid JSON, but we still compare raw)
+                            key = rawKey;
+                        }
                         if (depth >= 0 && depth < keySets.length) {
                             if (key in keySets[depth]) {
                                 return true;
