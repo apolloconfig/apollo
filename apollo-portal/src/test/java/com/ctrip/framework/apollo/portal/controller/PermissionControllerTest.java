@@ -22,7 +22,13 @@ import static org.junit.Assert.assertTrue;
 
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.portal.entity.vo.ClusterNamespaceRolesAssignedUsers;
+import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
+import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.constant.PermissionType;
+import com.ctrip.framework.apollo.portal.constant.RoleType;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,11 +50,15 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
   private final String appId = "testApp";
   private final String env = "LOCAL";
   private final String clusterName = "testCluster";
+  private final String namespaceName = "testNamespace";
   private final String roleType = "ModifyNamespacesInCluster";
   private final String user = "apollo";
 
   @Autowired
   RoleInitializationService roleInitializationService;
+
+  @Autowired
+  RolePermissionService rolePermissionService;
 
   @Before
   public void setUp() {
@@ -166,5 +176,66 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     assertEquals("PRO", body.getEnv());
     assertTrue(
         body.getModifyRoleUsers().stream().anyMatch(userInfo -> userInfo.getUserId().equals(user)));
+  }
+
+  @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testEnvNormalizationForNamespacePermissionCheck() {
+    roleInitializationService.initNamespaceSpecificEnvRoles(appId, namespaceName, "PRO", "apollo");
+    rolePermissionService.assignRoleToUsers(
+        RoleUtils.buildNamespaceRoleName(appId, namespaceName, RoleType.MODIFY_NAMESPACE, "PRO"),
+        Sets.newHashSet(user), "apollo");
+
+    String permissionType = PermissionType.MODIFY_NAMESPACE;
+
+    ResponseEntity<PermissionCondition> prodResponse = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
+        PermissionCondition.class, appId, "prod", namespaceName, permissionType);
+    assertEquals(200, prodResponse.getStatusCodeValue());
+    PermissionCondition prodBody = prodResponse.getBody();
+    assertNotNull(prodBody);
+    assertTrue(prodBody.hasPermission());
+
+    ResponseEntity<PermissionCondition> prodUpperResponse = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
+        PermissionCondition.class, appId, "PROD", namespaceName, permissionType);
+    assertEquals(200, prodUpperResponse.getStatusCodeValue());
+    PermissionCondition prodUpperBody = prodUpperResponse.getBody();
+    assertNotNull(prodUpperBody);
+    assertTrue(prodUpperBody.hasPermission());
+
+    ResponseEntity<PermissionCondition> proResponse = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
+        PermissionCondition.class, appId, "PRO", namespaceName, permissionType);
+    assertEquals(200, proResponse.getStatusCodeValue());
+    PermissionCondition proBody = proResponse.getBody();
+    assertNotNull(proBody);
+    assertTrue(proBody.hasPermission());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testEnvNormalizationForClusterNamespacePermissionCheck() {
+    roleInitializationService.initClusterNamespaceRoles(appId, "LOCAL", clusterName, "apollo");
+    rolePermissionService.assignRoleToUsers(RoleUtils.buildClusterRoleName(appId, "LOCAL",
+        clusterName, RoleType.RELEASE_NAMESPACES_IN_CLUSTER), Sets.newHashSet(user), "apollo");
+
+    String permissionType = PermissionType.RELEASE_NAMESPACES_IN_CLUSTER;
+
+    ResponseEntity<PermissionCondition> localResponse = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_permissions/{permissionType}"),
+        PermissionCondition.class, appId, "local", clusterName, permissionType);
+    assertEquals(200, localResponse.getStatusCodeValue());
+    PermissionCondition localBody = localResponse.getBody();
+    assertNotNull(localBody);
+    assertTrue(localBody.hasPermission());
+
+    ResponseEntity<PermissionCondition> localUpperResponse = restTemplate.getForEntity(
+        url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_permissions/{permissionType}"),
+        PermissionCondition.class, appId, "LOCAL", clusterName, permissionType);
+    assertEquals(200, localUpperResponse.getStatusCodeValue());
+    PermissionCondition localUpperBody = localUpperResponse.getBody();
+    assertNotNull(localUpperBody);
+    assertTrue(localUpperBody.hasPermission());
   }
 }
