@@ -107,6 +107,14 @@ function runTests() {
         }
     }
 
+    // Helper to ensure backslashes are literal in JSON text
+    // In JavaScript strings, a single backslash must be escaped as \\
+    // So to represent the JSON text {"\u0061":1}, we need '{"\\u0061":1}'
+    // This helper makes it explicit.
+    function jsonText(str) {
+        return str;
+    }
+
     // No duplicates
     assert('Empty object', false, hasDuplicateKeys('{}'));
     assert('Simple object', false, hasDuplicateKeys('{"a":1}'));
@@ -117,23 +125,61 @@ function runTests() {
     assert('Raw duplicate keys', true, hasDuplicateKeys('{"a":1,"a":2}'));
     assert('Raw duplicate nested', true, hasDuplicateKeys('{"a":1,"b":{"c":3,"c":4}}'));
 
-    // Unicode escape equivalence
+    // Unicode escape equivalence – critical: backslash must be literal in JSON
+    // JSON text: {"\u0061":1,"a":2}  (backslash-u-0061)
+    // JavaScript string: '{"\\u0061":1,"a":2}'
     assert('Unicode escape duplicate', true, hasDuplicateKeys('{"\\u0061":1,"a":2}'));
     assert('Unicode escape duplicate reverse', true, hasDuplicateKeys('{"a":1,"\\u0061":2}'));
-    assert('Mixed escapes', true, hasDuplicateKeys('{"\\u0061":1,"\\u0062":2,"a":3}')); // a duplicate with \u0061
+    // Same escape appears twice
+    assert('Same escape duplicate', true, hasDuplicateKeys('{"\\u0061":1,"\\u0061":2}'));
+    // Mixed escapes, one duplicate
+    assert('Mixed escapes duplicate', true, hasDuplicateKeys('{"\\u0061":1,"\\u0062":2,"a":3}')); // a duplicate with \u0061
+    // Different escapes, no duplicate
     assert('Different escapes not duplicate', false, hasDuplicateKeys('{"\\u0061":1,"\\u0062":2}'));
 
-    // Other escape sequences
-    assert('Escape n', false, hasDuplicateKeys('{"\\n":1,"a":2}')); // \n is not a letter
+    // Additional Unicode equivalence cases
+    // Uppercase A
+    assert('Unicode uppercase duplicate', true, hasDuplicateKeys('{"\\u0041":1,"A":2}'));
+    // Digit (unicode escape for digit '1' is \u0031)
+    assert('Unicode digit duplicate', true, hasDuplicateKeys('{"\\u0031":1,"1":2}'));
+    // Chinese character: \u4e2d = 中
+    assert('Unicode Chinese duplicate', true, hasDuplicateKeys('{"\\u4e2d":1,"中":2}'));
+    // Surrogate pair? Not needed for key detection (JSON strings are Unicode)
+
+    // Nested with Unicode equivalence
+    assert('Nested Unicode duplicate', true, hasDuplicateKeys('{"outer":{"\\u0061":1,"a":2}}'));
+    assert('Deep nested duplicate', true, hasDuplicateKeys('{"a":{"b":{"\\u0061":1,"a":2}}}'));
+
+    // Other JSON escape sequences (should not be considered equivalent to unescaped chars)
+    // \n is a control character, there is no 'n' key.
+    assert('Escape n', false, hasDuplicateKeys('{"\\n":1,"a":2}'));
+    // \" is a quote character, not a plain quote
     assert('Escape quote', false, hasDuplicateKeys('{"\\"":1,"a":2}'));
+    // \\ is a backslash, not a plain backslash
+    assert('Escape backslash', false, hasDuplicateKeys('{"\\\\":1,"a":2}'));
+    // Double backslash before u (literal backslash + u0061) vs plain a – not equivalent
+    assert('Literal backslash-u0061 vs a', false, hasDuplicateKeys('{"\\\\u0061":1,"a":2}'));
 
     // Invalid JSON (should not crash)
     assert('Invalid JSON missing quote', false, hasDuplicateKeys('{"a:1}'));
+    // Malformed escape (incomplete \u)
+    assert('Incomplete Unicode escape', false, hasDuplicateKeys('{"\\u00":1}'));
 
     // Edge cases suggested by CodeRabbit
     assert('Object inside array with duplicate', true, hasDuplicateKeys('[{"a":1,"a":2}]'));
+    // Unicode duplicate inside array
+    assert('Object inside array with Unicode duplicate', true, hasDuplicateKeys('[{"\\u0061":1,"a":2}]'));
     assert('String value resembling a key', false, hasDuplicateKeys('{"a":"b:c","d":1}'));
     assert('Sibling objects with same keys', false, hasDuplicateKeys('{"x":{"a":1},"y":{"a":1}}'));
+    // Sibling objects with Unicode equivalent keys (should not be duplicate because different scopes)
+    assert('Sibling objects with Unicode equivalent keys', false, hasDuplicateKeys('{"x":{"\\u0061":1},"y":{"a":1}}'));
+
+    // Additional edge: empty key (allowed in JSON)
+    assert('Empty key duplicate', true, hasDuplicateKeys('{"":1,"":2}'));
+    // Unicode escape for empty string? impossible.
+
+    // Ensure detection works with spaces/tabs/newlines in JSON
+    assert('Pretty JSON with duplicate', true, hasDuplicateKeys('{\n  "\\u0061": 1,\n  "a": 2\n}'));
 
     console.log('\n' + passed + '/' + total + ' tests passed');
     return passed === total;
