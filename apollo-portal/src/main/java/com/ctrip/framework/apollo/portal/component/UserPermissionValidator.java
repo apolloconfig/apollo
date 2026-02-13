@@ -17,8 +17,10 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
@@ -69,8 +71,11 @@ public class UserPermissionValidator extends AbstractPermissionValidator
   @Override
   public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
       String namespaceName) {
+    // Normalize env to ensure consistency with permission checks
+    String normalizedEnv = normalizeEnv(env);
+    
     // 1. check whether the current environment enables member only function
-    if (!portalConfig.isConfigViewMemberOnly(env)) {
+    if (!portalConfig.isConfigViewMemberOnly(normalizedEnv)) {
       return false;
     }
 
@@ -82,7 +87,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator
 
     // 3. check app admin and operate permissions
     return !isAppAdmin(appId)
-        && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
+        && !hasOperateNamespacePermission(appId, normalizedEnv, clusterName, namespaceName);
   }
 
   @Override
@@ -111,5 +116,22 @@ public class UserPermissionValidator extends AbstractPermissionValidator
     }
     String userId = userInfoHolder.getUser().getUserId();
     return rolePermissionService.hasAnyPermission(userId, requiredPerms);
+  }
+
+  /**
+   * Normalize the env name to ensure consistency between UI display and permission control.
+   * For example, "prod" -> "PROD" -> "PRO" via {@link Env#transformEnv(String)}.
+   *
+   * @param env the raw environment name
+   * @return the normalized environment name
+   * @throws BadRequestException if the env name is invalid
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  private String normalizeEnv(String env) {
+    Env transformedEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN == transformedEnv) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    return transformedEnv.getName();
   }
 }
