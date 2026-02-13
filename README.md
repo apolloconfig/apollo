@@ -106,7 +106,8 @@ Demo Environment:
 
 * [Quick Start](https://www.apolloconfig.com/#/zh/deployment/quick-start)
 * [Distributed Deployment Guide](https://www.apolloconfig.com/#/zh/deployment/distributed-deployment-guide)
-
+* [达梦适配](https://github.com/ajistyle/apollo-dameng)
+  
 # Release Notes
 
 * [Releases](https://github.com/apolloconfig/apollo/releases)
