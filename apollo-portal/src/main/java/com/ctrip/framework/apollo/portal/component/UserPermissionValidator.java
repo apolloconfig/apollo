@@ -73,7 +73,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator
       String namespaceName) {
     // Normalize env to ensure consistency with permission checks
     String normalizedEnv = normalizeEnv(env);
-    
+
     // 1. check whether the current environment enables member only function
     if (!portalConfig.isConfigViewMemberOnly(normalizedEnv)) {
       return false;

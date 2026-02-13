@@ -161,7 +161,7 @@ public class PortalConfig extends RefreshableConfig {
       return false;
     }
     String normalizedEnv = transformedEnv.getName();
-    
+
     String[] configViewMemberOnlyEnvs =
         getArrayProperty("configView.memberOnly.envs", new String[0]);
 

@@ -166,10 +166,9 @@ class UserPermissionValidatorTestSupplement {
    */
   @Test
   void shouldHideConfigToCurrentUser_emptyString_throwsBadRequestException() {
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "", CLUSTER, NAMESPACE))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessageContaining("Invalid env format");
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "", CLUSTER, NAMESPACE))
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("Invalid env format");
   }
 
   /**
@@ -178,18 +177,18 @@ class UserPermissionValidatorTestSupplement {
   @Test
   void shouldHideConfigToCurrentUser_whitespaceStrings_throwsBadRequestException() {
     // Test with spaces
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "   ", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "   ", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
 
     // Test with tab
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "\t", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "\t", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
 
     // Test with newline
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "\n", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "\n", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -199,19 +198,18 @@ class UserPermissionValidatorTestSupplement {
   @Test
   void shouldHideConfigToCurrentUser_specialCharacters_throwsBadRequestException() {
     // Test with @ symbol
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "env@123", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "env@123", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
 
     // Test with # symbol
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "env#test", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "env#test", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
 
     // Test with spaces in name
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "env with spaces", CLUSTER, NAMESPACE))
-        .isInstanceOf(BadRequestException.class);
+    assertThatThrownBy(() -> validator.shouldHideConfigToCurrentUser(APP_ID, "env with spaces",
+        CLUSTER, NAMESPACE)).isInstanceOf(BadRequestException.class);
   }
 
   /**
@@ -220,8 +218,8 @@ class UserPermissionValidatorTestSupplement {
   @Test
   void shouldHideConfigToCurrentUser_extraLongString_throwsBadRequestException() {
     String longEnv = "A".repeat(1000);
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, longEnv, CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, longEnv, CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
   }
 
@@ -253,10 +251,9 @@ class UserPermissionValidatorTestSupplement {
    */
   @Test
   void shouldHideConfigToCurrentUser_invalidEnv_throwsBadRequestException() {
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "INVALID_ENV", CLUSTER, NAMESPACE))
-        .isInstanceOf(BadRequestException.class)
-        .hasMessageContaining("Invalid env format");
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "INVALID_ENV", CLUSTER, NAMESPACE))
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("Invalid env format");
   }
 
   /**
@@ -264,8 +261,8 @@ class UserPermissionValidatorTestSupplement {
    */
   @Test
   void shouldHideConfigToCurrentUser_randomString_throwsBadRequestException() {
-    assertThatThrownBy(() ->
-        validator.shouldHideConfigToCurrentUser(APP_ID, "xyz123", CLUSTER, NAMESPACE))
+    assertThatThrownBy(
+        () -> validator.shouldHideConfigToCurrentUser(APP_ID, "xyz123", CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
   }
 

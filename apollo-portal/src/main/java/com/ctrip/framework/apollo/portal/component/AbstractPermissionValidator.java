@@ -33,7 +33,7 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
       String namespaceName) {
     // Normalize env to ensure consistent permission target ID construction
     String normalizedEnv = normalizeEnv(env);
-    
+
     List<Permission> requiredPermissions = Arrays.asList(
         new Permission(PermissionType.MODIFY_NAMESPACE,
             RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
@@ -49,7 +49,7 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
       String namespaceName) {
     // Normalize env to ensure consistent permission target ID construction
     String normalizedEnv = normalizeEnv(env);
-    
+
     List<Permission> requiredPermissions = Arrays.asList(
         new Permission(PermissionType.RELEASE_NAMESPACE,
             RoleUtils.buildNamespaceTargetId(appId, namespaceName)),

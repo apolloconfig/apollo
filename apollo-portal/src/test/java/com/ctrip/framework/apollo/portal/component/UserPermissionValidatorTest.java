@@ -232,14 +232,14 @@ class UserPermissionValidatorTest {
     // Setup: config view is member-only for "PRO" (canonical form)
     when(portalConfig.isConfigViewMemberOnly("PRO")).thenReturn(true);
     when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
-    
+
     // User is not app admin and has no operate permission
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
     when(rolePermissionService.hasAnyPermission(USER_ID, Lists.newArrayList())).thenReturn(false);
-    
+
     // Test with "prod" alias - should normalize to "PRO" and hide config
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "prod", CLUSTER, NAMESPACE)).isTrue();
-    
+
     // Test with "PROD" alias - should also normalize to "PRO" and hide config
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "PROD", CLUSTER, NAMESPACE)).isTrue();
   }
@@ -249,11 +249,11 @@ class UserPermissionValidatorTest {
     // Setup: config view is member-only for "LOCAL" (canonical form)
     when(portalConfig.isConfigViewMemberOnly("LOCAL")).thenReturn(true);
     when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
-    
+
     // User is not app admin and has no operate permission
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
     when(rolePermissionService.hasAnyPermission(USER_ID, Lists.newArrayList())).thenReturn(false);
-    
+
     // Test with "local" alias - should normalize to "LOCAL" and hide config
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "local", CLUSTER, NAMESPACE)).isTrue();
   }
