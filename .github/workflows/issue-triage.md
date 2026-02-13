@@ -7,9 +7,24 @@ on:
 permissions: read-all
 roles: all
 
+network:
+  allowed:
+    - github
+
+tools:
+  github:
+    toolsets:
+      - issues
+
 safe-outputs:
   add-labels:
+    max: 3
   add-comment:
+    max: 1
+  mentions:
+    allow-team-members: false
+    allow-context: false
+    allowed: []
 
 concurrency:
   group: apollo-issue-triage-${{ github.event.issue.number }}
