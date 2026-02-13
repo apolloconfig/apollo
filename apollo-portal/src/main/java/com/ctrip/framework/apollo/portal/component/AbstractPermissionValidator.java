@@ -17,8 +17,10 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,26 +31,32 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   @Override
   public boolean hasModifyNamespacePermission(String appId, String env, String clusterName,
       String namespaceName) {
+    // Normalize env to ensure consistent permission target ID construction
+    String normalizedEnv = normalizeEnv(env);
+    
     List<Permission> requiredPermissions = Arrays.asList(
         new Permission(PermissionType.MODIFY_NAMESPACE,
             RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
         new Permission(PermissionType.MODIFY_NAMESPACE,
-            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, normalizedEnv)),
         new Permission(PermissionType.MODIFY_NAMESPACES_IN_CLUSTER,
-            RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+            RoleUtils.buildClusterTargetId(appId, normalizedEnv, clusterName)));
     return hasPermissions(requiredPermissions);
   }
 
   @Override
   public boolean hasReleaseNamespacePermission(String appId, String env, String clusterName,
       String namespaceName) {
+    // Normalize env to ensure consistent permission target ID construction
+    String normalizedEnv = normalizeEnv(env);
+    
     List<Permission> requiredPermissions = Arrays.asList(
         new Permission(PermissionType.RELEASE_NAMESPACE,
             RoleUtils.buildNamespaceTargetId(appId, namespaceName)),
         new Permission(PermissionType.RELEASE_NAMESPACE,
-            RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)),
+            RoleUtils.buildNamespaceTargetId(appId, namespaceName, normalizedEnv)),
         new Permission(PermissionType.RELEASE_NAMESPACES_IN_CLUSTER,
-            RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+            RoleUtils.buildClusterTargetId(appId, normalizedEnv, clusterName)));
     return hasPermissions(requiredPermissions);
   }
 
@@ -92,4 +100,21 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   public abstract boolean hasManageAppMasterPermission(String appId);
 
   protected abstract boolean hasPermissions(List<Permission> requiredPerms);
+
+  /**
+   * Normalize the env name to ensure consistency between UI display and permission control.
+   * For example, "prod" -> "PROD" -> "PRO" via {@link Env#transformEnv(String)}.
+   *
+   * @param env the raw environment name
+   * @return the normalized environment name
+   * @throws BadRequestException if the env name is invalid
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  protected String normalizeEnv(String env) {
+    Env transformedEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN == transformedEnv) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    return transformedEnv.getName();
+  }
 }
