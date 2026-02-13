@@ -5,6 +5,7 @@ on:
     types: [opened]
 
 permissions: read-all
+roles: all
 
 safe-outputs:
   add-labels:
