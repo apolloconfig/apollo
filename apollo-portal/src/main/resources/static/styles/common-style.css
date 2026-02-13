@@ -423,6 +423,13 @@ table th {
     margin-bottom: 2px;
 }
 
+.config-item-container .second-panel-heading .text-fullscreen-icon {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
+}
+
 .namespace-panel {
     border-top: 0;
     border-bottom: 0;
@@ -484,6 +491,26 @@ table th {
 .namespace-panel .history-view {
     padding: 10px 20px;
 
+}
+
+.namespace-text-editor-container:fullscreen,
+.namespace-text-editor-container:-webkit-full-screen,
+.namespace-text-editor-container:-moz-full-screen,
+.namespace-text-editor-container:-ms-fullscreen {
+    background: #fff;
+    box-sizing: border-box;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    margin: 0;
+    overflow: auto;
+    padding: 12px;
+}
+
+.namespace-text-editor-container:fullscreen::backdrop {
+    background: #fff;
 }
 
 .namespace-panel .instance-view .btn-primary .badge {

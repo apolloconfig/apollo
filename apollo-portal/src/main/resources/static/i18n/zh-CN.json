@@ -203,6 +203,8 @@
   "Component.Namespace.Master.Items.ItemHistory": "更改历史",
   "Component.Namespace.Master.Items.ItemInstance": "实例列表",
   "Component.Namespace.Master.Items.CopyText": "复制文本",
+  "Component.Namespace.Master.Items.Fullscreen": "全屏",
+  "Component.Namespace.Master.Items.ExitFullscreen": "退出全屏",
   "Component.Namespace.Master.Items.GrammarCheck": "语法检查",
   "Component.Namespace.Master.Items.CancelChanged": "取消修改",
   "Component.Namespace.Master.Items.Change": "修改配置",

@@ -29,5 +29,6 @@ Apollo 2.5.0
 * [Perf: optimize namespace-related interface](https://github.com/apolloconfig/apollo/pull/5518)
 * [Perf: Replace synchronized multimap with concurrent hashmap in NotificationControllerV2 for better performance](https://github.com/apolloconfig/apollo/pull/5532)
 * [Feature: Enable graceful shutdown for apollo-adminservice and apollo-configservice](https://github.com/apolloconfig/apollo/pull/5536)
+* [Feature: Support search box and fullscreen in namespace text editor](https://github.com/apolloconfig/apollo/pull/5545)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
