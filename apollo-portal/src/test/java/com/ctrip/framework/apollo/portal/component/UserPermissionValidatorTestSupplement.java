@@ -168,7 +168,7 @@ class UserPermissionValidatorTestSupplement {
   void shouldHideConfigToCurrentUser_emptyString_throwsBadRequestException() {
     assertThatThrownBy(
         () -> validator.shouldHideConfigToCurrentUser(APP_ID, "", CLUSTER, NAMESPACE))
-        .isInstanceOf(BadRequestException.class).hasMessageContaining("Invalid env format");
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("invalid env format");
   }
 
   /**
@@ -253,7 +253,7 @@ class UserPermissionValidatorTestSupplement {
   void shouldHideConfigToCurrentUser_invalidEnv_throwsBadRequestException() {
     assertThatThrownBy(
         () -> validator.shouldHideConfigToCurrentUser(APP_ID, "INVALID_ENV", CLUSTER, NAMESPACE))
-        .isInstanceOf(BadRequestException.class).hasMessageContaining("Invalid env format");
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("invalid env format");
   }
 
   /**
