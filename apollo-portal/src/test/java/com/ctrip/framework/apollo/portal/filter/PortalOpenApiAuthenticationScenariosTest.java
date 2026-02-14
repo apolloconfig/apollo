@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.filter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,8 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.configuration.AuthFilterConfiguration;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.servlet.FilterChain;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +62,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -144,9 +150,14 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @MockBean
   private ConsumerAuditUtil consumerAuditUtil;
 
+  @MockBean
+  private UserInfoHolder userInfoHolder;
+
   @After
   public void tearDown() {
-    reset(consumerAuthUtil, consumerAuditUtil);
+    reset(consumerAuthUtil, consumerAuditUtil, userInfoHolder);
+    SecurityContextHolder.clearContext();
+    UserIdentityContextHolder.clear();
   }
 
   private MockHttpSession authenticatedPortalSession() {
@@ -178,7 +189,9 @@ public class PortalOpenApiAuthenticationScenariosTest {
     // oidc path is handled by PortalUserSessionFilter
     MockEnvironment oidcEnvironment = new MockEnvironment();
     oidcEnvironment.setActiveProfiles("oidc");
-    PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
+    UserInfoHolder userInfoHolder = mock(UserInfoHolder.class);
+    PortalUserSessionFilter oidcFilter =
+        new PortalUserSessionFilter(oidcEnvironment, userInfoHolder);
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", PORTAL_URI);
     request.setCookies(new Cookie("SESSION", "expired"));
@@ -217,7 +230,9 @@ public class PortalOpenApiAuthenticationScenariosTest {
     // oidc
     MockEnvironment oidcEnvironment = new MockEnvironment();
     oidcEnvironment.setActiveProfiles("oidc");
-    PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
+    UserInfoHolder userInfoHolder = mock(UserInfoHolder.class);
+    PortalUserSessionFilter oidcFilter =
+        new PortalUserSessionFilter(oidcEnvironment, userInfoHolder);
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", OPEN_API_URI);
     request.setCookies(new Cookie("SESSION", "expired"));
@@ -251,5 +266,33 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     mockMvc.perform(get(OPEN_API_URI))
         .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  public void openApiPortalRequestWithOperatorParam_shouldPopulateUserIdentityContext()
+      throws Exception {
+    MockEnvironment environment = new MockEnvironment();
+    PortalUserSessionFilter filter = new PortalUserSessionFilter(environment, userInfoHolder);
+
+    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+        "apollo", "password", AuthorityUtils.createAuthorityList("ROLE_user"));
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+
+    UserInfo portalUser = new UserInfo();
+    portalUser.setUserId("apollo");
+    when(userInfoHolder.getUser()).thenReturn(portalUser);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", OPEN_API_URI);
+    request.addParameter("operator", "keep-current-user");
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    AtomicBoolean chainCalled = new AtomicBoolean(false);
+
+    filter.doFilter(request, response, (req, resp) -> {
+      chainCalled.set(true);
+      org.junit.Assert.assertEquals(portalUser, UserIdentityContextHolder.getOperator());
+    });
+
+    org.junit.Assert.assertTrue(chainCalled.get());
+    org.junit.Assert.assertNull(UserIdentityContextHolder.getOperator());
   }
 }

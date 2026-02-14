@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.AppAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
@@ -128,6 +129,23 @@ public class AppService {
     return appAPI.loadApp(env, appId);
   }
 
+  // TODO: should remove this after full portal migration procedure
+  // this is avoiding confliction of two username fetch way, cuz createAppInRemote is still being
+  // used in ConfigsImportService
+  public void createAppInRemoteNew(Env env, App app) {
+    if (StringUtils.isBlank(app.getDataChangeCreatedBy())) {
+      String username = UserIdentityContextHolder.getOperator().getUserId();
+      app.setDataChangeCreatedBy(username);
+      app.setDataChangeLastModifiedBy(username);
+    }
+
+    AppDTO appDTO = BeanUtils.transform(AppDTO.class, app);
+    appAPI.createApp(env, appDTO);
+
+    roleInitializationService.initClusterNamespaceRoles(app.getAppId(), env.getName(),
+        ConfigConsts.CLUSTER_NAME_DEFAULT, UserIdentityContextHolder.getOperator().getUserId());
+  }
+
   public void createAppInRemote(Env env, App app) {
     if (StringUtils.isBlank(app.getDataChangeCreatedBy())) {
       String username = userInfoHolder.getUser().getUserId();
@@ -156,7 +174,7 @@ public class AppService {
     }
     app.setOwnerEmail(owner.getEmail());
 
-    String operator = userInfoHolder.getUser().getUserId();
+    String operator = UserIdentityContextHolder.getOperator().getUserId();
     app.setDataChangeCreatedBy(operator);
     app.setDataChangeLastModifiedBy(operator);
 
@@ -167,7 +185,7 @@ public class AppService {
     List<Env> envs = portalSettings.getActiveEnvs();
     for (Env env : envs) {
       roleInitializationService.initClusterNamespaceRoles(appId, env.getName(),
-          ConfigConsts.CLUSTER_NAME_DEFAULT, userInfoHolder.getUser().getUserId());
+          ConfigConsts.CLUSTER_NAME_DEFAULT, UserIdentityContextHolder.getOperator().getUserId());
     }
 
     Tracer.logEvent(TracerEventType.CREATE_APP, appId);
@@ -185,7 +203,7 @@ public class AppService {
     if (!CollectionUtils.isEmpty(admins)) {
       rolePermissionService.assignRoleToUsers(
           RoleUtils.buildAppMasterRoleName(createdApp.getAppId()), admins,
-          userInfoHolder.getUser().getUserId());
+          UserIdentityContextHolder.getOperator().getUserId());
     }
 
     return createdApp;
@@ -232,7 +250,7 @@ public class AppService {
     managedApp.setOwnerName(owner.getUserId());
     managedApp.setOwnerEmail(owner.getEmail());
 
-    String operator = userInfoHolder.getUser().getUserId();
+    String operator = UserIdentityContextHolder.getOperator().getUserId();
     managedApp.setDataChangeLastModifiedBy(operator);
 
     return appRepository.save(managedApp);
@@ -251,7 +269,7 @@ public class AppService {
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);
     }
-    String operator = userInfoHolder.getUser().getUserId();
+    String operator = UserIdentityContextHolder.getOperator().getUserId();
 
     // this operator is passed to
     // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppDeletionEvent
