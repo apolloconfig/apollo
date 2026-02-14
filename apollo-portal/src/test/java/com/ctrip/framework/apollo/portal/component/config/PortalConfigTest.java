@@ -21,6 +21,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import com.ctrip.framework.apollo.portal.service.PortalDBPropertySource;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -211,7 +212,7 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_extraLongString_returnsFalse() {
-    String longEnv = "A".repeat(1000);
+    String longEnv = String.join("", Collections.nCopies(1000, "A"));
     assertThat(portalConfig.isConfigViewMemberOnly(longEnv)).isFalse();
   }
 

@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -217,7 +218,7 @@ class UserPermissionValidatorTestSupplement {
    */
   @Test
   void shouldHideConfigToCurrentUser_extraLongString_throwsBadRequestException() {
-    String longEnv = "A".repeat(1000);
+    String longEnv = String.join("", Collections.nCopies(1000, "A"));
     assertThatThrownBy(
         () -> validator.shouldHideConfigToCurrentUser(APP_ID, longEnv, CLUSTER, NAMESPACE))
         .isInstanceOf(BadRequestException.class);
