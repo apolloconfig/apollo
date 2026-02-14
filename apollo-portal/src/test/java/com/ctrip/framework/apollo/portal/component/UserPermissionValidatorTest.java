@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.portal.component;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -235,7 +237,7 @@ class UserPermissionValidatorTest {
 
     // User is not app admin and has no operate permission
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-    when(rolePermissionService.hasAnyPermission(USER_ID, Lists.newArrayList())).thenReturn(false);
+    when(rolePermissionService.hasAnyPermission(eq(USER_ID), anyList())).thenReturn(false);
 
     // Test with "prod" alias - should normalize to "PRO" and hide config
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "prod", CLUSTER, NAMESPACE)).isTrue();
@@ -252,7 +254,7 @@ class UserPermissionValidatorTest {
 
     // User is not app admin and has no operate permission
     when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
-    when(rolePermissionService.hasAnyPermission(USER_ID, Lists.newArrayList())).thenReturn(false);
+    when(rolePermissionService.hasAnyPermission(eq(USER_ID), anyList())).thenReturn(false);
 
     // Test with "local" alias - should normalize to "LOCAL" and hide config
     assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "local", CLUSTER, NAMESPACE)).isTrue();
