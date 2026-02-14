@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.portal.component.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.portal.service.PortalDBPropertySource;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +55,8 @@ class PortalConfigTest {
   @Test
   void isConfigViewMemberOnly_prodAliases() {
     // Setup: configure "PRO" as member-only
-    doReturn(new String[]{"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // Test with "prod" lowercase - should normalize to "PRO" and return true
     assertThat(portalConfig.isConfigViewMemberOnly("prod")).isTrue();
@@ -74,7 +74,8 @@ class PortalConfigTest {
   @Test
   void isConfigViewMemberOnly_fatAndFwsAliases() {
     // Setup: configure "FAT" as member-only
-    doReturn(new String[]{"FAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"FAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // Test with "fat" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("fat")).isTrue();
@@ -94,7 +95,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_localAlias() {
-    doReturn(new String[]{"LOCAL"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"LOCAL"}).when(portalConfig)
+        .getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     // Test with "local" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("local")).isTrue();
@@ -108,7 +110,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_devAlias() {
-    doReturn(new String[]{"DEV"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"DEV"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // Test with "dev" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("dev")).isTrue();
@@ -122,7 +125,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_uatAlias() {
-    doReturn(new String[]{"UAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"UAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // Test with "uat" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("uat")).isTrue();
@@ -136,7 +140,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_lptAlias() {
-    doReturn(new String[]{"LPT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"LPT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // Test with "lpt" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("lpt")).isTrue();
@@ -150,7 +155,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_toolsAlias() {
-    doReturn(new String[]{"TOOLS"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"TOOLS"}).when(portalConfig)
+        .getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     // Test with "tools" lowercase
     assertThat(portalConfig.isConfigViewMemberOnly("tools")).isTrue();
@@ -214,7 +220,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_mixedCaseVariations() {
-    doReturn(new String[]{"PRO","FAT","UAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"PRO", "FAT", "UAT"}).when(portalConfig)
+        .getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     // Test "PrOd" - should normalize to "PRO"
     assertThat(portalConfig.isConfigViewMemberOnly("PrOd")).isTrue();
@@ -261,7 +268,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_consistency_allProdVariants() {
-    doReturn(new String[]{"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // All variants should produce the same result
     boolean resultProd = portalConfig.isConfigViewMemberOnly("prod");
@@ -276,7 +284,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_consistency_fwsAndFat() {
-    doReturn(new String[]{"FAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"FAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // FWS and FAT should produce the same result
     boolean resultFWS = portalConfig.isConfigViewMemberOnly("FWS");
@@ -307,7 +316,8 @@ class PortalConfigTest {
   @Test
   void isConfigViewMemberOnly_endToEnd_prodToPRO() {
     // Setup: configure "PRO" as member-only
-    doReturn(new String[]{"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"PRO"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs",
+        new String[0]);
 
     // User inputs "prod" (lowercase) - system should normalize to "PRO" and return true
     boolean isMemberOnly = portalConfig.isConfigViewMemberOnly("prod");
@@ -321,7 +331,8 @@ class PortalConfigTest {
    */
   @Test
   void isConfigViewMemberOnly_multipleEnvs() {
-    doReturn(new String[]{"PRO","UAT","FAT"}).when(portalConfig).getArrayProperty("configView.memberOnly.envs", new String[0]);
+    doReturn(new String[] {"PRO", "UAT", "FAT"}).when(portalConfig)
+        .getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     // All configured envs and their aliases should return true
     assertThat(portalConfig.isConfigViewMemberOnly("prod")).isTrue();
