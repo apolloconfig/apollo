@@ -1,0 +1,99 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: portal-ui-e2e
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apollo-portal/**'
+      - 'apollo-assembly/**'
+      - 'e2e/portal-e2e/**'
+      - 'scripts/sql/**'
+      - '.github/workflows/portal-ui-e2e.yml'
+
+jobs:
+  portal-ui-e2e:
+    name: portal-ui-e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('e2e/portal-e2e/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Build Apollo assembly
+        run: ./mvnw -B -pl apollo-assembly -am -DskipTests package
+
+      - name: Start Apollo assembly
+        run: |
+          JAR=$(ls -1 apollo-assembly/target/apollo-assembly-*.jar | grep -vE 'sources|javadoc' | head -n 1)
+          SPRING_PROFILES_ACTIVE="github,database-discovery,auth" \
+          SPRING_SQL_CONFIG_INIT_MODE="always" \
+          SPRING_SQL_PORTAL_INIT_MODE="always" \
+          SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+          SPRING_PORTAL_DATASOURCE_URL="jdbc:h2:mem:apollo-portal-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+          java -jar "$JAR" > /tmp/apollo-assembly-run.log 2>&1 &
+          echo $! > /tmp/apollo-assembly.pid
+
+      - name: Wait for Apollo readiness
+        run: ./e2e/portal-e2e/scripts/wait-for-ready.sh
+
+      - name: Run Playwright UI tests
+        env:
+          BASE_URL: http://127.0.0.1:8070
+          PLAYWRIGHT_WORKERS: 2
+        run: |
+          cd e2e/portal-e2e
+          npm ci
+          npx playwright install chromium
+          npm run test:e2e:ci
+
+      - name: Upload e2e test artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-ui-e2e-artifacts
+          path: |
+            e2e/portal-e2e/playwright-report
+            e2e/portal-e2e/test-results
+            /tmp/apollo-assembly-run.log
+
+      - name: Stop Apollo assembly
+        if: always()
+        run: |
+          if [ -f /tmp/apollo-assembly.pid ]; then
+            kill "$(cat /tmp/apollo-assembly.pid)" || true
+          fi
