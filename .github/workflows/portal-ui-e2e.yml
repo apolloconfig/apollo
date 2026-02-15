@@ -59,7 +59,20 @@ jobs:
 
       - name: Start Apollo assembly
         run: |
-          JAR=$(ls -1 apollo-assembly/target/apollo-assembly-*.jar | grep -vE 'sources|javadoc' | head -n 1)
+          JAR=""
+          for candidate in apollo-assembly/target/apollo-assembly-*.jar; do
+            if [[ "$candidate" == *"-sources.jar" || "$candidate" == *"-javadoc.jar" ]]; then
+              continue
+            fi
+            if [[ -f "$candidate" ]]; then
+              JAR="$candidate"
+              break
+            fi
+          done
+          if [[ -z "$JAR" ]]; then
+            echo "No runnable apollo-assembly jar found in apollo-assembly/target" >&2
+            exit 1
+          fi
           SPRING_PROFILES_ACTIVE="github,database-discovery,auth" \
           SPRING_SQL_CONFIG_INIT_MODE="always" \
           SPRING_SQL_PORTAL_INIT_MODE="always" \

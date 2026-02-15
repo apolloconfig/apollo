@@ -16,8 +16,8 @@
  */
 const { expect } = require('@playwright/test');
 
-const USERNAME = 'apollo';
-const PASSWORD = 'admin';
+const USERNAME = process.env.PORTAL_USERNAME || 'apollo';
+const PASSWORD = process.env.PORTAL_PASSWORD || 'admin';
 const DEFAULT_SUCCESS_STATUSES = [200, 201, 202, 204];
 const DEFAULT_ENV = 'LOCAL';
 const DEFAULT_CLUSTER = 'default';

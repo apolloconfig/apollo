@@ -22,6 +22,8 @@ PORTAL_URL="${PORTAL_URL:-http://${BASE_HOST}:8070}"
 CONFIG_URL="${CONFIG_URL:-http://${BASE_HOST}:8080}"
 ADMIN_URL="${ADMIN_URL:-http://${BASE_HOST}:8090}"
 WAIT_TIMEOUT_SECONDS="${WAIT_TIMEOUT_SECONDS:-300}"
+PORTAL_USERNAME="${PORTAL_USERNAME:-apollo}"
+PORTAL_PASSWORD="${PORTAL_PASSWORD:-admin}"
 
 probe() {
   local url="$1"
@@ -43,7 +45,8 @@ warm_up_portal_admin_path() {
   curl -fsS -c "$cookie_file" -b "$cookie_file" \
     -H 'Content-Type: application/x-www-form-urlencoded' \
     -X POST "${PORTAL_URL}/signin" \
-    --data 'username=apollo&password=admin' >/dev/null 2>&1 || {
+    --data-urlencode "username=${PORTAL_USERNAME}" \
+    --data-urlencode "password=${PORTAL_PASSWORD}" >/dev/null 2>&1 || {
     rm -f "$cookie_file"
     return 1
   }
@@ -53,18 +56,18 @@ warm_up_portal_admin_path() {
 JSON
 )
 
-  app_status="$(curl -sS -o /tmp/apollo-warmup-app.json -w '%{http_code}' \
+  app_status="$(curl -sS -o /dev/null -w '%{http_code}' \
     -b "$cookie_file" -H 'Content-Type: application/json' -X POST \
     "${PORTAL_URL}/apps" -d "$app_payload" || true)"
 
   item_payload='{"key":"timeout","value":"100","comment":"warmup","lineNum":1}'
-  item_status="$(curl -sS -o /tmp/apollo-warmup-item.json -w '%{http_code}' \
+  item_status="$(curl -sS -o /dev/null -w '%{http_code}' \
     -b "$cookie_file" -H 'Content-Type: application/json' -X POST \
     "${PORTAL_URL}/apps/${app_id}/envs/LOCAL/clusters/default/namespaces/application/item" \
     -d "$item_payload" || true)"
 
   release_payload='{"releaseTitle":"warmup-release","releaseComment":"warmup"}'
-  release_status="$(curl -sS -o /tmp/apollo-warmup-release.json -w '%{http_code}' \
+  release_status="$(curl -sS -o /dev/null -w '%{http_code}' \
     -b "$cookie_file" -H 'Content-Type: application/json' -X POST \
     "${PORTAL_URL}/apps/${app_id}/envs/LOCAL/clusters/default/namespaces/application/releases" \
     -d "$release_payload" || true)"
