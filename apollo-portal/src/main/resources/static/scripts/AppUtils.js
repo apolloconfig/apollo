@@ -58,6 +58,83 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
         return d.promise;
     }
 
+    /**
+     * Check if a JSON string contains duplicate keys at any nesting level.
+     * Performs a character-level scan to detect duplicate keys per object scope,
+     * since JSON.parse silently deduplicates keys.
+     * Returns true if duplicate keys are found.
+     */
+    function hasDuplicateKeys(text) {
+        try {
+            // Character-level scan because JSON.parse reviver cannot detect
+            // duplicates (browser already deduplicates).
+            // Note: keys are compared after JSON decoding, so unicode escape equivalences are resolved.
+            // Strategy: scan for "key": patterns respecting nesting depth.
+            var i = 0;
+            var len = text.length;
+            var depth = 0;
+            var keySets = [];
+
+            while (i < len) {
+                var ch = text.charAt(i);
+                if (ch === '"') {
+                    // Read the full string
+                    var strStart = i;
+                    i++; // skip opening quote
+                    while (i < len) {
+                        if (text.charAt(i) === '\\') {
+                            i += 2; // skip escaped char
+                        } else if (text.charAt(i) === '"') {
+                            break;
+                        } else {
+                            i++;
+                        }
+                    }
+                    var strEnd = i;
+                    i++; // skip closing quote
+
+                    // Check if this string is a key (followed by ':')
+                    var j = i;
+                    while (j < len && (text.charAt(j) === ' ' || text.charAt(j) === '\t' ||
+                           text.charAt(j) === '\n' || text.charAt(j) === '\r')) {
+                        j++;
+                    }
+                    if (j < len && text.charAt(j) === ':') {
+                        var rawKey = text.substring(strStart + 1, strEnd);
+                        var key;
+                        try {
+                            key = JSON.parse('"' + rawKey + '"');
+                        } catch (e) {
+                            // If decoding fails, fall back to raw key (invalid JSON, but we still compare raw)
+                            key = rawKey;
+                        }
+                        if (depth >= 0 && depth < keySets.length) {
+                            if (key in keySets[depth]) {
+                                return true;
+                            }
+                            keySets[depth][key] = true;
+                        }
+                    }
+                } else if (ch === '{') {
+                    depth++;
+                    while (keySets.length <= depth) {
+                        keySets.push(Object.create(null));
+                    }
+                    keySets[depth] = Object.create(null);
+                    i++;
+                } else if (ch === '}') {
+                    depth--;
+                    i++;
+                } else {
+                    i++;
+                }
+            }
+            return false;
+        } catch (e) {
+            return false;
+        }
+    }
+
     return {
         prefixPath: function(){
             return prefixLocation;
@@ -113,6 +190,7 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
         },
         checkIPV4: function (ip) {
             return /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$|^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$|^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/.test(ip);
-        }
+        },
+        hasDuplicateKeys: hasDuplicateKeys
     }
 }]);
