@@ -1243,7 +1243,7 @@ async function waitForRawConfig(request, appId, namespaceName, predicate, option
 }
 
 async function rollbackLatestRelease(page, options = {}) {
-  const { namespaceName = DEFAULT_NAMESPACE } = options;
+  const { namespaceName = DEFAULT_NAMESPACE, env = DEFAULT_ENV } = options;
   const namespacePanel = await locateNamespacePanel(page, namespaceName);
   await namespacePanel.locator('[ng-click="rollback(namespace)"]:visible').first().click();
   await expect(page.locator('#rollbackModal')).toBeVisible({ timeout: 30000 });
@@ -1251,7 +1251,7 @@ async function rollbackLatestRelease(page, options = {}) {
   await page.click('#rollbackModal button[type="submit"]');
   await expect(page.locator('#rollbackAlertDialog')).toBeVisible({ timeout: 30000 });
 
-  const rollbackResponse = waitForApiResponse(page, 'PUT', '/envs/LOCAL/releases/');
+  const rollbackResponse = waitForApiResponse(page, 'PUT', `/envs/${env}/releases/`);
   await Promise.all([
     rollbackResponse,
     page.click('#rollbackAlertDialog button.btn-danger'),
