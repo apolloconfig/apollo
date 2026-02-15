@@ -1,0 +1,55 @@
+queue_rules:
+  - name: single-commit
+    autoqueue: true
+    batch_size: 1
+    merge_method: rebase
+    queue_conditions:
+      - "base = master"
+      - "-draft"
+      - "-closed"
+      - "-conflict"
+      - "#approved-reviews-by >= 1"
+      - "#changes-requested-reviews-by = 0"
+      - "#commits = 1"
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+      - "check-success = code-style-check"
+      - "check-success = license"
+      - "check-success = CLAssistant"
+    merge_conditions:
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+
+  - name: multi-commit
+    autoqueue: true
+    batch_size: 1
+    merge_method: squash
+    queue_conditions:
+      - "base = master"
+      - "-draft"
+      - "-closed"
+      - "-conflict"
+      - "#approved-reviews-by >= 1"
+      - "#changes-requested-reviews-by = 0"
+      - "#commits > 1"
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+      - "check-success = code-style-check"
+      - "check-success = license"
+      - "check-success = CLAssistant"
+    merge_conditions:
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+
+pull_request_rules:
+  - name: notify author when PR has conflicts
+    conditions:
+      - "conflict"
+      - "-closed"
+    actions:
+      comment:
+        message: "@{{author}} This pull request has conflicts with the target branch. Please resolve them and update the branch before merging."
