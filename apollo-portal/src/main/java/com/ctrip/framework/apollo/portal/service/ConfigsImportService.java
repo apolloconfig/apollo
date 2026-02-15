@@ -51,6 +51,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -61,6 +62,9 @@ import java.util.zip.ZipInputStream;
 public class ConfigsImportService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigsImportService.class);
+
+  private static final int MAX_ZIP_ENTRY_COUNT = 5000;
+  private static final long MAX_ZIP_ENTRY_SIZE = 10 * 1024 * 1024;
 
   private Gson gson = new Gson();
 
@@ -115,13 +119,21 @@ public class ConfigsImportService {
     List<ImportClusterData> toImportClusters = Lists.newArrayList();
     List<ImportNamespaceData> toImportNSs = Lists.newArrayList();
 
+    int entryCount = 0;
     ZipEntry entry;
     while ((entry = dataZip.getNextEntry()) != null) {
       if (entry.isDirectory()) {
         continue;
       }
 
+      entryCount++;
+      if (entryCount > MAX_ZIP_ENTRY_COUNT) {
+        throw new BadRequestException("Too many entries in zip file, max allowed: %d",
+            MAX_ZIP_ENTRY_COUNT);
+      }
+
       String filePath = entry.getName();
+      validateZipEntryName(filePath);
       String content = readContent(dataZip);
 
       String[] info = filePath.replace('\\', '/').split("/");
@@ -163,8 +175,14 @@ public class ConfigsImportService {
       LOGGER.info("Import data. app = {}, appns = {}, cluster = {}, namespace = {}",
           toImportApps.size(), toImportAppNSs.size(), toImportClusters.size(), toImportNSs.size());
 
-      doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters, toImportNSs);
-
+      int errorCount = doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters,
+          toImportNSs);
+      if (errorCount > 0) {
+        throw new ServiceException("import config partially failed. %d errors occurred.",
+            errorCount);
+      }
+    } catch (ServiceException e) {
+      throw e;
     } catch (Exception e) {
       LOGGER.error("import config error.", e);
       throw new ServiceException("import config error.", e);
@@ -218,19 +236,26 @@ public class ConfigsImportService {
 
     try {
       LOGGER.info("Import namespace. namespace = {}", toImportNSs.size());
-      doImport(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
+      int errorCount = doImport(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
           Lists.newArrayList(), toImportNSs);
+      if (errorCount > 0) {
+        throw new ServiceException("import app config partially failed. %d errors occurred.",
+            errorCount);
+      }
+    } catch (ServiceException e) {
+      throw e;
     } catch (Exception e) {
       LOGGER.error("import app config error.", e);
       throw new ServiceException("import app config error.", e);
     }
   }
 
-  private void doImport(List<Env> importEnvs, List<String> toImportApps,
+  private int doImport(List<Env> importEnvs, List<String> toImportApps,
       List<String> toImportAppNSs, List<ImportClusterData> toImportClusters,
       List<ImportNamespaceData> toImportNSs) throws InterruptedException {
     LOGGER.info("Start to import app. size = {}", toImportApps.size());
 
+    AtomicInteger errorCount = new AtomicInteger(0);
     String operator = userInfoHolder.getUser().getUserId();
 
     long startTime = System.currentTimeMillis();
@@ -240,6 +265,7 @@ public class ConfigsImportService {
         importApp(app, importEnvs, operator);
       } catch (Exception e) {
         LOGGER.error("import app error. app = {}", app, e);
+        errorCount.incrementAndGet();
       } finally {
         appLatch.countDown();
       }
@@ -256,6 +282,7 @@ public class ConfigsImportService {
         importAppNamespace(appNS, operator);
       } catch (Exception e) {
         LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
+        errorCount.incrementAndGet();
       } finally {
         appNSLatch.countDown();
       }
@@ -273,6 +300,7 @@ public class ConfigsImportService {
         importCluster(cluster, operator);
       } catch (Exception e) {
         LOGGER.error("import cluster error. cluster = {}", cluster, e);
+        errorCount.incrementAndGet();
       } finally {
         clusterLatch.countDown();
       }
@@ -290,6 +318,7 @@ public class ConfigsImportService {
             namespace.isIgnoreConflictNamespace(), operator);
       } catch (Exception e) {
         LOGGER.error("import namespace error. namespace = {}", namespace, e);
+        errorCount.incrementAndGet();
       } finally {
         nsLatch.countDown();
       }
@@ -298,6 +327,7 @@ public class ConfigsImportService {
 
     LOGGER.info("Finish to import namespace. duration = {}",
         System.currentTimeMillis() - startTime);
+    return errorCount.get();
   }
 
   private void importApp(String appInfo, List<Env> importEnvs, String operator) {
@@ -470,17 +500,38 @@ public class ConfigsImportService {
   }
 
 
+  private void validateZipEntryName(String name) {
+    if (name == null) {
+      throw new BadRequestException("Zip entry name is null");
+    }
+    String normalized = name.replace('\\', '/');
+    if (normalized.startsWith("/") || normalized.contains("../")
+        || normalized.contains("/..")
+        || normalized.equals("..")) {
+      throw new BadRequestException("Invalid zip entry name: %s", name);
+    }
+  }
+
   private String readContent(ZipInputStream zipInputStream) {
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       byte[] buffer = new byte[1024];
       int offset;
+      long totalSize = 0;
       while ((offset = zipInputStream.read(buffer)) != -1) {
+        totalSize += offset;
+        if (totalSize > MAX_ZIP_ENTRY_SIZE) {
+          throw new BadRequestException(
+              "Zip entry content exceeds the maximum allowed size: %d bytes",
+              MAX_ZIP_ENTRY_SIZE);
+        }
         out.write(buffer, 0, offset);
       }
       return out.toString("UTF-8");
+    } catch (BadRequestException e) {
+      throw e;
     } catch (IOException e) {
       LOGGER.error("Read file content from zip error.", e);
-      return null;
+      throw new ServiceException("Read file content from zip error.", e);
     }
   }
 
