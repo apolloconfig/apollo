@@ -50,16 +50,16 @@ jobs:
             echo "WARNING: Test directory $TEST_DIR does not exist yet. Skipping JS tests."
             exit 0
           fi
-          TEST_FILES=$(find "$TEST_DIR" -name 'test_*.js')
+          TEST_FILES=$(find "$TEST_DIR" -name 'test_*.js' -type f)
           if [ -z "$TEST_FILES" ]; then
             echo "ERROR: No test files found matching test_*.js in $TEST_DIR"
             exit 1
           fi
           FAILED=0
-          for f in $TEST_FILES; do
+          while IFS= read -r f; do
             echo "--- Running: $f ---"
             node "$f" || FAILED=1
-          done
+          done <<< "$TEST_FILES"
           if [ "$FAILED" -ne 0 ]; then
             echo "Some tests failed."
             exit 1
