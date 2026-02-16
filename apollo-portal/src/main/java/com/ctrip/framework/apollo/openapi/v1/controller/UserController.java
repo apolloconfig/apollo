@@ -28,7 +28,6 @@ import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserSe
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,7 +65,8 @@ public class UserController {
    * @param openUserDTO user information to create
    * @return ResponseEntity with created user information
    */
-  @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE, description = "Create user via OpenAPI")
+  @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE,
+      description = "Create user via OpenAPI")
   @PostMapping("/users")
   public ResponseEntity<UserInfo> createUser(@RequestBody OpenUserDTO openUserDTO) {
     // Validate required fields
@@ -95,12 +95,11 @@ public class UserController {
     userPO.setUsername(openUserDTO.getUsername());
     userPO.setPassword(openUserDTO.getPassword());
     userPO.setEmail(openUserDTO.getEmail());
-    userPO.setUserDisplayName(openUserDTO.getUserDisplayName() != null
-        ? openUserDTO.getUserDisplayName()
-        : openUserDTO.getUsername());
-    userPO.setEnabled(openUserDTO.getEnabled() != null
-        ? openUserDTO.getEnabled()
-        : DEFAULT_USER_ENABLED);
+    userPO.setUserDisplayName(
+        openUserDTO.getUserDisplayName() != null ? openUserDTO.getUserDisplayName()
+            : openUserDTO.getUsername());
+    userPO.setEnabled(
+        openUserDTO.getEnabled() != null ? openUserDTO.getEnabled() : DEFAULT_USER_ENABLED);
 
     // Create user
     ((SpringSecurityUserService) userService).create(userPO);
@@ -137,7 +136,8 @@ public class UserController {
   @GetMapping("/users")
   public ResponseEntity<List<UserInfo>> searchUsers(
       @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
-      @RequestParam(value = "includeInactiveUsers", defaultValue = "false") boolean includeInactiveUsers,
+      @RequestParam(value = "includeInactiveUsers",
+          defaultValue = "false") boolean includeInactiveUsers,
       @RequestParam(value = "offset", defaultValue = "0") int offset,
       @RequestParam(value = "limit", defaultValue = "10") int limit) {
 
@@ -153,4 +153,3 @@ public class UserController {
     return ResponseEntity.ok(users);
   }
 }
-

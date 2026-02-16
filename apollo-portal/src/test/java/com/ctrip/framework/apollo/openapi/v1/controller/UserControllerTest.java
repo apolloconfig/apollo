@@ -66,9 +66,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {
-    "spring.profiles.active=github,auth"
-})
+@TestPropertySource(properties = {"spring.profiles.active=github,auth"})
 public class UserControllerTest {
 
   @Autowired
@@ -106,10 +104,8 @@ public class UserControllerTest {
     doNothing().when(userService).create(any(UserPO.class));
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isOk());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isOk());
 
     // Verify
     ArgumentCaptor<UserPO> userPOCaptor = ArgumentCaptor.forClass(UserPO.class);
@@ -137,10 +133,8 @@ public class UserControllerTest {
     doNothing().when(userService).create(any(UserPO.class));
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isOk());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isOk());
 
     // Verify default values are set
     ArgumentCaptor<UserPO> userPOCaptor = ArgumentCaptor.forClass(UserPO.class);
@@ -160,10 +154,8 @@ public class UserControllerTest {
     openUserDTO.setEmail("test@example.com");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
 
     // Verify that create was never called
     verify(userService, times(0)).create(any(UserPO.class));
@@ -178,10 +170,8 @@ public class UserControllerTest {
     openUserDTO.setEmail("test@example.com");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
@@ -195,10 +185,8 @@ public class UserControllerTest {
     openUserDTO.setEmail("");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
@@ -215,10 +203,8 @@ public class UserControllerTest {
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
@@ -233,14 +219,12 @@ public class UserControllerTest {
 
     CheckResult checkResult = new CheckResult(true, "");
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
-    doThrow(BadRequestException.userAlreadyExists("existinguser"))
-        .when(userService).create(any(UserPO.class));
+    doThrow(BadRequestException.userAlreadyExists("existinguser")).when(userService)
+        .create(any(UserPO.class));
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -274,8 +258,7 @@ public class UserControllerTest {
     when(userService.findByUserId(userId)).thenReturn(userInfo);
 
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users/" + userId))
-        .andExpect(status().isOk())
+    mockMvc.perform(get("/openapi/v1/users/" + userId)).andExpect(status().isOk())
         .andExpect(jsonPath("$.userId").value(userId))
         .andExpect(jsonPath("$.name").value("Test User"))
         .andExpect(jsonPath("$.email").value("testuser@example.com"));
@@ -290,8 +273,7 @@ public class UserControllerTest {
     when(userService.findByUserId(userId)).thenReturn(null);
 
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users/" + userId))
-        .andExpect(status().isBadRequest());
+    mockMvc.perform(get("/openapi/v1/users/" + userId)).andExpect(status().isBadRequest());
 
     verify(userService, times(1)).findByUserId(userId);
   }
@@ -320,16 +302,13 @@ public class UserControllerTest {
     user2.setName("User Two");
 
     List<UserInfo> users = Arrays.asList(user1, user2);
-    when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean()))
-        .thenReturn(users);
+    when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(users);
 
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("keyword", "user")
-            .param("offset", "0")
+    mockMvc
+        .perform(get("/openapi/v1/users").param("keyword", "user").param("offset", "0")
             .param("limit", "10"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].userId").value("user1"))
         .andExpect(jsonPath("$[1].userId").value("user2"));
 
@@ -370,18 +349,15 @@ public class UserControllerTest {
   @Test
   public void testSearchUsers_InvalidLimit() throws Exception {
     // Act & Assert - limit too high
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("limit", "101"))
+    mockMvc.perform(get("/openapi/v1/users").param("limit", "101"))
         .andExpect(status().isBadRequest());
 
     // Act & Assert - limit zero
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("limit", "0"))
+    mockMvc.perform(get("/openapi/v1/users").param("limit", "0"))
         .andExpect(status().isBadRequest());
 
     // Act & Assert - limit negative
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("limit", "-1"))
+    mockMvc.perform(get("/openapi/v1/users").param("limit", "-1"))
         .andExpect(status().isBadRequest());
 
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
@@ -390,8 +366,7 @@ public class UserControllerTest {
   @Test
   public void testSearchUsers_InvalidOffset() throws Exception {
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("offset", "-1"))
+    mockMvc.perform(get("/openapi/v1/users").param("offset", "-1"))
         .andExpect(status().isBadRequest());
 
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
@@ -409,11 +384,3 @@ public class UserControllerTest {
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
   }
 }
-
-
-
-
-
-
-
-

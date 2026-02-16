@@ -71,12 +71,7 @@ public class OpenUserDTO {
 
   @Override
   public String toString() {
-    return "OpenUserDTO{" +
-        "username='" + username + '\'' +
-        ", userDisplayName='" + userDisplayName + '\'' +
-        ", email='" + email + '\'' +
-        ", enabled=" + enabled +
-        '}';
+    return "OpenUserDTO{" + "username='" + username + '\'' + ", userDisplayName='" + userDisplayName
+        + '\'' + ", email='" + email + '\'' + ", enabled=" + enabled + '}';
   }
 }
-
