@@ -64,11 +64,11 @@ public class UserController {
    * Create a new user
    *
    * @param openUserDTO user information to create
-   * @return ResponseEntity with no content on success
+   * @return ResponseEntity with created user information
    */
   @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE, description = "Create user via OpenAPI")
   @PostMapping("/users")
-  public ResponseEntity<Void> createUser(@RequestBody OpenUserDTO openUserDTO) {
+  public ResponseEntity<UserInfo> createUser(@RequestBody OpenUserDTO openUserDTO) {
     // Validate required fields
     if (StringUtils.isContainEmpty(openUserDTO.getUsername(), openUserDTO.getPassword())) {
       throw new BadRequestException("Username and password cannot be empty.");
@@ -105,7 +105,9 @@ public class UserController {
     // Create user
     ((SpringSecurityUserService) userService).create(userPO);
 
-    return ResponseEntity.ok().build();
+    // Retrieve and return the created user information
+    UserInfo createdUser = userService.findByUserId(openUserDTO.getUsername());
+    return ResponseEntity.ok(createdUser);
   }
 
   /**
