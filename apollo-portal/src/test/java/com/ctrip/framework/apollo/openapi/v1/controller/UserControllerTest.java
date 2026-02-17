@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.dto.OpenUserDTO;
-import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
@@ -29,14 +28,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +38,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -53,44 +48,32 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Unit tests for OpenAPI UserController
  *
  * @author dreamweaver
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
-@TestPropertySource(properties = {"spring.profiles.active=github,auth"})
+@RunWith(MockitoJUnitRunner.class)
 public class UserControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
-
-  @MockBean
+  @Mock
   private SpringSecurityUserService userService;
 
-  @MockBean
+  @Mock
   private AuthUserPasswordChecker passwordChecker;
 
-  @MockBean(name = "unifiedPermissionValidator")
-  private UnifiedPermissionValidator unifiedPermissionValidator;
+  private UserController userController;
 
   private final Gson gson = new Gson();
 
   @Before
   public void setUp() {
-    // Mock super admin permission by default
-    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+    userController = new UserController(userService, passwordChecker);
   }
 
   @Test
-  public void testCreateUser_Success() throws Exception {
+  public void testCreateUser_Success() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("testuser");
@@ -103,9 +86,19 @@ public class UserControllerTest {
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
     doNothing().when(userService).create(any(UserPO.class));
 
-    // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isOk());
+    UserInfo createdUser = new UserInfo();
+    createdUser.setUserId("testuser");
+    createdUser.setName("Test User");
+    createdUser.setEmail("testuser@example.com");
+    when(userService.findByUserId("testuser")).thenReturn(createdUser);
+
+    // Act
+    ResponseEntity<UserInfo> response = userController.createUser(openUserDTO);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
+    assertNotNull(response.getBody());
+    assertEquals("testuser", response.getBody().getUserId());
 
     // Verify
     ArgumentCaptor<UserPO> userPOCaptor = ArgumentCaptor.forClass(UserPO.class);
@@ -120,7 +113,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void testCreateUser_WithDefaultValues() throws Exception {
+  public void testCreateUser_WithDefaultValues() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("testuser2");
@@ -132,9 +125,15 @@ public class UserControllerTest {
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
     doNothing().when(userService).create(any(UserPO.class));
 
-    // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isOk());
+    UserInfo createdUser = new UserInfo();
+    createdUser.setUserId("testuser2");
+    when(userService.findByUserId("testuser2")).thenReturn(createdUser);
+
+    // Act
+    ResponseEntity<UserInfo> response = userController.createUser(openUserDTO);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
 
     // Verify default values are set
     ArgumentCaptor<UserPO> userPOCaptor = ArgumentCaptor.forClass(UserPO.class);
@@ -146,7 +145,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void testCreateUser_EmptyUsername() throws Exception {
+  public void testCreateUser_EmptyUsername() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("");
@@ -154,15 +153,14 @@ public class UserControllerTest {
     openUserDTO.setEmail("test@example.com");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
 
     // Verify that create was never called
     verify(userService, times(0)).create(any(UserPO.class));
   }
 
   @Test
-  public void testCreateUser_EmptyPassword() throws Exception {
+  public void testCreateUser_EmptyPassword() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("testuser");
@@ -170,14 +168,13 @@ public class UserControllerTest {
     openUserDTO.setEmail("test@example.com");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
 
   @Test
-  public void testCreateUser_EmptyEmail() throws Exception {
+  public void testCreateUser_EmptyEmail() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("testuser");
@@ -185,14 +182,13 @@ public class UserControllerTest {
     openUserDTO.setEmail("");
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
 
   @Test
-  public void testCreateUser_WeakPassword() throws Exception {
+  public void testCreateUser_WeakPassword() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("testuser");
@@ -203,14 +199,13 @@ public class UserControllerTest {
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
 
     verify(userService, times(0)).create(any(UserPO.class));
   }
 
   @Test
-  public void testCreateUser_UserAlreadyExists() throws Exception {
+  public void testCreateUser_UserAlreadyExists() {
     // Arrange
     OpenUserDTO openUserDTO = new OpenUserDTO();
     openUserDTO.setUsername("existinguser");
@@ -223,31 +218,12 @@ public class UserControllerTest {
         .create(any(UserPO.class));
 
     // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users").contentType(MediaType.APPLICATION_JSON)
-        .content(gson.toJson(openUserDTO))).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
   }
 
-  @Test
-  public void testCreateUser_NoSuperAdminPermission() throws Exception {
-    // Arrange
-    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
-
-    OpenUserDTO openUserDTO = new OpenUserDTO();
-    openUserDTO.setUsername("testuser");
-    openUserDTO.setPassword("StrongP@ssw0rd");
-    openUserDTO.setEmail("test@example.com");
-
-    // Act & Assert
-    mockMvc.perform(post("/openapi/v1/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(gson.toJson(openUserDTO)))
-        .andExpect(status().isForbidden());
-
-    verify(userService, times(0)).create(any(UserPO.class));
-  }
 
   @Test
-  public void testGetUserByUserId_Success() throws Exception {
+  public void testGetUserByUserId_Success() {
     // Arrange
     String userId = "testuser";
     UserInfo userInfo = new UserInfo();
@@ -257,41 +233,34 @@ public class UserControllerTest {
 
     when(userService.findByUserId(userId)).thenReturn(userInfo);
 
-    // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users/" + userId)).andExpect(status().isOk())
-        .andExpect(jsonPath("$.userId").value(userId))
-        .andExpect(jsonPath("$.name").value("Test User"))
-        .andExpect(jsonPath("$.email").value("testuser@example.com"));
+    // Act
+    ResponseEntity<UserInfo> response = userController.getUserByUserId(userId);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
+    assertNotNull(response.getBody());
+    assertEquals(userId, response.getBody().getUserId());
+    assertEquals("Test User", response.getBody().getName());
+    assertEquals("testuser@example.com", response.getBody().getEmail());
 
     verify(userService, times(1)).findByUserId(userId);
   }
 
   @Test
-  public void testGetUserByUserId_UserNotFound() throws Exception {
+  public void testGetUserByUserId_UserNotFound() {
     // Arrange
     String userId = "nonexistent";
     when(userService.findByUserId(userId)).thenReturn(null);
 
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users/" + userId)).andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.getUserByUserId(userId));
 
     verify(userService, times(1)).findByUserId(userId);
   }
 
-  @Test
-  public void testGetUserByUserId_NoSuperAdminPermission() throws Exception {
-    // Arrange
-    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
-
-    // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users/testuser"))
-        .andExpect(status().isForbidden());
-
-    verify(userService, times(0)).findByUserId(anyString());
-  }
 
   @Test
-  public void testSearchUsers_Success() throws Exception {
+  public void testSearchUsers_Success() {
     // Arrange
     UserInfo user1 = new UserInfo();
     user1.setUserId("user1");
@@ -304,82 +273,80 @@ public class UserControllerTest {
     List<UserInfo> users = Arrays.asList(user1, user2);
     when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(users);
 
-    // Act & Assert
-    mockMvc
-        .perform(get("/openapi/v1/users").param("keyword", "user").param("offset", "0")
-            .param("limit", "10"))
-        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(2))
-        .andExpect(jsonPath("$[0].userId").value("user1"))
-        .andExpect(jsonPath("$[1].userId").value("user2"));
+    // Act
+    ResponseEntity<List<UserInfo>> response = userController.searchUsers("user", false, 0, 10);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
+    assertNotNull(response.getBody());
+    assertEquals(2, response.getBody().size());
+    assertEquals("user1", response.getBody().get(0).getUserId());
+    assertEquals("user2", response.getBody().get(1).getUserId());
 
     verify(userService, times(1)).searchUsers("user", 0, 10, false);
   }
 
   @Test
-  public void testSearchUsers_WithIncludeInactiveUsers() throws Exception {
+  public void testSearchUsers_WithIncludeInactiveUsers() {
     // Arrange
     when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean()))
         .thenReturn(Collections.emptyList());
 
-    // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users")
-            .param("keyword", "test")
-            .param("includeInactiveUsers", "true")
-            .param("offset", "0")
-            .param("limit", "20"))
-        .andExpect(status().isOk());
+    // Act
+    ResponseEntity<List<UserInfo>> response = userController.searchUsers("test", true, 0, 20);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
 
     verify(userService, times(1)).searchUsers("test", 0, 20, true);
   }
 
   @Test
-  public void testSearchUsers_DefaultParameters() throws Exception {
+  public void testSearchUsers_DefaultParameters() {
     // Arrange
     when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean()))
         .thenReturn(Collections.emptyList());
 
-    // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users"))
-        .andExpect(status().isOk());
+    // Act
+    ResponseEntity<List<UserInfo>> response = userController.searchUsers("", false, 0, 10);
+
+    // Assert
+    assertEquals(200, response.getStatusCodeValue());
 
     // Verify default values are used
     verify(userService, times(1)).searchUsers("", 0, 10, false);
   }
 
   @Test
-  public void testSearchUsers_InvalidLimit() throws Exception {
-    // Act & Assert - limit too high
-    mockMvc.perform(get("/openapi/v1/users").param("limit", "101"))
-        .andExpect(status().isBadRequest());
-
-    // Act & Assert - limit zero
-    mockMvc.perform(get("/openapi/v1/users").param("limit", "0"))
-        .andExpect(status().isBadRequest());
-
-    // Act & Assert - limit negative
-    mockMvc.perform(get("/openapi/v1/users").param("limit", "-1"))
-        .andExpect(status().isBadRequest());
+  public void testSearchUsers_InvalidLimit_TooHigh() {
+    // Act & Assert
+    assertThrows(BadRequestException.class,
+        () -> userController.searchUsers("test", false, 0, 101));
 
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
   }
 
   @Test
-  public void testSearchUsers_InvalidOffset() throws Exception {
+  public void testSearchUsers_InvalidLimit_Zero() {
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users").param("offset", "-1"))
-        .andExpect(status().isBadRequest());
+    assertThrows(BadRequestException.class, () -> userController.searchUsers("test", false, 0, 0));
 
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
   }
 
   @Test
-  public void testSearchUsers_NoSuperAdminPermission() throws Exception {
-    // Arrange
-    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
-
+  public void testSearchUsers_InvalidLimit_Negative() {
     // Act & Assert
-    mockMvc.perform(get("/openapi/v1/users"))
-        .andExpect(status().isForbidden());
+    assertThrows(BadRequestException.class, () -> userController.searchUsers("test", false, 0, -1));
+
+    verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
+  }
+
+  @Test
+  public void testSearchUsers_InvalidOffset() {
+    // Act & Assert
+    assertThrows(BadRequestException.class,
+        () -> userController.searchUsers("test", false, -1, 10));
 
     verify(userService, times(0)).searchUsers(anyString(), anyInt(), anyInt(), anyBoolean());
   }

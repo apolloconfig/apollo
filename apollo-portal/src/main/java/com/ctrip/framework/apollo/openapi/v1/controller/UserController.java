@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserSe
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -65,6 +66,7 @@ public class UserController {
    * @param openUserDTO user information to create
    * @return ResponseEntity with created user information
    */
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE,
       description = "Create user via OpenAPI")
   @PostMapping("/users")
@@ -115,6 +117,7 @@ public class UserController {
    * @param userId the user ID to query
    * @return UserInfo object
    */
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping("/users/{userId}")
   public ResponseEntity<UserInfo> getUserByUserId(@PathVariable String userId) {
     UserInfo userInfo = userService.findByUserId(userId);
@@ -133,6 +136,7 @@ public class UserController {
    * @param limit                pagination limit
    * @return list of UserInfo objects
    */
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping("/users")
   public ResponseEntity<List<UserInfo>> searchUsers(
       @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
