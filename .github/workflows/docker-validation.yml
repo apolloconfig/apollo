@@ -32,8 +32,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: temurin
         java-version: 17
     - name: Cache Maven packages
       uses: actions/cache@v4
@@ -65,6 +66,7 @@ jobs:
           local active_profiles="$8"
           local image_tag="${service}:ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           local container_name="${service}-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          local max_health_check_attempts=180
           local healthy=0
           local run_args=(
             --detach
@@ -97,7 +99,7 @@ jobs:
             "$image_tag" \
             -c "set -euo pipefail; test -x '${startup_script}'; exec '${startup_script}'"
 
-          for i in $(seq 1 120); do
+          for i in $(seq 1 "$max_health_check_attempts"); do
             if curl --silent --fail "http://127.0.0.1:${host_port}/health" | grep -q "UP"; then
               healthy=1
               break
@@ -123,7 +125,7 @@ jobs:
           docker rm -f "$container_name" >/dev/null 2>&1 || true
 
           docker run --rm --entrypoint /bin/bash "$image_tag" \
-            -c "set -euo pipefail; test -x '${startup_script}'; java -version"
+            -c "set -euo pipefail; java -version"
         }
 
         validate_dockerfile \

@@ -29,14 +29,14 @@ RUN unzip /apollo-configservice/apollo-configservice-${VERSION}-github.zip -d /a
     && rm -rf /apollo-configservice/apollo-configservice-${VERSION}-github.zip \
     && chmod +x /apollo-configservice/scripts/startup.sh
 
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:17.0.18_8-jre-jammy
 LABEL maintainer="g632104866@gmail.com;finchcn@gmail.com;ameizi<sxyx2008@163.com>"
 
 ENV APOLLO_RUN_MODE "Docker"
 ENV SERVER_PORT 8080
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends procps curl bash tzdata \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends procps curl bash tzdata \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     && echo "Asia/Shanghai" > /etc/timezone
