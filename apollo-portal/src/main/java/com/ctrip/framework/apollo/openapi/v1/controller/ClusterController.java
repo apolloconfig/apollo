@@ -94,7 +94,7 @@ public class ClusterController implements ClusterManagementApi {
   @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   @Override
-  public ResponseEntity<Object> deleteCluster(String env, String appId, String clusterName,
+  public ResponseEntity<Void> deleteCluster(String env, String appId, String clusterName,
       String operator) {
     if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),

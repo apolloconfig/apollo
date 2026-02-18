@@ -19,37 +19,39 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         find_apps: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps'
         },
         find_app_by_self: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps/by-self'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/by-self'
         },
         load_navtree: {
             method: 'GET',
-            isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/navtree'
+            isArray: true,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/env-cluster-info'
         },
         load_app: {
             method: 'GET',
-            isArray: false
+            isArray: false,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         create_app: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps'
         },
         update_app: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/apps/:appId'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         create_app_remote: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/envs/:env'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/envs/:env'
         },
         find_miss_envs: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/miss_envs'
+            isArray: true,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/miss-envs'
         },
         create_missing_namespaces: {
             method: 'POST',
@@ -61,7 +63,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         delete_app: {
             method: 'DELETE',
-            isArray: false
+            isArray: false,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         allow_app_master_assign_role: {
             method: 'POST',
@@ -124,7 +127,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         update: function (app) {
             var d = $q.defer();
             app_resource.update_app({
-                                        appId: app.appId
+                                        appId: app.appId,
+                                        operator: ''
                                     }, app, function (result) {
                 d.resolve(result);
             }, function (result) {
@@ -134,7 +138,7 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         create_remote: function (env, app) {
             var d = $q.defer();
-            app_resource.create_app_remote({env: env}, app, function (result) {
+            app_resource.create_app_remote({env: env, operator: ''}, app, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
@@ -192,7 +196,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         delete_app: function (appId) {
             var d = $q.defer();
             app_resource.delete_app({
-                appId: appId
+                appId: appId,
+                operator: ''
             }, function (result) {
                 d.resolve(result);
             }, function (result) {

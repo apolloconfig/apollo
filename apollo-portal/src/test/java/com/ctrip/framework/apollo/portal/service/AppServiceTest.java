@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.repository.AppRepository;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -89,7 +91,12 @@ class AppServiceTest {
         apolloAuditLogApi);
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(OPERATOR_USER_ID);
-    Mockito.when(userInfoHolder.getUser()).thenReturn(userInfo);
+    UserIdentityContextHolder.setOperator(userInfo);
+  }
+
+  @AfterEach
+  void afterEach() {
+    UserIdentityContextHolder.clear();
   }
 
   @Test
@@ -132,7 +139,6 @@ class AppServiceTest {
     appService.createAppAndAddRolePermission(app, admins);
     Mockito.verify(appRepository, Mockito.times(1)).findByAppId(Mockito.eq(appId));
     Mockito.verify(userService, Mockito.times(1)).findByUserId(Mockito.eq(userId));
-    Mockito.verify(userInfoHolder, Mockito.times(2)).getUser();
     Mockito.verify(appRepository, Mockito.times(1)).save(Mockito.eq(app));
     Mockito.verify(appNamespaceService, Mockito.times(1))
         .createDefaultAppNamespace(Mockito.eq(appId));
@@ -159,7 +165,6 @@ class AppServiceTest {
     App deletedApp = appService.deleteAppInLocal(appId);
     Mockito.verify(appRepository, Mockito.times(1)).deleteApp(Mockito.eq(appId),
         Mockito.eq(OPERATOR_USER_ID));
-    Mockito.verify(userInfoHolder, Mockito.times(1)).getUser();
     Mockito.verify(apolloAuditLogApi, Mockito.times(1)).appendDataInfluences(
         Mockito.eq(Collections.singletonList(deletedApp)), Mockito.eq(App.class));
     Mockito.verify(appNamespaceService, Mockito.times(1)).batchDeleteByAppId(Mockito.eq(appId),

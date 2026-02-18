@@ -16,10 +16,11 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
-import com.ctrip.framework.apollo.openapi.model.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
@@ -27,9 +28,9 @@ import java.util.Set;
 
 public interface AppOpenApiService {
 
-  void createApp(@NonNull OpenCreateAppDTO req);
+  OpenAppDTO createApp(@NonNull OpenCreateAppDTO req);
 
-  List<OpenEnvClusterDTO> getEnvClusterInfo(String appId);
+  List<OpenEnvClusterDTO> getEnvClusters(String appId);
 
   List<OpenAppDTO> getAllApps();
 
@@ -39,13 +40,13 @@ public interface AppOpenApiService {
 
   void updateApp(OpenAppDTO openAppDTO);
 
-  List<OpenAppDTO> getAppsBySelf(Set<String> appIds, Integer page, Integer size);
+  List<OpenAppDTO> getAppsWithPageAndSize(Set<String> appIds, Integer page, Integer size);
 
-  void createAppInEnv(String env, OpenAppDTO app, String operator);
+  void createAppInEnv(String env, OpenAppDTO app);
 
   OpenAppDTO deleteApp(String appId);
 
-  MultiResponseEntity findMissEnvs(String appId);
+  List<OpenMissEnvDTO> findMissEnvs(String appId);
 
-  MultiResponseEntity getAppNavTree(String appId);
+  List<OpenEnvClusterInfo> getEnvClusterInfos(String appId);
 }

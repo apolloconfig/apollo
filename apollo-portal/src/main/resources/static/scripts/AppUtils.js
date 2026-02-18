@@ -171,6 +171,22 @@ appUtil.service('AppUtil', ['toastr', '$window', '$q', '$translate', 'prefixLoca
             });
             return result;
         },
+        /**
+         * Filters and returns entities with successful status (code === 200).
+         * Returns the full entity object (new OpenAPI contract).
+         * For legacy response format with entity.body, use collectData instead.
+         */
+        gatherData: function (response) {
+            var data = [];
+            response.forEach(function (entity) {
+                if (entity.code === 200) {
+                  data.push(entity);
+                } else {
+                  toastr.warning(entity.message);
+                }
+            });
+            return data;
+        },
         collectData: function (response) {
             var data = [];
             response.entities.forEach(function (entity) {

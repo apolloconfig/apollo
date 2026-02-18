@@ -16,9 +16,13 @@
  */
 package com.ctrip.framework.apollo.portal.component;
 
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+
 public final class UserIdentityContextHolder {
 
   private static final ThreadLocal<String> AUTH_TYPE_HOLDER = new ThreadLocal<>();
+
+  private static final ThreadLocal<UserInfo> OPERATOR_HOLDER = new ThreadLocal<>();
 
   private UserIdentityContextHolder() {
     // Prevent instantiation
@@ -39,9 +43,24 @@ public final class UserIdentityContextHolder {
   }
 
   /**
+   * Read operator for current_thread
+   */
+  public static UserInfo getOperator() {
+    return OPERATOR_HOLDER.get();
+  }
+
+  /**
+   * Write operator for current thread
+   */
+  public static void setOperator(UserInfo userInfo) {
+    OPERATOR_HOLDER.set(userInfo);
+  }
+
+  /**
    * Clean up current thread variable to prevent memory leaks
    */
   public static void clear() {
     AUTH_TYPE_HOLDER.remove();
+    OPERATOR_HOLDER.remove();
   }
 }

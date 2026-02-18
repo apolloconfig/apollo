@@ -165,7 +165,7 @@ directive_module.directive('apolloclusterselector', function ($compile, $window,
             function refreshClusterList() {
                 AppService.load_nav_tree(scope.appId).then(function (result) {
                     scope.clusters = [];
-                    var envClusterInfo = AppUtil.collectData(result);
+                    var envClusterInfo = AppUtil.gatherData(result);
                     envClusterInfo.forEach(function (node) {
                         var env = node.env;
                         node.clusters.forEach(function (cluster) {

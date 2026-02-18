@@ -16,10 +16,17 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
-import com.ctrip.framework.apollo.openapi.api.InstanceOpenApiService;
+import com.ctrip.framework.apollo.common.dto.InstanceDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.InstanceService;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class ServerInstanceOpenApiService implements InstanceOpenApiService {
@@ -35,5 +42,48 @@ public class ServerInstanceOpenApiService implements InstanceOpenApiService {
       String namespaceName) {
     return instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env), clusterName,
         namespaceName);
+  }
+
+  /**
+   * Query instances by release version (supports pagination) - returns OpenAPI DTO
+   */
+  @Override
+  public OpenInstancePageDTO getByRelease(String env, long releaseId, int page, int size) {
+    PageDTO<InstanceDTO> portalPageDTO =
+        instanceService.getByRelease(Env.valueOf(env), releaseId, page, size);
+
+    return transformToOpenPageDTO(portalPageDTO);
+  }
+
+  /**
+   * Query instances not in a specified release - returns an OpenAPI DTO
+   */
+  @Override
+  public List<OpenInstanceDTO> getByReleasesNotIn(String env, String appId, String clusterName,
+      String namespaceName, Set<Long> releaseIds) {
+    List<InstanceDTO> portalInstances = instanceService.getByReleasesNotIn(Env.valueOf(env), appId,
+        clusterName, namespaceName, releaseIds);
+    return OpenApiModelConverters.fromInstanceDTOs(portalInstances);
+  }
+
+  @Override
+  public OpenInstancePageDTO getByNamespace(String env, String appId, String clusterName,
+      String namespaceName, String instanceAppId, Integer page, Integer size) {
+    return transformToOpenPageDTO(instanceService.getByNamespace(Env.valueOf(env), appId,
+        clusterName, namespaceName, instanceAppId, page, size));
+  }
+
+  /**
+   * Convert PageDTO<InstanceDTO> to OpenPageDTOOpenInstanceDTO
+   */
+  private OpenInstancePageDTO transformToOpenPageDTO(PageDTO<InstanceDTO> pageDTO) {
+    List<OpenInstanceDTO> instances = OpenApiModelConverters.fromInstanceDTOs(pageDTO.getContent());
+    OpenInstancePageDTO openInstancePageDTO = new OpenInstancePageDTO();
+    openInstancePageDTO.setPage(pageDTO.getPage());
+    openInstancePageDTO.setSize(pageDTO.getSize());
+    openInstancePageDTO.setTotal(pageDTO.getTotal());
+    openInstancePageDTO.setInstances(instances);
+
+    return openInstancePageDTO;
   }
 }

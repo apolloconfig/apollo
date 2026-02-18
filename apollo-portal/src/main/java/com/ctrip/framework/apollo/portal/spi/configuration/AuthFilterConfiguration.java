@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.filter.PortalUserSessionFilter;
 import com.ctrip.framework.apollo.portal.filter.UserTypeResolverFilter;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,13 +65,13 @@ public class AuthFilterConfiguration {
    */
   @Bean
   public FilterRegistrationBean<PortalUserSessionFilter> portalUserSessionFilter(
-      Environment environment) {
+      Environment environment, UserInfoHolder userInfoHolder) {
     FilterRegistrationBean<PortalUserSessionFilter> filter = new FilterRegistrationBean<>();
 
-    filter.setFilter(new PortalUserSessionFilter(environment));
+    filter.setFilter(new PortalUserSessionFilter(environment, userInfoHolder));
     filter.addUrlPatterns("/openapi/*");
     filter.setOrder(OPEN_API_AUTH_ORDER - 1); // Run before ConsumerAuthenticationFilter after
-                                              // springSecurityFilterChain
+    // springSecurityFilterChain
 
     return filter;
   }
