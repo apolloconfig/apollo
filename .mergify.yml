@@ -13,12 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+merge_queue:
+  max_parallel_checks: 1
+
 queue_rules:
   - name: single-commit
     autoqueue: true
     batch_size: 1
     merge_method: rebase
-    queue_conditions:
+    queue_conditions: &single_commit_conditions
       - "base = master"
       - "-draft"
       - "-closed"
@@ -32,16 +35,13 @@ queue_rules:
       - "check-success = code-style-check"
       - "check-success = license"
       - "check-success = CLAssistant"
-    merge_conditions:
-      - "check-success = build (8)"
-      - "check-success = build (11)"
-      - "check-success = build (17)"
+    merge_conditions: *single_commit_conditions
 
   - name: multi-commit
     autoqueue: true
     batch_size: 1
     merge_method: squash
-    queue_conditions:
+    queue_conditions: &multi_commit_conditions
       - "base = master"
       - "-draft"
       - "-closed"
@@ -55,10 +55,7 @@ queue_rules:
       - "check-success = code-style-check"
       - "check-success = license"
       - "check-success = CLAssistant"
-    merge_conditions:
-      - "check-success = build (8)"
-      - "check-success = build (11)"
-      - "check-success = build (17)"
+    merge_conditions: *multi_commit_conditions
 
 pull_request_rules:
   - name: notify author when PR has conflicts
