@@ -1,0 +1,12 @@
+{
+  "name": "apollo-portal-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test:e2e": "playwright test --project=chromium --grep '@smoke|@regression'",
+    "test:e2e:ci": "playwright test --project=chromium --grep '@smoke|@regression' --reporter=line,html"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

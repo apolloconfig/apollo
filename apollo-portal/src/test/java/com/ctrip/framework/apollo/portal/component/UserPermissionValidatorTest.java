@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.portal.component;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -219,6 +221,43 @@ class UserPermissionValidatorTest {
   @Test
   void hasPermissions_emptyList() {
     assertThat(validator.hasPermissions(Collections.emptyList())).isFalse();
+  }
+
+  /**
+   * Test that shouldHideConfigToCurrentUser normalizes env names correctly.
+   * Verifies fix for issue #5442 where env aliases (prod/PROD/PRO) caused permission bypass.
+   *
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  @Test
+  void shouldHideConfigToCurrentUser_envNormalization_prodAlias() {
+    // Setup: config view is member-only for "PRO" (canonical form)
+    when(portalConfig.isConfigViewMemberOnly("PRO")).thenReturn(true);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
+
+    // User is not app admin and has no operate permission
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+    when(rolePermissionService.hasAnyPermission(eq(USER_ID), anyList())).thenReturn(false);
+
+    // Test with "prod" alias - should normalize to "PRO" and hide config
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "prod", CLUSTER, NAMESPACE)).isTrue();
+
+    // Test with "PROD" alias - should also normalize to "PRO" and hide config
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "PROD", CLUSTER, NAMESPACE)).isTrue();
+  }
+
+  @Test
+  void shouldHideConfigToCurrentUser_envNormalization_localAlias() {
+    // Setup: config view is member-only for "LOCAL" (canonical form)
+    when(portalConfig.isConfigViewMemberOnly("LOCAL")).thenReturn(true);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null);
+
+    // User is not app admin and has no operate permission
+    when(rolePermissionService.isSuperAdmin(USER_ID)).thenReturn(false);
+    when(rolePermissionService.hasAnyPermission(eq(USER_ID), anyList())).thenReturn(false);
+
+    // Test with "local" alias - should normalize to "LOCAL" and hide config
+    assertThat(validator.shouldHideConfigToCurrentUser(APP_ID, "local", CLUSTER, NAMESPACE)).isTrue();
   }
 
 }

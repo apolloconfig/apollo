@@ -69,8 +69,11 @@ public class UserPermissionValidator extends AbstractPermissionValidator
   @Override
   public boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
       String namespaceName) {
+    // Normalize env to ensure consistency with permission checks
+    String normalizedEnv = normalizeEnv(env);
+
     // 1. check whether the current environment enables member only function
-    if (!portalConfig.isConfigViewMemberOnly(env)) {
+    if (!portalConfig.isConfigViewMemberOnly(normalizedEnv)) {
       return false;
     }
 
@@ -82,7 +85,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator
 
     // 3. check app admin and operate permissions
     return !isAppAdmin(appId)
-        && !hasOperateNamespacePermission(appId, env, clusterName, namespaceName);
+        && !hasOperateNamespacePermission(appId, normalizedEnv, clusterName, namespaceName);
   }
 
   @Override

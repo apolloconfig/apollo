@@ -29,6 +29,8 @@
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits format (e.g., `feat:`, `fix:`).
 - If a commit fixes an issue, append `Fixes #123` in the commit message.
+- Commit only on feature branches; never commit directly to `master` or `main`.
+- `CHANGES.md` entries must use a PR URL in Markdown link format; if the PR URL is not available yet, open the PR first, then add/update `CHANGES.md` in a follow-up commit.
 - Rebase onto `master` and squash feature work into a single commit before merge.
 - When merging a PR on GitHub: if it has a single commit, use rebase and merge; if it has multiple commits, use squash and merge.
 - Non-trivial contributions require signing the CLA.

@@ -1,0 +1,67 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+merge_queue:
+  max_parallel_checks: 1
+
+queue_rules:
+  - name: single-commit
+    autoqueue: true
+    batch_size: 1
+    merge_method: rebase
+    queue_conditions: &single_commit_conditions
+      - "base = master"
+      - "-draft"
+      - "-closed"
+      - "-conflict"
+      - "#approved-reviews-by >= 1"
+      - "#changes-requested-reviews-by = 0"
+      - "#commits = 1"
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+      - "check-success = code-style-check"
+      - "check-success = license"
+      - "check-success = CLAssistant"
+    merge_conditions: *single_commit_conditions
+
+  - name: multi-commit
+    autoqueue: true
+    batch_size: 1
+    merge_method: squash
+    queue_conditions: &multi_commit_conditions
+      - "base = master"
+      - "-draft"
+      - "-closed"
+      - "-conflict"
+      - "#approved-reviews-by >= 1"
+      - "#changes-requested-reviews-by = 0"
+      - "#commits > 1"
+      - "check-success = build (8)"
+      - "check-success = build (11)"
+      - "check-success = build (17)"
+      - "check-success = code-style-check"
+      - "check-success = license"
+      - "check-success = CLAssistant"
+    merge_conditions: *multi_commit_conditions
+
+pull_request_rules:
+  - name: notify author when PR has conflicts
+    conditions:
+      - "conflict"
+      - "-closed"
+    actions:
+      comment:
+        message: "@{{author}} This pull request has conflicts with the target branch. Please resolve them and update the branch before merging."

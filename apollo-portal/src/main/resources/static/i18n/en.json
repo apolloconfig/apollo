@@ -203,6 +203,8 @@
   "Component.Namespace.Master.Items.ItemHistory": "Change History",
   "Component.Namespace.Master.Items.ItemInstance": "Instance List",
   "Component.Namespace.Master.Items.CopyText": "Copy",
+  "Component.Namespace.Master.Items.Fullscreen": "Fullscreen",
+  "Component.Namespace.Master.Items.ExitFullscreen": "Exit Fullscreen",
   "Component.Namespace.Master.Items.GrammarCheck": "Syntax Check",
   "Component.Namespace.Master.Items.CancelChanged": "Cancel",
   "Component.Namespace.Master.Items.Change": "Modify",
