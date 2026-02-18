@@ -29,7 +29,7 @@ RUN unzip /apollo-adminservice/apollo-adminservice-${VERSION}-github.zip -d /apo
     && rm -rf /apollo-adminservice/apollo-adminservice-${VERSION}-github.zip \
     && chmod +x /apollo-adminservice/scripts/startup.sh 
 
-FROM eclipse-temurin:17.0.18_8-jre-jammy
+FROM eclipse-temurin:17-jre-jammy
 LABEL maintainer="g632104866@gmail.com;finchcn@gmail.com;ameizi<sxyx2008@163.com>"
 
 ENV APOLLO_RUN_MODE "Docker"
