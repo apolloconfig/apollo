@@ -1,0 +1,207 @@
+#
+# Copyright 2024 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Docker Validation
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'apollo-configservice/src/main/docker/Dockerfile'
+      - 'apollo-adminservice/src/main/docker/Dockerfile'
+      - 'apollo-portal/src/main/docker/Dockerfile'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apollo-configservice/src/main/docker/Dockerfile'
+      - 'apollo-adminservice/src/main/docker/Dockerfile'
+      - 'apollo-portal/src/main/docker/Dockerfile'
+  workflow_dispatch:
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      dockerfiles: ${{ steps.manual-targets.outputs.dockerfiles || steps.dockerfile-changes.outputs.dockerfiles }}
+      configservice: ${{ steps.manual-targets.outputs.configservice || steps.dockerfile-changes.outputs.configservice }}
+      adminservice: ${{ steps.manual-targets.outputs.adminservice || steps.dockerfile-changes.outputs.adminservice }}
+      portal: ${{ steps.manual-targets.outputs.portal || steps.dockerfile-changes.outputs.portal }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Detect Dockerfile changes
+      id: dockerfile-changes
+      uses: dorny/paths-filter@v3
+      with:
+        filters: |
+          dockerfiles:
+            - 'apollo-*/src/main/docker/Dockerfile'
+          configservice:
+            - 'apollo-configservice/src/main/docker/Dockerfile'
+          adminservice:
+            - 'apollo-adminservice/src/main/docker/Dockerfile'
+          portal:
+            - 'apollo-portal/src/main/docker/Dockerfile'
+    - name: Set full validation targets for manual run
+      if: github.event_name == 'workflow_dispatch'
+      id: manual-targets
+      run: |
+        echo "dockerfiles=true" >> $GITHUB_OUTPUT
+        echo "configservice=true" >> $GITHUB_OUTPUT
+        echo "adminservice=true" >> $GITHUB_OUTPUT
+        echo "portal=true" >> $GITHUB_OUTPUT
+
+  docker-smoke:
+    needs: changes
+    if: needs.changes.outputs.dockerfiles == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Build package
+      run: ./scripts/build.sh
+    - name: Resolve Maven project version
+      id: project-version
+      run: |
+        echo "version=$(mvn -q -N help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
+    - name: Validate changed Dockerfiles
+      env:
+        VERSION: ${{ steps.project-version.outputs.version }}
+        CONFIGSERVICE_CHANGED: ${{ needs.changes.outputs.configservice }}
+        ADMINSERVICE_CHANGED: ${{ needs.changes.outputs.adminservice }}
+        PORTAL_CHANGED: ${{ needs.changes.outputs.portal }}
+      run: |
+        set -euo pipefail
+
+        validate_dockerfile() {
+          local service="$1"
+          local dockerfile="$2"
+          local context="$3"
+          local startup_script="$4"
+          local host_port="$5"
+          local container_port="$6"
+          local datasource_url="$7"
+          local active_profiles="$8"
+          local image_tag="${service}:ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          local container_name="${service}-smoke-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          local healthy=0
+          local run_args=(
+            --detach
+            --name "$container_name"
+            --publish "127.0.0.1:${host_port}:${container_port}"
+            --env "APOLLO_PROFILE=${active_profiles}"
+            --env "SPRING_PROFILES_ACTIVE=${active_profiles}"
+            --env "SPRING_DATASOURCE_URL=${datasource_url}"
+            --env "SERVER_PORT=${container_port}"
+            --entrypoint /bin/bash
+          )
+
+          docker build \
+            --file "$dockerfile" \
+            --build-arg VERSION="${VERSION}" \
+            --tag "$image_tag" \
+            "$context"
+
+          if [[ "$service" == "apollo-portal" ]]; then
+            run_args+=(
+              --env "APOLLO_PORTAL_ENVS=dev"
+              --env "DEV_META=http://127.0.0.1:8080"
+              --env "FAT_META=http://127.0.0.1:8080"
+              --env "UAT_META=http://127.0.0.1:8080"
+              --env "PRO_META=http://127.0.0.1:8080"
+            )
+          fi
+
+          docker run "${run_args[@]}" \
+            "$image_tag" \
+            -c "set -euo pipefail; test -x '${startup_script}'; exec '${startup_script}'"
+
+          for i in $(seq 1 120); do
+            if curl --silent --fail "http://127.0.0.1:${host_port}/health" | grep -q "UP"; then
+              healthy=1
+              break
+            fi
+
+            if [[ -z "$(docker ps --filter "name=^/${container_name}$" --filter status=running --quiet)" ]]; then
+              echo "${service} container exited before health check succeeded"
+              docker logs "$container_name" || true
+              docker rm -f "$container_name" >/dev/null 2>&1 || true
+              return 1
+            fi
+
+            sleep 1
+          done
+
+          if [[ "$healthy" -ne 1 ]]; then
+            echo "${service} health check timeout"
+            docker logs "$container_name" || true
+            docker rm -f "$container_name" >/dev/null 2>&1 || true
+            return 1
+          fi
+
+          docker rm -f "$container_name" >/dev/null 2>&1 || true
+
+          docker run --rm --entrypoint /bin/bash "$image_tag" \
+            -c "set -euo pipefail; test -x '${startup_script}'; java -version"
+        }
+
+        if [[ "${CONFIGSERVICE_CHANGED}" == "true" ]]; then
+          validate_dockerfile \
+            "apollo-configservice" \
+            "./apollo-configservice/src/main/docker/Dockerfile" \
+            "./apollo-configservice/target" \
+            "/apollo-configservice/scripts/startup.sh" \
+            "18080" \
+            "8080" \
+            "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+            "h2"
+        fi
+
+        if [[ "${ADMINSERVICE_CHANGED}" == "true" ]]; then
+          validate_dockerfile \
+            "apollo-adminservice" \
+            "./apollo-adminservice/src/main/docker/Dockerfile" \
+            "./apollo-adminservice/target" \
+            "/apollo-adminservice/scripts/startup.sh" \
+            "18090" \
+            "8090" \
+            "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+            "h2"
+        fi
+
+        if [[ "${PORTAL_CHANGED}" == "true" ]]; then
+          validate_dockerfile \
+            "apollo-portal" \
+            "./apollo-portal/src/main/docker/Dockerfile" \
+            "./apollo-portal/target" \
+            "/apollo-portal/scripts/startup.sh" \
+            "18070" \
+            "8070" \
+            "jdbc:h2:mem:apollo-portal-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+            "h2,auth"
+        fi
