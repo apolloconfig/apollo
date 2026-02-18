@@ -196,28 +196,49 @@ async function selectOrganization(page) {
   });
 }
 
-async function selectUserByKeyword(page, panelSelector, keyword) {
+async function selectUserByKeyword(page, panelSelector, keyword, options = {}) {
+  const {
+    exact = false,
+    timeoutMs = 20000,
+  } = options;
   await page.locator(`${panelSelector} .select2-selection`).first().click();
   const searchInput = page.locator('body .select2-container--open .select2-search__field');
   await searchInput.fill(keyword);
 
+  const optionMatcher = exact
+    ? new RegExp(`^\\s*${escapeRegExp(keyword)}\\s*$`, 'i')
+    : keyword;
   const matchedOption = page
     .locator('body .select2-container--open .select2-results__option')
-    .filter({ hasText: keyword })
+    .filter({ hasText: optionMatcher })
     .first();
 
-  await matchedOption.waitFor({ state: 'visible', timeout: 20000 });
+  await matchedOption.waitFor({ state: 'visible', timeout: timeoutMs });
+  const selectedText = (await matchedOption.innerText()).trim();
   await matchedOption.click();
+  return selectedText;
 }
 
-async function createAppViaUi(page, appId) {
+async function createAppViaUiWithUserSelection(page, appId, options = {}) {
+  const {
+    ownerKeyword = USERNAME,
+    adminKeyword = USERNAME,
+  } = options;
   await page.goto('/app.html', { waitUntil: 'domcontentloaded' });
 
   await selectOrganization(page);
   await page.fill('input[name="appId"]', appId);
   await page.fill('input[name="appName"]', appId);
-  await selectUserByKeyword(page, '.J_ownerSelectorPanel', USERNAME);
-  await selectUserByKeyword(page, '.J_adminSelectorPanel', USERNAME);
+  const ownerSelectionText = await selectUserByKeyword(
+    page,
+    '.J_ownerSelectorPanel',
+    ownerKeyword
+  );
+  const adminSelectionText = await selectUserByKeyword(
+    page,
+    '.J_adminSelectorPanel',
+    adminKeyword
+  );
 
   await Promise.all([
     page.waitForURL(
@@ -230,6 +251,14 @@ async function createAppViaUi(page, appId) {
   ]);
 
   await expect(page).toHaveURL(/config\.html/);
+  return {
+    ownerSelectionText,
+    adminSelectionText,
+  };
+}
+
+async function createAppViaUi(page, appId) {
+  await createAppViaUiWithUserSelection(page, appId);
 }
 
 async function submitAppCreation(page, appId) {
@@ -417,6 +446,90 @@ async function assignNamespaceRoleViaUi(page, appId, namespaceName, options = {}
 
   await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
   return targetEnv;
+}
+
+function parseUserIdFromSelect2Text(selectionText) {
+  if (!selectionText) {
+    return '';
+  }
+  const [firstPart] = selectionText.split('|');
+  return `${firstPart || ''}`.trim();
+}
+
+async function assignNamespaceRoleViaUiBySearch(page, appId, namespaceName, options = {}) {
+  const {
+    roleType = 'ModifyNamespace',
+    userKeyword = USERNAME,
+    env = '',
+  } = options;
+  const namespaceParam = encodePathSegment(namespaceName);
+  await page.goto(`/namespace/role.html?#/appid=${appId}&namespaceName=${namespaceParam}`, {
+    waitUntil: 'domcontentloaded',
+  });
+  await page.locator('section.panel[ng-controller="NamespaceRoleController"]').waitFor({
+    state: 'visible',
+    timeout: 60000,
+  });
+
+  const isReleaseRole = roleType === 'ReleaseNamespace';
+  const formSelector = isReleaseRole
+    ? 'form[ng-submit="assignRoleToUser(\'ReleaseNamespace\')"]'
+    : 'form[ng-submit="assignRoleToUser(\'ModifyNamespace\')"]';
+  const selectedUserText = await selectUserByKeyword(page, formSelector, userKeyword);
+  const selectedUserId = parseUserIdFromSelect2Text(selectedUserText);
+  expect(selectedUserId).toBeTruthy();
+
+  let targetEnv = env;
+  if (env) {
+    const envSelector = isReleaseRole
+      ? `${formSelector} select[ng-model="releaseRoleSelectedEnv"]`
+      : `${formSelector} select[ng-model="modifyRoleSelectedEnv"]`;
+    const roleEnvSelector = page.locator(envSelector).first();
+    await roleEnvSelector.waitFor({ state: 'visible', timeout: 30000 });
+    targetEnv = await roleEnvSelector.evaluate((select, preferredEnv) => {
+      const envOptions = Array.from(select.options)
+        .map((option) => option.value)
+        .filter(Boolean);
+      if (envOptions.length === 0) {
+        return '';
+      }
+      const selectedEnv = preferredEnv && envOptions.includes(preferredEnv)
+        ? preferredEnv
+        : envOptions[0];
+      select.value = selectedEnv;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return selectedEnv;
+    }, env);
+  }
+
+  await clearNamespaceRoleViaPortalApi(page, appId, namespaceName, {
+    roleType,
+    userId: selectedUserId,
+    ...(targetEnv ? { env: targetEnv } : {}),
+  });
+
+  const grantRoleResponse = waitForApiResponseByFragments(
+    page,
+    'POST',
+    [
+      `/apps/${appId}/`,
+      '/namespaces/',
+      `/roles/${roleType}`,
+      ...(targetEnv ? [`/envs/${targetEnv}/`] : []),
+    ]
+  );
+
+  await Promise.all([
+    grantRoleResponse,
+    page.locator(`${formSelector} button[type="submit"]`).first().click(),
+  ]);
+
+  await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
+  return {
+    targetEnv,
+    selectedUserId,
+    selectedUserText,
+  };
 }
 
 async function revokeNamespaceRoleViaUi(page, appId, namespaceName, options = {}) {
@@ -1266,6 +1379,7 @@ module.exports = {
   login,
   selectOrganization,
   selectUserByKeyword,
+  createAppViaUiWithUserSelection,
   waitForApiResponse,
   waitForApiCall,
   waitForApiResponseByFragments,
@@ -1277,6 +1391,7 @@ module.exports = {
   createNamespaceViaUi,
   clearNamespaceRoleViaPortalApi,
   assignNamespaceRoleViaUi,
+  assignNamespaceRoleViaUiBySearch,
   revokeNamespaceRoleViaUi,
   openConfigPage,
   switchNamespaceView,

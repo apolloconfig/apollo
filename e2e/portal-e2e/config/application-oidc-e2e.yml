@@ -1,0 +1,24 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: "${OIDC_ISSUER_URI:http://127.0.0.1:9080/realms/apollo}"
+        registration:
+          keycloak:
+            authorization-grant-type: authorization_code
+            client-authentication-method: basic
+            client-id: "${OIDC_CLIENT_ID:apollo-portal}"
+            provider: keycloak
+            scope:
+              - openid
+              - profile
+              - email
+            client-secret: "${OIDC_CLIENT_SECRET:apollo-secret}"
+      resourceserver:
+        jwt:
+          issuer-uri: "${OIDC_ISSUER_URI:http://127.0.0.1:9080/realms/apollo}"

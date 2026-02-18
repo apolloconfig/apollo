@@ -1,0 +1,20 @@
+spring:
+  ldap:
+    base: "dc=example,dc=org"
+    username: "cn=admin,dc=example,dc=org"
+    password: "admin"
+    searchFilter: "(uid={0})"
+    urls:
+      - "${LDAP_URL:ldap://127.0.0.1:3389}"
+
+ldap:
+  mapping:
+    objectClass: "inetOrgPerson"
+    loginId: "uid"
+    rdnKey: "uid"
+    userDisplayName: "cn"
+    email: "mail"
+  group:
+    groupBase: "ou=group"
+    groupSearch: "(&(cn=dev))"
+    groupMembership: "memberUid"

@@ -24,10 +24,22 @@ ADMIN_URL="${ADMIN_URL:-http://${BASE_HOST}:8090}"
 WAIT_TIMEOUT_SECONDS="${WAIT_TIMEOUT_SECONDS:-300}"
 PORTAL_USERNAME="${PORTAL_USERNAME:-apollo}"
 PORTAL_PASSWORD="${PORTAL_PASSWORD:-admin}"
+PORTAL_AUTH_MODE="${PORTAL_AUTH_MODE:-auth}"
 
 probe() {
   local url="$1"
   curl -fsS "$url" >/dev/null 2>&1
+}
+
+portal_http_status() {
+  local url="$1"
+  curl -sS -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || echo "000"
+}
+
+portal_ready_for_oidc() {
+  local code
+  code="$(portal_http_status "${PORTAL_URL}/")"
+  [[ "$code" == "200" || "$code" == "302" || "$code" == "401" ]]
 }
 
 has_admin_service_registration() {
@@ -79,10 +91,17 @@ JSON
 
 deadline=$((SECONDS + WAIT_TIMEOUT_SECONDS))
 while (( SECONDS < deadline )); do
-  if probe "${PORTAL_URL}/signin" && probe "${CONFIG_URL}/health" && probe "${ADMIN_URL}/health"; then
-    if has_admin_service_registration && warm_up_portal_admin_path; then
-      echo "Portal/Admin path is ready"
-      exit 0
+  if probe "${CONFIG_URL}/health" && probe "${ADMIN_URL}/health"; then
+    if has_admin_service_registration; then
+      if [[ "${PORTAL_AUTH_MODE}" == "oidc" ]]; then
+        if portal_ready_for_oidc; then
+          echo "Portal/Admin path is ready (oidc mode)"
+          exit 0
+        fi
+      elif probe "${PORTAL_URL}/signin" && warm_up_portal_admin_path; then
+        echo "Portal/Admin path is ready"
+        exit 0
+      fi
     fi
   fi
   sleep 3
