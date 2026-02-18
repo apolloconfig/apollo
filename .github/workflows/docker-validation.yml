@@ -35,35 +35,61 @@ jobs:
   changes:
     runs-on: ubuntu-latest
     outputs:
-      dockerfiles: ${{ steps.manual-targets.outputs.dockerfiles || steps.dockerfile-changes.outputs.dockerfiles }}
-      configservice: ${{ steps.manual-targets.outputs.configservice || steps.dockerfile-changes.outputs.configservice }}
-      adminservice: ${{ steps.manual-targets.outputs.adminservice || steps.dockerfile-changes.outputs.adminservice }}
-      portal: ${{ steps.manual-targets.outputs.portal || steps.dockerfile-changes.outputs.portal }}
+      dockerfiles: ${{ steps.detect-changes.outputs.dockerfiles }}
+      configservice: ${{ steps.detect-changes.outputs.configservice }}
+      adminservice: ${{ steps.detect-changes.outputs.adminservice }}
+      portal: ${{ steps.detect-changes.outputs.portal }}
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Detect Dockerfile changes
-      id: dockerfile-changes
-      uses: dorny/paths-filter@v3
-      with:
-        filters: |
-          dockerfiles:
-            - 'apollo-*/src/main/docker/Dockerfile'
-          configservice:
-            - 'apollo-configservice/src/main/docker/Dockerfile'
-          adminservice:
-            - 'apollo-adminservice/src/main/docker/Dockerfile'
-          portal:
-            - 'apollo-portal/src/main/docker/Dockerfile'
-    - name: Set full validation targets for manual run
-      if: github.event_name == 'workflow_dispatch'
-      id: manual-targets
+      id: detect-changes
       run: |
-        echo "dockerfiles=true" >> $GITHUB_OUTPUT
-        echo "configservice=true" >> $GITHUB_OUTPUT
-        echo "adminservice=true" >> $GITHUB_OUTPUT
-        echo "portal=true" >> $GITHUB_OUTPUT
+        set -euo pipefail
+
+        configservice=false
+        adminservice=false
+        portal=false
+
+        if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+          configservice=true
+          adminservice=true
+          portal=true
+        else
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+          else
+            base_sha="${{ github.event.before }}"
+            head_sha="${{ github.sha }}"
+            if [[ "$base_sha" == "0000000000000000000000000000000000000000" ]]; then
+              base_sha="$(git rev-list --max-parents=0 "$head_sha" | tail -n 1)"
+            fi
+          fi
+
+          changed_files="$(git diff --name-only "$base_sha" "$head_sha")"
+
+          if echo "$changed_files" | grep -Fxq "apollo-configservice/src/main/docker/Dockerfile"; then
+            configservice=true
+          fi
+          if echo "$changed_files" | grep -Fxq "apollo-adminservice/src/main/docker/Dockerfile"; then
+            adminservice=true
+          fi
+          if echo "$changed_files" | grep -Fxq "apollo-portal/src/main/docker/Dockerfile"; then
+            portal=true
+          fi
+        fi
+
+        dockerfiles=false
+        if [[ "$configservice" == "true" || "$adminservice" == "true" || "$portal" == "true" ]]; then
+          dockerfiles=true
+        fi
+
+        echo "dockerfiles=${dockerfiles}" >> $GITHUB_OUTPUT
+        echo "configservice=${configservice}" >> $GITHUB_OUTPUT
+        echo "adminservice=${adminservice}" >> $GITHUB_OUTPUT
+        echo "portal=${portal}" >> $GITHUB_OUTPUT
 
   docker-smoke:
     needs: changes

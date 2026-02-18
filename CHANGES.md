@@ -32,5 +32,6 @@ Apollo 2.5.0
 * [Feature: Support search box and fullscreen in namespace text editor](https://github.com/apolloconfig/apollo/pull/5545)
 * [CI: Add portal UI Playwright e2e gate on PRs with JDK 17](https://github.com/apolloconfig/apollo/pull/5551)
 * [CI: Add portal auth matrix Playwright E2E gate for LDAP and OIDC login flows](https://github.com/apolloconfig/apollo/pull/5557)
+* [CI: Add standalone Docker validation workflow with Java 17 runtime image checks](https://github.com/apolloconfig/apollo/pull/5558)
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/16?closed=1)
