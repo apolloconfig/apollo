@@ -17,12 +17,6 @@
 name: Docker Validation
 
 on:
-  push:
-    branches: [ master ]
-    paths:
-      - 'apollo-configservice/src/main/docker/Dockerfile'
-      - 'apollo-adminservice/src/main/docker/Dockerfile'
-      - 'apollo-portal/src/main/docker/Dockerfile'
   pull_request:
     branches: [ master ]
     paths:
@@ -32,68 +26,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      dockerfiles: ${{ steps.detect-changes.outputs.dockerfiles }}
-      configservice: ${{ steps.detect-changes.outputs.configservice }}
-      adminservice: ${{ steps.detect-changes.outputs.adminservice }}
-      portal: ${{ steps.detect-changes.outputs.portal }}
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Detect Dockerfile changes
-      id: detect-changes
-      run: |
-        set -euo pipefail
-
-        configservice=false
-        adminservice=false
-        portal=false
-
-        if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-          configservice=true
-          adminservice=true
-          portal=true
-        else
-          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
-            base_sha="${{ github.event.pull_request.base.sha }}"
-            head_sha="${{ github.event.pull_request.head.sha }}"
-          else
-            base_sha="${{ github.event.before }}"
-            head_sha="${{ github.sha }}"
-            if [[ "$base_sha" == "0000000000000000000000000000000000000000" ]]; then
-              base_sha="$(git rev-list --max-parents=0 "$head_sha" | tail -n 1)"
-            fi
-          fi
-
-          changed_files="$(git diff --name-only "$base_sha" "$head_sha")"
-
-          if echo "$changed_files" | grep -Fxq "apollo-configservice/src/main/docker/Dockerfile"; then
-            configservice=true
-          fi
-          if echo "$changed_files" | grep -Fxq "apollo-adminservice/src/main/docker/Dockerfile"; then
-            adminservice=true
-          fi
-          if echo "$changed_files" | grep -Fxq "apollo-portal/src/main/docker/Dockerfile"; then
-            portal=true
-          fi
-        fi
-
-        dockerfiles=false
-        if [[ "$configservice" == "true" || "$adminservice" == "true" || "$portal" == "true" ]]; then
-          dockerfiles=true
-        fi
-
-        echo "dockerfiles=${dockerfiles}" >> $GITHUB_OUTPUT
-        echo "configservice=${configservice}" >> $GITHUB_OUTPUT
-        echo "adminservice=${adminservice}" >> $GITHUB_OUTPUT
-        echo "portal=${portal}" >> $GITHUB_OUTPUT
-
   docker-smoke:
-    needs: changes
-    if: needs.changes.outputs.dockerfiles == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -101,7 +34,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 17
     - name: Cache Maven packages
       uses: actions/cache@v4
       with:
@@ -115,12 +48,9 @@ jobs:
       id: project-version
       run: |
         echo "version=$(mvn -q -N help:evaluate -Dexpression=project.version -DforceStdout)" >> $GITHUB_OUTPUT
-    - name: Validate changed Dockerfiles
+    - name: Validate Dockerfiles
       env:
         VERSION: ${{ steps.project-version.outputs.version }}
-        CONFIGSERVICE_CHANGED: ${{ needs.changes.outputs.configservice }}
-        ADMINSERVICE_CHANGED: ${{ needs.changes.outputs.adminservice }}
-        PORTAL_CHANGED: ${{ needs.changes.outputs.portal }}
       run: |
         set -euo pipefail
 
@@ -196,38 +126,32 @@ jobs:
             -c "set -euo pipefail; test -x '${startup_script}'; java -version"
         }
 
-        if [[ "${CONFIGSERVICE_CHANGED}" == "true" ]]; then
-          validate_dockerfile \
-            "apollo-configservice" \
-            "./apollo-configservice/src/main/docker/Dockerfile" \
-            "./apollo-configservice/target" \
-            "/apollo-configservice/scripts/startup.sh" \
-            "18080" \
-            "8080" \
-            "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
-            "h2"
-        fi
+        validate_dockerfile \
+          "apollo-configservice" \
+          "./apollo-configservice/src/main/docker/Dockerfile" \
+          "./apollo-configservice/target" \
+          "/apollo-configservice/scripts/startup.sh" \
+          "18080" \
+          "8080" \
+          "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+          "h2"
 
-        if [[ "${ADMINSERVICE_CHANGED}" == "true" ]]; then
-          validate_dockerfile \
-            "apollo-adminservice" \
-            "./apollo-adminservice/src/main/docker/Dockerfile" \
-            "./apollo-adminservice/target" \
-            "/apollo-adminservice/scripts/startup.sh" \
-            "18090" \
-            "8090" \
-            "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
-            "h2"
-        fi
+        validate_dockerfile \
+          "apollo-adminservice" \
+          "./apollo-adminservice/src/main/docker/Dockerfile" \
+          "./apollo-adminservice/target" \
+          "/apollo-adminservice/scripts/startup.sh" \
+          "18090" \
+          "8090" \
+          "jdbc:h2:mem:apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+          "h2"
 
-        if [[ "${PORTAL_CHANGED}" == "true" ]]; then
-          validate_dockerfile \
-            "apollo-portal" \
-            "./apollo-portal/src/main/docker/Dockerfile" \
-            "./apollo-portal/target" \
-            "/apollo-portal/scripts/startup.sh" \
-            "18070" \
-            "8070" \
-            "jdbc:h2:mem:apollo-portal-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
-            "h2,auth"
-        fi
+        validate_dockerfile \
+          "apollo-portal" \
+          "./apollo-portal/src/main/docker/Dockerfile" \
+          "./apollo-portal/target" \
+          "/apollo-portal/scripts/startup.sh" \
+          "18070" \
+          "8070" \
+          "jdbc:h2:mem:apollo-portal-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+          "h2,auth"
