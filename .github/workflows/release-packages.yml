@@ -67,9 +67,9 @@ jobs:
           VERSION: ${{ steps.project-version.outputs.version }}
         run: |
           set -euo pipefail
-          shasum "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip" > "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip.sha1"
-          shasum "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip" > "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip.sha1"
-          shasum "apollo-portal/target/apollo-portal-${VERSION}-github.zip" > "apollo-portal/target/apollo-portal-${VERSION}-github.zip.sha1"
+          (cd "apollo-configservice/target" && shasum "apollo-configservice-${VERSION}-github.zip") > "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip.sha1"
+          (cd "apollo-adminservice/target" && shasum "apollo-adminservice-${VERSION}-github.zip") > "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip.sha1"
+          (cd "apollo-portal/target" && shasum "apollo-portal-${VERSION}-github.zip") > "apollo-portal/target/apollo-portal-${VERSION}-github.zip.sha1"
 
       - name: Verify release and artifacts
         env:
