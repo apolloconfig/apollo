@@ -22,6 +22,10 @@ on:
       release_tag:
         description: 'release tag, e.g. v2.5.0'
         required: true
+      skip_version_check:
+        description: 'skip release_tag and pom revision consistency check'
+        required: false
+        default: 'false'
 
 permissions:
   contents: write
@@ -78,12 +82,17 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.project-version.outputs.version }}
           RELEASE_TAG: ${{ inputs.release_tag }}
+          SKIP_VERSION_CHECK: ${{ inputs.skip_version_check }}
         run: |
           set -euo pipefail
-          TAG_VERSION="${RELEASE_TAG#v}"
-          if [[ "${TAG_VERSION}" != "${VERSION}" ]]; then
-            echo "Release tag (${RELEASE_TAG}) does not match pom revision (${VERSION})"
-            exit 1
+          if [[ "${SKIP_VERSION_CHECK,,}" != "true" ]]; then
+            TAG_VERSION="${RELEASE_TAG#v}"
+            if [[ "${TAG_VERSION}" != "${VERSION}" ]]; then
+              echo "Release tag (${RELEASE_TAG}) does not match pom revision (${VERSION})"
+              exit 1
+            fi
+          else
+            echo "Skip version consistency check by input: skip_version_check=${SKIP_VERSION_CHECK}"
           fi
           gh release view "${RELEASE_TAG}" --repo apolloconfig/apollo >/dev/null
           test -f "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip"
