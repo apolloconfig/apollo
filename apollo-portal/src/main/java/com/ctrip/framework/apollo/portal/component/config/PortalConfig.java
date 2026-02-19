@@ -49,7 +49,8 @@ public class PortalConfig extends RefreshableConfig {
       10; // 10s
 
   private static final Gson GSON = new Gson();
-  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {}.getType();
+  private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {
+  }.getType();
 
   private static final List<String> DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST = Arrays.asList("111",
       "222", "333", "444", "555", "666", "777", "888", "999", "000", "001122", "112233", "223344",
@@ -61,7 +62,8 @@ public class PortalConfig extends RefreshableConfig {
   /**
    * meta servers config in "PortalDB.ServerConfig"
    */
-  private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {}.getType();
+  private static final Type META_SERVERS = new TypeToken<Map<String, String>>() {
+  }.getType();
 
   private final PortalDBPropertySource portalDBPropertySource;
 
@@ -79,7 +81,7 @@ public class PortalConfig extends RefreshableConfig {
    **/
   public List<Env> portalSupportedEnvs() {
     String[] configurations =
-        getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
+        getArrayProperty("apollo.portal.envs", new String[]{"FAT", "UAT", "PRO"});
     List<Env> envs = Lists.newLinkedList();
 
     for (String env : configurations) {
@@ -305,6 +307,10 @@ public class PortalConfig extends RefreshableConfig {
 
   public boolean isManageAppMasterPermissionEnabled() {
     return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
+  }
+
+  public boolean isCreateUserPermissionEnabled() {
+    return getBooleanProperty(SystemRoleManagerService.CREATE_USER_LIMIT_SWITCH_KEY, false);
   }
 
   public String getAdminServiceAccessTokens() {

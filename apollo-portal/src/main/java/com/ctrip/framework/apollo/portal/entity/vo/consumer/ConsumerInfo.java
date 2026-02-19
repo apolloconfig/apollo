@@ -21,6 +21,7 @@ package com.ctrip.framework.apollo.portal.entity.vo.consumer;
  * @see com.ctrip.framework.apollo.openapi.entity.ConsumerRole
  */
 public class ConsumerInfo {
+
   private String appId;
   private String name;
 
@@ -32,6 +33,7 @@ public class ConsumerInfo {
   private long consumerId;
   private String token;
   private boolean allowCreateApplication;
+  private boolean allowCreateUser;
 
   private Integer rateLimit;
 
@@ -105,6 +107,14 @@ public class ConsumerInfo {
 
   public void setAllowCreateApplication(boolean allowCreateApplication) {
     this.allowCreateApplication = allowCreateApplication;
+  }
+
+  public boolean isAllowCreateUser() {
+    return allowCreateUser;
+  }
+
+  public void setAllowCreateUser(boolean allowCreateUser) {
+    this.allowCreateUser = allowCreateUser;
   }
 
   public Integer getRateLimit() {

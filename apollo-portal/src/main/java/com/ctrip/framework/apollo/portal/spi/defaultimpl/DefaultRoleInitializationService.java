@@ -81,10 +81,10 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
 
     // assign modify、release namespace role to user
     rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId,
-        ConfigConsts.NAMESPACE_APPLICATION, RoleType.MODIFY_NAMESPACE),
+            ConfigConsts.NAMESPACE_APPLICATION, RoleType.MODIFY_NAMESPACE),
         Sets.newHashSet(app.getOwnerName()), operator);
     rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId,
-        ConfigConsts.NAMESPACE_APPLICATION, RoleType.RELEASE_NAMESPACE),
+            ConfigConsts.NAMESPACE_APPLICATION, RoleType.RELEASE_NAMESPACE),
         Sets.newHashSet(app.getOwnerName()), operator);
 
   }
@@ -155,6 +155,28 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
         createRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME, "apollo");
     rolePermissionService.createRoleWithPermissions(createAppRole,
         Sets.newHashSet(createAppPermission.getId()));
+  }
+
+  @Transactional
+  @Override
+  public void initCreateUserRole() {
+    if (rolePermissionService
+        .findRoleByRoleName(SystemRoleManagerService.CREATE_USER_ROLE_NAME) != null) {
+      return;
+    }
+    Permission createUserPermission = permissionRepository.findTopByPermissionTypeAndTargetId(
+        PermissionType.CREATE_USER, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    if (createUserPermission == null) {
+      // create user permission init
+      createUserPermission = createPermission(SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID,
+          PermissionType.CREATE_USER, "apollo");
+      rolePermissionService.createPermission(createUserPermission);
+    }
+    // create user role init
+    Role createUserRole =
+        createRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME, "apollo");
+    rolePermissionService.createRoleWithPermissions(createUserRole,
+        Sets.newHashSet(createUserPermission.getId()));
   }
 
   @Transactional

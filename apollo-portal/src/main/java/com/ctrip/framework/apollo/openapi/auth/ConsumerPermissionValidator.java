@@ -95,6 +95,18 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator
   }
 
   @Override
+  public boolean hasCreateUserPermission() {
+    long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
+    return permissionService.consumerHasPermission(consumerId, PermissionType.CREATE_USER,
+        SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Override
+  public boolean hasCreateUserPermission(String userId) {
+    return false;
+  }
+
+  @Override
   protected boolean hasPermissions(List<Permission> requiredPerms) {
     if (requiredPerms == null || requiredPerms.isEmpty()) {
       return false;

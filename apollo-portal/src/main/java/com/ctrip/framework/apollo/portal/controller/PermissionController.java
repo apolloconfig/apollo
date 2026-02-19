@@ -481,4 +481,50 @@ public class PermissionController {
         systemRoleManagerService.isManageAppMasterPermissionEnabled());
     return rs;
   }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @PostMapping("/system/role/createUser")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.addCreateUserRoleToUser")
+  public ResponseEntity<Void> addCreateUserRoleToUser(@RequestBody List<String> userIds) {
+    userIds.forEach(this::checkUserExists);
+    rolePermissionService.assignRoleToUsers(SystemRoleManagerService.CREATE_USER_ROLE_NAME,
+        new HashSet<>(userIds), userInfoHolder.getUser().getUserId());
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @DeleteMapping("/system/role/createUser/{userId}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.deleteCreateUserRoleFromUser")
+  public ResponseEntity<Void> deleteCreateUserRoleFromUser(@PathVariable("userId") String userId) {
+    checkUserExists(userId);
+    Set<String> userIds = new HashSet<>();
+    userIds.add(userId);
+    rolePermissionService.removeRoleFromUsers(SystemRoleManagerService.CREATE_USER_ROLE_NAME,
+        userIds, userInfoHolder.getUser().getUserId());
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @GetMapping("/system/role/createUser")
+  public List<String> getCreateUserRoleUsers() {
+    return rolePermissionService
+        .queryUsersWithRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME).stream()
+        .map(UserInfo::getUserId).collect(Collectors.toList());
+  }
+
+  @GetMapping("/system/role/createUser/{userId}")
+  public JsonObject hasCreateUserPermission(@PathVariable String userId) {
+    JsonObject rs = new JsonObject();
+    rs.addProperty("hasCreateUserPermission",
+        unifiedPermissionValidator.hasCreateUserPermission(userId));
+    return rs;
+  }
+
+  @GetMapping("/system/role/createUser/enabled")
+  public JsonObject isCreateUserPermissionEnabled() {
+    JsonObject rs = new JsonObject();
+    rs.addProperty("isCreateUserPermissionEnabled",
+        systemRoleManagerService.isCreateUserPermissionEnabled());
+    return rs;
+  }
 }

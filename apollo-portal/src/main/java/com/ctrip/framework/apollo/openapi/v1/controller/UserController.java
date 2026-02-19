@@ -66,7 +66,7 @@ public class UserController {
    * @param openUserDTO user information to create
    * @return ResponseEntity with created user information
    */
-  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateUserPermission()")
   @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE,
       description = "Create user via OpenAPI")
   @PostMapping("/users")
@@ -117,7 +117,7 @@ public class UserController {
    * @param userId the user ID to query
    * @return UserInfo object
    */
-  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateUserPermission()")
   @GetMapping("/users/{userId}")
   public ResponseEntity<UserInfo> getUserByUserId(@PathVariable String userId) {
     UserInfo userInfo = userService.findByUserId(userId);
@@ -136,7 +136,7 @@ public class UserController {
    * @param limit                pagination limit
    * @return list of UserInfo objects
    */
-  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateUserPermission()")
   @GetMapping("/users")
   public ResponseEntity<List<UserInfo>> searchUsers(
       @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
