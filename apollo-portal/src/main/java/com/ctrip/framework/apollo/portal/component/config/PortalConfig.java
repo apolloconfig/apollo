@@ -154,11 +154,21 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isConfigViewMemberOnly(String env) {
+    // Normalize env to handle aliases (prod/PROD/PRO)
+    Env transformedEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN == transformedEnv) {
+      // Invalid env, treat as not member-only for safety
+      return false;
+    }
+    String normalizedEnv = transformedEnv.getName();
+
     String[] configViewMemberOnlyEnvs =
         getArrayProperty("configView.memberOnly.envs", new String[0]);
 
     for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
-      if (memberOnlyEnv.equalsIgnoreCase(env)) {
+      // Normalize configured env as well for consistent comparison
+      Env configEnv = Env.transformEnv(memberOnlyEnv);
+      if (configEnv != Env.UNKNOWN && configEnv.getName().equals(normalizedEnv)) {
         return true;
       }
     }

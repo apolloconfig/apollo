@@ -1,0 +1,120 @@
+#
+# Copyright 2024 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Release Packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'release tag, e.g. v2.5.0'
+        required: true
+      skip_version_check:
+        description: 'skip release_tag and pom revision consistency check'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+
+      - name: Set up JDK 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Build package
+        run: ./scripts/build.sh
+
+      - name: Resolve project version from pom revision
+        id: project-version
+        run: |
+          set -euo pipefail
+          VERSION=$(mvn -q -N help:evaluate -Dexpression=revision -DforceStdout | tail -n 1 | tr -d '\r')
+          if [[ -z "${VERSION}" ]]; then
+            echo "Failed to resolve revision from pom.xml"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Generate checksums
+        env:
+          VERSION: ${{ steps.project-version.outputs.version }}
+        run: |
+          set -euo pipefail
+          (cd "apollo-configservice/target" && shasum "apollo-configservice-${VERSION}-github.zip") > "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip.sha1"
+          (cd "apollo-adminservice/target" && shasum "apollo-adminservice-${VERSION}-github.zip") > "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip.sha1"
+          (cd "apollo-portal/target" && shasum "apollo-portal-${VERSION}-github.zip") > "apollo-portal/target/apollo-portal-${VERSION}-github.zip.sha1"
+
+      - name: Verify release and artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.project-version.outputs.version }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          SKIP_VERSION_CHECK: ${{ inputs.skip_version_check }}
+        run: |
+          set -euo pipefail
+          if [[ "${SKIP_VERSION_CHECK,,}" != "true" ]]; then
+            TAG_VERSION="${RELEASE_TAG#v}"
+            if [[ "${TAG_VERSION}" != "${VERSION}" ]]; then
+              echo "Release tag (${RELEASE_TAG}) does not match pom revision (${VERSION})"
+              exit 1
+            fi
+          else
+            echo "Skip version consistency check by input: skip_version_check=${SKIP_VERSION_CHECK}"
+          fi
+          gh release view "${RELEASE_TAG}" --repo apolloconfig/apollo >/dev/null
+          test -f "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip"
+          test -f "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip.sha1"
+          test -f "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip"
+          test -f "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip.sha1"
+          test -f "apollo-portal/target/apollo-portal-${VERSION}-github.zip"
+          test -f "apollo-portal/target/apollo-portal-${VERSION}-github.zip.sha1"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.project-version.outputs.version }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          gh release upload "${RELEASE_TAG}" \
+            "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip" \
+            "apollo-configservice/target/apollo-configservice-${VERSION}-github.zip.sha1" \
+            "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip" \
+            "apollo-adminservice/target/apollo-adminservice-${VERSION}-github.zip.sha1" \
+            "apollo-portal/target/apollo-portal-${VERSION}-github.zip" \
+            "apollo-portal/target/apollo-portal-${VERSION}-github.zip.sha1" \
+            --repo apolloconfig/apollo \
+            --clobber

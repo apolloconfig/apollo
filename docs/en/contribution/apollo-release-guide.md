@@ -1,136 +1,160 @@
-# 1. Upgrade version
+# Apollo Release Guide (Skill-driven)
 
-Replace the version number in full under the Apollo project, e.g. 1.9.1-SNAPSHOT to 1.9.1. Be sure to replace the non-version number in the process.
+This guide is for teams using Codex / Claude Code to trigger release skills via natural language.
+The goal is to minimize manual operations, standardize release quality, and keep human confirmation before critical external actions.
 
-# 2. Writing Release Reports
+## 1. Scope and recommended order
 
-Each PR between two versions is recorded in [https://github.com/apolloconfig/apollo/blob/master/CHANGES.md](https://github.com/apolloconfig/apollo/blob/master/CHANGES.md), so you only need to extract it from CHANGES.md to write the release report. Release report reference: [https://github.com/apolloconfig/apollo/releases/tag/v1.8.0](https://github.com/apolloconfig/apollo/releases/tag/v1.8.0)
+The Apollo release process is covered by three skills:
 
-# 3. Version validation
+1. `apollo-java-release` for `apolloconfig/apollo-java`
+2. `apollo-release` for `apolloconfig/apollo`
+3. `apollo-helm-chart-release` for `apolloconfig/apollo-helm-chart`
 
-Version validation consists of three main areas of validation.
+Recommended order:
 
-1. Verification of newly introduced code changes, such as new features, bugfixes
-1. Apollo core main process validation, including: configuration release, dynamic push, grayscale push, etc.
-1. upgrade process validation, including: classic deployment mode, docker mode, k8s mode
+1. Release `apollo-java-release` first (no dependency on other release flows)
+2. Release `apollo-release` second (usually depends on the new Java SDK version)
+3. Release `apollo-helm-chart-release` last
 
-# 4. Version release
+> If a release does not involve one repository, you can skip that sub-flow.
 
-## 4.1 Tagging
+## 2. Preparation
 
-1. Pull the latest code from master
-   1. git pull origin master  
-2. Tag
-   1. git tag ${new-version}
-3. Push tag
-   1. git push origin tag ${new-version}
+### 2.1 Permissions and tools
 
-## 4.2 Packages
+- GitHub permissions for PR, Release, Workflow, Discussion, and Milestone operations
+- Required local commands: `git`, `gh`, `python3`, `jq`
+- Additional command for Helm chart release: `helm`
 
-### 4.2.1 Pre-checking
+### 2.2 Repository and branch state
 
-Before packaging, check your local environment, mvn -v to make sure the java version is 1.8, e.g. the following output.
+- Keep each target repository clean before starting
+- Ensure base branches are up to date (`master` for `apollo`, default branch for other repos)
 
-> mvn -v
-> Apache Maven 3.8.1 (05c21c65bdfed0f71a2f2ada8b84da59348c4c5d) Maven home: /usr/local/Cellar/maven/3.8.1/libexec
-> Java version: 1.8.0_301, vendor: Oracle Corporation, runtime: /Library/Java/JavaVirtualMachines/jdk1.8.0_301.jdk/Contents/Home/jre
-> Default locale: zh_CN, platform encoding: UTF-8
-> OS name: "mac os x", version: "10.16", arch: "x86_64", family: "mac"
+### 2.3 Release inputs to prepare
 
-### 4.2.2 Packages
+- Release version (for example `2.8.0`)
+- Next development version (for example `2.9.0-SNAPSHOT`)
+- Highlights PR list (for example `PR_ID_1,PR_ID_2,PR_ID_3`)
 
-In the ${apollo_home}/scripts/ directory, execute.
+### 2.4 Install release skills (Codex / Claude Code)
 
-> . /build.sh
+Before using the flows in this guide, install these three skills first:
 
-If the following error is reported.
+- `apollo-java-release`
+- `apollo-release`
+- `apollo-helm-chart-release`
 
-> zsh: . /build.sh: bad interpreter: /bin/sh^M: no such file or directory
+Recommended approach (natural language):
 
-Then you need to execute the following command to convert to unix
+1. Use `skill-installer` in a Codex session
+2. Set the source to the full GitHub URL: `https://github.com/apolloconfig/apollo-skills`
+3. Install the three skills above
 
-> brew install dos2unix
-> dos2unix build.sh
+Example natural-language request:
 
-### 4.2.3 Calculating checksum for build packages
+- “Use `skill-installer` to install `apollo-java-release`, `apollo-release`, and `apollo-helm-chart-release` from `https://github.com/apolloconfig/apollo-skills`.”
 
-To calculate configservice checksum
+If you prefer manual setup, place these skill folders into your local skill directory (usually `$CODEX_HOME/skills` or `~/.codex/skills`) and restart the client.
 
-> In the ${apollo_home}/apollo-configservice/target/ directory, execute.
->
-> shasum apollo-configservice-${new-version}-github.zip > apollo-configservice-${new-version}-github.zip.sha1
+## 3. Release Apollo Java (`apollo-java-release`)
 
-Calculate adminservice checksum
+### 3.1 How to trigger (natural language)
 
-> In the ${apollo_home}/apollo-adminservice/target/ directory, execute.
->
-> shasum apollo-adminservice-${new-version}-github.zip > apollo-adminservice-${new-version}-github.zip.sha1
+In the `apollo-java` workspace session, ask with a prompt like:
 
-Calculate portal checksum
+- "Use `apollo-java-release` to publish `X.Y.Z`, next version `A.B.C-SNAPSHOT`, and use these PRs for highlights: `...`"
 
-> In the ${apollo_home}/apollo-portal/target/ directory, execute.  
->
-> shasum apollo-portal-${new-version}-github.zip > apollo-portal-${new-version}-github.zip.sha1
+### 3.2 What the skill automates
 
-## 4.3 Creating a pre-release
+- Version bump PR (`revision` from SNAPSHOT to release)
+- Prerelease creation
+- Trigger `release.yml` and wait for Sonatype Central publish completion
+- Announcement discussion publishing
+- Post-release snapshot bump and post-release PR
+- Prerelease promotion to official release
 
-Github create pre-release
+### 3.3 Checkpoint interaction model
 
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/create-release.png)
+- The skill pauses automatically before critical external actions and asks whether to continue
+- You respond in chat to continue, or request edits before proceeding
 
-Fill out the Release Note & upload the package
+## 4. Release Apollo Server (`apollo-release`)
 
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/fill-release-form.png)
+### 4.1 How to trigger (natural language)
 
-## 4.4 Pre-release Apollo-Client Jar Package
+In the `apollo` workspace session, ask with a prompt like:
 
-Publish via github workflow.
+- "Use `apollo-release` to publish `X.Y.Z`, next version `A.B.C-SNAPSHOT`, with highlights PRs `...`"
 
-[https://github.com/apolloconfig/apollo-java/actions/workflows/release.yml](https://github.com/apolloconfig/apollo-java/actions/workflows/release.yml)
+### 4.2 What the skill automates
 
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/publish-sdk.png)
+- Version bump PR (`pom.xml` `revision`)
+- Release notes and announcement draft generation from `CHANGES.md`
+- Prerelease creation (`vX.Y.Z`)
+- Package build + checksum upload via GitHub Actions
+- Docker publish workflow trigger
+- Prerelease promotion to official release
+- Announcement discussion publishing
+- Post-release snapshot bump, `CHANGES.md` archive, milestone updates, and post-release PR
 
-> Note: If you are releasing a SNAPSHOT version, use the default value snapshots. If you are releasing an official version (without SNAPSHOT), you need to change it to releases to make it work.
+### 4.3 Checkpoint interaction model
 
-## 4.5 Release PMC Polling
+Same model as `apollo-java-release`:
 
-Polling is used to allow PMC members to collaborate on verifying the content of a release and preventing problematic releases.
-The polling takes the form of a thread in Discussions, available at [https://github.com/apolloconfig/apollo/discussions/3899](https://github.com/apolloconfig/apollo/discussions/3899)
+- System prompts appear at checkpoints
+- You can continue or request adjustments (highlights, notes, parameters)
 
-## 4.6 Official release of Apollo-Client Jar to repositories
+## 5. Release Helm Charts (`apollo-helm-chart-release`)
 
-## 4.7 Release Docker image
+### 5.1 How to trigger (natural language)
 
-## 4.7.1 Build the image locally and test it
+In the `apollo-helm-chart` workspace session, ask with a prompt like:
 
-With the package packed in step 4.2, execute in the apollo root directory
+- "Use `apollo-helm-chart-release` to publish the current chart version changes"
 
-> mvn docker:build -pl apollo-configservice,apollo-adminservice,apollo-portal
+### 5.2 What the skill automates
 
-Note: If you get an error, you may need to restart the local docker
+- Chart version change detection and consistency checks
+- `helm lint`, `helm package`, and `helm repo index`
+- File whitelist checks to prevent accidental commits
+- Branch and commit draft generation
+- Pause before push / PR for explicit confirmation (no auto-push/no auto-PR by default)
 
-### 4.7.2 Push image to repository
+## 6. Unified post-release verification
 
-Publish via github workflow.
+At minimum, verify:
 
-[https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml](https://github.com/apolloconfig/apollo/actions/workflows/docker-publish.yml)
+1. Apollo release page includes 3 zip files and 3 sha1 files
+2. Docker image tags are available
+3. `apollo-java` artifacts are available in Maven Central
+4. Helm repository `docs/index.yaml` includes the new chart versions
+5. Core smoke tests pass (config publish, gray release, client fetch, portal core flows)
 
-![image.png](https://cdn.jsdelivr.net/gh/apolloconfig/apollo@master/doc/images/local-development/publish-docker.jpg)
+## 7. Common operations (skill usage perspective)
 
-## 4.8 Update helm chart
+### 7.1 Resume after interruption
 
-### 4.8.1 Update the contents of the chart
+Ask directly in chat, for example:
 
-1. cd [apollo-helm-chart](https://github.com/apolloconfig/apollo-helm-chart)
-2. helm package apollo-portal && helm package apollo-service
-3. mv *.tgz docs
-4. cd docs
-5. helm repo index .
+- "Continue the previous release flow"
+- "Resume from the next checkpoint"
 
-### 4.8.2 Merging branches into main
+The skill restores from state and does not repeat completed steps.
 
-Create a pull request to merge the above products into the [main](https://github.com/apolloconfig/apollo-helm-chart) branch.
+### 7.2 Dry run first
 
-# 5. Release announcement
+Request a dry run first, for example:
 
-Reference: [https://github.com/apolloconfig/apollo/discussions/3740](https://github.com/apolloconfig/apollo/discussions/3740)
+- "Run `apollo-release` in dry-run mode first so I can review the plan"
+
+Then request the real run after confirmation.
+
+### 7.3 Adjust highlights / wording
+
+Before prerelease creation, ask for adjustments, for example:
+
+- "Use these PRs for highlights: `...`, then regenerate release notes"
+
+After review, continue to the next checkpoint.
