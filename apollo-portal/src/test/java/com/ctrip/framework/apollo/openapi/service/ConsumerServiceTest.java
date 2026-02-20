@@ -326,8 +326,8 @@ public class ConsumerServiceTest {
     when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
 
     // getCreateUserRole 返回 null，即 CREATE_USER 角色不存在
-    when(rolePermissionService.findRoleByRoleName(
-        eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
 
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
     assertFalse(consumerInfo.isAllowCreateUser());
@@ -353,14 +353,15 @@ public class ConsumerServiceTest {
     when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
 
     // CREATE_USER 角色存在，且 consumer 已被分配该角色
-    Role createUserRole = createRole(createUserRoleId,
-        SystemRoleManagerService.CREATE_USER_ROLE_NAME);
-    when(rolePermissionService.findRoleByRoleName(
-        eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(createUserRole);
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
 
     ConsumerRole consumerRole = createConsumerRole(consumerId, createUserRoleId);
-    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId),
-        eq(createUserRoleId))).thenReturn(consumerRole);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(consumerRole);
 
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
     assertTrue(consumerInfo.isAllowCreateUser());
@@ -380,21 +381,22 @@ public class ConsumerServiceTest {
     doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
 
     // CREATE_USER 角色存在
-    Role createUserRole = createRole(createUserRoleId,
-        SystemRoleManagerService.CREATE_USER_ROLE_NAME);
-    when(rolePermissionService.findRoleByRoleName(
-        eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(createUserRole);
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
 
     // consumer 尚未被分配该角色
-    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId),
-        eq(createUserRoleId))).thenReturn(null);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(null);
 
     UserInfo userInfo = createUser(operator);
     when(userInfoHolder.getUser()).thenReturn(userInfo);
 
     ConsumerRole newConsumerRole = createConsumerRole(consumerId, createUserRoleId);
-    doReturn(newConsumerRole).when(consumerService).createConsumerRole(consumerId,
-        createUserRoleId, operator);
+    doReturn(newConsumerRole).when(consumerService).createConsumerRole(consumerId, createUserRoleId,
+        operator);
     when(consumerRoleRepository.save(eq(newConsumerRole))).thenReturn(newConsumerRole);
 
     ConsumerRole result = consumerService.assignCreateUserRoleToConsumer(token);
@@ -413,15 +415,16 @@ public class ConsumerServiceTest {
 
     doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
 
-    Role createUserRole = createRole(createUserRoleId,
-        SystemRoleManagerService.CREATE_USER_ROLE_NAME);
-    when(rolePermissionService.findRoleByRoleName(
-        eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(createUserRole);
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
 
     // consumer 已经被分配了该角色
     ConsumerRole existingConsumerRole = createConsumerRole(consumerId, createUserRoleId);
-    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId),
-        eq(createUserRoleId))).thenReturn(existingConsumerRole);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(existingConsumerRole);
 
     ConsumerRole result = consumerService.assignCreateUserRoleToConsumer(token);
 
@@ -451,8 +454,8 @@ public class ConsumerServiceTest {
     doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
 
     // CREATE_USER 角色不存在（未初始化）
-    when(rolePermissionService.findRoleByRoleName(
-        eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
 
     assertThrows(NotFoundException.class,
         () -> consumerService.assignCreateUserRoleToConsumer(token));

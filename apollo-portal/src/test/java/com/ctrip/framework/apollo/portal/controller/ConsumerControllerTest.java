@@ -85,7 +85,7 @@ class ConsumerControllerTest {
       ConsumerToken ConsumerToken = new ConsumerToken();
       ConsumerToken.setToken(token);
       Mockito.when(
-              consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
+          consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
           .thenReturn(ConsumerToken);
     }
     consumerController.create(requestVO, null);
@@ -113,7 +113,7 @@ class ConsumerControllerTest {
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setToken(token);
     Mockito.when(
-            consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
+        consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(consumerToken);
 
     consumerController.create(requestVO, null);
@@ -146,7 +146,7 @@ class ConsumerControllerTest {
     ConsumerToken consumerToken = new ConsumerToken();
     consumerToken.setToken(token);
     Mockito.when(
-            consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
+        consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(consumerToken);
 
     consumerController.create(requestVO, null);
@@ -181,8 +181,7 @@ class ConsumerControllerTest {
     // 两个权限均不应被分配
     Mockito.verify(consumerService, Mockito.times(0))
         .assignCreateApplicationRoleToConsumer(Mockito.any());
-    Mockito.verify(consumerService, Mockito.times(0))
-        .assignCreateUserRoleToConsumer(Mockito.any());
+    Mockito.verify(consumerService, Mockito.times(0)).assignCreateUserRoleToConsumer(Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());
   }
 }

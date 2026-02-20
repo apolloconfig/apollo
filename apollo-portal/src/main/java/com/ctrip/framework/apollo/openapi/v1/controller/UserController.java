@@ -111,9 +111,7 @@ public class UserController {
     // Retrieve and return the created user information
     UserInfo createdUser = userService.findByUserId(openUserDTO.getUsername());
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-        .replacePath("/openapi/v1/users/{userId}")
-        .buildAndExpand(createdUser.getUserId())
-        .toUri();
+        .replacePath("/openapi/v1/users/{userId}").buildAndExpand(createdUser.getUserId()).toUri();
     return ResponseEntity.created(location).body(createdUser);
   }
 

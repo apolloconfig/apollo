@@ -507,9 +507,8 @@ public class PermissionController {
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @GetMapping("/system/role/createUser")
   public List<String> getCreateUserRoleUsers() {
-    return rolePermissionService
-        .queryUsersWithRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME).stream()
-        .map(UserInfo::getUserId).collect(Collectors.toList());
+    return rolePermissionService.queryUsersWithRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME)
+        .stream().map(UserInfo::getUserId).collect(Collectors.toList());
   }
 
   @GetMapping("/system/role/createUser/{userId}")

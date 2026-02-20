@@ -35,9 +35,8 @@ public class SystemRoleManagerService {
       RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_APPLICATION,
           SYSTEM_PERMISSION_TARGET_ID);
 
-  public static final String CREATE_USER_ROLE_NAME =
-      RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_USER,
-          SYSTEM_PERMISSION_TARGET_ID);
+  public static final String CREATE_USER_ROLE_NAME = RoleUtils
+      .buildCreateApplicationRoleName(PermissionType.CREATE_USER, SYSTEM_PERMISSION_TARGET_ID);
 
   public static final String CREATE_APPLICATION_LIMIT_SWITCH_KEY =
       "role.create-application.enabled";

@@ -81,10 +81,10 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
 
     // assign modify、release namespace role to user
     rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId,
-            ConfigConsts.NAMESPACE_APPLICATION, RoleType.MODIFY_NAMESPACE),
+        ConfigConsts.NAMESPACE_APPLICATION, RoleType.MODIFY_NAMESPACE),
         Sets.newHashSet(app.getOwnerName()), operator);
     rolePermissionService.assignRoleToUsers(RoleUtils.buildNamespaceRoleName(appId,
-            ConfigConsts.NAMESPACE_APPLICATION, RoleType.RELEASE_NAMESPACE),
+        ConfigConsts.NAMESPACE_APPLICATION, RoleType.RELEASE_NAMESPACE),
         Sets.newHashSet(app.getOwnerName()), operator);
 
   }
@@ -173,8 +173,7 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
       rolePermissionService.createPermission(createUserPermission);
     }
     // create user role init
-    Role createUserRole =
-        createRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME, "apollo");
+    Role createUserRole = createRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME, "apollo");
     rolePermissionService.createRoleWithPermissions(createUserRole,
         Sets.newHashSet(createUserPermission.getId()));
   }

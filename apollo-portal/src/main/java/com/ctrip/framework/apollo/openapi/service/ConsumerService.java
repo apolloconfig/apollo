@@ -233,10 +233,8 @@ public class ConsumerService {
     if (consumer == null) {
       return null;
     }
-    return convert(consumer, consumerToken.getToken(),
-        isAllowCreateApplication(consumer.getId()),
-        isAllowCreateUser(consumer.getId()),
-        getRateLimit(consumer.getId()));
+    return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()),
+        isAllowCreateUser(consumer.getId()), getRateLimit(consumer.getId()));
   }
 
   private boolean isAllowCreateApplication(Long consumerId) {
@@ -499,9 +497,8 @@ public class ConsumerService {
     for (int i = 0; i < consumerList.size(); i++) {
       Consumer consumer = consumerList.get(i);
       // without token
-      ConsumerInfo consumerInfo =
-          convert(consumer, null, allowCreateApplicationList.get(i),
-              allowCreateUserList.get(i), rateLimitList.get(i));
+      ConsumerInfo consumerInfo = convert(consumer, null, allowCreateApplicationList.get(i),
+          allowCreateUserList.get(i), rateLimitList.get(i));
       consumerInfoList.add(consumerInfo);
     }
 

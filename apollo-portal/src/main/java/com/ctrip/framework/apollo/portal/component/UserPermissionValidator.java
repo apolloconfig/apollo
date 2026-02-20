@@ -106,8 +106,7 @@ public class UserPermissionValidator extends AbstractPermissionValidator
 
   @Override
   public boolean hasCreateUserPermission() {
-    return systemRoleManagerService
-        .hasCreateUserPermission(userInfoHolder.getUser().getUserId());
+    return systemRoleManagerService.hasCreateUserPermission(userInfoHolder.getUser().getUserId());
   }
 
   @Override
