@@ -36,7 +36,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 /**
@@ -108,7 +110,11 @@ public class UserController {
 
     // Retrieve and return the created user information
     UserInfo createdUser = userService.findByUserId(openUserDTO.getUsername());
-    return ResponseEntity.ok(createdUser);
+    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+        .replacePath("/openapi/v1/users/{userId}")
+        .buildAndExpand(createdUser.getUserId())
+        .toUri();
+    return ResponseEntity.created(location).body(createdUser);
   }
 
   /**
