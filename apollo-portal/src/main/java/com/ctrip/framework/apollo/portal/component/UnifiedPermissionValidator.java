@@ -106,4 +106,14 @@ public class UnifiedPermissionValidator implements PermissionValidator {
   public boolean hasManageAppMasterPermission(String appId) {
     return getDelegate().hasManageAppMasterPermission(appId);
   }
+
+  @Override
+  public boolean hasCreateUserPermission() {
+    return getDelegate().hasCreateUserPermission();
+  }
+
+  @Override
+  public boolean hasCreateUserPermission(String userId) {
+    return getDelegate().hasCreateUserPermission(userId);
+  }
 }
