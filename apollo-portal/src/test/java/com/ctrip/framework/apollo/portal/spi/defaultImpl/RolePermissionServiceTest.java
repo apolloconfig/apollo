@@ -35,6 +35,7 @@ import com.ctrip.framework.apollo.portal.repository.UserRoleRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -339,6 +340,28 @@ public class RolePermissionServiceTest extends AbstractIntegrationTest {
     assertFalse(rolePermissionService.userHasPermission(someUserWithNoPermission,
         anotherPermissionType, anotherTargetId));
 
+  }
+
+  @Test
+  @Sql(scripts = "/sql/permission/insert-test-permissions.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testHasAnyPermissionIncludesSuperAdmin() {
+    List<Permission> requiredPermissions =
+        Collections.singletonList(new Permission("somePermissionType", "someTargetId"));
+    String previousSuperAdmin = System.getProperty("superAdmin");
+    try {
+      System.setProperty("superAdmin", "apollo");
+      assertTrue(rolePermissionService.hasAnyPermission("apollo", requiredPermissions));
+      assertFalse(
+          rolePermissionService.hasAnyPermission("someUserWithNoPermission", requiredPermissions));
+    } finally {
+      if (previousSuperAdmin == null) {
+        System.clearProperty("superAdmin");
+      } else {
+        System.setProperty("superAdmin", previousSuperAdmin);
+      }
+    }
   }
 
   @Test
