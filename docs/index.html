@@ -182,26 +182,6 @@
 
 </body>
 
-<!-- add qa bot -->
-<script>
-  (function() {
-    var link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://ai.apolloconfig.com/qa-bot.css';
-    document.head.appendChild(link);
-
-    var script = document.createElement('script');
-    script.src = 'https://ai.apolloconfig.com/qa-bot.js';
-    script.onload = function () {
-      QABot.initialize({
-        "serverUrl": "https://ai.apolloconfig.com/qa",
-        "documentSiteUrlPrefix": "https://www.apolloconfig.com/#"
-      });
-    };
-    document.body.appendChild(script);
-  })();
-</script>
-
 <!-- mermaid -->
 <script src="//unpkg.com/mermaid@8.14.0/dist/mermaid.min.js"></script>
 <script>
