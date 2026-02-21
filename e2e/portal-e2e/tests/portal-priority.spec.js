@@ -21,6 +21,7 @@ const {
   login,
   createAppViaUi,
   createNamespaceViaUi,
+  clearNamespaceRoleViaPortalApi,
   assignNamespaceRoleViaUi,
   revokeNamespaceRoleViaUi,
   openConfigPage,
@@ -41,6 +42,56 @@ const {
 } = require('./helpers/portal-helpers');
 
 test.describe.serial('@regression Apollo Portal high-priority user-guide scenarios', () => {
+  test('super admin can edit and release namespace without explicit namespace roles @regression', async ({
+    page,
+    request,
+  }) => {
+    const appId = generateUniqueId('e2e-super-admin-');
+    const configKey = generateUniqueId('super_admin_key_');
+    const initialValue = '100';
+    const updatedValue = '200';
+
+    await login(page);
+    await createAppViaUi(page, appId);
+    await openConfigPage(page, appId);
+
+    await createNamespaceItem(page, appId, configKey, initialValue, 'super admin baseline');
+    await publishNamespace(page, appId, generateUniqueId('release_'), 'super admin baseline release');
+    await waitForApolloConfigValue(request, appId, 'application', configKey, initialValue, {
+      ip: '2.2.2.2',
+    });
+
+    await clearNamespaceRoleViaPortalApi(page, appId, 'application', {
+      roleType: 'ModifyNamespace',
+      userId: USERNAME,
+    });
+    await clearNamespaceRoleViaPortalApi(page, appId, 'application', {
+      roleType: 'ReleaseNamespace',
+      userId: USERNAME,
+    });
+    await clearNamespaceRoleViaPortalApi(page, appId, 'application', {
+      roleType: 'ModifyNamespace',
+      userId: USERNAME,
+      env: 'LOCAL',
+    });
+    await clearNamespaceRoleViaPortalApi(page, appId, 'application', {
+      roleType: 'ReleaseNamespace',
+      userId: USERNAME,
+      env: 'LOCAL',
+    });
+
+    // Without super admin support in unified permission checks, the edit/publish operations
+    // below return 403 after namespace roles are removed.
+    await editNamespaceTextViaUi(page, appId, toPropertiesText({
+      [configKey]: updatedValue,
+    }));
+    await publishNamespace(page, appId, generateUniqueId('release_'), 'super admin release after role revoke');
+
+    await waitForApolloConfigValue(request, appId, 'application', configKey, updatedValue, {
+      ip: '2.2.2.2',
+    });
+  });
+
   test('namespace role page supports grant and revoke operations @regression', async ({ page }) => {
     const appId = generateUniqueId('e2e-role-');
     const namespaceSeed = generateUniqueId('role_ns_');

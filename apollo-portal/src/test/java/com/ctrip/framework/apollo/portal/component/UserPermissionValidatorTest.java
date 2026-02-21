@@ -17,10 +17,10 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
@@ -216,6 +216,13 @@ class UserPermissionValidatorTest {
     when(rolePermissionService.hasAnyPermission(USER_ID, requiredPerms)).thenReturn(false);
 
     assertThat(validator.hasPermissions(requiredPerms)).isFalse();
+  }
+
+  @Test
+  void hasReleaseNamespacePermission_match() {
+    when(rolePermissionService.hasAnyPermission(eq(USER_ID), anyList())).thenReturn(true);
+
+    assertThat(validator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE)).isTrue();
   }
 
   @Test
