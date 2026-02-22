@@ -102,50 +102,26 @@ public class ConfigServiceAutoConfiguration {
     return filterRegistrationBean;
   }
 
-  @Configuration
-  static class MessageScannerConfiguration {
-    private final NotificationController notificationController;
-    private final ConfigFileController configFileController;
-    private final NotificationControllerV2 notificationControllerV2;
-    private final GrayReleaseRulesHolder grayReleaseRulesHolder;
-    private final ReleaseMessageServiceWithCache releaseMessageServiceWithCache;
-    private final ConfigService configService;
-    private final BizConfig bizConfig;
-    private final ReleaseMessageRepository releaseMessageRepository;
-
-    public MessageScannerConfiguration(final NotificationController notificationController,
-        final ConfigFileController configFileController,
-        final NotificationControllerV2 notificationControllerV2,
-        final GrayReleaseRulesHolder grayReleaseRulesHolder,
-        final ReleaseMessageServiceWithCache releaseMessageServiceWithCache,
-        final ConfigService configService, final BizConfig bizConfig,
-        final ReleaseMessageRepository releaseMessageRepository) {
-      this.notificationController = notificationController;
-      this.configFileController = configFileController;
-      this.notificationControllerV2 = notificationControllerV2;
-      this.grayReleaseRulesHolder = grayReleaseRulesHolder;
-      this.releaseMessageServiceWithCache = releaseMessageServiceWithCache;
-      this.configService = configService;
-      this.bizConfig = bizConfig;
-      this.releaseMessageRepository = releaseMessageRepository;
-    }
-
-    @Bean
-    public ReleaseMessageScanner releaseMessageScanner() {
-      ReleaseMessageScanner releaseMessageScanner =
-          new ReleaseMessageScanner(bizConfig, releaseMessageRepository);
-      // 0. handle release message cache
-      releaseMessageScanner.addMessageListener(releaseMessageServiceWithCache);
-      // 1. handle gray release rule
-      releaseMessageScanner.addMessageListener(grayReleaseRulesHolder);
-      // 2. handle server cache
-      releaseMessageScanner.addMessageListener(configService);
-      releaseMessageScanner.addMessageListener(configFileController);
-      // 3. notify clients
-      releaseMessageScanner.addMessageListener(notificationControllerV2);
-      releaseMessageScanner.addMessageListener(notificationController);
-      return releaseMessageScanner;
-    }
+  @Bean
+  public ReleaseMessageScanner releaseMessageScanner(
+      final NotificationController notificationController,
+      final ConfigFileController configFileController,
+      final NotificationControllerV2 notificationControllerV2,
+      final GrayReleaseRulesHolder grayReleaseRulesHolder,
+      final ReleaseMessageServiceWithCache releaseMessageServiceWithCache,
+      final ConfigService configService, final ReleaseMessageRepository releaseMessageRepository) {
+    ReleaseMessageScanner releaseMessageScanner =
+        new ReleaseMessageScanner(bizConfig, releaseMessageRepository);
+    // 0. handle release message cache
+    releaseMessageScanner.addMessageListener(releaseMessageServiceWithCache);
+    // 1. handle gray release rule
+    releaseMessageScanner.addMessageListener(grayReleaseRulesHolder);
+    // 2. handle server cache
+    releaseMessageScanner.addMessageListener(configService);
+    releaseMessageScanner.addMessageListener(configFileController);
+    // 3. notify clients
+    releaseMessageScanner.addMessageListener(notificationControllerV2);
+    releaseMessageScanner.addMessageListener(notificationController);
+    return releaseMessageScanner;
   }
-
 }

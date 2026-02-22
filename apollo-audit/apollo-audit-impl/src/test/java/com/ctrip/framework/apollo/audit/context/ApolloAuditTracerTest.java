@@ -25,7 +25,7 @@ import static org.mockito.Mockito.times;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.audit.constants.ApolloAuditConstants;
 import com.ctrip.framework.apollo.audit.spi.ApolloAuditOperatorSupplier;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

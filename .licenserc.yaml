@@ -48,6 +48,7 @@ header:
     - 'apollo-buildtools/src/main/resources/google_checks.xml'
     - 'apollo-core/src/test/resources/META-INF/app-with-utf8bom.properties'
     - 'apollo-core/src/test/resources/properties/server-with-utf8bom.properties'
+    - 'apollo-audit/apollo-audit-spring-boot-starter/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports'
 
   comment: on-failure
 

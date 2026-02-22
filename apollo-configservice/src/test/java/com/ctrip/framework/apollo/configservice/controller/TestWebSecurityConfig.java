@@ -16,22 +16,26 @@
  */
 package com.ctrip.framework.apollo.configservice.controller;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-@Order(98)
-public class TestWebSecurityConfig extends WebSecurityConfigurerAdapter {
+@Order(0)
+public class TestWebSecurityConfig {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.httpBasic();
-    http.csrf().disable();
-    http.authorizeRequests().antMatchers("/").permitAll().and().authorizeRequests()
-        .antMatchers("/console/**").permitAll();
-
-    http.headers().frameOptions().disable();
+  @Bean
+  @Order(0)
+  public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    http.securityMatcher("/", "/console/**");
+    http.httpBasic(Customizer.withDefaults());
+    http.csrf(csrf -> csrf.disable());
+    http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests.requestMatchers("/")
+        .permitAll().requestMatchers("/console/**").permitAll());
+    http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+    return http.build();
   }
 }

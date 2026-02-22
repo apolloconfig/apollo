@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.configservice.service.AccessKeyServiceWithCache;
 import com.google.common.collect.Lists;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

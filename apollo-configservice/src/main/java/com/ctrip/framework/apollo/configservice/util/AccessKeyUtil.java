@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.configservice.service.AccessKeyServiceWithCach
 import com.ctrip.framework.apollo.core.signature.Signature;
 import com.google.common.base.Strings;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 

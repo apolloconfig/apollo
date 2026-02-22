@@ -20,9 +20,9 @@ import com.ctrip.framework.apollo.audit.entity.ApolloAuditLog;
 import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ApolloAuditLogRepository extends PagingAndSortingRepository<ApolloAuditLog, Long> {
+public interface ApolloAuditLogRepository extends JpaRepository<ApolloAuditLog, Long> {
 
   List<ApolloAuditLog> findByTraceIdOrderByDataChangeCreatedTimeDesc(String traceId);
 

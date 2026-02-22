@@ -18,11 +18,11 @@ package com.ctrip.framework.apollo.portal.repository;
 
 import com.ctrip.framework.apollo.portal.entity.po.Authority;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author lepdou 2022-01-20
  */
-public interface AuthorityRepository extends PagingAndSortingRepository<Authority, Long> {
+public interface AuthorityRepository extends JpaRepository<Authority, Long> {
 
 }

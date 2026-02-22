@@ -18,11 +18,11 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Privilege;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PrivilegeRepository extends PagingAndSortingRepository<Privilege, Long> {
+public interface PrivilegeRepository extends JpaRepository<Privilege, Long> {
 
   List<Privilege> findByNamespaceId(long namespaceId);
 

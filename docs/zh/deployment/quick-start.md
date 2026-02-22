@@ -10,7 +10,7 @@
 # 一、准备工作
 ## 1.1 Java
 
-* Apollo服务端：1.8+
+* Apollo服务端：17+
 * Apollo客户端：1.8+
    * 如需运行在 Java 1.7 运行时环境，请使用 1.x 版本的 apollo 客户端，如 1.9.1
 
@@ -21,9 +21,9 @@ java -version
 
 样例输出：
 ```sh
-java version "1.8.0_74"
-Java(TM) SE Runtime Environment (build 1.8.0_74-b02)
-Java HotSpot(TM) 64-Bit Server VM (build 25.74-b02, mixed mode)
+java version "17.0.14"
+Java(TM) SE Runtime Environment (build 17.0.14+7)
+Java HotSpot(TM) 64-Bit Server VM (build 17.0.14+7, mixed mode)
 ```
 
 Windows用户请确保JAVA_HOME环境变量已经设置。

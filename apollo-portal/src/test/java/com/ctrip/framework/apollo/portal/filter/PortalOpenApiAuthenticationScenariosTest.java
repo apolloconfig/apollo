@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,10 +30,10 @@ import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.spi.configuration.AuthFilterConfiguration;
 import java.util.Date;
-import javax.servlet.FilterChain;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,6 +42,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -50,16 +52,14 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,24 +86,29 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
   @Configuration
   @EnableWebSecurity
-  @Order(200)
   // Keep this test-only WebSecurityConfigurer from leaking into other SpringBootTests.
   @Profile("portal-scenarios-test")
-  static class TestSecurityConfiguration extends WebSecurityConfigurerAdapter {
+  static class TestSecurityConfiguration {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
-      http.authorizeRequests().antMatchers("/signin").permitAll().antMatchers("/openapi/**")
-          .permitAll().anyRequest().hasRole("user");
-      http.formLogin().loginPage("/signin");
-      http.exceptionHandling()
-          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin"));
+    @Bean
+    @Order(0)
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+      http.securityMatcher("/signin", "/apps/**", "/openapi/**");
+      http.csrf(csrf -> csrf.disable());
+      http.authorizeHttpRequests(
+          authorizeHttpRequests -> authorizeHttpRequests.requestMatchers("/signin").permitAll()
+              .requestMatchers("/openapi/**").permitAll().anyRequest().hasRole("user"));
+      http.formLogin(formLogin -> formLogin.loginPage("/signin"));
+      http.exceptionHandling(exceptionHandling -> exceptionHandling
+          .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/signin")));
+      http.httpBasic(Customizer.withDefaults());
+      return http.build();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth.inMemoryAuthentication().withUser("apollo").password("{noop}password").roles("user");
+    @Bean
+    public UserDetailsService userDetailsService() {
+      return new InMemoryUserDetailsManager(
+          User.withUsername("apollo").password("{noop}password").roles("user").build());
     }
   }
 
@@ -149,22 +154,10 @@ public class PortalOpenApiAuthenticationScenariosTest {
     reset(consumerAuthUtil, consumerAuditUtil);
   }
 
-  private MockHttpSession authenticatedPortalSession() {
-    MockHttpSession session = new MockHttpSession();
-    SecurityContextImpl securityContext = new SecurityContextImpl();
-    securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("apollo", "password",
-        AuthorityUtils.createAuthorityList("ROLE_user")));
-    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-        securityContext);
-    return session;
-  }
-
   // Scenario 2.1-1: Portal endpoint with valid session returns 200 OK.
   @Test
   public void portalRequestWithValidSession_shouldReturnOk() throws Exception {
-    MockHttpSession session = authenticatedPortalSession();
-
-    mockMvc.perform(get(PORTAL_URI).session(session)).andExpect(status().isOk());
+    mockMvc.perform(get(PORTAL_URI).with(user("apollo").roles("user"))).andExpect(status().isOk());
   }
 
   // Scenario 2.1-2: Portal endpoint with expired session redirects to /signin (auth/ldap) or
@@ -176,26 +169,14 @@ public class PortalOpenApiAuthenticationScenariosTest {
         .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/signin"));
 
     // oidc path is handled by PortalUserSessionFilter
-    MockEnvironment oidcEnvironment = new MockEnvironment();
-    oidcEnvironment.setActiveProfiles("oidc");
-    PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
-
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", PORTAL_URI);
-    request.setCookies(new Cookie("SESSION", "expired"));
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    FilterChain chain = new MockFilterChain();
-
-    oidcFilter.doFilter(request, response, chain);
-
-    org.junit.Assert.assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    assertOidcExpiredSessionIsUnauthorized(PORTAL_URI);
   }
 
   // Scenario 2.2-1: Portal user hitting OpenAPI with valid session returns 200 OK.
   @Test
   public void openApiRequestWithPortalSession_shouldReturnOk() throws Exception {
-    MockHttpSession session = authenticatedPortalSession();
-
-    mockMvc.perform(get(OPEN_API_URI).session(session)).andExpect(status().isOk());
+    mockMvc.perform(get(OPEN_API_URI).with(user("apollo").roles("user")))
+        .andExpect(status().isOk());
   }
 
   // Scenario 2.2-2: OpenAPI with expired portal session redirects (auth/ldap) or returns 401
@@ -215,17 +196,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
                                                                                                      // portal
 
     // oidc
-    MockEnvironment oidcEnvironment = new MockEnvironment();
-    oidcEnvironment.setActiveProfiles("oidc");
-    PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
-
-    MockHttpServletRequest request = new MockHttpServletRequest("GET", OPEN_API_URI);
-    request.setCookies(new Cookie("SESSION", "expired"));
-    MockHttpServletResponse response = new MockHttpServletResponse();
-    FilterChain chain = new MockFilterChain();
-
-    oidcFilter.doFilter(request, response, chain);
-    org.junit.Assert.assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    assertOidcExpiredSessionIsUnauthorized(OPEN_API_URI);
   }
 
   // Scenario 2.2-3: External system with valid token gets 200 OK.
@@ -251,5 +222,19 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     mockMvc.perform(get(OPEN_API_URI))
         .andExpect(status().isUnauthorized());
+  }
+
+  private void assertOidcExpiredSessionIsUnauthorized(String uri) throws Exception {
+    MockEnvironment oidcEnvironment = new MockEnvironment();
+    oidcEnvironment.setActiveProfiles("oidc");
+    PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
+    request.setCookies(new Cookie("SESSION", "expired"));
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    FilterChain chain = new MockFilterChain();
+
+    oidcFilter.doFilter(request, response, chain);
+    org.junit.Assert.assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
   }
 }

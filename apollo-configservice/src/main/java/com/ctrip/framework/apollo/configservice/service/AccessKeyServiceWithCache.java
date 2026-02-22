@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -50,7 +51,7 @@ import org.springframework.util.CollectionUtils;
  * @author nisiyong
  */
 @Service
-public class AccessKeyServiceWithCache implements InitializingBean {
+public class AccessKeyServiceWithCache implements InitializingBean, DisposableBean {
 
   private static Logger logger = LoggerFactory.getLogger(AccessKeyServiceWithCache.class);
 
@@ -114,6 +115,13 @@ public class AccessKeyServiceWithCache implements InitializingBean {
 
     scheduledExecutorService.scheduleAtFixedRate(this::rebuildAccessKeyCache, rebuildInterval,
         rebuildInterval, rebuildIntervalTimeUnit);
+  }
+
+  @Override
+  public void destroy() {
+    if (scheduledExecutorService != null) {
+      scheduledExecutorService.shutdownNow();
+    }
   }
 
   private void scanNewAndUpdatedAccessKeys() {

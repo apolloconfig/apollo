@@ -18,13 +18,12 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.GrayReleaseRule;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
 
-public interface GrayReleaseRuleRepository
-    extends PagingAndSortingRepository<GrayReleaseRule, Long> {
+public interface GrayReleaseRuleRepository extends JpaRepository<GrayReleaseRule, Long> {
 
   GrayReleaseRule findTopByAppIdAndClusterNameAndNamespaceNameAndBranchNameOrderByIdDesc(
       String appId, String clusterName, String namespaceName, String branchName);

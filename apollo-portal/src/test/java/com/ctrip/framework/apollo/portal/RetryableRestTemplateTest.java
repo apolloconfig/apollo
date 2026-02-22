@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.portal.component.AdminServiceAddressLocator;
+import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
 import com.ctrip.framework.apollo.portal.component.RetryableRestTemplate;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -43,9 +44,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.HttpHostConnectException;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.HttpHostConnectException;
+import org.apache.hc.core5.http.HttpHost;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -56,6 +57,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -63,6 +65,8 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
 
   @Mock
   private AdminServiceAddressLocator serviceAddressLocator;
+  @Mock
+  private RestTemplateFactory restTemplateFactory;
   @Mock
   private RestTemplate restTemplate;
   @Mock
@@ -89,9 +93,11 @@ public class RetryableRestTemplateTest extends AbstractUnitTest {
   public void init() {
     socketTimeoutException.initCause(new SocketTimeoutException());
 
-    httpHostConnectException.initCause(
-        new HttpHostConnectException(new ConnectTimeoutException(), new HttpHost(serviceOne, 80)));
-    connectTimeoutException.initCause(new ConnectTimeoutException());
+    httpHostConnectException
+        .initCause(new HttpHostConnectException("connect timeout", new HttpHost("10.0.0.1", 80)));
+    connectTimeoutException.initCause(new ConnectTimeoutException("connect timeout"));
+    when(restTemplateFactory.getObject()).thenReturn(restTemplate);
+    ReflectionTestUtils.invokeMethod(retryableRestTemplate, "postConstruct");
   }
 
   @Test(expected = ServiceException.class)

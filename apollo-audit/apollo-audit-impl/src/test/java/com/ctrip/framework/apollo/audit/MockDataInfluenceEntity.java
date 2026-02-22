@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.audit;
 
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 @ApolloAuditLogDataInfluenceTable(tableName = "MockTableName")
 public class MockDataInfluenceEntity {

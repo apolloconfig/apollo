@@ -27,15 +27,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -110,12 +110,12 @@ public class GlobalDefaultExceptionHandler {
   }
 
   private ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request,
-      HttpStatus status, Throwable ex) {
+      HttpStatusCode status, Throwable ex) {
     return handleError(request, status, ex, ERROR);
   }
 
   private ResponseEntity<Map<String, Object>> handleError(HttpServletRequest request,
-      HttpStatus status, Throwable ex, Level logLevel) {
+      HttpStatusCode status, Throwable ex, Level logLevel) {
     String message = getMessageWithRootCause(ex);
     printLog(message, ex, logLevel);
 
@@ -145,7 +145,7 @@ public class GlobalDefaultExceptionHandler {
     }
 
     HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+    headers.setContentType(MediaType.APPLICATION_JSON);
     return new ResponseEntity<>(errorAttributes, headers, status);
   }
 

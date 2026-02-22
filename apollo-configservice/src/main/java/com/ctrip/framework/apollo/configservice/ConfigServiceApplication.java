@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.metaservice.ApolloMetaServiceConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -36,7 +37,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 
 @EnableAspectJAutoProxy
-@EnableAutoConfiguration(exclude = {UserDetailsServiceAutoConfiguration.class,})
+@EnableAutoConfiguration(
+    exclude = {UserDetailsServiceAutoConfiguration.class, SessionAutoConfiguration.class})
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:configservice.properties"})

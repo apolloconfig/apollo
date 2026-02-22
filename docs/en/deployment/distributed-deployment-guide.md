@@ -13,7 +13,7 @@ The server side is based on Spring Boot and the startup script theoretically sup
 
 ### 1.1.2 Java
 
-* Apollo server: 1.8+
+* Apollo server: 17+
 * Apollo client: 1.8+
     * For running in Java 1.7 runtime environment, please use apollo client of 1.x version, such as 1.9.1
 
@@ -24,9 +24,9 @@ java -version
 
 Sample output.
 ```sh
-java version "1.8.0_74"
-Java(TM) SE Runtime Environment (build 1.8.0_74-b02)
-Java HotSpot(TM) 64-Bit Server VM (build 25.74-b02, mixed mode)
+java version "17.0.14"
+Java(TM) SE Runtime Environment (build 17.0.14+7)
+Java HotSpot(TM) 64-Bit Server VM (build 17.0.14+7, mixed mode)
 ```
 
 ## 1.2 MySQL

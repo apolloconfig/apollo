@@ -61,34 +61,21 @@
 
 	<properties>
 		<revision>3.0.0-SNAPSHOT</revision>
-		<java.version>1.8</java.version>
+		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<apollo-java.version>2.5.0</apollo-java.version>
-		<spring-boot.version>2.7.11</spring-boot.version>
-		<spring-cloud.version>2021.0.5</spring-cloud.version>
+		<spring-boot.version>3.5.10</spring-boot.version>
+		<spring-cloud.version>2025.0.1</spring-cloud.version>
 		<!-- sort by alphabet -->
-		<awaitility.version>4.2.0</awaitility.version>
 		<common-lang3.version>3.18.0</common-lang3.version>
-		<gson.version>2.10.1</gson.version>
 		<guava.version>32.0.0-jre</guava.version>
+		<httpclient4.version>4.5.14</httpclient4.version>
+		<jakarta.mail.version>2.0.1</jakarta.mail.version>
 		<jackson-databind-nullable.version>0.2.7</jackson-databind-nullable.version>
 		<javassist.version>3.23.1-GA</javassist.version>
-		<javax.activation.version>1.1.1</javax.activation.version>
-		<javax.mail.version>1.6.2</javax.mail.version>
-		<jaxb.version>2.3.1</jaxb.version>
-		<junit.version>5.9.2</junit.version>
-		<h2database.version>2.2.220</h2database.version>
 		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
-		<snakeyaml.version>2.3</snakeyaml.version>
 		<swagger-annotations.version>2.2.37</swagger-annotations.version>
 		<swagger-models.version>2.2.37</swagger-models.version>
-		<!-- database driver -->
-		<mysql-connector-j.version>8.2.0</mysql-connector-j.version>
-		<postgre.version>42.7.2</postgre.version>
-		<!-- override transitive dependency versions to fix CVEs -->
-		<nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
-		<woodstox-core.version>7.1.1</woodstox-core.version>
-		<jettison.version>1.5.4</jettison.version>
 		<!-- Plugins Version sort by alphabet -->
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -100,7 +87,7 @@
 		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
 		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
 		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+		<maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
 	</properties>
 
 	<modules>
@@ -185,21 +172,6 @@
 				<version>${guava.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>com.google.code.gson</groupId>
-				<artifactId>gson</artifactId>
-				<version>${gson.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.mysql</groupId>
-				<artifactId>mysql-connector-j</artifactId>
-				<version>${mysql-connector-j.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.postgresql</groupId>
-				<artifactId>postgresql</artifactId>
-				<version>${postgre.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>com.google.inject</groupId>
 				<artifactId>guice</artifactId>
 				<version>5.0.1</version>
@@ -215,6 +187,11 @@
 				<version>${jackson-databind-nullable.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>${httpclient4.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>io.swagger.core.v3</groupId>
 				<artifactId>swagger-annotations</artifactId>
 				<version>${swagger-annotations.version}</version>
@@ -223,74 +200,6 @@
 				<groupId>io.swagger.core.v3</groupId>
 				<artifactId>swagger-models</artifactId>
 				<version>${swagger-models.version}</version>
-			</dependency>
-			<!-- to fix CVE-2022-45868 -->
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>${h2database.version}</version>
-			</dependency>
-			<!-- to fix CVE-2022-1471 -->
-			<dependency>
-				<groupId>org.yaml</groupId>
-				<artifactId>snakeyaml</artifactId>
-				<version>${snakeyaml.version}</version>
-			</dependency>
-			<!-- to fix CVE-2024-47072 -->
-			<dependency>
-				<groupId>com.thoughtworks.xstream</groupId>
-				<artifactId>xstream</artifactId>
-				<version>1.4.21</version>
-			</dependency>
-			<!-- to fix CVE-2025-24970 -->
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-bom</artifactId>
-				<version>4.1.113.Final</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>io.netty</groupId>
-				<artifactId>netty-handler</artifactId>
-				<version>4.1.113.Final</version>
-			</dependency>
-			<!-- to fix CVE-2023-44981 -->
-			<dependency>
-				<groupId>org.apache.zookeeper</groupId>
-				<artifactId>zookeeper</artifactId>
-				<version>3.8.4</version>
-			</dependency>
-			<!-- to fix CVE-2023-52428 -->
-			<dependency>
-				<groupId>com.nimbusds</groupId>
-				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>${nimbus-jose-jwt.version}</version>
-			</dependency>
-			<!-- to fix CVE-2022-40152 -->
-			<dependency>
-				<groupId>com.fasterxml.woodstox</groupId>
-				<artifactId>woodstox-core</artifactId>
-				<version>${woodstox-core.version}</version>
-			</dependency>
-			<!-- to fix CVE-2022-40149, CVE-2022-45685, CVE-2022-45693, CVE-2023-1436 -->
-			<dependency>
-				<groupId>org.codehaus.jettison</groupId>
-				<artifactId>jettison</artifactId>
-				<version>${jettison.version}</version>
-			</dependency>
-			<!--for test -->
-			<dependency>
-				<groupId>org.awaitility</groupId>
-				<artifactId>awaitility</artifactId>
-				<version>${awaitility.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.junit.vintage</groupId>
-				<artifactId>junit-vintage-engine</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.github.stefanbirkner</groupId>
@@ -319,31 +228,10 @@
 				<artifactId>jersey-apache-client4</artifactId>
 				<version>1.19.4</version>
 			</dependency>
-			<!-- JDK 1.8+ -->
-			<dependency>
-				<groupId>javax.xml.bind</groupId>
-				<artifactId>jaxb-api</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sun.xml.bind</groupId>
-				<artifactId>jaxb-impl</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.glassfish.jaxb</groupId>
-				<artifactId>jaxb-runtime</artifactId>
-				<version>${jaxb.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.activation</groupId>
-				<artifactId>activation</artifactId>
-				<version>${javax.activation.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.sun.mail</groupId>
-				<artifactId>javax.mail</artifactId>
-				<version>${javax.mail.version}</version>
+				<artifactId>jakarta.mail</artifactId>
+				<version>${jakarta.mail.version}</version>
 			</dependency>
 			<!-- JDK 11+ -->
 			<dependency>
@@ -394,9 +282,9 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>${maven-compiler-plugin.version}</version>
 					<configuration>
-						<source>${java.version}</source>
-						<target>${java.version}</target>
+						<release>${java.version}</release>
 						<encoding>${project.build.sourceEncoding}</encoding>
+						<parameters>true</parameters>
 					</configuration>
 				</plugin>
 				<plugin>

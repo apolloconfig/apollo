@@ -20,13 +20,13 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Set;
 
 
-public interface AppNamespaceRepository extends PagingAndSortingRepository<AppNamespace, Long> {
+public interface AppNamespaceRepository extends JpaRepository<AppNamespace, Long> {
 
   AppNamespace findByAppIdAndName(String appId, String namespaceName);
 
@@ -43,10 +43,14 @@ public interface AppNamespaceRepository extends PagingAndSortingRepository<AppNa
   List<AppNamespace> findFirst500ByIdGreaterThanOrderByIdAsc(long id);
 
   @Modifying
-  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE AppId=?1 and IsDeleted = false")
+  @Query("UPDATE AppNamespace SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = ?2 WHERE appId=?1 and isDeleted = false")
   int batchDeleteByAppId(String appId, String operator);
 
   @Modifying
-  @Query("UPDATE AppNamespace SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?3 WHERE AppId=?1 and Name = ?2 and IsDeleted = false")
+  @Query("UPDATE AppNamespace SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = ?3 WHERE appId=?1 and name = ?2 and isDeleted = false")
   int delete(String appId, String namespaceName, String operator);
 }

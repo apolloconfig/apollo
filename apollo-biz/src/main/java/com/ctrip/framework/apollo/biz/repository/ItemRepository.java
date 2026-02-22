@@ -23,13 +23,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
 
-public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
   Item findByNamespaceIdAndKey(Long namespaceId, String key);
 
@@ -47,22 +47,24 @@ public interface ItemRepository extends PagingAndSortingRepository<Item, Long> {
 
   @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) "
       + "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id "
-      + "WHERE i.key LIKE %:key% AND i.value LIKE %:value% AND i.isDeleted = 0")
+      + "WHERE i.key LIKE %:key% AND i.value LIKE %:value% AND i.isDeleted = false")
   Page<ItemInfoDTO> findItemsByKeyAndValueLike(@Param("key") String key,
       @Param("value") String value, Pageable pageable);
 
   @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) "
       + "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id "
-      + "WHERE i.key LIKE %:key% AND i.isDeleted = 0")
+      + "WHERE i.key LIKE %:key% AND i.isDeleted = false")
   Page<ItemInfoDTO> findItemsByKeyLike(@Param("key") String key, Pageable pageable);
 
   @Query("SELECT new com.ctrip.framework.apollo.common.dto.ItemInfoDTO(n.appId, n.clusterName, n.namespaceName, i.key, i.value) "
       + "FROM Item i RIGHT JOIN Namespace n ON i.namespaceId = n.id "
-      + "WHERE i.value LIKE %:value% AND i.isDeleted = 0")
+      + "WHERE i.value LIKE %:value% AND i.isDeleted = false")
   Page<ItemInfoDTO> findItemsByValueLike(@Param("value") String value, Pageable pageable);
 
   @Modifying
-  @Query("update Item set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 where NamespaceId = ?1 and IsDeleted = false")
+  @Query("update Item set isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = ?2 where namespaceId = ?1 and isDeleted = false")
   int deleteByNamespaceId(long namespaceId, String operator);
 
   @Query("select count(*) from Item where namespaceId = :namespaceId and key <>''")

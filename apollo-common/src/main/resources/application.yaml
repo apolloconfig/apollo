@@ -37,7 +37,7 @@ server:
   tomcat:
     accept-count: '5000'
   # Increase tomcat header size for longer GET query parameter, should be n * 1024
-  max-http-header-size: '10240'
+  max-http-request-header-size: '10240'
 
 # Spring Boot 2.x
 management:

@@ -26,7 +26,7 @@ spring:
         registration:
           keycloak:
             authorization-grant-type: authorization_code
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             client-id: "${OIDC_CLIENT_ID:apollo-portal}"
             provider: keycloak
             scope:

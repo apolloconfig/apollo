@@ -29,6 +29,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,7 +47,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Service
-public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, InitializingBean {
+public class ReleaseMessageServiceWithCache
+    implements ReleaseMessageListener, InitializingBean, DisposableBean {
   private static final Logger logger =
       LoggerFactory.getLogger(ReleaseMessageServiceWithCache.class);
   private final ReleaseMessageRepository releaseMessageRepository;
@@ -158,6 +160,14 @@ public class ReleaseMessageServiceWithCache implements ReleaseMessageListener, I
         }
       }
     });
+  }
+
+  @Override
+  public void destroy() {
+    doScan.set(false);
+    if (executorService != null) {
+      executorService.shutdownNow();
+    }
   }
 
   private synchronized void mergeReleaseMessage(ReleaseMessage releaseMessage) {

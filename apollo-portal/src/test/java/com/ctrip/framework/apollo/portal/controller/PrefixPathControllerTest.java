@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.controller;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

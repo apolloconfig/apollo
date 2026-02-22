@@ -84,24 +84,20 @@
 			<artifactId>jersey-apache-client4</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- JDK 1.8+ -->
+		<!-- Jakarta EE APIs -->
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
-		<!-- end of JDK 1.8+ -->
+		<!-- end of Jakarta EE APIs -->
 		<!-- JDK 11+ -->
 		<dependency>
 			<groupId>org.javassist</groupId>

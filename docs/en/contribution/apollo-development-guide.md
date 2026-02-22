@@ -8,7 +8,7 @@ This document describes how to compile and run Apollo locally using the IDE so t
 
 Apollo local development requires the following components.
 
-1. Java: 1.8+
+1. Java: 17+
 2. MySQL: 5.6.5+ (If you plan to use H2 in-memory database/H2 file database, then there is no need to prepare MySQL)
 3. IDE: No special requirements
 

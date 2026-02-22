@@ -166,7 +166,7 @@ async function login(page) {
   ]);
 
   const cookies = await page.context().cookies();
-  expect(cookies.some((cookie) => cookie.name === 'JSESSIONID')).toBeTruthy();
+  expect(cookies.some((cookie) => cookie.name === 'SESSION')).toBeTruthy();
 }
 
 async function selectOrganization(page) {

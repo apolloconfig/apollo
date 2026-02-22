@@ -20,6 +20,7 @@ const DEFAULT_BASE_URL = process.env.BASE_URL || 'http://127.0.0.1:8070';
 
 const MODE_LDAP = 'ldap';
 const MODE_OIDC = 'oidc';
+const SESSION_COOKIE_NAME = 'SESSION';
 
 function resolveAuthMode() {
   const mode = `${process.env.PORTAL_AUTH_MODE || MODE_LDAP}`.trim().toLowerCase();
@@ -110,7 +111,7 @@ async function loginByForm(page, options = {}) {
   ]);
 
   const cookies = await page.context().cookies();
-  expect(cookies.some((cookie) => cookie.name === 'JSESSIONID')).toBeTruthy();
+  expect(cookies.some((cookie) => cookie.name === SESSION_COOKIE_NAME)).toBeTruthy();
 }
 
 async function expectFormLoginFailure(page, options = {}) {
@@ -176,7 +177,7 @@ async function loginByOidc(page, options = {}) {
   ]);
 
   const cookies = await page.context().cookies();
-  expect(cookies.some((cookie) => cookie.name === 'JSESSIONID')).toBeTruthy();
+  expect(cookies.some((cookie) => cookie.name === SESSION_COOKIE_NAME)).toBeTruthy();
 }
 
 async function expectOidcLoginFailure(page, options = {}) {

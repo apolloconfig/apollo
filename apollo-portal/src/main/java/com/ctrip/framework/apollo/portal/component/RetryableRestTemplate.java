@@ -33,9 +33,9 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import javax.annotation.PostConstruct;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.HttpHostConnectException;
+import jakarta.annotation.PostConstruct;
+import org.apache.hc.client5.http.ConnectTimeoutException;
+import org.apache.hc.client5.http.HttpHostConnectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
@@ -271,30 +271,26 @@ public class RetryableRestTemplate {
   private <T> T doExecute(HttpMethod method, HttpHeaders extraHeaders, ServiceDTO service,
       String path, Object request, Class<T> responseType, Object... uriVariables) {
     T result = null;
-    switch (method) {
-      case GET:
-      case POST:
-      case PUT:
-      case DELETE:
-        HttpEntity entity;
-        if (request instanceof HttpEntity) {
-          entity = (HttpEntity) request;
-          if (!CollectionUtils.isEmpty(extraHeaders)) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.addAll(entity.getHeaders());
-            headers.addAll(extraHeaders);
-            entity = new HttpEntity<>(entity.getBody(), headers);
-          }
-        } else {
-          entity = new HttpEntity<>(request, extraHeaders);
+    if (HttpMethod.GET.equals(method) || HttpMethod.POST.equals(method)
+        || HttpMethod.PUT.equals(method) || HttpMethod.DELETE.equals(method)) {
+      HttpEntity entity;
+      if (request instanceof HttpEntity) {
+        entity = (HttpEntity) request;
+        if (!CollectionUtils.isEmpty(extraHeaders)) {
+          HttpHeaders headers = new HttpHeaders();
+          headers.addAll(entity.getHeaders());
+          headers.addAll(extraHeaders);
+          entity = new HttpEntity<>(entity.getBody(), headers);
         }
-        result = restTemplate
-            .exchange(parseHost(service) + path, method, entity, responseType, uriVariables)
-            .getBody();
-        break;
-      default:
-        throw new UnsupportedOperationException(
-            String.format("unsupported http method(method=%s)", method));
+      } else {
+        entity = new HttpEntity<>(request, extraHeaders);
+      }
+      result = restTemplate
+          .exchange(parseHost(service) + path, method, entity, responseType, uriVariables)
+          .getBody();
+    } else {
+      throw new UnsupportedOperationException(
+          String.format("unsupported http method(method=%s)", method));
     }
     return result;
   }

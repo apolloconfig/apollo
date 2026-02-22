@@ -33,9 +33,12 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ConfigurableApplicationContext;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class,
-    DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
-    ApolloAuditAutoConfiguration.class,})
+@SpringBootApplication(
+    exclude = {DataSourceAutoConfiguration.class,
+        DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class,
+        ApolloAuditAutoConfiguration.class,},
+    excludeName = {"org.springframework.cloud.netflix.eureka.EurekaClientAutoConfiguration",
+        "org.springframework.cloud.netflix.eureka.EurekaDiscoveryClientConfiguration"})
 public class ApolloApplication {
 
   private static final Logger logger = LoggerFactory.getLogger(ApolloApplication.class);

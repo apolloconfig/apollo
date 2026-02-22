@@ -26,7 +26,7 @@ import com.google.common.base.Strings;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;

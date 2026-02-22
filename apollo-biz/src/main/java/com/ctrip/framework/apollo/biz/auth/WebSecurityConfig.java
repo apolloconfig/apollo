@@ -18,25 +18,29 @@ package com.ctrip.framework.apollo.biz.auth;
 
 import com.ctrip.framework.apollo.common.condition.ConditionalOnMissingProfile;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 
-@ConditionalOnMissingProfile("auth")
+@ConditionalOnMissingProfile({"auth", "assembly"})
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity(prePostEnabled = true)
+public class WebSecurityConfig {
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.httpBasic();
-    http.csrf().disable();
-    http.headers().frameOptions().sameOrigin();
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.httpBasic(Customizer.withDefaults());
+    http.csrf(csrf -> csrf.disable());
+    http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+    return http.build();
   }
 
   /**
@@ -46,10 +50,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
    *
    * We may remove the following once we remove spring security from Apollo.
    */
-  @Autowired
-  public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    auth.inMemoryAuthentication().withUser("user").password("").roles("USER").and()
-        .withUser("apollo").password("").roles("USER", "ADMIN");
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return new InMemoryUserDetailsManager(
+        User.withUsername("user").password("{noop}").roles("USER").build(),
+        User.withUsername("apollo").password("{noop}").roles("USER", "ADMIN").build());
   }
 
 }

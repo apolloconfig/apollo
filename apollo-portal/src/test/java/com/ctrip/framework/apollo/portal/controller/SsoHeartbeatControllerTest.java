@@ -19,8 +19,8 @@ package com.ctrip.framework.apollo.portal.controller;
 import static org.mockito.Mockito.verify;
 
 import com.ctrip.framework.apollo.portal.spi.SsoHeartbeatHandler;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

@@ -21,8 +21,8 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 @Converter(autoApply = true)
 class JpaMapFieldJsonConverter implements AttributeConverter<Map<String, String>, String> {

@@ -18,12 +18,12 @@ package com.ctrip.framework.apollo.openapi.repository;
 
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface ConsumerRepository extends PagingAndSortingRepository<Consumer, Long> {
+public interface ConsumerRepository extends JpaRepository<Consumer, Long> {
 
   Consumer findByAppId(String appId);
 

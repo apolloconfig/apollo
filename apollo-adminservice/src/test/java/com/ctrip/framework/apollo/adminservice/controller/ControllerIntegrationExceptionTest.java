@@ -74,7 +74,7 @@ public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
     when(adminService.createNewApp(any(App.class))).thenThrow(new RuntimeException("save failed"));
 
     try {
-      restTemplate.postForEntity(url("/apps/"), dto, AppDTO.class);
+      restTemplate.postForEntity(url("/apps"), dto, AppDTO.class);
     } catch (HttpStatusCodeException e) {
       @SuppressWarnings("unchecked")
       Map<String, String> attr = GSON.fromJson(e.getResponseBodyAsString(), Map.class);

@@ -19,23 +19,33 @@ package com.ctrip.framework.apollo.portal.spi.springsecurity;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.util.function.Supplier;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.security.Principal;
 
 public class SpringSecurityUserInfoHolder implements UserInfoHolder {
 
-  private final UserService userService;
+  private final Supplier<UserService> userServiceSupplier;
 
   public SpringSecurityUserInfoHolder(UserService userService) {
-    this.userService = userService;
+    this(() -> userService);
+  }
+
+  public SpringSecurityUserInfoHolder(ObjectProvider<UserService> userServiceProvider) {
+    this(userServiceProvider::getObject);
+  }
+
+  private SpringSecurityUserInfoHolder(Supplier<UserService> userServiceSupplier) {
+    this.userServiceSupplier = userServiceSupplier;
   }
 
   @Override
   public UserInfo getUser() {
     String userId = this.getCurrentUsername();
-    UserInfo userInfoFound = this.userService.findByUserId(userId);
+    UserInfo userInfoFound = this.userServiceSupplier.get().findByUserId(userId);
     if (userInfoFound != null) {
       return userInfoFound;
     }

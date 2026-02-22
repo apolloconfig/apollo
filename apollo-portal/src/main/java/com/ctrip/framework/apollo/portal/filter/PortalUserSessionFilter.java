@@ -19,15 +19,15 @@ package com.ctrip.framework.apollo.portal.filter;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class PortalUserSessionFilter implements Filter {
       return;
     }
 
-    // Check if there's a SESSION cookie but user is not authenticated
+    // Check if there's a session cookie but user is not authenticated
     // This indicates the session has expired
     if (hasSessionCookie(request)) {
       logger.info(
@@ -131,7 +131,7 @@ public class PortalUserSessionFilter implements Filter {
   }
 
   /**
-   * Checks if the request has a SESSION cookie. This is used to detect expired sessions.
+   * Checks if the request has a session cookie. This is used to detect expired sessions.
    *
    * @param request the HTTP request
    * @return true if SESSION cookie exists, false otherwise

@@ -19,11 +19,11 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Cluster;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ClusterRepository extends PagingAndSortingRepository<Cluster, Long> {
+public interface ClusterRepository extends JpaRepository<Cluster, Long> {
 
   List<Cluster> findByAppIdAndParentClusterId(String appId, Long parentClusterId);
 

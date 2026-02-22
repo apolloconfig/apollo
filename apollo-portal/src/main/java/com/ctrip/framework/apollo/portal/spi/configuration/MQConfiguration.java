@@ -23,13 +23,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MQConfiguration {
 
-  @Configuration
-  public static class DefaultMQConfiguration {
-
-    @Bean
-    public DefaultMQService mqService() {
-      return new DefaultMQService();
-    }
+  @Bean
+  public DefaultMQService mqService() {
+    return new DefaultMQService();
   }
-
 }

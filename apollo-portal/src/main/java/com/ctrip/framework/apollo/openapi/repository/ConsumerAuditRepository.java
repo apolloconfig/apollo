@@ -18,10 +18,10 @@ package com.ctrip.framework.apollo.openapi.repository;
 
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface ConsumerAuditRepository extends PagingAndSortingRepository<ConsumerAudit, Long> {
+public interface ConsumerAuditRepository extends JpaRepository<ConsumerAudit, Long> {
 }
