@@ -20,8 +20,10 @@ package com.ctrip.framework.apollo.portal.entity.vo.consumer;
  * @see com.ctrip.framework.apollo.openapi.entity.Consumer
  */
 public class ConsumerCreateRequestVO {
+
   private String appId;
   private boolean allowCreateApplication;
+  private boolean allowCreateUser;
   private String name;
   private String orgId;
   private String orgName;
@@ -43,6 +45,14 @@ public class ConsumerCreateRequestVO {
 
   public void setAllowCreateApplication(boolean allowCreateApplication) {
     this.allowCreateApplication = allowCreateApplication;
+  }
+
+  public boolean isAllowCreateUser() {
+    return allowCreateUser;
+  }
+
+  public void setAllowCreateUser(boolean allowCreateUser) {
+    this.allowCreateUser = allowCreateUser;
   }
 
   public String getName() {

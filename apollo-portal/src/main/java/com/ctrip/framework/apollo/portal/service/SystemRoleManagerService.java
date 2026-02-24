@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SystemRoleManagerService {
+
   public static final Logger logger = LoggerFactory.getLogger(SystemRoleManagerService.class);
 
   public static final String SYSTEM_PERMISSION_TARGET_ID = "SystemRole";
@@ -34,9 +35,13 @@ public class SystemRoleManagerService {
       RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_APPLICATION,
           SYSTEM_PERMISSION_TARGET_ID);
 
+  public static final String CREATE_USER_ROLE_NAME = RoleUtils
+      .buildCreateApplicationRoleName(PermissionType.CREATE_USER, SYSTEM_PERMISSION_TARGET_ID);
+
   public static final String CREATE_APPLICATION_LIMIT_SWITCH_KEY =
       "role.create-application.enabled";
   public static final String MANAGE_APP_MASTER_LIMIT_SWITCH_KEY = "role.manage-app-master.enabled";
+  public static final String CREATE_USER_LIMIT_SWITCH_KEY = "role.create-user.enabled";
 
   private final RolePermissionService rolePermissionService;
 
@@ -54,6 +59,7 @@ public class SystemRoleManagerService {
   @PostConstruct
   private void init() {
     roleInitializationService.initCreateAppRole();
+    roleInitializationService.initCreateUserRole();
   }
 
   private boolean isCreateApplicationPermissionEnabled() {
@@ -62,6 +68,10 @@ public class SystemRoleManagerService {
 
   public boolean isManageAppMasterPermissionEnabled() {
     return portalConfig.isManageAppMasterPermissionEnabled();
+  }
+
+  public boolean isCreateUserPermissionEnabled() {
+    return portalConfig.isCreateUserPermissionEnabled();
   }
 
   public boolean hasCreateApplicationPermission(String userId) {
@@ -79,5 +89,14 @@ public class SystemRoleManagerService {
     }
 
     return rolePermissionService.userHasPermission(userId, PermissionType.MANAGE_APP_MASTER, appId);
+  }
+
+  public boolean hasCreateUserPermission(String userId) {
+    if (!isCreateUserPermissionEnabled()) {
+      return true;
+    }
+
+    return rolePermissionService.userHasPermission(userId, PermissionType.CREATE_USER,
+        SYSTEM_PERMISSION_TARGET_ID);
   }
 }

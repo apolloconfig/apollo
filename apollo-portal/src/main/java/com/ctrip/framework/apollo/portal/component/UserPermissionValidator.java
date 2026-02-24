@@ -108,6 +108,16 @@ public class UserPermissionValidator extends AbstractPermissionValidator
   }
 
   @Override
+  public boolean hasCreateUserPermission() {
+    return systemRoleManagerService.hasCreateUserPermission(userInfoHolder.getUser().getUserId());
+  }
+
+  @Override
+  public boolean hasCreateUserPermission(String userId) {
+    return systemRoleManagerService.hasCreateUserPermission(userId);
+  }
+
+  @Override
   protected boolean hasPermissions(List<Permission> requiredPerms) {
     if (requiredPerms == null || requiredPerms.isEmpty()) {
       return false;

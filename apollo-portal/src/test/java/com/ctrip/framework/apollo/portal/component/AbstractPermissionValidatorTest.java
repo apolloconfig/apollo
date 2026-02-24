@@ -205,6 +205,7 @@ public class AbstractPermissionValidatorTest {
   }
 
   private static class AbstractPermissionValidatorImpl extends AbstractPermissionValidator {
+
     @Override
     public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
       return false;
@@ -234,10 +235,21 @@ public class AbstractPermissionValidatorTest {
     public boolean hasCreateApplicationPermission(String userId) {
       return false;
     }
+
+    @Override
+    public boolean hasCreateUserPermission() {
+      return false;
+    }
+
+    @Override
+    public boolean hasCreateUserPermission(String userId) {
+      return false;
+    }
   }
 
   private static class AbstractPermissionValidatorWithPermissionsImpl
       extends AbstractPermissionValidator {
+
     private final List<Permission> allowed;
 
     AbstractPermissionValidatorWithPermissionsImpl(List<Permission> allowed) {
@@ -271,6 +283,16 @@ public class AbstractPermissionValidatorTest {
 
     @Override
     public boolean hasCreateApplicationPermission(String userId) {
+      return true;
+    }
+
+    @Override
+    public boolean hasCreateUserPermission() {
+      return true;
+    }
+
+    @Override
+    public boolean hasCreateUserPermission(String userId) {
       return true;
     }
   }
