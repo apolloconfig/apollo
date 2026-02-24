@@ -20,8 +20,9 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenUserDTO;
-import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.openapi.api.UserManagementApi;
+import com.ctrip.framework.apollo.openapi.model.OpenUserDTO;
+import com.ctrip.framework.apollo.openapi.model.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * OpenAPI User Management Controller Provides RESTful APIs for user management operations through
@@ -47,7 +49,7 @@ import java.util.List;
  */
 @RestController("openapiUserController")
 @RequestMapping("/openapi/v1")
-public class UserController {
+public class UserController implements UserManagementApi {
 
   private static final int DEFAULT_USER_ENABLED = 1;
 
@@ -61,6 +63,21 @@ public class UserController {
   }
 
   /**
+   * Convert portal UserInfo BO to generated model UserInfo
+   */
+  private UserInfo toModelUserInfo(com.ctrip.framework.apollo.portal.entity.bo.UserInfo bo) {
+    if (bo == null) {
+      return null;
+    }
+    UserInfo model = new UserInfo();
+    model.setUserId(bo.getUserId());
+    model.setName(bo.getName());
+    model.setEmail(bo.getEmail());
+    model.setEnabled(UserInfo.EnabledEnum.fromValue(bo.getEnabled()));
+    return model;
+  }
+
+  /**
    * Create a new user
    *
    * @param openUserDTO user information to create
@@ -70,6 +87,7 @@ public class UserController {
   @ApolloAuditLog(name = "OpenAPI.createUser", type = OpType.CREATE,
       description = "Create user via OpenAPI")
   @PostMapping("/users")
+  @Override
   public ResponseEntity<UserInfo> createUser(@RequestBody OpenUserDTO openUserDTO) {
     // Validate required fields
     if (StringUtils.isContainEmpty(openUserDTO.getUsername(), openUserDTO.getPassword())) {
@@ -100,15 +118,19 @@ public class UserController {
     userPO.setUserDisplayName(
         openUserDTO.getUserDisplayName() != null ? openUserDTO.getUserDisplayName()
             : openUserDTO.getUsername());
-    userPO.setEnabled(
-        openUserDTO.getEnabled() != null ? openUserDTO.getEnabled() : DEFAULT_USER_ENABLED);
+    int enabledVal = DEFAULT_USER_ENABLED;
+    if (openUserDTO.getEnabled() != null) {
+      enabledVal = openUserDTO.getEnabled().getValue();
+    }
+    userPO.setEnabled(enabledVal);
 
     // Create user
     ((SpringSecurityUserService) userService).create(userPO);
 
     // Retrieve and return the created user information
-    UserInfo createdUser = userService.findByUserId(openUserDTO.getUsername());
-    return ResponseEntity.ok(createdUser);
+    com.ctrip.framework.apollo.portal.entity.bo.UserInfo createdUser =
+        userService.findByUserId(openUserDTO.getUsername());
+    return ResponseEntity.ok(toModelUserInfo(createdUser));
   }
 
   /**
@@ -119,12 +141,14 @@ public class UserController {
    */
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateUserPermission()")
   @GetMapping("/users/{userId}")
+  @Override
   public ResponseEntity<UserInfo> getUserByUserId(@PathVariable String userId) {
-    UserInfo userInfo = userService.findByUserId(userId);
+    com.ctrip.framework.apollo.portal.entity.bo.UserInfo userInfo =
+        userService.findByUserId(userId);
     if (userInfo == null) {
       throw new BadRequestException("User not found: " + userId);
     }
-    return ResponseEntity.ok(userInfo);
+    return ResponseEntity.ok(toModelUserInfo(userInfo));
   }
 
   /**
@@ -138,12 +162,13 @@ public class UserController {
    */
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateUserPermission()")
   @GetMapping("/users")
+  @Override
   public ResponseEntity<List<UserInfo>> searchUsers(
       @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
       @RequestParam(value = "includeInactiveUsers",
-          defaultValue = "false") boolean includeInactiveUsers,
-      @RequestParam(value = "offset", defaultValue = "0") int offset,
-      @RequestParam(value = "limit", defaultValue = "10") int limit) {
+          defaultValue = "false") Boolean includeInactiveUsers,
+      @RequestParam(value = "offset", defaultValue = "0") Integer offset,
+      @RequestParam(value = "limit", defaultValue = "10") Integer limit) {
 
     if (limit <= 0 || limit > 100) {
       throw new BadRequestException("Limit must be between 1 and 100");
@@ -153,7 +178,10 @@ public class UserController {
       throw new BadRequestException("Offset must be non-negative");
     }
 
-    List<UserInfo> users = userService.searchUsers(keyword, offset, limit, includeInactiveUsers);
+    List<UserInfo> users = userService.searchUsers(keyword, offset, limit, includeInactiveUsers)
+        .stream()
+        .map(this::toModelUserInfo)
+        .collect(Collectors.toList());
     return ResponseEntity.ok(users);
   }
 }

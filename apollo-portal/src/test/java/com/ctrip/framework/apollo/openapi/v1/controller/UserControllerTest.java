@@ -17,8 +17,8 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.openapi.dto.OpenUserDTO;
-import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenUserDTO;
+import com.ctrip.framework.apollo.openapi.model.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserService;
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
@@ -72,6 +72,18 @@ public class UserControllerTest {
     userController = new UserController(userService, passwordChecker);
   }
 
+  // Helper to build a portal UserInfo BO (what UserService returns)
+  private com.ctrip.framework.apollo.portal.entity.bo.UserInfo portalUser(String userId,
+      String name, String email) {
+    com.ctrip.framework.apollo.portal.entity.bo.UserInfo u =
+        new com.ctrip.framework.apollo.portal.entity.bo.UserInfo();
+    u.setUserId(userId);
+    u.setName(name);
+    u.setEmail(email);
+    u.setEnabled(1);
+    return u;
+  }
+
   @Test
   public void testCreateUser_Success() {
     // Arrange
@@ -80,17 +92,14 @@ public class UserControllerTest {
     openUserDTO.setPassword("StrongP@ssw0rd");
     openUserDTO.setEmail("testuser@example.com");
     openUserDTO.setUserDisplayName("Test User");
-    openUserDTO.setEnabled(1);
+    openUserDTO.setEnabled(OpenUserDTO.EnabledEnum.NUMBER_1);
 
     CheckResult checkResult = new CheckResult(true, "");
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
     doNothing().when(userService).create(any(UserPO.class));
 
-    UserInfo createdUser = new UserInfo();
-    createdUser.setUserId("testuser");
-    createdUser.setName("Test User");
-    createdUser.setEmail("testuser@example.com");
-    when(userService.findByUserId("testuser")).thenReturn(createdUser);
+    when(userService.findByUserId("testuser"))
+        .thenReturn(portalUser("testuser", "Test User", "testuser@example.com"));
 
     // Act
     ResponseEntity<UserInfo> response = userController.createUser(openUserDTO);
@@ -125,9 +134,8 @@ public class UserControllerTest {
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(checkResult);
     doNothing().when(userService).create(any(UserPO.class));
 
-    UserInfo createdUser = new UserInfo();
-    createdUser.setUserId("testuser2");
-    when(userService.findByUserId("testuser2")).thenReturn(createdUser);
+    when(userService.findByUserId("testuser2"))
+        .thenReturn(portalUser("testuser2", "testuser2", "testuser2@example.com"));
 
     // Act
     ResponseEntity<UserInfo> response = userController.createUser(openUserDTO);
@@ -221,17 +229,12 @@ public class UserControllerTest {
     assertThrows(BadRequestException.class, () -> userController.createUser(openUserDTO));
   }
 
-
   @Test
   public void testGetUserByUserId_Success() {
     // Arrange
     String userId = "testuser";
-    UserInfo userInfo = new UserInfo();
-    userInfo.setUserId(userId);
-    userInfo.setName("Test User");
-    userInfo.setEmail("testuser@example.com");
-
-    when(userService.findByUserId(userId)).thenReturn(userInfo);
+    when(userService.findByUserId(userId))
+        .thenReturn(portalUser(userId, "Test User", "testuser@example.com"));
 
     // Act
     ResponseEntity<UserInfo> response = userController.getUserByUserId(userId);
@@ -258,19 +261,13 @@ public class UserControllerTest {
     verify(userService, times(1)).findByUserId(userId);
   }
 
-
   @Test
   public void testSearchUsers_Success() {
     // Arrange
-    UserInfo user1 = new UserInfo();
-    user1.setUserId("user1");
-    user1.setName("User One");
-
-    UserInfo user2 = new UserInfo();
-    user2.setUserId("user2");
-    user2.setName("User Two");
-
-    List<UserInfo> users = Arrays.asList(user1, user2);
+    List<com.ctrip.framework.apollo.portal.entity.bo.UserInfo> users = Arrays.asList(
+        portalUser("user1", "User One", "user1@example.com"),
+        portalUser("user2", "User Two", "user2@example.com")
+    );
     when(userService.searchUsers(anyString(), anyInt(), anyInt(), anyBoolean())).thenReturn(users);
 
     // Act
