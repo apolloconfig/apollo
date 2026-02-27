@@ -45,10 +45,9 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 > Note 1: MySQL versions can be downgraded to 5.5, see [mysql dependency downgrade discussion](https://github.com/apolloconfig/apollo/issues/481) for details.
-
 > Note 2: If you wish to use Oracle, you can refer to [vanpersl](https://github.com/vanpersl)'s [Oracle Adaptation Code](https://github.com/apolloconfig/apollo/compare/v0.8.0...vanpersl:db-oracle) developed on top of Apollo 0.8.0 with `Oracle` version `10.2.0.1.0`.
-
 > Note 3: If you wish to use Postgres, you can refer to the [Pg adaptation code](https://github.com/oaksharks/apollo/compare/ac10768ee2e11c488523ca0e845984f6f71499ac...oaksharks:pg) developed by [oaksharks](https://github.com/oaksharks) on top of Apollo 0.9.1 with `Postgres` version 9.3.20, also see [xiao0yy](https://github.com/xiao0yy) developed on the basis of Apollo 0.10.2 [Pg adaptation code](https://github.com/apolloconfig/apollo/issues/1293) with `Postgres` version 9.5.
+> Note 4: If you wish to use Dameng Database (DM), you can refer to the community-maintained [ajistyle/apollo-dameng](https://github.com/ajistyle/apollo-dameng) (adapted from Apollo 2.1.0, tested with Dameng DM8). See the [K8s deployment guide](https://github.com/ajistyle/apollo-dameng/blob/main/scripts/k8s/README-K8S-DM-git.md) in the repository.
 
 ## 1.3 Environment
 
@@ -65,8 +64,6 @@ Apollo currently supports the following environments.
     * Production environment
 
 > If you want to add custom environment names, you can refer to [How to add new environments by Portal Console](en/faq/common-issues-in-deployment-and-development-phase?id=_4-how-to-add-environment-by-portal-console) for the specific steps.
-
-> Please note, if your custom environment name is "PROD", it will be forcibly converted to "PRO". Similarly, if the environment name is "FWS", it will be forcibly converted to "FAT".
 
 You can refer to [deployment-architecture](en/deployment/deployment-architecture.md)
 
@@ -117,35 +114,23 @@ EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
 
 You can modify the startup.sh of `apollo-configservice` and `apollo-adminservice` respectively, passing in the -D parameter via JVM System Property, or via OS Environment Variable, the following example will specify the URL to register URL as `http://1.2.3.4:8080`.
 
->Note: The default registration ports for apollo-configservice and apollo-adminservice are 8080 and 8090 respectively.
-
 JVM System Property example.
 
 ```properties
-# apollo-configservice
 -Deureka.instance.homePageUrl=http://1.2.3.4:8080
--Deureka.instance.preferIpAddress=false
-
-# apollo-adminservice
--Deureka.instance.homePageUrl=http://1.2.3.4:8090
 -Deureka.instance.preferIpAddress=false
 ```
 
 OS Environment Variable Example.
 
 ```properties
-# apollo-configservice
 EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
-EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
-
-# apollo-adminservice
-EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8090
 EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ```
 
 ### 1.4.4 Specifying apollo-configservice address directly
 
-If Apollo is deployed on the public cloud and the local development environment cannot connect, but you need to do development testing, the client can upgrade to version 0.11.0 and above, and then configure [Skip Apollo Meta Server service discovery](en/client/java-sdk-user-guide?id=_1222-skip-apollo-meta-server-service-discovery)
+If Apollo is deployed on the public cloud and the local development environment cannot connect, but you need to do development testing, the client can upgrade to version 0.11.0 and above, and then configure [Skip Apollo Meta Server service discovery](en/usage/java-sdk-user-guide?id=_1222-skip-apollo-meta-server-service-discovery)
 
 ### 1.4.5 Network Configuration
 
@@ -227,17 +212,26 @@ Note that ApolloPortalDB only needs to deploy one in the production environment,
 
 ### 2.1.1 Creating ApolloPortalDB
 
+You can choose to create it by manually importing SQL or by automatically importing SQL via [Flyway](https://flywaydb.org/) depending on the actual situation.
+
 #### 2.1.1.1 Manual SQL Import
 
-You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql) through various MySQL clients.
+You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/apolloportaldb.sql) through various MySQL clients.
 
 Using the native MySQL client as an example.
 
 ```sql
-source /your_local_path/scripts/sql/profiles/mysql-default/apolloportaldb.sql
+source /your_local_path/scripts/sql/apolloportaldb.sql
 ```
 
-#### 2.1.1.2 Verification
+#### 2.1.1.2 Created via Flyway import SQL
+
+> Requires version 1.3.0 and above
+
+1. Modify the `flyway-portaldb.properties` in [flyway-portaldb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-portaldb.properties) in `flyway.user`, `flyway.password` and `flyway.url` configurations
+2. Execute `mvn -N -Pportaldb flyway:migrate` in the apollo project root directory
+
+#### 2.1.1.3 Verification
 
 After a successful import, you can verify it by executing the following sql statement.
 
@@ -253,17 +247,26 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`. `ServerConfig` lim
 
 ### 2.1.2 Creating ApolloConfigDB
 
+You can choose to create it by manually importing SQL or automatically importing SQL via [Flyway](https://flywaydb.org/) according to the actual situation.
+
 #### 2.1.2.1 Importing SQL Manually
 
-You can import [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql) through various MySQL clients.
+You can import [apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/apolloconfigdb.sql) through various MySQL clients.
 
 Using the native MySQL client as an example.
 
 ```sql
-source /your_local_path/scripts/sql/profiles/mysql-default/apolloconfigdb.sql
+source /your_local_path/scripts/sql/apolloconfigdb.sql
 ```
 
-#### 2.1.2.2 Verification
+#### 2.1.2.2 SQL import via Flyway
+
+> Version 1.3.0 and above is required
+
+1. Modify the `flyway.user`, `flyway.password`, and `flyway.url` in [flyway-configdb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-configdb.properties) .
+2. Run `mvn -N -Pconfigdb flyway:migrate` in the apollo project root directory
+
+#### 2.1.2.3 Verification
 
 After a successful import, you can verify it by executing the following sql statement.
 
@@ -309,6 +312,8 @@ Apollo's own configuration is placed inside the database, so you need to make so
 Most of the configurations can use the default values first, but [apollo.portal.envs](en/deployment/distributed-deployment-guide?id=_311-apolloportalenvs-list-of-supportable-environments) and [eureka.service.url](en/deployment/distributed-deployment-guide?id=_321-eurekaserviceurl-eureka-service-url) please make sure configured correctly before proceeding to the following deployment steps.
 
 ## 2.2 Virtual/physical machine deployment
+
+<a id="_221-Get-the-installation-package"></a>
 
 ### 2.2.1 Get the installation package
 
@@ -506,16 +511,10 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 ```
 
 > Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
-
 > Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-configservice.conf.
-
-> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
-
+> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
 > Note 4: If the eureka.service.url of ApolloConfigDB.ServerConfig is only configured with the currently starting machine, the eureka registration failure information will be output in the log during the process of starting apollo-configservice, such as `com.sun.jersey .api.client.ClientHandlerException: java.net.ConnectException: Connection refused`. It should be noted that this is the expected situation, because apollo-configservice needs to register the service with the Meta Server (itself), but because it has not yet woken up during the startup process, it will report this error. The retry action will be performed later, so the registration will be normal after the service is up.
-
-> Note 5: Starting from version 2.5.0, apollo-configservice supports graceful shutdown. When the service receives a stop signal, it will wait for in-flight requests to complete before shutting down, with a default timeout of 10 seconds. This feature is enabled via Spring Boot's `server.shutdown=graceful` and `spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:10s}` configuration. To adjust the timeout, you can set the `GRACEFUL_SHUTDOWN_TIMEOUT` environment variable (e.g., `30s`, `60s`, `2m`) or modify the settings in application.yml. In Kubernetes environments, ensure the Pod's `terminationGracePeriodSeconds` is greater than the configured timeout (recommend at least 10 seconds more).
-
-> Note 6: If you read this, I believe that you must be someone who reads the documentation carefully, and you are a little bit closer to success. Keep going, you should be able to complete the distributed deployment of Apollo soon! But do you feel that Apollo's distributed deployment steps are a bit cumbersome? Do you have any advice you would like to share with the author? If the answer is yes, please move to [#1424](https://github.com/apolloconfig/apollo/issues/1424) and look forward to your suggestions!
+> Note 5: If you read this, I believe that you must be someone who reads the documentation carefully, and you are a little bit closer to success. Keep going, you should be able to complete the distributed deployment of Apollo soon! But do you feel that Apollo's distributed deployment steps are a bit cumbersome? Do you have any advice you would like to share with the author? If the answer is yes, please move to [#1424](https://github.com/apolloconfig/apollo/issues/1424) and look forward to your suggestions!
 
 #### 2.2.2.2 Deploy apollo-adminservice
 
@@ -532,8 +531,6 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 > Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-adminservice.conf.
 
 > Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh.
-
-> Note 4: Starting from version 2.5.0, apollo-adminservice supports graceful shutdown. When the service receives a stop signal, it will wait for in-flight requests to complete before shutting down, with a default timeout of 10 seconds. This feature is enabled via Spring Boot's `server.shutdown=graceful` and `spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:10s}` configuration. To adjust the timeout, you can set the `GRACEFUL_SHUTDOWN_TIMEOUT` environment variable (e.g., `30s`, `60s`, `2m`) or modify the settings in application.yml. In Kubernetes environments, ensure the Pod's `terminationGracePeriodSeconds` is greater than the configured timeout (recommend at least 10 seconds more).
 
 #### 2.2.2.3 Deploy apollo-portal
 
@@ -554,8 +551,6 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 ### 2.2.3 Replace built-in eureka with another service registry
 
 #### 2.2.3.1 nacos-discovery
-
-> For version 1.8.0 and above
 
 Enable external nacos service registry to replace built-in eureka
 
@@ -581,8 +576,6 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
-
-> For version 1.9.0 and above
 
 Enable external Consul service registry to replace built-in eureka
 
@@ -622,8 +615,6 @@ spring.cloud.consul.port=8500
 ```
 
 #### 2.2.3.3 zookeeper-discovery
-
-> For version 2.0.0 and above
 
 Enable external Zookeeper service registry to replace built-in eureka
 
@@ -685,8 +676,6 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
-
-> For version 2.0.0 and above
 
 Enable custom-defined-discovery to replace built-in eureka
 
@@ -758,19 +747,11 @@ Apollo supports the use of internal database table as registry, without relying 
     spring.profiles.active=github,database-discovery
     ```
 
-2. (optional) In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+2. In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
 ```properties
 apollo.service.registry.cluster=same name with apollo Cluster
 ```
-
-2. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
-   for example when deploying on the intranet, 
-   if you don't want to expose the intranet ip, 
-   you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
-    ```properties
-    apollo.service.registry.uri=http://your-ip-or-domain:${server.port}/
-    ```
 
 ## 2.3 Docker Deployment
 
@@ -857,6 +838,8 @@ Parameter description:
 * `APOLLO_PORTAL_ENVS` (optional): corresponds to the [apollo.portal.envs](en/deployment/distributed-deployment-guide?id=_311-apolloportalenvs-list-of-supportable-environments) configuration item in ApolloPortalDB, which can be configured by this environment parameter if it is not configured in the database.
 * `DEV_META/PRO_META`(optional): Configure the Meta Service address of the corresponding environment, named by `${ENV}_META`, it should be noted that if you configure  [apollo.portal.meta.servers](en/deployment/distributed-deployment-guide?id=_312-apolloportalmetaservers-list-of-meta-service-for-each-environment)  configuration, then the configuration in apollo.portal.meta.servers prevails.
 
+<a id="_2314-Building-a-Docker-image-from-source"></a>
+
 #### 2.3.1.4 Building a Docker image from source
 
 If you have modified the apollo server code and wish to build a Docker image from source, you can refer to the following steps.
@@ -935,6 +918,8 @@ For example to uninstall the `apollo-service-dev` deployment.
 $ helm uninstall -n your-namespace apollo-service-dev
 ```
 
+<a id="_24133-Configuration-Notes"></a>
+
 ##### 2.4.1.3.3 Configuration Notes
 
 The following table lists the configurable parameters of the apollo-service-chart and their default values.
@@ -959,7 +944,6 @@ The following table lists the configurable parameters of the apollo-service-char
 | `configService.image.pullPolicy`                | Image pull policy of apollo-configservice                    | `IfNotPresent`                      |
 | `configService.imagePullSecrets`                | Image pull secrets of apollo-configservice                   | `[]`                                |
 | `configService.service.fullNameOverride`        | Override the service name for apollo-configservice           | `nil`                               |
-| `configService.service.annotations`             | The annotations of the service for apollo-configservice. _(chart version >= 0.9.0)_ | `{}`                                |
 | `configService.service.port`                    | The port for the service of apollo-configservice             | `8080`                              |
 | `configService.service.targetPort`              | The target port for the service of apollo-configservice      | `8080`                              |
 | `configService.service.type`                    | The service type of apollo-configservice                     | `ClusterIP`                         |
@@ -990,7 +974,6 @@ The following table lists the configurable parameters of the apollo-service-char
 | `adminService.image.pullPolicy`                 | Image pull policy of apollo-adminservice                     | `IfNotPresent`                      |
 | `adminService.imagePullSecrets`                 | Image pull secrets of apollo-adminservice                    | `[]`                                |
 | `adminService.service.fullNameOverride`         | Override the service name for apollo-adminservice            | `nil`                               |
-| `adminService.service.annotations`             | The annotations of the service for apollo-adminservice. _(chart version >= 0.9.0)_ | `{}`                                |
 | `adminService.service.port`                     | The port for the service of apollo-adminservice              | `8090`                              |
 | `adminService.service.targetPort`               | The target port for the service of apollo-adminservice       | `8090`                              |
 | `adminService.service.type`                     | The service type of apollo-adminservice                      | `ClusterIP`                         |
@@ -1150,7 +1133,6 @@ The following table lists the configurable parameters of the apollo-portal chart
 | `image.pullPolicy`                    | Image pull policy of apollo-portal                           | `IfNotPresent`               |
 | `imagePullSecrets`                    | Image pull secrets of apollo-portal                          | `[]`                         |
 | `service.fullNameOverride`            | Override the service name for apollo-portal                  | `nil`                        |
-| `service.annotations`                 | The annotations of the service for apollo-portal. _(chart version >= 0.9.0)_ | `{}` |
 | `service.port`                        | The port for the service of apollo-portal                    | `8070`                       |
 | `service.targetPort`                  | The target port for the service of apollo-portal             | `8070`                       |
 | `service.type`                        | The service type of apollo-portal                            | `ClusterIP`                  |
@@ -1301,14 +1283,14 @@ config:
           base: "dc=example,dc=org"
           username: "cn=admin,dc=example,dc=org"
           password: "password"
-          search-filter: "(uid={0})"
+          searchFilter: "(uid={0})"
           urls:
           - "ldap://xxx.somedomain.com:389"
       ldap:
         mapping:
-          object-class: "inetOrgPerson"
-          login-id: "uid"
-          user-display-name: "cn"
+          objectClass: "inetOrgPerson"
+          loginId: "uid"
+          userDisplayName: "cn"
           email: "mail"
 ```
 
@@ -1318,7 +1300,7 @@ If you have modified the code of the apollo server and want to build a Docker im
 
 ### 2.4.2 Based on the built-in Eureka service discovery
 
-Thanks to [AiotCEO](https://github.com/AiotCEO) for providing k8s deployment support, please refer to [apollo-on-kubernetes](https://github.com/apolloconfig/apollo-on-kubernetes).
+Thanks to [AiotCEO](https://github.com/AiotCEO) for providing k8s deployment support, please refer to [apollo-on-kubernetes](https://github.com/apolloconfig/apollo/blob/master/scripts/apollo-on-kubernetes/README.md).
 
 Thanks to [qct](https://github.com/qct) for Helm Chart deployment support, please refer to [qct/apollo-helm](https://github.com/qct/apollo-helm) for usage instructions.
 
@@ -1342,7 +1324,7 @@ After the modification needs to reboot to take effect.
 
 >Note 1: A set of Portal can manage multiple environments, but each environment needs to deploy a separate set of Config Service, Admin Service and ApolloConfigDB, please refer to: [2.1.2 Creating ApolloConfigDB](en/deployment/distributed-deployment-guide?id=_212-creating-apolloconfigdb), [3.2 Adjusting ApolloConfigDB configuration](en/deployment/distributed-deployment-guide?id=_32-adjusting-apolloconfigdb-configuration), [2.2.1.1.2 Configuring database connection information](en/deployment/distributed-deployment-guide?id=_22112-configuring-database-connection-information), and if you are adding an environment to Apollo Configuration Center that has been running for a while, don't forget to refer to [2.1.2.4 Importing ApolloConfigDB project data from another environment](en/deployment/distributed-deployment-guide?id=_2124-importing-apolloconfigdb-project-data-from-another-environment) to do the initialization of the new environment.
 
->Note 2: Adding the environment to the database only does not work, you also need to add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). portal's meta-service information). apollo-client also needs to be configured accordingly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
+>Note 2: Adding the environment to the database only does not work, you also need to add the meta server address corresponding to the new environment for apollo-portal, refer to: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information). apollo-client also needs to be configured accordingly when used in a new environment, refer to: [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
 
 >Note 3: If you wish to add a custom environment name, you can refer to [Portal How to add environment](en/faq/common-issues-in-deployment-and-development-phase?id=_4-how-to-add-environment-by-portal-console) .
 
@@ -1446,17 +1428,11 @@ The default is true, which makes it easy to quickly search for configurations by
 
 If set to false, this feature is disabled
 
-### 3.1.14 apollo.portal.search.perEnvMaxResults - set the Administrator Tool-Global Search for Value function's maximum number of search results for a single individual environment 
-
-> For versions 2.4.0 and above
-
-Default is 200, which means that each environment will return up to 200 results in a single search operation.
-
-Modifying this parameter may affect the performance of the search function, so before modifying it, you should conduct sufficient testing and adjust the value of `apollo.portal.search.perEnvMaxResults` appropriately according to the actual business requirements and system resources to balance the performance and the number of search results.
-
 ## 3.2 Adjusting ApolloConfigDB configuration
 
 Configuration items are uniformly stored in the ApolloConfigDB.ServerConfig table. It should be noted that each environment's ApolloConfigDB.ServerConfig needs to be configured separately, and the modification takes effect in real time for one minute afterwards.
+
+<a id="_321-eurekaserviceurl-eureka-service-url"></a>
 
 ### 3.2.1 eureka.service.url - Eureka Service Url
 
@@ -1509,26 +1485,7 @@ This is a function switch, if configured to true, config service will cache the 
 
 The default is false. Please evaluate the total configuration size and adjust the config service memory configuration before turning it on.
 
-> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
-
-> `config-service.cache.enabled` configuration adjustment requires a restart of the config service to take effect
-
-#### 3.2.3.1 config-service.cache.key.ignore-case - whether to ignore the case of the configuration cache key
-> For versions 2.2.0 and above
-
-This configuration takes effect when config-service.cache.enabled is set to true, and controls whether the configuration cache key ignores case. The default value is false, which means that cache keys are strictly case-sensitive. In this case, it is necessary to ensure that the capitalization of app.id and apollo.cluster configured in the application is correct, otherwise the correct configuration cannot be obtained. It can be configured as true to ignore case sensitivity.
-
-> This configuration is used to be compatible with the configuration acquisition logic when the cache is not enabled, because MySQL database queries are case-insensitive by default. If the cache is enabled and MySQL is used, it is recommended to configure it as true. If the database used by your Apollo is case-sensitive, you must keep the default configuration as false, otherwise the configuration cannot be obtained.
-
-
-#### 3.2.3.2 config-service.cache.stats.enabled - Whether to enable caching metric statistics function
-> For versions 2.4.0 and above
-
-> `config-service.cache.stats.enabled` The adjustment configuration must be restarted config service to take effect.
-
-This configuration works when `config-service.cache.stats.enabled` is true, it is used to control the opening of the cache statistics function.  
-The default is false, that is, it will not enable the cache statistics function, when it is set to true, it will enable the cache metric statistics function.  
-View metric reference index[Monitoring related-5.2 Metrics](en/design/apollo-design#5.2-Metrics),such as `http://${someIp:somePort}/prometheus`
+> Ensure that the app.id of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration
 
 ### 3.2.4 `item.key.length.limit`- Maximum length limit for configuration item key
 
@@ -1538,19 +1495,9 @@ The default configuration is 128.
 
 The default configuration is 20000.
 
-#### 3.2.5.1 appid.value.length.limit.override - The maximum length limit of the configuration item value of the appId dimension
+#### 3.2.5.1 `namespace.value.length.limit.override` - Maximum length limit for namespace's configuration item value
 
-This configuration is used to override the configuration of `item.value.length.limit` to control the maximum length limit of the value at the appId granularity. The configured value is in a json format, and the key of the json is appId. The format is as follows:
-```
-appid.value.length.limit.override = {"appId-demo1":200,"appId-demo2":300}
-```
-The above configuration specifies that the maximum length limit of the value in all namespaces under `appId-demo1` is 200, and the maximum length limit of the value in all namespaces under `appId-demo2` is 300
-
-When a new namespace is created under `appId-demo1` or `appId-demo2`, it will automatically inherit the maximum length limit of the value of the namespace, unless the maximum length limit of the value of the configuration item of the namespace is overridden by `namespace.value.length.limit.override`.
-
-#### 3.2.5.2 `namespace.value.length.limit.override` - Maximum length limit for namespace's configuration item value
-
-This configuration is used to override the `item.value.length.limit` or `appid.value.length.limit.override` configuration to achieve fine-grained control of the namespace's value maximum length limit, the configured value is a json format, the key of the json is the id value of the namespace in the database, the format is as follows.
+This configuration is used to override the `item.value.length.limit` configuration to achieve fine-grained control of the namespace's value maximum length limit, the configured value is a json format, the key of the json is the id value of the namespace in the database, the format is as follows.
 
 ```
 namespace.value.length.limit.override = {1:200,3:20}
@@ -1583,6 +1530,8 @@ admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b90331
 
 The default value is 60, in seconds. Since the key authentication needs to verify the time, there may be time deviation between the time of the client and the time of the server, if the deviation is too large, the authentication will fail, this configuration can configure the tolerated time deviation size, the default is 60 seconds.
 
+<a id="_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication"></a>
+
 ### 3.2.9 apollo.eureka.server.security.enabled - Configure whether to enable Eureka login authentication
 
 > For version 2.1.0 and above
@@ -1597,15 +1546,11 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/, http://some-user-name:
 
 Among them, `some-user-name` and `some-password` need to be consistent with the configuration items of `apollo.eureka.server.security.username` and `apollo.eureka.server.security.password`.
 
-A reboot is required to take effect after the modification.
-
 ### 3.2.10 apollo.eureka.server.security.username - Configure the username of Eureka server
 
 > For version 2.1.0 and above
 
 Configure the login username of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
-
-A reboot is required to take effect after the modification.
 
 > Note that the username cannot be configured as apollo.
 
@@ -1614,69 +1559,3 @@ A reboot is required to take effect after the modification.
 > For version 2.1.0 and above
 
 Configure the login password of eureka server, which needs to be used together with [apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication).
-
-A reboot is required to take effect after the modification.
-
-### 3.2.12 apollo.release-history.retention.size - Number of retained configurations release history
-
-> For version 2.2.0 and above
-
-The default value is -1, which means there is no limit on the number of retained release history. If the configuration is set to a positive integer(The minimum value is 1, which means at least one record of history must be kept to ensure the basic configuration functionality), only the specified number of recent release histories will be kept. This is to prevent excessive database pressure caused by too many release histories. It is recommended to configure this value based on the business needs for configuration rollback. This configuration item is global and cleaned up based on appId + clusterName + namespaceName + branchName.
-
-### 3.2.13 apollo.release-history.retention.size.override - Number of retained configurations release history at a granular level
-
-> For version 2.2.0 and above
-
-This configuration is used to override the `apollo.release-history.retention.size` configuration and achieve granular control over the number of retained release histories for appId+clusterName+namespaceName+branchName. The value of this configuration is in JSON format, with the JSON key being the concatenated value of appId, clusterName, namespaceName, and branchName using a `+` sign. The format is as follows:
-```
-json
-{
-  "kl+bj+namespace1+bj": 10,
-  "kl+bj+namespace2+bj": 20
-}
-```
-The above configuration specifies that the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace1, and branchName=bj is 10, and the retention size for release history of appId=kl, clusterName=bj, namespaceName=namespace2, and branchName=bj is 20. In general, branchName equals clusterName. It is only different during gray release, where the branchName needs to be confirmed by querying the ReleaseHistory table in the database.
-
-### 3.2.14 instance.config.audit.max.size - The size of the queue for clients to pull audit records
-
-> For version 2.5.0 and above
-
-The default value is 10000 and the minimum value is 10. It is used to control the queue size for the client to pull audit records. When the queue size is exceeded, the earliest audit record will be discarded.
-
-After the modification, you need to restart for it to take effect.
-
-### 3.2.15 instance.cache.max.size - The maximum number of caches for the instance
-
-> For version 2.5.0 and above
-
-The default value is 50000, and the minimum value is 10. It is used to control the maximum number of instance caches. When the cache exceeds the maximum capacity, the cache eviction mechanism is triggered.
-
-After the modification, you need to restart for it to take effect.
-
-### 3.2.16 instance.config.cache.max.size - The maximum number of caches for the instance config
-
-> For version 2.5.0 and above
-
-The default value is 50000 and the minimum value is 10. It is used to control the maximum number of caches for the instance config. When the cache exceeds the maximum capacity, the cache eviction mechanism is triggered.
-
-After the modification, you need to restart for it to take effect.
-
-### 3.2.17 instance.config.audit.time.threshold.minutes - The interval between instances pulling audit records
-
-> For version 2.5.0 and above
-
-The time threshold unit is minutes, the default is 10, and the minimum is 5. It is used to control when saving/updating the client pull configuration audit record. When the interval between two request records is greater than this value, the pull record will be saved/updated. When it is less than this value, the pull record will not be saved/updated.
-
-### 3.2.14 config-service.incremental.change.enabled - whether to enables incremental config sync for the client
-
-> for server versions 2.5.0 and above && java client versions 2.4.0 and above
-
-This is a feature toggle. When set to true, the Config Service caches previously loaded configurations and sends incremental updates to clients, reducing server network load.
-
-Default is false. Assess total configuration size and adjust Config Service memory settings before enabling.
-
-> Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
-
-> `config-service.incremental.change.enabled` configuration adjustment requires a restart of the config service to take effect
-
-

@@ -45,10 +45,9 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 > 注1：MySQL版本可以降级到5.5，详见[mysql 依赖降级讨论](https://github.com/apolloconfig/apollo/issues/481)。
-
 > 注2：如果希望使用Oracle的话，可以参考[vanpersl](https://github.com/vanpersl)在Apollo 0.8.0基础上开发的[Oracle适配代码](https://github.com/apolloconfig/apollo/compare/v0.8.0...vanpersl:db-oracle)，Oracle版本为10.2.0.1.0。
-
 > 注3：如果希望使用Postgres的话，可以参考[oaksharks](https://github.com/oaksharks)在Apollo 0.9.1基础上开发的[Pg适配代码](https://github.com/oaksharks/apollo/compare/ac10768ee2e11c488523ca0e845984f6f71499ac...oaksharks:pg)，Postgres的版本为9.3.20，也可以参考[xiao0yy](https://github.com/xiao0yy)在Apollo 0.10.2基础上开发的[Pg适配代码](https://github.com/apolloconfig/apollo/issues/1293)，Postgres的版本为9.5。
+> 注4：如果希望使用达梦数据库 (Dameng DM) 的话，可以参考社区维护的 [ajistyle/apollo-dameng](https://github.com/ajistyle/apollo-dameng)（基于 Apollo 2.1.0 适配，测试过的达梦版本为 DM8），详见仓库内 [K8s 部署说明](https://github.com/ajistyle/apollo-dameng/blob/main/scripts/k8s/README-K8S-DM-git.md)。
 
 ## 1.3 环境
 
@@ -65,8 +64,6 @@ Apollo目前支持以下环境：
     * 生产环境
 
 > 如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)
-
-> 请注意，如果自定义的环境名称为 PROD，会被强制转换为 PRO。FWS 会被强制转换为 FAT。
 
 可以参考 [部署架构](zh/deployment/deployment-architecture.md)
 
@@ -117,30 +114,17 @@ EUREKA_INSTANCE_IP_ADDRESS=1.2.3.4
 
 可以分别修改`apollo-configservice`和`apollo-adminservice`的startup.sh，通过JVM System Property传入-D参数，也可以通过OS Environment Variable传入，下面的例子会指定注册的URL为`http://1.2.3.4:8080`。
 
-> 注：apollo-configservice和apollo-adminservice默认注册端口分别为8080、8090
-
-
 JVM System Property示例：
 
 ```properties
-# apollo-configservice
 -Deureka.instance.homePageUrl=http://1.2.3.4:8080
--Deureka.instance.preferIpAddress=false
-
-# apollo-adminservice
--Deureka.instance.homePageUrl=http://1.2.3.4:8090
 -Deureka.instance.preferIpAddress=false
 ```
 
 OS Environment Variable示例：
 
 ```properties
-# apollo-configservice
 EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8080
-EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
-
-# apollo-adminservice
-EUREKA_INSTANCE_HOME_PAGE_URL=http://1.2.3.4:8090
 EUREKA_INSTANCE_PREFER_IP_ADDRESS=false
 ```
 
@@ -226,16 +210,25 @@ Apollo服务端共需要两个数据库：`ApolloPortalDB`和`ApolloConfigDB`，
 
 ### 2.1.1 创建ApolloPortalDB
 
+可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
+
 #### 2.1.1.1 手动导入SQL创建
 
-通过各种MySQL客户端导入[apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloportaldb.sql)即可。
+通过各种MySQL客户端导入[apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/apolloportaldb.sql)即可。
 
 以MySQL原生客户端为例：
 ```sql
-source /your_local_path/scripts/sql/profiles/mysql-default/apolloportaldb.sql
+source /your_local_path/scripts/sql/apolloportaldb.sql
 ```
 
-#### 2.1.1.2 验证
+#### 2.1.1.2 通过Flyway导入SQL创建
+
+> 需要1.3.0及以上版本
+
+1. 根据实际情况修改[flyway-portaldb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-portaldb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
+2. 在apollo项目根目录下执行`mvn -N -Pportaldb flyway:migrate`
+
+#### 2.1.1.3 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql
@@ -248,18 +241,29 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloPortalDB`.`ServerConfig` limi
 
 > 注：ApolloPortalDB只需要在生产环境部署一个即可
 
+<a id="_212-创建apolloconfigdb"></a>
+
 ### 2.1.2 创建ApolloConfigDB
+
+可以根据实际情况选择通过手动导入SQL或是通过[Flyway](https://flywaydb.org/)自动导入SQL创建。
 
 #### 2.1.2.1 手动导入SQL
 
-通过各种MySQL客户端导入[apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/profiles/mysql-default/apolloconfigdb.sql)即可。
+通过各种MySQL客户端导入[apolloconfigdb.sql](https://github.com/apolloconfig/apollo/blob/master/scripts/sql/apolloconfigdb.sql)即可。
 
 以MySQL原生客户端为例：
 ```sql
-source /your_local_path/scripts/sql/profiles/mysql-default/apolloconfigdb.sql
+source /your_local_path/scripts/sql/apolloconfigdb.sql
 ```
 
-#### 2.1.2.2 验证
+#### 2.1.2.2 通过Flyway导入SQL
+
+> 需要1.3.0及以上版本
+
+1. 根据实际情况修改[flyway-configdb.properties](https://github.com/apolloconfig/apollo/blob/master/scripts/flyway/flyway-configdb.properties)中的`flyway.user`、`flyway.password`和`flyway.url`配置
+2. 在apollo项目根目录下执行`mvn -N -Pconfigdb flyway:migrate`
+
+#### 2.1.2.3 验证
 
 导入成功后，可以通过执行以下sql语句来验证：
 ```sql
@@ -270,6 +274,8 @@ select `Id`, `Key`, `Value`, `Comment` from `ApolloConfigDB`.`ServerConfig` limi
 | 1  | eureka.service.url | http://127.0.0.1:8080/eureka/ | Eureka服务Url |
 
 > 注：ApolloConfigDB需要在每个环境部署一套，如fat、uat和pro分别部署3套ApolloConfigDB
+
+<a id="_2124-从别的环境导入apolloconfigdb的项目数据"></a>
 
 #### 2.1.2.4 从别的环境导入ApolloConfigDB的项目数据
 如果是全新部署的Apollo配置中心，请忽略此步。
@@ -302,6 +308,8 @@ Apollo自身的一些配置是放在数据库里面的，所以需要针对实�
 大部分配置可以先使用默认值，不过 [apollo.portal.envs](#_311-apolloportalenvs-可支持的环境列表) 和 [eureka.service.url](#_321-eurekaserviceurl-eureka服务url) 请务必配置正确后再进行下面的部署步骤。
 
 ## 2.2 虚拟机/物理机部署
+<a id="_221-获取安装包"></a>
+
 ### 2.2.1 获取安装包
 
 可以通过两种方式获取安装包：
@@ -318,6 +326,8 @@ Apollo自身的一些配置是放在数据库里面的，所以需要针对实�
 ##### 2.2.1.1.1 获取apollo-configservice、apollo-adminservice、apollo-portal安装包
 
 从[GitHub Release](https://github.com/apolloconfig/apollo/releases)页面下载最新版本的`apollo-configservice-x.x.x-github.zip`、`apollo-adminservice-x.x.x-github.zip`和`apollo-portal-x.x.x-github.zip`即可。
+
+<a id="_22112-配置数据库连接信息"></a>
 
 ##### 2.2.1.1.2 配置数据库连接信息
 
@@ -365,6 +375,8 @@ spring.datasource.url = jdbc:mysql://localhost:3306/ApolloPortalDB?useSSL=false&
 spring.datasource.username = someuser
 spring.datasource.password = somepwd
 ```
+
+<a id="_221124-配置apollo-portal的meta-service信息"></a>
 
 ###### 2.2.1.1.2.4 配置apollo-portal的meta service信息
 
@@ -488,16 +500,10 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 ```
 
 > 注1：如果需要修改JVM参数，可以修改scripts/startup.sh的`JAVA_OPTS`部分。
-
 > 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-configservice.conf中的`LOG_DIR`。
-
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。另外apollo-configservice同时承担meta server职责，如果要修改端口，注意要同时ApolloConfigDB.ServerConfig表中的`eureka.service.url`配置项以及apollo-portal和apollo-client中的使用到的meta server信息，详见：[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)和[1.2.2 Apollo Meta Server](zh/client/java-sdk-user-guide#_122-apollo-meta-server)。
-
 > 注4：如果ApolloConfigDB.ServerConfig的eureka.service.url只配了当前正在启动的机器的话，在启动apollo-configservice的过程中会在日志中输出eureka注册失败的信息，如`com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused`。需要注意的是，这个是预期的情况，因为apollo-configservice需要向Meta Server（它自己）注册服务，但是因为在启动过程中，自己还没起来，所以会报这个错。后面会进行重试的动作，所以等自己服务起来后就会注册正常了。
-
-> 注5：apollo-configservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为10秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:10s}`配置启用。如需调整超时时间，可以通过环境变量`GRACEFUL_SHUTDOWN_TIMEOUT`设置（如`30s`、`60s`、`2m`等），或直接修改application.yml中的配置。在Kubernetes环境中，请确保Pod的`terminationGracePeriodSeconds`大于配置的超时时间（建议至少多10秒）。
-
-> 注6：如果你看到了这里，相信你一定是一个细心阅读文档的人，而且离成功就差一点点了，继续加油，应该很快就能完成Apollo的分布式部署了！不过你是否有感觉Apollo的分布式部署步骤有点繁琐？是否有啥建议想要和作者说？如果答案是肯定的话，请移步 [#1424](https://github.com/apolloconfig/apollo/issues/1424)，期待你的建议！
+> 注5：如果你看到了这里，相信你一定是一个细心阅读文档的人，而且离成功就差一点点了，继续加油，应该很快就能完成Apollo的分布式部署了！不过你是否有感觉Apollo的分布式部署步骤有点繁琐？是否有啥建议想要和作者说？如果答案是肯定的话，请移步 [#1424](https://github.com/apolloconfig/apollo/issues/1424)，期待你的建议！
 
 #### 2.2.2.2 部署apollo-adminservice
 将对应环境的`apollo-adminservice-x.x.x-github.zip`上传到服务器上，解压后执行scripts/startup.sh即可。如需停止服务，执行scripts/shutdown.sh.
@@ -512,8 +518,6 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 > 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-adminservice.conf中的`LOG_DIR`。
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
-
-> 注4：apollo-adminservice从2.5.0版本开始支持优雅下线功能。当服务收到停止信号时，会等待正在处理的请求完成后再关闭，默认等待时间为10秒。此功能通过Spring Boot的`server.shutdown=graceful`和`spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:10s}`配置启用。如需调整超时时间，可以通过环境变量`GRACEFUL_SHUTDOWN_TIMEOUT`设置（如`30s`、`60s`、`2m`等），或直接修改application.yml中的配置。在Kubernetes环境中，请确保Pod的`terminationGracePeriodSeconds`大于配置的超时时间（建议至少多10秒）。
 
 #### 2.2.2.3 部署apollo-portal
 将`apollo-portal-x.x.x-github.zip`上传到服务器上，解压后执行scripts/startup.sh即可。如需停止服务，执行scripts/shutdown.sh.
@@ -532,8 +536,6 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 ### 2.2.3 使用其它服务注册中心替换内置eureka
 
 #### 2.2.3.1 nacos-discovery
-
-> 适用于1.8.0及以上版本
 
 启用外部nacos服务注册中心替换内置eureka
 
@@ -557,8 +559,6 @@ nacos.discovery.context-path=
 ```
 
 #### 2.2.3.2 consul-discovery
-
-> 适用于1.9.0及以上版本
 
 启用外部Consul服务注册中心替换内置eureka
 
@@ -598,11 +598,11 @@ spring.cloud.consul.port=8500
 
 #### 2.2.3.3 zookeeper-discovery
 
-> 适用于2.0.0及以上版本
-
 启用外部Zookeeper服务注册中心替换内置eureka
 
 ##### 2.2.3.3.1 2.1.0 及以上版本
+
+
 
 1. 修改`apollo-configservice-x.x.x-github.zip`和`apollo-adminservice-x.x.x-github.zip`解压后的`config/application.properties`，取消注释，把
     ```properties
@@ -648,8 +648,6 @@ admin.serverPort
 ```
 
 #### 2.2.3.4 custom-defined-discovery
-
-> 适用于2.0.0及以上版本
 
 启用custom-defined-discovery替换内置eureka
 
@@ -716,20 +714,13 @@ Apollo支持使用内部的数据库表作为注册中心，不依赖第三方�
     spring.profiles.active=github,database-discovery
     ```
 
-2. （可选）在多机房部署时，
+2. 在多机房部署时，
    如果你需要apollo客户端只读取同机房内的Config Service，
    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
     ```properties
     apollo.service.registry.cluster=与apollo的Cluster同名
     ```
 
-3. （可选）如果你希望自定义Config Service和Admin Service给Client使用的uri，
-    例如在内网部署时，
-    如果不希望暴露内网ip，
-    你可以在Config Service和Admin Service安装包中`config/application-github.properties`新增一条配置
-    ```properties
-    apollo.service.registry.uri=http://你的ip或者域名:${server.port}/
-    ```
 
 ## 2.3 Docker部署
 ### 2.3.1 1.7.0及以上版本
@@ -811,6 +802,8 @@ docker run -p 8070:8070 \
 * APOLLO_PORTAL_ENVS(可选): 对应ApolloPortalDB中的[apollo.portal.envs](#_311-apolloportalenvs-可支持的环境列表)配置项，如果没有在数据库中配置的话，可以通过此环境参数配置
 * DEV_META/PRO_META(可选): 配置对应环境的Meta Service地址，以${ENV}_META命名，需要注意的是如果配置了ApolloPortalDB中的[apollo.portal.meta.servers](#_312-apolloportalmetaservers-各环境meta-service列表)配置，则以apollo.portal.meta.servers中的配置为准
 
+<a id="_2314-通过源码构建-docker-镜像"></a>
+
 #### 2.3.1.4 通过源码构建 Docker 镜像
 
 如果修改了 apollo 服务端的代码，希望通过源码构建 Docker 镜像，可以参考下面的步骤：
@@ -888,6 +881,8 @@ Get meta service url for current release by running these commands:
 $ helm uninstall -n your-namespace apollo-service-dev
 ```
 
+<a id="_24133-配置项说明"></a>
+
 ##### 2.4.1.3.3 配置项说明
 
 下表列出了apollo-service chart的可配置参数及其默认值：
@@ -912,7 +907,6 @@ $ helm uninstall -n your-namespace apollo-service-dev
 | `configService.image.pullPolicy`                | Image pull policy of apollo-configservice | `IfNotPresent` |
 | `configService.imagePullSecrets`                | Image pull secrets of apollo-configservice | `[]` |
 | `configService.service.fullNameOverride` | Override the service name for apollo-configservice | `nil` |
-| `configService.service.annotations` | The annotations of the service for apollo-configservice. _(chart version >= 0.9.0)_ | `{}` |
 | `configService.service.port` | The port for the service of apollo-configservice | `8080` |
 | `configService.service.targetPort` | The target port for the service of apollo-configservice | `8080` |
 | `configService.service.type` | The service type of apollo-configservice                     | `ClusterIP` |
@@ -943,7 +937,6 @@ $ helm uninstall -n your-namespace apollo-service-dev
 | `adminService.image.pullPolicy`                | Image pull policy of apollo-adminservice | `IfNotPresent` |
 | `adminService.imagePullSecrets`                | Image pull secrets of apollo-adminservice | `[]` |
 | `adminService.service.fullNameOverride` | Override the service name for apollo-adminservice | `nil` |
-| `adminService.service.annotations` | The annotations of the service for apollo-adminservice. _(chart version >= 0.9.0)_ | `{}` |
 | `adminService.service.port` | The port for the service of apollo-adminservice | `8090` |
 | `adminService.service.targetPort` | The target port for the service of apollo-adminservice | `8090` |
 | `adminService.service.type` | The service type of apollo-adminservice                     | `ClusterIP` |
@@ -1088,6 +1081,8 @@ $ helm install apollo-portal -f values.yaml -n your-namespace apollo/apollo-port
 $ helm uninstall -n your-namespace apollo-portal
 ```
 
+<a id="_24143-配置项说明"></a>
+
 ##### 2.4.1.4.3 配置项说明
 
 下表列出了apollo-portal chart的可配置参数及其默认值：
@@ -1102,7 +1097,6 @@ $ helm uninstall -n your-namespace apollo-portal
 | `image.pullPolicy`                | Image pull policy of apollo-portal | `IfNotPresent` |
 | `imagePullSecrets`                | Image pull secrets of apollo-portal | `[]` |
 | `service.fullNameOverride` | Override the service name for apollo-portal | `nil` |
-| `service.annotations` | The annotations of the service for apollo-portal. _(chart version >= 0.9.0)_ | `{}` |
 | `service.port` | The port for the service of apollo-portal | `8070` |
 | `service.targetPort` | The target port for the service of apollo-portal | `8070` |
 | `service.type` | The service type of apollo-portal                     | `ClusterIP` |
@@ -1253,14 +1247,14 @@ config:
           base: "dc=example,dc=org"
           username: "cn=admin,dc=example,dc=org"
           password: "password"
-          search-filter: "(uid={0})"
+          searchFilter: "(uid={0})"
           urls:
           - "ldap://xxx.somedomain.com:389"
       ldap:
         mapping:
-          object-class: "inetOrgPerson"
-          login-id: "uid"
-          user-display-name: "cn"
+          objectClass: "inetOrgPerson"
+          loginId: "uid"
+          userDisplayName: "cn"
           email: "mail"
 ```
 
@@ -1270,9 +1264,11 @@ config:
 
 ### 2.4.2 基于内置的Eureka服务发现
 
-感谢[AiotCEO](https://github.com/AiotCEO)提供了k8s的部署支持，使用说明可以参考[apollo-on-kubernetes](https://github.com/apolloconfig/apollo-on-kubernetes)。
+感谢[AiotCEO](https://github.com/AiotCEO)提供了k8s的部署支持，使用说明可以参考[apollo-on-kubernetes](https://github.com/apolloconfig/apollo/blob/master/scripts/apollo-on-kubernetes/README.md)。
 
 感谢[qct](https://github.com/qct)提供的Helm Chart部署支持，使用说明可以参考[qct/apollo-helm](https://github.com/qct/apollo-helm)。
+
+<a id="三、服务端配置说明"></a>
 
 # 三、服务端配置说明
 
@@ -1280,6 +1276,8 @@ config:
 
 ## 3.1 调整ApolloPortalDB配置
 配置项统一存储在ApolloPortalDB.ServerConfig表中，也可以通过`管理员工具 - 系统参数`页面进行配置，无特殊说明则修改完一分钟实时生效。
+
+<a id="_311-apolloportalenvs-可支持的环境列表"></a>
 
 ### 3.1.1 apollo.portal.envs - 可支持的环境列表
 
@@ -1297,6 +1295,8 @@ DEV,FAT,UAT,PRO
 >注3：如果希望添加自定义的环境名称，具体步骤可以参考[Portal如何增加环境](zh/faq/common-issues-in-deployment-and-development-phase?id=_4-portal如何增加环境？)。
 
 >注4：1.1.0版本增加了系统信息页面（`管理员工具` -> `系统信息`），可以通过该页面检查配置是否正确
+
+<a id="_312-apolloportalmetaservers-各环境meta-service列表"></a>
 
 ### 3.1.2 apollo.portal.meta.servers - 各环境Meta Service列表
 
@@ -1373,6 +1373,8 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 如果设置为true，那么只有超级管理员和拥有项目管理员分配权限的帐号可以为特定项目添加/删除管理员，超级管理员可以通过`管理员工具 - 系统权限管理`给用户分配特定项目的管理员分配权限
 
+<a id="_3112-admin-serviceaccesstokens-设置apollo-portal访问各环境apollo-adminservice所需的access-token"></a>
+
 ### 3.1.12 admin-service.access.tokens - 设置apollo-portal访问各环境apollo-adminservice所需的access token
 
 > 适用于1.7.1及以上版本
@@ -1394,16 +1396,11 @@ portal上“帮助”链接的地址，默认是Apollo github的wiki首页，可
 
 如果设置为 false，则关闭此功能
 
-### 3.1.14 apollo.portal.search.perEnvMaxResults - 设置管理员工具-value的全局搜索功能单次单独环境最大搜索结果的数量
-
-> 适用于2.4.0及以上版本
-
-默认为200，意味着每个环境在单次搜索操作中最多返回200条结果
-
-修改该参数可能会影响搜索功能的性能，因此在修改之前应该进行充分的测试，根据实际业务需求和系统资源情况，适当调整`apollo.portal.search.perEnvMaxResults`的值，以平衡性能和搜索结果的数量
 
 ## 3.2 调整ApolloConfigDB配置
 配置项统一存储在ApolloConfigDB.ServerConfig表中，需要注意每个环境的ApolloConfigDB.ServerConfig都需要单独配置，修改完一分钟实时生效。
+
+<a id="_321-eurekaserviceurl-eureka服务url"></a>
 
 ### 3.2.1 eureka.service.url - Eureka服务Url
 
@@ -1453,26 +1450,7 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认为false，开启前请先评估总配置大小并调整config service内存配置。
 
-> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
-
-> `config-service.cache.enabled` 配置调整必须重启 config service 才能生效
-
-#### 3.2.3.1 config-service.cache.key.ignore-case - 是否忽略配置缓存key的大小写
-> 适用于2.2.0及以上版本
-
-该配置作用于`config-service.cache.enabled`为 true 时，用于控制配置缓存key是否忽略大小写。
-默认为 false，即缓存键大小写严格匹配。此时需要确保应用中配置的`app.id`、`apollo.cluster`大小写正确，否则将获取不到正确的配置。可配置为 true, 则忽略大小写。
-
-> 这个配置用于兼容未开启缓存时的配置获取逻辑，因为 MySQL 数据库查询默认字符串匹配大小写不敏感。如果开启了缓存，且用了 MySQL，建议配置 true。如果你 Apollo 使用的数据库字符串匹配大小写敏感，那么必须保持默认配置 false，否则将获取不到配置。
-
-#### 3.2.3.2 config-service.cache.stats.enabled - 是否开启缓存metric统计功能
-> 适用于2.4.0及以上版本
-
-> `config-service.cache.stats.enabled` 配置调整必须重启 config service 才能生效
-
-该配置作用于`config-service.cache.stats.enabled`为 true 时，用于控制开启缓存统计功能。  
-默认为 false，即不会开启缓存统计功能，当配置为 true 时，开启缓存metric统计功能  
-指标查看参考[监控相关-5.2 Metrics](zh/design/apollo-design#5.2-Metrics)，如`http://${someIp:somePort}/prometheus`
+> 开启缓存后必须确保应用中配置的app.id大小写正确，否则将获取不到正确的配置
 
 ### 3.2.4 item.key.length.limit - 配置项 key 最大长度限制
 
@@ -1482,22 +1460,15 @@ http://5.5.5.5:8080/eureka/,http://6.6.6.6:8080/eureka/
 
 默认配置是20000。
 
-#### 3.2.5.1 appid.value.length.limit.override - appId 维度的配置项 value 最大长度限制
-此配置用来覆盖 `item.value.length.limit` 的配置，做到控制 appId 粒度下的 value 最大长度限制，配置的值是一个 json 格式，json 的 key 为 appId，格式如下：
-```
-appid.value.length.limit.override = {"appId-demo1":200,"appId-demo2":300}
-```
-以上配置指定了 `appId-demo1` 下的所有 namespace 中的 value 最大长度限制为 200，`appId-demo2` 下的所有 namespace 中的 value 最大长度限制为 300
+#### 3.2.5.1 namespace.value.length.limit.override - namespace 的配置项 value 最大长度限制
 
-当 `appId-demo1` 或 `appId-demo2` 下新建的 namespace 时，会自动继承该 namespace 的 value 最大长度限制，除非该 namespace 的配置项 value 最大长度限制被 `namespace.value.length.limit.override` 覆盖。
-
-#### 3.2.5.2 namespace.value.length.limit.override - namespace 的配置项 value 最大长度限制
-
-此配置用来覆盖 `item.value.length.limit` 或者 `appid.value.length.limit.override` 的配置，做到细粒度控制 namespace 的 value 最大长度限制，配置的值是一个 json 格式，json 的 key 为 namespace 在数据库中的 id 值，格式如下：
+此配置用来覆盖 `item.value.length.limit` 的配置，做到细粒度控制 namespace 的 value 最大长度限制，配置的值是一个 json 格式，json 的 key 为 namespace 在数据库中的 id 值，格式如下：
 ```
 namespace.value.length.limit.override = {1:200,3:20}
 ```
 以上配置指定了 ApolloConfigDB.Namespace 表中 id=1 的 namespace 的 value 最大长度限制为 200，id=3 的 namespace 的 value 最大长度限制为 20
+
+<a id="_326-admin-serviceaccesscontrolenabled-配置apollo-adminservice是否开启访问控制"></a>
 
 ### 3.2.6 admin-service.access.control.enabled - 配置apollo-adminservice是否开启访问控制
 
@@ -1523,6 +1494,8 @@ admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b903319
 
 默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。
 
+<a id="_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证"></a>
+
 ### 3.2.9 apollo.eureka.server.security.enabled - 配置是否开启eureka server的登录认证
 
 > 适用于2.1.0及以上版本
@@ -1536,15 +1509,11 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 ```
 其中`some-user-name`和`some-password`需要和`apollo.eureka.server.security.username`以及`apollo.eureka.server.security.password`的配置项一致。
 
-修改完需要重启生效。
-
 ### 3.2.10 apollo.eureka.server.security.username - 配置eureka server的登录用户名
 
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录用户名，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
-
-修改完需要重启生效。
 
 > 注意用户名不能配置为apollo
 
@@ -1553,69 +1522,3 @@ http://some-user-name:some-password@1.1.1.1:8080/eureka/,http://some-user-name:s
 > 适用于2.1.0及以上版本
 
 配置eureka server的登录密码，需要和[apollo.eureka.server.security.enabled](#_329-apolloeurekaserversecurityenabled-配置是否开启eureka-server的登录认证)一起使用。
-
-修改完需要重启生效。
-
-### 3.2.12 apollo.release-history.retention.size - 配置发布历史的保留数量
-
-> 适用于2.2.0及以上版本
-
-默认为 -1，表示不限制保留数量。如果配置为正整数(最小值为 1，必须保留一条历史记录，保障基本的配置功能)，则只会保留最近的指定数量的发布历史。这是为了防止发布历史过多导致数据库压力过大，建议根据业务对配置回滚的需求来配置该值。该配置项是全局的，清理时是以 appId+clusterName+namespaceName+branchName 为维度清理的。
-
-### 3.2.13 apollo.release-history.retention.size.override - 细粒度配置发布历史的保留数量
-
-> 适用于2.2.0及以上版本
-
-此配置用来覆盖 `apollo.release-history.retention.size` 的配置，做到细粒度控制 appId+clusterName+namespaceName+branchName 的发布历史保留数量，配置的值是一个 JSON 格式，JSON 的 key 为 appId、clusterName、namespaceName、branchName 使用 + 号的拼接值，格式如下：
-```
-json
-{
-  "kl+bj+namespace1+bj": 10,
-  "kl+bj+namespace2+bj": 20
-}
-```
-以上配置指定了 appId=kl、clusterName=bj、namespaceName=namespace1、branchName=bj 的发布历史保留数量为 10，appId=kl、clusterName=bj、namespaceName=namespace2、branchName=bj 的发布历史保留数量为 20，branchName 一般等于 clusterName，只有灰度发布时才会不同，灰度发布的 branchName 需要查询数据库 ReleaseHistory 表确认。
-
-### 3.2.14 instance.config.audit.max.size - 客户端拉取审计记录的队列大小
-
-> 适用于2.5.0及以上版本
-
-默认为 10000，最小为10，用于控制客户端拉取审计记录的队列大小，超过队列大小后会丢弃最早的审计记录。
-
-修改完需要重启生效。
-
-### 3.2.15 instance.cache.max.size - 实例缓存的最大数量
-
-> 适用于2.5.0及以上版本
-
-默认为 50000，最小为10，用于控制实例缓存的最大数量，当缓存超过最大容量时，会触发缓存淘汰（Eviction） 机制。
-
-修改完需要重启生效。
-
-### 3.2.16 instance.config.cache.max.size - 实例配置的缓存最大数量
-
-> 适用于2.5.0及以上版本
-
-默认为 50000，最小为10，用于控制实例配置的缓存最大数量，当缓存超过最大容量时，会触发缓存淘汰（Eviction） 机制。
-
-修改完需要重启生效。
-
-
-### 3.2.17 instance.config.audit.time.threshold.minutes - 实例拉取审计记录的间隔时间
-
-> 适用于2.5.0及以上版本
-
-时间阈值单位为分钟，默认为 10，最小为5，用于控制在保存/更新客户端拉取配置审计记录时，当2次请求记录间隔大于该值时，才会保存/更新拉取记录，小于该值时，不会保存/更新拉取记录。
-
-### 3.2.18 config-service.incremental.change.enabled - 是否开启增量配置同步客户端
-
-> 适用于服务端2.5.0及以上版本 && Java客户端2.4.0及以上版本
-
-这是一个功能开关，如果配置为true的话，config service会缓存加载过的配置信息，发送给客户端增量配置，减少客户端对服务端的网络压力。
-
-默认为false，开启前请先评估总配置大小并调整config service内存配置。
-
-> 开启缓存后必须确保应用中配置的`app.id`、`apollo.cluster`
-> 大小写正确，否则将获取不到正确的配置，另可参考`config-service.cache.key.ignore-case`配置做兼容处理。
-
-> `config-service.incremental.change.enabled` 配置调整必须重启 config service 才能生效
