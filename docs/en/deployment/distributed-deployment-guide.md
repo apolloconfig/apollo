@@ -45,11 +45,8 @@ SHOW VARIABLES WHERE Variable_name = 'version';
 | version       | 5.7.11 |
 
 > Note 1: MySQL versions can be downgraded to 5.5, see [mysql dependency downgrade discussion](https://github.com/apolloconfig/apollo/issues/481) for details.
-
 > Note 2: If you wish to use Oracle, you can refer to [vanpersl](https://github.com/vanpersl)'s [Oracle Adaptation Code](https://github.com/apolloconfig/apollo/compare/v0.8.0...vanpersl:db-oracle) developed on top of Apollo 0.8.0 with `Oracle` version `10.2.0.1.0`.
-
 > Note 3: If you wish to use Postgres, you can refer to the [Pg adaptation code](https://github.com/oaksharks/apollo/compare/ac10768ee2e11c488523ca0e845984f6f71499ac...oaksharks:pg) developed by [oaksharks](https://github.com/oaksharks) on top of Apollo 0.9.1 with `Postgres` version 9.3.20, also see [xiao0yy](https://github.com/xiao0yy) developed on the basis of Apollo 0.10.2 [Pg adaptation code](https://github.com/apolloconfig/apollo/issues/1293) with `Postgres` version 9.5.
-
 > Note 4: If you wish to use Dameng Database (DM), you can refer to the community-maintained [ajistyle/apollo-dameng](https://github.com/ajistyle/apollo-dameng) (adapted from Apollo 2.1.0, tested with Dameng DM8). See the [K8s deployment guide](https://github.com/ajistyle/apollo-dameng/blob/main/scripts/k8s/README-K8S-DM-git.md) in the repository.
 
 ## 1.3 Environment
@@ -271,8 +268,6 @@ source /your_local_path/scripts/sql/apolloconfigdb.sql
 
 #### 2.1.2.3 Verification
 
-
-
 After a successful import, you can verify it by executing the following sql statement.
 
 ```sql
@@ -317,6 +312,8 @@ Apollo's own configuration is placed inside the database, so you need to make so
 Most of the configurations can use the default values first, but [apollo.portal.envs](en/deployment/distributed-deployment-guide?id=_311-apolloportalenvs-list-of-supportable-environments) and [eureka.service.url](en/deployment/distributed-deployment-guide?id=_321-eurekaserviceurl-eureka-service-url) please make sure configured correctly before proceeding to the following deployment steps.
 
 ## 2.2 Virtual/physical machine deployment
+
+<a id="_221-Get-the-installation-package"></a>
 
 ### 2.2.1 Get the installation package
 
@@ -514,13 +511,9 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 ```
 
 > Note 1: If you need to modify the JVM parameters, you can modify the `JAVA_OPTS` section of scripts/startup.sh.
-
 > Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-configservice.conf.
-
 > Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/usage/java-sdk-user-guide?id=_122-apollo-meta-server).
-
 > Note 4: If the eureka.service.url of ApolloConfigDB.ServerConfig is only configured with the currently starting machine, the eureka registration failure information will be output in the log during the process of starting apollo-configservice, such as `com.sun.jersey .api.client.ClientHandlerException: java.net.ConnectException: Connection refused`. It should be noted that this is the expected situation, because apollo-configservice needs to register the service with the Meta Server (itself), but because it has not yet woken up during the startup process, it will report this error. The retry action will be performed later, so the registration will be normal after the service is up.
-
 > Note 5: If you read this, I believe that you must be someone who reads the documentation carefully, and you are a little bit closer to success. Keep going, you should be able to complete the distributed deployment of Apollo soon! But do you feel that Apollo's distributed deployment steps are a bit cumbersome? Do you have any advice you would like to share with the author? If the answer is yes, please move to [#1424](https://github.com/apolloconfig/apollo/issues/1424) and look forward to your suggestions!
 
 #### 2.2.2.2 Deploy apollo-adminservice
@@ -845,6 +838,8 @@ Parameter description:
 * `APOLLO_PORTAL_ENVS` (optional): corresponds to the [apollo.portal.envs](en/deployment/distributed-deployment-guide?id=_311-apolloportalenvs-list-of-supportable-environments) configuration item in ApolloPortalDB, which can be configured by this environment parameter if it is not configured in the database.
 * `DEV_META/PRO_META`(optional): Configure the Meta Service address of the corresponding environment, named by `${ENV}_META`, it should be noted that if you configure  [apollo.portal.meta.servers](en/deployment/distributed-deployment-guide?id=_312-apolloportalmetaservers-list-of-meta-service-for-each-environment)  configuration, then the configuration in apollo.portal.meta.servers prevails.
 
+<a id="_2314-Building-a-Docker-image-from-source"></a>
+
 #### 2.3.1.4 Building a Docker image from source
 
 If you have modified the apollo server code and wish to build a Docker image from source, you can refer to the following steps.
@@ -922,6 +917,8 @@ For example to uninstall the `apollo-service-dev` deployment.
 ```bash
 $ helm uninstall -n your-namespace apollo-service-dev
 ```
+
+<a id="_24133-Configuration-Notes"></a>
 
 ##### 2.4.1.3.3 Configuration Notes
 
@@ -1435,6 +1432,8 @@ If set to false, this feature is disabled
 
 Configuration items are uniformly stored in the ApolloConfigDB.ServerConfig table. It should be noted that each environment's ApolloConfigDB.ServerConfig needs to be configured separately, and the modification takes effect in real time for one minute afterwards.
 
+<a id="_321-eurekaserviceurl-eureka-service-url"></a>
+
 ### 3.2.1 eureka.service.url - Eureka Service Url
 
 > Not applicable to Kubernetes-based native service discovery scenarios
@@ -1530,6 +1529,8 @@ admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b90331
 > For version 2.0.0 and above
 
 The default value is 60, in seconds. Since the key authentication needs to verify the time, there may be time deviation between the time of the client and the time of the server, if the deviation is too large, the authentication will fail, this configuration can configure the tolerated time deviation size, the default is 60 seconds.
+
+<a id="_329-apolloeurekaserversecurityenabled-configure-whether-to-enable-eureka-login-authentication"></a>
 
 ### 3.2.9 apollo.eureka.server.security.enabled - Configure whether to enable Eureka login authentication
 
