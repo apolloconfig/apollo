@@ -672,7 +672,7 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-##### 2.2.3.5.2 2.1.0 之前的版本
+##### 2.2.3.4.2 2.1.0 之前的版本
 
 > 注意：需要重新打包
 
