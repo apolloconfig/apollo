@@ -55,7 +55,7 @@ public class InstanceConfigRepositoryTest extends AbstractIntegrationTest {
       instanceConfig.setConfigNamespaceName("namespace");
       instanceConfigRepository.save(instanceConfig);
     }
-    Page<Object> ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId("appId",
+    Page<Long> ids = instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId("appId",
         "appId", "cluster", "namespace", new Date(0), PageRequest.of(0, 10));
     assertThat(ids.getContent(), hasSize(10));
 

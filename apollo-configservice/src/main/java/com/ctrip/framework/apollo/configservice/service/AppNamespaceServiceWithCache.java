@@ -33,6 +33,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -47,7 +48,7 @@ import java.util.stream.Collectors;
  * @author Jason Song(song_s@ctrip.com)
  */
 @Service
-public class AppNamespaceServiceWithCache implements InitializingBean {
+public class AppNamespaceServiceWithCache implements InitializingBean, DisposableBean {
   private static final Logger logger = LoggerFactory.getLogger(AppNamespaceServiceWithCache.class);
   private static final Joiner STRING_JOINER =
       Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).skipNulls();
@@ -147,6 +148,13 @@ public class AppNamespaceServiceWithCache implements InitializingBean {
     }, rebuildInterval, rebuildInterval, rebuildIntervalTimeUnit);
     scheduledExecutorService.scheduleWithFixedDelay(this::scanNewAppNamespaces, scanInterval,
         scanInterval, scanIntervalTimeUnit);
+  }
+
+  @Override
+  public void destroy() {
+    if (scheduledExecutorService != null) {
+      scheduledExecutorService.shutdownNow();
+    }
   }
 
   private void scanNewAppNamespaces() {

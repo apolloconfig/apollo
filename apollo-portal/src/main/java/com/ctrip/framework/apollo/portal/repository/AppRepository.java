@@ -22,13 +22,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Set;
 
 
-public interface AppRepository extends PagingAndSortingRepository<App, Long> {
+public interface AppRepository extends JpaRepository<App, Long> {
 
   App findByAppId(String appId);
 
@@ -41,6 +42,8 @@ public interface AppRepository extends PagingAndSortingRepository<App, Long> {
   Page<App> findByAppIdContainingOrNameContaining(String appId, String name, Pageable pageable);
 
   @Modifying
-  @Query("UPDATE App SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE AppId=?1 and IsDeleted = false")
-  int deleteApp(String appId, String operator);
+  @Query("UPDATE App SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = :operator WHERE appId = :appId and isDeleted = false")
+  int deleteApp(@Param("appId") String appId, @Param("operator") String operator);
 }

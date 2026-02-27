@@ -28,8 +28,8 @@ import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserSe
 import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -18,15 +18,15 @@ package com.ctrip.framework.apollo.openapi.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
-import javax.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 /**
  * @author Jason Song(song_s@ctrip.com)

@@ -33,7 +33,7 @@ import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.gson.Gson;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

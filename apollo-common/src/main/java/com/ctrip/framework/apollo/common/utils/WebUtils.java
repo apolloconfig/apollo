@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.common.utils;
 
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author kl (http://kailing.pub)

@@ -24,6 +24,7 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.CollectionUtils;
@@ -33,10 +34,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 
-public abstract class RefreshableConfig {
+public abstract class RefreshableConfig implements DisposableBean {
 
   private static final Logger logger = LoggerFactory.getLogger(RefreshableConfig.class);
 
@@ -50,6 +51,7 @@ public abstract class RefreshableConfig {
   private ConfigurableEnvironment environment;
 
   private List<RefreshablePropertySource> propertySources;
+  private ScheduledExecutorService executorService;
 
   /**
    * register refreshable property source.
@@ -72,7 +74,7 @@ public abstract class RefreshableConfig {
     }
 
     // task to update configs
-    ScheduledExecutorService executorService =
+    executorService =
         Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
     executorService.scheduleWithFixedDelay(() -> {
@@ -83,6 +85,13 @@ public abstract class RefreshableConfig {
         Tracer.logError("Refresh configs failed.", t);
       }
     }, CONFIG_REFRESH_INTERVAL, CONFIG_REFRESH_INTERVAL, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public void destroy() {
+    if (executorService != null) {
+      executorService.shutdownNow();
+    }
   }
 
   public int getIntProperty(String key, int defaultValue) {

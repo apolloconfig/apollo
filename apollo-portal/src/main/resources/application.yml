@@ -38,6 +38,7 @@ server:
   servlet:
     session:
       cookie:
+        name: SESSION
         # prevent csrf
         same-site: Lax
 

@@ -375,7 +375,16 @@ public class DefaultRolePermissionService implements RolePermissionService {
     }
   }
 
+  @Override
   public boolean hasAnyPermission(String userId, List<Permission> permissions) {
+    if (CollectionUtils.isEmpty(permissions)) {
+      return false;
+    }
+
+    if (isSuperAdmin(userId)) {
+      return true;
+    }
+
     List<Permission> userPermissions = permissionRepository.findUserPermissions(userId);
 
     if (CollectionUtils.isEmpty(userPermissions)) {

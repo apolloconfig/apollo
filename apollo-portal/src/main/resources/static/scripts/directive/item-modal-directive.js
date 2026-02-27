@@ -252,6 +252,10 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                 }
                 var raw = scope.item.value;
                 if (scope.item.type === '3') {
+                    if (AppUtil.hasDuplicateKeys(raw)) {
+                        toastr.warning($translate.instant('ItemModal.JsonDuplicateKeyWarning'));
+                        return;
+                    }
                     scope.item.value = JSON.stringify(JSON.parse(raw), null, 4);
                 }
             }

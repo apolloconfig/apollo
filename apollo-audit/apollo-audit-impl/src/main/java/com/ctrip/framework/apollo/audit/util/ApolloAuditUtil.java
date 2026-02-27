@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 public class ApolloAuditUtil {
 

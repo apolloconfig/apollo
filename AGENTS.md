@@ -21,6 +21,12 @@
 - New Java classes should include a short Javadoc describing the class purpose.
 - Use standard Java naming: packages `lower.case`, classes `UpperCamelCase`, tests `*Test`.
 
+## OpenAPI Contract Workflow (apollo-portal)
+- Treat OpenAPI as contract-first: update spec in `apolloconfig/apollo-openapi` before (or together with) portal implementation changes.
+- `apollo-portal/pom.xml` uses `apollo.openapi.spec.url` + `openapi-generator-maven-plugin`; generated sources under `target/generated-sources/openapi/src/main/java` are added to compile path via `build-helper-maven-plugin`.
+- For new/changed OpenAPI endpoints, prefer implementing generated `*ManagementApi` interfaces and generated models; avoid introducing hand-written DTO/controller contracts that bypass the spec pipeline.
+- In PR review, verify contract alignment explicitly: endpoint path, request/response model, and permissions in `apollo` should match the spec in `apollo-openapi`.
+
 ## Testing Guidelines
 - JUnit 5 is the default, with Vintage enabled for legacy JUnit 4 tests.
 - Put new tests under the module’s `src/test/java` with `*Test` suffix.
@@ -29,6 +35,8 @@
 ## Commit & Pull Request Guidelines
 - Use Conventional Commits format (e.g., `feat:`, `fix:`).
 - If a commit fixes an issue, append `Fixes #123` in the commit message.
+- Commit only on feature branches; never commit directly to `master` or `main`.
+- `CHANGES.md` entries must use a PR URL in Markdown link format; if the PR URL is not available yet, open the PR first, then add/update `CHANGES.md` in a follow-up commit.
 - Rebase onto `master` and squash feature work into a single commit before merge.
 - When merging a PR on GitHub: if it has a single commit, use rebase and merge; if it has multiple commits, use squash and merge.
 - Non-trivial contributions require signing the CLA.

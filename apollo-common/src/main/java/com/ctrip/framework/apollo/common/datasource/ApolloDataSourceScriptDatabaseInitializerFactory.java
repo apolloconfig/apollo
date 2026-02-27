@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.common.datasource;
 
 import java.net.URL;
 import java.security.CodeSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -114,12 +116,16 @@ public class ApolloDataSourceScriptDatabaseInitializerFactory {
   }
 
   private static String findSuffix(DataSource dataSource) {
-    DatabaseDriver databaseDriver = DatabaseDriver.fromDataSource(dataSource);
-    if (DatabaseDriver.H2.equals(databaseDriver)) {
-      return "-default";
-    }
-    if (DatabaseDriver.MYSQL.equals(databaseDriver)) {
-      return "-database-not-specified";
+    try (Connection connection = dataSource.getConnection()) {
+      DatabaseDriver databaseDriver = DatabaseDriver.fromJdbcUrl(connection.getMetaData().getURL());
+      if (DatabaseDriver.H2.equals(databaseDriver)) {
+        return "-default";
+      }
+      if (DatabaseDriver.MYSQL.equals(databaseDriver)) {
+        return "-database-not-specified";
+      }
+    } catch (SQLException ex) {
+      return "";
     }
     return "";
   }

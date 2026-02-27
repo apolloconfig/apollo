@@ -73,28 +73,35 @@ public class NamespaceUnlockAspect {
 
 
   // create item
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
+  @After(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)",
+      argNames = "appId,clusterName,namespaceName,item")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
       ItemDTO item) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
   // update item
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
+  @After(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)",
+      argNames = "appId,clusterName,namespaceName,itemId,item")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
       ItemDTO item) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
   // update by change set
-  @After("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
+  @After(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)",
+      argNames = "appId,clusterName,namespaceName,changeSet")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
       ItemChangeSets changeSet) {
     tryUnlock(namespaceService.findOne(appId, clusterName, namespaceName));
   }
 
   // delete item
-  @After("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
+  @After(value = "@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)",
+      argNames = "itemId,operator")
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
     if (item == null) {

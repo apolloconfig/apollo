@@ -171,7 +171,8 @@ public class NamespaceControllerWithAuthorizationTest extends AbstractController
     } catch (HttpClientErrorException e) {
       assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       String result = e.getResponseBodyAsString();
-      assertTrue(result.contains("org.springframework.security.access.AccessDeniedException"));
+      assertTrue(result.contains("AccessDeniedException")
+          || result.contains("AuthorizationDeniedException"));
     }
 
     // random app id
@@ -185,7 +186,8 @@ public class NamespaceControllerWithAuthorizationTest extends AbstractController
     } catch (HttpClientErrorException e) {
       assertEquals(HttpStatus.FORBIDDEN, e.getStatusCode());
       String result = e.getResponseBodyAsString();
-      assertTrue(result.contains("org.springframework.security.access.AccessDeniedException"));
+      assertTrue(result.contains("AccessDeniedException")
+          || result.contains("AuthorizationDeniedException"));
     }
   }
 }

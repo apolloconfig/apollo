@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 

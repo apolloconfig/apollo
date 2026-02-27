@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

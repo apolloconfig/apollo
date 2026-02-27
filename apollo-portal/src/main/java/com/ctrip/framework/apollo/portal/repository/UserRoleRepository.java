@@ -20,7 +20,8 @@ import com.ctrip.framework.apollo.portal.entity.po.UserRole;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface UserRoleRepository extends PagingAndSortingRepository<UserRole, Long> {
+public interface UserRoleRepository extends JpaRepository<UserRole, Long> {
   /**
    * find user roles by userId
    */
@@ -45,7 +46,10 @@ public interface UserRoleRepository extends PagingAndSortingRepository<UserRole,
   List<UserRole> findByUserIdInAndRoleId(Collection<String> userId, long roleId);
 
   @Modifying
-  @Query("UPDATE UserRole SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE RoleId in ?1 and IsDeleted = false")
-  Integer batchDeleteByRoleIds(List<Long> roleIds, String operator);
+  @Query("UPDATE UserRole SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = :operator WHERE roleId in :roleIds and isDeleted = false")
+  Integer batchDeleteByRoleIds(@Param("roleIds") List<Long> roleIds,
+      @Param("operator") String operator);
 
 }

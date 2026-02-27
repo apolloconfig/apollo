@@ -37,7 +37,7 @@ public class AppControllerTest extends AbstractControllerTest {
   AppRepository appRepository;
 
   private String getBaseAppUrl() {
-    return url("/apps/");
+    return url("/apps");
   }
 
   @Test
@@ -51,11 +51,11 @@ public class AppControllerTest extends AbstractControllerTest {
     Assert.assertEquals(dto.getAppId(), result.getAppId());
     Assert.assertTrue(result.getId() > 0);
 
-    Boolean falseUnique =
-        restTemplate.getForObject(getBaseAppUrl() + dto.getAppId() + "/unique", Boolean.class);
+    Boolean falseUnique = restTemplate
+        .getForObject(getBaseAppUrl() + "/" + dto.getAppId() + "/unique", Boolean.class);
     Assert.assertFalse(falseUnique);
     Boolean trueUnique = restTemplate
-        .getForObject(getBaseAppUrl() + dto.getAppId() + "true" + "/unique", Boolean.class);
+        .getForObject(getBaseAppUrl() + "/" + dto.getAppId() + "true" + "/unique", Boolean.class);
     Assert.assertTrue(trueUnique);
   }
 
@@ -105,7 +105,7 @@ public class AppControllerTest extends AbstractControllerTest {
     App app = BeanUtils.transform(App.class, dto);
     app = appRepository.save(app);
 
-    AppDTO result = restTemplate.getForObject(getBaseAppUrl() + dto.getAppId(), AppDTO.class);
+    AppDTO result = restTemplate.getForObject(getBaseAppUrl() + "/" + dto.getAppId(), AppDTO.class);
     Assert.assertEquals(dto.getAppId(), result.getAppId());
     Assert.assertEquals(dto.getName(), result.getName());
   }
@@ -113,7 +113,7 @@ public class AppControllerTest extends AbstractControllerTest {
   @Test(expected = HttpClientErrorException.class)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testFindNotExist() {
-    restTemplate.getForEntity(getBaseAppUrl() + "notExists", AppDTO.class);
+    restTemplate.getForEntity(getBaseAppUrl() + "/notExists", AppDTO.class);
   }
 
   @Test

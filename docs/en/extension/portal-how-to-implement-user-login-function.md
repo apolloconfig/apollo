@@ -265,7 +265,7 @@ spring:
           <fill-in-the-registration-name-here>:
             # oidc login must be configured with a registration of authorization_code type
             authorization-grant-type: authorization_code
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             # client-id is the client ID configured at the oidc provider, used to log in to the provider
             client-id: apollo-portal
             # The name of the provider, which should be the same as the provider name configured above
@@ -303,7 +303,7 @@ spring:
           <fill-in-the-registration-name-here>:
             # oidc login must be configured with a registration of authorization_code type
             authorization-grant-type: authorization_code
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             # client-id is the client ID configured at the oidc provider, used to log in to the provider
             client-id: apollo-portal
             # The name of the provider, which should be the same as the provider name configured above
@@ -319,7 +319,7 @@ spring:
           registration-name-client:
             # registration of client_credentials type is optional, used by apollo-portal as a client to request other oidc-protected resources, may not be configured
             authorization-grant-type: client_credentials
-            client-authentication-method: basic
+            client-authentication-method: client_secret_basic
             # client-id is the client ID configured at the oidc provider, used to log in to the provider
             client-id: apollo-portal
             # The name of the provider, which must be the same as the provider name configured above

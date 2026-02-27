@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.core.ConfigConsts;
-import com.netflix.servo.util.Strings;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -344,7 +343,7 @@ public class ConfigFileControllerIntegrationTest extends AbstractBaseIntegration
     assertEquals(response.getBody(), anotherResponse.getBody());
 
     List<String> keys = Lists.newArrayList(someAppId, someCluster, someNamespace);
-    String message = Strings.join(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR, keys.iterator());
+    String message = String.join(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR, keys);
     sendReleaseMessage(message);
 
     TimeUnit.MILLISECONDS.sleep(500);

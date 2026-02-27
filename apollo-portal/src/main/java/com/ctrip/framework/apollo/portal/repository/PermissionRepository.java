@@ -21,13 +21,13 @@ import java.util.Collection;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface PermissionRepository extends PagingAndSortingRepository<Permission, Long> {
+public interface PermissionRepository extends JpaRepository<Permission, Long> {
 
   /**
    * find permission by permission type and targetId
@@ -50,8 +50,11 @@ public interface PermissionRepository extends PagingAndSortingRepository<Permiss
   List<Long> findPermissionIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
-  @Query("UPDATE Permission SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = false")
-  Integer batchDelete(List<Long> permissionIds, String operator);
+  @Query("UPDATE Permission SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = :operator WHERE id in :permissionIds and isDeleted = false")
+  Integer batchDelete(@Param("permissionIds") List<Long> permissionIds,
+      @Param("operator") String operator);
 
   @Query("SELECT p.id from Permission p where p.targetId = CONCAT(?1, '+', ?2, '+', ?3)"
       + " AND ( p.permissionType = 'ModifyNamespacesInCluster' OR p.permissionType = 'ReleaseNamespacesInCluster')")

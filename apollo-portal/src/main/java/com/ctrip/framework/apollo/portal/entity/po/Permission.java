@@ -18,9 +18,9 @@ package com.ctrip.framework.apollo.portal.entity.po;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 

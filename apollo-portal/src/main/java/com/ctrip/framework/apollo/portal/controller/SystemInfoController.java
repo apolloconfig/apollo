@@ -26,7 +26,7 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import java.util.List;
 import java.util.Objects;
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;

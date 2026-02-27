@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.biz.repository;
 import com.ctrip.framework.apollo.biz.entity.ReleaseMessage;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface ReleaseMessageRepository extends PagingAndSortingRepository<ReleaseMessage, Long> {
+public interface ReleaseMessageRepository extends JpaRepository<ReleaseMessage, Long> {
   List<ReleaseMessage> findFirst500ByIdGreaterThanOrderByIdAsc(Long id);
 
   ReleaseMessage findTopByOrderByIdDesc();

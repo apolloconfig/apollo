@@ -19,14 +19,14 @@ package com.ctrip.framework.apollo.openapi.repository;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 
 import java.util.List;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Date;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface ConsumerTokenRepository extends PagingAndSortingRepository<ConsumerToken, Long> {
+public interface ConsumerTokenRepository extends JpaRepository<ConsumerToken, Long> {
   /**
    * find consumer token by token
    *

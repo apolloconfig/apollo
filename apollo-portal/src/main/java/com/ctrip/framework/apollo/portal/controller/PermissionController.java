@@ -83,7 +83,8 @@ public class PermissionController {
   @PostMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/initNsPermission")
   public ResponseEntity<Void> initClusterNamespacePermission(@PathVariable String appId,
       @PathVariable String env, @PathVariable String clusterName) {
-    roleInitializationService.initClusterNamespaceRoles(appId, env, clusterName,
+    String normalizedEnv = normalizeEnv(env);
+    roleInitializationService.initClusterNamespaceRoles(appId, normalizedEnv, clusterName,
         userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
@@ -115,11 +116,12 @@ public class PermissionController {
   public ResponseEntity<PermissionCondition> hasPermission(@PathVariable String appId,
       @PathVariable String env, @PathVariable String namespaceName,
       @PathVariable String permissionType) {
+    String normalizedEnv = normalizeEnv(env);
     PermissionCondition permissionCondition = new PermissionCondition();
 
     permissionCondition.setHasPermission(
         rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-            permissionType, RoleUtils.buildNamespaceTargetId(appId, namespaceName, env)));
+            permissionType, RoleUtils.buildNamespaceTargetId(appId, namespaceName, normalizedEnv)));
 
     return ResponseEntity.ok().body(permissionCondition);
   }
@@ -128,11 +130,12 @@ public class PermissionController {
   public ResponseEntity<PermissionCondition> hasClusterNamespacePermission(
       @PathVariable String appId, @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String permissionType) {
+    String normalizedEnv = normalizeEnv(env);
     PermissionCondition permissionCondition = new PermissionCondition();
 
     permissionCondition.setHasPermission(
         rolePermissionService.userHasPermission(userInfoHolder.getUser().getUserId(),
-            permissionType, RoleUtils.buildClusterTargetId(appId, env, clusterName)));
+            permissionType, RoleUtils.buildClusterTargetId(appId, normalizedEnv, clusterName)));
 
     return ResponseEntity.ok().body(permissionCondition);
   }
@@ -152,22 +155,19 @@ public class PermissionController {
   public NamespaceEnvRolesAssignedUsers getNamespaceEnvRoles(@PathVariable String appId,
       @PathVariable String env, @PathVariable String namespaceName) {
 
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
 
     NamespaceEnvRolesAssignedUsers assignedUsers = new NamespaceEnvRolesAssignedUsers();
     assignedUsers.setNamespaceName(namespaceName);
     assignedUsers.setAppId(appId);
-    assignedUsers.setEnv(Env.valueOf(env));
+    assignedUsers.setEnv(Env.valueOf(normalizedEnv));
 
-    Set<UserInfo> releaseNamespaceUsers = rolePermissionService
-        .queryUsersWithRole(RoleUtils.buildReleaseNamespaceRoleName(appId, namespaceName, env));
+    Set<UserInfo> releaseNamespaceUsers = rolePermissionService.queryUsersWithRole(
+        RoleUtils.buildReleaseNamespaceRoleName(appId, namespaceName, normalizedEnv));
     assignedUsers.setReleaseRoleUsers(releaseNamespaceUsers);
 
-    Set<UserInfo> modifyNamespaceUsers = rolePermissionService
-        .queryUsersWithRole(RoleUtils.buildModifyNamespaceRoleName(appId, namespaceName, env));
+    Set<UserInfo> modifyNamespaceUsers = rolePermissionService.queryUsersWithRole(
+        RoleUtils.buildModifyNamespaceRoleName(appId, namespaceName, normalizedEnv));
     assignedUsers.setModifyRoleUsers(modifyNamespaceUsers);
 
     return assignedUsers;
@@ -186,12 +186,9 @@ public class PermissionController {
       throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
 
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
     Set<String> assignedUser = rolePermissionService.assignRoleToUsers(
-        RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, env),
+        RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, normalizedEnv),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     if (CollectionUtils.isEmpty(assignedUser)) {
       throw BadRequestException.userAlreadyAuthorized(user);
@@ -211,12 +208,9 @@ public class PermissionController {
     if (!RoleType.isValidRoleType(roleType)) {
       throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
     rolePermissionService.removeRoleFromUsers(
-        RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, env),
+        RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType, normalizedEnv),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
@@ -225,22 +219,19 @@ public class PermissionController {
   public ClusterNamespaceRolesAssignedUsers getClusterNamespaceRoles(@PathVariable String appId,
       @PathVariable String env, @PathVariable String clusterName) {
 
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
 
     ClusterNamespaceRolesAssignedUsers assignedUsers = new ClusterNamespaceRolesAssignedUsers();
     assignedUsers.setAppId(appId);
-    assignedUsers.setEnv(env);
+    assignedUsers.setEnv(normalizedEnv);
     assignedUsers.setCluster(clusterName);
 
     Set<UserInfo> releaseNamespacesInClusterUsers = rolePermissionService.queryUsersWithRole(
-        RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, env, clusterName));
+        RoleUtils.buildReleaseNamespacesInClusterRoleName(appId, normalizedEnv, clusterName));
     assignedUsers.setReleaseRoleUsers(releaseNamespacesInClusterUsers);
 
     Set<UserInfo> modifyNamespacesInClusterUsers = rolePermissionService.queryUsersWithRole(
-        RoleUtils.buildModifyNamespacesInClusterRoleName(appId, env, clusterName));
+        RoleUtils.buildModifyNamespacesInClusterRoleName(appId, normalizedEnv, clusterName));
     assignedUsers.setModifyRoleUsers(modifyNamespacesInClusterUsers);
 
     return assignedUsers;
@@ -258,13 +249,10 @@ public class PermissionController {
       throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
 
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
     Set<String> assignedUser = rolePermissionService.assignRoleToUsers(
-        RoleUtils.buildClusterRoleName(appId, env, clusterName, roleType), Sets.newHashSet(user),
-        userInfoHolder.getUser().getUserId());
+        RoleUtils.buildClusterRoleName(appId, normalizedEnv, clusterName, roleType),
+        Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     if (CollectionUtils.isEmpty(assignedUser)) {
       throw BadRequestException.userAlreadyAuthorized(user);
     }
@@ -282,13 +270,10 @@ public class PermissionController {
     if (!RoleType.isValidRoleType(roleType)) {
       throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
-    // validate env parameter
-    if (Env.UNKNOWN == Env.transformEnv(env)) {
-      throw BadRequestException.invalidEnvFormat(env);
-    }
+    String normalizedEnv = normalizeEnv(env);
     rolePermissionService.removeRoleFromUsers(
-        RoleUtils.buildClusterRoleName(appId, env, clusterName, roleType), Sets.newHashSet(user),
-        userInfoHolder.getUser().getUserId());
+        RoleUtils.buildClusterRoleName(appId, normalizedEnv, clusterName, roleType),
+        Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
 
@@ -395,6 +380,20 @@ public class PermissionController {
     rolePermissionService.removeRoleFromUsers(RoleUtils.buildAppRoleName(appId, roleType),
         Sets.newHashSet(user), userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
+  }
+
+  /**
+   * Normalize the env name to ensure consistency between UI display and permission control.
+   * For example, "prod" -> "PROD" -> "PRO" via {@link Env#transformEnv(String)}.
+   *
+   * @see <a href="https://github.com/apolloconfig/apollo/issues/5442">#5442</a>
+   */
+  private String normalizeEnv(String env) {
+    Env transformedEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN == transformedEnv) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    return transformedEnv.getName();
   }
 
   private void checkUserExists(String userId) {

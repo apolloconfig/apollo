@@ -19,8 +19,8 @@ package com.ctrip.framework.apollo.portal.repository;
 
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ServerConfigRepository extends PagingAndSortingRepository<ServerConfig, Long> {
+public interface ServerConfigRepository extends JpaRepository<ServerConfig, Long> {
   ServerConfig findByKey(String key);
 }

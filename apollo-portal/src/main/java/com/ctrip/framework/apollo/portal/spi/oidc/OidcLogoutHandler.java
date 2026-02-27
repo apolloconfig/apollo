@@ -18,8 +18,8 @@ package com.ctrip.framework.apollo.portal.spi.oidc;
 
 import com.ctrip.framework.apollo.portal.spi.LogoutHandler;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * @author vdisk <vdisk@foxmail.com>

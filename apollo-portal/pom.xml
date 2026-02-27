@@ -95,36 +95,41 @@
 			<artifactId>snakeyaml</artifactId>
 		</dependency>
 		<!-- end of yml processing -->
-		<!-- JDK 1.8+ -->
+		<!-- Jakarta EE APIs -->
 		<dependency>
-			<groupId>javax.xml.bind</groupId>
-			<artifactId>jaxb-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.xml.bind</groupId>
-			<artifactId>jaxb-impl</artifactId>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.jaxb</groupId>
 			<artifactId>jaxb-runtime</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>javax.activation</groupId>
-			<artifactId>activation</artifactId>
+			<groupId>jakarta.activation</groupId>
+			<artifactId>jakarta.activation-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
+			<artifactId>jakarta.mail</artifactId>
 		</dependency>
-		<!-- end of JDK 1.8+ -->
+		<!-- end of Jakarta EE APIs -->
 		<!-- JDK 11+ -->
 		<dependency>
 			<groupId>org.javassist</groupId>
 			<artifactId>javassist</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents.client5</groupId>
+			<artifactId>httpclient5</artifactId>
+		</dependency>
 		<!-- end of JDK 11+ -->
 
 		<!-- test -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-server</artifactId>
@@ -159,6 +164,7 @@
 									<interfaceOnly>true</interfaceOnly>
 									<useTags>true</useTags>
 									<dateLibrary>java8</dateLibrary>
+									<useSpringBoot3>true</useSpringBoot3>
 								</configOptions>
 								<skipValidateSpec>true</skipValidateSpec>
 							</configuration>

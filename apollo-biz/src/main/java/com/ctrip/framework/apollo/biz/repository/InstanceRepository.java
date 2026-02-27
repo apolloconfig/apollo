@@ -18,9 +18,9 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Instance;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface InstanceRepository extends PagingAndSortingRepository<Instance, Long> {
+public interface InstanceRepository extends JpaRepository<Instance, Long> {
   Instance findByAppIdAndClusterNameAndDataCenterAndIp(String appId, String clusterName,
       String dataCenter, String ip);
 }

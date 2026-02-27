@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.adminservice.controller;
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import com.ctrip.framework.apollo.biz.service.ServerConfigService;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

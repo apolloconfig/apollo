@@ -19,10 +19,9 @@ package com.ctrip.framework.apollo.biz.repository;
 import com.ctrip.framework.apollo.biz.entity.ServiceRegistry;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ServiceRegistryRepository
-    extends PagingAndSortingRepository<ServiceRegistry, Long> {
+public interface ServiceRegistryRepository extends JpaRepository<ServiceRegistry, Long> {
 
   List<ServiceRegistry> findByServiceNameAndDataChangeLastModifiedTimeGreaterThan(
       String serviceName, LocalDateTime localDateTime);

@@ -20,12 +20,13 @@ import com.ctrip.framework.apollo.portal.entity.po.Role;
 import java.util.List;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
-public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
+public interface RoleRepository extends JpaRepository<Role, Long> {
 
   /**
    * find role by role name
@@ -47,8 +48,10 @@ public interface RoleRepository extends PagingAndSortingRepository<Role, Long> {
   List<Long> findRoleIdsByAppIdAndNamespace(String appId, String namespaceName);
 
   @Modifying
-  @Query("UPDATE Role SET IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000), DataChange_LastModifiedBy = ?2 WHERE Id in ?1 and IsDeleted = false")
-  Integer batchDelete(List<Long> roleIds, String operator);
+  @Query("UPDATE Role SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = :operator WHERE id in :roleIds and isDeleted = false")
+  Integer batchDelete(@Param("roleIds") List<Long> roleIds, @Param("operator") String operator);
 
   @Query("SELECT r.id from Role r where r.roleName = CONCAT('ModifyNamespacesInCluster+', ?1, '+', ?2, '+', ?3) "
       + "OR r.roleName = CONCAT('ReleaseNamespacesInCluster+', ?1, '+', ?2, '+', ?3)")

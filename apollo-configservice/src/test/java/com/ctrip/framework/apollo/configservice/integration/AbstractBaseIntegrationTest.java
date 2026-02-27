@@ -43,15 +43,19 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriTemplateHandler;
 
+import java.net.URI;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -74,6 +78,8 @@ public abstract class AbstractBaseIntegrationTest {
   @PostConstruct
   private void postConstruct() {
     restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
+    restTemplate
+        .setUriTemplateHandler(new BaseUrlUriTemplateHandler(restTemplate.getUriTemplateHandler()));
   }
 
   @Value("${local.server.port}")
@@ -154,5 +160,38 @@ public abstract class AbstractBaseIntegrationTest {
 
   protected String assembleKey(String appId, String cluster, String namespace) {
     return Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(appId, cluster, namespace);
+  }
+
+  private static class BaseUrlUriTemplateHandler implements UriTemplateHandler {
+
+    private static final String BASE_URL_VARIABLE = "{baseurl}";
+
+    private final UriTemplateHandler delegate;
+
+    private BaseUrlUriTemplateHandler(UriTemplateHandler delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public URI expand(String uriTemplate, Map<String, ?> uriVariables) {
+      if (!uriTemplate.contains(BASE_URL_VARIABLE) || !uriVariables.containsKey("baseurl")) {
+        return delegate.expand(uriTemplate, uriVariables);
+      }
+      Map<String, Object> remainingUriVariables = new LinkedHashMap<>(uriVariables);
+      Object baseUrl = remainingUriVariables.remove("baseurl");
+      return delegate.expand(uriTemplate.replace(BASE_URL_VARIABLE, String.valueOf(baseUrl)),
+          remainingUriVariables);
+    }
+
+    @Override
+    public URI expand(String uriTemplate, Object... uriVariables) {
+      if (!uriTemplate.contains(BASE_URL_VARIABLE) || uriVariables.length == 0) {
+        return delegate.expand(uriTemplate, uriVariables);
+      }
+      Object[] remainingUriVariables = Arrays.copyOfRange(uriVariables, 1, uriVariables.length);
+      return delegate.expand(
+          uriTemplate.replace(BASE_URL_VARIABLE, String.valueOf(uriVariables[0])),
+          remainingUriVariables);
+    }
   }
 }

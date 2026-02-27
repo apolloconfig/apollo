@@ -20,13 +20,13 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTa
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 /**
  * @author Jason Song(song_s@ctrip.com)

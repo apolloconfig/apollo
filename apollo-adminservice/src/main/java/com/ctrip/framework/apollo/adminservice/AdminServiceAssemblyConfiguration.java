@@ -16,24 +16,24 @@
  */
 package com.ctrip.framework.apollo.adminservice;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Profile("assembly")
 @Configuration
 public class AdminServiceAssemblyConfiguration {
 
+  @Bean
   @Order(101)
-  @Configuration
-  static class AdminServiceSecurityConfigurer extends WebSecurityConfigurerAdapter {
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-      http.csrf().disable();
-      http.httpBasic();
-    }
+  public SecurityFilterChain adminServiceAssemblySecurityFilterChain(HttpSecurity http)
+      throws Exception {
+    http.csrf(csrf -> csrf.disable());
+    http.httpBasic(Customizer.withDefaults());
+    return http.build();
   }
 }

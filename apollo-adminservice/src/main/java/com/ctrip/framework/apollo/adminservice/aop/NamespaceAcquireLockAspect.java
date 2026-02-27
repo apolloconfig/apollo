@@ -61,28 +61,35 @@ public class NamespaceAcquireLockAspect {
 
 
   // create item
-  @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)")
+  @Before(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, item, ..)",
+      argNames = "appId,clusterName,namespaceName,item")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
       ItemDTO item) {
     acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
   }
 
   // update item
-  @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)")
+  @Before(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, itemId, item, ..)",
+      argNames = "appId,clusterName,namespaceName,itemId,item")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName, long itemId,
       ItemDTO item) {
     acquireLock(appId, clusterName, namespaceName, item.getDataChangeLastModifiedBy());
   }
 
   // update by change set
-  @Before("@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)")
+  @Before(
+      value = "@annotation(PreAcquireNamespaceLock) && args(appId, clusterName, namespaceName, changeSet, ..)",
+      argNames = "appId,clusterName,namespaceName,changeSet")
   public void requireLockAdvice(String appId, String clusterName, String namespaceName,
       ItemChangeSets changeSet) {
     acquireLock(appId, clusterName, namespaceName, changeSet.getDataChangeLastModifiedBy());
   }
 
   // delete item
-  @Before("@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)")
+  @Before(value = "@annotation(PreAcquireNamespaceLock) && args(itemId, operator, ..)",
+      argNames = "itemId,operator")
   public void requireLockAdvice(long itemId, String operator) {
     Item item = itemService.findOne(itemId);
     if (item == null) {

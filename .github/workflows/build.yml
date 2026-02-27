@@ -29,12 +29,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jdk: [8, 11, 17]
+        jdk: [17, 21]
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v4
       with:
+        distribution: temurin
         java-version: ${{ matrix.jdk }}
     - name: Cache Maven packages
       uses: actions/cache@v4
@@ -43,22 +44,19 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - name: JDK 8
-      if: matrix.jdk == '8'
+    - name: JDK 17
+      if: matrix.jdk == '17'
       uses: nick-fields/retry@v3
       with:
           timeout_minutes: 5
           max_attempts: 3
           retry_wait_seconds: 1
           command: mvn -B clean package jacoco:report -Dmaven.gitcommitid.skip=true
-    - name: JDK 11
-      if: matrix.jdk == '11'
-      run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
-    - name: JDK 17
-      if: matrix.jdk == '17'
+    - name: JDK 21
+      if: matrix.jdk == '21'
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
     - name: Upload coverage to Codecov
-      if: matrix.jdk == '8'
+      if: matrix.jdk == '17'
       uses: codecov/codecov-action@v1
       with:
         file: ${{ github.workspace }}/apollo-*/target/site/jacoco/jacoco.xml

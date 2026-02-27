@@ -30,7 +30,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.math.BigInteger;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -99,32 +98,14 @@ public class InstanceService {
 
   public Page<Instance> findInstancesByNamespaceAndInstanceAppId(String instanceAppId, String appId,
       String clusterName, String namespaceName, Pageable pageable) {
-    Page<Object> instanceIdResult =
+    Page<Long> instanceIdResult =
         instanceConfigRepository.findInstanceIdsByNamespaceAndInstanceAppId(instanceAppId, appId,
             clusterName, namespaceName, getValidInstanceConfigDate(), pageable);
 
     List<Instance> instances = Collections.emptyList();
     if (instanceIdResult.hasContent()) {
-      Set<Long> instanceIds = instanceIdResult.getContent().stream().map((Object o) -> {
-        if (o == null) {
-          return null;
-        }
-
-        if (o instanceof Integer) {
-          return ((Integer) o).longValue();
-        }
-
-        if (o instanceof Long) {
-          return (Long) o;
-        }
-
-        // for h2 test
-        if (o instanceof BigInteger) {
-          return ((BigInteger) o).longValue();
-        }
-
-        return null;
-      }).filter(Objects::nonNull).collect(Collectors.toSet());
+      Set<Long> instanceIds = instanceIdResult.getContent().stream().filter(Objects::nonNull)
+          .collect(Collectors.toSet());
       instances = findInstancesByIds(instanceIds);
     }
 

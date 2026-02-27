@@ -55,6 +55,9 @@ eureka:
       # This setting will be overridden by eureka.service.url setting from ApolloConfigDB.ServerConfig or System Property
       # see com.ctrip.framework.apollo.biz.eureka.ApolloEurekaClientConfig
       defaultZone: http://${eureka.instance.hostname}:8080/eureka/
+    # assembly classpath contains eureka server dependencies, so force eureka client to avoid jersey transport mode
+    jersey:
+      enabled: false
     healthcheck:
       enabled: true
     eureka-service-url-poll-interval-seconds: 60

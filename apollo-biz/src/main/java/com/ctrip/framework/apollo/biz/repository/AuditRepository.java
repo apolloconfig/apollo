@@ -19,12 +19,12 @@ package com.ctrip.framework.apollo.biz.repository;
 import com.ctrip.framework.apollo.biz.entity.Audit;
 
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface AuditRepository extends PagingAndSortingRepository<Audit, Long> {
+public interface AuditRepository extends JpaRepository<Audit, Long> {
 
   @Query("SELECT a from Audit a WHERE a.dataChangeCreatedBy = :owner")
   List<Audit> findByOwner(@Param("owner") String owner);
