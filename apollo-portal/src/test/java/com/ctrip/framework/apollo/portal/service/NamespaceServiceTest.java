@@ -43,9 +43,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -310,7 +314,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, true);
 
     assertNotNull(namespaceBO);
     assertEquals(testAppId, namespaceBO.getBaseInfo().getAppId());
@@ -332,7 +336,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, false);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, false);
 
     assertNotNull(namespaceBO);
     assertEquals(testAppId, namespaceBO.getBaseInfo().getAppId());
@@ -451,7 +455,7 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     deletedItemDTO.setKey("deleted-key");
     when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(Lists.newArrayList(deletedItemDTO));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, true);
 
     assertNotNull(namespaceBO);
     assertEquals(3, namespaceBO.getItemModifiedCnt());
