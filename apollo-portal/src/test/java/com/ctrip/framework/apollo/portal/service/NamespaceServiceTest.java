@@ -300,43 +300,55 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testLoadNamespaceBOWithDeletedItems() {
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
 
     List<ItemDTO> itemDTOList = createItems();
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(itemDTOList);
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(itemDTOList);
 
     List<ItemDTO> deletedItemDTOList = Lists.newArrayList();
     ItemDTO deletedItemDTO = new ItemDTO();
     deletedItemDTO.setKey("deleted-key");
     deletedItemDTOList.add(deletedItemDTO);
-    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(deletedItemDTOList);
+    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(deletedItemDTOList);
 
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, true);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName,
+        testNamespaceName, true, true);
 
     assertNotNull(namespaceBO);
     assertEquals(testAppId, namespaceBO.getBaseInfo().getAppId());
     assertEquals(testClusterName, namespaceBO.getBaseInfo().getClusterName());
     assertEquals(testNamespaceName, namespaceBO.getBaseInfo().getNamespaceName());
     assertEquals(3, namespaceBO.getItems().size());
-    verify(itemService, times(1)).findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName);
+    verify(itemService, times(1)).findDeletedItems(testAppId, testEnv, testClusterName,
+        testNamespaceName);
     verify(additionalUserInfoEnrichService, times(1)).enrichAdditionalUserInfo(any(), any());
   }
 
   @Test
   public void testLoadNamespaceBOWithoutDeletedItems() {
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
 
     List<ItemDTO> itemDTOList = createItems();
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(itemDTOList);
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(itemDTOList);
 
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, false);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName,
+        testNamespaceName, true, false);
 
     assertNotNull(namespaceBO);
     assertEquals(testAppId, namespaceBO.getBaseInfo().getAppId());
@@ -373,16 +385,22 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testLoadNamespaceBONoItems() {
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(Lists.newArrayList());
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(Lists.newArrayList());
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
     ItemDTO deletedItemDTO = new ItemDTO();
     deletedItemDTO.setKey("deleted-key");
-    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(Lists.newArrayList(deletedItemDTO));
+    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(Lists.newArrayList(deletedItemDTO));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
+    NamespaceBO namespaceBO =
+        namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
 
     assertNotNull(namespaceBO);
     assertEquals(3, namespaceBO.getItems().size());
@@ -393,15 +411,20 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testLoadNamespaceBOWithPublicNamespace() {
     AppNamespace publicAppNamespace = createAppNamespace("public-app", testNamespaceName, true);
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(null);
-    when(appNamespaceService.findPublicAppNamespace(testNamespaceName)).thenReturn(publicAppNamespace);
+    when(appNamespaceService.findPublicAppNamespace(testNamespaceName))
+        .thenReturn(publicAppNamespace);
 
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createItems());
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createItems());
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
+    NamespaceBO namespaceBO =
+        namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
 
     assertNotNull(namespaceBO);
     assertTrue(namespaceBO.isPublic());
@@ -412,14 +435,19 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testLoadNamespaceBOWithPrivateNamespace() {
     AppNamespace privateAppNamespace = createAppNamespace(testAppId, testNamespaceName, false);
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(privateAppNamespace);
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(privateAppNamespace);
 
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createItems());
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createItems());
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
+    NamespaceBO namespaceBO =
+        namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName);
 
     assertNotNull(namespaceBO);
     assertEquals(testAppId, namespaceBO.getParentAppId());
@@ -444,18 +472,24 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   @Test
   public void testLoadNamespaceBOItemModifiedCountCalculation() {
     ReleaseDTO releaseDTO = createReleaseDTO();
-    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
-    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(releaseDTO);
-    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName)).thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
+    when(namespaceAPI.loadNamespace(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
+    when(releaseService.loadLatestRelease(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(releaseDTO);
+    when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
+        .thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
 
     List<ItemDTO> itemDTOList = createItems();
-    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(itemDTOList);
+    when(itemService.findItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(itemDTOList);
 
     ItemDTO deletedItemDTO = new ItemDTO();
     deletedItemDTO.setKey("deleted-key");
-    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName)).thenReturn(Lists.newArrayList(deletedItemDTO));
+    when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName))
+        .thenReturn(Lists.newArrayList(deletedItemDTO));
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName, testNamespaceName, true, true);
+    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName,
+        testNamespaceName, true, true);
 
     assertNotNull(namespaceBO);
     assertEquals(3, namespaceBO.getItemModifiedCnt());
