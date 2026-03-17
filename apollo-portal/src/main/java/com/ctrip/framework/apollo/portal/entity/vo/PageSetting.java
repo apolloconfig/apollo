@@ -22,6 +22,8 @@ public class PageSetting {
 
   private boolean canAppAdminCreatePrivateNamespace;
 
+  private boolean detectionEnabled;
+
   public String getWikiAddress() {
     return wikiAddress;
   }
@@ -36,5 +38,13 @@ public class PageSetting {
 
   public void setCanAppAdminCreatePrivateNamespace(boolean canAppAdminCreatePrivateNamespace) {
     this.canAppAdminCreatePrivateNamespace = canAppAdminCreatePrivateNamespace;
+  }
+
+  public boolean isDetectionEnabled() {
+    return detectionEnabled;
+  }
+
+  public void setDetectionEnabled(boolean detectionEnabled) {
+    this.detectionEnabled = detectionEnabled;
   }
 }

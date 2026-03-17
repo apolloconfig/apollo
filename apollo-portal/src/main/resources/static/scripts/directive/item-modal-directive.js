@@ -16,7 +16,7 @@
  */
 directive_module.directive('itemmodal', itemModalDirective);
 
-function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, ConfigService) {
+function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, ConfigService, CommonService, $timeout) {
     return {
         restrict: 'E',
         templateUrl: AppUtil.prefixPath() + '/views/component/item-modal.html',
@@ -42,11 +42,33 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
             scope.changeType = changeType;
             scope.validateItemValue = validateItemValue;
             scope.formatContent = formatContent;
+            scope.detectConfig = detectConfig;
+            scope.maximizeResult = maximizeResult;
+
+            // Intelligent Detection state
+            scope.detecting = false;
+            scope.detectionResult = null;
+            scope.detectionResultHtml = '';
+            scope.detectionEnabled = false;
+            var eventSource = null;
+
+            // Load page settings to check if detection is enabled
+            CommonService.getPageSetting().then(function (setting) {
+                scope.detectionEnabled = setting.detectionEnabled;
+            });
 
             $('#itemModal').on('show.bs.modal', function (e) {
                 scope.showHiddenCharsContext = false;
                 scope.hiddenCharCounter = 0;
                 scope.valueWithHiddenChars = $sce.trustAsHtml('');
+                // Reset detection state
+                scope.detecting = false;
+                scope.detectionResult = null;
+                scope.detectionResultHtml = '';
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
             });
 
             $("#valueEditor").textareafullscreen();
@@ -258,6 +280,125 @@ function itemModalDirective($translate, toastr, $sce, AppUtil, EventManager, Con
                     }
                     scope.item.value = JSON.stringify(JSON.parse(raw), null, 4);
                 }
+            }
+
+            // Intelligent Detection
+            function detectConfig() {
+                if (!scope.item.key || !scope.item.value) {
+                    toastr.warning($translate.instant('Component.ConfigItem.DetectInputRequired'));
+                    return;
+                }
+
+                scope.detecting = true;
+                scope.detectionResult = '';
+                scope.detectionResultHtml = '';
+
+                var url = AppUtil.prefixPath() +
+                    '/apps/' + scope.appId +
+                    '/envs/' + scope.env +
+                    '/clusters/' + scope.toOperationNamespace.baseInfo.clusterName +
+                    '/namespaces/' + scope.toOperationNamespace.baseInfo.namespaceName +
+                    '/items/intelligent-detection';
+
+                var params = '?key=' + encodeURIComponent(scope.item.key) +
+                             '&value=' + encodeURIComponent(scope.item.value);
+
+                if (scope.item.comment) {
+                    params += '&comment=' + encodeURIComponent(scope.item.comment);
+                }
+
+                // Close existing EventSource if any
+                if (eventSource) {
+                    eventSource.close();
+                }
+
+                // Create new EventSource for SSE
+                eventSource = new EventSource(url + params);
+
+                // Buffer to collect all content
+                var contentBuffer = '';
+
+                eventSource.addEventListener('message', function(e) {
+                    scope.$evalAsync(function() {
+                        // Collect content
+                        contentBuffer += e.data;
+                        scope.detectionResult = contentBuffer;
+
+                        // Render immediately for streaming effect
+                        if (typeof marked !== 'undefined') {
+                            scope.detectionResultHtml = $sce.trustAsHtml(marked.parse(contentBuffer));
+                        } else {
+                            scope.detectionResultHtml = $sce.trustAsHtml(contentBuffer.replace(/\n/g, '<br>'));
+                        }
+
+                        // Show progress status
+                        var lines = contentBuffer.split('\n');
+                        var lastLine = '';
+                        for (var i = lines.length - 1; i >= 0; i--) {
+                            if (lines[i].trim()) {
+                                lastLine = lines[i].trim();
+                                break;
+                            }
+                        }
+                        if (lastLine.startsWith('#')) {
+                            scope.detectionStatus = '正在生成: ' + lastLine.replace(/^#+\s*/, '');
+                        }
+                    });
+                });
+
+                eventSource.addEventListener('done', function(e) {
+                    scope.$evalAsync(function() {
+                        scope.detecting = false;
+                        scope.detectionStatus = '';
+
+                        // Final render to ensure completeness
+                        if (typeof marked !== 'undefined') {
+                            scope.detectionResultHtml = $sce.trustAsHtml(marked.parse(contentBuffer));
+                        } else {
+                            scope.detectionResultHtml = $sce.trustAsHtml(contentBuffer.replace(/\n/g, '<br>'));
+                        }
+                    });
+                    eventSource.close();
+                    eventSource = null;
+                });
+
+                eventSource.addEventListener('error', function(e) {
+                    scope.$evalAsync(function() {
+                        scope.detecting = false;
+                        toastr.error($translate.instant('Component.ConfigItem.DetectError'));
+                    });
+                    eventSource.close();
+                    eventSource = null;
+                });
+            }
+
+            // Maximize detection result
+            function maximizeResult() {
+                var modalHtml = '<div class="modal fade" id="detectionResultMaxModal" tabindex="-1">' +
+                    '<div class="modal-dialog modal-lg" style="width: 90%; max-width: 1200px;">' +
+                    '<div class="modal-content">' +
+                    '<div class="modal-header">' +
+                    '<button type="button" class="close" data-dismiss="modal">&times;</button>' +
+                    '<h4 class="modal-title">' + $translate.instant('Component.ConfigItem.DetectionResult') + '</h4>' +
+                    '</div>' +
+                    '<div class="modal-body detection-result-content markdown-body" style="max-height: 70vh; overflow-y: auto; padding: 30px; background: #ffffff;">' +
+                    scope.detectionResultHtml +
+                    '</div>' +
+                    '<div class="modal-footer">' +
+                    '<button type="button" class="btn btn-default" data-dismiss="modal">' +
+                    $translate.instant('Common.Ok') +
+                    '</button>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                // Remove old modal if exists
+                $('#detectionResultMaxModal').remove();
+
+                // Add new modal and show
+                $('body').append(modalHtml);
+                $('#detectionResultMaxModal').modal('show');
             }
         }
     }
