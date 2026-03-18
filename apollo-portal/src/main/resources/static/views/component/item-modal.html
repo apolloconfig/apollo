@@ -108,11 +108,61 @@
                         </apolloclusterselector>
                     </div>
                 </div>
+
+                <!-- Intelligent Detection Result Section -->
+                <div class="detection-result-section" ng-show="detectionResult || detecting">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h5 class="panel-title">
+                                <i class="glyphicon glyphicon-search"></i>
+                                {{'Component.ConfigItem.DetectionResult' | translate }}
+                                <button type="button" class="btn btn-xs btn-link pull-right"
+                                        ng-click="maximizeResult()"
+                                        ng-show="detectionResult && !detecting">
+                                    <i class="glyphicon glyphicon-resize-full"></i>
+                                    {{'Component.ConfigItem.Maximize' | translate }}
+                                </button>
+                            </h5>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Detecting Status -->
+                            <div ng-show="detecting && !detectionResult" class="text-center" style="padding: 20px;">
+                                <i class="glyphicon glyphicon-refresh spinning"></i>
+                                {{'Component.ConfigItem.DetectingMessage' | translate }}
+                            </div>
+
+                            <!-- Detection Result (show during and after detection) -->
+                            <div ng-show="detectionResult"
+                                 class="detection-result-content markdown-body"
+                                 ng-bind-html="detectionResultHtml"
+                                 style="max-height: 400px; overflow-y: auto; padding: 20px; background: #ffffff; border: 1px solid #e1e4e8; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                            </div>
+
+                            <!-- Detecting indicator at bottom when showing results -->
+                            <div ng-show="detecting && detectionResult" class="text-center" style="padding: 10px;">
+                                <i class="glyphicon glyphicon-refresh spinning"></i>
+                                <small>{{'Component.ConfigItem.DetectingMessage' | translate }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">
                     {{'Common.Cancel' | translate }}
                 </button>
+
+                <!-- Intelligent Detection Button -->
+                <button type="button" class="btn btn-info"
+                        ng-show="detectionEnabled"
+                        ng-click="detectConfig()"
+                        ng-disabled="detecting || itemForm.$invalid || !item.key || !item.value">
+                    <i class="glyphicon glyphicon-search" ng-show="!detecting"></i>
+                    <i class="glyphicon glyphicon-refresh spinning" ng-show="detecting"></i>
+                    <span ng-show="!detecting">{{'Component.ConfigItem.IntelligentDetect' | translate }}</span>
+                    <span ng-show="detecting">{{'Component.ConfigItem.Detecting' | translate }}</span>
+                </button>
+
                 <button type="submit" class="btn btn-primary"
                     ng-disabled="itemForm.$invalid || (item.addItemBtnDisabled && item.tableViewOperType == 'create') || showNumberError || showJsonError ">
                     {{'Common.Submit' | translate }}

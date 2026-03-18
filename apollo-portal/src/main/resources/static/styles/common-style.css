@@ -1221,3 +1221,183 @@ table th {
 .cluster-info-panel {
     margin: 20px 0px;
 }
+
+/* Intelligent Detection Result Styles */
+.detection-result-section {
+    margin-top: 15px;
+}
+
+.detection-result-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #333;
+}
+
+.detection-result-content h1,
+.detection-result-content h2,
+.detection-result-content h3,
+.detection-result-content h4,
+.detection-result-content h5,
+.detection-result-content h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    line-height: 1.25;
+    color: #24292e;
+}
+
+.detection-result-content h1:first-child,
+.detection-result-content h2:first-child,
+.detection-result-content h3:first-child {
+    margin-top: 0;
+}
+
+.detection-result-content h1 {
+    font-size: 1.8em;
+    border-bottom: 2px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+.detection-result-content h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+
+.detection-result-content h3 {
+    font-size: 1.25em;
+}
+
+.detection-result-content h4 {
+    font-size: 1.1em;
+}
+
+.detection-result-content p {
+    margin-top: 0;
+    margin-bottom: 16px;
+    line-height: 1.8;
+}
+
+.detection-result-content strong {
+    font-weight: 600;
+    color: #24292e;
+}
+
+.detection-result-content em {
+    font-style: italic;
+}
+
+.detection-result-content code {
+    background-color: rgba(27,31,35,0.05);
+    border-radius: 3px;
+    font-size: 85%;
+    margin: 0;
+    padding: 0.2em 0.4em;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.detection-result-content pre {
+    background-color: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 16px;
+    overflow: auto;
+    margin-bottom: 16px;
+    line-height: 1.45;
+}
+
+.detection-result-content pre code {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    font-size: 100%;
+}
+
+.detection-result-content ul,
+.detection-result-content ol {
+    padding-left: 2em;
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.detection-result-content li {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+}
+
+.detection-result-content li > p {
+    margin-bottom: 8px;
+}
+
+.detection-result-content ul ul,
+.detection-result-content ul ol,
+.detection-result-content ol ol,
+.detection-result-content ol ul {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.detection-result-content blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 16px;
+    margin: 0 0 16px 0;
+    color: #6a737d;
+}
+
+.detection-result-content blockquote > :first-child {
+    margin-top: 0;
+}
+
+.detection-result-content blockquote > :last-child {
+    margin-bottom: 0;
+}
+
+.detection-result-content hr {
+    height: 0.25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: #e1e4e8;
+    border: 0;
+}
+
+.detection-result-content table {
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.detection-result-content table th,
+.detection-result-content table td {
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+.detection-result-content table td:nth-child(1),
+.detection-result-content table td:nth-child(2) {
+    white-space: nowrap;
+}
+
+.detection-result-content table th {
+    font-weight: 600;
+    background-color: #f6f8fa;
+    white-space: nowrap;
+}
+
+.detection-result-content table tr:nth-child(2n) {
+    background-color: #f6f8fa;
+}
+
+.markdown-body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Spinning animation for loading */
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}

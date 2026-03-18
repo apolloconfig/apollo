@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
+import com.ctrip.framework.apollo.portal.service.config.detection.config.DetectionProperties;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,9 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class PageSettingController {
 
   private final PortalConfig portalConfig;
+  private final DetectionProperties detectionProperties;
 
-  public PageSettingController(final PortalConfig portalConfig) {
+  public PageSettingController(final PortalConfig portalConfig,
+                               final DetectionProperties detectionProperties) {
     this.portalConfig = portalConfig;
+    this.detectionProperties = detectionProperties;
   }
 
   @GetMapping("/page-settings")
@@ -36,6 +40,7 @@ public class PageSettingController {
 
     setting.setWikiAddress(portalConfig.wikiAddress());
     setting.setCanAppAdminCreatePrivateNamespace(portalConfig.canAppAdminCreatePrivateNamespace());
+    setting.setDetectionEnabled(detectionProperties.isEnabled());
 
     return setting;
   }
