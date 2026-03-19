@@ -46,6 +46,7 @@ public abstract class RefreshableConfig implements DisposableBean {
   private static final int CONFIG_REFRESH_INTERVAL = 60;
 
   protected Splitter splitter = Splitter.on(LIST_SEPARATOR).omitEmptyStrings().trimResults();
+  protected static final String[] EMPTY_STRING_ARRAY = new String[0];
 
   @Autowired
   private ConfigurableEnvironment environment;
@@ -135,6 +136,15 @@ public abstract class RefreshableConfig implements DisposableBean {
 
   public String getValue(String key) {
     return environment.getProperty(key);
+  }
+
+  protected int checkInt(int value, int min, int max, int defaultValue) {
+    if (value >= min && value <= max) {
+      return value;
+    }
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.",
+                value, min, max, defaultValue);
+    return defaultValue;
   }
 
 }
