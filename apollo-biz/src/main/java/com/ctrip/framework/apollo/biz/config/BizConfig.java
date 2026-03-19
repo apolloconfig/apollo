@@ -67,6 +67,8 @@ public class BizConfig extends RefreshableConfig {
 
   private static final Gson GSON = new Gson();
 
+  private static final TimeUnit INTERVAL_TIME_UNIT = TimeUnit.SECONDS;
+
   private static final Type appIdValueLengthOverrideTypeReference =
       new TypeToken<Map<String, Integer>>() {}.getType();
   private static final Type namespaceValueLengthOverrideTypeReference =
@@ -140,7 +142,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public Set<String> namespaceNumLimitWhite() {
-    return Sets.newHashSet(getArrayProperty("namespace.num.limit.white", new String[0]));
+    return Sets.newHashSet(getArrayProperty("namespace.num.limit.white", EMPTY_STRING_ARRAY));
   }
 
   public boolean isItemNumLimitEnabled() {
@@ -163,7 +165,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public TimeUnit appNamespaceCacheScanIntervalTimeUnit() {
-    return TimeUnit.SECONDS;
+    return INTERVAL_TIME_UNIT;
   }
 
   public int appNamespaceCacheRebuildInterval() {
@@ -173,7 +175,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public TimeUnit appNamespaceCacheRebuildIntervalTimeUnit() {
-    return TimeUnit.SECONDS;
+    return INTERVAL_TIME_UNIT;
   }
 
   public int accessKeyCacheScanInterval() {
@@ -183,7 +185,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public TimeUnit accessKeyCacheScanIntervalTimeUnit() {
-    return TimeUnit.SECONDS;
+    return INTERVAL_TIME_UNIT;
   }
 
   public int accessKeyCacheRebuildInterval() {
@@ -193,7 +195,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public TimeUnit accessKeyCacheRebuildIntervalTimeUnit() {
-    return TimeUnit.SECONDS;
+    return INTERVAL_TIME_UNIT;
   }
 
   public int accessKeyAuthTimeDiffTolerance() {
@@ -222,7 +224,7 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public TimeUnit releaseMessageCacheScanIntervalTimeUnit() {
-    return TimeUnit.SECONDS;
+    return INTERVAL_TIME_UNIT;
   }
 
   public int releaseMessageScanIntervalInMilli() {
@@ -283,13 +285,6 @@ public class BizConfig extends RefreshableConfig {
 
   public boolean isConfigServiceIncrementalChangeEnabled() {
     return getBooleanProperty("config-service.incremental.change.enabled", false);
-  }
-
-  int checkInt(int value, int min, int max, int defaultValue) {
-    if (value >= min && value <= max) {
-      return value;
-    }
-    return defaultValue;
   }
 
   public boolean isAdminServiceAccessControlEnabled() {
