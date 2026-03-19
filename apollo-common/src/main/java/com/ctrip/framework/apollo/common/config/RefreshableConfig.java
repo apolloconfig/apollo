@@ -16,25 +16,21 @@
  */
 package com.ctrip.framework.apollo.common.config;
 
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
-
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
+import jakarta.annotation.PostConstruct;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.CollectionUtils;
-
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import jakarta.annotation.PostConstruct;
 
 
 public abstract class RefreshableConfig implements DisposableBean {
@@ -75,8 +71,7 @@ public abstract class RefreshableConfig implements DisposableBean {
     }
 
     // task to update configs
-    executorService =
-        Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
+    executorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
     executorService.scheduleWithFixedDelay(() -> {
       try {
@@ -138,12 +133,11 @@ public abstract class RefreshableConfig implements DisposableBean {
     return environment.getProperty(key);
   }
 
-  protected int checkInt(int value, int min, int max, int defaultValue) {
+  public int checkInt(int value, int min, int max, int defaultValue) {
     if (value >= min && value <= max) {
       return value;
     }
-    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.",
-                value, min, max, defaultValue);
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.", value, min, max, defaultValue);
     return defaultValue;
   }
 
