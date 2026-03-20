@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.Commit;
 import com.ctrip.framework.apollo.biz.repository.CommitRepository;
-import java.util.Date;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +52,11 @@ public class CommitService {
         clusterName, namespaceName, page);
   }
 
-  public List<Commit> find(String appId, String clusterName, String namespaceName,
-      Date lastModifiedTime, Pageable page) {
+  public List<Commit> find(String appId, String clusterName, String namespaceName, Long id,
+      Pageable page) {
     return commitRepository
-        .findByAppIdAndClusterNameAndNamespaceNameAndDataChangeLastModifiedTimeGreaterThanEqualOrderByIdDesc(
-            appId, clusterName, namespaceName, lastModifiedTime, page);
+        .findByAppIdAndClusterNameAndNamespaceNameAndIdGreaterThanEqualOrderByIdDesc(appId,
+            clusterName, namespaceName, id, page);
   }
 
   public List<Commit> findByKey(String appId, String clusterName, String namespaceName, String key,

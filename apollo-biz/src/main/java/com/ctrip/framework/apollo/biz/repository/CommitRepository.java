@@ -18,7 +18,6 @@ package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.Commit;
 
-import java.util.Date;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,9 +30,8 @@ public interface CommitRepository extends JpaRepository<Commit, Long> {
   List<Commit> findByAppIdAndClusterNameAndNamespaceNameOrderByIdDesc(String appId,
       String clusterName, String namespaceName, Pageable pageable);
 
-  List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndDataChangeLastModifiedTimeGreaterThanEqualOrderByIdDesc(
-      String appId, String clusterName, String namespaceName, Date dataChangeLastModifiedTime,
-      Pageable pageable);
+  List<Commit> findByAppIdAndClusterNameAndNamespaceNameAndIdGreaterThanEqualOrderByIdDesc(
+      String appId, String clusterName, String namespaceName, Long id, Pageable pageable);
 
   @Modifying
   @Query("update Commit set isDeleted = true, "

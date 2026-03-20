@@ -30,10 +30,7 @@ import com.ctrip.framework.apollo.biz.repository.NamespaceRepository;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 
 import com.ctrip.framework.apollo.common.exception.ServiceException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -124,28 +121,24 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @Sql(scripts = "/sql/namespace-test.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
-  public void testGetCommitsByModifiedTime() throws ParseException {
-    String format = "yyyy-MM-dd HH:mm:ss";
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+  public void testGetCommitsByModifiedTime() {
+    // namespace-test.sql has 1 commit for (commitTestApp, default, application)
+    // find(..., id, page) returns commits with id >= given id for the namespace
+    List<Commit> allCommits = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, PageRequest.of(0, 10));
+    assertEquals(1, allCommits.size());
+    Long commitId = allCommits.get(0).getId();
 
-    Date lastModifiedTime = simpleDateFormat.parse("2020-08-22 09:00:00");
+    List<Commit> commitsById = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, commitId, null);
+    List<Commit> commitsByIdGreater = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, commitId + 1, null);
+    List<Commit> commitsByIdPage = commitService.find(commitTestApp, testCluster,
+        testPrivateNamespace, commitId, PageRequest.of(0, 1));
 
-    List<Commit> commitsByDate = commitService.find(commitTestApp, testCluster,
-        testPrivateNamespace, lastModifiedTime, null);
-
-    Date lastModifiedTimeGreater = simpleDateFormat.parse("2020-08-22 11:00:00");
-    List<Commit> commitsByDateGreater = commitService.find(commitTestApp, testCluster,
-        testPrivateNamespace, lastModifiedTimeGreater, null);
-
-
-    Date lastModifiedTimePage = simpleDateFormat.parse("2020-08-22 09:30:00");
-    List<Commit> commitsByDatePage = commitService.find(commitTestApp, testCluster,
-        testPrivateNamespace, lastModifiedTimePage, PageRequest.of(0, 1));
-
-    assertEquals(1, commitsByDate.size());
-    assertEquals(0, commitsByDateGreater.size());
-    assertEquals(1, commitsByDatePage.size());
-
+    assertEquals(1, commitsById.size());
+    assertEquals(0, commitsByIdGreater.size());
+    assertEquals(1, commitsByIdPage.size());
   }
 
 

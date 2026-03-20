@@ -202,8 +202,8 @@ public class ItemController {
         releaseService.findLatestActiveRelease(appId, clusterName, namespaceName);
     List<Commit> commits;
     if (Objects.nonNull(latestActiveRelease)) {
-      commits = commitService.find(appId, clusterName, namespaceName,
-          latestActiveRelease.getDataChangeCreatedTime(), null);
+      commits =
+          commitService.find(appId, clusterName, namespaceName, latestActiveRelease.getId(), null);
     } else {
       commits = commitService.find(appId, clusterName, namespaceName, null);
     }

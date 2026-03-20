@@ -27,3 +27,5 @@ target
 *.orig
 .flattened-pom.xml
 
+.gradle/*
+.vscode/*
