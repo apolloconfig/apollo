@@ -146,7 +146,11 @@ public class PortalConfig extends RefreshableConfig {
       return result;
     }
     for (String env : configurations) {
-      result.add(Env.valueOf(env));
+      String envName = env.trim();
+      if (envName.isEmpty()) {
+        continue;
+      }
+      result.add(Env.valueOf(envName));
     }
     return result;
   }
