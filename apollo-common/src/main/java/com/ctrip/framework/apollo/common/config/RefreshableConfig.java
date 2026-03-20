@@ -71,7 +71,8 @@ public abstract class RefreshableConfig implements DisposableBean {
     }
 
     // task to update configs
-    executorService = Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
+    executorService =
+        Executors.newScheduledThreadPool(1, ApolloThreadFactory.create("ConfigRefresher", true));
 
     executorService.scheduleWithFixedDelay(() -> {
       try {
@@ -137,7 +138,8 @@ public abstract class RefreshableConfig implements DisposableBean {
     if (value >= min && value <= max) {
       return value;
     }
-    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.", value, min, max, defaultValue);
+    logger.warn("Configuration value '{}' is out of bounds [{} - {}]. Using default value '{}'.",
+        value, min, max, defaultValue);
     return defaultValue;
   }
 

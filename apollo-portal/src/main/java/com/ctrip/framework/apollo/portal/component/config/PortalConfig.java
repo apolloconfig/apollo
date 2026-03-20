@@ -97,7 +97,8 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public int getPerEnvSearchMaxResults() {
-    return getIntProperty("apollo.portal.search.perEnvMaxResults", DEFAULT_PER_ENV_SEARCH_MAX_RESULTS);
+    return getIntProperty("apollo.portal.search.perEnvMaxResults",
+        DEFAULT_PER_ENV_SEARCH_MAX_RESULTS);
   }
 
   /**
