@@ -18,161 +18,181 @@
 <html ng-app="open_manage">
 
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="icon" href="../img/config.png">
-    <!-- styles -->
-    <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
-    <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
-    <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
-    <link rel="stylesheet" type="text/css" href="../vendor/iconfont/iconfont.css">
-    <title>{{'Open.Manage.Title' | translate }}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link rel="icon" href="../img/config.png">
+  <!-- styles -->
+  <link rel="stylesheet" type="text/css" href="../vendor/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/angular/angular-toastr-1.4.1.min.css">
+  <link rel="stylesheet" type="text/css" media='all' href="../vendor/angular/loading-bar.min.css">
+  <link rel="stylesheet" type="text/css" href="../styles/common-style.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/select2/select2.min.css">
+  <link rel="stylesheet" type="text/css" href="../vendor/iconfont/iconfont.css">
+  <title>{{'Open.Manage.Title' | translate }}</title>
 </head>
 
 <body>
 
-    <apollonav></apollonav>
+<apollonav></apollonav>
 
-    <div id="consumer-list" class="container-fluid" ng-controller="OpenManageController">
-        <div class="col-md-10 col-md-offset-1 panel">
+<div id="consumer-list" class="container-fluid" ng-controller="OpenManageController">
+  <div class="col-md-10 col-md-offset-1 panel">
 
-            <section class="panel-body" ng-show="isRootUser">
-                <!--project admin-->
-                <section class="row">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5>{{'Open.Manage.CreateThirdApp' | translate }}
-                                <small>
-                                    {{'Open.Manage.CreateThirdAppTips' | translate }}
-                                </small>
-                            </h5>
-                        </div>
-                        <div class="col-md-6">
-                            <a class="btn btn-primary btn-md create-btn pull-right"
-                               href="{{ '/open/add-consumer.html' | prefixPath }}" target="_blank">
-                                <img src="../img/plus.png"/>
-                                {{'Open.Manage.CreateConsumer.Button' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                    <div class="row margin-top10" >
-                        <table class="table">
-                            <tr>
-                                <th style="width: 10%">{{'Common.AppId' | translate }}</th>
-                                <th style="width: 15%">{{'Common.AppName' | translate }}</th>
-                                <th style="width: 10%">{{'Open.Manage.Consumer.AllowCreateApplication' | translate }}</th>
-                                <th style="width: 10%">{{'Open.Manage.Consumer.RateLimitValue' | translate }}</th>
-                                <th style="width: 15%">{{'Common.Department' | translate }}</th>
-                                <th style="width: 20%">{{'Common.AppOwner' | translate }}/{{'Common.Email' | translate }}</th>
-                                <th style="width: 20%">{{'Common.Operation' | translate}}</th>
-                            </tr>
-                            <tr ng-repeat="consumer in consumerList" href="#">
-                                <td style="width: 10%">{{ consumer.appId }}</td>
-                                <td style="width: 15%">{{ consumer.name }}</td>
-
-                                <td style="width: 10%" >
-                                    <div ng-if="consumer.allowCreateApplication">
-                                        <b>{{'Open.Manage.Consumer.AllowCreateApplication.Yes' | translate}}</b>
-                                    </div>
-                                    <div ng-if="!consumer.allowCreateApplication">
-                                        {{'Open.Manage.Consumer.AllowCreateApplication.No' | translate}}
-                                    </div>
-                                </td>
-                                <td style="width: 10%">
-                                    {{ consumer.rateLimit && consumer.rateLimit > 0 ? consumer.rateLimit : 'Open.Manage.Consumer.RateLimitValue.Display' | translate }}
-                                </td>
-                                <td style="width: 15%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
-                                <td style="width: 20%"><b>{{ consumer.ownerName }}</b>/{{ consumer.ownerEmail }}</td>
-                                <td style="width: 20%;">
-                                    <button class="btn btn-default btn-md" ng-click="preGrantPermission(consumer)">
-                                        <img class="more-img" src="../img/edit.png" data-tooltip="tooltip"
-                                             data-placement="bottom">{{'Open.Manage.ViewAndGrantPermission' | translate}}
-                                    </button>
-
-                                    <button class="btn btn-default btn-md" ng-click="preDeleteConsumer(consumer)">
-                                        <img class="more-img" style="margin-left: 5px;" src="../img/cancel.png" data-tooltip="tooltip"
-                                             data-placement="bottom">{{'Common.Delete' | translate}}
-                                    </button>
-
-                                </td>
-                            </tr>
-
-                        </table>
-                    </div>
-                    <div ng-show="!hasMoreconsumerList" style="height: 15px"></div>
-                    <div class="homepage-loading-more-panel" ng-show="hasMoreconsumerList"
-                         ng-click="getConsumerList()">
-                        <div href="#" class="thumbnail hover cursor-pointer"
-                             style="display: flex;justify-content: center;align-items: center">
-                            <div><img class="more-img" src="../img/more.png" /></div>
-                            <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
-                        </div>
-                    </div>
-                    <apolloconfirmdialog apollo-dialog-id="'deleteConsumerDialog'"
-                                         apollo-title="'Delete.DeleteApp' | translate"
-                                         apollo-detail="'Open.Manage.DeleteConsumer.Confirm' | translate:this" apollo-show-cancel-btn="true"
-                                         apollo-confirm="deleteConsumer"></apolloconfirmdialog>
-
-                    <grantpermissionmodal consumer-role="consumerRole" assign-role-to-consumer="assignRoleToConsumer">
-                    </grantpermissionmodal>
-
-                </section>
-
-            </section>
-
-            <section class="panel-body text-center" ng-if="!isRootUser">
-                <h4>{{'Common.IsRootUser' | translate }}</h4>
-            </section>
-
+    <section class="panel-body" ng-show="isRootUser">
+      <!--project admin-->
+      <section class="row">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>{{'Open.Manage.CreateThirdApp' | translate }}
+              <small>
+                {{'Open.Manage.CreateThirdAppTips' | translate }}
+              </small>
+            </h5>
+          </div>
+          <div class="col-md-6">
+            <a class="btn btn-primary btn-md create-btn pull-right"
+               href="{{ '/open/add-consumer.html' | prefixPath }}" target="_blank">
+              <img src="../img/plus.png"/>
+              {{'Open.Manage.CreateConsumer.Button' | translate }}
+            </a>
+          </div>
         </div>
-    </div>
+        <div class="row margin-top10">
+          <table class="table">
+            <tr>
+              <th style="width: 10%">{{'Common.AppId' | translate }}</th>
+              <th style="width: 15%">{{'Common.AppName' | translate }}</th>
+              <th style="width: 8%">{{'Open.Manage.Consumer.AllowCreateApplication' | translate }}
+              </th>
+              <th style="width: 8%">{{'Open.Manage.Consumer.AllowCreateUser' | translate }}</th>
+              <th style="width: 9%">{{'Open.Manage.Consumer.RateLimitValue' | translate }}</th>
+              <th style="width: 15%">{{'Common.Department' | translate }}</th>
+              <th style="width: 15%">{{'Common.AppOwner' | translate }}/{{'Common.Email' | translate
+                }}
+              </th>
+              <th style="width: 20%">{{'Common.Operation' | translate}}</th>
+            </tr>
+            <tr ng-repeat="consumer in consumerList" href="#">
+              <td style="width: 10%">{{ consumer.appId }}</td>
+              <td style="width: 15%">{{ consumer.name }}</td>
 
-    <div ng-include="'../views/common/footer.html'"></div>
+              <td style="width: 8%">
+                <div ng-if="consumer.allowCreateApplication">
+                  <b>{{'Open.Manage.Consumer.AllowCreateApplication.Yes' | translate}}</b>
+                </div>
+                <div ng-if="!consumer.allowCreateApplication">
+                  {{'Open.Manage.Consumer.AllowCreateApplication.No' | translate}}
+                </div>
+              </td>
+              <td style="width: 8%">
+                <div ng-if="consumer.allowCreateUser">
+                  <b>{{'Open.Manage.Consumer.AllowCreateUser.Yes' | translate}}</b>
+                </div>
+                <div ng-if="!consumer.allowCreateUser">
+                  {{'Open.Manage.Consumer.AllowCreateUser.No' | translate}}
+                </div>
+              </td>
+              <td style="width: 9%">
+                {{ consumer.rateLimit && consumer.rateLimit > 0 ? consumer.rateLimit :
+                'Open.Manage.Consumer.RateLimitValue.Display' | translate }}
+              </td>
+              <td style="width: 15%">{{ consumer.orgName + '(' + consumer.orgId + ')' }}</td>
+              <td style="width: 15%"><b>{{ consumer.ownerName }}</b>/{{ consumer.ownerEmail }}</td>
+              <td style="width: 20%;">
+                <button class="btn btn-default btn-md" ng-click="preGrantPermission(consumer)">
+                  <img class="more-img" src="../img/edit.png" data-tooltip="tooltip"
+                       data-placement="bottom">{{'Open.Manage.ViewAndGrantPermission' | translate}}
+                </button>
 
-    <!-- jquery.js -->
-    <script src="../vendor/jquery.min.js" type="text/javascript"></script>
+                <button class="btn btn-default btn-md" ng-click="preDeleteConsumer(consumer)">
+                  <img class="more-img" style="margin-left: 5px;" src="../img/cancel.png"
+                       data-tooltip="tooltip"
+                       data-placement="bottom">{{'Common.Delete' | translate}}
+                </button>
 
-    <!--angular-->
-    <script src="../vendor/angular/angular.min.js"></script>
-    <script src="../vendor/angular/angular-route.min.js"></script>
-    <script src="../vendor/angular/angular-resource.min.js"></script>
-    <script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
-    <script src="../vendor/angular/loading-bar.min.js"></script>
-    <script src="../vendor/angular/angular-cookies.min.js"></script>
+              </td>
+            </tr>
 
-    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
-    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
-    <script src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
-    <!--valdr-->
-    <script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
-    <script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+          </table>
+        </div>
+        <div ng-show="!hasMoreconsumerList" style="height: 15px"></div>
+        <div class="homepage-loading-more-panel" ng-show="hasMoreconsumerList"
+             ng-click="getConsumerList()">
+          <div href="#" class="thumbnail hover cursor-pointer"
+               style="display: flex;justify-content: center;align-items: center">
+            <div><img class="more-img" src="../img/more.png"/></div>
+            <div style="margin-left: 5px"><h5>{{'Index.LoadMore' | translate }}</h5></div>
+          </div>
+        </div>
+        <apolloconfirmdialog apollo-dialog-id="'deleteConsumerDialog'"
+                             apollo-title="'Delete.DeleteApp' | translate"
+                             apollo-detail="'Open.Manage.DeleteConsumer.Confirm' | translate:this"
+                             apollo-show-cancel-btn="true"
+                             apollo-confirm="deleteConsumer"></apolloconfirmdialog>
 
-    <!-- bootstrap.js -->
-    <script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+        <grantpermissionmodal consumer-role="consumerRole"
+                              assign-role-to-consumer="assignRoleToConsumer">
+        </grantpermissionmodal>
 
-    <script src="../vendor/lodash.min.js"></script>
+      </section>
 
-    <script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
-    <!--biz-->
-    <!--must import-->
-    <script type="application/javascript" src="../scripts/app.js"></script>
-    <script type="application/javascript" src="../scripts/services/AppService.js"></script>
-    <script type="application/javascript" src="../scripts/services/EnvService.js"></script>
-    <script type="application/javascript" src="../scripts/services/UserService.js"></script>
-    <script type="application/javascript" src="../scripts/services/CommonService.js"></script>
-    <script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
-    <script type="application/javascript" src="../scripts/services/OrganizationService.js"></script>
-    <script type="application/javascript" src="../scripts/services/ConsumerService.js"></script>
+    </section>
 
-    <script type="application/javascript" src="../scripts/AppUtils.js"></script>
+    <section class="panel-body text-center" ng-if="!isRootUser">
+      <h4>{{'Common.IsRootUser' | translate }}</h4>
+    </section>
 
-    <script type="application/javascript" src="../scripts/PageCommon.js"></script>
-    <script type="application/javascript" src="../scripts/directive/directive.js"></script>
-    <script type="application/javascript" src="../scripts/directive/open-manage-grant-permission-modal-directive.js"></script>
-    <script type="application/javascript" src="../scripts/valdr.js"></script>
+  </div>
+</div>
 
-    <script type="application/javascript" src="../scripts/controller/open/OpenManageController.js"></script>
+<div ng-include="'../views/common/footer.html'"></div>
+
+<!-- jquery.js -->
+<script src="../vendor/jquery.min.js" type="text/javascript"></script>
+
+<!--angular-->
+<script src="../vendor/angular/angular.min.js"></script>
+<script src="../vendor/angular/angular-route.min.js"></script>
+<script src="../vendor/angular/angular-resource.min.js"></script>
+<script src="../vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+<script src="../vendor/angular/loading-bar.min.js"></script>
+<script src="../vendor/angular/angular-cookies.min.js"></script>
+
+<script src="../vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+<script
+    src="../vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+<script
+    src="../vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+<!--valdr-->
+<script src="../vendor/valdr/valdr.min.js" type="text/javascript"></script>
+<script src="../vendor/valdr/valdr-message.min.js" type="text/javascript"></script>
+
+<!-- bootstrap.js -->
+<script src="../vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+<script src="../vendor/lodash.min.js"></script>
+
+<script src="../vendor/select2/select2.min.js" type="text/javascript"></script>
+<!--biz-->
+<!--must import-->
+<script type="application/javascript" src="../scripts/app.js"></script>
+<script type="application/javascript" src="../scripts/services/AppService.js"></script>
+<script type="application/javascript" src="../scripts/services/EnvService.js"></script>
+<script type="application/javascript" src="../scripts/services/UserService.js"></script>
+<script type="application/javascript" src="../scripts/services/CommonService.js"></script>
+<script type="application/javascript" src="../scripts/services/PermissionService.js"></script>
+<script type="application/javascript" src="../scripts/services/OrganizationService.js"></script>
+<script type="application/javascript" src="../scripts/services/ConsumerService.js"></script>
+
+<script type="application/javascript" src="../scripts/AppUtils.js"></script>
+
+<script type="application/javascript" src="../scripts/PageCommon.js"></script>
+<script type="application/javascript" src="../scripts/directive/directive.js"></script>
+<script type="application/javascript"
+        src="../scripts/directive/open-manage-grant-permission-modal-directive.js"></script>
+<script type="application/javascript" src="../scripts/valdr.js"></script>
+
+<script type="application/javascript"
+        src="../scripts/controller/open/OpenManageController.js"></script>
 </body>
 
 </html>

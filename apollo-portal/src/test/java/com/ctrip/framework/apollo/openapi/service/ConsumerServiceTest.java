@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
+import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
@@ -51,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ContextConfiguration(classes = ConsumerService.class)
 public class ConsumerServiceTest {
+
   @SpyBean
   private ConsumerService consumerService;
   @MockBean
@@ -302,6 +306,160 @@ public class ConsumerServiceTest {
     assertEquals(appId, consumerInfo.getAppId());
     assertEquals(token, consumerInfo.getToken());
     assertEquals(consumerId, consumerInfo.getConsumerId());
+  }
+
+
+  @Test
+  void notAllowCreateUser() {
+    final String appId = "appId-consumer-user-001";
+    final String token = "token-user-001";
+    final long consumerId = 1001L;
+
+    Consumer consumer = new Consumer();
+    consumer.setAppId(appId);
+    consumer.setId(consumerId);
+    when(consumerRepository.findByAppId(eq(appId))).thenReturn(consumer);
+
+    ConsumerToken consumerToken = new ConsumerToken();
+    consumerToken.setToken(token);
+    consumerToken.setRateLimit(0);
+    when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
+
+    // getCreateUserRole 返回 null，即 CREATE_USER 角色不存在
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
+
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    assertFalse(consumerInfo.isAllowCreateUser());
+    assertEquals(appId, consumerInfo.getAppId());
+    assertEquals(token, consumerInfo.getToken());
+  }
+
+  @Test
+  void allowCreateUser() {
+    final String appId = "appId-consumer-user-002";
+    final String token = "token-user-002";
+    final long consumerId = 1002L;
+    final long createUserRoleId = 9001L;
+
+    Consumer consumer = new Consumer();
+    consumer.setAppId(appId);
+    consumer.setId(consumerId);
+    when(consumerRepository.findByAppId(eq(appId))).thenReturn(consumer);
+
+    ConsumerToken consumerToken = new ConsumerToken();
+    consumerToken.setToken(token);
+    consumerToken.setRateLimit(0);
+    when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
+
+    // CREATE_USER 角色存在，且 consumer 已被分配该角色
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
+
+    ConsumerRole consumerRole = createConsumerRole(consumerId, createUserRoleId);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(consumerRole);
+
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    assertTrue(consumerInfo.isAllowCreateUser());
+    assertEquals(appId, consumerInfo.getAppId());
+    assertEquals(token, consumerInfo.getToken());
+    assertEquals(consumerId, consumerInfo.getConsumerId());
+  }
+
+  @Test
+  void assignCreateUserRoleToConsumer_success() {
+    final String token = "token-assign-user-001";
+    final long consumerId = 2001L;
+    final long createUserRoleId = 9002L;
+    final String operator = "admin";
+
+    // token 对应的 consumerId
+    doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
+
+    // CREATE_USER 角色存在
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
+
+    // consumer 尚未被分配该角色
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(null);
+
+    UserInfo userInfo = createUser(operator);
+    when(userInfoHolder.getUser()).thenReturn(userInfo);
+
+    ConsumerRole newConsumerRole = createConsumerRole(consumerId, createUserRoleId);
+    doReturn(newConsumerRole).when(consumerService).createConsumerRole(consumerId, createUserRoleId,
+        operator);
+    when(consumerRoleRepository.save(eq(newConsumerRole))).thenReturn(newConsumerRole);
+
+    ConsumerRole result = consumerService.assignCreateUserRoleToConsumer(token);
+
+    assertNotNull(result);
+    assertEquals(consumerId, result.getConsumerId());
+    assertEquals(createUserRoleId, result.getRoleId());
+    verify(consumerRoleRepository, times(1)).save(eq(newConsumerRole));
+  }
+
+  @Test
+  void assignCreateUserRoleToConsumer_alreadyAssigned() {
+    final String token = "token-assign-user-002";
+    final long consumerId = 2002L;
+    final long createUserRoleId = 9003L;
+
+    doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
+
+    Role createUserRole =
+        createRole(createUserRoleId, SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME)))
+        .thenReturn(createUserRole);
+
+    // consumer 已经被分配了该角色
+    ConsumerRole existingConsumerRole = createConsumerRole(consumerId, createUserRoleId);
+    when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(createUserRoleId)))
+        .thenReturn(existingConsumerRole);
+
+    ConsumerRole result = consumerService.assignCreateUserRoleToConsumer(token);
+
+    // 直接返回已有角色，不应再次 save
+    assertNotNull(result);
+    assertEquals(consumerId, result.getConsumerId());
+    verify(consumerRoleRepository, never()).save(any());
+  }
+
+  @Test
+  void assignCreateUserRoleToConsumer_illegalToken() {
+    final String illegalToken = "illegal-token";
+
+    // token 找不到对应的 consumerId
+    doReturn(null).when(consumerService).getConsumerIdByToken(illegalToken);
+
+    assertThrows(BadRequestException.class,
+        () -> consumerService.assignCreateUserRoleToConsumer(illegalToken));
+    verify(consumerRoleRepository, never()).save(any());
+  }
+
+  @Test
+  void assignCreateUserRoleToConsumer_roleNotFound() {
+    final String token = "token-assign-user-003";
+    final long consumerId = 2003L;
+
+    doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
+
+    // CREATE_USER 角色不存在（未初始化）
+    when(rolePermissionService
+        .findRoleByRoleName(eq(SystemRoleManagerService.CREATE_USER_ROLE_NAME))).thenReturn(null);
+
+    assertThrows(NotFoundException.class,
+        () -> consumerService.assignCreateUserRoleToConsumer(token));
+    verify(consumerRoleRepository, never()).save(any());
   }
 
   private Consumer createConsumer(String name, String appId, String ownerName) {

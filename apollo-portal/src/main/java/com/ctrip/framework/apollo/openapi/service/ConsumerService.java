@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.service;
 import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerAudit;
@@ -206,7 +207,7 @@ public class ConsumerService {
   }
 
   private ConsumerInfo convert(Consumer consumer, String token, boolean allowCreateApplication,
-      Integer rateLimit) {
+      boolean allowCreateUser, Integer rateLimit) {
     ConsumerInfo consumerInfo = new ConsumerInfo();
     consumerInfo.setConsumerId(consumer.getId());
     consumerInfo.setAppId(consumer.getAppId());
@@ -219,6 +220,7 @@ public class ConsumerService {
 
     consumerInfo.setToken(token);
     consumerInfo.setAllowCreateApplication(allowCreateApplication);
+    consumerInfo.setAllowCreateUser(allowCreateUser);
     return consumerInfo;
   }
 
@@ -232,11 +234,15 @@ public class ConsumerService {
       return null;
     }
     return convert(consumer, consumerToken.getToken(), isAllowCreateApplication(consumer.getId()),
-        getRateLimit(consumer.getId()));
+        isAllowCreateUser(consumer.getId()), getRateLimit(consumer.getId()));
   }
 
   private boolean isAllowCreateApplication(Long consumerId) {
     return isAllowCreateApplication(Collections.singletonList(consumerId)).get(0);
+  }
+
+  private boolean isAllowCreateUser(Long consumerId) {
+    return isAllowCreateUser(Collections.singletonList(consumerId)).get(0);
   }
 
   private Integer getRateLimit(Long consumerId) {
@@ -268,6 +274,27 @@ public class ConsumerService {
     return list;
   }
 
+  private List<Boolean> isAllowCreateUser(List<Long> consumerIdList) {
+    Role createUserRole = getCreateUserRole();
+    if (createUserRole == null) {
+      List<Boolean> list = new ArrayList<>(consumerIdList.size());
+      for (Long ignored : consumerIdList) {
+        list.add(false);
+      }
+      return list;
+    }
+
+    long roleId = createUserRole.getId();
+    List<Boolean> list = new ArrayList<>(consumerIdList.size());
+    for (Long consumerId : consumerIdList) {
+      ConsumerRole createUserConsumerRole =
+          consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
+      list.add(createUserConsumerRole != null);
+    }
+
+    return list;
+  }
+
   private List<Integer> getRateLimit(List<Long> consumerIds) {
     List<ConsumerToken> consumerTokens = consumerTokenRepository.findByConsumerIdIn(consumerIds);
     Map<Long, Integer> consumerRateLimits = consumerTokens.stream().collect(Collectors.toMap(
@@ -280,6 +307,10 @@ public class ConsumerService {
 
   private Role getCreateAppRole() {
     return rolePermissionService.findRoleByRoleName(CREATE_APPLICATION_ROLE_NAME);
+  }
+
+  private Role getCreateUserRole() {
+    return rolePermissionService.findRoleByRoleName(SystemRoleManagerService.CREATE_USER_ROLE_NAME);
   }
 
   public ConsumerRole assignCreateApplicationRoleToConsumer(String token) {
@@ -297,6 +328,28 @@ public class ConsumerService {
         consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
     if (createAppConsumerRole != null) {
       return createAppConsumerRole;
+    }
+
+    String operator = userInfoHolder.getUser().getUserId();
+    ConsumerRole consumerRole = createConsumerRole(consumerId, roleId, operator);
+    return consumerRoleRepository.save(consumerRole);
+  }
+
+  public ConsumerRole assignCreateUserRoleToConsumer(String token) {
+    Long consumerId = getConsumerIdByToken(token);
+    if (consumerId == null) {
+      throw new BadRequestException("Token is Illegal");
+    }
+    Role createUserRole = getCreateUserRole();
+    if (createUserRole == null) {
+      throw NotFoundException.roleNotFound(SystemRoleManagerService.CREATE_USER_ROLE_NAME);
+    }
+
+    long roleId = createUserRole.getId();
+    ConsumerRole createUserConsumerRole =
+        consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
+    if (createUserConsumerRole != null) {
+      return createUserConsumerRole;
     }
 
     String operator = userInfoHolder.getUser().getUserId();
@@ -436,6 +489,7 @@ public class ConsumerService {
     List<Long> consumerIdList =
         consumerList.stream().map(Consumer::getId).collect(Collectors.toList());
     List<Boolean> allowCreateApplicationList = isAllowCreateApplication(consumerIdList);
+    List<Boolean> allowCreateUserList = isAllowCreateUser(consumerIdList);
     List<Integer> rateLimitList = getRateLimit(consumerIdList);
 
     List<ConsumerInfo> consumerInfoList = new ArrayList<>(consumerList.size());
@@ -443,8 +497,8 @@ public class ConsumerService {
     for (int i = 0; i < consumerList.size(); i++) {
       Consumer consumer = consumerList.get(i);
       // without token
-      ConsumerInfo consumerInfo =
-          convert(consumer, null, allowCreateApplicationList.get(i), rateLimitList.get(i));
+      ConsumerInfo consumerInfo = convert(consumer, null, allowCreateApplicationList.get(i),
+          allowCreateUserList.get(i), rateLimitList.get(i));
       consumerInfoList.add(consumerInfo);
     }
 

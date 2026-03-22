@@ -158,6 +158,27 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   }
 
   @Transactional
+  @Override
+  public void initCreateUserRole() {
+    if (rolePermissionService
+        .findRoleByRoleName(SystemRoleManagerService.CREATE_USER_ROLE_NAME) != null) {
+      return;
+    }
+    Permission createUserPermission = permissionRepository.findTopByPermissionTypeAndTargetId(
+        PermissionType.CREATE_USER, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    if (createUserPermission == null) {
+      // create user permission init
+      createUserPermission = createPermission(SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID,
+          PermissionType.CREATE_USER, "apollo");
+      rolePermissionService.createPermission(createUserPermission);
+    }
+    // create user role init
+    Role createUserRole = createRole(SystemRoleManagerService.CREATE_USER_ROLE_NAME, "apollo");
+    rolePermissionService.createRoleWithPermissions(createUserRole,
+        Sets.newHashSet(createUserPermission.getId()));
+  }
+
+  @Transactional
   public void createManageAppMasterRole(String appId, String operator) {
     Permission permission = createPermission(appId, PermissionType.MANAGE_APP_MASTER, operator);
     rolePermissionService.createPermission(permission);

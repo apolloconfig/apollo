@@ -317,6 +317,10 @@ public class PortalConfig extends RefreshableConfig {
     return getBooleanProperty(SystemRoleManagerService.MANAGE_APP_MASTER_LIMIT_SWITCH_KEY, false);
   }
 
+  public boolean isCreateUserPermissionEnabled() {
+    return getBooleanProperty(SystemRoleManagerService.CREATE_USER_LIMIT_SWITCH_KEY, false);
+  }
+
   public String getAdminServiceAccessTokens() {
     return getValue("admin-service.access.tokens");
   }

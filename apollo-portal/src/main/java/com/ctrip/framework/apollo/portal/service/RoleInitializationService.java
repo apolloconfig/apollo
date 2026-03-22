@@ -31,6 +31,8 @@ public interface RoleInitializationService {
 
   void initCreateAppRole();
 
+  void initCreateUserRole();
+
   void initManageAppMasterRole(String appId, String operator);
 
   void initClusterNamespaceRoles(String appId, String env, String clusterName, String operator);
