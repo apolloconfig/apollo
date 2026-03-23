@@ -34,6 +34,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
@@ -188,5 +190,16 @@ public class BizConfigTest {
     assertFalse(bizConfig.isConfigServiceCacheKeyIgnoreCase());
     when(environment.getProperty("config-service.cache.key.ignore-case")).thenReturn("true");
     assertTrue(bizConfig.isConfigServiceCacheKeyIgnoreCase());
+  }
+
+  @Test
+  public void testNamespaceNumLimitWhite_filtersEmptyItems() {
+    when(environment.getProperty("namespace.num.limit.white")).thenReturn("app1,,app2,");
+
+    Set<String> result = bizConfig.namespaceNumLimitWhite();
+
+    assertEquals(2, result.size());
+    assertTrue(result.contains("app1"));
+    assertTrue(result.contains("app2"));
   }
 }

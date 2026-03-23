@@ -20,8 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.PortalDBPropertySource;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -349,5 +351,103 @@ class PortalConfigTest {
 
     // Non-configured env should return false
     assertThat(portalConfig.isConfigViewMemberOnly("DEV")).isFalse();
+  }
+
+  @Test
+  void portalSupportedEnvs_filtersBlankAndEmptyItems() {
+    // Consecutive commas: "FAT,,UAT,,PRO" -> empty strings between
+    doReturn(new String[] {"FAT", "", "UAT", "", "PRO"})
+        .when(portalConfig)
+        .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
+
+    List<Env> envs = portalConfig.portalSupportedEnvs();
+
+    assertThat(envs).hasSize(3);
+    assertThat(envs.get(0).getName()).isEqualTo("FAT");
+    assertThat(envs.get(1).getName()).isEqualTo("UAT");
+    assertThat(envs.get(2).getName()).isEqualTo("PRO");
+  }
+
+  @Test
+  void portalSupportedEnvs_filtersLeadingAndTrailingEmptyItems() {
+    // Leading comma: ",FAT,UAT,PRO" and trailing: "FAT,UAT,PRO,"
+    doReturn(new String[] {"", "FAT", "UAT", "PRO", ""})
+        .when(portalConfig)
+        .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
+
+    List<Env> envs = portalConfig.portalSupportedEnvs();
+
+    assertThat(envs).hasSize(3);
+    assertThat(envs.get(0).getName()).isEqualTo("FAT");
+    assertThat(envs.get(1).getName()).isEqualTo("UAT");
+    assertThat(envs.get(2).getName()).isEqualTo("PRO");
+  }
+
+  @Test
+  void portalSupportedEnvs_filtersWhitespaceOnlyItems() {
+    // Whitespace-only items should be filtered
+    doReturn(new String[] {"  ", "FAT", "  ", "UAT", "\t", "PRO", "  "})
+        .when(portalConfig)
+        .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
+
+    List<Env> envs = portalConfig.portalSupportedEnvs();
+
+    assertThat(envs).hasSize(3);
+    assertThat(envs.get(0).getName()).isEqualTo("FAT");
+    assertThat(envs.get(1).getName()).isEqualTo("UAT");
+    assertThat(envs.get(2).getName()).isEqualTo("PRO");
+  }
+
+  // ========== getUserPasswordNotAllowList Tests ==========
+
+  /**
+   * getUserPasswordNotAllowList filters empty items from comma-separated config (e.g. "111,,222,").
+   */
+  @Test
+  void getUserPasswordNotAllowList_filtersEmptyItems() {
+    doReturn(new String[] {"111", "", "222", "", "333"})
+        .when(portalConfig)
+        .getArrayProperty("apollo.portal.auth.user-password-not-allow-list", null);
+
+    List<String> result = portalConfig.getUserPasswordNotAllowList();
+
+    assertThat(result).containsExactly("111", "222", "333");
+  }
+
+  // ========== organizations Tests ==========
+
+  /**
+   * organizations returns emptyList when JSON is malformed, does not throw.
+   */
+  @Test
+  void organizations_malformedJson_returnsEmptyList() {
+    doReturn("{ invalid json }").when(portalConfig).getValue("organizations");
+
+    List<?> result = portalConfig.organizations();
+
+    assertThat(result).isEmpty();
+  }
+
+  // ========== isEmergencyPublishAllowed Tests ==========
+
+  /**
+   * isEmergencyPublishAllowed uses Env.transformEnv: prod/PROD/PRO aliases all match.
+   */
+  @Test
+  void isEmergencyPublishAllowed_prodAliasesMatch() {
+    doReturn(new String[] {"prod", "", "UAT"})
+        .when(portalConfig)
+        .getArrayProperty("emergencyPublish.supported.envs", new String[0]);
+
+    assertThat(portalConfig.isEmergencyPublishAllowed(Env.PRO)).isTrue();
+  }
+
+  @Test
+  void isEmergencyPublishAllowed_fatAndFwsAliasesMatch() {
+    doReturn(new String[] {"fat", "FWS"})
+        .when(portalConfig)
+        .getArrayProperty("emergencyPublish.supported.envs", new String[0]);
+
+    assertThat(portalConfig.isEmergencyPublishAllowed(Env.FAT)).isTrue();
   }
 }

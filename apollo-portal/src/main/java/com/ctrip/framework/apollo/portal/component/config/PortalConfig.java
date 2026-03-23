@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,11 +87,9 @@ public class PortalConfig extends RefreshableConfig {
     String[] configurations =
         getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
     List<Env> envs = Lists.newLinkedList();
-
-    for (String env : configurations) {
-      envs.add(Env.addEnvironment(env));
+    for (String envName : trimAndOmitEmpty(configurations)) {
+      envs.add(Env.addEnvironment(envName));
     }
-
     return envs;
   }
 
@@ -142,14 +139,7 @@ public class PortalConfig extends RefreshableConfig {
   private Set<Env> getEnvSetProperty(String key, String[] defaultValue) {
     String[] configurations = getArrayProperty(key, defaultValue);
     Set<Env> result = Sets.newHashSet();
-    if (configurations == null || configurations.length == 0) {
-      return result;
-    }
-    for (String env : configurations) {
-      String envName = env.trim();
-      if (envName.isEmpty()) {
-        continue;
-      }
+    for (String envName : trimAndOmitEmpty(configurations)) {
       result.add(Env.valueOf(envName));
     }
     return result;
@@ -167,7 +157,7 @@ public class PortalConfig extends RefreshableConfig {
     String[] configViewMemberOnlyEnvs =
         getArrayProperty("configView.memberOnly.envs", EMPTY_STRING_ARRAY);
 
-    for (String memberOnlyEnv : configViewMemberOnlyEnvs) {
+    for (String memberOnlyEnv : trimAndOmitEmpty(configViewMemberOnlyEnvs)) {
       // Normalize configured env as well for consistent comparison
       Env configEnv = Env.transformEnv(memberOnlyEnv);
       if (configEnv != Env.UNKNOWN && configEnv.getName().equals(normalizedEnv)) {
@@ -202,10 +192,16 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public List<Organization> organizations() {
-
     String organizations = getValue("organizations");
-    return organizations == null ? Collections.emptyList()
-        : GSON.fromJson(organizations, ORGANIZATION);
+    if (organizations == null) {
+      return Collections.emptyList();
+    }
+    try {
+      return GSON.fromJson(organizations, ORGANIZATION);
+    } catch (Exception e) {
+      logger.error("Wrong format for: organizations", e);
+      return Collections.emptyList();
+    }
   }
 
   public String portalAddress() {
@@ -227,13 +223,18 @@ public class PortalConfig extends RefreshableConfig {
   }
 
   public boolean isEmergencyPublishAllowed(Env env) {
-    String targetEnv = env.getName();
+    Env transformedEnv = Env.transformEnv(env.getName());
+    if (Env.UNKNOWN == transformedEnv) {
+      return false;
+    }
+    String normalizedEnv = transformedEnv.getName();
 
     String[] emergencyPublishSupportedEnvs =
         getArrayProperty("emergencyPublish.supported.envs", EMPTY_STRING_ARRAY);
 
-    for (String supportedEnv : emergencyPublishSupportedEnvs) {
-      if (Objects.equals(targetEnv, supportedEnv.toUpperCase().trim())) {
+    for (String supportedEnv : trimAndOmitEmpty(emergencyPublishSupportedEnvs)) {
+      Env configEnv = Env.transformEnv(supportedEnv);
+      if (configEnv != Env.UNKNOWN && configEnv.getName().equals(normalizedEnv)) {
         return true;
       }
     }
@@ -322,10 +323,11 @@ public class PortalConfig extends RefreshableConfig {
 
   public List<String> getUserPasswordNotAllowList() {
     String[] value = getArrayProperty("apollo.portal.auth.user-password-not-allow-list", null);
-    if (value == null || value.length == 0) {
+    List<String> filtered = trimAndOmitEmpty(value);
+    if (filtered.isEmpty()) {
       return DEFAULT_USER_PASSWORD_NOT_ALLOW_LIST;
     }
-    return Arrays.asList(value);
+    return filtered;
   }
 
 }

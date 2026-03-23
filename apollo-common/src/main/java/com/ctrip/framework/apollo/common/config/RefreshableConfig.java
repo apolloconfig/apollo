@@ -21,6 +21,8 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import jakarta.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -89,6 +91,24 @@ public abstract class RefreshableConfig implements DisposableBean {
     if (executorService != null) {
       executorService.shutdownNow();
     }
+  }
+
+  /**
+   * Trims each element and omits empty strings. Use for comma-separated configs where empty
+   * items (e.g. from consecutive commas) should be omitted.
+   */
+  protected List<String> trimAndOmitEmpty(String[] arr) {
+    if (arr == null || arr.length == 0) {
+      return Collections.emptyList();
+    }
+    List<String> result = new ArrayList<>();
+    for (String s : arr) {
+      String trimmed = s.trim();
+      if (!trimmed.isEmpty()) {
+        result.add(trimmed);
+      }
+    }
+    return result;
   }
 
   public int getIntProperty(String key, int defaultValue) {

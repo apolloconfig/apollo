@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BizConfig extends RefreshableConfig {
 
-  private final static Logger logger = LoggerFactory.getLogger(BizConfig.class);
+  private static final Logger logger = LoggerFactory.getLogger(BizConfig.class);
 
   private static final int DEFAULT_ITEM_KEY_LENGTH = 128;
   private static final int DEFAULT_ITEM_VALUE_LENGTH = 20000;
@@ -142,7 +142,8 @@ public class BizConfig extends RefreshableConfig {
   }
 
   public Set<String> namespaceNumLimitWhite() {
-    return Sets.newHashSet(getArrayProperty("namespace.num.limit.white", EMPTY_STRING_ARRAY));
+    String[] arr = getArrayProperty("namespace.num.limit.white", EMPTY_STRING_ARRAY);
+    return Sets.newHashSet(trimAndOmitEmpty(arr));
   }
 
   public boolean isItemNumLimitEnabled() {
