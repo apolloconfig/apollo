@@ -356,8 +356,7 @@ class PortalConfigTest {
   @Test
   void portalSupportedEnvs_filtersBlankAndEmptyItems() {
     // Consecutive commas: "FAT,,UAT,,PRO" -> empty strings between
-    doReturn(new String[] {"FAT", "", "UAT", "", "PRO"})
-        .when(portalConfig)
+    doReturn(new String[] {"FAT", "", "UAT", "", "PRO"}).when(portalConfig)
         .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
 
     List<Env> envs = portalConfig.portalSupportedEnvs();
@@ -371,8 +370,7 @@ class PortalConfigTest {
   @Test
   void portalSupportedEnvs_filtersLeadingAndTrailingEmptyItems() {
     // Leading comma: ",FAT,UAT,PRO" and trailing: "FAT,UAT,PRO,"
-    doReturn(new String[] {"", "FAT", "UAT", "PRO", ""})
-        .when(portalConfig)
+    doReturn(new String[] {"", "FAT", "UAT", "PRO", ""}).when(portalConfig)
         .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
 
     List<Env> envs = portalConfig.portalSupportedEnvs();
@@ -386,8 +384,7 @@ class PortalConfigTest {
   @Test
   void portalSupportedEnvs_filtersWhitespaceOnlyItems() {
     // Whitespace-only items should be filtered
-    doReturn(new String[] {"  ", "FAT", "  ", "UAT", "\t", "PRO", "  "})
-        .when(portalConfig)
+    doReturn(new String[] {"  ", "FAT", "  ", "UAT", "\t", "PRO", "  "}).when(portalConfig)
         .getArrayProperty("apollo.portal.envs", new String[] {"FAT", "UAT", "PRO"});
 
     List<Env> envs = portalConfig.portalSupportedEnvs();
@@ -405,8 +402,7 @@ class PortalConfigTest {
    */
   @Test
   void getUserPasswordNotAllowList_filtersEmptyItems() {
-    doReturn(new String[] {"111", "", "222", "", "333"})
-        .when(portalConfig)
+    doReturn(new String[] {"111", "", "222", "", "333"}).when(portalConfig)
         .getArrayProperty("apollo.portal.auth.user-password-not-allow-list", null);
 
     List<String> result = portalConfig.getUserPasswordNotAllowList();
@@ -435,8 +431,7 @@ class PortalConfigTest {
    */
   @Test
   void isEmergencyPublishAllowed_prodAliasesMatch() {
-    doReturn(new String[] {"prod", "", "UAT"})
-        .when(portalConfig)
+    doReturn(new String[] {"prod", "", "UAT"}).when(portalConfig)
         .getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
     assertThat(portalConfig.isEmergencyPublishAllowed(Env.PRO)).isTrue();
@@ -444,8 +439,7 @@ class PortalConfigTest {
 
   @Test
   void isEmergencyPublishAllowed_fatAndFwsAliasesMatch() {
-    doReturn(new String[] {"fat", "FWS"})
-        .when(portalConfig)
+    doReturn(new String[] {"fat", "FWS"}).when(portalConfig)
         .getArrayProperty("emergencyPublish.supported.envs", new String[0]);
 
     assertThat(portalConfig.isEmergencyPublishAllowed(Env.FAT)).isTrue();
