@@ -477,6 +477,8 @@ This script will package apollo-configservice, apollo-adminservice, apollo-porta
 
 > Note: Since ApolloConfigDB is deployed in each environment, you need to use different packages for config-service and admin-service for different environments with different database connection information, and only one package for portal
 
+> Note: When built with the official `build.sh/build.bat` script, `apollo-configservice` and `apollo-adminservice` default to `github,database-discovery`, while `apollo-portal` defaults to `github,auth`. If you are rebuilding source for an existing Eureka deployment and want to keep the old behavior, change the corresponding Maven command back to `-Dapollo_profile=github`. For already unpacked installation packages or running containers, explicitly set `SPRING_PROFILES_ACTIVE=github`, or configure `spring.profiles.active=github` in `config/application.properties`.
+
 ##### 2.2.1.2.4 Get the apollo-config-service installation package
 
 Located in the `apollo-configservice/target/` directory `apollo-configservice-x.x.x-github.zip`
@@ -495,6 +497,8 @@ Note that since ApolloConfigDB is deployed in each environment, the admin-servic
 
 ### 2.2.2 Deploy Apollo server
 
+> Note: Installation packages for `apollo-configservice` and `apollo-adminservice` generated from the official release packages, Docker images, or `build.sh/build.bat` now enable `database-discovery` by default. If you want an upgraded legacy Eureka deployment to keep the old behavior, explicitly set `SPRING_PROFILES_ACTIVE=github` at runtime, or configure `spring.profiles.active=github` in the unpacked `config/application.properties`.
+
 #### 2.2.2.1 Deploy apollo-configservice
 
 Upload the `apollo-configservice-x.x.x-github.zip` of the corresponding environment to the server, decompress it and execute scripts/startup.sh. To stop the service, execute scripts/shutdown.sh.
@@ -509,9 +513,9 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 
 > Note 2: To adjust the log output path of the service, you can modify `LOG_DIR` in scripts/startup.sh and apollo-configservice.conf.
 
-> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, pay attention to the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table and the meta server information used in apollo-portal and apollo-client. For details, see: [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server).
+> Note 3: To adjust the listening port of the service, you can modify the `SERVER_PORT` in scripts/startup.sh. In addition, apollo-configservice also assumes the responsibility of meta server. If you want to modify the port, update the meta server information used by apollo-portal and apollo-client as well. For details, see [2.2.1.1.2.4 Configuring the meta service information of apollo-portal](en/deployment/distributed-deployment-guide?id=_221124-configuring-apollo-portal39s-meta-service-information) and [1.2.2 Apollo Meta Server](en/client/java-sdk-user-guide?id=_122-apollo-meta-server). If you still use the built-in Eureka, you also need to update the `eureka.service.url` configuration item in the ApolloConfigDB.ServerConfig table.
 
-> Note 4: If the eureka.service.url of ApolloConfigDB.ServerConfig is only configured with the currently starting machine, the eureka registration failure information will be output in the log during the process of starting apollo-configservice, such as `com.sun.jersey .api.client.ClientHandlerException: java.net.ConnectException: Connection refused`. It should be noted that this is the expected situation, because apollo-configservice needs to register the service with the Meta Server (itself), but because it has not yet woken up during the startup process, it will report this error. The retry action will be performed later, so the registration will be normal after the service is up.
+> Note 4: This note only applies when you keep using the built-in Eureka. If the `eureka.service.url` of ApolloConfigDB.ServerConfig is configured with only the machine that is currently starting, apollo-configservice may log Eureka registration failures such as `com.sun.jersey.api.client.ClientHandlerException: java.net.ConnectException: Connection refused` during startup. This is expected because apollo-configservice needs to register itself to the Meta Server while it is still starting. It will retry automatically and register successfully after the service is fully up.
 
 > Note 5: Starting from version 2.5.0, apollo-configservice supports graceful shutdown. When the service receives a stop signal, it will wait for in-flight requests to complete before shutting down, with a default timeout of 10 seconds. This feature is enabled via Spring Boot's `server.shutdown=graceful` and `spring.lifecycle.timeout-per-shutdown-phase=${GRACEFUL_SHUTDOWN_TIMEOUT:10s}` configuration. To adjust the timeout, you can set the `GRACEFUL_SHUTDOWN_TIMEOUT` environment variable (e.g., `30s`, `60s`, `2m`) or modify the settings in application.yml. In Kubernetes environments, ensure the Pod's `terminationGracePeriodSeconds` is greater than the configured timeout (recommend at least 10 seconds more).
 
@@ -739,32 +743,27 @@ apollo.config-service.url=http://apollo-config-service
 apollo.admin-service.url=http://apollo-admin-service
 ```
 
-#### 2.2.3.5 database-discovery
+#### 2.2.3.5 database-discovery (default for 3.0.0+)
 
-> For version 2.1.0 and above
+> Supported since 2.1.0, enabled by default since 3.0.0
 
 Enable database-discovery to replace built-in eureka
 
 Apollo supports the use of internal database table as registry, without relying on third-party registry.
 
-1. Modify `config/application.properties` after decompression of `apollo-configservice-x.x.x-github.zip` and `apollo-adminservice-x.x.x-github.zip`, uncomment
-    ```properties
-    #spring.profiles.active=github,database-discovery
-    ```
+1. `apollo-configservice` and `apollo-adminservice` packages built from the official release packages, Docker images, or `build.sh/build.bat` already enable `database-discovery` by default, so no extra change is required.
 
-    to
+2. If you are upgrading an existing Eureka deployment and want to keep the old behavior, choose the rollback method based on how you deploy:
+   - Unpacked installation packages or containers at runtime: set `SPRING_PROFILES_ACTIVE=github`, or configure `spring.profiles.active=github` in `config/application.properties`
+   - Source rebuilds: change the build command from `-Dapollo_profile=github,database-discovery` back to `-Dapollo_profile=github`
 
-    ```properties
-    spring.profiles.active=github,database-discovery
-    ```
-
-2. (optional) In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
+3. (optional) In multi-cluster deployments, if you want apollo client only read Config Service in the same cluster,
 you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
 ```properties
 apollo.service.registry.cluster=same name with apollo Cluster
 ```
 
-2. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
+4. (optional) If you want to customize Config Service and Admin Service's uri for Client, 
    for example when deploying on the intranet, 
    if you don't want to expose the intranet ip, 
    you can add a property in `config/application-github.properties` of the Config Service and Admin Service installation package
@@ -777,6 +776,8 @@ apollo.service.registry.cluster=same name with apollo Cluster
 ### 2.3.1 Version 1.7.0 and above
 
 Apollo version 1.7.0 starts uploading Docker images to [Docker Hub](https://hub.docker.com/u/apolloconfig) by default, which can be obtained by following these steps
+
+> Note: Official `apollo-configservice` and `apollo-adminservice` images enable `database-discovery` by default, so you do not need to add an extra profile. If you want an upgraded legacy Eureka deployment to keep the old behavior, add `-e SPRING_PROFILES_ACTIVE=github` when starting the container.
 
 #### 2.3.1.1 Apollo Config Service
 
@@ -1678,5 +1679,3 @@ Default is false. Assess total configuration size and adjust Config Service memo
 > Ensure that the `app.id`、`apollo.cluster` of the configuration in the application is in the correct case when caching is enabled, otherwise it will not fetch the correct configuration, You can also refer to the `config-service.cache.key.ignore-case` configuration for compatibility processing.
 
 > `config-service.incremental.change.enabled` configuration adjustment requires a restart of the config service to take effect
-
-
