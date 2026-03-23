@@ -23,6 +23,12 @@ target
 .idea
 *.iml
 
+# Gradle
+.gradle/
+
+# VSCode
+.vscode/
+
 # git
 *.orig
 .flattened-pom.xml
