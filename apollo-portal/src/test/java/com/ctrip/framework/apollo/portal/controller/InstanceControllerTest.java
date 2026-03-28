@@ -107,7 +107,7 @@ public class InstanceControllerTest {
     ResponseEntity<Number> response =
         instanceController.getInstanceCountByNamespace("DEV", "SampleApp", "default", "application");
 
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     assertEquals(8, response.getBody().getNum());
   }
 }

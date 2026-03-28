@@ -69,6 +69,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 		</dependency>
+		<!-- Temporary Spring Boot 4 migration aid until Portal moves its OpenAPI nullable models
+		     and Spring Session serializers off the Jackson 2 compatibility path. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-jackson2</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.session</groupId>
 			<artifactId>spring-session-core</artifactId>
@@ -126,8 +132,13 @@
 
 		<!-- test -->
 		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webmvc-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -145,7 +156,7 @@
 				<plugin>
 					<groupId>org.openapitools</groupId>
 					<artifactId>openapi-generator-maven-plugin</artifactId>
-					<version>6.6.0</version>
+					<version>${openapi-generator.version}</version>
 					<executions>
 						<execution>
 							<id>generate-openapi-sources</id>
@@ -164,7 +175,7 @@
 									<interfaceOnly>true</interfaceOnly>
 									<useTags>true</useTags>
 									<dateLibrary>java8</dateLibrary>
-									<useSpringBoot3>true</useSpringBoot3>
+									<useSpringBoot4>true</useSpringBoot4>
 								</configOptions>
 								<skipValidateSpec>true</skipValidateSpec>
 							</configuration>

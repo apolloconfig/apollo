@@ -78,6 +78,54 @@ Covered behaviors:
    - assign role after real Select2 user search
    - revoke assigned role successfully
 
+### External Discovery Smoke
+
+- Location: `e2e/discovery-smoke`
+- Runtime: Bash + Docker + standalone `apollo-configservice` + `apollo-adminservice`
+- Providers:
+  - `nacos`
+  - `consul`
+  - `zookeeper`
+
+Covered behaviors:
+
+1. Real external registry container starts and becomes reachable.
+2. `configservice` and `adminservice` health endpoints are available.
+3. `configservice /services/admin` returns `apollo-adminservice`.
+4. `configservice /services/config` returns `apollo-configservice`.
+5. The external registry directly reports registrations for both services.
+
+Local smoke example:
+
+```bash
+cd /path/to/apollo
+./e2e/discovery-smoke/scripts/provider.sh start consul /tmp/discovery-provider.env
+
+set -a
+source /tmp/discovery-provider.env
+set +a
+
+CONFIG_JAR="$(find /path/to/apollo/apollo-configservice/target -maxdepth 1 -type f -name 'apollo-configservice-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' | head -n 1)"
+ADMIN_JAR="$(find /path/to/apollo/apollo-adminservice/target -maxdepth 1 -type f -name 'apollo-adminservice-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' | head -n 1)"
+
+SPRING_PROFILES_ACTIVE=github,consul-discovery \
+SPRING_DATASOURCE_URL="jdbc:h2:mem:apollo-configservice-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+SPRING_DATASOURCE_USERNAME=sa \
+SPRING_DATASOURCE_PASSWORD="" \
+java -jar "$CONFIG_JAR" > /tmp/apollo-configservice.log 2>&1 &
+
+SPRING_PROFILES_ACTIVE=github,consul-discovery \
+SPRING_DATASOURCE_URL="jdbc:h2:mem:apollo-adminservice-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE" \
+SPRING_DATASOURCE_USERNAME=sa \
+SPRING_DATASOURCE_PASSWORD="" \
+java -jar "$ADMIN_JAR" > /tmp/apollo-adminservice.log 2>&1 &
+
+set -a
+source /tmp/discovery-provider.env
+set +a
+ARTIFACT_DIR=/tmp/external-discovery-smoke/consul ./e2e/discovery-smoke/scripts/run-smoke.sh
+```
+
 Notes:
 
 - LDAP e2e config uses `camelCase` keys under `ldap.mapping` and `ldap.group` (for example `objectClass`, `loginId`, `groupSearch`) to match the runtime placeholders.
@@ -161,6 +209,7 @@ cd /path/to/apollo
   - `apollo-portal/**`
   - `apollo-assembly/**`
   - `e2e/portal-e2e/**`
+  - `e2e/scripts/**`
   - `scripts/sql/**`
   - `.github/workflows/portal-ui-e2e.yml`
 
@@ -175,7 +224,16 @@ Portal auth matrix workflow:
   - `apollo-portal/**`
   - `apollo-assembly/**`
   - `e2e/portal-e2e/**`
+  - `e2e/scripts/**`
   - `.github/workflows/portal-login-e2e.yml`
+
+External discovery smoke workflow:
+
+- Workflow file: `.github/workflows/external-discovery-smoke.yml`
+- Job/check name: `external-discovery-smoke (nacos|consul|zookeeper)`
+- Trigger:
+  - PR path-based trigger on Apollo service/discovery/e2e changes
+  - `workflow_dispatch` with optional `provider=all|nacos|consul|zookeeper`
 
 ## Maintenance Notes
 

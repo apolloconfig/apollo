@@ -61,9 +61,8 @@ public class ConfigServerEurekaServerConfigure {
       http.csrf(csrf -> csrf.disable());
       http.httpBasic(Customizer.withDefaults());
       if (eurekaSecurityEnabled) {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider
-            .setUserDetailsService(new InMemoryUserDetailsManager(User.withUsername(username)
+        DaoAuthenticationProvider authenticationProvider =
+            new DaoAuthenticationProvider(new InMemoryUserDetailsManager(User.withUsername(username)
                 .password(toDelegatingPassword(password)).roles(EUREKA_ROLE).build()));
         http.authenticationProvider(authenticationProvider);
         http.authorizeHttpRequests(

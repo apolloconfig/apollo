@@ -18,15 +18,18 @@ package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.audit.component.ApolloAuditHttpInterceptor;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import org.apache.hc.client5.http.config.ConnectionConfig;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConverters;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -66,20 +69,26 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
   @Override
   public void afterPropertiesSet() {
 
+    ConnectionConfig connectionConfig = ConnectionConfig.custom()
+        .setConnectTimeout(Timeout.ofMilliseconds(portalConfig.connectTimeout()))
+        .setTimeToLive(TimeValue.ofMilliseconds(portalConfig.connectionTimeToLive())).build();
+
     PoolingHttpClientConnectionManager connectionManager = PoolingHttpClientConnectionManagerBuilder
         .create().setMaxConnTotal(portalConfig.connectPoolMaxTotal())
-        .setMaxConnPerRoute(portalConfig.connectPoolMaxPerRoute()).setConnectionTimeToLive(
-            TimeValue.of(portalConfig.connectionTimeToLive(), TimeUnit.MILLISECONDS))
-        .build();
+        .setMaxConnPerRoute(portalConfig.connectPoolMaxPerRoute())
+        .setDefaultConnectionConfig(connectionConfig).build();
+
+    RequestConfig requestConfig = RequestConfig.custom()
+        .setResponseTimeout(Timeout.ofMilliseconds(portalConfig.readTimeout())).build();
 
     CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connectionManager)
-        .evictExpiredConnections().build();
+        .setDefaultRequestConfig(requestConfig).evictExpiredConnections().build();
 
     restTemplate = new RestTemplate(httpMessageConverters.getConverters());
     HttpComponentsClientHttpRequestFactory requestFactory =
         new HttpComponentsClientHttpRequestFactory(httpClient);
-    requestFactory.setConnectTimeout(portalConfig.connectTimeout());
-    requestFactory.setReadTimeout(portalConfig.readTimeout());
+    // Waiting for a pooled connection is distinct from establishing a new socket connection.
+    requestFactory.setConnectionRequestTimeout(Duration.ofMillis(portalConfig.connectTimeout()));
 
     restTemplate.setRequestFactory(requestFactory);
     restTemplate.getInterceptors().add(apolloAuditHttpInterceptor);

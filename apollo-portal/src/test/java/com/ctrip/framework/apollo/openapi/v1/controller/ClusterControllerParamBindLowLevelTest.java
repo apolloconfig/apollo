@@ -30,9 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -60,13 +60,13 @@ public class ClusterControllerParamBindLowLevelTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @MockBean(name = "unifiedPermissionValidator")
+  @MockitoBean(name = "unifiedPermissionValidator")
   private UnifiedPermissionValidator unifiedPermissionValidator;
 
-  @MockBean
+  @MockitoBean
   private UserService userService;
 
-  @MockBean
+  @MockitoBean
   private ClusterOpenApiService clusterOpenApiService;
 
   private final Gson gson = new Gson();

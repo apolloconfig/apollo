@@ -23,6 +23,7 @@ on:
       - 'apollo-portal/**'
       - 'apollo-assembly/**'
       - 'e2e/portal-e2e/**'
+      - 'e2e/scripts/**'
       - 'scripts/sql/**'
       - '.github/workflows/portal-ui-e2e.yml'
 
@@ -82,6 +83,9 @@ jobs:
           echo $! > /tmp/apollo-assembly.pid
 
       - name: Wait for Apollo readiness
+        env:
+          PORTAL_USERNAME: apollo
+          PORTAL_PASSWORD: admin
         run: ./e2e/portal-e2e/scripts/wait-for-ready.sh
 
       - name: Run Playwright UI tests

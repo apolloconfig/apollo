@@ -33,10 +33,9 @@ import com.ctrip.framework.apollo.biz.utils.ReleaseKeyGenerator;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.restclient.RestTemplateBuilder;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -72,8 +71,7 @@ public abstract class AbstractBaseIntegrationTest {
   private static final Gson GSON = new Gson();
 
   protected RestTemplate restTemplate =
-      (new TestRestTemplate(new RestTemplateBuilder().setConnectTimeout(Duration.ofSeconds(5))))
-          .getRestTemplate();
+      new RestTemplateBuilder().connectTimeout(Duration.ofSeconds(5)).build();
 
   @PostConstruct
   private void postConstruct() {

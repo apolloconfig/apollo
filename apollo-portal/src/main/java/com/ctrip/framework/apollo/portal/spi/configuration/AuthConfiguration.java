@@ -45,14 +45,13 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -418,7 +417,7 @@ public class AuthConfiguration {
       http.oauth2Login(configure -> configure
           .clientRegistrationRepository(new ExcludeClientCredentialsClientRegistrationRepository(
               this.clientRegistrationRepository)));
-      http.oauth2Client();
+      http.oauth2Client(Customizer.withDefaults());
       http.logout(configure -> {
         configure.logoutUrl("/user/logout");
         OidcClientInitiatedLogoutSuccessHandler logoutSuccessHandler =

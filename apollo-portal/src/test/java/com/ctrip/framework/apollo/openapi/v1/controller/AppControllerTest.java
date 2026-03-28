@@ -50,9 +50,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -86,52 +86,52 @@ public class AppControllerTest {
 
   @Autowired
   private MockMvc mockMvc;
-  @MockBean(name = "unifiedPermissionValidator")
+  @MockitoBean(name = "unifiedPermissionValidator")
   private UnifiedPermissionValidator unifiedPermissionValidator;
 
-  @MockBean
+  @MockitoBean
   private PortalSettings portalSettings;
 
-  @MockBean
+  @MockitoBean
   private AppService appService;
 
-  @MockBean
+  @MockitoBean
   private ClusterService clusterService;
 
-  @MockBean
+  @MockitoBean
   private ConsumerAuthUtil consumerAuthUtil;
 
-  @MockBean
+  @MockitoBean
   private PermissionRepository permissionRepository;
 
-  @MockBean
+  @MockitoBean
   private AppOpenApiService appOpenApiService;
 
-  @MockBean
+  @MockitoBean
   private ConsumerService consumerService;
 
-  @MockBean
+  @MockitoBean
   private RolePermissionRepository rolePermissionRepository;
 
-  @MockBean
+  @MockitoBean
   private UserInfoHolder userInfoHolder;
-  @MockBean
+  @MockitoBean
   private ConsumerTokenRepository consumerTokenRepository;
-  @MockBean
+  @MockitoBean
   private ConsumerRepository consumerRepository;
-  @MockBean
+  @MockitoBean
   private ConsumerAuditRepository consumerAuditRepository;
-  @MockBean
+  @MockitoBean
   private ConsumerRoleRepository consumerRoleRepository;
-  @MockBean
+  @MockitoBean
   private RolePermissionService rolePermissionService;
-  @MockBean
+  @MockitoBean
   private UserService userService;
-  @MockBean
+  @MockitoBean
   private RoleRepository roleRepository;
-  @MockBean
+  @MockitoBean
   private RoleInitializationService roleInitializationService;
-  @MockBean
+  @MockitoBean
   private ApplicationEventPublisher applicationEventPublisher;
 
   private final Gson gson = new Gson();

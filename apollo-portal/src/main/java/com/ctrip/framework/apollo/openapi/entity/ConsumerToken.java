@@ -20,7 +20,7 @@ import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
 import jakarta.validation.constraints.PositiveOrZero;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.Date;
 
@@ -35,7 +35,7 @@ import jakarta.persistence.Table;
 @Table(name = "`ConsumerToken`")
 @SQLDelete(
     sql = "Update `ConsumerToken` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 public class ConsumerToken extends BaseEntity {
   @Column(name = "`ConsumerId`", nullable = false)
   private long consumerId;

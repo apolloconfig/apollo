@@ -30,8 +30,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.test.context.ContextConfiguration;
@@ -50,12 +50,12 @@ public class ApolloAuditTracerTest {
   final String activeSpanId = "100010001";
   final String operator = "luke";
 
-  @SpyBean
+  @MockitoSpyBean
   ApolloAuditTracer tracer;
 
-  @MockBean
+  @MockitoBean
   ApolloAuditScopeManager manager;
-  @MockBean
+  @MockitoBean
   ApolloAuditOperatorSupplier supplier;
 
   @BeforeEach

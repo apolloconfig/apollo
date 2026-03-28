@@ -64,8 +64,9 @@
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<apollo-java.version>2.5.0</apollo-java.version>
-		<spring-boot.version>3.5.10</spring-boot.version>
-		<spring-cloud.version>2025.0.1</spring-cloud.version>
+		<spring-boot.version>4.0.4</spring-boot.version>
+		<spring-cloud.version>2025.1.1</spring-cloud.version>
+		<spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
 		<!-- sort by alphabet -->
 		<common-lang3.version>3.18.0</common-lang3.version>
 		<guava.version>32.0.0-jre</guava.version>
@@ -73,7 +74,7 @@
 		<jakarta.mail.version>2.0.1</jakarta.mail.version>
 		<jackson-databind-nullable.version>0.2.7</jackson-databind-nullable.version>
 		<javassist.version>3.23.1-GA</javassist.version>
-		<nacos-discovery-api.version>1.4.0</nacos-discovery-api.version>
+		<openapi-generator.version>7.20.0</openapi-generator.version>
 		<swagger-annotations.version>2.2.37</swagger-annotations.version>
 		<swagger-models.version>2.2.37</swagger-models.version>
 		<!-- Plugins Version sort by alphabet -->
@@ -82,7 +83,7 @@
 		<maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
 		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 		<maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-		<maven-jacoco-plugin.version>0.8.8</maven-jacoco-plugin.version>
+		<maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
 		<maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
 		<maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
 		<maven-war-plugin.version>3.3.2</maven-war-plugin.version>
@@ -219,6 +220,13 @@
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
 				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.alibaba.cloud</groupId>
+				<artifactId>spring-cloud-alibaba-dependencies</artifactId>
+				<version>${spring-cloud-alibaba.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -378,7 +386,6 @@
 					<artifactId>spring-boot-maven-plugin</artifactId>
 					<version>${spring-boot.version}</version>
 					<configuration>
-						<executable>true</executable>
 						<attach>false</attach>
 					</configuration>
 					<executions>
@@ -590,27 +597,6 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
-		</profile>
-		<profile>
-			<id>nacos-discovery</id>
-			<properties>
-				<nacos.discovery.version>0.2.12</nacos.discovery.version>
-				<fastjson.version>1.2.83</fastjson.version>
-			</properties>
-			<dependencyManagement>
-				<dependencies>
-					<dependency>
-						<groupId>com.alibaba.boot</groupId>
-						<artifactId>nacos-discovery-spring-boot-starter</artifactId>
-						<version>${nacos.discovery.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>com.alibaba</groupId>
-						<artifactId>fastjson</artifactId>
-						<version>${fastjson.version}</version>
-					</dependency>
-				</dependencies>
-			</dependencyManagement>
 		</profile>
 	</profiles>
 

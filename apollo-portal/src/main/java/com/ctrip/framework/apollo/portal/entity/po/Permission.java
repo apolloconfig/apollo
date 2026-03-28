@@ -22,7 +22,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -31,7 +31,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "`Permission`")
 @SQLDelete(
     sql = "Update `Permission` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 public class Permission extends BaseEntity {
 
   @Column(name = "`PermissionType`", nullable = false)

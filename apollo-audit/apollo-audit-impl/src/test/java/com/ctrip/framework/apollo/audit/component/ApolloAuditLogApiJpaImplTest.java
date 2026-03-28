@@ -42,11 +42,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
@@ -73,20 +72,17 @@ public class ApolloAuditLogApiJpaImplTest {
   final int page = 0;
   final int size = 10;
 
-  @SpyBean
+  @MockitoSpyBean
   ApolloAuditLogApiJpaImpl api;
 
-  @MockBean
+  @MockitoBean
   ApolloAuditLogService logService;
-  @MockBean
+  @MockitoBean
   ApolloAuditLogDataInfluenceService dataInfluenceService;
-  @MockBean
+  @MockitoBean
   ApolloAuditTraceContext traceContext;
-  @MockBean
+  @MockitoBean
   ApolloAuditTracer tracer;
-
-  @Captor
-  private ArgumentCaptor<ApolloAuditLogDataInfluence> influenceCaptor;
 
   @BeforeEach
   void beforeEach() {
@@ -132,6 +128,8 @@ public class ApolloAuditLogApiJpaImplTest {
 
     api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
 
+    ArgumentCaptor<ApolloAuditLogDataInfluence> influenceCaptor =
+        ArgumentCaptor.forClass(ApolloAuditLogDataInfluence.class);
     Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
 
     ApolloAuditLogDataInfluence capturedInfluence = influenceCaptor.getValue();
@@ -154,6 +152,8 @@ public class ApolloAuditLogApiJpaImplTest {
 
     api.appendDataInfluence(entityName, entityId, fieldName, fieldCurrentValue);
 
+    ArgumentCaptor<ApolloAuditLogDataInfluence> influenceCaptor =
+        ArgumentCaptor.forClass(ApolloAuditLogDataInfluence.class);
     Mockito.verify(dataInfluenceService, Mockito.times(1)).save(influenceCaptor.capture());
 
     ApolloAuditLogDataInfluence capturedInfluence = influenceCaptor.getValue();

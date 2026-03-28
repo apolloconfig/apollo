@@ -21,7 +21,7 @@ import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTa
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,7 +34,7 @@ import jakarta.persistence.Table;
 @Table(name = "`Role`")
 @SQLDelete(
     sql = "Update `Role` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 @ApolloAuditLogDataInfluenceTable(tableName = "Role")
 public class Role extends BaseEntity {
   @ApolloAuditLogDataInfluenceTableField(fieldName = "RoleName")

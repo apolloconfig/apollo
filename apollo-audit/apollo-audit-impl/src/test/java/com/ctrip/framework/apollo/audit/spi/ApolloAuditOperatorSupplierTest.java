@@ -23,33 +23,32 @@ import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpanContext;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditTracer;
 import com.ctrip.framework.apollo.audit.spi.defaultimpl.ApolloAuditOperatorDefaultSupplier;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
-@SpringBootTest
-@ContextConfiguration(classes = ApolloAuditOperatorSupplier.class)
 public class ApolloAuditOperatorSupplierTest {
 
-  @SpyBean
-  ApolloAuditOperatorDefaultSupplier defaultSupplier;
-
-  @MockBean
-  RequestAttributes requestAttributes;
-  @MockBean
-  ApolloAuditTracer tracer;
+  private ApolloAuditOperatorDefaultSupplier defaultSupplier;
+  private RequestAttributes requestAttributes;
+  private ApolloAuditTracer tracer;
 
   @BeforeEach
   public void setUp() {
+    defaultSupplier = new ApolloAuditOperatorDefaultSupplier();
+    requestAttributes = Mockito.mock(RequestAttributes.class);
+    tracer = Mockito.mock(ApolloAuditTracer.class);
     Mockito.when(requestAttributes.getAttribute(Mockito.eq(ApolloAuditConstants.TRACER),
         Mockito.eq(RequestAttributes.SCOPE_REQUEST))).thenReturn(tracer);
     RequestContextHolder.setRequestAttributes(requestAttributes);
+  }
+
+  @AfterEach
+  public void tearDown() {
+    RequestContextHolder.resetRequestAttributes();
   }
 
   @Test

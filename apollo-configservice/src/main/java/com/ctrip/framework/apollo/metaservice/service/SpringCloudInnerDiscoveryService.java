@@ -28,10 +28,10 @@ import java.util.List;
 
 /**
  * @author : kl
- * Service discovery consul implementation
+ * Service discovery implementation backed by Spring Cloud DiscoveryClient
  **/
 @Service
-@Profile({"consul-discovery", "zookeeper-discovery"})
+@Profile({"consul-discovery", "zookeeper-discovery", "nacos-discovery"})
 public class SpringCloudInnerDiscoveryService implements DiscoveryService {
 
   private final DiscoveryClient discoveryClient;

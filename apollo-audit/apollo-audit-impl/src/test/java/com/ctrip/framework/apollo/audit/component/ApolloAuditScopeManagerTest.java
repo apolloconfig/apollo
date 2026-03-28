@@ -26,14 +26,14 @@ import com.ctrip.framework.apollo.audit.context.ApolloAuditScopeManager;
 import com.ctrip.framework.apollo.audit.context.ApolloAuditSpan;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = ApolloAuditScopeManager.class)
 public class ApolloAuditScopeManagerTest {
 
-  @SpyBean
+  @MockitoSpyBean
   ApolloAuditScopeManager manager;
 
   @Test

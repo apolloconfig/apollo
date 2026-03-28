@@ -161,12 +161,8 @@
 			<id>nacos-discovery</id>
 			<dependencies>
 				<dependency>
-					<groupId>com.alibaba.boot</groupId>
-					<artifactId>nacos-discovery-spring-boot-starter</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.alibaba</groupId>
-					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba.cloud</groupId>
+					<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>

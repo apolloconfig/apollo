@@ -17,8 +17,8 @@
 package com.ctrip.framework.apollo.configservice;
 
 import com.ctrip.framework.apollo.biz.service.AppService;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 

@@ -85,11 +85,6 @@
 			<artifactId>jersey-apache-client4</artifactId>
 		</dependency>
 		<!-- end of eureka -->
-		<dependency>
-			<groupId>com.alibaba.nacos</groupId>
-			<artifactId>nacos-api</artifactId>
-			<version>${nacos-discovery-api.version}</version>
-		</dependency>
 		<!-- Jakarta EE APIs -->
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
@@ -167,12 +162,8 @@
 			<id>nacos-discovery</id>
 			<dependencies>
 				<dependency>
-					<groupId>com.alibaba.boot</groupId>
-					<artifactId>nacos-discovery-spring-boot-starter</artifactId>
-				</dependency>
-				<dependency>
-					<groupId>com.alibaba</groupId>
-					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba.cloud</groupId>
+					<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
 				</dependency>
 			</dependencies>
 		</profile>

@@ -39,7 +39,7 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -56,29 +56,29 @@ class AppServiceTest {
   @Autowired
   AppService appService;
 
-  @MockBean
+  @MockitoBean
   UserInfoHolder userInfoHolder;
-  @MockBean
+  @MockitoBean
   AdminServiceAPI.AppAPI appAPI;
-  @MockBean
+  @MockitoBean
   AppRepository appRepository;
-  @MockBean
+  @MockitoBean
   ClusterService clusterService;
-  @MockBean
+  @MockitoBean
   AppNamespaceService appNamespaceService;
-  @MockBean
+  @MockitoBean
   RoleInitializationService roleInitializationService;
-  @MockBean
+  @MockitoBean
   RolePermissionService rolePermissionService;
-  @MockBean
+  @MockitoBean
   FavoriteService favoriteService;
-  @MockBean
+  @MockitoBean
   UserService userService;
-  @MockBean
+  @MockitoBean
   ApplicationEventPublisher publisher;
-  @MockBean
+  @MockitoBean
   ApolloAuditLogApi apolloAuditLogApi;
-  @MockBean
+  @MockitoBean
   PortalSettings portalSettings;
 
   @BeforeEach

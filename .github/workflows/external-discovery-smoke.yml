@@ -1,0 +1,216 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: external-discovery-smoke
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apollo-configservice/**'
+      - 'apollo-adminservice/**'
+      - 'apollo-biz/**'
+      - 'apollo-common/**'
+      - 'e2e/**'
+      - 'scripts/sql/**'
+      - 'pom.xml'
+      - '.github/workflows/external-discovery-smoke.yml'
+  workflow_dispatch:
+    inputs:
+      provider:
+        description: Discovery provider to run
+        required: false
+        default: all
+        type: choice
+        options:
+          - all
+          - nacos
+          - consul
+          - zookeeper
+
+jobs:
+  resolve-provider-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      providers: ${{ steps.set.outputs.providers }}
+    steps:
+      - id: set
+        shell: bash
+        run: |
+          provider="${{ github.event.inputs.provider }}"
+          if [[ -z "${provider}" || "${provider}" == "all" ]]; then
+            echo 'providers=["nacos","consul","zookeeper"]' >> "${GITHUB_OUTPUT}"
+          else
+            echo "providers=[\"${provider}\"]" >> "${GITHUB_OUTPUT}"
+          fi
+
+  build-services:
+    runs-on: ubuntu-latest
+    needs: resolve-provider-matrix
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Build Apollo config/admin services
+        run: ./mvnw -B -Pnacos-discovery -pl apollo-configservice,apollo-adminservice -am -DskipTests package
+
+      - name: Prepare runnable service artifacts
+        run: |
+          mkdir -p /tmp/apollo-discovery-artifact
+
+          copy_service_jar() {
+            local service="$1"
+            local source_jar=""
+
+            for candidate in "${service}/target/${service}"-*.jar; do
+              if [[ "$candidate" == *"-sources.jar" || "$candidate" == *"-javadoc.jar" ]]; then
+                continue
+              fi
+              if [[ -f "$candidate" ]]; then
+                source_jar="$candidate"
+                break
+              fi
+            done
+
+            if [[ -z "$source_jar" ]]; then
+              echo "No runnable ${service} jar found in ${service}/target" >&2
+              exit 1
+            fi
+
+            cp "$source_jar" "/tmp/apollo-discovery-artifact/${service}.jar"
+          }
+
+          copy_service_jar "apollo-configservice"
+          copy_service_jar "apollo-adminservice"
+
+      - name: Upload runnable service artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apollo-discovery-jars
+          path: /tmp/apollo-discovery-artifact
+          if-no-files-found: error
+
+  external-discovery-smoke:
+    name: external-discovery-smoke (${{ matrix.provider }})
+    runs-on: ubuntu-latest
+    needs: [resolve-provider-matrix, build-services]
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: ${{ fromJson(needs.resolve-provider-matrix.outputs.providers) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Download runnable service artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: apollo-discovery-jars
+          path: /tmp/apollo-discovery-artifact
+
+      - name: Start external discovery provider
+        run: |
+          ./e2e/discovery-smoke/scripts/provider.sh start "${{ matrix.provider }}" /tmp/discovery-provider.env
+          cat /tmp/discovery-provider.env >> "${GITHUB_ENV}"
+
+      - name: Start Apollo config service
+        env:
+          SPRING_PROFILES_ACTIVE: github,${{ matrix.provider }}-discovery
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:apollo-configservice-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: ""
+        run: |
+          java -jar /tmp/apollo-discovery-artifact/apollo-configservice.jar > /tmp/apollo-configservice-run.log 2>&1 &
+          echo $! > /tmp/apollo-configservice.pid
+
+      - name: Start Apollo admin service
+        env:
+          SPRING_PROFILES_ACTIVE: github,${{ matrix.provider }}-discovery
+          SPRING_DATASOURCE_URL: jdbc:h2:mem:apollo-adminservice-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE
+          SPRING_DATASOURCE_USERNAME: sa
+          SPRING_DATASOURCE_PASSWORD: ""
+        run: |
+          java -jar /tmp/apollo-discovery-artifact/apollo-adminservice.jar > /tmp/apollo-adminservice-run.log 2>&1 &
+          echo $! > /tmp/apollo-adminservice.pid
+
+      - name: Run external discovery smoke
+        env:
+          DISCOVERY_PROVIDER: ${{ matrix.provider }}
+          ARTIFACT_DIR: /tmp/external-discovery-smoke/${{ matrix.provider }}
+        run: ./e2e/discovery-smoke/scripts/run-smoke.sh
+
+      - name: Capture discovery failure snapshots
+        if: failure()
+        env:
+          DISCOVERY_PROVIDER: ${{ matrix.provider }}
+        run: |
+          mkdir -p "/tmp/external-discovery-smoke/${{ matrix.provider }}"
+          curl -fsS http://127.0.0.1:8080/health \
+            > "/tmp/external-discovery-smoke/${{ matrix.provider }}/configservice-health.json" 2>&1 || true
+          curl -fsS http://127.0.0.1:8090/health \
+            > "/tmp/external-discovery-smoke/${{ matrix.provider }}/adminservice-health.json" 2>&1 || true
+          curl -fsS http://127.0.0.1:8080/services/admin \
+            > "/tmp/external-discovery-smoke/${{ matrix.provider }}/configservice-services-admin.json" 2>&1 || true
+          curl -fsS http://127.0.0.1:8080/services/config \
+            > "/tmp/external-discovery-smoke/${{ matrix.provider }}/configservice-services-config.json" 2>&1 || true
+          ./e2e/discovery-smoke/scripts/provider.sh assert-service "${{ matrix.provider }}" "apollo-adminservice" \
+            "/tmp/external-discovery-smoke/${{ matrix.provider }}/provider-apollo-adminservice.txt" >/dev/null 2>&1 || true
+          ./e2e/discovery-smoke/scripts/provider.sh assert-service "${{ matrix.provider }}" "apollo-configservice" \
+            "/tmp/external-discovery-smoke/${{ matrix.provider }}/provider-apollo-configservice.txt" >/dev/null 2>&1 || true
+          ./e2e/discovery-smoke/scripts/provider.sh logs "${{ matrix.provider }}" \
+            "/tmp/external-discovery-smoke/${{ matrix.provider }}/provider.log" >/dev/null 2>&1 || true
+
+      - name: Upload discovery smoke artifacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-discovery-smoke-artifacts-${{ matrix.provider }}
+          path: |
+            /tmp/apollo-configservice-run.log
+            /tmp/apollo-adminservice-run.log
+            /tmp/external-discovery-smoke/${{ matrix.provider }}
+          if-no-files-found: warn
+
+      - name: Stop Apollo config service
+        if: always()
+        run: |
+          if [ -f /tmp/apollo-configservice.pid ]; then
+            kill "$(cat /tmp/apollo-configservice.pid)" || true
+          fi
+
+      - name: Stop Apollo admin service
+        if: always()
+        run: |
+          if [ -f /tmp/apollo-adminservice.pid ]; then
+            kill "$(cat /tmp/apollo-adminservice.pid)" || true
+          fi
+
+      - name: Stop external discovery provider
+        if: always()
+        run: ./e2e/discovery-smoke/scripts/provider.sh stop "${{ matrix.provider }}"

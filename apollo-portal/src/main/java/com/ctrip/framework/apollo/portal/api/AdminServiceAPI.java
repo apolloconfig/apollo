@@ -25,7 +25,7 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.health.contributor.Health;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

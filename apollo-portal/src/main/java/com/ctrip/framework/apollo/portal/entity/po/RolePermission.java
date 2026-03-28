@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.entity.po;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +32,7 @@ import jakarta.persistence.Table;
 @Table(name = "`RolePermission`")
 @SQLDelete(
     sql = "Update `RolePermission` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 public class RolePermission extends BaseEntity {
   @Column(name = "`RoleId`", nullable = false)
   private long roleId;

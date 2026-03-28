@@ -23,6 +23,7 @@ on:
       - 'apollo-portal/**'
       - 'apollo-assembly/**'
       - 'e2e/portal-e2e/**'
+      - 'e2e/scripts/**'
       - '.github/workflows/portal-login-e2e.yml'
 
 jobs:

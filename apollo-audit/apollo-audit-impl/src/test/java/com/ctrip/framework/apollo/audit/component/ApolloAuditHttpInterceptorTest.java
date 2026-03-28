@@ -22,8 +22,8 @@ import java.io.IOException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,10 +32,10 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(classes = ApolloAuditHttpInterceptor.class)
 public class ApolloAuditHttpInterceptorTest {
 
-  @SpyBean
+  @MockitoSpyBean
   ApolloAuditHttpInterceptor interceptor;
 
-  @MockBean
+  @MockitoBean
   ApolloAuditTraceContext traceContext;
 
   @Test

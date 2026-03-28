@@ -49,26 +49,40 @@ export APP_NAME=$SERVICE_NAME
 PATH_TO_JAR=$SERVICE_NAME".jar"
 CONTEXT_PATH=$(echo "$CONTEXT_PATH" | sed 's/^\/*//; s/\/*$//')
 SERVER_URL="http://localhost:${SERVER_PORT}${CONTEXT_PATH:+/$CONTEXT_PATH}"
+PID_FILE="$APP_NAME/$APP_NAME.pid"
+EXPECTED_PATTERN="${SERVICE_NAME}(-[^[:space:]]+)?\\.jar"
+
+function matches_service_process() {
+    local pid="$1"
+    local command_line
+
+    command_line="$(ps -p "$pid" -o command= 2>/dev/null || true)"
+    [[ -n "$command_line" ]] && [[ "$command_line" =~ $EXPECTED_PATTERN ]]
+}
 
 function getPid() {
-    pgrep -f $SERVICE_NAME
+    if [[ -f "$PID_FILE" ]]; then
+        read -r pid < "$PID_FILE"
+        if [[ -n "$pid" ]] && matches_service_process "$pid"; then
+            echo "$pid"
+            return 0
+        fi
+    fi
+    pgrep -f "$EXPECTED_PATTERN"
 }
 
 function checkPidAlive() {
-    for i in `ls -t $APP_NAME/$APP_NAME.pid 2>/dev/null`
-    do
-        read pid < $i
-
-        result=$(ps -p "$pid")
-        if [ "$?" -eq 0 ]; then
+    if [[ -f "$PID_FILE" ]]; then
+        read -r pid < "$PID_FILE"
+        if [[ -n "$pid" ]] && matches_service_process "$pid"; then
             return 0
-        else
-            printf "\npid - $pid just quit unexpectedly, please check logs under $LOG_DIR and /tmp for more information!\n"
-            exit 1;
         fi
-    done
 
-    printf "\nNo pid file found, startup may failed. Please check logs under $LOG_DIR and /tmp for more information!\n"
+        printf "\npid - $pid just quit unexpectedly, please check logs under $LOG_DIR and /tmp for more information!\n"
+        exit 1;
+    fi
+
+    printf "\nNo pid file found, startup may have failed. Please check logs under $LOG_DIR and /tmp for more information!\n"
     exit 1;
 }
 
@@ -179,18 +193,19 @@ else
 
     printf "$(date) ==== $SERVICE_NAME Starting ==== \n"
 
-    if [[ -f $SERVICE_NAME".jar" ]]; then
-        rm -rf $SERVICE_NAME".jar"
-    fi
-    ln $PATH_TO_JAR $SERVICE_NAME".jar"
-    chmod a+x $SERVICE_NAME".jar"
-    ./$SERVICE_NAME".jar" start
+    mkdir -p $APP_NAME
+    rm -f $APP_NAME/$APP_NAME.pid
 
-    rc=$?;
+    nohup $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR >/dev/null 2>&1 &
+    rc=$?
+    pid=$!
+    if [[ $rc == 0 ]]; then
+        echo $pid > $APP_NAME/$APP_NAME.pid
+    fi
 
     if [[ $rc != 0 ]];
     then
-        echo "$(date) Failed to start $SERVICE_NAME.jar, return code: $rc"
+        echo "$(date) Failed to start $SERVICE_NAME, return code: $rc"
         exit $rc;
     fi
 

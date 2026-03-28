@@ -22,7 +22,7 @@ import com.ctrip.framework.apollo.common.utils.InputValidator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +32,7 @@ import jakarta.persistence.Table;
 @Table(name = "`App`")
 @SQLDelete(
     sql = "Update `App` set IsDeleted = true, DeletedAt = ROUND(UNIX_TIMESTAMP(NOW(4))*1000) where Id = ?")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 @ApolloAuditLogDataInfluenceTable(tableName = "App")
 public class App extends BaseEntity {
 

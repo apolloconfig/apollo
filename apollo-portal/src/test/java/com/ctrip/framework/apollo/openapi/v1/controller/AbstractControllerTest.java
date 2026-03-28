@@ -20,9 +20,8 @@ import jakarta.annotation.PostConstruct;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.http.converter.autoconfigure.HttpMessageConverters;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -32,13 +31,16 @@ import org.springframework.web.client.RestTemplate;
  *
  * @author kezhenxu (kezhenxu94@163.com)
  */
+@SuppressWarnings("deprecation")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractControllerTest {
+  // Spring Boot 4 deprecates HttpMessageConverters, but this integration test
+  // still needs the auto-configured converter list that backs the live MVC stack.
   @Autowired
   private HttpMessageConverters httpMessageConverters;
 
-  protected RestTemplate restTemplate = (new TestRestTemplate()).getRestTemplate();
+  protected RestTemplate restTemplate = new RestTemplate();
 
   @PostConstruct
   protected void postConstruct() {

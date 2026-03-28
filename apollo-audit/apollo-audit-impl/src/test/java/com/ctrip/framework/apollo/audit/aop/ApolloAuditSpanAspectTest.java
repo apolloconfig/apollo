@@ -41,18 +41,18 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ContextConfiguration;
 
 @SpringBootTest
 @ContextConfiguration(classes = ApolloAuditSpanAspect.class)
 public class ApolloAuditSpanAspectTest {
 
-  @SpyBean
+  @MockitoSpyBean
   ApolloAuditSpanAspect aspect;
 
-  @MockBean
+  @MockitoBean
   ApolloAuditLogApi api;
 
   @Test

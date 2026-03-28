@@ -41,8 +41,8 @@ import java.util.GregorianCalendar;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.mockito.Mockito.*;
@@ -51,25 +51,25 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ContextConfiguration(classes = ConsumerService.class)
 public class ConsumerServiceTest {
-  @SpyBean
+  @MockitoSpyBean
   private ConsumerService consumerService;
-  @MockBean
+  @MockitoBean
   UserInfoHolder userInfoHolder;
-  @MockBean
+  @MockitoBean
   ConsumerTokenRepository consumerTokenRepository;
-  @MockBean
+  @MockitoBean
   ConsumerRepository consumerRepository;
-  @MockBean
+  @MockitoBean
   ConsumerAuditRepository consumerAuditRepository;
-  @MockBean
+  @MockitoBean
   ConsumerRoleRepository consumerRoleRepository;
-  @MockBean
+  @MockitoBean
   PortalConfig portalConfig;
-  @MockBean
+  @MockitoBean
   RolePermissionService rolePermissionService;
-  @MockBean
+  @MockitoBean
   UserService userService;
-  @MockBean
+  @MockitoBean
   RoleRepository roleRepository;
 
   private final String someTokenSalt = "someTokenSalt";

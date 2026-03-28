@@ -33,10 +33,12 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import org.hibernate.exception.JDBCConnectionException;
 import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -64,6 +66,7 @@ public class ReleaseHistoryServiceTest {
   private ReleaseRepository mockReleaseRepository;
 
   private ReleaseHistory mockReleaseHistory;
+  private AutoCloseable mocks;
   private static final String APP_ID = "kl-app";
   private static final String CLUSTER_NAME = "default";
   private static final String NAMESPACE_NAME = "application";
@@ -78,12 +81,20 @@ public class ReleaseHistoryServiceTest {
 
   @Before
   public void setUp() throws Exception {
+    mocks = MockitoAnnotations.openMocks(this);
     ReflectionTestUtils.setField(releaseHistoryService, "bizConfig", bizConfig);
     mockReleaseHistory = spy(ReleaseHistory.class);
     mockReleaseHistory.setBranchName(BRANCH_NAME);
     mockReleaseHistory.setNamespaceName(NAMESPACE_NAME);
     mockReleaseHistory.setClusterName(CLUSTER_NAME);
     mockReleaseHistory.setAppId(APP_ID);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (mocks != null) {
+      mocks.close();
+    }
   }
 
   @Test

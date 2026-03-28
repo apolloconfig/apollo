@@ -80,7 +80,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> beforeAssign = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, env, clusterName);
-    assertEquals(200, beforeAssign.getStatusCodeValue());
+    assertEquals(200, beforeAssign.getStatusCode().value());
     ClusterNamespaceRolesAssignedUsers body = beforeAssign.getBody();
     assertNotNull(body);
     assertEquals(appId, body.getAppId());
@@ -97,7 +97,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> afterAssign = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, env, clusterName);
-    assertEquals(200, afterAssign.getStatusCodeValue());
+    assertEquals(200, afterAssign.getStatusCode().value());
     body = afterAssign.getBody();
     assertNotNull(body);
     assertEquals(appId, body.getAppId());
@@ -115,7 +115,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> afterRemove = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, env, clusterName);
-    assertEquals(200, afterRemove.getStatusCodeValue());
+    assertEquals(200, afterRemove.getStatusCode().value());
     body = afterRemove.getBody();
     assertNotNull(body);
     assertEquals(appId, body.getAppId());
@@ -138,7 +138,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> response = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, "local", clusterName);
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     ClusterNamespaceRolesAssignedUsers body = response.getBody();
     assertNotNull(body);
     // The returned env should be the normalized form "LOCAL", not the raw input "local"
@@ -170,7 +170,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<ClusterNamespaceRolesAssignedUsers> response = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_role_users"),
         ClusterNamespaceRolesAssignedUsers.class, appId, "PROD", clusterName);
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     ClusterNamespaceRolesAssignedUsers body = response.getBody();
     assertNotNull(body);
     assertEquals("PRO", body.getEnv());
@@ -191,7 +191,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<PermissionCondition> prodResponse = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
         PermissionCondition.class, appId, "prod", namespaceName, permissionType);
-    assertEquals(200, prodResponse.getStatusCodeValue());
+    assertEquals(200, prodResponse.getStatusCode().value());
     PermissionCondition prodBody = prodResponse.getBody();
     assertNotNull(prodBody);
     assertTrue(prodBody.hasPermission());
@@ -199,7 +199,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<PermissionCondition> prodUpperResponse = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
         PermissionCondition.class, appId, "PROD", namespaceName, permissionType);
-    assertEquals(200, prodUpperResponse.getStatusCodeValue());
+    assertEquals(200, prodUpperResponse.getStatusCode().value());
     PermissionCondition prodUpperBody = prodUpperResponse.getBody();
     assertNotNull(prodUpperBody);
     assertTrue(prodUpperBody.hasPermission());
@@ -207,7 +207,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<PermissionCondition> proResponse = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/namespaces/{namespaceName}/permissions/{permissionType}"),
         PermissionCondition.class, appId, "PRO", namespaceName, permissionType);
-    assertEquals(200, proResponse.getStatusCodeValue());
+    assertEquals(200, proResponse.getStatusCode().value());
     PermissionCondition proBody = proResponse.getBody();
     assertNotNull(proBody);
     assertTrue(proBody.hasPermission());
@@ -225,7 +225,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<PermissionCondition> localResponse = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_permissions/{permissionType}"),
         PermissionCondition.class, appId, "local", clusterName, permissionType);
-    assertEquals(200, localResponse.getStatusCodeValue());
+    assertEquals(200, localResponse.getStatusCode().value());
     PermissionCondition localBody = localResponse.getBody();
     assertNotNull(localBody);
     assertTrue(localBody.hasPermission());
@@ -233,7 +233,7 @@ public class PermissionControllerTest extends AbstractIntegrationTest {
     ResponseEntity<PermissionCondition> localUpperResponse = restTemplate.getForEntity(
         url("/apps/{appId}/envs/{env}/clusters/{clusterName}/ns_permissions/{permissionType}"),
         PermissionCondition.class, appId, "LOCAL", clusterName, permissionType);
-    assertEquals(200, localUpperResponse.getStatusCodeValue());
+    assertEquals(200, localUpperResponse.getStatusCode().value());
     PermissionCondition localUpperBody = localUpperResponse.getBody();
     assertNotNull(localUpperBody);
     assertTrue(localUpperBody.hasPermission());

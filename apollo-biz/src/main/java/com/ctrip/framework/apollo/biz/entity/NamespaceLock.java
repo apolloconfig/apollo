@@ -18,7 +18,7 @@ package com.ctrip.framework.apollo.biz.entity;
 
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
 
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +26,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "`NamespaceLock`")
-@Where(clause = "`IsDeleted` = false")
+@SQLRestriction("`IsDeleted` = false")
 public class NamespaceLock extends BaseEntity {
 
   @Column(name = "`NamespaceId`")

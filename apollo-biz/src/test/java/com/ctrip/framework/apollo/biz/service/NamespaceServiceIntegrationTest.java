@@ -38,7 +38,7 @@ import java.util.HashSet;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.jdbc.Sql;
@@ -73,7 +73,7 @@ public class NamespaceServiceIntegrationTest extends AbstractIntegrationTest {
   @Autowired
   private NamespaceRepository namespaceRepository;
 
-  @MockBean
+  @MockitoBean
   private BizConfig bizConfig;
 
   private String testApp = "testApp";

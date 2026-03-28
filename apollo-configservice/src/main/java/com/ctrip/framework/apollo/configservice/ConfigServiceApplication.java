@@ -19,11 +19,9 @@ package com.ctrip.framework.apollo.configservice;
 import com.ctrip.framework.apollo.biz.ApolloBizConfig;
 import com.ctrip.framework.apollo.common.ApolloCommonConfig;
 import com.ctrip.framework.apollo.metaservice.ApolloMetaServiceConfig;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.boot.autoconfigure.session.SessionAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -37,8 +35,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 
 @EnableAspectJAutoProxy
-@EnableAutoConfiguration(
-    exclude = {UserDetailsServiceAutoConfiguration.class, SessionAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = UserDetailsServiceAutoConfiguration.class)
 @Configuration
 @EnableTransactionManagement
 @PropertySource(value = {"classpath:configservice.properties"})

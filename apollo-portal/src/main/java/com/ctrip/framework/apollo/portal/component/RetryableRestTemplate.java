@@ -276,7 +276,7 @@ public class RetryableRestTemplate {
       HttpEntity entity;
       if (request instanceof HttpEntity) {
         entity = (HttpEntity) request;
-        if (!CollectionUtils.isEmpty(extraHeaders)) {
+        if (extraHeaders != null && !extraHeaders.isEmpty()) {
           HttpHeaders headers = new HttpHeaders();
           headers.addAll(entity.getHeaders());
           headers.addAll(extraHeaders);

@@ -16,13 +16,14 @@
  */
 package com.ctrip.framework.apollo.portal.filter;
 
+import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
@@ -39,9 +40,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Configuration;
@@ -143,10 +144,10 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @Autowired
   private MockMvc mockMvc;
 
-  @MockBean
+  @MockitoBean
   private ConsumerAuthUtil consumerAuthUtil;
 
-  @MockBean
+  @MockitoBean
   private ConsumerAuditUtil consumerAuditUtil;
 
   @After
@@ -164,12 +165,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
   // returns 401 (oidc).
   @Test
   public void portalRequestWithExpiredSession_shouldRedirectToSignin() throws Exception {
-    // auth/ldap path is handled via Spring Security entry point
-    mockMvc.perform(get(PORTAL_URI).cookie(new Cookie("SESSION", "expired")))
-        .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/signin"));
-
-    // oidc path is handled by PortalUserSessionFilter
-    assertOidcExpiredSessionIsUnauthorized(PORTAL_URI);
+    assertExpiredSessionHandling(PORTAL_URI);
   }
 
   // Scenario 2.2-1: Portal user hitting OpenAPI with valid session returns 200 OK.
@@ -184,19 +180,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @Test
   public void openApiRequestWithExpiredSession_shouldFollowProfileSpecificHandling()
       throws Exception {
-    // auth/ldap
-    mockMvc.perform(get(OPEN_API_URI).cookie(new Cookie("SESSION", "expired")))
-        .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("http://localhost/signin")); // should
-                                                                                                     // be
-                                                                                                     // aligned
-                                                                                                     // with
-                                                                                                     // 2.1-2
-                                                                                                     // portal
-                                                                                                     // calling
-                                                                                                     // portal
-
-    // oidc
-    assertOidcExpiredSessionIsUnauthorized(OPEN_API_URI);
+    assertExpiredSessionHandling(OPEN_API_URI);
   }
 
   // Scenario 2.2-3: External system with valid token gets 200 OK.
@@ -224,13 +208,26 @@ public class PortalOpenApiAuthenticationScenariosTest {
         .andExpect(status().isUnauthorized());
   }
 
-  private void assertOidcExpiredSessionIsUnauthorized(String uri) throws Exception {
+  private void assertExpiredSessionHandling(String uri) throws Exception {
+    assertAuthExpiredSessionRedirectsToSignin(uri, "SESSION");
+    assertOidcExpiredSessionIsUnauthorized(uri, "SESSION");
+  }
+
+  private void assertAuthExpiredSessionRedirectsToSignin(String uri, String cookieName)
+      throws Exception {
+    mockMvc.perform(get(uri).cookie(new Cookie(cookieName, "expired")))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(header().string("Location", endsWith("/signin")));
+  }
+
+  private void assertOidcExpiredSessionIsUnauthorized(String uri, String cookieName)
+      throws Exception {
     MockEnvironment oidcEnvironment = new MockEnvironment();
     oidcEnvironment.setActiveProfiles("oidc");
     PortalUserSessionFilter oidcFilter = new PortalUserSessionFilter(oidcEnvironment);
 
     MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
-    request.setCookies(new Cookie("SESSION", "expired"));
+    request.setCookies(new Cookie(cookieName, "expired"));
     MockHttpServletResponse response = new MockHttpServletResponse();
     FilterChain chain = new MockFilterChain();
 

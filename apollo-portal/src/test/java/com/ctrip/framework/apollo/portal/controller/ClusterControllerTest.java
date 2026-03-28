@@ -77,7 +77,7 @@ public class ClusterControllerTest {
     ResponseEntity<Void> response =
         clusterController.deleteCluster("SampleApp", "DEV", "sampleCluster");
 
-    assertEquals(200, response.getStatusCodeValue());
+    assertEquals(200, response.getStatusCode().value());
     verify(clusterService).deleteCluster(Env.DEV, "SampleApp", "sampleCluster");
   }
 

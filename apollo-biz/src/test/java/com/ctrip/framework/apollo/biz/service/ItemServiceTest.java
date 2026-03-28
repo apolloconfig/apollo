@@ -27,9 +27,11 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,10 +53,19 @@ public class ItemServiceTest extends AbstractIntegrationTest {
   private BizConfig bizConfig;
 
   private ItemService itemService2;
+  private AutoCloseable mocks;
 
   @Before
   public void setUp() throws Exception {
+    mocks = MockitoAnnotations.openMocks(this);
     itemService2 = new ItemService(itemRepository, namespaceService, auditService, bizConfig);
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (mocks != null) {
+      mocks.close();
+    }
   }
 
   @Test
