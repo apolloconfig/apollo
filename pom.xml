@@ -64,7 +64,7 @@
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<apollo-java.version>2.5.0</apollo-java.version>
-		<spring-boot.version>4.0.4</spring-boot.version>
+		<spring-boot.version>4.0.5</spring-boot.version>
 		<spring-cloud.version>2025.1.1</spring-cloud.version>
 		<spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
 		<!-- sort by alphabet -->
