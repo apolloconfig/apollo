@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.common.utils;
 import com.ctrip.framework.apollo.core.utils.ByteUtil;
 import com.ctrip.framework.apollo.core.utils.MachineUtil;
 import com.google.common.base.Joiner;
+import java.util.UUID;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.security.SecureRandom;
@@ -58,5 +59,8 @@ public class UniqueKeyGenerator {
     return bytes;
   }
 
+  public static String generateId() {
+    return UUID.randomUUID().toString().replaceAll("-", "");
+  }
 
 }

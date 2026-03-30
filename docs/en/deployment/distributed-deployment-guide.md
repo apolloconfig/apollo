@@ -1584,6 +1584,18 @@ admin-services.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b90331
 
 The default value is 60, in seconds. Since the key authentication needs to verify the time, there may be time deviation between the time of the client and the time of the server, if the deviation is too large, the authentication will fail, this configuration can configure the tolerated time deviation size, the default is 60 seconds.
 
+### 3.2.8.1 `apollo.access-key.auto-provision.enabled` - Auto-create and enable an AccessKey when a new application is created
+
+> For Apollo 3.0.0 and above
+
+This item is stored in each environment's `ApolloConfigDB.ServerConfig` (same place as `apollo.access-key.auth-time-diff-tolerance`).
+
+The default is `false`. When set to `true`, after an application is created in Portal and synced to that environment's `apollo-adminservice`, the environment will **automatically create one AccessKey** for that app (random secret, FILTER mode, enabled) so clients can connect quickly. If auto-provision fails (for example, the per-app AccessKey limit is reached), only a warning is logged; **application creation is not rolled back**.
+
+```properties
+apollo.access-key.auto-provision.enabled=true
+```
+
 ### 3.2.9 apollo.eureka.server.security.enabled - Configure whether to enable Eureka login authentication
 
 > For version 2.1.0 and above

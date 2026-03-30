@@ -21,6 +21,7 @@ import static com.ctrip.framework.apollo.common.constants.AccessKeyMode.FILTER;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
+import com.ctrip.framework.apollo.common.utils.UniqueKeyGenerator;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AccessKeyService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -28,7 +29,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author nisiyong
@@ -49,9 +49,8 @@ public class AccessKeyController {
   @ApolloAuditLog(type = OpType.CREATE, name = "AccessKey.create")
   public AccessKeyDTO save(@PathVariable String appId, @PathVariable String env,
       @RequestBody AccessKeyDTO accessKeyDTO) {
-    String secret = UUID.randomUUID().toString().replaceAll("-", "");
     accessKeyDTO.setAppId(appId);
-    accessKeyDTO.setSecret(secret);
+    accessKeyDTO.setSecret(UniqueKeyGenerator.generateId());
     return accessKeyService.createAccessKey(Env.valueOf(env), accessKeyDTO);
   }
 

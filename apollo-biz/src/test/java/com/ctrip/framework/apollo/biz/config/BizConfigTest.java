@@ -202,4 +202,12 @@ public class BizConfigTest {
     assertTrue(result.contains("app1"));
     assertTrue(result.contains("app2"));
   }
+
+  @Test
+  public void testIsAccessKeyAutoProvisionEnabled() {
+    assertFalse(bizConfig.isAccessKeyAutoProvisionEnabled());
+
+    when(environment.getProperty("apollo.access-key.auto-provision.enabled")).thenReturn("true");
+    assertTrue(bizConfig.isAccessKeyAutoProvisionEnabled());
+  }
 }

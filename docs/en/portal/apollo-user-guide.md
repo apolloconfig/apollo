@@ -554,6 +554,8 @@ The configuration is very simple. After logging in with your super administrator
 
 Apollo has added an access key mechanism since version 1.6.0, so that only authenticated clients can access sensitive configurations. If the application has access keys enabled, the client needs to configure the keys, otherwise the configuration cannot be accessed.
 
+Starting from 3.0.0, if `apollo.access-key.auto-provision.enabled` is set to `true` in each environment's `ApolloConfigDB.ServerConfig` (see [distributed deployment guide](en/deployment/distributed-deployment-guide?id=_3281-apolloaccess-keyauto-provisionenabled-auto-create-and-enable-an-accesskey-when-a-new-application-is-created)), then after you **create a new application** in Portal and it is synced to that environment, that environment will **automatically create one enabled access key** (random secret, FILTER mode), so you can skip manually creating and enabling a key on the Manage Keys page. If this option is off, follow the steps below as before.
+
 1. The project administrator opens the Manage Keys page
    ![Admin Key Portal](https://user-images.githubusercontent.com/837658/94990081-f4d3cd80-05ab-11eb-9470-fed5ec6de92e.png)
 
