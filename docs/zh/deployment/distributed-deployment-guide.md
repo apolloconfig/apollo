@@ -1524,6 +1524,18 @@ admin-service.access.tokens=098f6bcd4621d373cade4e832627b4f6,ad0234829205b903319
 
 默认值为60，单位为秒。由于密钥认证时需要校验时间，客户端与服务端的时间可能存在时间偏差，如果偏差太大会导致认证失败，此配置可以配置容忍的时间偏差大小，默认为60秒。
 
+### 3.2.8.1 apollo.access-key.auto-provision.enabled - 新建应用时是否自动创建并启用 AccessKey
+
+> 适用于 Apollo 3.0.0 及以上版本
+
+配置项存储在**各环境**的 `ApolloConfigDB.ServerConfig` 中（与 `apollo.access-key.auth-time-diff-tolerance` 相同）。
+
+默认为 `false`。若设为 `true`，在 Portal 创建应用并成功同步到对应环境的 `apollo-adminservice` 后，该环境会为该应用**自动创建一条 AccessKey**（随机密钥、FILTER 模式、已启用），便于客户端快速接入；若自动创建失败（例如已达单应用 AccessKey 数量上限），仅记录告警日志，**不会**回滚应用创建。
+
+```properties
+apollo.access-key.auto-provision.enabled=true
+```
+
 ### 3.2.9 apollo.eureka.server.security.enabled - 配置是否开启eureka server的登录认证
 
 > 适用于2.1.0及以上版本
