@@ -16,12 +16,8 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-import com.ctrip.framework.apollo.biz.config.BizConfig;
-import com.ctrip.framework.apollo.biz.entity.AccessKey;
 import com.ctrip.framework.apollo.biz.entity.Cluster;
-import com.ctrip.framework.apollo.common.constants.AccessKeyMode;
 import com.ctrip.framework.apollo.common.entity.App;
-import com.ctrip.framework.apollo.common.utils.UniqueKeyGenerator;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import java.util.List;
 import java.util.Objects;
@@ -39,19 +35,14 @@ public class AdminService {
   private final AppNamespaceService appNamespaceService;
   private final ClusterService clusterService;
   private final NamespaceService namespaceService;
-  private final AccessKeyService accessKeyService;
-  private final BizConfig bizConfig;
 
   public AdminService(final AppService appService,
       final @Lazy AppNamespaceService appNamespaceService,
-      final @Lazy ClusterService clusterService, final @Lazy NamespaceService namespaceService,
-      final AccessKeyService accessKeyService, final BizConfig bizConfig) {
+      final @Lazy ClusterService clusterService, final @Lazy NamespaceService namespaceService) {
     this.appService = appService;
     this.appNamespaceService = appNamespaceService;
     this.clusterService = clusterService;
     this.namespaceService = namespaceService;
-    this.accessKeyService = accessKeyService;
-    this.bizConfig = bizConfig;
   }
 
   @Transactional
@@ -67,25 +58,7 @@ public class AdminService {
 
     namespaceService.instanceOfAppNamespaces(appId, ConfigConsts.CLUSTER_NAME_DEFAULT, createBy);
 
-    if (bizConfig.isAccessKeyAutoProvisionEnabled()) {
-      provisionDefaultAccessKey(appId, createBy);
-    }
-
-    return app;
-  }
-
-  private void provisionDefaultAccessKey(String appId, String operator) {
-    try {
-      AccessKey accessKey = new AccessKey();
-      accessKey.setAppId(appId);
-      accessKey.setSecret(UniqueKeyGenerator.generateId());
-      accessKey.setMode(AccessKeyMode.FILTER);
-      accessKey.setEnabled(true);
-      accessKey.setDataChangeCreatedBy(operator);
-      accessKeyService.create(appId, accessKey);
-    } catch (Exception e) {
-      logger.warn("Failed to auto-provision access key for appId={}", appId, e);
-    }
+    return createdApp;
   }
 
   @Transactional

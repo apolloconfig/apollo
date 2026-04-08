@@ -17,7 +17,10 @@
 package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.biz.service.AdminService;
+import com.ctrip.framework.apollo.biz.service.AccessKeyService;
 import com.ctrip.framework.apollo.biz.service.AppService;
+import com.ctrip.framework.apollo.biz.entity.AccessKey;
+import com.ctrip.framework.apollo.biz.config.BizConfig;
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
@@ -35,6 +38,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,6 +54,10 @@ public class ControllerExceptionTest {
 
   @Mock
   private AdminService adminService;
+  @Mock
+  private AccessKeyService accessKeyService;
+  @Mock
+  private BizConfig bizConfig;
 
   @Test(expected = NotFoundException.class)
   public void testFindNotExists() {
@@ -90,7 +100,46 @@ public class ControllerExceptionTest {
     when(adminService.createNewApp(any(App.class)))
         .thenThrow(new ServiceException("create app failed"));
 
+    try {
+      appController.create(dto);
+    } finally {
+      verify(accessKeyService, never()).create(any(String.class), any(AccessKey.class));
+    }
+  }
+
+  @Test
+  public void createAutoProvisionAccessKey() {
+    AppDTO dto = generateSampleDTOData();
+    App app = new App();
+    app.setAppId(dto.getAppId());
+    app.setDataChangeCreatedBy(dto.getDataChangeCreatedBy());
+
+    when(appService.findOne(any(String.class))).thenReturn(null);
+    when(adminService.createNewApp(any(App.class))).thenReturn(app);
+    when(bizConfig.isAccessKeyAutoProvisionEnabled()).thenReturn(true);
+
     appController.create(dto);
+
+    verify(accessKeyService).create(eq(dto.getAppId()), any(AccessKey.class));
+  }
+
+  @Test
+  public void createAutoProvisionAccessKeyFailedShouldNotAffectAppCreation() {
+    AppDTO dto = generateSampleDTOData();
+    App app = new App();
+    app.setAppId(dto.getAppId());
+    app.setDataChangeCreatedBy(dto.getDataChangeCreatedBy());
+
+    when(appService.findOne(any(String.class))).thenReturn(null);
+    when(adminService.createNewApp(any(App.class))).thenReturn(app);
+    when(bizConfig.isAccessKeyAutoProvisionEnabled()).thenReturn(true);
+    when(accessKeyService.create(any(String.class), any(AccessKey.class)))
+        .thenThrow(new RuntimeException("simulated accesskey provision failure"));
+
+    AppDTO created = appController.create(dto);
+
+    Assert.assertEquals(dto.getAppId(), created.getAppId());
+    verify(accessKeyService).create(eq(dto.getAppId()), any(AccessKey.class));
   }
 
   private AppDTO generateSampleDTOData() {

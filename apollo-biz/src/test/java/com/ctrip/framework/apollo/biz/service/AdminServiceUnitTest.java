@@ -16,27 +16,21 @@
  */
 package com.ctrip.framework.apollo.biz.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ctrip.framework.apollo.biz.config.BizConfig;
-import com.ctrip.framework.apollo.biz.entity.AccessKey;
-import com.ctrip.framework.apollo.common.constants.AccessKeyMode;
 import com.ctrip.framework.apollo.common.entity.App;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * Unit tests for {@link AdminService#createNewApp} access-key auto-provision behavior.
+ * Unit tests for {@link AdminService#createNewApp}.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AdminServiceUnitTest {
@@ -52,45 +46,34 @@ public class AdminServiceUnitTest {
   private ClusterService clusterService;
   @Mock
   private NamespaceService namespaceService;
-  @Mock
-  private BizConfig bizConfig;
-  @Mock
-  private AccessKeyService accessKeyService;
 
   private AdminService adminService;
 
   @Before
   public void setUp() {
-    adminService = new AdminService(appService, appNamespaceService, clusterService,
-        namespaceService, accessKeyService, bizConfig);
+    adminService =
+        new AdminService(appService, appNamespaceService, clusterService, namespaceService);
   }
 
   @Test
-  public void createNewApp_whenAutoProvisionDisabled_doesNotCreateAccessKey() {
-    when(bizConfig.isAccessKeyAutoProvisionEnabled()).thenReturn(false);
+  public void createNewApp_createsDefaultAppStructure() {
     App saved = savedApp();
     when(appService.save(any(App.class))).thenReturn(saved);
 
     adminService.createNewApp(inputApp());
 
-    verify(accessKeyService, never()).create(any(String.class), any(AccessKey.class));
+    verify(appNamespaceService).createDefaultAppNamespace(APP_ID, OPERATOR);
+    verify(clusterService).createDefaultCluster(APP_ID, OPERATOR);
+    verify(namespaceService).instanceOfAppNamespaces(APP_ID, "default", OPERATOR);
   }
 
   @Test
-  public void createNewApp_whenAutoProvisionEnabled_createsEnabledFilterModeAccessKey() {
-    when(bizConfig.isAccessKeyAutoProvisionEnabled()).thenReturn(true);
+  public void createNewApp_returnsSavedAppEntity() {
     App saved = savedApp();
     when(appService.save(any(App.class))).thenReturn(saved);
 
-    adminService.createNewApp(inputApp());
-
-    ArgumentCaptor<AccessKey> captor = ArgumentCaptor.forClass(AccessKey.class);
-    verify(accessKeyService).create(eq(APP_ID), captor.capture());
-    AccessKey created = captor.getValue();
-    assertEquals(AccessKeyMode.FILTER, created.getMode());
-    assertEquals(true, created.isEnabled());
-    assertEquals(OPERATOR, created.getDataChangeCreatedBy());
-    assertEquals(32, created.getSecret().length());
+    App created = adminService.createNewApp(inputApp());
+    assertSame(saved, created);
   }
 
   private App inputApp() {
