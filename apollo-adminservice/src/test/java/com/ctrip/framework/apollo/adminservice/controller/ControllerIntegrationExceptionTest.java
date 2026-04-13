@@ -42,6 +42,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
@@ -124,6 +126,7 @@ public class ControllerIntegrationExceptionTest extends AbstractControllerTest {
     App savedApp = appService.findOne(dto.getAppId());
     Assert.assertNotNull(savedApp);
     Assert.assertEquals(dto.getAppId(), savedApp.getAppId());
+    verify(accessKeyService).create(eq(dto.getAppId()), any(AccessKey.class));
   }
 
   private AppDTO generateSampleDTOData() {
