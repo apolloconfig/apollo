@@ -20,9 +20,11 @@ import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import com.ctrip.framework.apollo.biz.service.ServerConfigService;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -45,5 +47,10 @@ public class ServerConfigController {
   @PostMapping("/server/config")
   public ServerConfig createOrUpdatePortalDBConfig(@Valid @RequestBody ServerConfig serverConfig) {
     return serverConfigService.createOrUpdateConfig(serverConfig);
+  }
+
+  @DeleteMapping("/server/config")
+  public void deleteConfig(@RequestParam String key, @RequestParam String operator) {
+    serverConfigService.deleteConfig(key, operator);
   }
 }

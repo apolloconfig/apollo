@@ -49,6 +49,7 @@ public class ServerConfig extends BaseEntity {
   private String value;
 
   @Column(name = "`Comment`", nullable = false)
+  @ApolloAuditLogDataInfluenceTableField(fieldName = "comment")
   private String comment;
 
   public String getKey() {

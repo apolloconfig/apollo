@@ -33,6 +33,8 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     $scope.configEdit = configEdit;
     $scope.createPortalDBConfig = createPortalDBConfig;
     $scope.createConfigDBConfig = createConfigDBConfig;
+    $scope.deletePortalDBConfig = deletePortalDBConfig;
+    $scope.deleteConfigDBConfig = deleteConfigDBConfig;
     $scope.gobackPortalDBTabs = gobackPortalDBTabs;
     $scope.gobackConfigDBTabs = gobackConfigDBTabs;
     $scope.portalDBConfigFilter = portalDBConfigFilter;
@@ -134,6 +136,30 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
         }, function (result) {
             toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.SaveFailed'));
         });
+    }
+
+    function deletePortalDBConfig(config) {
+        var confirmTips = $translate.instant('ServiceConfig.DeleteConfirm', {key: config.key});
+        if (confirm(confirmTips)) {
+            ServerConfigService.deletePortalDBConfig(config.key).then(function () {
+                toastr.success($translate.instant('ServiceConfig.Deleted'));
+                getPortalDBConfig();
+            }, function (result) {
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+            });
+        }
+    }
+
+    function deleteConfigDBConfig(config) {
+        var confirmTips = $translate.instant('ServiceConfig.DeleteConfirm', {key: config.key});
+        if (confirm(confirmTips)) {
+            ServerConfigService.deleteConfigDBConfig($scope.selectedEnv, config.key).then(function () {
+                toastr.success($translate.instant('ServiceConfig.Deleted'));
+                getConfigDBConfig();
+            }, function (result) {
+                toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+            });
+        }
     }
 
 

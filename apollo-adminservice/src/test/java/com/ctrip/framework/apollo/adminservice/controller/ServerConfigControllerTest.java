@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -73,5 +74,19 @@ class ServerConfigControllerTest extends AbstractControllerTest {
     assertNotNull(serverConfigs);
     assertEquals(2, serverConfigs.length);
 
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-server-config.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  void deleteConfig() {
+    restTemplate.exchange(url("/server/config?key=name&operator=apollo"), HttpMethod.DELETE, null,
+        Void.class);
+
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(serverConfigs);
+    assertEquals(0, serverConfigs.length);
   }
 }

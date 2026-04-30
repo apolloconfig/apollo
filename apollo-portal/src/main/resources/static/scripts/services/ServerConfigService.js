@@ -24,6 +24,14 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             method: 'POST',
             url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config'
         },
+        delete_portal_db_config: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/server/portal-db/config'
+        },
+        delete_config_db_config: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config'
+        },
         find_portal_db_config: {
             method: 'GET',
             isArray: true,
@@ -50,6 +58,24 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         createConfigDBConfig: function (env, serverConfig) {
             let d = $q.defer();
             server_config_resource.create_config_db_config({env:env}, serverConfig, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        deletePortalDBConfig: function (key) {
+            let d = $q.defer();
+            server_config_resource.delete_portal_db_config({key: key}, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        deleteConfigDBConfig: function (env, key) {
+            let d = $q.defer();
+            server_config_resource.delete_config_db_config({env: env, key: key}, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);
