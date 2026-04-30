@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.service;
 
 
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ServerConfigAPI;
@@ -78,5 +79,24 @@ public class ServerConfigService {
     serverConfig.setDataChangeCreatedBy(modifiedBy);
     serverConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigAPI.createOrUpdateConfigDBConfig(env, serverConfig);
+  }
+
+  @Transactional
+  public void deletePortalDBConfig(String key) {
+    String modifiedBy = userInfoHolder.getUser().getUserId();
+    ServerConfig storedConfig = serverConfigRepository.findByKey(key);
+
+    if (Objects.isNull(storedConfig)) {
+      throw new NotFoundException("server config not found for key:%s", key);
+    }
+
+    storedConfig.setDeleted(true);
+    storedConfig.setDataChangeLastModifiedBy(modifiedBy);
+    serverConfigRepository.save(storedConfig);
+  }
+
+  public void deleteConfigDBConfig(Env env, String key) {
+    String modifiedBy = userInfoHolder.getUser().getUserId();
+    serverConfigAPI.deleteConfigDBConfig(env, key, modifiedBy);
   }
 }

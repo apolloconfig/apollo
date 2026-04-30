@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.biz.service;
 
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import com.ctrip.framework.apollo.biz.repository.ServerConfigRepository;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +62,19 @@ public class ServerConfigService {
     storedConfig.setValue(serverConfig.getValue());
 
     return serverConfigRepository.save(storedConfig);
+  }
+
+  @Transactional
+  public void deleteConfig(String key, String operator) {
+    ServerConfig storedConfig = serverConfigRepository.findByKey(key);
+
+    if (Objects.isNull(storedConfig)) {
+      throw new NotFoundException("server config not found for key:%s", key);
+    }
+
+    storedConfig.setDeleted(true);
+    storedConfig.setDataChangeLastModifiedBy(operator);
+    serverConfigRepository.save(storedConfig);
   }
 
 }

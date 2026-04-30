@@ -34,6 +34,7 @@ import java.util.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -97,5 +98,19 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     Assert.assertNotNull(serverConfigList);
     Assert.assertEquals(0, serverConfigList.size());
 
+  }
+
+  @Test
+  public void deletePortalDBConfig() {
+    serverConfigController.deletePortalDBConfig("timeout");
+
+    verify(serverConfigService).deletePortalDBConfig("timeout");
+  }
+
+  @Test
+  public void deleteConfigDBConfig() {
+    serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), "timeout");
+
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, "timeout");
   }
 }
