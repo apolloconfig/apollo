@@ -18,7 +18,6 @@ merge_queue:
 
 queue_rules:
   - name: single-commit
-    autoqueue: true
     batch_size: 1
     merge_method: rebase
     queue_conditions: &single_commit_conditions
@@ -37,7 +36,6 @@ queue_rules:
     merge_conditions: *single_commit_conditions
 
   - name: multi-commit
-    autoqueue: true
     batch_size: 1
     merge_method: squash
     queue_conditions: &multi_commit_conditions
@@ -63,3 +61,6 @@ pull_request_rules:
     actions:
       comment:
         message: "@{{author}} This pull request has conflicts with the target branch. Please resolve them and update the branch before merging."
+merge_protections_settings:
+  auto_merge_conditions: true
+  reporting_method: check-runs
