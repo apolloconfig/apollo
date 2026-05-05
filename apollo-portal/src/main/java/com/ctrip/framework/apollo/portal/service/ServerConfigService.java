@@ -79,4 +79,32 @@ public class ServerConfigService {
     serverConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigAPI.createOrUpdateConfigDBConfig(env, serverConfig);
   }
+
+  /**
+   * Delete ServerConfig from Portal DB by key
+   *
+   * @param key the configuration key to delete
+   * @return true if deletion was successful, false if key not found
+   */
+  @Transactional
+  public boolean deletePortalDBConfig(String key) {
+    ServerConfig storedConfig = serverConfigRepository.findByKey(key);
+    if (Objects.isNull(storedConfig)) {
+      return false;
+    }
+    serverConfigRepository.deleteById(storedConfig.getId());
+    return true;
+  }
+
+  /**
+   * Delete ServerConfig from Config DB by key and environment
+   *
+   * @param env the environment
+   * @param key the configuration key to delete
+   * @return true if deletion was successful, false if key not found
+   */
+  @Transactional
+  public boolean deleteConfigDBConfig(Env env, String key) {
+    return serverConfigAPI.deleteConfigDBConfig(env, key);
+  }
 }

@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +68,20 @@ public class ServerConfigController {
   @GetMapping("/server/envs/{env}/config-db/config/find-all-config")
   public List<ServerConfig> findAllConfigDBServerConfig(@PathVariable String env) {
     return serverConfigService.findAllConfigDBConfig(Env.transformEnv(env));
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @DeleteMapping("/server/portal-db/config/{key}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deletePortalDBConfig")
+  public boolean deletePortalDBConfig(@PathVariable String key) {
+    return serverConfigService.deletePortalDBConfig(key);
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @DeleteMapping("/server/envs/{env}/config-db/config/{key}")
+  @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deleteConfigDBConfig")
+  public boolean deleteConfigDBConfig(@PathVariable String env, @PathVariable String key) {
+    return serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key);
   }
 
 }
