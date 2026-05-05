@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 
@@ -74,4 +75,29 @@ class ServerConfigControllerTest extends AbstractControllerTest {
     assertEquals(2, serverConfigs.length);
 
   }
-}
+
+  /**
+   * Test DELETE operation for server configuration
+   * Verifies that deletion removes the config from the database
+   */
+  @Test
+  @Sql(scripts = "/controller/test-server-config.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  void deleteConfig() {
+    // Verify config exists before deletion
+    ServerConfig[] beforeDelete =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(beforeDelete);
+    assertEquals(1, beforeDelete.length);
+
+    // Execute delete
+    restTemplate.exchange(url("/server/config?key=name&operator=apollo"), HttpMethod.DELETE, null,
+        Void.class);
+
+    // Verify config is deleted
+    ServerConfig[] afterDelete =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(afterDelete);
+    assertEquals(0, afterDelete.length);
+  }

@@ -35,6 +35,14 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             isArray: true,
             url: AppUtil.prefixPath()
                 + '/server/envs/:env/config-db/config/find-all-config'
+        },
+        delete_portal_db_config: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/server/portal-db/config/:key'
+        },
+        delete_config_db_config: {
+            method: 'DELETE',
+            url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config/:key'
         }
     });
     return {
@@ -69,6 +77,35 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
         findConfigDBConfig:function (env){
             let d = $q.defer();
             server_config_resource.find_config_db_config({env: env}, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        /**
+         * Delete portal database server configuration
+         * @param key configuration key to delete
+         * @returns promise
+         */
+        deletePortalDBConfig:function (key){
+            let d = $q.defer();
+            server_config_resource.delete_portal_db_config({key: key}, function (result) {
+                d.resolve(result);
+            }, function (result) {
+                d.reject(result);
+            });
+            return d.promise;
+        },
+        /**
+         * Delete config database server configuration
+         * @param env environment name
+         * @param key configuration key to delete
+         * @returns promise
+         */
+        deleteConfigDBConfig:function (env, key){
+            let d = $q.defer();
+            server_config_resource.delete_config_db_config({env: env, key: key}, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);

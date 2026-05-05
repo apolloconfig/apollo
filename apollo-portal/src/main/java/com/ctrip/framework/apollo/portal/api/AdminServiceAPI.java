@@ -604,6 +604,24 @@ public class AdminServiceAPI {
     public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig) {
       return restTemplate.post(env, "/server/config", serverConfig, ServerConfig.class);
     }
+
+    /**
+     * Delete a server configuration via admin service
+     *
+     * @param env the environment
+     * @param key the configuration key to delete
+     * @return true if deletion was successful
+     */
+    @ApolloAuditLog(type = OpType.RPC, name = "ServerConfig.deleteConfigDBConfigInRemote")
+    public boolean deleteConfigDBConfig(Env env, String key) {
+      try {
+        String operator = "apollo";
+        restTemplate.delete(env, "/server/config?key={key}&operator={operator}", key, operator);
+        return true;
+      } catch (Exception e) {
+        return false;
+      }
+    }
   }
 
 }

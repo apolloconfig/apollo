@@ -63,4 +63,22 @@ public class ServerConfigService {
     return serverConfigRepository.save(storedConfig);
   }
 
+  /**
+   * Delete a server configuration by key
+   * Uses soft-delete: marks as deleted via @SQLDelete annotation
+   *
+   * @param key the configuration key to delete
+   * @param operator the operator who performs the deletion
+   * @throws IllegalArgumentException if config not found
+   */
+  @Transactional
+  public void deleteConfig(String key, String operator) {
+    ServerConfig config = serverConfigRepository.findByKey(key);
+    if (Objects.isNull(config)) {
+      throw new IllegalArgumentException("ServerConfig not found: " + key);
+    }
+    config.setDataChangeLastModifiedBy(operator);
+    serverConfigRepository.deleteById(config.getId());
+  }
+
 }

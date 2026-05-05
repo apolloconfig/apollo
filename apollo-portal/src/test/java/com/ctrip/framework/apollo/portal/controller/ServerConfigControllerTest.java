@@ -98,4 +98,36 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     Assert.assertEquals(0, serverConfigList.size());
 
   }
+
+  /**
+   * Test DELETE operation for portal DB config
+   */
+  @Test
+  @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeletePortalDBConfig() {
+    // Create config first
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey("deleteKey");
+    serverConfig.setValue("deleteValue");
+    restTemplate.postForEntity(url("/server/portal-db/config"), serverConfig, ServerConfig.class);
+
+    // Execute delete
+    restTemplate.delete(url("/server/portal-db/config/deleteKey"));
+
+    // Verify deletion
+    List<ServerConfig> configs = restTemplate.getForObject(
+        url("/server/portal-db/config/find-all-config"), List.class);
+    Assert.assertNotNull(configs);
+    Assert.assertEquals(0, configs.size());
+  }
+
+  /**
+   * Test DELETE operation for config DB config
+   */
+  @Test
+  public void testDeleteConfigDBConfig() {
+    when(serverConfigService.deleteConfigDBConfig(Env.DEV, "testKey")).thenReturn(true);
+    boolean result = serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), "testKey");
+    Assert.assertTrue(result);
+  }
 }

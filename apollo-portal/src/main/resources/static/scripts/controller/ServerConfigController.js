@@ -182,4 +182,41 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
         $scope.configDBConfigSearchKey = '';
         configDBConfigFilter();
     }
+
+    /**
+     * Delete portal database configuration
+     * @param config the configuration object to delete
+     */
+    function deletePortalDBConfig(config) {
+        if (!$window.confirm('Are you sure you want to delete config: ' + config.key + '?')) {
+            return;
+        }
+        
+        ServerConfigService.deletePortalDBConfig(config.key).then(function (result) {
+            toastr.success($translate.instant('ServiceConfig.Deleted'));
+            getPortalDBConfig();
+        }, function (result) {
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+        });
+    }
+
+    /**
+     * Delete config database configuration
+     * @param config the configuration object to delete
+     */
+    function deleteConfigDBConfig(config) {
+        if (!$window.confirm('Are you sure you want to delete config: ' + config.key + '?')) {
+            return;
+        }
+        
+        ServerConfigService.deleteConfigDBConfig($scope.selectedEnv, config.key).then(function (result) {
+            toastr.success($translate.instant('ServiceConfig.Deleted'));
+            getConfigDBConfig();
+        }, function (result) {
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+        });
+    }
+
+    $scope.deletePortalDBConfig = deletePortalDBConfig;
+    $scope.deleteConfigDBConfig = deleteConfigDBConfig;
 }
