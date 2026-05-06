@@ -34,6 +34,10 @@ import java.util.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -108,9 +112,103 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
   }
 
   @Test
-  public void deleteConfigDBConfig() {
-    serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), "timeout");
+  public void createConfigDBConfigShouldPassKeyAndClusterForNewClusterWhenSameKeyExists() {
+    String key = "timeout";
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey(key);
+    serverConfig.setCluster("SHAJQ");
+    serverConfig.setValue("clusterValue");
 
-    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, "timeout");
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig)).thenReturn(serverConfig);
+
+    ServerConfig result = serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
+
+    Assert.assertNotNull(result);
+    Assert.assertEquals(key, result.getKey());
+    Assert.assertEquals("SHAJQ", result.getCluster());
+    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
+    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(
+        eq(Env.DEV),
+        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
   }
+
+  @Test
+  public void updateConfigDBConfigShouldPassTargetKeyAndClusterWhenSameKeyExists() {
+    String key = "timeout";
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey(key);
+    serverConfig.setCluster("SHAJQ");
+    serverConfig.setValue("clusterValueUpdated");
+
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig)).thenReturn(serverConfig);
+
+    ServerConfig result = serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
+
+    Assert.assertNotNull(result);
+    Assert.assertEquals(key, result.getKey());
+    Assert.assertEquals("SHAJQ", result.getCluster());
+    Assert.assertEquals("clusterValueUpdated", result.getValue());
+    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
+    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(
+        eq(Env.DEV),
+        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
+  }
+
+  @Test
+  public void deleteConfigDBConfig() {
+    serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), "timeout", "default");
+
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, "timeout", "default");
+  }
+
+  @Test
+  public void deleteConfigDBConfigShouldTargetSpecifiedClusterWhenSameKeyExists() {
+    String key = "timeout";
+
+    serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), key, "SHAJQ");
+
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ");
+    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default");
+  }
+
+  @Test
+  public void createUpdateDeleteConfigDBConfigShouldRespectKeyAndClusterIdentity() {
+    String key = "timeout";
+    ServerConfig defaultConfig = new ServerConfig();
+    defaultConfig.setKey(key);
+    defaultConfig.setCluster("default");
+    defaultConfig.setValue("defaultValue");
+
+    ServerConfig shajqConfig = new ServerConfig();
+    shajqConfig.setKey(key);
+    shajqConfig.setCluster("SHAJQ");
+    shajqConfig.setValue("clusterValue");
+
+    ServerConfig shajqConfigUpdated = new ServerConfig();
+    shajqConfigUpdated.setKey(key);
+    shajqConfigUpdated.setCluster("SHAJQ");
+    shajqConfigUpdated.setValue("clusterValueUpdated");
+
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, defaultConfig)).thenReturn(defaultConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfig)).thenReturn(shajqConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfigUpdated))
+        .thenReturn(shajqConfigUpdated);
+
+    serverConfigController.createOrUpdateConfigDBConfig(defaultConfig, Env.DEV.getName());
+    serverConfigController.createOrUpdateConfigDBConfig(shajqConfig, Env.DEV.getName());
+    serverConfigController.createOrUpdateConfigDBConfig(shajqConfigUpdated, Env.DEV.getName());
+    serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), key, "SHAJQ");
+
+    verify(serverConfigService, times(1)).createOrUpdateConfigDBConfig(
+        eq(Env.DEV),
+        argThat(config -> config != null && key.equals(config.getKey())
+            && "default".equals(config.getCluster())));
+    verify(serverConfigService, times(2)).createOrUpdateConfigDBConfig(
+        eq(Env.DEV),
+        argThat(config -> config != null && key.equals(config.getKey())
+            && "SHAJQ".equals(config.getCluster())));
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ");
+    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default");
+  }
+
 }

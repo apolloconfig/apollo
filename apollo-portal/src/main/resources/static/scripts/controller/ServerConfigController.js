@@ -25,16 +25,21 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     $scope.portalDBFilterConfigs = [];
     $scope.configDBConfigs = [];
     $scope.configDBFilterConfigs = [];
+    $scope.configDBClusters = ['default'];
+    $scope.showCustomConfigDBCluster = false;
+    $scope.selectedConfigDBCluster = 'default';
     $scope.envs = [];
     $scope.selectedEnv = '';
     $scope.displayModule = 'home';
     $scope.portalDBConfigSearchKey = '';
     $scope.configDBConfigSearchKey = '';
+    $scope.toDeleteConfigDBConfig = {};
     $scope.configEdit = configEdit;
     $scope.createPortalDBConfig = createPortalDBConfig;
     $scope.createConfigDBConfig = createConfigDBConfig;
     $scope.deletePortalDBConfig = deletePortalDBConfig;
     $scope.deleteConfigDBConfig = deleteConfigDBConfig;
+    $scope.confirmDeleteConfigDBConfig = confirmDeleteConfigDBConfig;
     $scope.gobackPortalDBTabs = gobackPortalDBTabs;
     $scope.gobackConfigDBTabs = gobackConfigDBTabs;
     $scope.portalDBConfigFilter = portalDBConfigFilter;
@@ -42,6 +47,8 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     $scope.resetPortalDBConfigSearchKey = resetPortalDBConfigSearchKey;
     $scope.resetConfigDBConfigSearchKey = resetConfigDBConfigSearchKey;
     $scope.switchConfigDBEnvs = switchConfigDBEnvs;
+    $scope.useCustomConfigDBCluster = useCustomConfigDBCluster;
+    $scope.useConfigDBClusterSelect = useConfigDBClusterSelect;
 
     $scope.allowSwitchingTabs = true;
 
@@ -90,25 +97,59 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
                 $scope.configDBConfigs.push(user);
                 $scope.configDBFilterConfigs.push(user);
             });
+            refreshConfigDBClusters(result);
         },function (result) {
             $scope.configDBConfigs = [];
             $scope.configDBFilterConfigs = [];
+            refreshConfigDBClusters([]);
             toastr.error(AppUtil.errorMsg(result), $translate.instant('Config.SystemError'));
         });
     }
 
-    function configEdit (displayModule,config) {
+    function refreshConfigDBClusters(configs) {
+        var clusters = ['default'];
+        configs.forEach(function (config) {
+            if (config.cluster && clusters.indexOf(config.cluster) < 0) {
+                clusters.push(config.cluster);
+            }
+        });
+        $scope.configDBClusters = clusters;
+    }
+
+    function configEdit (displayModule, config, isConfigDB) {
         $scope.displayModule = displayModule;
         $scope.allowSwitchingTabs = false;
+        $scope.showCustomConfigDBCluster = false;
 
         $scope.serverConfig = {};
         if (config != null) {
+            var cluster = config.cluster || 'default';
             $scope.serverConfig = {
                 key: config.key,
+                cluster: cluster,
                 value: config.value,
                 comment: config.comment
             };
+            $scope.selectedConfigDBCluster = cluster;
+        } else if (isConfigDB) {
+            $scope.serverConfig.cluster = 'default';
+            $scope.selectedConfigDBCluster = 'default';
         }
+    }
+
+    function useCustomConfigDBCluster() {
+        $scope.showCustomConfigDBCluster = true;
+        if ($scope.serverConfig.cluster === 'default') {
+            $scope.serverConfig.cluster = '';
+        }
+    }
+
+    function useConfigDBClusterSelect() {
+        $scope.showCustomConfigDBCluster = false;
+        if (!$scope.serverConfig.cluster) {
+            $scope.serverConfig.cluster = 'default';
+        }
+        $scope.selectedConfigDBCluster = $scope.serverConfig.cluster;
     }
 
     function switchConfigDBEnvs(env) {
@@ -128,6 +169,9 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     }
 
     function createConfigDBConfig() {
+        if (!$scope.showCustomConfigDBCluster) {
+            $scope.serverConfig.cluster = $scope.selectedConfigDBCluster || 'default';
+        }
         ServerConfigService.createConfigDBConfig($scope.selectedEnv, $scope.serverConfig).then(function (result) {
             toastr.success($translate.instant('ServiceConfig.Saved'));
             getConfigDBConfig();
@@ -151,15 +195,25 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     }
 
     function deleteConfigDBConfig(config) {
-        var confirmTips = $translate.instant('ServiceConfig.DeleteConfirm', {key: config.key});
-        if (confirm(confirmTips)) {
-            ServerConfigService.deleteConfigDBConfig($scope.selectedEnv, config.key).then(function () {
-                toastr.success($translate.instant('ServiceConfig.Deleted'));
-                getConfigDBConfig();
-            }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
-            });
-        }
+        $scope.toDeleteConfigDBConfig = {
+            key: config.key,
+            cluster: config.cluster || 'default'
+        };
+        $('#deleteConfigDBConfirmDialog').modal('show');
+    }
+
+    function confirmDeleteConfigDBConfig() {
+        ServerConfigService.deleteConfigDBConfig(
+            $scope.selectedEnv,
+            $scope.toDeleteConfigDBConfig.key,
+            $scope.toDeleteConfigDBConfig.cluster
+        ).then(function () {
+            toastr.success($translate.instant('ServiceConfig.Deleted'));
+            getConfigDBConfig();
+            $scope.toDeleteConfigDBConfig = {};
+        }, function (result) {
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+        });
     }
 
 

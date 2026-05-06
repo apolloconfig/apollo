@@ -95,8 +95,8 @@ public class ServerConfigService {
     serverConfigRepository.save(storedConfig);
   }
 
-  public void deleteConfigDBConfig(Env env, String key) {
+  public void deleteConfigDBConfig(Env env, String key, String cluster) {
     String modifiedBy = userInfoHolder.getUser().getUserId();
-    serverConfigAPI.deleteConfigDBConfig(env, key, modifiedBy);
+    serverConfigAPI.deleteConfigDBConfig(env, key, cluster, modifiedBy);
   }
 }

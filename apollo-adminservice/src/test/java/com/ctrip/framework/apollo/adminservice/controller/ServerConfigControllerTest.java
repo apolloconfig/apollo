@@ -77,16 +77,89 @@ class ServerConfigControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  @Sql(scripts = "/controller/test-server-config-multi-cluster.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  void createConfigShouldUseKeyAndClusterAsIdentity() {
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey("name");
+    serverConfig.setCluster("FAT");
+    serverConfig.setValue("fatValue");
+
+    ServerConfig response =
+        restTemplate.postForObject(url("/server/config"), serverConfig, ServerConfig.class);
+    assertNotNull(response);
+
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(serverConfigs);
+    assertEquals(3, serverConfigs.length);
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-server-config-multi-cluster.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  void updateConfigShouldOnlyAffectTargetClusterWhenSameKeyExists() {
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey("name");
+    serverConfig.setCluster("SHAJQ");
+    serverConfig.setValue("clusterValueUpdated");
+
+    ServerConfig response =
+        restTemplate.postForObject(url("/server/config"), serverConfig, ServerConfig.class);
+    assertNotNull(response);
+
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(serverConfigs);
+    assertEquals(2, serverConfigs.length);
+
+    ServerConfig defaultConfig = null;
+    ServerConfig shajqConfig = null;
+    for (ServerConfig config : serverConfigs) {
+      if ("default".equals(config.getCluster())) {
+        defaultConfig = config;
+      }
+      if ("SHAJQ".equals(config.getCluster())) {
+        shajqConfig = config;
+      }
+    }
+
+    assertNotNull(defaultConfig);
+    assertEquals("defaultValue", defaultConfig.getValue());
+    assertNotNull(shajqConfig);
+    assertEquals("clusterValueUpdated", shajqConfig.getValue());
+  }
+
+  @Test
   @Sql(scripts = "/controller/test-server-config.sql",
       executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   void deleteConfig() {
-    restTemplate.exchange(url("/server/config?key=name&operator=apollo"), HttpMethod.DELETE, null,
-        Void.class);
+    restTemplate.exchange(url("/server/config?key=name&cluster=default&operator=apollo"),
+        HttpMethod.DELETE, null, Void.class);
 
     ServerConfig[] serverConfigs =
         restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
     assertNotNull(serverConfigs);
     assertEquals(0, serverConfigs.length);
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-server-config-multi-cluster.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  void deleteConfigShouldOnlyDeleteTargetClusterWhenSameKeyExists() {
+    restTemplate.exchange(url("/server/config?key=name&cluster=SHAJQ&operator=apollo"),
+        HttpMethod.DELETE, null, Void.class);
+
+    ServerConfig[] serverConfigs =
+        restTemplate.getForObject(url("/server/config/find-all-config"), ServerConfig[].class);
+    assertNotNull(serverConfigs);
+    assertEquals(1, serverConfigs.length);
+    assertEquals("name", serverConfigs[0].getKey());
+    assertEquals("default", serverConfigs[0].getCluster());
+    assertEquals("defaultValue", serverConfigs[0].getValue());
   }
 }

@@ -69,8 +69,9 @@ public class ServerConfigController {
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @DeleteMapping("/server/envs/{env}/config-db/config")
   @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deleteConfigDBConfig")
-  public void deleteConfigDBConfig(@PathVariable String env, @RequestParam String key) {
-    serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key);
+  public void deleteConfigDBConfig(@PathVariable String env, @RequestParam String key,
+      @RequestParam String cluster) {
+    serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key, cluster);
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")

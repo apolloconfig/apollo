@@ -50,7 +50,8 @@ public class ServerConfigController {
   }
 
   @DeleteMapping("/server/config")
-  public void deleteConfig(@RequestParam String key, @RequestParam String operator) {
-    serverConfigService.deleteConfig(key, operator);
+  public void deleteConfig(@RequestParam String key, @RequestParam String cluster,
+      @RequestParam String operator) {
+    serverConfigService.deleteConfig(key, cluster, operator);
   }
 }

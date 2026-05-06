@@ -45,14 +45,15 @@ public class ServerConfigService {
 
   @Transactional
   public ServerConfig createOrUpdateConfig(ServerConfig serverConfig) {
+    if (Objects.isNull(serverConfig.getCluster())) {
+      serverConfig.setCluster("default");
+    }
 
-    ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
+    ServerConfig storedConfig =
+        serverConfigRepository.findTopByKeyAndCluster(serverConfig.getKey(), serverConfig.getCluster());
 
     if (Objects.isNull(storedConfig)) {// create
       serverConfig.setId(0L);// 为空，设置ID 为0，jpa执行新增操作
-      if (Objects.isNull(serverConfig.getCluster())) {
-        serverConfig.setCluster("default");
-      }
       return serverConfigRepository.save(serverConfig);
     }
 
@@ -65,11 +66,11 @@ public class ServerConfigService {
   }
 
   @Transactional
-  public void deleteConfig(String key, String operator) {
-    ServerConfig storedConfig = serverConfigRepository.findByKey(key);
+  public void deleteConfig(String key, String cluster, String operator) {
+    ServerConfig storedConfig = serverConfigRepository.findTopByKeyAndCluster(key, cluster);
 
     if (Objects.isNull(storedConfig)) {
-      throw new NotFoundException("server config not found for key:%s", key);
+      throw new NotFoundException("server config not found for key:%s, cluster:%s", key, cluster);
     }
 
     storedConfig.setDeleted(true);

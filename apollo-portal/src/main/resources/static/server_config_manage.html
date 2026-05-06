@@ -136,7 +136,13 @@
                                               ng-model="serverConfig.comment"></textarea>
                                             </div>
                                         </div>
-
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-9">
+                                                <div class="alert alert-warning" style="margin-bottom: 0;">
+                                                    {{'ServiceConfig.PortalDB.EditChangeKeyCreatesNewTip' | translate }}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <div class="col-sm-offset-2 col-sm-10">
                                                 <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
@@ -181,7 +187,13 @@
                                               ng-model="serverConfig.comment"></textarea>
                                             </div>
                                         </div>
-
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-9">
+                                                <div class="alert alert-warning" style="margin-bottom: 0;">
+                                                    {{'ServiceConfig.PortalDB.AddKeyExistsOverwriteTip' | translate }}
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
                                             <div class="col-sm-offset-2 col-sm-10">
                                                 <button type="submit" class="btn btn-primary" ng-disabled="appForm.$invalid || submitBtnDisabled">
@@ -225,7 +237,7 @@
                                     <hr/>
                                     <div class="row">
                                         <div class="col-md-6">
-                                            <button type="button" ng-click="configEdit('add')"
+                                            <button type="button" ng-click="configEdit('add', null, true)"
                                                     class="btn btn-primary">
                                                 {{'Config.Add' | translate }}
                                             </button>
@@ -250,17 +262,19 @@
 
                                 <table class="table table-bordered table-striped table-hover">
                                     <tr>
+                                        <th style="text-align: left">{{'Common.Cluster' | translate }}</th>
                                         <th style="text-align: left">{{'Config.Key' | translate }}</th>
                                         <th style="text-align: left">{{'Config.Value' | translate }}</th>
                                         <th style="text-align: left">{{'Config.Comment' | translate }}</th>
                                         <th style="text-align: left">{{'Config.Operation' | translate }}</th>
                                     </tr>
                                     <tr ng-repeat="config in configDBFilterConfigs" href="#" class="hover cursor-pointer">
+                                        <td>{{ config.cluster || 'default' }}</td>
                                         <td>{{ config.key }}</td>
                                         <td>{{ config.value }}</td>
                                         <td>{{ config.comment }}</td>
                                         <td>
-                                    <span class="btn btn-primary" ng-click="configEdit('edit', config)">
+                                    <span class="btn btn-primary" ng-click="configEdit('edit', config, true)">
                                         {{'UserMange.Edit' | translate }}
                                     </span>
                                     <span class="btn btn-danger" ng-click="deleteConfigDBConfig(config)">
@@ -291,6 +305,34 @@
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">
                                                 <apollorequiredfield></apollorequiredfield>
+                                                {{'Common.Cluster' | translate }}
+                                            </label>
+                                            <div class="col-sm-9">
+                                                <select class="form-control" name="cluster" ng-model="selectedConfigDBCluster"
+                                                        ng-if="!showCustomConfigDBCluster" required>
+                                                    <option value="default">default</option>
+                                                    <option ng-repeat="cluster in configDBClusters" ng-if="cluster !== 'default'" value="{{cluster}}">
+                                                        {{cluster}}
+                                                    </option>
+                                                </select>
+                                                <button type="button" class="btn btn-default"
+                                                        ng-if="!showCustomConfigDBCluster"
+                                                        ng-click="useCustomConfigDBCluster()">
+                                                    {{'ServiceConfig.CustomCluster' | translate }}
+                                                </button>
+                                                <input type="text" class="form-control" name="customCluster"
+                                                       ng-model="serverConfig.cluster"
+                                                       ng-if="showCustomConfigDBCluster" required>
+                                                <button type="button" class="btn btn-default"
+                                                        ng-if="showCustomConfigDBCluster"
+                                                        ng-click="useConfigDBClusterSelect()">
+                                                    {{'ServiceConfig.SelectExistingCluster' | translate }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
                                                 {{'ServiceConfig.Value' | translate }}
                                             </label>
                                             <div class="col-sm-9">
@@ -304,6 +346,13 @@
                                             <div class="col-sm-9">
                                     <textarea class="form-control" rows="4" name="comment"
                                               ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-9">
+                                                <div class="alert alert-warning" style="margin-bottom: 0;">
+                                                    {{'ServiceConfig.ConfigDB.EditChangeKeyOrClusterCreatesNewTip' | translate }}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -336,6 +385,34 @@
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">
                                                 <apollorequiredfield></apollorequiredfield>
+                                                {{'Common.Cluster' | translate }}
+                                            </label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" name="cluster" ng-model="selectedConfigDBCluster"
+                                                        ng-if="!showCustomConfigDBCluster" required>
+                                                    <option value="default">default</option>
+                                                    <option ng-repeat="cluster in configDBClusters" ng-if="cluster !== 'default'" value="{{cluster}}">
+                                                        {{cluster}}
+                                                    </option>
+                                                </select>
+                                                <button type="button" class="btn btn-default"
+                                                        ng-if="!showCustomConfigDBCluster"
+                                                        ng-click="useCustomConfigDBCluster()">
+                                                    {{'ServiceConfig.CustomCluster' | translate }}
+                                                </button>
+                                                <input type="text" class="form-control" name="customCluster"
+                                                       ng-model="serverConfig.cluster"
+                                                       ng-if="showCustomConfigDBCluster" required>
+                                                <button type="button" class="btn btn-default"
+                                                        ng-if="showCustomConfigDBCluster"
+                                                        ng-click="useConfigDBClusterSelect()">
+                                                    {{'ServiceConfig.SelectExistingCluster' | translate }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label">
+                                                <apollorequiredfield></apollorequiredfield>
                                                 {{'ServiceConfig.Value' | translate }}
                                             </label>
                                             <div class="col-sm-9">
@@ -349,6 +426,13 @@
                                             <div class="col-sm-9">
                                     <textarea class="form-control" rows="4" name="comment"
                                               ng-model="serverConfig.comment"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-9">
+                                                <div class="alert alert-warning" style="margin-bottom: 0;">
+                                                    {{'ServiceConfig.ConfigDB.AddKeyClusterExistsOverwriteTip' | translate }}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -367,6 +451,14 @@
                     </section>
                 </div>
             </div>
+
+            <apolloconfirmdialog apollo-dialog-id="'deleteConfigDBConfirmDialog'"
+                apollo-title="'ServiceConfig.DeleteConfigDBDialogTitle' | translate"
+                apollo-detail="'ServiceConfig.DeleteConfigDBDialogContent' | translate:this"
+                apollo-show-cancel-btn="true"
+                apollo-confirm="confirmDeleteConfigDBConfig"
+                apollo-extra-class="'text-danger'">
+            </apolloconfirmdialog>
 
         </div>
     </div>

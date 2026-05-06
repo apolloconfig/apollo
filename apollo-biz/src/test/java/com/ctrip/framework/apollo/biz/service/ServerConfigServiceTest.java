@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.biz.service;
 import com.ctrip.framework.apollo.biz.AbstractIntegrationTest;
 import com.ctrip.framework.apollo.biz.entity.ServerConfig;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -72,5 +73,114 @@ public class ServerConfigServiceTest extends AbstractIntegrationTest {
     serverConfigs = serverConfigService.findAll();
     assertThat(serverConfigs).isNotNull();
     assertThat(serverConfigs.size()).isEqualTo(2);
+  }
+
+  @Test
+  public void createConfigShouldUseKeyAndClusterAsIdentity() {
+    ServerConfig defaultConfig = new ServerConfig();
+    defaultConfig.setKey("multi-cluster-key");
+    defaultConfig.setCluster("default");
+    defaultConfig.setValue("defaultValue");
+    serverConfigService.createOrUpdateConfig(defaultConfig);
+
+    ServerConfig clusterConfig = new ServerConfig();
+    clusterConfig.setKey("multi-cluster-key");
+    clusterConfig.setCluster("SHAJQ");
+    clusterConfig.setValue("clusterValue");
+    serverConfigService.createOrUpdateConfig(clusterConfig);
+
+    List<ServerConfig> serverConfigs = serverConfigService.findAll();
+    assertThat(serverConfigs).isNotNull();
+
+    ServerConfig storedDefault = null;
+    ServerConfig storedCluster = null;
+    for (ServerConfig config : serverConfigs) {
+      if ("multi-cluster-key".equals(config.getKey()) && "default".equals(config.getCluster())) {
+        storedDefault = config;
+      }
+      if ("multi-cluster-key".equals(config.getKey()) && "SHAJQ".equals(config.getCluster())) {
+        storedCluster = config;
+      }
+    }
+
+    assertThat(storedDefault).isNotNull();
+    assertThat(Objects.requireNonNull(storedDefault).getValue()).isEqualTo("defaultValue");
+    assertThat(storedCluster).isNotNull();
+    assertThat(Objects.requireNonNull(storedCluster).getValue()).isEqualTo("clusterValue");
+  }
+
+  @Test
+  public void updateConfigShouldOnlyAffectTargetClusterWhenSameKeyExists() {
+    ServerConfig defaultConfig = new ServerConfig();
+    defaultConfig.setKey("multi-cluster-update-key");
+    defaultConfig.setCluster("default");
+    defaultConfig.setValue("defaultValue");
+    serverConfigService.createOrUpdateConfig(defaultConfig);
+
+    ServerConfig clusterConfig = new ServerConfig();
+    clusterConfig.setKey("multi-cluster-update-key");
+    clusterConfig.setCluster("SHAJQ");
+    clusterConfig.setValue("clusterValue");
+    serverConfigService.createOrUpdateConfig(clusterConfig);
+
+    ServerConfig updateClusterConfig = new ServerConfig();
+    updateClusterConfig.setKey("multi-cluster-update-key");
+    updateClusterConfig.setCluster("SHAJQ");
+    updateClusterConfig.setValue("clusterValueUpdated");
+    serverConfigService.createOrUpdateConfig(updateClusterConfig);
+
+    List<ServerConfig> serverConfigs = serverConfigService.findAll();
+    assertThat(serverConfigs).isNotNull();
+
+    ServerConfig storedDefault = null;
+    ServerConfig storedCluster = null;
+    for (ServerConfig config : serverConfigs) {
+      if ("multi-cluster-update-key".equals(config.getKey()) && "default".equals(config.getCluster())) {
+        storedDefault = config;
+      }
+      if ("multi-cluster-update-key".equals(config.getKey()) && "SHAJQ".equals(config.getCluster())) {
+        storedCluster = config;
+      }
+    }
+
+    assertThat(storedDefault).isNotNull();
+    assertThat(Objects.requireNonNull(storedDefault).getValue()).isEqualTo("defaultValue");
+    assertThat(storedCluster).isNotNull();
+    assertThat(Objects.requireNonNull(storedCluster).getValue()).isEqualTo("clusterValueUpdated");
+  }
+
+  @Test
+  public void deleteConfigShouldOnlyDeleteTargetClusterWhenSameKeyExists() {
+    ServerConfig defaultConfig = new ServerConfig();
+    defaultConfig.setKey("multi-cluster-delete-key");
+    defaultConfig.setCluster("default");
+    defaultConfig.setValue("defaultValue");
+    serverConfigService.createOrUpdateConfig(defaultConfig);
+
+    ServerConfig clusterConfig = new ServerConfig();
+    clusterConfig.setKey("multi-cluster-delete-key");
+    clusterConfig.setCluster("SHAJQ");
+    clusterConfig.setValue("clusterValue");
+    serverConfigService.createOrUpdateConfig(clusterConfig);
+
+    serverConfigService.deleteConfig("multi-cluster-delete-key", "SHAJQ", "apollo");
+
+    List<ServerConfig> serverConfigs = serverConfigService.findAll();
+    assertThat(serverConfigs).isNotNull();
+
+    ServerConfig storedDefault = null;
+    ServerConfig deletedCluster = null;
+    for (ServerConfig config : serverConfigs) {
+      if ("multi-cluster-delete-key".equals(config.getKey()) && "default".equals(config.getCluster())) {
+        storedDefault = config;
+      }
+      if ("multi-cluster-delete-key".equals(config.getKey()) && "SHAJQ".equals(config.getCluster())) {
+        deletedCluster = config;
+      }
+    }
+
+    assertThat(storedDefault).isNotNull();
+    assertThat(Objects.requireNonNull(storedDefault).getValue()).isEqualTo("defaultValue");
+    assertThat(deletedCluster).isNull();
   }
 }

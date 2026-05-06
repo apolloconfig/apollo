@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.entity.po;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTable;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLogDataInfluenceTableField;
 import com.ctrip.framework.apollo.common.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.SQLDelete;
@@ -27,6 +28,7 @@ import org.hibernate.annotations.SQLRestriction;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -52,6 +54,10 @@ public class ServerConfig extends BaseEntity {
   @ApolloAuditLogDataInfluenceTableField(fieldName = "comment")
   private String comment;
 
+  @JsonProperty("cluster")
+  @Transient
+  private String cluster;
+
   public String getKey() {
     return key;
   }
@@ -74,6 +80,14 @@ public class ServerConfig extends BaseEntity {
 
   public void setComment(String comment) {
     this.comment = comment;
+  }
+
+  public String getCluster() {
+    return cluster;
+  }
+
+  public void setCluster(String cluster) {
+    this.cluster = cluster;
   }
 
   @Override

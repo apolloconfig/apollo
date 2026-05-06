@@ -73,9 +73,9 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
             });
             return d.promise;
         },
-        deleteConfigDBConfig: function (env, key) {
+        deleteConfigDBConfig: function (env, key, cluster) {
             let d = $q.defer();
-            server_config_resource.delete_config_db_config({env: env, key: key}, function (result) {
+            server_config_resource.delete_config_db_config({env: env, key: key, cluster: cluster}, function (result) {
                 d.resolve(result);
             }, function (result) {
                 d.reject(result);

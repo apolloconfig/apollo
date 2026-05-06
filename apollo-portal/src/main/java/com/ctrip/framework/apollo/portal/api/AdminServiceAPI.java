@@ -606,8 +606,9 @@ public class AdminServiceAPI {
     }
 
     @ApolloAuditLog(type = OpType.RPC, name = "ServerConfig.deleteConfigDBConfigInRemote")
-    public void deleteConfigDBConfig(Env env, String key, String operator) {
-      restTemplate.delete(env, "/server/config?key={key}&operator={operator}", key, operator);
+    public void deleteConfigDBConfig(Env env, String key, String cluster, String operator) {
+      restTemplate.delete(env, "/server/config?key={key}&cluster={cluster}&operator={operator}",
+          key, cluster, operator);
     }
   }
 
