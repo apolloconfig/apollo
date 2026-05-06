@@ -536,6 +536,8 @@
   "ServiceConfig.Deleted": "Delete Successfully",
   "ServiceConfig.DeleteFailed": "Failed to Delete",
   "ServiceConfig.DeleteConfirm": "Are you sure to delete the configuration whose Key is '{{key}}'?",
+  "ServiceConfig.DeletePortalDBDialogTitle": "Confirm PortalDB Configuration Deletion",
+  "ServiceConfig.DeletePortalDBDialogContent": "You are about to delete the following configuration:<br/><br/>Key: <strong style='color:#d9534f'>{{toDeletePortalDBConfig.key}}</strong><br/><br/>This change takes effect immediately. Do you want to continue?",
   "ServiceConfig.DeleteConfigDBDialogTitle": "Confirm ConfigDB Configuration Deletion",
   "ServiceConfig.DeleteConfigDBDialogContent": "You are about to delete the following configuration:<br/><br/>Key: <strong style='color:#d9534f'>{{toDeleteConfigDBConfig.key}}</strong><br/>Cluster: <strong style='color:#d9534f'>{{toDeleteConfigDBConfig.cluster}}</strong><br/><br/>This change takes effect immediately. Do you want to continue?",
   "ServiceConfig.CustomCluster": "Custom Cluster",

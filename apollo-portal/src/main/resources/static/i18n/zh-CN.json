@@ -536,6 +536,8 @@
   "ServiceConfig.Deleted": "删除成功",
   "ServiceConfig.DeleteFailed": "删除失败",
   "ServiceConfig.DeleteConfirm": "确定要删除 Key 为 '{{key}}' 的配置项吗？",
+  "ServiceConfig.DeletePortalDBDialogTitle": "删除 PortalDB 配置确认",
+  "ServiceConfig.DeletePortalDBDialogContent": "将删除以下配置：<br/><br/>Key：<strong style='color:#d9534f'>{{toDeletePortalDBConfig.key}}</strong><br/><br/>删除后将立即生效，请确认是否继续。",
   "ServiceConfig.DeleteConfigDBDialogTitle": "删除 ConfigDB 配置确认",
   "ServiceConfig.DeleteConfigDBDialogContent": "将删除以下配置：<br/><br/>Key：<strong style='color:#d9534f'>{{toDeleteConfigDBConfig.key}}</strong><br/>集群：<strong style='color:#d9534f'>{{toDeleteConfigDBConfig.cluster}}</strong><br/><br/>删除后将立即生效，请确认是否继续。",
   "ServiceConfig.CustomCluster": "自定义集群",

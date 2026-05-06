@@ -33,12 +33,14 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     $scope.displayModule = 'home';
     $scope.portalDBConfigSearchKey = '';
     $scope.configDBConfigSearchKey = '';
+    $scope.toDeletePortalDBConfig = {};
     $scope.toDeleteConfigDBConfig = {};
     $scope.configEdit = configEdit;
     $scope.createPortalDBConfig = createPortalDBConfig;
     $scope.createConfigDBConfig = createConfigDBConfig;
     $scope.deletePortalDBConfig = deletePortalDBConfig;
     $scope.deleteConfigDBConfig = deleteConfigDBConfig;
+    $scope.confirmDeletePortalDBConfig = confirmDeletePortalDBConfig;
     $scope.confirmDeleteConfigDBConfig = confirmDeleteConfigDBConfig;
     $scope.gobackPortalDBTabs = gobackPortalDBTabs;
     $scope.gobackConfigDBTabs = gobackConfigDBTabs;
@@ -183,15 +185,20 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
     }
 
     function deletePortalDBConfig(config) {
-        var confirmTips = $translate.instant('ServiceConfig.DeleteConfirm', {key: config.key});
-        if (confirm(confirmTips)) {
-            ServerConfigService.deletePortalDBConfig(config.key).then(function () {
-                toastr.success($translate.instant('ServiceConfig.Deleted'));
-                getPortalDBConfig();
-            }, function (result) {
-                toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
-            });
-        }
+        $scope.toDeletePortalDBConfig = {
+            key: config.key
+        };
+        $('#deletePortalDBConfirmDialog').modal('show');
+    }
+
+    function confirmDeletePortalDBConfig() {
+        ServerConfigService.deletePortalDBConfig($scope.toDeletePortalDBConfig.key).then(function () {
+            toastr.success($translate.instant('ServiceConfig.Deleted'));
+            getPortalDBConfig();
+            $scope.toDeletePortalDBConfig = {};
+        }, function (result) {
+            toastr.error(AppUtil.errorMsg(result), $translate.instant('ServiceConfig.DeleteFailed'));
+        });
     }
 
     function deleteConfigDBConfig(config) {
