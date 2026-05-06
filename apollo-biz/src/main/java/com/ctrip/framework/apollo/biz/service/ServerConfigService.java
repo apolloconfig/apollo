@@ -49,8 +49,8 @@ public class ServerConfigService {
       serverConfig.setCluster("default");
     }
 
-    ServerConfig storedConfig =
-        serverConfigRepository.findTopByKeyAndCluster(serverConfig.getKey(), serverConfig.getCluster());
+    ServerConfig storedConfig = serverConfigRepository.findTopByKeyAndCluster(serverConfig.getKey(),
+        serverConfig.getCluster());
 
     if (Objects.isNull(storedConfig)) {// create
       serverConfig.setId(0L);// 为空，设置ID 为0，jpa执行新增操作

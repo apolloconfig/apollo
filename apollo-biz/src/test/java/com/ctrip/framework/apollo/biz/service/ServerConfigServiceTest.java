@@ -135,10 +135,12 @@ public class ServerConfigServiceTest extends AbstractIntegrationTest {
     ServerConfig storedDefault = null;
     ServerConfig storedCluster = null;
     for (ServerConfig config : serverConfigs) {
-      if ("multi-cluster-update-key".equals(config.getKey()) && "default".equals(config.getCluster())) {
+      if ("multi-cluster-update-key".equals(config.getKey())
+          && "default".equals(config.getCluster())) {
         storedDefault = config;
       }
-      if ("multi-cluster-update-key".equals(config.getKey()) && "SHAJQ".equals(config.getCluster())) {
+      if ("multi-cluster-update-key".equals(config.getKey())
+          && "SHAJQ".equals(config.getCluster())) {
         storedCluster = config;
       }
     }
@@ -171,10 +173,12 @@ public class ServerConfigServiceTest extends AbstractIntegrationTest {
     ServerConfig storedDefault = null;
     ServerConfig deletedCluster = null;
     for (ServerConfig config : serverConfigs) {
-      if ("multi-cluster-delete-key".equals(config.getKey()) && "default".equals(config.getCluster())) {
+      if ("multi-cluster-delete-key".equals(config.getKey())
+          && "default".equals(config.getCluster())) {
         storedDefault = config;
       }
-      if ("multi-cluster-delete-key".equals(config.getKey()) && "SHAJQ".equals(config.getCluster())) {
+      if ("multi-cluster-delete-key".equals(config.getKey())
+          && "SHAJQ".equals(config.getCluster())) {
         deletedCluster = config;
       }
     }

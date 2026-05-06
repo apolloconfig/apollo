@@ -119,16 +119,17 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setCluster("SHAJQ");
     serverConfig.setValue("clusterValue");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig)).thenReturn(serverConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig))
+        .thenReturn(serverConfig);
 
-    ServerConfig result = serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
+    ServerConfig result =
+        serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
 
     Assert.assertNotNull(result);
     Assert.assertEquals(key, result.getKey());
     Assert.assertEquals("SHAJQ", result.getCluster());
     verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
-    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(
-        eq(Env.DEV),
+    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
   }
 
@@ -140,17 +141,18 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setCluster("SHAJQ");
     serverConfig.setValue("clusterValueUpdated");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig)).thenReturn(serverConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig))
+        .thenReturn(serverConfig);
 
-    ServerConfig result = serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
+    ServerConfig result =
+        serverConfigController.createOrUpdateConfigDBConfig(serverConfig, Env.DEV.getName());
 
     Assert.assertNotNull(result);
     Assert.assertEquals(key, result.getKey());
     Assert.assertEquals("SHAJQ", result.getCluster());
     Assert.assertEquals("clusterValueUpdated", result.getValue());
     verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
-    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(
-        eq(Env.DEV),
+    verify(serverConfigService, never()).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
   }
 
@@ -189,8 +191,10 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     shajqConfigUpdated.setCluster("SHAJQ");
     shajqConfigUpdated.setValue("clusterValueUpdated");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, defaultConfig)).thenReturn(defaultConfig);
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfig)).thenReturn(shajqConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, defaultConfig))
+        .thenReturn(defaultConfig);
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfig))
+        .thenReturn(shajqConfig);
     when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfigUpdated))
         .thenReturn(shajqConfigUpdated);
 
@@ -199,12 +203,10 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfigController.createOrUpdateConfigDBConfig(shajqConfigUpdated, Env.DEV.getName());
     serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), key, "SHAJQ");
 
-    verify(serverConfigService, times(1)).createOrUpdateConfigDBConfig(
-        eq(Env.DEV),
+    verify(serverConfigService, times(1)).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> config != null && key.equals(config.getKey())
             && "default".equals(config.getCluster())));
-    verify(serverConfigService, times(2)).createOrUpdateConfigDBConfig(
-        eq(Env.DEV),
+    verify(serverConfigService, times(2)).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> config != null && key.equals(config.getKey())
             && "SHAJQ".equals(config.getCluster())));
     verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ");
