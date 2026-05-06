@@ -148,10 +148,18 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
 
     function useConfigDBClusterSelect() {
         $scope.showCustomConfigDBCluster = false;
-        if (!$scope.serverConfig.cluster) {
-            $scope.serverConfig.cluster = 'default';
+        var selectedCluster = $scope.serverConfig.cluster || $scope.selectedConfigDBCluster || 'default';
+
+        if ($scope.configDBClusters.indexOf(selectedCluster) < 0) {
+            if ($scope.configDBClusters.indexOf($scope.selectedConfigDBCluster) >= 0) {
+                selectedCluster = $scope.selectedConfigDBCluster;
+            } else {
+                selectedCluster = 'default';
+            }
         }
-        $scope.selectedConfigDBCluster = $scope.serverConfig.cluster;
+
+        $scope.serverConfig.cluster = selectedCluster;
+        $scope.selectedConfigDBCluster = selectedCluster;
     }
 
     function switchConfigDBEnvs(env) {
