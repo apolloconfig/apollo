@@ -196,6 +196,7 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
 
     function deleteConfigDBConfig(config) {
         $scope.toDeleteConfigDBConfig = {
+            env: $scope.selectedEnv,
             key: config.key,
             cluster: config.cluster || 'default'
         };
@@ -204,7 +205,7 @@ function ServerConfigController($scope, $window, $translate, toastr, AppUtil, Se
 
     function confirmDeleteConfigDBConfig() {
         ServerConfigService.deleteConfigDBConfig(
-            $scope.selectedEnv,
+            $scope.toDeleteConfigDBConfig.env,
             $scope.toDeleteConfigDBConfig.key,
             $scope.toDeleteConfigDBConfig.cluster
         ).then(function () {
