@@ -1,0 +1,62 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# This workflow checks apollo-portal OpenAPI contract compatibility.
+
+name: OpenAPI compatibility
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apollo-portal/pom.xml'
+      - 'scripts/openapi/**'
+      - '.github/workflows/openapi-compatibility.yml'
+
+jobs:
+  openapi-compatibility:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Run checker tests
+        run: python3 scripts/openapi/check_openapi_compatibility_test.py
+      - name: Compare portal OpenAPI spec URL against base branch
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+
+          git fetch --no-tags --depth=1 origin "${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+
+          POM_PROPERTY_PATTERN='s:.*<apollo.openapi.spec.url>([^<]+)</apollo.openapi.spec.url>.*:\1:p'
+          BASE_SPEC=$(git show "origin/${BASE_REF}:apollo-portal/pom.xml" | sed -nE "$POM_PROPERTY_PATTERN")
+          HEAD_SPEC=$(sed -nE "$POM_PROPERTY_PATTERN" apollo-portal/pom.xml)
+
+          if [ -z "$BASE_SPEC" ] || [ -z "$HEAD_SPEC" ]; then
+            echo "Failed to resolve apollo.openapi.spec.url from base or head pom."
+            exit 1
+          fi
+
+          echo "Base spec: $BASE_SPEC"
+          echo "Head spec: $HEAD_SPEC"
+          python3 scripts/openapi/check_openapi_compatibility.py --base "$BASE_SPEC" --head "$HEAD_SPEC"
