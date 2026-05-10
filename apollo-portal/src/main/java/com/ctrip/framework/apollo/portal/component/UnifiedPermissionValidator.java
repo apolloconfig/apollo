@@ -35,13 +35,10 @@ public class UnifiedPermissionValidator implements PermissionValidator {
 
   private PermissionValidator getDelegate() {
     String type = UserIdentityContextHolder.getAuthType();
-    if (UserIdentityConstants.USER.equals(type)) {
-      return userPermissionValidator;
-    }
     if (UserIdentityConstants.CONSUMER.equals(type)) {
       return consumerPermissionValidator;
     }
-    throw new IllegalStateException("Unknown authentication type");
+    return userPermissionValidator;
   }
 
   @Override

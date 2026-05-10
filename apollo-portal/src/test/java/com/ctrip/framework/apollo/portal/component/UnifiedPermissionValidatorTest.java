@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -79,15 +78,15 @@ public class UnifiedPermissionValidatorTest {
   }
 
   @Test
-  public void hasManageAppMasterPermission_UnknownAuthType_ThrowsException() {
+  public void hasManageAppMasterPermission_UnknownAuthType_DelegatesToUserValidator() {
     final String appId = "testAppId";
+    final boolean expectedPermission = true;
 
-    // Set authentication type to UNKNOWN
     UserIdentityContextHolder.setAuthType("UNKNOWN");
+    when(userPermissionValidator.hasManageAppMasterPermission(appId))
+        .thenReturn(expectedPermission);
 
-    assertThrows(IllegalStateException.class, () -> {
-      unifiedPermissionValidator.hasManageAppMasterPermission(appId);
-    });
+    assertTrue(unifiedPermissionValidator.hasManageAppMasterPermission(appId));
   }
 
   @Test
@@ -121,14 +120,14 @@ public class UnifiedPermissionValidatorTest {
   }
 
   @Test
-  public void hasCreateNamespacePermission_UnknownAuthType_ThrowsIllegalStateException() {
+  public void hasCreateNamespacePermission_NoAuthType_DelegatesToUserValidator() {
     final String appId = "testAppId";
+    final boolean expectedPermission = true;
 
-    // Set authentication type to UNKNOWN
-    UserIdentityContextHolder.setAuthType("UNKNOWN");
+    when(userPermissionValidator.hasCreateNamespacePermission(appId))
+        .thenReturn(expectedPermission);
 
-    assertThrows(IllegalStateException.class,
-        () -> unifiedPermissionValidator.hasCreateNamespacePermission(appId));
+    assertTrue(unifiedPermissionValidator.hasCreateNamespacePermission(appId));
   }
 
   @Test

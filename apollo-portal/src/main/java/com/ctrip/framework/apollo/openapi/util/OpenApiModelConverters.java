@@ -397,7 +397,10 @@ public final class OpenApiModelConverters {
   // newly added
   public static OpenEnvClusterInfo fromEnvClusterInfo(final EnvClusterInfo envClusterInfo) {
     Preconditions.checkArgument(envClusterInfo != null);
-    return BeanUtils.transform(OpenEnvClusterInfo.class, envClusterInfo);
+    OpenEnvClusterInfo openEnvClusterInfo = new OpenEnvClusterInfo();
+    openEnvClusterInfo.setEnv(envClusterInfo.getEnv().getName());
+    openEnvClusterInfo.setClusters(fromClusterDTOs(envClusterInfo.getClusters()));
+    return openEnvClusterInfo;
   }
 
   // newly added
@@ -407,6 +410,14 @@ public final class OpenApiModelConverters {
       return Collections.emptyList();
     }
     return envClusterInfos.stream().map(OpenApiModelConverters::fromEnvClusterInfo)
+        .collect(Collectors.toList());
+  }
+
+  private static List<OpenClusterDTO> fromClusterDTOs(final List<ClusterDTO> clusters) {
+    if (CollectionUtils.isEmpty(clusters)) {
+      return Collections.emptyList();
+    }
+    return clusters.stream().map(OpenApiModelConverters::fromClusterDTO)
         .collect(Collectors.toList());
   }
   // endregion
