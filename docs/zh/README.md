@@ -12,12 +12,7 @@ Java客户端不依赖任何框架，能够运行于所有Java运行时环境，
 
 更多产品介绍参见[Apollo配置中心介绍](zh/design/apollo-introduction)
 
-本地快速部署请参见[Quick Start](zh/deployment/quick-start)
-
-演示环境（Demo）:
-
-- [http://81.68.181.139](http://81.68.181.139/)
-- 账号/密码:apollo/admin
+本地快速体验请参见[Quick Start](zh/deployment/quick-start)或[Docker方式部署Quick Start](zh/deployment/quick-start-docker)
 
 > 如访问GitHub速度缓慢，可以访问[Gitee镜像](https://gitee.com/apolloconfig/apollo)，不定期同步
 

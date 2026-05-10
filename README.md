@@ -21,11 +21,7 @@ The .Net SDK does not rely on any framework and can run in all .Net runtime envi
 
 For more details of the product introduction, please refer [Introduction to Apollo Configuration Center](https://www.apolloconfig.com/#/zh/design/apollo-introduction).
 
-For local demo purpose, please refer [Quick Start](https://www.apolloconfig.com/#/zh/deployment/quick-start).
-
-Demo Environment:
-- [http://81.68.181.139](http://81.68.181.139/)
-- User/Password: apollo/admin
+To try Apollo locally, please refer [Quick Start](https://www.apolloconfig.com/#/en/deployment/quick-start) or [Docker Quick Start](https://www.apolloconfig.com/#/en/deployment/quick-start-docker).
 
 # Screenshots
 
