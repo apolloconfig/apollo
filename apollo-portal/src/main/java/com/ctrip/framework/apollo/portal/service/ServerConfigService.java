@@ -24,7 +24,6 @@ import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ServerConfigAPI;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.ServerConfigRepository;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Objects;
@@ -37,13 +36,11 @@ public class ServerConfigService {
   private final ServerConfigRepository serverConfigRepository;
 
   private final AdminServiceAPI.ServerConfigAPI serverConfigAPI;
-  private final UserInfoHolder userInfoHolder;
 
   public ServerConfigService(final ServerConfigRepository serverConfigRepository,
-      ServerConfigAPI serverConfigAPI, UserInfoHolder userInfoHolder) {
+      ServerConfigAPI serverConfigAPI) {
     this.serverConfigRepository = serverConfigRepository;
     this.serverConfigAPI = serverConfigAPI;
-    this.userInfoHolder = userInfoHolder;
   }
 
   public List<ServerConfig> findAllPortalDBConfig() {
@@ -56,9 +53,7 @@ public class ServerConfigService {
   }
 
   @Transactional
-  public ServerConfig createOrUpdatePortalDBConfig(ServerConfig serverConfig) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
-
+  public ServerConfig createOrUpdatePortalDBConfig(ServerConfig serverConfig, String modifiedBy) {
     ServerConfig storedConfig = serverConfigRepository.findByKey(serverConfig.getKey());
 
     if (Objects.isNull(storedConfig)) {// create
@@ -74,16 +69,15 @@ public class ServerConfigService {
   }
 
   @Transactional
-  public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
+  public ServerConfig createOrUpdateConfigDBConfig(Env env, ServerConfig serverConfig,
+      String modifiedBy) {
     serverConfig.setDataChangeCreatedBy(modifiedBy);
     serverConfig.setDataChangeLastModifiedBy(modifiedBy);
     return serverConfigAPI.createOrUpdateConfigDBConfig(env, serverConfig);
   }
 
   @Transactional
-  public void deletePortalDBConfig(String key) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
+  public void deletePortalDBConfig(String key, String modifiedBy) {
     ServerConfig storedConfig = serverConfigRepository.findByKey(key);
 
     if (Objects.isNull(storedConfig)) {
@@ -95,8 +89,7 @@ public class ServerConfigService {
     serverConfigRepository.save(storedConfig);
   }
 
-  public void deleteConfigDBConfig(Env env, String key, String cluster) {
-    String modifiedBy = userInfoHolder.getUser().getUserId();
+  public void deleteConfigDBConfig(Env env, String key, String cluster, String modifiedBy) {
     serverConfigAPI.deleteConfigDBConfig(env, key, cluster, modifiedBy);
   }
 }

@@ -22,7 +22,7 @@ public interface ClusterOpenApiService {
 
   OpenClusterDTO getCluster(String appId, String env, String clusterName);
 
-  OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO);
+  OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO, String operator);
 
-  void deleteCluster(String env, String appId, String clusterName);
+  void deleteCluster(String env, String appId, String clusterName, String operator);
 }

@@ -21,7 +21,6 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import org.springframework.stereotype.Service;
 
@@ -30,16 +29,13 @@ import java.util.List;
 @Service
 public class ClusterService {
 
-  private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.ClusterAPI clusterAPI;
   private final RoleInitializationService roleInitializationService;
   private final RolePermissionService rolePermissionService;
 
-  public ClusterService(final UserInfoHolder userInfoHolder,
-      final AdminServiceAPI.ClusterAPI clusterAPI,
+  public ClusterService(final AdminServiceAPI.ClusterAPI clusterAPI,
       RoleInitializationService roleInitializationService,
       RolePermissionService rolePermissionService) {
-    this.userInfoHolder = userInfoHolder;
     this.clusterAPI = clusterAPI;
     this.roleInitializationService = roleInitializationService;
     this.rolePermissionService = rolePermissionService;
@@ -49,25 +45,25 @@ public class ClusterService {
     return clusterAPI.findClustersByApp(appId, env);
   }
 
-  public ClusterDTO createCluster(Env env, ClusterDTO cluster) {
+  public ClusterDTO createCluster(Env env, ClusterDTO cluster, String operator) {
     if (!clusterAPI.isClusterUnique(cluster.getAppId(), env, cluster.getName())) {
       throw BadRequestException.clusterAlreadyExists(cluster.getName());
     }
     ClusterDTO clusterDTO = clusterAPI.create(env, cluster);
 
     roleInitializationService.initClusterNamespaceRoles(cluster.getAppId(), env.getName(),
-        cluster.getName(), userInfoHolder.getUser().getUserId());
+        cluster.getName(), operator);
 
     Tracer.logEvent(TracerEventType.CREATE_CLUSTER, cluster.getAppId(), "0", cluster.getName());
 
     return clusterDTO;
   }
 
-  public void deleteCluster(Env env, String appId, String clusterName) {
-    clusterAPI.delete(env, appId, clusterName, userInfoHolder.getUser().getUserId());
+  public void deleteCluster(Env env, String appId, String clusterName, String operator) {
+    clusterAPI.delete(env, appId, clusterName, operator);
 
     rolePermissionService.deleteRolePermissionsByCluster(appId, env.getName(), clusterName,
-        userInfoHolder.getUser().getUserId());
+        operator);
   }
 
   public ClusterDTO loadCluster(String appId, Env env, String clusterName) {

@@ -54,7 +54,7 @@ public class ClusterController {
     cluster.setDataChangeLastModifiedBy(operator);
     cluster.setDataChangeCreatedBy(operator);
 
-    return clusterService.createCluster(Env.valueOf(env), cluster);
+    return clusterService.createCluster(Env.valueOf(env), cluster, operator);
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
@@ -62,7 +62,8 @@ public class ClusterController {
   @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   public ResponseEntity<Void> deleteCluster(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName) {
-    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
+    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName,
+        userInfoHolder.getUser().getUserId());
     return ResponseEntity.ok().build();
   }
 

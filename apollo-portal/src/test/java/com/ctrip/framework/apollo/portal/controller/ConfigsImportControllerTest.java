@@ -20,10 +20,13 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ConfigsImportService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,6 +52,8 @@ public class ConfigsImportControllerTest {
 
   @Mock
   private ConfigsImportService configsImportService;
+  @Mock
+  private UserInfoHolder userInfoHolder;
 
   @InjectMocks
   private ConfigsImportController configsImportController;
@@ -63,6 +68,7 @@ public class ConfigsImportControllerTest {
 
   @Before
   public void setUp() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
     mockMvc = MockMvcBuilders.standaloneSetup(configsImportController).build();
   }
 
@@ -76,7 +82,7 @@ public class ConfigsImportControllerTest {
     String expected = ConfigFileUtils.toFilename("SampleApp", "default", "application",
         com.ctrip.framework.apollo.core.enums.ConfigFileFormat.YML);
     verify(configsImportService).forceImportNamespaceFromFile(eq(Env.DEV), eq(expected),
-        any(java.io.InputStream.class));
+        any(java.io.InputStream.class), eq("apollo"));
   }
 
   @Test
@@ -91,7 +97,7 @@ public class ConfigsImportControllerTest {
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(configsImportService).importDataFromZipFile(envsCaptor.capture(),
-        any(java.util.zip.ZipInputStream.class), ignoreConflictCaptor.capture());
+        any(java.util.zip.ZipInputStream.class), ignoreConflictCaptor.capture(), eq("apollo"));
     assertEquals(Arrays.asList(Env.DEV, Env.FAT), envsCaptor.getValue());
     assertEquals(Boolean.TRUE, ignoreConflictCaptor.getValue());
   }
@@ -106,7 +112,7 @@ public class ConfigsImportControllerTest {
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(configsImportService).importDataFromZipFile(eq(Collections.singletonList(Env.DEV)),
-        any(java.util.zip.ZipInputStream.class), eq(false));
+        any(java.util.zip.ZipInputStream.class), eq(false), eq("apollo"));
   }
 
   @Test(expected = BadRequestException.class)
@@ -131,7 +137,7 @@ public class ConfigsImportControllerTest {
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(configsImportService).importAppConfigFromZipFile(eq("SampleApp"), eq(Env.DEV),
-        eq("default"), any(java.util.zip.ZipInputStream.class), eq(true));
+        eq("default"), any(java.util.zip.ZipInputStream.class), eq(true), eq("apollo"));
   }
 
   @Test(expected = BadRequestException.class)

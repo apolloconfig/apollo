@@ -51,11 +51,11 @@
 | `AppService.js` | 18 | `-` | `RESOURCE_BASE` | WebAPI | yes | `/apps/:appId` |
 | `AppService.js` | 22 | `find_apps` | `GET` | OpenAPI | yes | `/openapi/v1/apps` |
 | `AppService.js` | 27 | `find_app_by_self` | `GET` | OpenAPI | yes | `/openapi/v1/apps/by-self` |
-| `AppService.js` | 32 | `load_navtree` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/navtree` |
+| `AppService.js` | 32 | `load_navtree` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/env-cluster-info` |
 | `AppService.js` | 40 | `create_app` | `POST` | WebAPI | yes | `/apps` |
 | `AppService.js` | 44 | `update_app` | `PUT` | WebAPI | yes | `/apps/:appId` |
 | `AppService.js` | 48 | `create_app_remote` | `POST` | WebAPI | yes | `/apps/envs/:env` |
-| `AppService.js` | 52 | `find_miss_envs` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/miss_envs` |
+| `AppService.js` | 52 | `find_miss_envs` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/miss-envs` |
 | `AppService.js` | 56 | `create_missing_namespaces` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
 | `AppService.js` | 60 | `find_missing_namespaces` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
 | `AppService.js` | 68 | `allow_app_master_assign_role` | `POST` | WebAPI | yes | `/apps/:appId/system/master/:userId` |

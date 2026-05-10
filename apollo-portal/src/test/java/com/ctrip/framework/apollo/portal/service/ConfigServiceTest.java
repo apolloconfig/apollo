@@ -25,8 +25,6 @@ import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.component.txtresolver.PropertyResolver;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
@@ -56,9 +54,6 @@ public class ConfigServiceTest extends AbstractUnitTest {
   private AdminServiceAPI.ItemAPI itemAPI;
   @Mock
   private PropertyResolver resolver;
-  @Mock
-  private UserInfoHolder userInfoHolder;
-
   @InjectMocks
   private ItemService configService;
 
@@ -87,11 +82,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(itemAPI.findItems(appId, Env.DEV, clusterName, namespaceName)).thenReturn(itemDTOs);
     when(resolver.resolve(someNamespaceId, model.getConfigText(), itemDTOs)).thenReturn(changeSets);
 
-    UserInfo userInfo = new UserInfo();
-    userInfo.setUserId("test");
-    when(userInfoHolder.getUser()).thenReturn(userInfo);
-
-    configService.updateConfigItemByText(model);
+    configService.updateConfigItemByText(model, "test");
   }
 
   private NamespaceTextModel mockNamespaceModel(String appId, String clusterName,
@@ -128,11 +119,7 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(itemAPI.findItems(appId, Env.DEV, clusterName, namespaceName)).thenReturn(itemDTOs);
     when(resolver.resolve(someNamespaceId, model.getConfigText(), itemDTOs)).thenReturn(changeSets);
 
-    UserInfo userInfo = new UserInfo();
-    userInfo.setUserId("test");
-    when(userInfoHolder.getUser()).thenReturn(userInfo);
-
-    configService.updateConfigItemByText(model);
+    configService.updateConfigItemByText(model, "test");
   }
 
   /**
@@ -159,10 +146,6 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(namespaceAPI.loadNamespace(appId, Env.valueOf(env), clusterName, namespaceName))
         .thenReturn(namespaceDTO);
     when(itemAPI.findItems(appId, Env.valueOf(env), clusterName, namespaceName)).thenReturn(null);
-
-    UserInfo userInfo = new UserInfo();
-    userInfo.setUserId("test");
-    when(userInfoHolder.getUser()).thenReturn(userInfo);
 
     List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
 
@@ -203,10 +186,6 @@ public class ConfigServiceTest extends AbstractUnitTest {
         .thenReturn(namespaceDTO);
     when(itemAPI.findItems(appId, Env.valueOf(env), clusterName, namespaceName))
         .thenReturn(targetItems);
-
-    UserInfo userInfo = new UserInfo();
-    userInfo.setUserId("test");
-    when(userInfoHolder.getUser()).thenReturn(userInfo);
 
     List<ItemDiffs> itemDiffses = configService.compare(namespaceIdentifiers, sourceItems);
     assertEquals(1, itemDiffses.size());

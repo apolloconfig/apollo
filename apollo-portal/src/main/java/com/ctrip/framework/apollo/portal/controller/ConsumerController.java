@@ -26,6 +26,7 @@ import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerCreateRequestVO;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.springframework.data.domain.Pageable;
@@ -46,9 +47,12 @@ public class ConsumerController {
       new GregorianCalendar(2099, Calendar.JANUARY, 1).getTime();
 
   private final ConsumerService consumerService;
+  private final UserInfoHolder userInfoHolder;
 
-  public ConsumerController(final ConsumerService consumerService) {
+  public ConsumerController(final ConsumerService consumerService,
+      final UserInfoHolder userInfoHolder) {
     this.consumerService = consumerService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   private Consumer convertToConsumer(ConsumerCreateRequestVO requestVO) {
@@ -88,16 +92,18 @@ public class ConsumerController {
       requestVO.setRateLimit(0);
     }
 
-    Consumer createdConsumer = consumerService.createConsumer(convertToConsumer(requestVO));
+    String operator = userInfoHolder.getUser().getUserId();
+    Consumer createdConsumer =
+        consumerService.createConsumer(convertToConsumer(requestVO), operator);
 
     if (Objects.isNull(expires)) {
       expires = DEFAULT_EXPIRES;
     }
 
     ConsumerToken consumerToken = consumerService.generateAndSaveConsumerToken(createdConsumer,
-        requestVO.getRateLimit(), expires);
+        requestVO.getRateLimit(), expires, operator);
     if (requestVO.isAllowCreateApplication()) {
-      consumerService.assignCreateApplicationRoleToConsumer(consumerToken.getToken());
+      consumerService.assignCreateApplicationRoleToConsumer(consumerToken.getToken(), operator);
     }
     return consumerService.getConsumerInfoByAppId(requestVO.getAppId());
   }
@@ -128,7 +134,8 @@ public class ConsumerController {
       throw new BadRequestException("Params(AppId) can not be empty.");
     }
     if (Objects.equals("AppRole", type)) {
-      return Collections.singletonList(consumerService.assignAppRoleToConsumer(token, appId));
+      return Collections.singletonList(consumerService.assignAppRoleToConsumer(token, appId,
+          userInfoHolder.getUser().getUserId()));
     }
     if (StringUtils.isEmpty(namespaceName)) {
       throw new BadRequestException("Params(NamespaceName) can not be empty.");
@@ -149,14 +156,14 @@ public class ConsumerController {
 
       List<ConsumerRole> consumeRoles = new ArrayList<>();
       for (String env : envList) {
-        consumeRoles.addAll(
-            consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName, env));
+        consumeRoles.addAll(consumerService.assignNamespaceRoleToConsumer(token, appId,
+            namespaceName, env, userInfoHolder.getUser().getUserId()));
       }
       return consumeRoles;
     }
 
-    consumerRoleList
-        .addAll(consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName));
+    consumerRoleList.addAll(consumerService.assignNamespaceRoleToConsumer(token, appId,
+        namespaceName, userInfoHolder.getUser().getUserId()));
     return consumerRoleList;
   }
 

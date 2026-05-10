@@ -17,9 +17,12 @@
 package com.ctrip.framework.apollo.portal.controller;
 
 import com.ctrip.framework.apollo.portal.AbstractIntegrationTest;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import org.junit.Before;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -50,9 +53,16 @@ import static org.mockito.Mockito.when;
 public class ServerConfigControllerTest extends AbstractIntegrationTest {
   @Mock
   private ServerConfigService serverConfigService;
+  @Mock
+  private UserInfoHolder userInfoHolder;
 
   @InjectMocks
   private ServerConfigController serverConfigController;
+
+  @Before
+  public void setUp() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+  }
 
   @Test
   @Sql(scripts = "/sql/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -108,7 +118,7 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
   public void deletePortalDBConfig() {
     serverConfigController.deletePortalDBConfig("timeout");
 
-    verify(serverConfigService).deletePortalDBConfig("timeout");
+    verify(serverConfigService).deletePortalDBConfig("timeout", "apollo");
   }
 
   @Test
@@ -119,7 +129,7 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setCluster("SHAJQ");
     serverConfig.setValue("clusterValue");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig))
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig, "apollo"))
         .thenReturn(serverConfig);
 
     ServerConfig result =
@@ -128,9 +138,10 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     Assert.assertNotNull(result);
     Assert.assertEquals(key, result.getKey());
     Assert.assertEquals("SHAJQ", result.getCluster());
-    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
+    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig, "apollo");
     verify(serverConfigService, never()).createOrUpdateConfigDBConfig(eq(Env.DEV),
-        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
+        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())),
+        eq("apollo"));
   }
 
   @Test
@@ -141,7 +152,7 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     serverConfig.setCluster("SHAJQ");
     serverConfig.setValue("clusterValueUpdated");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig))
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, serverConfig, "apollo"))
         .thenReturn(serverConfig);
 
     ServerConfig result =
@@ -151,16 +162,17 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     Assert.assertEquals(key, result.getKey());
     Assert.assertEquals("SHAJQ", result.getCluster());
     Assert.assertEquals("clusterValueUpdated", result.getValue());
-    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig);
+    verify(serverConfigService).createOrUpdateConfigDBConfig(Env.DEV, serverConfig, "apollo");
     verify(serverConfigService, never()).createOrUpdateConfigDBConfig(eq(Env.DEV),
-        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())));
+        argThat(config -> key.equals(config.getKey()) && "default".equals(config.getCluster())),
+        eq("apollo"));
   }
 
   @Test
   public void deleteConfigDBConfig() {
     serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), "timeout", "default");
 
-    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, "timeout", "default");
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, "timeout", "default", "apollo");
   }
 
   @Test
@@ -169,8 +181,8 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
 
     serverConfigController.deleteConfigDBConfig(Env.DEV.getName(), key, "SHAJQ");
 
-    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ");
-    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default");
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ", "apollo");
+    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default", "apollo");
   }
 
   @Test
@@ -191,11 +203,11 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
     shajqConfigUpdated.setCluster("SHAJQ");
     shajqConfigUpdated.setValue("clusterValueUpdated");
 
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, defaultConfig))
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, defaultConfig, "apollo"))
         .thenReturn(defaultConfig);
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfig))
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfig, "apollo"))
         .thenReturn(shajqConfig);
-    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfigUpdated))
+    when(serverConfigService.createOrUpdateConfigDBConfig(Env.DEV, shajqConfigUpdated, "apollo"))
         .thenReturn(shajqConfigUpdated);
 
     serverConfigController.createOrUpdateConfigDBConfig(defaultConfig, Env.DEV.getName());
@@ -205,12 +217,14 @@ public class ServerConfigControllerTest extends AbstractIntegrationTest {
 
     verify(serverConfigService, times(1)).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> config != null && key.equals(config.getKey())
-            && "default".equals(config.getCluster())));
+            && "default".equals(config.getCluster())),
+        eq("apollo"));
     verify(serverConfigService, times(2)).createOrUpdateConfigDBConfig(eq(Env.DEV),
         argThat(config -> config != null && key.equals(config.getKey())
-            && "SHAJQ".equals(config.getCluster())));
-    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ");
-    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default");
+            && "SHAJQ".equals(config.getCluster())),
+        eq("apollo"));
+    verify(serverConfigService).deleteConfigDBConfig(Env.DEV, key, "SHAJQ", "apollo");
+    verify(serverConfigService, never()).deleteConfigDBConfig(Env.DEV, key, "default", "apollo");
   }
 
 }

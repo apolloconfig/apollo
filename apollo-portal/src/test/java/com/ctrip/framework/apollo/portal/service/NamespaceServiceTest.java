@@ -29,8 +29,6 @@ import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.txtresolver.PropertyResolver;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -72,8 +70,6 @@ public class NamespaceServiceTest extends AbstractUnitTest {
   private InstanceService instanceService;
   @Mock
   private NamespaceBranchService branchService;
-  @Mock
-  private UserInfoHolder userInfoHolder;
   @Mock
   private AdditionalUserInfoEnrichService additionalUserInfoEnrichService;
   @Mock
@@ -169,9 +165,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
         .thenReturn(privateNamespace);
 
-    when(userInfoHolder.getUser()).thenReturn(createUser(operator));
-
-    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
+    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName,
+        operator);
 
     verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName,
         testNamespaceName, operator);
@@ -238,9 +233,8 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     NamespaceDTO namespace = createNamespace(testAppId, testClusterName, testNamespaceName);
     when(namespaceAPI.getPublicAppNamespaceAllNamespaces(testEnv, testNamespaceName, 0, 10))
         .thenReturn(Collections.singletonList(namespace));
-    when(userInfoHolder.getUser()).thenReturn(createUser(operator));
-
-    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName);
+    namespaceService.deleteNamespace(testAppId, testEnv, testClusterName, testNamespaceName,
+        operator);
 
     verify(namespaceAPI, times(1)).deleteNamespace(testEnv, testAppId, testClusterName,
         testNamespaceName, operator);
@@ -551,11 +545,4 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     return instance;
   }
 
-  private UserInfo createUser(String userId) {
-    UserInfo instance = new UserInfo();
-
-    instance.setUserId(userId);
-
-    return instance;
-  }
 }

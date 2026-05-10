@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,16 +40,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServerConfigController {
   private final ServerConfigService serverConfigService;
+  private final UserInfoHolder userInfoHolder;
 
-  public ServerConfigController(final ServerConfigService serverConfigService) {
+  public ServerConfigController(final ServerConfigService serverConfigService,
+      final UserInfoHolder userInfoHolder) {
     this.serverConfigService = serverConfigService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @PostMapping("/server/portal-db/config")
   @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdatePortalDBConfig")
   public ServerConfig createOrUpdatePortalDBConfig(@Valid @RequestBody ServerConfig serverConfig) {
-    return serverConfigService.createOrUpdatePortalDBConfig(serverConfig);
+    return serverConfigService.createOrUpdatePortalDBConfig(serverConfig,
+        userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
@@ -56,14 +61,15 @@ public class ServerConfigController {
   @ApolloAuditLog(type = OpType.CREATE, name = "ServerConfig.createOrUpdateConfigDBConfig")
   public ServerConfig createOrUpdateConfigDBConfig(@Valid @RequestBody ServerConfig serverConfig,
       @PathVariable String env) {
-    return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig);
+    return serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env), serverConfig,
+        userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @DeleteMapping("/server/portal-db/config")
   @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deletePortalDBConfig")
   public void deletePortalDBConfig(@RequestParam String key) {
-    serverConfigService.deletePortalDBConfig(key);
+    serverConfigService.deletePortalDBConfig(key, userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
@@ -71,7 +77,8 @@ public class ServerConfigController {
   @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deleteConfigDBConfig")
   public void deleteConfigDBConfig(@PathVariable String env, @RequestParam String key,
       @RequestParam String cluster) {
-    serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key, cluster);
+    serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key, cluster,
+        userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")

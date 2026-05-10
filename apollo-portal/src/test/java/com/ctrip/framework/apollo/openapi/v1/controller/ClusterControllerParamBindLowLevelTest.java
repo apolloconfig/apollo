@@ -130,7 +130,7 @@ public class ClusterControllerParamBindLowLevelTest {
     dto.setName("new-cluster");
     dto.setDataChangeCreatedBy("tester");
 
-    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class)))
+    when(clusterOpenApiService.createCluster(anyString(), any(OpenClusterDTO.class), anyString()))
         .thenReturn(dto);
 
     mockMvc
@@ -141,10 +141,14 @@ public class ClusterControllerParamBindLowLevelTest {
     ArgumentCaptor<String> envCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<OpenClusterDTO> dtoCap = ArgumentCaptor.forClass(OpenClusterDTO.class);
 
-    verify(clusterOpenApiService, times(1)).createCluster(envCaptor.capture(), dtoCap.capture());
+    ArgumentCaptor<String> operatorCaptor = ArgumentCaptor.forClass(String.class);
+
+    verify(clusterOpenApiService, times(1)).createCluster(envCaptor.capture(), dtoCap.capture(),
+        operatorCaptor.capture());
     assertThat(envCaptor.getValue()).isEqualTo(env);
     assertThat(dtoCap.getValue().getAppId()).isEqualTo(appId);
     assertThat(dtoCap.getValue().getName()).isEqualTo("new-cluster");
+    assertThat(operatorCaptor.getValue()).isEqualTo("tester");
   }
 
   @Test
@@ -154,7 +158,7 @@ public class ClusterControllerParamBindLowLevelTest {
     String clusterName = "default";
     String operator = "tester";
 
-    doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName);
+    doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName, operator);
 
     mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
         clusterName).param("operator", operator)).andExpect(status().isOk());
@@ -163,10 +167,13 @@ public class ClusterControllerParamBindLowLevelTest {
     ArgumentCaptor<String> appIdCaptor = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<String> clusterNameCaptor = ArgumentCaptor.forClass(String.class);
 
+    ArgumentCaptor<String> operatorCaptor = ArgumentCaptor.forClass(String.class);
+
     verify(clusterOpenApiService, times(1)).deleteCluster(envCaptor.capture(),
-        appIdCaptor.capture(), clusterNameCaptor.capture());
+        appIdCaptor.capture(), clusterNameCaptor.capture(), operatorCaptor.capture());
     assertThat(envCaptor.getValue()).isEqualTo(env);
     assertThat(appIdCaptor.getValue()).isEqualTo(appId);
     assertThat(clusterNameCaptor.getValue()).isEqualTo(clusterName);
+    assertThat(operatorCaptor.getValue()).isEqualTo(operator);
   }
 }

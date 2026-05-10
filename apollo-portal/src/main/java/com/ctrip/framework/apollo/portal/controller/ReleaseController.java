@@ -78,6 +78,7 @@ public class ReleaseController {
     model.setEnv(env);
     model.setClusterName(clusterName);
     model.setNamespaceName(namespaceName);
+    model.setReleasedBy(userInfoHolder.getUser().getUserId());
 
     if (model.isEmergencyPublish() && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
       throw new BadRequestException("Env: %s is not supported emergency publish now", env);
@@ -105,6 +106,7 @@ public class ReleaseController {
     model.setEnv(env);
     model.setClusterName(branchName);
     model.setNamespaceName(namespaceName);
+    model.setReleasedBy(userInfoHolder.getUser().getUserId());
 
     if (model.isEmergencyPublish() && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
       throw new BadRequestException("Env: %s is not supported emergency publish now", env);

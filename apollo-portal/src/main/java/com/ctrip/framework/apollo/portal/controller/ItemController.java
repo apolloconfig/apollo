@@ -87,7 +87,7 @@ public class ItemController {
     model.setEnv(env);
     model.setNamespaceName(namespaceName);
 
-    configService.updateConfigItemByText(model);
+    configService.updateConfigItemByText(model, userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(
@@ -223,7 +223,8 @@ public class ItemController {
       }
     }
     if (hasPermission) {
-      configService.syncItems(model.getSyncToNamespaces(), model.getSyncItems());
+      configService.syncItems(model.getSyncToNamespaces(), model.getSyncItems(),
+          userInfoHolder.getUser().getUserId());
       return ResponseEntity.status(HttpStatus.OK).build();
     }
     throw new AccessDeniedException(String
@@ -249,7 +250,8 @@ public class ItemController {
   @PutMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/revoke-items")
   public void revokeItems(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName) {
-    configService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName);
+    configService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName,
+        userInfoHolder.getUser().getUserId());
   }
 
   void doSyntaxCheck(NamespaceTextModel model) {

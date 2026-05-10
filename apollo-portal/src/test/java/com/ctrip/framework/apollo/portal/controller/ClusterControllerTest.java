@@ -62,7 +62,8 @@ public class ClusterControllerTest {
     created.setName("sampleCluster");
 
     when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
-    when(clusterService.createCluster(eq(Env.DEV), clusterCaptor.capture())).thenReturn(created);
+    when(clusterService.createCluster(eq(Env.DEV), clusterCaptor.capture(), eq("apollo")))
+        .thenReturn(created);
 
     ClusterDTO result = clusterController.createCluster("SampleApp", "DEV", toCreate);
 
@@ -74,11 +75,13 @@ public class ClusterControllerTest {
 
   @Test
   public void shouldDeleteClusterByEnvAndName() {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+
     ResponseEntity<Void> response =
         clusterController.deleteCluster("SampleApp", "DEV", "sampleCluster");
 
     assertEquals(200, response.getStatusCode().value());
-    verify(clusterService).deleteCluster(Env.DEV, "SampleApp", "sampleCluster");
+    verify(clusterService).deleteCluster(Env.DEV, "SampleApp", "sampleCluster", "apollo");
   }
 
   @Test

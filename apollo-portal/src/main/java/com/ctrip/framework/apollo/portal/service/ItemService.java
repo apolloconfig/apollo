@@ -36,7 +36,6 @@ import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.gson.Gson;
 import java.util.HashMap;
@@ -56,18 +55,16 @@ import java.util.stream.Collectors;
 public class ItemService {
   private static final Gson GSON = new Gson();
 
-  private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
   private final AdminServiceAPI.ItemAPI itemAPI;
   private final AdminServiceAPI.ReleaseAPI releaseAPI;
   private final ConfigTextResolver fileTextResolver;
   private final ConfigTextResolver propertyResolver;
 
-  public ItemService(final UserInfoHolder userInfoHolder, final NamespaceAPI namespaceAPI,
-      final ItemAPI itemAPI, final ReleaseAPI releaseAPI,
+  public ItemService(final NamespaceAPI namespaceAPI, final ItemAPI itemAPI,
+      final ReleaseAPI releaseAPI,
       final @Qualifier("fileTextResolver") ConfigTextResolver fileTextResolver,
       final @Qualifier("propertyResolver") ConfigTextResolver propertyResolver) {
-    this.userInfoHolder = userInfoHolder;
     this.namespaceAPI = namespaceAPI;
     this.itemAPI = itemAPI;
     this.releaseAPI = releaseAPI;
@@ -81,7 +78,7 @@ public class ItemService {
    *
    * @return parse result
    */
-  public void updateConfigItemByText(NamespaceTextModel model) {
+  public void updateConfigItemByText(NamespaceTextModel model, String operator) {
     String appId = model.getAppId();
     Env env = model.getEnv();
     String clusterName = model.getClusterName();
@@ -109,10 +106,6 @@ public class ItemService {
       return;
     }
 
-    String operator = model.getOperator();
-    if (StringUtils.isBlank(operator)) {
-      operator = userInfoHolder.getUser().getUserId();
-    }
     changeSets.setDataChangeLastModifiedBy(operator);
 
     updateItems(appId, env, clusterName, namespaceName, changeSets);
@@ -188,12 +181,13 @@ public class ItemService {
     return item;
   }
 
-  public void syncItems(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems) {
+  public void syncItems(List<NamespaceIdentifier> comparedNamespaces, List<ItemDTO> sourceItems,
+      String operator) {
     List<ItemDiffs> itemDiffs = compare(comparedNamespaces, sourceItems);
     for (ItemDiffs itemDiff : itemDiffs) {
       NamespaceIdentifier namespaceIdentifier = itemDiff.getNamespace();
       ItemChangeSets changeSets = itemDiff.getDiffs();
-      changeSets.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+      changeSets.setDataChangeLastModifiedBy(operator);
 
       String appId = namespaceIdentifier.getAppId();
       Env env = namespaceIdentifier.getEnv();
@@ -208,7 +202,8 @@ public class ItemService {
   }
 
 
-  public void revokeItem(String appId, Env env, String clusterName, String namespaceName) {
+  public void revokeItem(String appId, Env env, String clusterName, String namespaceName,
+      String operator) {
 
     NamespaceDTO namespace = namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName);
     if (namespace == null) {
@@ -250,7 +245,7 @@ public class ItemService {
       lineNum.set(lineNum.get() + 1);
     });
     oldKeyMapItem.forEach((key, value) -> changeSets.addDeleteItem(value));
-    changeSets.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+    changeSets.setDataChangeLastModifiedBy(operator);
 
     updateItems(appId, env, clusterName, namespaceName, changeSets);
 

@@ -16,9 +16,10 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.model.MultiResponseEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerAuditRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRepository;
 import com.ctrip.framework.apollo.openapi.repository.ConsumerRoleRepository;
@@ -67,7 +68,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -183,7 +183,7 @@ public class AppControllerTest {
   }
 
   @Test
-  public void testGetEnvClusterInfo() throws Exception {
+  public void testGetEnvClusters() throws Exception {
     String appId = "someAppId";
 
     OpenEnvClusterDTO devCluster = new OpenEnvClusterDTO();
@@ -193,7 +193,7 @@ public class AppControllerTest {
     fatCluster.setEnv("FAT");
     fatCluster.setClusters(Lists.newArrayList("default", "feature"));
 
-    when(appOpenApiService.getEnvClusterInfo(appId))
+    when(appOpenApiService.getEnvClusters(appId))
         .thenReturn(Lists.newArrayList(devCluster, fatCluster));
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/envclusters"))
@@ -203,6 +203,34 @@ public class AppControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.[1].env").value("FAT"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[0]").value("default"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.[1].clusters[1]").value("feature"));
+
+    Mockito.verify(appOpenApiService).getEnvClusters(appId);
+  }
+
+  @Test
+  public void testGetEnvClusterInfo() throws Exception {
+    String appId = "someAppId";
+
+    OpenEnvClusterInfo devInfo = new OpenEnvClusterInfo();
+    devInfo.setEnv("DEV");
+    devInfo.setCode(HttpStatus.OK.value());
+    devInfo.setMessage(HttpStatus.OK.getReasonPhrase());
+    com.ctrip.framework.apollo.openapi.model.OpenClusterDTO defaultCluster =
+        new com.ctrip.framework.apollo.openapi.model.OpenClusterDTO();
+    defaultCluster.setName("default");
+    defaultCluster.setAppId(appId);
+    devInfo.setClusters(Lists.newArrayList(defaultCluster));
+
+    when(appOpenApiService.getEnvClusterInfo(appId)).thenReturn(Lists.newArrayList(devInfo));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/env-cluster-info"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].env").value("DEV"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].code").value(HttpStatus.OK.value()))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.[0].message").value(HttpStatus.OK.getReasonPhrase()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].clusters[0].name").value("default"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].clusters[0].appId").value(appId));
 
     Mockito.verify(appOpenApiService).getEnvClusterInfo(appId);
   }
@@ -405,10 +433,15 @@ public class AppControllerTest {
   public void testFindMissEnvs() throws Exception {
     String appId = "someAppId";
 
-    when(appOpenApiService.findMissEnvs(appId))
-        .thenReturn(new MultiResponseEntity(HttpStatus.OK.value(), new ArrayList<>()));
-    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/miss_envs"))
-        .andExpect(MockMvcResultMatchers.status().isOk());
+    OpenMissEnvDTO missEnv = new OpenMissEnvDTO();
+    missEnv.setCode(HttpStatus.OK.value());
+    missEnv.setMessage("FAT");
+    when(appOpenApiService.findMissEnvs(appId)).thenReturn(Lists.newArrayList(missEnv));
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/" + appId + "/miss-envs"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].code").value(HttpStatus.OK.value()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].message").value("FAT"));
 
     Mockito.verify(appOpenApiService).findMissEnvs(appId);
   }
@@ -426,15 +459,15 @@ public class AppControllerTest {
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
-    Mockito.doNothing().when(appOpenApiService).updateApp(Mockito.any(OpenAppDTO.class));
+    Mockito.doNothing().when(appOpenApiService).updateApp(Mockito.any(OpenAppDTO.class),
+        Mockito.eq(operator));
     when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
     mockMvc
         .perform(MockMvcRequestBuilders.put("/openapi/v1/apps/" + appId).param("operator", operator)
             .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(requestDto)))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.appId").value(appId))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("App One"));
+        .andExpect(MockMvcResultMatchers.content().string(""));
 
   }
 
@@ -458,7 +491,8 @@ public class AppControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(requestDto)))
         .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    Mockito.verify(appOpenApiService, Mockito.never()).updateApp(Mockito.any());
+    Mockito.verify(appOpenApiService, Mockito.never()).updateApp(Mockito.any(),
+        Mockito.anyString());
   }
 
   @Test
@@ -471,13 +505,13 @@ public class AppControllerTest {
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
-    when(appOpenApiService.deleteApp(appId)).thenReturn(new OpenAppDTO());
+    when(appOpenApiService.deleteApp(appId, operator)).thenReturn(new OpenAppDTO());
     when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
     mockMvc.perform(delete("/openapi/v1/apps/" + appId).param("operator", operator))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.content().string(""));
 
-    Mockito.verify(appOpenApiService).deleteApp(appId);
+    Mockito.verify(appOpenApiService).deleteApp(appId, operator);
   }
 }

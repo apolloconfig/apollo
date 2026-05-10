@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
-import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
@@ -28,7 +27,6 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.openapi.model.KVEntity;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
@@ -36,24 +34,17 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenItemChangeSets;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenItemDiffs;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenNamespaceSyncModel;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceTextModel;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
-import com.ctrip.framework.apollo.openapi.model.OpenReleaseBO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-import com.ctrip.framework.apollo.portal.entity.bo.ReleaseBO;
-import com.ctrip.framework.apollo.portal.entity.model.NamespaceSyncModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
-import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
@@ -62,7 +53,6 @@ import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -151,33 +141,6 @@ public final class OpenApiModelConverters {
     return openReleaseDTO;
   }
 
-  // newly added
-  public static OpenReleaseBO fromReleaseBO(final ReleaseBO releaseBO) {
-    Preconditions.checkArgument(releaseBO != null);
-    OpenReleaseBO openReleaseBO = new OpenReleaseBO();
-    openReleaseBO.setBaseInfo(fromReleaseDTO(releaseBO.getBaseInfo()));
-    Set<com.ctrip.framework.apollo.portal.entity.bo.KVEntity> items = releaseBO.getItems();
-    List<KVEntity> itemsList = new ArrayList<>();
-    if (!CollectionUtils.isEmpty(items)) {
-      for (com.ctrip.framework.apollo.portal.entity.bo.KVEntity item : items) {
-        KVEntity kvEntity = new KVEntity();
-        kvEntity.setKey(item.getKey());
-        kvEntity.setValue(item.getValue());
-        itemsList.add(kvEntity);
-      }
-    }
-    openReleaseBO.setItems(itemsList);
-    return openReleaseBO;
-  }
-
-  // newly added
-  public static List<OpenReleaseBO> fromReleaseBOs(final List<ReleaseBO> releaseBOs) {
-    if (CollectionUtils.isEmpty(releaseBOs)) {
-      return Collections.emptyList();
-    }
-    return releaseBOs.stream().map(OpenApiModelConverters::fromReleaseBO)
-        .collect(Collectors.toList());
-  }
   // endregion
 
   // region Namespace conversions
@@ -279,31 +242,6 @@ public final class OpenApiModelConverters {
     return openNamespaceIdentifier;
   }
 
-  // newly added
-  public static NamespaceSyncModel toNamespaceSyncModel(
-      final OpenNamespaceSyncModel openNamespaceSyncModel) {
-    Preconditions.checkArgument(openNamespaceSyncModel != null);
-    NamespaceSyncModel model =
-        BeanUtils.transform(NamespaceSyncModel.class, openNamespaceSyncModel);
-    if (openNamespaceSyncModel.getSyncToNamespaces() != null) {
-      model.setSyncToNamespaces(
-          toNamespaceIdentifiers(openNamespaceSyncModel.getSyncToNamespaces()));
-    }
-    if (openNamespaceSyncModel.getSyncItems() != null) {
-      model.setSyncItems(toItemDTOs(openNamespaceSyncModel.getSyncItems()));
-    }
-    return model;
-  }
-
-  // newly added
-  public static List<NamespaceSyncModel> toNamespaceSyncModels(
-      final List<OpenNamespaceSyncModel> openNamespaceSyncModels) {
-    if (CollectionUtils.isEmpty(openNamespaceSyncModels)) {
-      return Collections.emptyList();
-    }
-    return openNamespaceSyncModels.stream().map(OpenApiModelConverters::toNamespaceSyncModel)
-        .collect(Collectors.toList());
-  }
   // endregion
 
   // region Gray release rule conversions
@@ -324,7 +262,7 @@ public final class OpenApiModelConverters {
     String namespaceName = openGrayReleaseRuleDTO.getNamespaceName();
     GrayReleaseRuleDTO grayReleaseRuleDTO =
         new GrayReleaseRuleDTO(appId, clusterName, namespaceName, branchName);
-    List<OpenGrayReleaseRuleItemDTO> openGrayReleaseRuleItemDTOSet =
+    Set<OpenGrayReleaseRuleItemDTO> openGrayReleaseRuleItemDTOSet =
         openGrayReleaseRuleDTO.getRuleItems();
     if (!CollectionUtils.isEmpty(openGrayReleaseRuleItemDTOSet)) {
       openGrayReleaseRuleItemDTOSet.forEach(openGrayReleaseRuleItemDTO -> {
@@ -422,44 +360,4 @@ public final class OpenApiModelConverters {
   }
   // endregion
 
-  // region Item diffs/change sets
-  // newly added
-  public static OpenItemChangeSets fromItemChangeSets(final ItemChangeSets itemChangeSets) {
-    Preconditions.checkArgument(itemChangeSets != null);
-    OpenItemChangeSets openItemChangeSets = new OpenItemChangeSets();
-    if (itemChangeSets.getCreateItems() != null) {
-      openItemChangeSets.setCreateItems(fromItemDTOs(itemChangeSets.getCreateItems()));
-    }
-    if (itemChangeSets.getUpdateItems() != null) {
-      openItemChangeSets.setUpdateItems(fromItemDTOs(itemChangeSets.getUpdateItems()));
-    }
-    if (itemChangeSets.getDeleteItems() != null) {
-      openItemChangeSets.setDeleteItems(fromItemDTOs(itemChangeSets.getDeleteItems()));
-    }
-    return openItemChangeSets;
-  }
-
-  // newly added
-  public static OpenItemDiffs fromItemDiffs(final ItemDiffs itemDiffs) {
-    Preconditions.checkArgument(itemDiffs != null);
-    OpenItemDiffs openItemDiffs = new OpenItemDiffs();
-    if (itemDiffs.getNamespace() != null) {
-      openItemDiffs.setNamespace(fromNamespaceIdentifier(itemDiffs.getNamespace()));
-    }
-    if (itemDiffs.getDiffs() != null) {
-      openItemDiffs.setDiffs(fromItemChangeSets(itemDiffs.getDiffs()));
-    }
-    openItemDiffs.setExtInfo(itemDiffs.getExtInfo());
-    return openItemDiffs;
-  }
-
-  // newly added
-  public static List<OpenItemDiffs> fromItemDiffsList(final List<ItemDiffs> itemDiffsList) {
-    if (CollectionUtils.isEmpty(itemDiffsList)) {
-      return Collections.emptyList();
-    }
-    return itemDiffsList.stream().map(OpenApiModelConverters::fromItemDiffs)
-        .collect(Collectors.toList());
-  }
-  // endregion
 }

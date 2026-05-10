@@ -18,8 +18,10 @@ package com.ctrip.framework.apollo.portal;
 
 import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.portal.controller.AppController;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
 import com.ctrip.framework.apollo.portal.service.AppService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.gson.Gson;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
@@ -43,6 +45,8 @@ public class ServiceExceptionTest extends AbstractUnitTest {
   private AppController appController;
   @Mock
   private AppService appService;
+  @Mock
+  private UserInfoHolder userInfoHolder;
 
   private static final Gson GSON = new Gson();
 
@@ -65,7 +69,8 @@ public class ServiceExceptionTest extends AbstractUnitTest {
         new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "admin server error",
             GSON.toJson(errorAttributes).getBytes(), Charset.defaultCharset());
 
-    when(appService.createAppAndAddRolePermission(any(), any())).thenThrow(adminException);
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+    when(appService.createAppAndAddRolePermission(any(), any(), any())).thenThrow(adminException);
 
     AppModel app = generateSampleApp();
     try {

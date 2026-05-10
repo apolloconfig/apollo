@@ -28,7 +28,6 @@ import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.repository.AppNamespaceRepository;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -46,17 +45,14 @@ public class AppNamespaceService {
   private static final int PRIVATE_APP_NAMESPACE_NOTIFICATION_COUNT = 5;
   private static final Joiner APP_NAMESPACE_JOINER = Joiner.on(",").skipNulls();
 
-  private final UserInfoHolder userInfoHolder;
   private final AppNamespaceRepository appNamespaceRepository;
   private final RoleInitializationService roleInitializationService;
   private final AppService appService;
   private final RolePermissionService rolePermissionService;
 
-  public AppNamespaceService(final UserInfoHolder userInfoHolder,
-      final AppNamespaceRepository appNamespaceRepository,
+  public AppNamespaceService(final AppNamespaceRepository appNamespaceRepository,
       final RoleInitializationService roleInitializationService, final @Lazy AppService appService,
       final RolePermissionService rolePermissionService) {
-    this.userInfoHolder = userInfoHolder;
     this.appNamespaceRepository = appNamespaceRepository;
     this.roleInitializationService = roleInitializationService;
     this.appService = appService;
@@ -105,7 +101,7 @@ public class AppNamespaceService {
   @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create",
       description = "createDefaultAppNamespace")
   @Transactional
-  public void createDefaultAppNamespace(String appId) {
+  public void createDefaultAppNamespace(String appId, String operator) {
     if (!isAppNamespaceNameUnique(appId, ConfigConsts.NAMESPACE_APPLICATION)) {
       throw new BadRequestException("App already has application namespace. AppId = %s", appId);
     }
@@ -115,9 +111,8 @@ public class AppNamespaceService {
     appNs.setName(ConfigConsts.NAMESPACE_APPLICATION);
     appNs.setComment("default app namespace");
     appNs.setFormat(ConfigFileFormat.Properties.getValue());
-    String userId = userInfoHolder.getUser().getUserId();
-    appNs.setDataChangeCreatedBy(userId);
-    appNs.setDataChangeLastModifiedBy(userId);
+    appNs.setDataChangeCreatedBy(operator);
+    appNs.setDataChangeLastModifiedBy(operator);
 
     appNamespaceRepository.save(appNs);
   }
@@ -129,15 +124,15 @@ public class AppNamespaceService {
   }
 
   @Transactional
-  public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace) {
-    return createAppNamespaceInLocal(appNamespace, true);
+  public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace, String operator) {
+    return createAppNamespaceInLocal(appNamespace, true, operator);
   }
 
   @Transactional
   @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create",
       description = "createAppNamespaceInLocal")
   public AppNamespace createAppNamespaceInLocal(AppNamespace appNamespace,
-      boolean appendNamespacePrefix) {
+      boolean appendNamespacePrefix, String operator) {
     String appId = appNamespace.getAppId();
 
     // add app org id as prefix
@@ -164,9 +159,7 @@ public class AppNamespaceService {
           .invalidNamespaceFormat("format must be properties、json、yaml、yml、xml");
     }
 
-    String operator = appNamespace.getDataChangeCreatedBy();
-    if (StringUtils.isEmpty(operator)) {
-      operator = userInfoHolder.getUser().getUserId();
+    if (StringUtils.isEmpty(appNamespace.getDataChangeCreatedBy())) {
       appNamespace.setDataChangeCreatedBy(operator);
     }
 
@@ -255,13 +248,11 @@ public class AppNamespaceService {
   @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete",
       description = "deleteAppNamespace")
   @Transactional
-  public AppNamespace deleteAppNamespace(String appId, String namespaceName) {
+  public AppNamespace deleteAppNamespace(String appId, String namespaceName, String operator) {
     AppNamespace appNamespace = appNamespaceRepository.findByAppIdAndName(appId, namespaceName);
     if (appNamespace == null) {
       throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
-
-    String operator = userInfoHolder.getUser().getUserId();
 
     // this operator is passed to
     // com.ctrip.framework.apollo.portal.listener.DeletionListener.onAppNamespaceDeletionEvent

@@ -39,7 +39,6 @@ import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.environment.Env;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Maps;
@@ -75,7 +74,6 @@ public class NamespaceService {
 
   private final PortalConfig portalConfig;
   private final PortalSettings portalSettings;
-  private final UserInfoHolder userInfoHolder;
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
   private final ItemService itemService;
   private final ReleaseService releaseService;
@@ -87,16 +85,14 @@ public class NamespaceService {
   private final ClusterService clusterService;
 
   public NamespaceService(final PortalConfig portalConfig, final PortalSettings portalSettings,
-      final UserInfoHolder userInfoHolder, final NamespaceAPI namespaceAPI,
-      final ItemService itemService, final ReleaseService releaseService,
-      final AppNamespaceService appNamespaceService, final InstanceService instanceService,
-      final @Lazy NamespaceBranchService branchService,
+      final NamespaceAPI namespaceAPI, final ItemService itemService,
+      final ReleaseService releaseService, final AppNamespaceService appNamespaceService,
+      final InstanceService instanceService, final @Lazy NamespaceBranchService branchService,
       final RolePermissionService rolePermissionService,
       final AdditionalUserInfoEnrichService additionalUserInfoEnrichService,
       ClusterService clusterService) {
     this.portalConfig = portalConfig;
     this.portalSettings = portalSettings;
-    this.userInfoHolder = userInfoHolder;
     this.namespaceAPI = namespaceAPI;
     this.itemService = itemService;
     this.releaseService = releaseService;
@@ -109,13 +105,13 @@ public class NamespaceService {
   }
 
 
-  public NamespaceDTO createNamespace(Env env, NamespaceDTO namespace) {
+  public NamespaceDTO createNamespace(Env env, NamespaceDTO namespace, String operator) {
     if (StringUtils.isEmpty(namespace.getDataChangeCreatedBy())) {
-      namespace.setDataChangeCreatedBy(userInfoHolder.getUser().getUserId());
+      namespace.setDataChangeCreatedBy(operator);
     }
 
     if (StringUtils.isEmpty(namespace.getDataChangeLastModifiedBy())) {
-      namespace.setDataChangeLastModifiedBy(userInfoHolder.getUser().getUserId());
+      namespace.setDataChangeLastModifiedBy(operator);
     }
     NamespaceDTO createdNamespace = namespaceAPI.createNamespace(env, namespace);
 
@@ -169,9 +165,9 @@ public class NamespaceService {
   }
 
   @Transactional
-  public void deleteNamespace(String appId, Env env, String clusterName, String namespaceName) {
+  public void deleteNamespace(String appId, Env env, String clusterName, String namespaceName,
+      String operator) {
 
-    String operator = userInfoHolder.getUser().getUserId();
     namespaceAPI.deleteNamespace(env, appId, clusterName, namespaceName, operator);
   }
 

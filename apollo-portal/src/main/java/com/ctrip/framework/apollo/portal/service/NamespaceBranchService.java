@@ -27,7 +27,6 @@ import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.ItemsComparator;
 import com.ctrip.framework.apollo.portal.constant.TracerEventType;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,31 +38,22 @@ import java.util.List;
 public class NamespaceBranchService {
 
   private final ItemsComparator itemsComparator;
-  private final UserInfoHolder userInfoHolder;
   private final NamespaceService namespaceService;
   private final ItemService itemService;
   private final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI;
   private final ReleaseService releaseService;
 
   public NamespaceBranchService(final ItemsComparator itemsComparator,
-      final UserInfoHolder userInfoHolder, final NamespaceService namespaceService,
-      final ItemService itemService, final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI,
+      final NamespaceService namespaceService, final ItemService itemService,
+      final AdminServiceAPI.NamespaceBranchAPI namespaceBranchAPI,
       final ReleaseService releaseService) {
     this.itemsComparator = itemsComparator;
-    this.userInfoHolder = userInfoHolder;
     this.namespaceService = namespaceService;
     this.itemService = itemService;
     this.namespaceBranchAPI = namespaceBranchAPI;
     this.releaseService = releaseService;
   }
 
-
-  @Transactional
-  public NamespaceDTO createBranch(String appId, Env env, String parentClusterName,
-      String namespaceName) {
-    String operator = userInfoHolder.getUser().getUserId();
-    return createBranch(appId, env, parentClusterName, namespaceName, operator);
-  }
 
   @Transactional
   public NamespaceDTO createBranch(String appId, Env env, String parentClusterName,
@@ -85,13 +75,6 @@ public class NamespaceBranchService {
   }
 
   public void updateBranchGrayRules(String appId, Env env, String clusterName, String namespaceName,
-      String branchName, GrayReleaseRuleDTO rules) {
-
-    String operator = userInfoHolder.getUser().getUserId();
-    updateBranchGrayRules(appId, env, clusterName, namespaceName, branchName, rules, operator);
-  }
-
-  public void updateBranchGrayRules(String appId, Env env, String clusterName, String namespaceName,
       String branchName, GrayReleaseRuleDTO rules, String operator) {
     rules.setDataChangeCreatedBy(operator);
     rules.setDataChangeLastModifiedBy(operator);
@@ -104,13 +87,6 @@ public class NamespaceBranchService {
   }
 
   public void deleteBranch(String appId, Env env, String clusterName, String namespaceName,
-      String branchName) {
-
-    String operator = userInfoHolder.getUser().getUserId();
-    deleteBranch(appId, env, clusterName, namespaceName, branchName, operator);
-  }
-
-  public void deleteBranch(String appId, Env env, String clusterName, String namespaceName,
       String branchName, String operator) {
     namespaceBranchAPI.deleteBranch(appId, env, clusterName, namespaceName, branchName, operator);
 
@@ -118,14 +94,6 @@ public class NamespaceBranchService {
         String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
   }
 
-
-  public ReleaseDTO merge(String appId, Env env, String clusterName, String namespaceName,
-      String branchName, String title, String comment, boolean isEmergencyPublish,
-      boolean deleteBranch) {
-    String operator = userInfoHolder.getUser().getUserId();
-    return merge(appId, env, clusterName, namespaceName, branchName, title, comment,
-        isEmergencyPublish, deleteBranch, operator);
-  }
 
   public ReleaseDTO merge(String appId, Env env, String clusterName, String namespaceName,
       String branchName, String title, String comment, boolean isEmergencyPublish,

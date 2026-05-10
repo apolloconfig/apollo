@@ -194,7 +194,8 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
 
     when(namespaceService.loadNamespaceBaseInfo(any(), any(), any(), any()))
         .thenThrow(new RuntimeException());
-    when(namespaceService.createNamespace(any(), any())).thenReturn(genNamespaceDTO(1));
+    when(namespaceService.createNamespace(any(), any(), anyString()))
+        .thenReturn(genNamespaceDTO(1));
 
     when(itemService.findItems(any(), any(), any(), any())).thenReturn(Lists.newArrayList());
     HttpStatusCodeException itemNotFoundException =
@@ -207,8 +208,8 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
 
     try {
-      configsImportService.importDataFromZipFile(Lists.newArrayList(Env.DEV), zipInputStream,
-          false);
+      configsImportService.importDataFromZipFile(Lists.newArrayList(Env.DEV), zipInputStream, false,
+          userInfo.getUserId());
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -216,12 +217,12 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     verify(appNamespaceService, times(3)).importAppNamespaceInLocal(any());
     verify(applicationEventPublisher, times(3)).publishEvent(any());
 
-    verify(appService, times(2)).createAppInRemote(any(), any());
+    verify(appService, times(2)).createAppInRemote(any(), any(), anyString());
 
-    verify(clusterService, times(4)).createCluster(any(), any());
+    verify(clusterService, times(4)).createCluster(any(), any(), anyString());
 
     if (fillItemDetail) {
-      verify(namespaceService, times(6)).createNamespace(any(), any());
+      verify(namespaceService, times(6)).createNamespace(any(), any(), anyString());
       verify(roleInitializationService, times(6)).initNamespaceRoles(any(), any(), anyString());
       verify(roleInitializationService, times(6)).initNamespaceEnvRoles(any(), any(), anyString());
       verify(itemService, times(12)).createItem(any(), any(), any(), any(), any());
@@ -290,7 +291,8 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     when(clusterService.loadCluster(appId1, env, clusterName2)).thenReturn(app1Cluster2);
     when(namespaceService.loadNamespaceBaseInfo(any(), any(), any(), any()))
         .thenThrow(new RuntimeException());
-    when(namespaceService.createNamespace(any(), any())).thenReturn(genNamespaceDTO(1));
+    when(namespaceService.createNamespace(any(), any(), anyString()))
+        .thenReturn(genNamespaceDTO(1));
 
     when(itemService.findItems(any(), any(), any(), any())).thenReturn(Lists.newArrayList());
     HttpStatusCodeException itemNotFoundException =
@@ -303,7 +305,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     ZipInputStream zipInputStream = new ZipInputStream(fileInputStream);
     try {
       configsImportService.importAppConfigFromZipFile(appId2, env, clusterName1, zipInputStream,
-          false);
+          false, userInfo.getUserId());
     } catch (Exception e) {
       Assert.assertEquals("The app does not exist in the specified environment and cluster.",
           e.getMessage());
@@ -313,7 +315,7 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     zipInputStream = new ZipInputStream(fileInputStream);
     try {
       configsImportService.importAppConfigFromZipFile(appId1, env, clusterName2, zipInputStream,
-          false);
+          false, userInfo.getUserId());
     } catch (Exception e) {
       Assert.assertEquals("The content of the file to be imported is incorrect.", e.getMessage());
     }
@@ -322,11 +324,11 @@ public class ConfigsExportServiceTest extends AbstractUnitTest {
     zipInputStream = new ZipInputStream(fileInputStream);
     try {
       configsImportService.importAppConfigFromZipFile(appId1, env, clusterName1, zipInputStream,
-          false);
+          false, userInfo.getUserId());
     } catch (Exception e) {
       e.printStackTrace();
     }
-    verify(namespaceService, times(2)).createNamespace(any(), any());
+    verify(namespaceService, times(2)).createNamespace(any(), any(), anyString());
     verify(roleInitializationService, times(2)).initNamespaceRoles(any(), any(), anyString());
     verify(roleInitializationService, times(2)).initNamespaceEnvRoles(any(), any(), anyString());
     verify(itemService, times(4)).createItem(any(), any(), any(), any(), any());

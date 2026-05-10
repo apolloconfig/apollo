@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Favorite;
 import com.ctrip.framework.apollo.portal.repository.FavoriteRepository;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.base.Strings;
 import org.springframework.data.domain.Pageable;
@@ -35,33 +34,30 @@ public class FavoriteService {
 
   public static final long POSITION_DEFAULT = 10000;
 
-  private final UserInfoHolder userInfoHolder;
   private final FavoriteRepository favoriteRepository;
   private final UserService userService;
 
-  public FavoriteService(final UserInfoHolder userInfoHolder,
-      final FavoriteRepository favoriteRepository, final UserService userService) {
-    this.userInfoHolder = userInfoHolder;
+  public FavoriteService(final FavoriteRepository favoriteRepository,
+      final UserService userService) {
     this.favoriteRepository = favoriteRepository;
     this.userService = userService;
   }
 
 
-  public Favorite addFavorite(Favorite favorite) {
+  public Favorite addFavorite(Favorite favorite, String loginUserId) {
     UserInfo user = userService.findByUserId(favorite.getUserId());
     if (user == null) {
       throw BadRequestException.userNotExists(favorite.getUserId());
     }
 
-    UserInfo loginUser = userInfoHolder.getUser();
     // user can only add himself favorite app
-    if (!loginUser.equals(user)) {
+    if (!Objects.equals(loginUserId, user.getUserId())) {
       throw new BadRequestException(
           "add favorite fail. " + "because favorite's user is not current login user.");
     }
 
     Favorite checkedFavorite =
-        favoriteRepository.findByUserIdAndAppId(loginUser.getUserId(), favorite.getAppId());
+        favoriteRepository.findByUserIdAndAppId(loginUserId, favorite.getAppId());
     if (checkedFavorite != null) {
       return checkedFavorite;
     }
@@ -74,7 +70,7 @@ public class FavoriteService {
   }
 
 
-  public List<Favorite> search(String userId, String appId, Pageable page) {
+  public List<Favorite> search(String userId, String appId, Pageable page, String loginUserId) {
     boolean isUserIdEmpty = Strings.isNullOrEmpty(userId);
     boolean isAppIdEmpty = Strings.isNullOrEmpty(appId);
 
@@ -83,10 +79,9 @@ public class FavoriteService {
     }
 
     if (!isUserIdEmpty) {
-      UserInfo loginUser = userInfoHolder.getUser();
       // user can only search his own favorite app
-      if (!Objects.equals(loginUser.getUserId(), userId)) {
-        userId = loginUser.getUserId();
+      if (!Objects.equals(loginUserId, userId)) {
+        userId = loginUserId;
       }
     }
 
@@ -105,18 +100,18 @@ public class FavoriteService {
     return Collections.singletonList(favoriteRepository.findByUserIdAndAppId(userId, appId));
   }
 
-  public void deleteFavorite(long favoriteId) {
+  public void deleteFavorite(long favoriteId, String loginUserId) {
     Favorite favorite = favoriteRepository.findById(favoriteId).orElse(null);
 
-    checkUserOperatePermission(favorite);
+    checkUserOperatePermission(favorite, loginUserId);
 
     favoriteRepository.delete(favorite);
   }
 
-  public void adjustFavoriteToFirst(long favoriteId) {
+  public void adjustFavoriteToFirst(long favoriteId, String loginUserId) {
     Favorite favorite = favoriteRepository.findById(favoriteId).orElse(null);
 
-    checkUserOperatePermission(favorite);
+    checkUserOperatePermission(favorite, loginUserId);
 
     String userId = favorite.getUserId();
     Favorite firstFavorite =
@@ -128,12 +123,12 @@ public class FavoriteService {
     favoriteRepository.save(favorite);
   }
 
-  private void checkUserOperatePermission(Favorite favorite) {
+  private void checkUserOperatePermission(Favorite favorite, String loginUserId) {
     if (favorite == null) {
       throw new BadRequestException("favorite not exist");
     }
 
-    if (!Objects.equals(userInfoHolder.getUser().getUserId(), favorite.getUserId())) {
+    if (!Objects.equals(loginUserId, favorite.getUserId())) {
       throw new BadRequestException("can not operate other person's favorite");
     }
   }

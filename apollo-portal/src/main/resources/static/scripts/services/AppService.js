@@ -28,8 +28,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         load_navtree: {
             method: 'GET',
-            isArray: false,
-            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/navtree'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/env-cluster-info',
+            isArray: true
         },
         load_app: {
             method: 'GET',
@@ -49,7 +49,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         find_miss_envs: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/miss_envs'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/miss-envs',
+            isArray: true
         },
         create_missing_namespaces: {
             method: 'POST',
@@ -76,6 +77,25 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             url: AppUtil.prefixPath() + '/system/role/createApplication/:userId'
         }
     });
+    function normalizeOpenApiStatusArray(result, bodyMapper) {
+        var response = {
+            entities: []
+        };
+        var items = angular.isArray(result) ? result : [];
+        items.forEach(function (item) {
+            var code = item.code || 200;
+            var entity = {
+                code: code,
+                message: item.message
+            };
+            if (code == 200) {
+                entity.body = bodyMapper(item);
+            }
+            response.entities.push(entity);
+        });
+        return response;
+    }
+
     return {
         find_apps: function (appIds) {
             if (!appIds) {
@@ -106,7 +126,9 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             app_resource.load_navtree({
                                           appId: appId
                                       }, function (result) {
-                d.resolve(result);
+                d.resolve(normalizeOpenApiStatusArray(result, function (item) {
+                    return item;
+                }));
             }, function (result) {
                 d.reject(result);
             });
@@ -157,7 +179,9 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             app_resource.find_miss_envs({
                                             appId: appId
                                         }, function (result) {
-                d.resolve(result);
+                d.resolve(normalizeOpenApiStatusArray(result, function (item) {
+                    return item.message;
+                }));
             }, function (result) {
                 d.reject(result);
             });

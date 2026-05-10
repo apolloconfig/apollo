@@ -30,7 +30,6 @@ import com.ctrip.framework.apollo.common.exception.ServiceException;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceCreationEvent;
-import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
 import com.ctrip.framework.apollo.portal.util.ConfigToFileUtils;
 
@@ -70,13 +69,11 @@ public class ConfigsImportService {
   private final NamespaceService namespaceService;
   private final AppNamespaceService appNamespaceService;
   private final ApplicationEventPublisher publisher;
-  private final UserInfoHolder userInfoHolder;
   private final RoleInitializationService roleInitializationService;
 
   public ConfigsImportService(final ItemService itemService, final AppService appService,
       final ClusterService clusterService, final @Lazy NamespaceService namespaceService,
       final AppNamespaceService appNamespaceService, final ApplicationEventPublisher publisher,
-      final UserInfoHolder userInfoHolder,
       final RoleInitializationService roleInitializationService) {
     this.itemService = itemService;
     this.appService = appService;
@@ -84,7 +81,6 @@ public class ConfigsImportService {
     this.namespaceService = namespaceService;
     this.appNamespaceService = appNamespaceService;
     this.publisher = publisher;
-    this.userInfoHolder = userInfoHolder;
     this.roleInitializationService = roleInitializationService;
   }
 
@@ -92,15 +88,13 @@ public class ConfigsImportService {
    * force import, new items will overwrite existed items.
    */
   public void forceImportNamespaceFromFile(final Env env, final String standardFilename,
-      final InputStream zipInputStream) {
+      final InputStream zipInputStream, String operator) {
     String configText;
     try (InputStream in = zipInputStream) {
       configText = ConfigToFileUtils.fileToString(in);
     } catch (IOException e) {
       throw new ServiceException("Read config file errors:{}", e);
     }
-
-    String operator = userInfoHolder.getUser().getUserId();
 
     this.importNamespaceFromText(env, standardFilename, configText, false, operator);
   }
@@ -109,7 +103,7 @@ public class ConfigsImportService {
    * import all data include app、appnamespace、cluster、namespace、item
    */
   public void importDataFromZipFile(List<Env> importEnvs, ZipInputStream dataZip,
-      boolean ignoreConflictNamespace) throws IOException {
+      boolean ignoreConflictNamespace, String operator) throws IOException {
     List<String> toImportApps = Lists.newArrayList();
     List<String> toImportAppNSs = Lists.newArrayList();
     List<ImportClusterData> toImportClusters = Lists.newArrayList();
@@ -163,7 +157,7 @@ public class ConfigsImportService {
       LOGGER.info("Import data. app = {}, appns = {}, cluster = {}, namespace = {}",
           toImportApps.size(), toImportAppNSs.size(), toImportClusters.size(), toImportNSs.size());
 
-      doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters, toImportNSs);
+      doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters, toImportNSs, operator);
 
     } catch (Exception e) {
       LOGGER.error("import config error.", e);
@@ -175,7 +169,7 @@ public class ConfigsImportService {
    * import all configurations of an application in a specified environment and cluster
    */
   public void importAppConfigFromZipFile(String appId, Env env, String clusterName,
-      ZipInputStream dataZip, boolean ignoreConflictNamespace) throws IOException {
+      ZipInputStream dataZip, boolean ignoreConflictNamespace, String operator) throws IOException {
     ClusterDTO clusterDTO = clusterService.loadCluster(appId, env, clusterName);
     if (clusterDTO == null) {
       throw new BadRequestException(
@@ -219,7 +213,7 @@ public class ConfigsImportService {
     try {
       LOGGER.info("Import namespace. namespace = {}", toImportNSs.size());
       doImport(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
-          Lists.newArrayList(), toImportNSs);
+          Lists.newArrayList(), toImportNSs, operator);
     } catch (Exception e) {
       LOGGER.error("import app config error.", e);
       throw new ServiceException("import app config error.", e);
@@ -228,10 +222,8 @@ public class ConfigsImportService {
 
   private void doImport(List<Env> importEnvs, List<String> toImportApps,
       List<String> toImportAppNSs, List<ImportClusterData> toImportClusters,
-      List<ImportNamespaceData> toImportNSs) throws InterruptedException {
+      List<ImportNamespaceData> toImportNSs, String operator) throws InterruptedException {
     LOGGER.info("Start to import app. size = {}", toImportApps.size());
-
-    String operator = userInfoHolder.getUser().getUserId();
 
     long startTime = System.currentTimeMillis();
     CountDownLatch appLatch = new CountDownLatch(toImportApps.size());
@@ -319,7 +311,7 @@ public class ConfigsImportService {
         appService.load(env, appId);
       } catch (Exception e) {
         // not existed
-        appService.createAppInRemote(env, toImportApp);
+        appService.createAppInRemote(env, toImportApp, operator);
       }
     });
   }
@@ -371,7 +363,7 @@ public class ConfigsImportService {
       clusterService.loadCluster(appId, env, clusterName);
     } catch (Exception e) {
       // not existed
-      clusterService.createCluster(env, toImportCluster);
+      clusterService.createCluster(env, toImportCluster, operator);
     }
   }
 
@@ -416,7 +408,7 @@ public class ConfigsImportService {
       namespaceDTO.setNamespaceName(namespaceName);
       namespaceDTO.setDataChangeCreatedBy(operator);
       namespaceDTO.setDataChangeLastModifiedBy(operator);
-      namespaceDTO = namespaceService.createNamespace(env, namespaceDTO);
+      namespaceDTO = namespaceService.createNamespace(env, namespaceDTO, operator);
 
       roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
       roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, operator);

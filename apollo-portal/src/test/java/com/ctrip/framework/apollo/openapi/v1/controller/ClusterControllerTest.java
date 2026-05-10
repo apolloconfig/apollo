@@ -141,7 +141,7 @@ public class ClusterControllerTest {
     user.setUserId(operator);
 
     when(userService.findByUserId(operator)).thenReturn(user);
-    when(clusterOpenApiService.createCluster(eq(env), any(OpenClusterDTO.class)))
+    when(clusterOpenApiService.createCluster(eq(env), any(OpenClusterDTO.class), eq(operator)))
         .thenReturn(clusterDTO);
 
     this.mockMvc
@@ -152,7 +152,7 @@ public class ClusterControllerTest {
         .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk())
         .andExpect(jsonPath("$.appId", is(appId))).andExpect(jsonPath("$.name", is(clusterName)));
 
-    verify(clusterOpenApiService).createCluster(eq(env), any(OpenClusterDTO.class));
+    verify(clusterOpenApiService).createCluster(eq(env), any(OpenClusterDTO.class), eq(operator));
   }
 
   @Test
@@ -178,7 +178,7 @@ public class ClusterControllerTest {
         .andDo(MockMvcResultHandlers.print()).andExpect(status().isBadRequest());
 
     verify(clusterOpenApiService, never()).createCluster(Mockito.anyString(),
-        Mockito.any(OpenClusterDTO.class));
+        Mockito.any(OpenClusterDTO.class), Mockito.anyString());
   }
 
   @Test
@@ -195,7 +195,8 @@ public class ClusterControllerTest {
 
     when(userService.findByUserId(operator)).thenReturn(user);
 
-    Mockito.doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName);
+    Mockito.doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName,
+        operator);
 
     this.mockMvc
         .perform(MockMvcRequestBuilders
@@ -204,6 +205,6 @@ public class ClusterControllerTest {
             .accept(MediaType.APPLICATION_JSON).param("operator", operator))
         .andDo(MockMvcResultHandlers.print()).andExpect(status().isOk());
 
-    verify(clusterOpenApiService, times(1)).deleteCluster(env, appId, clusterName);
+    verify(clusterOpenApiService, times(1)).deleteCluster(env, appId, clusterName, operator);
   }
 }

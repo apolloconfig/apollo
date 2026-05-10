@@ -76,7 +76,7 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
     AppNamespace appNamespace = OpenApiBeanUtils.transformToAppNamespace(appNamespaceDTO);
     AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace,
-        appNamespaceDTO.isAppendNamespacePrefix());
+        appNamespaceDTO.isAppendNamespacePrefix(), appNamespaceDTO.getDataChangeCreatedBy());
 
     publisher.publishEvent(new AppNamespaceCreationEvent(createdAppNamespace));
 

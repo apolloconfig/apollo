@@ -22,6 +22,7 @@ import com.google.common.base.Splitter;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ConfigsImportService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,9 +49,12 @@ public class ConfigsImportController {
   private static final String CONFLICT_ACTION_IGNORE = "ignore";
   private static final String CONFLICT_ACTION_COVER = "cover";
   private final ConfigsImportService configsImportService;
+  private final UserInfoHolder userInfoHolder;
 
-  public ConfigsImportController(final ConfigsImportService configsImportService) {
+  public ConfigsImportController(final ConfigsImportService configsImportService,
+      final UserInfoHolder userInfoHolder) {
     this.configsImportService = configsImportService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   /**
@@ -73,7 +77,7 @@ public class ConfigsImportController {
         ConfigFileFormat.fromString(format));
 
     configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename,
-        file.getInputStream());
+        file.getInputStream(), userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
@@ -90,7 +94,7 @@ public class ConfigsImportController {
     byte[] bytes = file.getBytes();
     try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(bytes))) {
       configsImportService.importDataFromZipFile(importEnvs, zipInputStream,
-          ignoreConflictNamespace);
+          ignoreConflictNamespace, userInfoHolder.getUser().getUserId());
     }
   }
 
@@ -105,7 +109,7 @@ public class ConfigsImportController {
     byte[] bytes = file.getBytes();
     try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(bytes))) {
       configsImportService.importAppConfigFromZipFile(appId, Env.valueOf(env), clusterName,
-          zipInputStream, ignoreConflictNamespace);
+          zipInputStream, ignoreConflictNamespace, userInfoHolder.getUser().getUserId());
     }
   }
 

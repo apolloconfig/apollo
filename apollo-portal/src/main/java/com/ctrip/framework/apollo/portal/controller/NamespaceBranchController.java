@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,16 +52,18 @@ public class NamespaceBranchController {
   private final ApplicationEventPublisher publisher;
   private final PortalConfig portalConfig;
   private final UnifiedPermissionValidator unifiedPermissionValidator;
+  private final UserInfoHolder userInfoHolder;
 
   public NamespaceBranchController(final ReleaseService releaseService,
       final NamespaceBranchService namespaceBranchService,
       final ApplicationEventPublisher publisher, final PortalConfig portalConfig,
-      UnifiedPermissionValidator unifiedPermissionValidator) {
+      UnifiedPermissionValidator unifiedPermissionValidator, UserInfoHolder userInfoHolder) {
     this.releaseService = releaseService;
     this.namespaceBranchService = namespaceBranchService;
     this.publisher = publisher;
     this.portalConfig = portalConfig;
     this.unifiedPermissionValidator = unifiedPermissionValidator;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @GetMapping("/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
@@ -85,7 +88,8 @@ public class NamespaceBranchController {
   public NamespaceDTO createBranch(@PathVariable String appId, @PathVariable String env,
       @PathVariable String clusterName, @PathVariable String namespaceName) {
 
-    return namespaceBranchService.createBranch(appId, Env.valueOf(env), clusterName, namespaceName);
+    return namespaceBranchService.createBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        userInfoHolder.getUser().getUserId());
   }
 
   @DeleteMapping(
@@ -111,7 +115,7 @@ public class NamespaceBranchController {
     }
 
     namespaceBranchService.deleteBranch(appId, Env.valueOf(env), clusterName, namespaceName,
-        branchName);
+        branchName, userInfoHolder.getUser().getUserId());
 
   }
 
@@ -134,7 +138,7 @@ public class NamespaceBranchController {
 
     ReleaseDTO createdRelease = namespaceBranchService.merge(appId, Env.valueOf(env), clusterName,
         namespaceName, branchName, model.getReleaseTitle(), model.getReleaseComment(),
-        model.isEmergencyPublish(), deleteBranch);
+        model.isEmergencyPublish(), deleteBranch, userInfoHolder.getUser().getUserId());
 
     ConfigPublishEvent event = ConfigPublishEvent.instance();
     event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
@@ -167,7 +171,7 @@ public class NamespaceBranchController {
       @PathVariable String branchName, @RequestBody GrayReleaseRuleDTO rules) {
 
     namespaceBranchService.updateBranchGrayRules(appId, Env.valueOf(env), clusterName,
-        namespaceName, branchName, rules);
+        namespaceName, branchName, rules, userInfoHolder.getUser().getUserId());
 
   }
 

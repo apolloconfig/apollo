@@ -126,7 +126,8 @@ public class AppController {
   public App create(@Valid @RequestBody AppModel appModel) {
 
     App app = transformToApp(appModel);
-    return appService.createAppAndAddRolePermission(app, appModel.getAdmins());
+    return appService.createAppAndAddRolePermission(app, appModel.getAdmins(),
+        userInfoHolder.getUser().getUserId());
   }
 
   @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
@@ -139,7 +140,7 @@ public class AppController {
 
     App app = transformToApp(appModel);
 
-    App updatedApp = appService.updateAppInLocal(app);
+    App updatedApp = appService.updateAppInLocal(app, userInfoHolder.getUser().getUserId());
 
     publisher.publishEvent(new AppInfoChangedEvent(updatedApp));
   }
@@ -163,10 +164,11 @@ public class AppController {
   @PostMapping(value = "/envs/{env}", consumes = {"application/json"})
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> create(@PathVariable String env, @Valid @RequestBody App app) {
-    appService.createAppInRemote(Env.valueOf(env), app);
+    String operator = userInfoHolder.getUser().getUserId();
+    appService.createAppInRemote(Env.valueOf(env), app, operator);
 
     roleInitializationService.initNamespaceSpecificEnvRoles(app.getAppId(),
-        ConfigConsts.NAMESPACE_APPLICATION, env, userInfoHolder.getUser().getUserId());
+        ConfigConsts.NAMESPACE_APPLICATION, env, operator);
 
     return ResponseEntity.ok().build();
   }
@@ -185,7 +187,7 @@ public class AppController {
   @DeleteMapping("/{appId:.+}")
   @ApolloAuditLog(type = OpType.RPC, name = "App.delete")
   public void deleteApp(@PathVariable String appId) {
-    App app = appService.deleteAppInLocal(appId);
+    App app = appService.deleteAppInLocal(appId, userInfoHolder.getUser().getUserId());
 
     publisher.publishEvent(new AppDeletionEvent(app));
   }

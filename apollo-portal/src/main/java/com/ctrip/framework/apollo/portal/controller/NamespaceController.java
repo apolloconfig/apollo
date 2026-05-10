@@ -165,14 +165,13 @@ public class NamespaceController {
           namespace.getClusterName(), namespace.getNamespaceName());
 
       try {
-        namespaceService.createNamespace(Env.valueOf(model.getEnv()), namespace);
+        namespaceService.createNamespace(Env.valueOf(model.getEnv()), namespace, operator);
       } catch (Exception e) {
         logger.error("create namespace fail.", e);
         Tracer.logError(String.format("create namespace fail. (env=%s namespace=%s)",
             model.getEnv(), namespace.getNamespaceName()), e);
       }
-      namespaceService.assignNamespaceRoleToOperator(appId, namespaceName,
-          userInfoHolder.getUser().getUserId());
+      namespaceService.assignNamespaceRoleToOperator(appId, namespaceName, operator);
     }
 
     return ResponseEntity.ok().build();
@@ -185,7 +184,8 @@ public class NamespaceController {
       @PathVariable String env, @PathVariable String clusterName,
       @PathVariable String namespaceName) {
 
-    namespaceService.deleteNamespace(appId, Env.valueOf(env), clusterName, namespaceName);
+    namespaceService.deleteNamespace(appId, Env.valueOf(env), clusterName, namespaceName,
+        userInfoHolder.getUser().getUserId());
 
     return ResponseEntity.ok().build();
   }
@@ -211,7 +211,8 @@ public class NamespaceController {
   public ResponseEntity<Void> deleteAppNamespace(@PathVariable String appId,
       @PathVariable String namespaceName) {
 
-    AppNamespace appNamespace = appNamespaceService.deleteAppNamespace(appId, namespaceName);
+    AppNamespace appNamespace = appNamespaceService.deleteAppNamespace(appId, namespaceName,
+        userInfoHolder.getUser().getUserId());
 
     publisher.publishEvent(new AppNamespaceDeletionEvent(appNamespace));
 
@@ -243,8 +244,8 @@ public class NamespaceController {
               + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
     }
 
-    AppNamespace createdAppNamespace =
-        appNamespaceService.createAppNamespaceInLocal(appNamespace, appendNamespacePrefix);
+    AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace,
+        appendNamespacePrefix, userInfoHolder.getUser().getUserId());
 
     if (portalConfig.canAppAdminCreatePrivateNamespace() || createdAppNamespace.isPublic()) {
       namespaceService.assignNamespaceRoleToOperator(appId, appNamespace.getName(),

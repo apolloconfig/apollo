@@ -42,14 +42,15 @@ public class ServerClusterOpenApiService implements ClusterOpenApiService {
   }
 
   @Override
-  public OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO) {
+  public OpenClusterDTO createCluster(String env, OpenClusterDTO openClusterDTO, String operator) {
     ClusterDTO toCreate = OpenApiModelConverters.toClusterDTO(openClusterDTO);
-    ClusterDTO createdClusterDTO = clusterService.createCluster(Env.valueOf(env), toCreate);
+    ClusterDTO createdClusterDTO =
+        clusterService.createCluster(Env.valueOf(env), toCreate, operator);
     return OpenApiModelConverters.fromClusterDTO(createdClusterDTO);
   }
 
   @Override
-  public void deleteCluster(String env, String appId, String clusterName) {
-    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName);
+  public void deleteCluster(String env, String appId, String clusterName, String operator) {
+    clusterService.deleteCluster(Env.valueOf(env), appId, clusterName, operator);
   }
 }
