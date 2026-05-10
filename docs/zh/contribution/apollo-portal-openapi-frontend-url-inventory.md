@@ -8,7 +8,7 @@
 - URL 条目数：121
 - OpenAPI 条目数：6
 - WebAPI 条目数：115
-- 未使用 `AppUtil.prefixPath()` 的条目数：2
+- 未使用 `AppUtil.prefixPath()` 的条目数：0
 
 ## 按 Service 汇总
 
@@ -23,12 +23,12 @@
 | `ConfigService.js` | 0 | 12 | 0 | 12 |
 | `ConsumerService.js` | 0 | 5 | 0 | 5 |
 | `EnvService.js` | 2 | 0 | 0 | 2 |
-| `ExportService.js` | 0 | 1 | 1 | 1 |
+| `ExportService.js` | 0 | 1 | 0 | 1 |
 | `FavoriteService.js` | 0 | 4 | 0 | 4 |
 | `GlobalSearchValueService.js` | 0 | 1 | 0 | 1 |
 | `InstanceService.js` | 0 | 4 | 0 | 4 |
 | `NamespaceBranchService.js` | 0 | 6 | 0 | 6 |
-| `NamespaceLockService.js` | 0 | 1 | 1 | 1 |
+| `NamespaceLockService.js` | 0 | 1 | 0 | 1 |
 | `NamespaceService.js` | 0 | 11 | 0 | 11 |
 | `OrganizationService.js` | 1 | 0 | 0 | 1 |
 | `PermissionService.js` | 0 | 20 | 0 | 20 |
@@ -91,7 +91,7 @@
 | `ConsumerService.js` | 43 | `delete_consumer` | `DELETE` | WebAPI | yes | `/consumers/by-appId` |
 | `EnvService.js` | 18 | `-` | `RESOURCE_BASE` | OpenAPI | yes | `/openapi/v1/envs` |
 | `EnvService.js` | 22 | `find_all_envs` | `GET` | OpenAPI | yes | `/openapi/v1/envs` |
-| `ExportService.js` | 21 | `importConfig` | `POST` | WebAPI | no | `/import` |
+| `ExportService.js` | 21 | `importConfig` | `POST` | WebAPI | yes | `/import` |
 | `FavoriteService.js` | 21 | `find_favorites` | `GET` | WebAPI | yes | `/favorites` |
 | `FavoriteService.js` | 26 | `add_favorite` | `POST` | WebAPI | yes | `/favorites` |
 | `FavoriteService.js` | 30 | `delete_favorite` | `DELETE` | WebAPI | yes | `/favorites/:favoriteId` |
@@ -107,7 +107,7 @@
 | `NamespaceBranchService.js` | 37 | `merge_and_release_branch` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge` |
 | `NamespaceBranchService.js` | 42 | `find_branch_gray_rules` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
 | `NamespaceBranchService.js` | 47 | `update_branch_gray_rules` | `PUT` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
-| `NamespaceLockService.js` | 21 | `get_namespace_lock` | `GET` | WebAPI | no | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info` |
+| `NamespaceLockService.js` | 21 | `get_namespace_lock` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info` |
 | `NamespaceService.js` | 22 | `find_public_namespaces` | `GET` | WebAPI | yes | `/appnamespaces/public` |
 | `NamespaceService.js` | 26 | `createNamespace` | `POST` | WebAPI | yes | `/apps/:appId/namespaces` |
 | `NamespaceService.js` | 31 | `createAppNamespace` | `POST` | WebAPI | yes | `/apps/:appId/appnamespaces?appendNamespacePrefix=:appendNamespacePrefix` |
