@@ -24,6 +24,14 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
 
+## 当前进展
+
+- Phase 0 基线已建立：迁移跟踪文档、前端 URL 清单、OpenAPI 兼容性检查脚本和 PR workflow 已补齐。
+- 前端 prefix path 基础问题已清零：`ClusterService.js`、`ExportService.js` 和 `NamespaceLockService.js` 已统一使用 `AppUtil.prefixPath()`；清单中 no-prefix 条目为 0。
+- OpenAPI 认证链路已加测试保护：`PortalUserSessionFilter`、`ConsumerAuthenticationFilter`、`UserTypeResolverFilter` 的顺序和 `/openapi/*` pattern 已由测试锁定。
+- `UserTypeResolverFilter` 测试已改为覆盖生产实现，避免测试 classpath 中的同名 shadow class 掩盖真实行为。
+- `UnifiedPermissionValidator` 的 USER/CONSUMER 分发测试已扩展到 namespace、application、hide-config 和 create/delete 相关入口。
+
 ## 迁移矩阵
 
 | 领域 | WebAPI / 前端 service | OpenAPI 覆盖 | 迁移策略 |

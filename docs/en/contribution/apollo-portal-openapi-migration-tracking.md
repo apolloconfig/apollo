@@ -27,6 +27,14 @@ Portal UI behavior.
 | Authorization | `UnifiedPermissionValidator` dispatches by `USER` or `CONSUMER` | OpenAPI read behavior can differ from `configView.memberOnly.envs` | Keep token compatibility first, then add explicit read-permission policy |
 | Models | Generated models, legacy `apollo-openapi` Java DTO/API classes, and Portal DTOs coexist | Maintaining three model layers increases conversion cost | Prefer generated `*ManagementApi` and `model.*` for new endpoints |
 
+## Current Progress
+
+- Phase 0 baseline is in place: migration tracking, frontend URL inventory, the OpenAPI compatibility checker, and the PR workflow have been added.
+- Frontend prefix path gaps are currently zero: `ClusterService.js`, `ExportService.js`, and `NamespaceLockService.js` now consistently use `AppUtil.prefixPath()`.
+- OpenAPI authentication flow is guarded by tests: the order and `/openapi/*` patterns for `PortalUserSessionFilter`, `ConsumerAuthenticationFilter`, and `UserTypeResolverFilter` are locked.
+- `UserTypeResolverFilter` tests now cover the production implementation instead of a test classpath shadow class with the same fully qualified name.
+- `UnifiedPermissionValidator` USER/CONSUMER dispatch coverage now includes namespace, application, hide-config, and create/delete related permission entry points.
+
 ## Migration Matrix
 
 | Domain | WebAPI / frontend service | OpenAPI coverage | Migration strategy |
