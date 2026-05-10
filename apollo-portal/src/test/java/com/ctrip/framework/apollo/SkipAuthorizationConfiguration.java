@@ -20,11 +20,19 @@ import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.component.UserPermissionValidator;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +65,12 @@ public class SkipAuthorizationConfiguration {
     someConsumerToken.setToken("some-token");
     someConsumerToken.setRateLimit(20);
     when(mock.getConsumerToken(any())).thenReturn(someConsumerToken);
+    doAnswer(invocation -> {
+      HttpServletRequest request = invocation.getArgument(0);
+      Long consumerId = invocation.getArgument(1);
+      request.setAttribute(ConsumerAuthUtil.CONSUMER_ID, consumerId);
+      return null;
+    }).when(mock).storeConsumerId(any(HttpServletRequest.class), any());
     return mock;
   }
 
@@ -68,5 +82,27 @@ public class SkipAuthorizationConfiguration {
     when(mock.hasAssignRolePermission(any())).thenReturn(true);
     when(mock.hasCreateNamespacePermission(any())).thenReturn(true);
     return mock;
+  }
+
+  @Bean
+  public FilterRegistrationBean<Filter> skipAuthorizationUserAuthenticationFilter() {
+    FilterRegistrationBean<Filter> filter = new FilterRegistrationBean<>();
+    filter.setFilter((request, response, chain) -> {
+      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+      if (httpServletRequest.getRequestURI().startsWith("/openapi/")) {
+        chain.doFilter(request, response);
+        return;
+      }
+      SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+          "apollo", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
+      try {
+        chain.doFilter(request, response);
+      } finally {
+        SecurityContextHolder.clearContext();
+      }
+    });
+    filter.addUrlPatterns("/*");
+    filter.setOrder(-98);
+    return filter;
   }
 }

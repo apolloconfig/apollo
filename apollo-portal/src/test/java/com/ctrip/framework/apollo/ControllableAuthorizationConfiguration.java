@@ -24,9 +24,16 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Configuration
 public class ControllableAuthorizationConfiguration {
@@ -51,4 +58,25 @@ public class ControllableAuthorizationConfiguration {
     return mock(ItemService.class);
   }
 
+  @Bean
+  public FilterRegistrationBean<Filter> controllableUserAuthenticationFilter() {
+    FilterRegistrationBean<Filter> filter = new FilterRegistrationBean<>();
+    filter.setFilter((request, response, chain) -> {
+      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+      if (httpServletRequest.getRequestURI().startsWith("/openapi/")) {
+        chain.doFilter(request, response);
+        return;
+      }
+      SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+          "apollo", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
+      try {
+        chain.doFilter(request, response);
+      } finally {
+        SecurityContextHolder.clearContext();
+      }
+    });
+    filter.addUrlPatterns("/*");
+    filter.setOrder(-98);
+    return filter;
+  }
 }
