@@ -22,6 +22,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 import re
+import sys
 from typing import Dict, Iterable, List, Optional, Sequence
 
 
@@ -270,7 +271,12 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
 
 def main(argv: Optional[Iterable[str]] = None) -> int:
   args = parse_args(argv)
-  urls = collect_urls(Path(args.services_dir))
+  services_dir = Path(args.services_dir)
+  if not services_dir.is_dir():
+    print(f"--services-dir not found or not a directory: {services_dir}", file=sys.stderr)
+    return 1
+
+  urls = collect_urls(services_dir)
   markdown = render_markdown(urls, args.language)
   if args.output:
     Path(args.output).write_text(markdown, encoding="utf-8")

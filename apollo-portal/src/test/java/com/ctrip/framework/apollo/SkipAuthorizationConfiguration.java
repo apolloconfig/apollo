@@ -88,14 +88,15 @@ public class SkipAuthorizationConfiguration {
   public FilterRegistrationBean<Filter> skipAuthorizationUserAuthenticationFilter() {
     FilterRegistrationBean<Filter> filter = new FilterRegistrationBean<>();
     filter.setFilter((request, response, chain) -> {
-      HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-      if (httpServletRequest.getRequestURI().startsWith("/openapi/")) {
-        chain.doFilter(request, response);
-        return;
-      }
-      SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
-          "apollo", null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
       try {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        if (httpServletRequest.getRequestURI().startsWith("/openapi/")) {
+          chain.doFilter(request, response);
+          return;
+        }
+        SecurityContextHolder.getContext()
+            .setAuthentication(new UsernamePasswordAuthenticationToken("apollo", null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))));
         chain.doFilter(request, response);
       } finally {
         SecurityContextHolder.clearContext();

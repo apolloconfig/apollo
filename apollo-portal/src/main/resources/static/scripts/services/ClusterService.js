@@ -26,7 +26,7 @@ appService.service('ClusterService', ['$resource', '$q', 'AppUtil', function ($r
         },
         delete_cluster: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName'
+            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName'
         }
     });
     return {

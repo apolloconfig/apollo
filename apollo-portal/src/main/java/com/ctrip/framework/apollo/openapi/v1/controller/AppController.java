@@ -208,9 +208,18 @@ public class AppController implements AppManagementApi {
   private Set<String> findAppIdsAuthorizedByCurrentIdentity() {
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
       UserInfo loginUser = userInfoHolder.getUser();
+      if (loginUser == null || !StringUtils.hasText(loginUser.getUserId())) {
+        return Collections.emptySet();
+      }
       Set<String> appIds = new LinkedHashSet<>();
       List<Role> userRoles = rolePermissionService.findUserRoles(loginUser.getUserId());
+      if (userRoles == null) {
+        return appIds;
+      }
       for (Role role : userRoles) {
+        if (role == null || !StringUtils.hasText(role.getRoleName())) {
+          continue;
+        }
         String appId = RoleUtils.extractAppIdFromRoleName(role.getRoleName());
         if (appId != null) {
           appIds.add(appId);

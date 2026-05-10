@@ -357,6 +357,51 @@ public class AppControllerTest {
   }
 
   @Test
+  public void testGetAppsBySelfForPortalUserWithoutLoginUser() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+
+    int page = 0;
+    int size = 10;
+    when(userInfoHolder.getUser()).thenReturn(null);
+    when(appOpenApiService.getAppsBySelf(Collections.emptySet(), page, size))
+        .thenReturn(Collections.emptyList());
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self")
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().json("[]"));
+
+    Mockito.verify(rolePermissionService, never()).findUserRoles(anyString());
+    Mockito.verify(appOpenApiService).getAppsBySelf(Collections.emptySet(), page, size);
+    Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+  }
+
+  @Test
+  public void testGetAppsBySelfForPortalUserWithoutRoles() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+
+    int page = 0;
+    int size = 10;
+    UserInfo loginUser = new UserInfo();
+    loginUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(loginUser);
+    when(rolePermissionService.findUserRoles(loginUser.getUserId())).thenReturn(null);
+    when(appOpenApiService.getAppsBySelf(Collections.emptySet(), page, size))
+        .thenReturn(Collections.emptyList());
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self")
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().json("[]"));
+
+    Mockito.verify(rolePermissionService).findUserRoles(loginUser.getUserId());
+    Mockito.verify(appOpenApiService).getAppsBySelf(Collections.emptySet(), page, size);
+    Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+  }
+
+  @Test
   public void testFindMissEnvs() throws Exception {
     String appId = "someAppId";
 

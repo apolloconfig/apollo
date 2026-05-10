@@ -17,7 +17,7 @@ import tempfile
 from pathlib import Path
 import unittest
 
-from collect_portal_frontend_urls import collect_service_urls, render_markdown
+from collect_portal_frontend_urls import collect_service_urls, main, render_markdown
 
 
 class CollectPortalFrontendUrlsTest(unittest.TestCase):
@@ -84,6 +84,14 @@ appService.service('SampleService', ['$resource', 'AppUtil', function ($resource
     self.assertIn("URL entries: 1", markdown)
     self.assertIn("OpenAPI entries: 1", markdown)
     self.assertIn("`/openapi/v1/apps`", markdown)
+
+  def test_main_fails_for_invalid_services_dir(self):
+    with tempfile.TemporaryDirectory() as tmpdir:
+      missing_dir = Path(tmpdir) / "missing"
+
+      exit_code = main(["--services-dir", str(missing_dir)])
+
+    self.assertEqual(1, exit_code)
 
 
 if __name__ == "__main__":

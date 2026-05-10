@@ -6,8 +6,8 @@
 
 - Service 文件数：24
 - URL 条目数：121
-- OpenAPI 条目数：10
-- WebAPI 条目数：111
+- OpenAPI 条目数：9
+- WebAPI 条目数：112
 - 未使用 `AppUtil.prefixPath()` 的条目数：0
 
 ## 按 Service 汇总
@@ -17,7 +17,7 @@
 | `AccessKeyService.js` | 0 | 5 | 0 | 5 |
 | `AppService.js` | 4 | 9 | 0 | 13 |
 | `AuditLogService.js` | 0 | 6 | 0 | 6 |
-| `ClusterService.js` | 3 | 0 | 0 | 3 |
+| `ClusterService.js` | 2 | 1 | 0 | 3 |
 | `CommitService.js` | 0 | 1 | 0 | 1 |
 | `CommonService.js` | 0 | 1 | 0 | 1 |
 | `ConfigService.js` | 0 | 12 | 0 | 12 |
@@ -69,7 +69,7 @@
 | `AuditLogService.js` | 46 | `search_by_name_or_type_or_operator` | `GET` | WebAPI | yes | `/apollo/audit/logs/by-name-or-type-or-operator?query=:query&page=:page&size=:size` |
 | `ClusterService.js` | 21 | `create_cluster` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters` |
 | `ClusterService.js` | 25 | `load_cluster` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName` |
-| `ClusterService.js` | 29 | `delete_cluster` | `DELETE` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName` |
+| `ClusterService.js` | 29 | `delete_cluster` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName` |
 | `CommitService.js` | 22 | `find_commits` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/commits?page=:page` |
 | `CommonService.js` | 23 | `page_setting` | `GET` | WebAPI | yes | `/page-settings` |
 | `ConfigService.js` | 22 | `load_namespace` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName` |

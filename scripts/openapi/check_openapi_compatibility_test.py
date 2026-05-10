@@ -100,6 +100,85 @@ components:
         ["Changed operationId for GET /openapi/v1/apps: findApps -> listApps"], issues
     )
 
+  def test_rejects_removed_operation_id(self):
+    head_spec = BASE_SPEC.replace("      operationId: findApps\n", "")
+    issues = compare_specs(parse_spec(BASE_SPEC), parse_spec(head_spec))
+    self.assertEqual(
+        ["Removed operationId for GET /openapi/v1/apps: findApps"], issues
+    )
+
+  def test_parses_quoted_paths_with_non_standard_indentation(self):
+    spec = """
+openapi: 3.0.1
+paths:
+    "/openapi/v1/apps":
+        get:
+            operationId: findApps
+            responses:
+                "200":
+                    description: ok
+components:
+    schemas:
+        OpenAppDTO:
+            type: object
+"""
+    snapshot = parse_spec(spec)
+    self.assertIn(("/openapi/v1/apps", "get"), snapshot.operations)
+    self.assertEqual(
+        "findApps", snapshot.operations[("/openapi/v1/apps", "get")].operation_id
+    )
+    self.assertIn("OpenAppDTO", snapshot.schemas)
+
+  def test_rejects_response_schema_changes(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/apps:
+    get:
+      operationId: findApps
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenAppDTO"
+components:
+  schemas:
+    OpenAppDTO:
+      type: object
+"""
+    head_spec = base_spec.replace("OpenAppDTO", "OpenAppSummaryDTO", 1)
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual(1, len(issues))
+    self.assertTrue(issues[0].startswith("Changed response schemas for GET /openapi/v1/apps:"))
+
+  def test_rejects_optional_property_removal(self):
+    head_spec = BASE_SPEC.replace(
+        """        name:
+          type: string
+""",
+        "",
+        1,
+    )
+    issues = compare_specs(parse_spec(BASE_SPEC), parse_spec(head_spec))
+    self.assertEqual(["Removed property from existing schema: OpenAppDTO.name"], issues)
+
+  def test_rejects_property_schema_changes(self):
+    head_spec = BASE_SPEC.replace(
+        """        name:
+          type: string""",
+        """        name:
+          type: integer""",
+        1,
+    )
+    issues = compare_specs(parse_spec(BASE_SPEC), parse_spec(head_spec))
+    self.assertEqual(1, len(issues))
+    self.assertTrue(
+        issues[0].startswith(
+            "Changed property schema for existing schema: OpenAppDTO.name:"
+        )
+    )
+
   def test_rejects_required_field_additions(self):
     head_spec = BASE_SPEC.replace(
         """      required:

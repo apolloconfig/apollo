@@ -15,13 +15,16 @@
 
 """Check Apollo OpenAPI specs for incompatible v1 contract changes.
 
-The script intentionally avoids non-standard Python packages so it can run in
-CI without a separate toolchain bootstrap. It performs a focused structural scan
+The script uses PyYAML so it can read the OpenAPI document as structured data
+instead of relying on indentation-sensitive text matching. It performs a focused
+structural scan
 for the compatibility rules Apollo cares about first:
 
 * existing paths and HTTP methods must remain available;
 * existing operationId values must remain stable;
+* existing operation request/response schema references must remain stable;
 * existing schemas must remain available;
+* existing schema properties must remain available and keep the same shape;
 * existing schemas must not gain new required fields by default.
 """
 
@@ -29,11 +32,16 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass, field
+import json
 from pathlib import Path
-import re
 import sys
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 from urllib.request import urlopen
+
+try:
+  import yaml
+except ImportError as exc:
+  raise SystemExit("PyYAML is required. Install it with `python3 -m pip install pyyaml`.") from exc
 
 
 HTTP_METHODS = {
@@ -51,6 +59,8 @@ HTTP_METHODS = {
 @dataclass
 class Operation:
   operation_id: Optional[str] = None
+  request_schema: Optional[str] = None
+  response_schemas: Tuple[Tuple[str, str, str], ...] = field(default_factory=tuple)
 
 
 @dataclass
@@ -58,6 +68,7 @@ class OpenApiSnapshot:
   operations: Dict[Tuple[str, str], Operation] = field(default_factory=dict)
   schemas: Set[str] = field(default_factory=set)
   schema_required: Dict[str, Set[str]] = field(default_factory=dict)
+  schema_properties: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
 
 def load_text(source: str) -> str:
@@ -67,98 +78,116 @@ def load_text(source: str) -> str:
   return Path(source).read_text(encoding="utf-8")
 
 
-def strip_quotes(value: str) -> str:
-  value = value.strip()
-  if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-    return value[1:-1]
-  return value
+def schema_signature(schema: Any) -> Optional[str]:
+  if not isinstance(schema, dict):
+    return None
+
+  def normalize(value: Any) -> Any:
+    if isinstance(value, dict):
+      return {key: normalize(value[key]) for key in sorted(value)}
+    if isinstance(value, list):
+      return [normalize(item) for item in value]
+    return value
+
+  keys = (
+      "$ref",
+      "type",
+      "format",
+      "nullable",
+      "enum",
+      "items",
+      "additionalProperties",
+      "allOf",
+      "anyOf",
+      "oneOf",
+  )
+  signature = {key: normalize(schema[key]) for key in keys if key in schema}
+  if not signature:
+    return None
+  return json.dumps(signature, sort_keys=True, separators=(",", ":"))
 
 
-def parse_inline_required(value: str) -> Set[str]:
-  value = value.strip()
-  if not value.startswith("[") or not value.endswith("]"):
-    return set()
-  return {strip_quotes(part) for part in value[1:-1].split(",") if part.strip()}
+def extract_request_schema(operation: Dict[str, Any]) -> Optional[str]:
+  request_body = operation.get("requestBody")
+  if not isinstance(request_body, dict):
+    return None
+  content = request_body.get("content")
+  if not isinstance(content, dict):
+    return None
+  schemas = []
+  for media_type, media_type_config in sorted(content.items()):
+    if not isinstance(media_type_config, dict):
+      continue
+    signature = schema_signature(media_type_config.get("schema"))
+    if signature:
+      schemas.append((media_type, signature))
+  if not schemas:
+    return None
+  return json.dumps(schemas, sort_keys=True, separators=(",", ":"))
+
+
+def extract_response_schemas(operation: Dict[str, Any]) -> Tuple[Tuple[str, str, str], ...]:
+  responses = operation.get("responses")
+  if not isinstance(responses, dict):
+    return ()
+
+  schemas = []
+  for status_code, response in sorted(responses.items(), key=lambda item: str(item[0])):
+    if not isinstance(response, dict):
+      continue
+    content = response.get("content")
+    if not isinstance(content, dict):
+      continue
+    for media_type, media_type_config in sorted(content.items()):
+      if not isinstance(media_type_config, dict):
+        continue
+      signature = schema_signature(media_type_config.get("schema"))
+      if signature:
+        schemas.append((str(status_code), media_type, signature))
+  return tuple(schemas)
 
 
 def parse_spec(text: str) -> OpenApiSnapshot:
   snapshot = OpenApiSnapshot()
+  spec = yaml.safe_load(text) or {}
+  if not isinstance(spec, dict):
+    return snapshot
 
-  in_paths = False
-  current_path: Optional[str] = None
-  current_method: Optional[str] = None
-
-  in_components = False
-  in_schemas = False
-  current_schema: Optional[str] = None
-  collecting_required_schema: Optional[str] = None
-  required_indent: Optional[int] = None
-
-  for raw_line in text.splitlines():
-    if not raw_line.strip():
-      continue
-
-    indent = len(raw_line) - len(raw_line.lstrip(" "))
-    stripped = raw_line.strip()
-
-    if collecting_required_schema is not None:
-      if indent > (required_indent or 0) and stripped.startswith("- "):
-        field_name = strip_quotes(stripped[2:])
-        snapshot.schema_required.setdefault(collecting_required_schema, set()).add(field_name)
+  paths = spec.get("paths") or {}
+  if isinstance(paths, dict):
+    for path, path_item in paths.items():
+      if not isinstance(path_item, dict):
         continue
-      if indent <= (required_indent or 0):
-        collecting_required_schema = None
-        required_indent = None
-
-    if indent == 0:
-      key = stripped.split(":", 1)[0]
-      in_paths = key == "paths"
-      in_components = key == "components"
-      in_schemas = False
-      current_path = None
-      current_method = None
-      current_schema = None
-      continue
-
-    if in_paths:
-      if indent == 2 and stripped.startswith("/"):
-        current_path = strip_quotes(stripped.split(":", 1)[0])
-        current_method = None
-        continue
-
-      if current_path and indent == 4 and ":" in stripped:
-        method = stripped.split(":", 1)[0].lower()
-        if method in HTTP_METHODS:
-          current_method = method
-          snapshot.operations[(current_path, method)] = Operation()
+      for method, operation in path_item.items():
+        method = str(method).lower()
+        if method not in HTTP_METHODS or not isinstance(operation, dict):
           continue
+        snapshot.operations[(str(path), method)] = Operation(
+            operation_id=operation.get("operationId"),
+            request_schema=extract_request_schema(operation),
+            response_schemas=extract_response_schemas(operation),
+        )
 
-      if current_path and current_method and indent >= 6 and stripped.startswith("operationId:"):
-        operation_id = strip_quotes(stripped.split(":", 1)[1])
-        snapshot.operations[(current_path, current_method)].operation_id = operation_id
+  schemas = ((spec.get("components") or {}).get("schemas") or {})
+  if isinstance(schemas, dict):
+    for schema_name, schema in schemas.items():
+      schema_name = str(schema_name)
+      snapshot.schemas.add(schema_name)
+      snapshot.schema_required.setdefault(schema_name, set())
+      snapshot.schema_properties.setdefault(schema_name, {})
+      if not isinstance(schema, dict):
         continue
 
-    if in_components:
-      if indent == 2:
-        in_schemas = stripped == "schemas:"
-        current_schema = None
-        continue
+      required = schema.get("required") or []
+      if isinstance(required, list):
+        snapshot.schema_required[schema_name].update(str(field_name) for field_name in required)
 
-      if in_schemas and indent == 4 and re.match(r"^[A-Za-z0-9_.-]+:\s*$", stripped):
-        current_schema = stripped.split(":", 1)[0]
-        snapshot.schemas.add(current_schema)
-        snapshot.schema_required.setdefault(current_schema, set())
-        continue
-
-      if in_schemas and current_schema and indent == 6 and stripped.startswith("required:"):
-        required_value = stripped.split(":", 1)[1]
-        inline_required = parse_inline_required(required_value)
-        if inline_required:
-          snapshot.schema_required.setdefault(current_schema, set()).update(inline_required)
-        else:
-          collecting_required_schema = current_schema
-          required_indent = indent
-        continue
+      properties = schema.get("properties") or {}
+      if isinstance(properties, dict):
+        for property_name, property_schema in properties.items():
+          signature = schema_signature(property_schema)
+          if signature:
+            snapshot.schema_properties[schema_name][str(property_name)] = signature
 
   return snapshot
 
@@ -192,12 +221,30 @@ def compare_specs(
     head_operation_id = head.operations[(path, method)].operation_id
     if (
         base_operation_id
-        and head_operation_id
         and base_operation_id != head_operation_id
         and key not in allowed_operation_id_change_set
     ):
+      if head_operation_id:
+        issues.append(
+            f"Changed operationId for {key}: {base_operation_id} -> {head_operation_id}"
+        )
+      else:
+        issues.append(f"Removed operationId for {key}: {base_operation_id}")
+
+    base_request_schema = base.operations[(path, method)].request_schema
+    head_request_schema = head.operations[(path, method)].request_schema
+    if base_request_schema and base_request_schema != head_request_schema:
       issues.append(
-          f"Changed operationId for {key}: {base_operation_id} -> {head_operation_id}"
+          f"Changed request schema for {key}: {base_request_schema} -> "
+          f"{head_request_schema}"
+      )
+
+    base_response_schemas = base.operations[(path, method)].response_schemas
+    head_response_schemas = head.operations[(path, method)].response_schemas
+    if base_response_schemas and base_response_schemas != head_response_schemas:
+      issues.append(
+          f"Changed response schemas for {key}: {base_response_schemas} -> "
+          f"{head_response_schemas}"
       )
 
   for schema in sorted(base.schemas):
@@ -212,6 +259,20 @@ def compare_specs(
       key = f"{schema}.{field_name}"
       if key not in allowed_required_addition_set:
         issues.append(f"Added required field to existing schema: {key}")
+
+    base_properties = base.schema_properties.get(schema, {})
+    head_properties = head.schema_properties.get(schema, {})
+    for property_name, base_property_signature in sorted(base_properties.items()):
+      key = f"{schema}.{property_name}"
+      if property_name not in head_properties:
+        issues.append(f"Removed property from existing schema: {key}")
+        continue
+      head_property_signature = head_properties[property_name]
+      if base_property_signature != head_property_signature:
+        issues.append(
+            f"Changed property schema for existing schema: {key}: "
+            f"{base_property_signature} -> {head_property_signature}"
+        )
 
   return issues
 
@@ -254,6 +315,13 @@ def main(argv: Optional[List[str]] = None) -> int:
 
   base = parse_spec(load_text(args.base))
   head = parse_spec(load_text(args.head))
+  if not base.operations:
+    print(f"No OpenAPI operations found in base spec: {args.base}", file=sys.stderr)
+    return 1
+  if not head.operations:
+    print(f"No OpenAPI operations found in head spec: {args.head}", file=sys.stderr)
+    return 1
+
   issues = compare_specs(
       base,
       head,

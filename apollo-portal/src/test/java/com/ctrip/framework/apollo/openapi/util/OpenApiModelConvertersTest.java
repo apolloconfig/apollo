@@ -29,10 +29,7 @@ public class OpenApiModelConvertersTest {
 
   @Test
   public void fromEnvClusterInfoShouldKeepPortalNavTreeFields() {
-    ClusterDTO cluster = new ClusterDTO();
-    cluster.setName("default");
-    cluster.setAppId("someAppId");
-    cluster.setComment("default cluster");
+    ClusterDTO cluster = createCluster("default", "someAppId", "default cluster");
 
     EnvClusterInfo envClusterInfo = new EnvClusterInfo(Env.DEV);
     envClusterInfo.setClusters(Lists.newArrayList(cluster));
@@ -44,5 +41,55 @@ public class OpenApiModelConvertersTest {
     assertEquals("default", result.getClusters().get(0).getName());
     assertEquals("someAppId", result.getClusters().get(0).getAppId());
     assertEquals("default cluster", result.getClusters().get(0).getComment());
+  }
+
+  @Test
+  public void fromEnvClusterInfoShouldHandleEmptyClusterList() {
+    EnvClusterInfo envClusterInfo = new EnvClusterInfo(Env.DEV);
+    envClusterInfo.setClusters(Lists.newArrayList());
+
+    OpenEnvClusterInfo result = OpenApiModelConverters.fromEnvClusterInfo(envClusterInfo);
+
+    assertEquals("DEV", result.getEnv());
+    assertEquals(0, result.getClusters().size());
+  }
+
+  @Test
+  public void fromEnvClusterInfoShouldHandleMultipleClusters() {
+    ClusterDTO defaultCluster = createCluster("default", "someAppId", "default cluster");
+    ClusterDTO featureCluster = createCluster("feature", "someAppId", "feature cluster");
+
+    EnvClusterInfo envClusterInfo = new EnvClusterInfo(Env.DEV);
+    envClusterInfo.setClusters(Lists.newArrayList(defaultCluster, featureCluster));
+
+    OpenEnvClusterInfo result = OpenApiModelConverters.fromEnvClusterInfo(envClusterInfo);
+
+    assertEquals("DEV", result.getEnv());
+    assertEquals(2, result.getClusters().size());
+    assertEquals("default", result.getClusters().get(0).getName());
+    assertEquals("someAppId", result.getClusters().get(0).getAppId());
+    assertEquals("default cluster", result.getClusters().get(0).getComment());
+    assertEquals("feature", result.getClusters().get(1).getName());
+    assertEquals("someAppId", result.getClusters().get(1).getAppId());
+    assertEquals("feature cluster", result.getClusters().get(1).getComment());
+  }
+
+  @Test
+  public void fromEnvClusterInfoShouldHandleNullClusters() {
+    EnvClusterInfo envClusterInfo = new EnvClusterInfo(Env.DEV);
+    envClusterInfo.setClusters(null);
+
+    OpenEnvClusterInfo result = OpenApiModelConverters.fromEnvClusterInfo(envClusterInfo);
+
+    assertEquals("DEV", result.getEnv());
+    assertEquals(0, result.getClusters().size());
+  }
+
+  private ClusterDTO createCluster(String name, String appId, String comment) {
+    ClusterDTO cluster = new ClusterDTO();
+    cluster.setName(name);
+    cluster.setAppId(appId);
+    cluster.setComment(comment);
+    return cluster;
   }
 }
