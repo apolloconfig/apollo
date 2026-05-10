@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,9 +80,8 @@ public class UserTypeResolverFilterTest {
 
   @Test
   public void shouldResolveAnonymousWhenOnlyAnonymousAuthenticationExists() throws Exception {
-    AnonymousAuthenticationToken authentication =
-        new AnonymousAuthenticationToken("key", "anonymousUser",
-            AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+    AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("key",
+        "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     CapturingFilterChain chain = doFilter(new MockHttpServletRequest("GET", "/openapi/v1/envs"));

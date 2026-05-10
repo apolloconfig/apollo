@@ -31,6 +31,7 @@ import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.repository.RolePermissionRepository;
 import com.ctrip.framework.apollo.portal.service.AppService;
@@ -40,6 +41,7 @@ import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.repository.RoleRepository;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
@@ -310,6 +312,48 @@ public class AppControllerTest {
 
     Mockito.verify(this.consumerService).findAppIdsAuthorizedByConsumerId(consumerId);
     Mockito.verify(this.appOpenApiService).getAppsBySelf(authorizedAppIds, page, size);
+  }
+
+  @Test
+  public void testGetAppsBySelfForPortalUser() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+
+    int page = 0;
+    int size = 10;
+    String app1Id = "app1";
+    String app2Id = "app2";
+    Set<String> authorizedAppIds = Sets.newHashSet(app1Id, app2Id);
+
+    UserInfo loginUser = new UserInfo();
+    loginUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(loginUser);
+
+    Role masterRole = new Role();
+    masterRole.setRoleName(RoleUtils.buildAppMasterRoleName(app1Id));
+    Role namespaceRole = new Role();
+    namespaceRole.setRoleName(RoleUtils.buildModifyNamespaceRoleName(app2Id, "application"));
+    Role systemRole = new Role();
+    systemRole.setRoleName("CreateApplication+System");
+    when(rolePermissionService.findUserRoles(loginUser.getUserId()))
+        .thenReturn(Lists.newArrayList(masterRole, namespaceRole, systemRole));
+
+    OpenAppDTO app1 = new OpenAppDTO();
+    app1.setAppId(app1Id);
+    OpenAppDTO app2 = new OpenAppDTO();
+    app2.setAppId(app2Id);
+    List<OpenAppDTO> apps = Lists.newArrayList(app1, app2);
+    when(appOpenApiService.getAppsBySelf(authorizedAppIds, page, size)).thenReturn(apps);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self")
+            .param("page", String.valueOf(page)).param("size", String.valueOf(size)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value(app1Id))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value(app2Id));
+
+    Mockito.verify(rolePermissionService).findUserRoles(loginUser.getUserId());
+    Mockito.verify(appOpenApiService).getAppsBySelf(authorizedAppIds, page, size);
+    Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
   }
 
   @Test

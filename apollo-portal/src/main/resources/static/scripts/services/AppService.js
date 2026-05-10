@@ -19,17 +19,17 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         find_apps: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps'
         },
         find_app_by_self: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps/by-self'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/by-self'
         },
         load_navtree: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/navtree'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/navtree'
         },
         load_app: {
             method: 'GET',
@@ -49,7 +49,7 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         find_miss_envs: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/miss_envs'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/miss_envs'
         },
         create_missing_namespaces: {
             method: 'POST',

@@ -22,7 +22,7 @@ Portal UI behavior.
 | Area | Current state | Risk | Next step |
 | --- | --- | --- | --- |
 | OpenAPI contract | `apollo-portal` points to the `apollo-openapi` `v0.1.0` tag; `apollo-openapi/main` already has more paths | Portal implementation, generated interfaces, and SDKs can drift | Run compatibility checks before changing the spec URL, and pin a clear tag or commit |
-| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 6 of the current 121 URL entries call OpenAPI, and 115 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
+| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 10 of the current 121 URL entries call OpenAPI, and 111 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
 | Authentication | `/openapi/**` first detects Portal sessions, then falls back to consumer token auth | Custom SSO integrations may return 401 if `/openapi/**` does not share the Portal login context | Document filter order and SSO requirements; add regression coverage |
 | Authorization | `UnifiedPermissionValidator` dispatches by `USER` or `CONSUMER` | OpenAPI read behavior can differ from `configView.memberOnly.envs` | Keep token compatibility first, then add explicit read-permission policy |
 | Models | Generated models, legacy `apollo-openapi` Java DTO/API classes, and Portal DTOs coexist | Maintaining three model layers increases conversion cost | Prefer generated `*ManagementApi` and `model.*` for new endpoints |
@@ -34,6 +34,8 @@ Portal UI behavior.
 - OpenAPI authentication flow is guarded by tests: the order and `/openapi/*` patterns for `PortalUserSessionFilter`, `ConsumerAuthenticationFilter`, and `UserTypeResolverFilter` are locked.
 - `UserTypeResolverFilter` tests now cover the production implementation instead of a test classpath shadow class with the same fully qualified name.
 - `UnifiedPermissionValidator` USER/CONSUMER dispatch coverage now includes namespace, application, hide-config, and create/delete related permission entry points.
+- The first App read-only frontend slice has moved to OpenAPI: `find_apps`, `find_app_by_self`, `load_navtree`, and `find_miss_envs`. `load_app` stays on WebAPI because the generated `OpenAppDTO` does not yet expose the UI-consumed `ownerDisplayName`.
+- `/openapi/v1/apps/by-self` now preserves Portal USER semantics: Portal cookie requests reuse the old WebAPI user-role appId resolution, while token requests continue to use consumer-authorized appIds.
 
 ## Migration Matrix
 
@@ -41,7 +43,7 @@ Portal UI behavior.
 | --- | --- | --- | --- |
 | Env / Organization | `EnvService.js`, `OrganizationService.js` | Basic read APIs exist | Keep OpenAPI paths and validate SSO plus prefix path |
 | Cluster | `ClusterService.js` | get/create/delete exist | Use `AppUtil.prefixPath()` consistently; validate operator and USER/CONSUMER semantics |
-| App | `AppService.js` | app query, create, update, delete, env cluster, and missing env APIs exist | Align response shape before switching frontend calls |
+| App | `AppService.js` | app query, create, update, delete, env cluster, and missing env APIs exist | Read-only endpoints are partially migrated; write endpoints need operator contract/Portal user semantics alignment, and `load_app` waits for an `ownerDisplayName` contract field |
 | Namespace / AppNamespace / Lock | `NamespaceService.js`, `NamespaceLockService.js` | Partial spec exists on `apollo-openapi/main` | Migrate read and lock paths first, then create/delete |
 | Item | `ConfigService.js` | item CRUD, diff, sync, validation, and revocation are represented in the contract direction | Confirm key encoding and text-mode behavior before UI migration |
 | Release / Branch | `ReleaseService.js`, `NamespaceBranchService.js` | release, gray release, merge, and rollback are partially covered | Add dual-auth tests for branch and rollback flows |

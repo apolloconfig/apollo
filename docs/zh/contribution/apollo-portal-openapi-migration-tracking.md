@@ -19,7 +19,7 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | 领域 | 当前状态 | 风险 | 下一步 |
 | --- | --- | --- | --- |
 | OpenAPI 契约 | `apollo-portal` 当前引用 `apollo-openapi` 的 `v0.1.0` tag；本地 `apollo-openapi/main` 已有更多 path | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
-| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 6 个走 OpenAPI、115 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
+| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 10 个走 OpenAPI、111 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
 | 认证 | `/openapi/**` 先经过 Portal session 识别，再走 consumer token 认证 | 自定义 SSO 若没有让 `/openapi/**` 复用 Portal 登录态，会出现 401 | 明确 filter 顺序和 SSO 接入要求，补回归测试 |
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
@@ -31,6 +31,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 - OpenAPI 认证链路已加测试保护：`PortalUserSessionFilter`、`ConsumerAuthenticationFilter`、`UserTypeResolverFilter` 的顺序和 `/openapi/*` pattern 已由测试锁定。
 - `UserTypeResolverFilter` 测试已改为覆盖生产实现，避免测试 classpath 中的同名 shadow class 掩盖真实行为。
 - `UnifiedPermissionValidator` 的 USER/CONSUMER 分发测试已扩展到 namespace、application、hide-config 和 create/delete 相关入口。
+- App 域已完成第一批只读切流：`find_apps`、`find_app_by_self`、`load_navtree` 和 `find_miss_envs` 已指向 OpenAPI；`load_app` 暂留 WebAPI，因为当前 generated `OpenAppDTO` 还缺少 UI 消费的 `ownerDisplayName`。
+- `/openapi/v1/apps/by-self` 已补齐 Portal USER 语义：Portal cookie 请求复用原 WebAPI 的 user role 解析，token 请求继续使用 consumer 授权 appId。
 
 ## 迁移矩阵
 
@@ -38,7 +40,7 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | --- | --- | --- | --- |
 | Env / Organization | `EnvService.js`、`OrganizationService.js` | 已有基础只读接口 | 保持 OpenAPI 路径，验证 SSO 与 prefix path |
 | Cluster | `ClusterService.js` | 已有 get/create/delete | 统一加 `AppUtil.prefixPath()`，补 operator 与 USER/CONSUMER 语义 |
-| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env | 先对齐 response shape，再迁移 UI service |
+| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env | 只读接口已部分切流；写接口等待 operator contract/Portal 用户语义对齐，`load_app` 等待 `ownerDisplayName` 契约补齐 |
 | Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | 部分 spec 已在 `apollo-openapi/main` | 优先迁移只读和 lock，再迁移创建/删除 |
 | Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation 已有契约方向 | 先确认 key 编码和 text mode 行为，再切 UI |
 | Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | release、gray release、merge、rollback 部分已有 | 先补灰度分支和 rollback 双认证测试 |

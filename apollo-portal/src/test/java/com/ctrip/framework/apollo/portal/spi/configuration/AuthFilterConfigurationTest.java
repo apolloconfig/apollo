@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Apollo Authors
+ * Copyright 2025 Apollo Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ public class AuthFilterConfigurationTest {
 
     assertTrue(portalUserSessionFilter.getOrder() < consumerAuthenticationFilter.getOrder());
     assertTrue(consumerAuthenticationFilter.getOrder() < userTypeResolverFilter.getOrder());
-    assertEquals(Collections.singleton("/openapi/*"),
-        portalUserSessionFilter.getUrlPatterns());
+    assertEquals(Collections.singleton("/openapi/*"), portalUserSessionFilter.getUrlPatterns());
     assertEquals(Collections.singleton("/openapi/*"),
         consumerAuthenticationFilter.getUrlPatterns());
     assertEquals(Collections.singleton("/*"), userTypeResolverFilter.getUrlPatterns());

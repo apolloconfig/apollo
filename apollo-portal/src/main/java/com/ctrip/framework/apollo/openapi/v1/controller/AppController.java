@@ -27,8 +27,15 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.AppModel;
+import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
@@ -38,6 +45,7 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -49,14 +57,19 @@ public class AppController implements AppManagementApi {
   private final ConsumerService consumerService;
   private final AppOpenApiService appOpenApiService;
   private final UserService userService;
+  private final UserInfoHolder userInfoHolder;
+  private final RolePermissionService rolePermissionService;
 
   public AppController(final ConsumerAuthUtil consumerAuthUtil,
       final ConsumerService consumerService, final AppOpenApiService appOpenApiService,
-      final UserService userService) {
+      final UserService userService, final UserInfoHolder userInfoHolder,
+      final RolePermissionService rolePermissionService) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerService = consumerService;
     this.appOpenApiService = appOpenApiService;
     this.userService = userService;
+    this.userInfoHolder = userInfoHolder;
+    this.rolePermissionService = rolePermissionService;
   }
 
   /**
@@ -102,10 +115,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenAppDTO>> findAppsAuthorized() {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
-
-    Set<String> appIds = this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
-
+    Set<String> appIds = findAppIdsAuthorizedByCurrentIdentity();
     return ResponseEntity.ok(appOpenApiService.getAppsInfo(new ArrayList<>(appIds)));
   }
 
@@ -144,9 +154,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenAppDTO>> getAppsBySelf(Integer page, Integer size) {
-    long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
-    Set<String> authorizedAppIds =
-        this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+    Set<String> authorizedAppIds = findAppIdsAuthorizedByCurrentIdentity();
     List<OpenAppDTO> apps = appOpenApiService.getAppsBySelf(authorizedAppIds, page, size);
     return ResponseEntity.ok(apps);
   }
@@ -195,5 +203,28 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<MultiResponseEntity> getAppNavTree(String appId) {
     return ResponseEntity.ok(appOpenApiService.getAppNavTree(appId));
+  }
+
+  private Set<String> findAppIdsAuthorizedByCurrentIdentity() {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      UserInfo loginUser = userInfoHolder.getUser();
+      Set<String> appIds = new LinkedHashSet<>();
+      List<Role> userRoles = rolePermissionService.findUserRoles(loginUser.getUserId());
+      for (Role role : userRoles) {
+        String appId = RoleUtils.extractAppIdFromRoleName(role.getRoleName());
+        if (appId != null) {
+          appIds.add(appId);
+        }
+      }
+      return appIds;
+    }
+
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
+      return this.consumerService.findAppIdsAuthorizedByConsumerId(consumerId);
+    }
+
+    throw new BadRequestException("Unsupported auth type: %s",
+        UserIdentityContextHolder.getAuthType());
   }
 }

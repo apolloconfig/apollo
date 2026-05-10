@@ -6,8 +6,8 @@
 
 - Service 文件数：24
 - URL 条目数：121
-- OpenAPI 条目数：6
-- WebAPI 条目数：115
+- OpenAPI 条目数：10
+- WebAPI 条目数：111
 - 未使用 `AppUtil.prefixPath()` 的条目数：0
 
 ## 按 Service 汇总
@@ -15,7 +15,7 @@
 | Service | OpenAPI | WebAPI | No prefix | Total |
 | --- | ---: | ---: | ---: | ---: |
 | `AccessKeyService.js` | 0 | 5 | 0 | 5 |
-| `AppService.js` | 0 | 13 | 0 | 13 |
+| `AppService.js` | 4 | 9 | 0 | 13 |
 | `AuditLogService.js` | 0 | 6 | 0 | 6 |
 | `ClusterService.js` | 3 | 0 | 0 | 3 |
 | `CommitService.js` | 0 | 1 | 0 | 1 |
@@ -49,13 +49,13 @@
 | `AccessKeyService.js` | 34 | `enable_access_key` | `PUT` | WebAPI | yes | `/apps/:appId/envs/:env/accesskeys/:id/enable?mode=:mode` |
 | `AccessKeyService.js` | 38 | `disable_access_key` | `PUT` | WebAPI | yes | `/apps/:appId/envs/:env/accesskeys/:id/disable` |
 | `AppService.js` | 18 | `-` | `RESOURCE_BASE` | WebAPI | yes | `/apps/:appId` |
-| `AppService.js` | 22 | `find_apps` | `GET` | WebAPI | yes | `/apps` |
-| `AppService.js` | 27 | `find_app_by_self` | `GET` | WebAPI | yes | `/apps/by-self` |
-| `AppService.js` | 32 | `load_navtree` | `GET` | WebAPI | yes | `/apps/:appId/navtree` |
+| `AppService.js` | 22 | `find_apps` | `GET` | OpenAPI | yes | `/openapi/v1/apps` |
+| `AppService.js` | 27 | `find_app_by_self` | `GET` | OpenAPI | yes | `/openapi/v1/apps/by-self` |
+| `AppService.js` | 32 | `load_navtree` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/navtree` |
 | `AppService.js` | 40 | `create_app` | `POST` | WebAPI | yes | `/apps` |
 | `AppService.js` | 44 | `update_app` | `PUT` | WebAPI | yes | `/apps/:appId` |
 | `AppService.js` | 48 | `create_app_remote` | `POST` | WebAPI | yes | `/apps/envs/:env` |
-| `AppService.js` | 52 | `find_miss_envs` | `GET` | WebAPI | yes | `/apps/:appId/miss_envs` |
+| `AppService.js` | 52 | `find_miss_envs` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/miss_envs` |
 | `AppService.js` | 56 | `create_missing_namespaces` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
 | `AppService.js` | 60 | `find_missing_namespaces` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
 | `AppService.js` | 68 | `allow_app_master_assign_role` | `POST` | WebAPI | yes | `/apps/:appId/system/master/:userId` |
