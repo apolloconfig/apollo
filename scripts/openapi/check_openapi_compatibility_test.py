@@ -152,6 +152,31 @@ components:
     self.assertEqual(1, len(issues))
     self.assertTrue(issues[0].startswith("Changed response schemas for GET /openapi/v1/apps:"))
 
+  def test_rejects_request_schema_changes(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/apps:
+    post:
+      operationId: createApp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenAppDTO"
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    OpenAppDTO:
+      type: object
+"""
+    head_spec = base_spec.replace("OpenAppDTO", "OpenAppSummaryDTO", 1)
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual(1, len(issues))
+    self.assertTrue(issues[0].startswith("Changed request schema for POST /openapi/v1/apps:"))
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:
