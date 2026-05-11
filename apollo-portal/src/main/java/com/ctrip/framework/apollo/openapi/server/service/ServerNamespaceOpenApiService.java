@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.openapi.server.service;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
@@ -74,6 +76,9 @@ public class ServerNamespaceOpenApiService implements NamespaceOpenApiService {
 
   @Override
   public OpenAppNamespaceDTO createAppNamespace(OpenAppNamespaceDTO appNamespaceDTO) {
+    if (appNamespaceDTO == null || StringUtils.isBlank(appNamespaceDTO.getDataChangeCreatedBy())) {
+      throw new BadRequestException("Params(dataChangeCreatedBy) can not be empty.");
+    }
     AppNamespace appNamespace = OpenApiBeanUtils.transformToAppNamespace(appNamespaceDTO);
     AppNamespace createdAppNamespace = appNamespaceService.createAppNamespaceInLocal(appNamespace,
         appNamespaceDTO.isAppendNamespacePrefix(), appNamespaceDTO.getDataChangeCreatedBy());

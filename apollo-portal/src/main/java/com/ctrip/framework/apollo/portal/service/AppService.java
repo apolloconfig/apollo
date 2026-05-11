@@ -85,6 +85,11 @@ public class AppService {
     this.portalSettings = portalSettings;
   }
 
+  private static void validateOperator(String operator) {
+    if (StringUtils.isBlank(operator)) {
+      throw new BadRequestException("operator should not be null or empty");
+    }
+  }
 
   public List<App> findAll() {
     Iterable<App> apps = appRepository.findAll();
@@ -125,6 +130,7 @@ public class AppService {
   }
 
   public void createAppInRemote(Env env, App app, String operator) {
+    validateOperator(operator);
     if (StringUtils.isBlank(app.getDataChangeCreatedBy())) {
       app.setDataChangeCreatedBy(operator);
       app.setDataChangeLastModifiedBy(operator);
@@ -138,6 +144,7 @@ public class AppService {
   }
 
   private App createAppInLocal(App app, String operator) {
+    validateOperator(operator);
     String appId = app.getAppId();
     App managedApp = appRepository.findByAppId(appId);
 
@@ -206,6 +213,7 @@ public class AppService {
   @Transactional
   @ApolloAuditLog(type = OpType.UPDATE, name = "App.update")
   public App updateAppInLocal(App app, String operator) {
+    validateOperator(operator);
     String appId = app.getAppId();
 
     App managedApp = appRepository.findByAppId(appId);
@@ -239,6 +247,7 @@ public class AppService {
   @Transactional
   @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
   public App deleteAppInLocal(String appId, String operator) {
+    validateOperator(operator);
     App managedApp = appRepository.findByAppId(appId);
     if (managedApp == null) {
       throw BadRequestException.appNotExists(appId);

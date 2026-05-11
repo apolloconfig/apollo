@@ -126,7 +126,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
         logger.warn("Failed to load env {} navigation for app {}", env, appId, e);
         OpenEnvClusterInfo info = new OpenEnvClusterInfo();
         info.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        info.setMessage("load env:" + env.getName() + " cluster error." + e.getMessage());
+        info.setMessage("load env:" + env.getName() + " cluster error.");
         info.setEnv(env.getName());
         info.setClusters(Collections.emptyList());
         result.add(info);
@@ -237,9 +237,9 @@ public class ServerAppOpenApiService implements AppOpenApiService {
           entity.setCode(HttpStatus.OK.value());
           entity.setMessage(env.toString());
         } else {
+          logger.warn("Failed to load app {} from env {}", appId, env, e);
           entity.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-          entity.setMessage(
-              String.format("load appId:%s from env %s error.", appId, env) + e.getMessage());
+          entity.setMessage(String.format("load appId:%s from env %s error.", appId, env));
         }
         response.add(entity);
       }

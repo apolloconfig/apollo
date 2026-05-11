@@ -95,6 +95,7 @@ public class ConsumerService {
 
 
   public Consumer createConsumer(Consumer consumer, String operator) {
+    validateOperator(operator);
     String appId = consumer.getAppId();
 
     Consumer managedConsumer = consumerRepository.findByAppId(appId);
@@ -117,6 +118,7 @@ public class ConsumerService {
 
   public ConsumerToken generateAndSaveConsumerToken(Consumer consumer, Integer rateLimit,
       Date expires, String operator) {
+    validateOperator(operator);
     Preconditions.checkArgument(consumer != null, "Consumer can not be null");
 
     ConsumerToken consumerToken = generateConsumerToken(consumer, rateLimit, expires, operator);
@@ -153,12 +155,14 @@ public class ConsumerService {
   @Transactional
   public List<ConsumerRole> assignNamespaceRoleToConsumer(String token, String appId,
       String namespaceName, String operator) {
+    validateOperator(operator);
     return assignNamespaceRoleToConsumer(token, appId, namespaceName, null, operator);
   }
 
   @Transactional
   public List<ConsumerRole> assignNamespaceRoleToConsumer(String token, String appId,
       String namespaceName, String env, String operator) {
+    validateOperator(operator);
     Long consumerId = getConsumerIdByToken(token);
     if (consumerId == null) {
       throw new BadRequestException("Token is Illegal");
@@ -276,6 +280,7 @@ public class ConsumerService {
   }
 
   public ConsumerRole assignCreateApplicationRoleToConsumer(String token, String operator) {
+    validateOperator(operator);
     Long consumerId = getConsumerIdByToken(token);
     if (consumerId == null) {
       throw new BadRequestException("Token is Illegal");
@@ -299,12 +304,14 @@ public class ConsumerService {
 
   @Transactional
   public ConsumerRole assignAppRoleToConsumer(String token, String appId, String operator) {
+    validateOperator(operator);
     Long consumerId = getConsumerIdByToken(token);
     return assignAppRoleToConsumer(consumerId, appId, operator);
   }
 
   @Transactional
   public ConsumerRole assignAppRoleToConsumer(Long consumerId, String appId, String operator) {
+    validateOperator(operator);
     if (consumerId == null) {
       throw new BadRequestException("Token is Illegal");
     }
@@ -380,6 +387,7 @@ public class ConsumerService {
   }
 
   ConsumerRole createConsumerRole(Long consumerId, Long roleId, String operator) {
+    validateOperator(operator);
     ConsumerRole consumerRole = new ConsumerRole();
 
     consumerRole.setConsumerId(consumerId);
@@ -388,6 +396,12 @@ public class ConsumerService {
     consumerRole.setDataChangeLastModifiedBy(operator);
 
     return consumerRole;
+  }
+
+  private void validateOperator(String operator) {
+    if (Strings.isNullOrEmpty(operator) || operator.trim().isEmpty()) {
+      throw new BadRequestException("operator should not be null or empty");
+    }
   }
 
   public Set<String> findAppIdsAuthorizedByConsumerId(long consumerId) {

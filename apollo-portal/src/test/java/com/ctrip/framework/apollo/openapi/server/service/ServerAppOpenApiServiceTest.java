@@ -17,7 +17,7 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
@@ -80,8 +80,8 @@ class ServerAppOpenApiServiceTest {
     assertEquals(HttpStatus.OK.value(), result.get(0).getCode());
     assertEquals("FAT", result.get(0).getMessage());
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.get(1).getCode());
-    assertTrue(result.get(1).getMessage().contains("load appId:someApp from env PRO error."));
-    assertTrue(result.get(1).getMessage().contains("boom"));
+    assertEquals("load appId:someApp from env PRO error.", result.get(1).getMessage());
+    assertFalse(result.get(1).getMessage().contains("boom"));
   }
 
   @Test
@@ -117,6 +117,7 @@ class ServerAppOpenApiServiceTest {
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), result.get(0).getCode());
     assertEquals("DEV", result.get(0).getEnv());
     assertEquals(0, result.get(0).getClusters().size());
-    assertTrue(result.get(0).getMessage().contains("load env:DEV cluster error.boom"));
+    assertEquals("load env:DEV cluster error.", result.get(0).getMessage());
+    assertFalse(result.get(0).getMessage().contains("boom"));
   }
 }

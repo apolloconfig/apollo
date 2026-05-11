@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Objects;
@@ -76,10 +77,6 @@ public class ClusterController implements ClusterManagementApi {
           .invalidClusterNameFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE);
     }
 
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
-    }
-
     return ResponseEntity.ok(this.clusterOpenApiService.createCluster(env, cluster, operator));
   }
 
@@ -99,7 +96,11 @@ public class ClusterController implements ClusterManagementApi {
 
   private String resolveOperator(String operator) {
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
-      return userInfoHolder.getUser().getUserId();
+      UserInfo loginUser = userInfoHolder.getUser();
+      if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
+        throw new BadRequestException("Current user not found");
+      }
+      return loginUser.getUserId();
     }
 
     RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),

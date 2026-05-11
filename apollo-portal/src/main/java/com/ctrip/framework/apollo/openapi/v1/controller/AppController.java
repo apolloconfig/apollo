@@ -84,14 +84,15 @@ public class AppController implements AppManagementApi {
       throw new BadRequestException("App is null");
     }
     final OpenAppDTO app = req.getApp();
-    if (null == app.getAppId()) {
-      throw new BadRequestException("AppId is null");
+    if (!StringUtils.hasText(app.getAppId())) {
+      throw new BadRequestException("AppId is null or blank");
     }
     String resolvedOperator = resolveOperator(app.getDataChangeCreatedBy());
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
     OpenAppDTO createdApp = this.appOpenApiService.createApp(req, resolvedOperator);
-    if (Boolean.TRUE.equals(req.getAssignAppRoleToSelf())) {
+    if (Boolean.TRUE.equals(req.getAssignAppRoleToSelf())
+        && UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
       long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId(), resolvedOperator);
     }
@@ -174,7 +175,12 @@ public class AppController implements AppManagementApi {
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> createAppInEnv(String env, OpenAppDTO app, String operator) {
+    if (app == null) {
+      throw new BadRequestException("App is null");
+    }
     String resolvedOperator = resolveOperator(operator);
+    app.setDataChangeCreatedBy(resolvedOperator);
+    app.setDataChangeLastModifiedBy(resolvedOperator);
     appOpenApiService.createAppInEnv(env, app, resolvedOperator);
 
     return ResponseEntity.ok().build();

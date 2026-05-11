@@ -30,8 +30,14 @@ public interface AppOpenApiService {
 
   OpenAppDTO createApp(@NonNull OpenCreateAppDTO req, String operator);
 
+  /**
+   * Returns the legacy v0.2.0-compatible env and cluster-name list for an app.
+   */
   List<OpenEnvClusterDTO> getEnvClusters(String appId);
 
+  /**
+   * Returns the v0.2.0 app env-cluster-info payload with per-env status details.
+   */
   List<OpenEnvClusterInfo> getEnvClusterInfo(String appId);
 
   List<OpenAppDTO> getAllApps();

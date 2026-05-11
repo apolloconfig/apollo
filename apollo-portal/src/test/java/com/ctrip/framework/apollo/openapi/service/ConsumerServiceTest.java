@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
@@ -178,6 +179,24 @@ public class ConsumerServiceTest {
     consumerService.createConsumer(consumer, testOwner);
 
     verify(consumerRepository).save(consumer);
+  }
+
+  @Test
+  public void writeMethodsShouldRejectBlankOperator() {
+    Consumer consumer = createConsumer(testConsumerName, testAppId, testOwner);
+
+    assertThrows(BadRequestException.class, () -> consumerService.createConsumer(consumer, " "));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.generateAndSaveConsumerToken(consumer, 0, new Date(), " "));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.assignNamespaceRoleToConsumer("token", testAppId, "namespace", " "));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.assignCreateApplicationRoleToConsumer("token", " "));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.assignAppRoleToConsumer("token", testAppId, " "));
+    assertThrows(BadRequestException.class,
+        () -> consumerService.assignAppRoleToConsumer(1L, testAppId, " "));
+    assertThrows(BadRequestException.class, () -> consumerService.createConsumerRole(1L, 2L, " "));
   }
 
   @Test

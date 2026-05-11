@@ -17,7 +17,9 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService;
 import com.ctrip.framework.apollo.openapi.dto.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
@@ -41,6 +43,9 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   @Override
   public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName,
       String namespaceName, NamespaceReleaseDTO releaseDTO) {
+    if (releaseDTO == null || StringUtils.isBlank(releaseDTO.getReleasedBy())) {
+      throw new BadRequestException("Params(releasedBy) can not be empty.");
+    }
     NamespaceReleaseModel releaseModel =
         BeanUtils.transform(NamespaceReleaseModel.class, releaseDTO);
 

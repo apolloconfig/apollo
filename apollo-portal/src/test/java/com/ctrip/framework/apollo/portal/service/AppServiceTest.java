@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.repository.AppRepository;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Arrays;
@@ -99,6 +100,16 @@ class AppServiceTest {
     Mockito.when(userService.findByUserId(Mockito.any())).thenReturn(null);
     assertThrows(BadRequestException.class, () -> appService
         .createAppAndAddRolePermission(new App(), Collections.emptySet(), OPERATOR_USER_ID));
+  }
+
+  @Test
+  void writeMethodsShouldRejectBlankOperator() {
+    assertThrows(BadRequestException.class,
+        () -> appService.createAppInRemote(Env.DEV, new App(), " "));
+    assertThrows(BadRequestException.class,
+        () -> appService.createAppAndAddRolePermission(new App(), Collections.emptySet(), " "));
+    assertThrows(BadRequestException.class, () -> appService.updateAppInLocal(new App(), " "));
+    assertThrows(BadRequestException.class, () -> appService.deleteAppInLocal("appId", " "));
   }
 
   @Test

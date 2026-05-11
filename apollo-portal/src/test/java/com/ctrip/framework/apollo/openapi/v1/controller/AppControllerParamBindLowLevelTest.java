@@ -166,6 +166,55 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createApp_shouldNotAssignConsumerRole_whenPortalUserRequestsAssignAppRoleToSelf()
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenAppDTO app = new OpenAppDTO();
+    app.setAppId("demo");
+    app.setName("demo-name");
+    app.setOwnerName("owner");
+
+    OpenCreateAppDTO request = new OpenCreateAppDTO();
+    request.setApp(app);
+    request.setAssignAppRoleToSelf(true);
+
+    when(appOpenApiService.createApp(any(OpenCreateAppDTO.class), eq("portal-user")))
+        .thenReturn(app);
+
+    mockMvc.perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(request))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+
+    verify(appOpenApiService, times(1)).createApp(any(OpenCreateAppDTO.class), eq("portal-user"));
+    verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+    verify(consumerService, never()).assignAppRoleToConsumer(anyLong(), anyString(), anyString());
+  }
+
+  @Test
+  public void createApp_shouldRejectBlankAppId() throws Exception {
+    OpenAppDTO app = new OpenAppDTO();
+    app.setAppId(" ");
+    app.setName("demo-name");
+    app.setOwnerName("owner");
+    app.setDataChangeCreatedBy("api-operator");
+
+    OpenCreateAppDTO request = new OpenCreateAppDTO();
+    request.setApp(app);
+
+    mockMvc
+        .perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
+            .content(gson.toJson(request)))
+        .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+            .isBadRequest());
+
+    verify(appOpenApiService, never()).createApp(any(OpenCreateAppDTO.class), anyString());
+  }
+
+  @Test
   public void createAppInEnv_shouldBind_env_query_body() throws Exception {
     OpenAppDTO dto = new OpenAppDTO();
     dto.setAppId("demo");
@@ -190,6 +239,8 @@ public class AppControllerParamBindLowLevelTest {
     assertThat(opCap.getValue()).isEqualTo("bob");
     assertThat(dtoCap.getValue().getAppId()).isEqualTo("demo");
     assertThat(dtoCap.getValue().getName()).isEqualTo("demo-name");
+    assertThat(dtoCap.getValue().getDataChangeCreatedBy()).isEqualTo("bob");
+    assertThat(dtoCap.getValue().getDataChangeLastModifiedBy()).isEqualTo("bob");
   }
 
   @Test
@@ -207,10 +258,13 @@ public class AppControllerParamBindLowLevelTest {
         .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
+    ArgumentCaptor<OpenAppDTO> dtoCap = ArgumentCaptor.forClass(OpenAppDTO.class);
     ArgumentCaptor<String> operatorCap = ArgumentCaptor.forClass(String.class);
-    verify(appOpenApiService, times(1)).createAppInEnv(eq("DEV"), any(OpenAppDTO.class),
+    verify(appOpenApiService, times(1)).createAppInEnv(eq("DEV"), dtoCap.capture(),
         operatorCap.capture());
     assertThat(operatorCap.getValue()).isEqualTo("portal-user");
+    assertThat(dtoCap.getValue().getDataChangeCreatedBy()).isEqualTo("portal-user");
+    assertThat(dtoCap.getValue().getDataChangeLastModifiedBy()).isEqualTo("portal-user");
   }
 
   @Test
