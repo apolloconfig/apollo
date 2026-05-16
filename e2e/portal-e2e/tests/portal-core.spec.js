@@ -23,6 +23,8 @@ const {
   openConfigPage,
   createNamespaceItem,
   updateNamespaceItem,
+  deleteNamespaceItem,
+  revokeNamespaceItemsViaUi,
   publishNamespace,
   rollbackLatestRelease,
 } = require('./helpers/portal-helpers');
@@ -43,6 +45,20 @@ test.describe.serial('@smoke Apollo Portal config lifecycle', () => {
 
     await login(page);
     await createAppViaUi(page, createdAppId);
+  });
+
+  test('delete and revoke item changes use OpenAPI endpoints @smoke', async ({ page }) => {
+    expect(createdAppId).toBeTruthy();
+
+    const itemToDelete = generateUniqueId('delete_');
+    const itemToRevoke = generateUniqueId('revoke_');
+
+    await login(page);
+    await openConfigPage(page, createdAppId);
+    await createNamespaceItem(page, createdAppId, itemToDelete, '100', 'portal smoke delete item');
+    await deleteNamespaceItem(page, createdAppId, itemToDelete);
+    await createNamespaceItem(page, createdAppId, itemToRevoke, '200', 'portal smoke revoke item');
+    await revokeNamespaceItemsViaUi(page, createdAppId);
   });
 
   test('create item and first release works @smoke', async ({ page }) => {

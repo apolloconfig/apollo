@@ -696,7 +696,7 @@ async function editNamespaceTextViaUi(page, appId, configText, options = {}) {
   const updateItemsResponse = waitForApiResponse(
     page,
     'PUT',
-    `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/items`
+    `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items`
   );
 
   await Promise.all([
@@ -978,7 +978,7 @@ async function createNamespaceItem(page, appId, itemKey, value, comment, options
   const createItemResponse = waitForApiResponse(
     page,
     'POST',
-    `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/item`
+    `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items`
   );
 
   await Promise.all([
@@ -1007,8 +1007,8 @@ async function createBranchNamespaceItem(page, appId, itemKey, value, comment, o
 
   const createBranchItemResponse = page.waitForResponse(
     (response) => response.request().method() === 'POST'
-      && response.url().includes(`/apps/${appId}/envs/${env}/clusters/`)
-      && response.url().includes(`/namespaces/${namespaceName}/item`)
+      && response.url().includes(`/openapi/v1/envs/${env}/apps/${appId}/clusters/`)
+      && response.url().includes(`/namespaces/${namespaceName}/items`)
       && isExpectedStatus(response.status(), DEFAULT_SUCCESS_STATUSES),
     { timeout: 90000 }
   );
@@ -1040,8 +1040,17 @@ async function updateNamespaceItem(page, appId, itemKey, value, comment, options
   const updateResponse = page.waitForResponse(
     (response) => {
       const method = response.request().method();
+      const url = response.url();
+      const pathname = new URL(url).pathname;
+      const itemUrl = `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items`;
+      const encodedItemUrl =
+        pathname.includes(`${itemUrl.replace('/items', '/encodedItems')}/`);
+      const overrideCreateUrl =
+        method === 'POST'
+        && pathname === itemUrl;
+
       return ['PUT', 'POST'].includes(method)
-        && response.url().includes(`/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/item`)
+        && (encodedItemUrl || overrideCreateUrl)
         && isExpectedStatus(response.status(), DEFAULT_SUCCESS_STATUSES);
     },
     { timeout: 90000 }
@@ -1053,6 +1062,61 @@ async function updateNamespaceItem(page, appId, itemKey, value, comment, options
   ]);
 
   await expect(page.locator('#itemModal')).toBeHidden();
+}
+
+async function deleteNamespaceItem(page, appId, itemKey, options = {}) {
+  const {
+    env = DEFAULT_ENV,
+    clusterName = DEFAULT_CLUSTER,
+    namespaceName = DEFAULT_NAMESPACE,
+  } = options;
+  const namespacePanel = await locateNamespacePanel(page, namespaceName);
+  const itemRow = namespacePanel.locator('tr').filter({ hasText: itemKey }).first();
+  await itemRow.waitFor({ state: 'visible', timeout: 30000 });
+
+  await itemRow.locator('img[ng-click^="preDeleteItem"]:visible').first().click();
+  await expect(page.locator('#deleteConfirmDialog')).toBeVisible({ timeout: 30000 });
+
+  const deleteResponse = waitForApiResponseByFragments(
+    page,
+    'DELETE',
+    [
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/encodedItems/`,
+    ]
+  );
+
+  await Promise.all([
+    deleteResponse,
+    page.locator('#deleteConfirmDialog .modal-footer button.btn-danger').click(),
+  ]);
+
+  await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
+}
+
+async function revokeNamespaceItemsViaUi(page, appId, options = {}) {
+  const {
+    env = DEFAULT_ENV,
+    clusterName = DEFAULT_CLUSTER,
+    namespaceName = DEFAULT_NAMESPACE,
+  } = options;
+  const namespacePanel = await locateNamespacePanel(page, namespaceName);
+  const revokeButton = namespacePanel.locator('[ng-click="preRevokeItem(namespace)"]:visible').first();
+  await revokeButton.waitFor({ state: 'visible', timeout: 30000 });
+  await revokeButton.click();
+  await expect(page.locator('#revokeItemConfirmDialog')).toBeVisible({ timeout: 30000 });
+
+  const revokeResponse = waitForApiResponse(
+    page,
+    'POST',
+    `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/items/revocation`
+  );
+
+  await Promise.all([
+    revokeResponse,
+    page.locator('#revokeItemConfirmDialog .modal-footer button.btn-danger').click(),
+  ]);
+
+  await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
 }
 
 async function publishNamespace(page, appId, releaseName, comment, options = {}) {
@@ -1107,7 +1171,7 @@ async function modifyNamespaceTextViaPortalApi(page, appId, configText, options 
   expect(namespaceId).toBeTruthy();
 
   const response = await page.context().request.put(
-    `/apps/${encodePathSegment(appId)}/envs/${encodePathSegment(env)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/items`,
+    `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/items`,
     {
       data: {
         namespaceId,
@@ -1406,6 +1470,8 @@ module.exports = {
   createNamespaceItem,
   createBranchNamespaceItem,
   updateNamespaceItem,
+  deleteNamespaceItem,
+  revokeNamespaceItemsViaUi,
   publishNamespace,
   loadNamespaceViaPortalApi,
   modifyNamespaceTextViaPortalApi,

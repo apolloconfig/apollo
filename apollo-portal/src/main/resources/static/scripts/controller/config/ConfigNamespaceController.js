@@ -183,7 +183,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
     $scope.tableViewOperType = '', $scope.item = {};
     $scope.toOperationNamespace;
 
-    var toDeleteItemId = 0;
+    var toDeleteItemKey = '';
 
     function preDeleteItem(namespace, item) {
         if (!lockCheck(namespace)) {
@@ -194,7 +194,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
         $scope.config.key = _.escape(item.key);
         $scope.config.value = _.escape(item.value);
         $scope.toOperationNamespace = namespace;
-        toDeleteItemId = item.id;
+        toDeleteItemKey = item.key;
 
         $("#deleteConfirmDialog").modal("show");
     }
@@ -204,7 +204,7 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
             $rootScope.pageContext.env,
             $scope.toOperationNamespace.baseInfo.clusterName,
             $scope.toOperationNamespace.baseInfo.namespaceName,
-            toDeleteItemId).then(
+            toDeleteItemKey).then(
                 function (result) {
                     toastr.success($translate.instant('Config.Deleted'));
                     EventManager.emit(EventManager.EventType.REFRESH_NAMESPACE,
@@ -417,4 +417,3 @@ function controller($rootScope, $scope, $translate, toastr, AppUtil, EventManage
 
 
 }
-

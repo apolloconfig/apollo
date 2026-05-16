@@ -18,8 +18,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 
 | 领域 | 当前状态 | 风险 | 下一步 |
 | --- | --- | --- | --- |
-| OpenAPI 契约 | `apollo-portal` 当前引用 `apollo-openapi` 的 `v0.2.0` tag；后续 `apollo-openapi/main` 仍可能继续演进 | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
-| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 9 个走 OpenAPI、112 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
+| OpenAPI 契约 | `apollo-portal` 当前引用 `apollo-openapi` 的 `v0.3.0` tag；后续 `apollo-openapi/main` 仍可能继续演进 | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
+| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 18 个走 OpenAPI、103 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
 | 认证 | `/openapi/**` 先经过 Portal session 识别，再走 consumer token 认证 | 自定义 SSO 若没有让 `/openapi/**` 复用 Portal 登录态，会出现 401 | 明确 filter 顺序和 SSO 接入要求，补回归测试 |
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
@@ -33,10 +33,11 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 - `UnifiedPermissionValidator` 的 USER/CONSUMER 分发测试已扩展到 namespace、application、hide-config 和 create/delete 相关入口。
 - App 域已完成第一批只读切流：`find_apps`、`find_app_by_self`、`load_navtree` 和 `find_miss_envs` 已指向 OpenAPI；`load_app` 在最新 spec 适配轮次仍暂留 WebAPI，以控制本轮 PR 范围。最新本地契约已经包含 `ownerDisplayName`，可在下一轮 App 域切流中处理。
 - `/openapi/v1/apps/by-self` 已补齐 Portal USER 语义：Portal cookie 请求复用原 WebAPI 的 user role 解析，token 请求继续使用 consumer 授权 appId。
-- `apollo-openapi` `v0.2.0` 已作为当前适配目标。相比 `v0.1.0`，它新增 50 个 operation，删除或重命名了多个 `v0.1.0` path，并收紧了 App 创建/更新/删除、Cluster 删除、env cluster info、missing envs 等生成接口返回类型。
-- 本轮适配已切换默认 POM URL 到 `apollo-openapi` `v0.2.0`，并在不使用本地 spec override 的情况下通过 Portal 编译、全量 UT 和 Portal e2e。兼容性检查中剩余的 `v0.1.0` 差异需要作为明确兼容例外或后续 alias 处理，不能视为静默兼容。
+- `apollo-openapi` `v0.3.0` 已作为当前适配目标。相比 `v0.1.0`，它新增 50 个 operation，删除或重命名了多个 `v0.1.0` path，并收紧了 App 创建/更新/删除、Cluster 删除、env cluster info、missing envs 等生成接口返回类型。
+- 本轮适配已切换默认 POM URL 到 `apollo-openapi` `v0.3.0`，并在不使用本地 spec override 的情况下通过 Portal 编译、全量 UT 和 Portal e2e。兼容性检查中剩余的 `v0.1.0` 差异需要作为明确兼容例外或后续 alias 处理，不能视为静默兼容。
 - 已经切到 OpenAPI 的 App 前端调用改为最新 spec 路径：`load_navtree` 调用 `/openapi/v1/apps/{appId}/env-cluster-info`，`find_miss_envs` 调用 `/openapi/v1/apps/{appId}/miss-envs`。`AppService.js` 会把新的数组响应转换回 `AppUtil.collectData` 仍在消费的 `entities/body` 结构。
 - `/openapi/v1/apps/{appId}/navtree` 和 `/openapi/v1/apps/{appId}/miss_envs` 虽然已在 `v0.1.0` 发布，但已确认没有外部用户使用。本轮把这两个 App 旧路径作为明确兼容例外，不保留 alias；这个例外不能泛化到其它已发布的 `v0.1.0` path。
+- Item 域已完成第一批 UI 切流：`ConfigService.js` 中 item create/update/delete、text batch update、diff、sync、syntax check、revocation 和 paged find 已指向 `/openapi/v1/...`，并在前端 service 内保持旧数组返回、旧 diff shape 和 `orderBy` 行为。`load_namespace`、`load_all_namespaces`、associated public namespace 等 Namespace 形状接口仍暂留 WebAPI。
 
 ## 迁移矩阵
 
@@ -46,7 +47,7 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | Cluster | `ClusterService.js` | 已有 get/create/delete | 统一加 `AppUtil.prefixPath()`，补 operator 与 USER/CONSUMER 语义 |
 | App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env | 只读接口已部分切流；nav tree 和 missing envs 已使用最新 spec 路径并在前端做响应兼容转换，写接口仍等待 operator contract/Portal 用户语义对齐后再切 UI |
 | Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | 部分 spec 已在 `apollo-openapi/main` | 优先迁移只读和 lock，再迁移创建/删除 |
-| Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation 已有契约方向 | 先确认 key 编码和 text mode 行为，再切 UI |
+| Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation 已有契约方向 | 本轮已切 Config item/UI 操作；后续继续观察 key 编码、text mode 和更多 e2e 覆盖 |
 | Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | release、gray release、merge、rollback 部分已有 | 先补灰度分支和 rollback 双认证测试 |
 | Instance | `InstanceService.js` | 部分只读接口已有 | 只读迁移，保留分页和 response shape |
 | Permission / AccessKey | `PermissionService.js`、`AccessKeyService.js` | `apollo-openapi/main` 已有新增契约 | 先完成权限模型验证，再迁移管理 UI |
@@ -71,10 +72,10 @@ OpenAPI v1 是第三方客户端、SDK、CLI 和后续 MCP/Agent 工具的对外
 schema 和新 operation 默认是兼容变化。Portal UI 自己消费的路径可以按领域迁移，
 不需要为旧 JS 路径保留兼容入口。
 
-当前用兼容性检查脚本对比 `v0.1.0` 和 `v0.2.0`，已经能看到需要处理的
+当前用兼容性检查脚本对比 `v0.1.0` 和 `v0.3.0`，已经能看到需要处理的
 不兼容项：部分 `operationId` 已变更，`/openapi/v1/apps/{appId}/miss_envs`、
 `/openapi/v1/apps/{appId}/navtree`、item `batchUpdate`/`sync`/`validate` 等旧路径
-在 `v0.2.0` 中不再存在，`MultiResponseEntity`、`RichResponseEntity` 等旧 schema 也被移除。
+在 `v0.3.0` 中不再存在，`MultiResponseEntity`、`RichResponseEntity` 等旧 schema 也被移除。
 因此后续不能把检查失败当成已自然解决；除已确认无人使用的 App 旧路径外，其它已发布契约差异
 仍必须先在 `apollo-openapi` 中补 alias 或明确兼容例外。
 

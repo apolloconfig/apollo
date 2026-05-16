@@ -82,14 +82,13 @@ public class ServerAppOpenApiService implements AppOpenApiService {
    * @see com.ctrip.framework.apollo.portal.controller.AppController#create(AppModel)
    */
   @Override
-  public OpenAppDTO createApp(OpenCreateAppDTO req, String operator) {
+  public void createApp(OpenCreateAppDTO req, String operator) {
     App app = convert(req.getApp());
     Set<String> admins = req.getAdmins();
     if (admins == null) {
       admins = Collections.emptySet();
     }
-    App createdApp = appService.createAppAndAddRolePermission(app, admins, operator);
-    return OpenApiModelConverters.fromApp(createdApp);
+    appService.createAppAndAddRolePermission(app, admins, operator);
   }
 
   @Override

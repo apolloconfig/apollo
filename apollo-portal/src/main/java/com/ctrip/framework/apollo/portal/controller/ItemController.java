@@ -20,7 +20,6 @@ import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
@@ -31,8 +30,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.core.io.ByteArrayResource;
+import com.ctrip.framework.apollo.portal.util.NamespaceTextSyntaxChecker;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -49,11 +47,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.representer.Representer;
 
 import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkModel;
 
@@ -255,40 +248,11 @@ public class ItemController {
   }
 
   void doSyntaxCheck(NamespaceTextModel model) {
-    if (StringUtils.isBlank(model.getConfigText())) {
-      return;
-    }
-
-    // only support yaml syntax check
-    if (model.getFormat() != ConfigFileFormat.YAML && model.getFormat() != ConfigFileFormat.YML) {
-      return;
-    }
-
-    // use YamlPropertiesFactoryBean to check the yaml syntax
-    TypeLimitedYamlPropertiesFactoryBean yamlPropertiesFactoryBean =
-        new TypeLimitedYamlPropertiesFactoryBean();
-    yamlPropertiesFactoryBean.setResources(new ByteArrayResource(model.getConfigText().getBytes()));
-    try {
-      // this call converts yaml to properties and will throw exception if the conversion fails
-      yamlPropertiesFactoryBean.getObject();
-    } catch (Exception ex) {
-      throw new BadRequestException(ex.getMessage());
-    }
+    NamespaceTextSyntaxChecker.check(model);
   }
 
   private boolean isValidItem(ItemDTO item) {
     return Objects.nonNull(item) && !StringUtils.isContainEmpty(item.getKey());
-  }
-
-  private static class TypeLimitedYamlPropertiesFactoryBean extends YamlPropertiesFactoryBean {
-    @Override
-    protected Yaml createYaml() {
-      LoaderOptions loaderOptions = new LoaderOptions();
-      loaderOptions.setAllowDuplicateKeys(false);
-      DumperOptions dumperOptions = new DumperOptions();
-      return new Yaml(new SafeConstructor(loaderOptions), new Representer(dumperOptions),
-          dumperOptions, loaderOptions);
-    }
   }
 
 }

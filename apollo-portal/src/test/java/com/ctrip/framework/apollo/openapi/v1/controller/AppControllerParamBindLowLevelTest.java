@@ -154,9 +154,6 @@ public class AppControllerParamBindLowLevelTest {
     request.setApp(app);
     request.setAssignAppRoleToSelf(true);
 
-    when(appOpenApiService.createApp(any(OpenCreateAppDTO.class), eq("api-operator")))
-        .thenReturn(app);
-
     mockMvc.perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
         .content(gson.toJson(request))).andExpect(
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
@@ -181,9 +178,6 @@ public class AppControllerParamBindLowLevelTest {
     OpenCreateAppDTO request = new OpenCreateAppDTO();
     request.setApp(app);
     request.setAssignAppRoleToSelf(true);
-
-    when(appOpenApiService.createApp(any(OpenCreateAppDTO.class), eq("portal-user")))
-        .thenReturn(app);
 
     mockMvc.perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
         .content(gson.toJson(request))).andExpect(

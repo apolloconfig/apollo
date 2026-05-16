@@ -20,9 +20,11 @@ import com.ctrip.framework.apollo.common.dto.ClusterDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
+import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceLockDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
@@ -35,6 +37,8 @@ import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
@@ -45,6 +49,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
@@ -100,6 +105,62 @@ public final class OpenApiModelConverters {
       return Collections.emptyList();
     }
     return items.stream().map(OpenApiModelConverters::fromItemDTO).collect(Collectors.toList());
+  }
+
+  public static OpenItemDTO fromLegacyOpenItemDTO(
+      com.ctrip.framework.apollo.openapi.dto.OpenItemDTO item) {
+    Preconditions.checkArgument(item != null);
+    return BeanUtils.transform(OpenItemDTO.class, item);
+  }
+
+  public static List<OpenItemDTO> fromLegacyOpenItemDTOs(
+      List<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> items) {
+    if (CollectionUtils.isEmpty(items)) {
+      return Collections.emptyList();
+    }
+    return items.stream().map(OpenApiModelConverters::fromLegacyOpenItemDTO)
+        .collect(Collectors.toList());
+  }
+
+  public static OpenItemPageDTO fromLegacyOpenItemPageDTO(
+      PageDTO<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> page) {
+    Preconditions.checkArgument(page != null);
+    OpenItemPageDTO result = new OpenItemPageDTO();
+    result.setPage(page.getPage());
+    result.setSize(page.getSize());
+    result.setTotal(page.getTotal());
+    result.setContent(fromLegacyOpenItemDTOs(page.getContent()));
+    return result;
+  }
+
+  public static OpenItemDiffDTO fromItemDiffs(ItemDiffs itemDiffs) {
+    Preconditions.checkArgument(itemDiffs != null);
+    OpenItemDiffDTO result = new OpenItemDiffDTO();
+    result.setCode(0);
+    result.setMessage(itemDiffs.getExtInfo());
+    if (itemDiffs.getNamespace() != null) {
+      result.setNamespace(fromNamespaceIdentifier(itemDiffs.getNamespace()));
+    }
+
+    ItemChangeSets diffs = itemDiffs.getDiffs();
+    if (diffs == null) {
+      result.setCreateItems(Collections.emptyList());
+      result.setUpdateItems(Collections.emptyList());
+      result.setDeleteItems(Collections.emptyList());
+      return result;
+    }
+    result.setCreateItems(fromItemDTOs(diffs.getCreateItems()));
+    result.setUpdateItems(fromItemDTOs(diffs.getUpdateItems()));
+    result.setDeleteItems(fromItemDTOs(diffs.getDeleteItems()));
+    return result;
+  }
+
+  public static List<OpenItemDiffDTO> fromItemDiffs(List<ItemDiffs> itemDiffs) {
+    if (CollectionUtils.isEmpty(itemDiffs)) {
+      return Collections.emptyList();
+    }
+    return itemDiffs.stream().map(OpenApiModelConverters::fromItemDiffs)
+        .collect(Collectors.toList());
   }
   // endregion
 

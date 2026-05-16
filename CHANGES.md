@@ -12,6 +12,7 @@ Apollo 3.0.0
 * [Feature: auto-provision an enabled AccessKey per environment when creating a new app, controlled by `apollo.access-key.auto-provision.enabled` in ApolloConfigDB.ServerConfig](https://github.com/apolloconfig/apollo/pull/5589)
 * [Feature: support ServerConfig create/update/delete by `key + cluster` in ConfigDB management, with UI cluster awareness and multi-cluster safety tests](https://github.com/apolloconfig/apollo/pull/5601)
 * [Change: adapt Apollo Portal OpenAPI migration to apollo-openapi v0.2.0](https://github.com/apolloconfig/apollo/pull/5608)
+* [Change: migrate Apollo Portal config item UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5610)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)

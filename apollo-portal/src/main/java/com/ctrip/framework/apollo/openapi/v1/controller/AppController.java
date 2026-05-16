@@ -79,7 +79,7 @@ public class AppController implements AppManagementApi {
   @Transactional
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
   @Override
-  public ResponseEntity<OpenAppDTO> createApp(OpenCreateAppDTO req) {
+  public ResponseEntity<Void> createApp(OpenCreateAppDTO req) {
     if (null == req.getApp()) {
       throw new BadRequestException("App is null");
     }
@@ -90,13 +90,13 @@ public class AppController implements AppManagementApi {
     String resolvedOperator = resolveOperator(app.getDataChangeCreatedBy());
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
-    OpenAppDTO createdApp = this.appOpenApiService.createApp(req, resolvedOperator);
+    this.appOpenApiService.createApp(req, resolvedOperator);
     if (Boolean.TRUE.equals(req.getAssignAppRoleToSelf())
         && UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
       long consumerId = this.consumerAuthUtil.retrieveConsumerIdFromCtx();
       consumerService.assignAppRoleToConsumer(consumerId, app.getAppId(), resolvedOperator);
     }
-    return ResponseEntity.ok(createdApp);
+    return ResponseEntity.ok().build();
   }
 
   @Override

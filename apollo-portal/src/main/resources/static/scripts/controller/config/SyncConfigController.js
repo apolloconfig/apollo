@@ -95,7 +95,11 @@ sync_item_module.controller("SyncItemController",
                     return;
                 }
                 $scope.hasDiff = false;
-                ConfigService.diff($scope.pageContext.namespaceName, syncData).then(
+                ConfigService.diff($scope.pageContext.appId,
+                    $scope.pageContext.env,
+                    $scope.pageContext.clusterName,
+                    $scope.pageContext.namespaceName,
+                    syncData).then(
                     function (result) {
 
                         $scope.clusterDiffs = result;
@@ -163,6 +167,8 @@ sync_item_module.controller("SyncItemController",
             function syncItems() {
                 $scope.syncBtnDisabled = true;
                 ConfigService.sync_items($scope.pageContext.appId,
+                    $scope.pageContext.env,
+                    $scope.pageContext.clusterName,
                     $scope.pageContext.namespaceName,
                     syncData).then(function (result) {
                         $scope.syncItemStep += 1;
@@ -247,4 +253,3 @@ sync_item_module.controller("SyncItemController",
 
 
         }]);
-

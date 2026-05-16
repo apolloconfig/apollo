@@ -21,8 +21,8 @@ Portal UI behavior.
 
 | Area | Current state | Risk | Next step |
 | --- | --- | --- | --- |
-| OpenAPI contract | `apollo-portal` points to the `apollo-openapi` `v0.2.0` tag; future `apollo-openapi/main` changes may still move further | Portal implementation, generated interfaces, and SDKs can drift | Run compatibility checks before changing the spec URL, and pin a clear tag or commit |
-| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 9 of the current 121 URL entries call OpenAPI, and 112 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
+| OpenAPI contract | `apollo-portal` points to the `apollo-openapi` `v0.3.0` tag; future `apollo-openapi/main` changes may still move further | Portal implementation, generated interfaces, and SDKs can drift | Run compatibility checks before changing the spec URL, and pin a clear tag or commit |
+| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 18 of the current 121 URL entries call OpenAPI, and 103 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
 | Authentication | `/openapi/**` first detects Portal sessions, then falls back to consumer token auth | Custom SSO integrations may return 401 if `/openapi/**` does not share the Portal login context | Document filter order and SSO requirements; add regression coverage |
 | Authorization | `UnifiedPermissionValidator` dispatches by `USER` or `CONSUMER` | OpenAPI read behavior can differ from `configView.memberOnly.envs` | Keep token compatibility first, then add explicit read-permission policy |
 | Models | Generated models, legacy `apollo-openapi` Java DTO/API classes, and Portal DTOs coexist | Maintaining three model layers increases conversion cost | Prefer generated `*ManagementApi` and `model.*` for new endpoints |
@@ -36,8 +36,8 @@ Portal UI behavior.
 - `UnifiedPermissionValidator` USER/CONSUMER dispatch coverage now includes namespace, application, hide-config, and create/delete related permission entry points.
 - The first App read-only frontend slice has moved to OpenAPI: `find_apps`, `find_app_by_self`, `load_navtree`, and `find_miss_envs`. `load_app` stays on WebAPI in the latest-spec adaptation pass to keep the PR focused; it can move in the next App-domain slice now that the latest local contract exposes `ownerDisplayName`.
 - `/openapi/v1/apps/by-self` now preserves Portal USER semantics: Portal cookie requests reuse the old WebAPI user-role appId resolution, while token requests continue to use consumer-authorized appIds.
-- `apollo-openapi` `v0.2.0` is now the current adaptation target. Compared with `v0.1.0`, it adds 50 operations, removes or renames several `v0.1.0` paths, and tightens generated return types such as App create/update/delete, cluster delete, env cluster info, and missing envs.
-- This adaptation pass now points the default POM URL to `apollo-openapi` `v0.2.0` and passes Portal compile, full unit tests, and Portal e2e without a local spec override. Remaining `v0.1.0` differences from the compatibility checker must stay documented as explicit compatibility exceptions or be handled by future aliases; they are not silently compatible.
+- `apollo-openapi` `v0.3.0` is now the current adaptation target. Compared with `v0.1.0`, it adds 50 operations, removes or renames several `v0.1.0` paths, and tightens generated return types such as App create/update/delete, cluster delete, env cluster info, and missing envs.
+- This adaptation pass now points the default POM URL to `apollo-openapi` `v0.3.0` and passes Portal compile, full unit tests, and Portal e2e without a local spec override. Remaining `v0.1.0` differences from the compatibility checker must stay documented as explicit compatibility exceptions or be handled by future aliases; they are not silently compatible.
 - The already-migrated App frontend calls now follow the latest spec paths: `load_navtree` calls `/openapi/v1/apps/{appId}/env-cluster-info`, and `find_miss_envs` calls `/openapi/v1/apps/{appId}/miss-envs`. `AppService.js` normalizes the new array responses back into the legacy `entities/body` shape consumed by `AppUtil.collectData`.
 - The legacy App OpenAPI paths `/openapi/v1/apps/{appId}/navtree` and `/openapi/v1/apps/{appId}/miss_envs` were published in `v0.1.0` but are confirmed unused. This pass treats them as explicit compatibility exceptions and does not keep aliases; do not generalize this exception to other published `v0.1.0` paths.
 
@@ -78,11 +78,11 @@ paths, optional fields, schemas, and operations are compatible by default. Porta
 UI-only paths can migrate by domain and do not need compatibility aliases for
 old JavaScript URLs.
 
-Running the compatibility checker from `v0.1.0` to `v0.2.0` already
+Running the compatibility checker from `v0.1.0` to `v0.3.0` already
 shows incompatible changes that need explicit handling: several `operationId`
 values changed, legacy paths such as `/openapi/v1/apps/{appId}/miss_envs`,
 `/openapi/v1/apps/{appId}/navtree`, and item `batchUpdate`/`sync`/`validate`
-paths are no longer present on `v0.2.0`, and old schemas such as `MultiResponseEntity`
+paths are no longer present on `v0.3.0`, and old schemas such as `MultiResponseEntity`
 and `RichResponseEntity` were removed. Therefore later work must not treat the
 failed check as naturally resolved; except for the confirmed-unused legacy App
 paths, published contract differences still need aliases in `apollo-openapi` or

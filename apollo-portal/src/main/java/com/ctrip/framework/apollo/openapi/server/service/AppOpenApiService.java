@@ -28,7 +28,7 @@ import java.util.Set;
 
 public interface AppOpenApiService {
 
-  OpenAppDTO createApp(@NonNull OpenCreateAppDTO req, String operator);
+  void createApp(@NonNull OpenCreateAppDTO req, String operator);
 
   /**
    * Returns the legacy v0.2.0-compatible env and cluster-name list for an app.
