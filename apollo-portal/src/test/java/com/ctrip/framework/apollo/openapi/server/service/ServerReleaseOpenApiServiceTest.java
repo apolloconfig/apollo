@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -52,6 +53,15 @@ class ServerReleaseOpenApiServiceTest {
     assertThrows(BadRequestException.class,
         () -> service.publishNamespace("appId", "DEV", "default", "application", dto));
 
+    verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
+  }
+
+  @Test
+  void publishNamespaceShouldRejectNullDto() {
+    BadRequestException exception = assertThrows(BadRequestException.class,
+        () -> service.publishNamespace("appId", "DEV", "default", "application", null));
+
+    assertThat(exception.getMessage()).isEqualTo("Request body can not be empty.");
     verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
   }
 }

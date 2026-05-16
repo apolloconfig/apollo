@@ -43,7 +43,10 @@ public class ServerReleaseOpenApiService implements ReleaseOpenApiService {
   @Override
   public OpenReleaseDTO publishNamespace(String appId, String env, String clusterName,
       String namespaceName, NamespaceReleaseDTO releaseDTO) {
-    if (releaseDTO == null || StringUtils.isBlank(releaseDTO.getReleasedBy())) {
+    if (releaseDTO == null) {
+      throw new BadRequestException("Request body can not be empty.");
+    }
+    if (StringUtils.isBlank(releaseDTO.getReleasedBy())) {
       throw new BadRequestException("Params(releasedBy) can not be empty.");
     }
     NamespaceReleaseModel releaseModel =
