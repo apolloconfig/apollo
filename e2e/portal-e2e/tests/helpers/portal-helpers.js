@@ -322,7 +322,11 @@ async function submitNamespaceCreationWithOptions(page, appId, namespaceName, op
   await namespaceNameInput.fill(namespaceName);
   await namespaceCommentInput.fill(comment);
 
-  const createNamespaceResponse = waitForApiCall(page, 'POST', `/apps/${appId}/appnamespaces`);
+  const createNamespaceResponse = waitForApiCall(
+    page,
+    'POST',
+    `/openapi/v1/apps/${appId}/appnamespaces`
+  );
   await page.click('.apollo-container:not(.hidden) form[name="namespaceForm"] button[type="submit"]');
 
   return createNamespaceResponse;
@@ -739,7 +743,7 @@ async function linkPublicNamespacesViaUi(page, appId, namespaceNames) {
   const linkNamespaceResponse = waitForApiResponseByFragments(
     page,
     'POST',
-    [`/apps/${appId}/namespaces`]
+    ['/openapi/v1/namespaces']
   );
   await Promise.all([
     linkNamespaceResponse,
@@ -1153,7 +1157,7 @@ async function loadNamespaceViaPortalApi(page, appId, options = {}) {
     namespaceName = DEFAULT_NAMESPACE,
   } = options;
   const response = await page.context().request.get(
-    `/apps/${encodePathSegment(appId)}/envs/${encodePathSegment(env)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}`
+    `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}?fillItemDetail=true&extendInfo=true`
   );
   expect(response.status()).toBe(200);
   return response.json();
@@ -1166,15 +1170,11 @@ async function modifyNamespaceTextViaPortalApi(page, appId, configText, options 
     namespaceName = DEFAULT_NAMESPACE,
     format = 'properties',
   } = options;
-  const namespace = await loadNamespaceViaPortalApi(page, appId, { env, clusterName, namespaceName });
-  const namespaceId = namespace?.baseInfo?.id;
-  expect(namespaceId).toBeTruthy();
 
   const response = await page.context().request.put(
     `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/items`,
     {
       data: {
-        namespaceId,
         format,
         configText,
       },

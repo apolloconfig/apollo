@@ -22,17 +22,17 @@ appService.service("ConfigService", ['$resource', '$q', 'AppUtil', function ($re
         load_namespace: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName'
         },
         load_public_namespace_for_associated_namespace: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/associated-public-namespace'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/associated-public-namespace'
         },
         load_all_namespaces: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces'
         },
         find_items: {
             method: 'GET',
@@ -122,6 +122,76 @@ appService.service("ConfigService", ['$resource', '$q', 'AppUtil', function ($re
         };
     }
 
+    function firstNamespaceId(items) {
+        var namespaceId;
+        angular.forEach(items || [], function (itemBO) {
+            if (namespaceId || !itemBO.item) {
+                return;
+            }
+            namespaceId = itemBO.item.namespaceId;
+        });
+        return namespaceId;
+    }
+
+    function toLegacyItem(openItem) {
+        var item = angular.copy(openItem || {});
+        var extendInfo = item.extendInfo || {};
+        delete item.extendInfo;
+        if (extendInfo.namespaceId) {
+            item.namespaceId = extendInfo.namespaceId;
+        }
+        return {
+            item: item,
+            isModified: !!extendInfo.isModified,
+            isDeleted: !!extendInfo.isDeleted,
+            isNewlyAdded: !!extendInfo.isNewlyAdded,
+            oldValue: extendInfo.oldValue,
+            newValue: extendInfo.newValue
+        };
+    }
+
+    function toLegacyNamespace(openNamespace) {
+        var namespace = angular.copy(openNamespace || {});
+        var extendInfo = namespace.extendInfo || {};
+        var items = [];
+        angular.forEach(namespace.items || [], function (item) {
+            items.push(toLegacyItem(item));
+        });
+
+        var baseInfo = {
+            appId: namespace.appId,
+            clusterName: namespace.clusterName,
+            namespaceName: namespace.namespaceName,
+            dataChangeCreatedBy: namespace.dataChangeCreatedBy,
+            dataChangeLastModifiedBy: namespace.dataChangeLastModifiedBy,
+            dataChangeCreatedTime: namespace.dataChangeCreatedTime,
+            dataChangeLastModifiedTime: namespace.dataChangeLastModifiedTime
+        };
+        var namespaceId = firstNamespaceId(items);
+        if (namespaceId) {
+            baseInfo.id = namespaceId;
+        }
+
+        return {
+            baseInfo: baseInfo,
+            itemModifiedCnt: extendInfo.itemModifiedCnt || 0,
+            items: items,
+            format: namespace.format,
+            isPublic: !!namespace.isPublic,
+            parentAppId: extendInfo.parentAppId,
+            comment: namespace.comment,
+            isConfigHidden: !!extendInfo.isConfigHidden
+        };
+    }
+
+    function toLegacyNamespaces(openNamespaces) {
+        var namespaces = [];
+        angular.forEach(openNamespaces || [], function (namespace) {
+            namespaces.push(toLegacyNamespace(namespace));
+        });
+        return namespaces;
+    }
+
     return {
         load_namespace: function (appId, env, clusterName, namespaceName) {
             var d = $q.defer();
@@ -129,9 +199,11 @@ appService.service("ConfigService", ['$resource', '$q', 'AppUtil', function ($re
                                              appId: appId,
                                              env: env,
                                              clusterName: clusterName,
-                                             namespaceName: namespaceName
+                                             namespaceName: namespaceName,
+                                             fillItemDetail: true,
+                                             extendInfo: true
                                          }, function (result) {
-                d.resolve(result);
+                d.resolve(toLegacyNamespace(result));
             }, function (result) {
                 d.reject(result);
             });
@@ -143,9 +215,10 @@ appService.service("ConfigService", ['$resource', '$q', 'AppUtil', function ($re
                                                                              env: env,
                                                                              appId: appId,
                                                                              clusterName: clusterName,
-                                                                             namespaceName: namespaceName
+                                                                             namespaceName: namespaceName,
+                                                                             extendInfo: true
                                                                          }, function (result) {
-                d.resolve(result);
+                d.resolve(toLegacyNamespace(result));
             }, function (result) {
                 d.reject(result);
             });
@@ -156,9 +229,11 @@ appService.service("ConfigService", ['$resource', '$q', 'AppUtil', function ($re
             config_source.load_all_namespaces({
                                                   appId: appId,
                                                   env: env,
-                                                  clusterName: clusterName
+                                                  clusterName: clusterName,
+                                                  fillItemDetail: true,
+                                                  extendInfo: true
                                               }, function (result) {
-                d.resolve(result);
+                d.resolve(toLegacyNamespaces(result));
             }, function (result) {
                 d.reject(result);
             });

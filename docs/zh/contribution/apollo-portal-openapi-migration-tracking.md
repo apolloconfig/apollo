@@ -19,7 +19,7 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | 领域 | 当前状态 | 风险 | 下一步 |
 | --- | --- | --- | --- |
 | OpenAPI 契约 | `apollo-portal` 当前引用 `apollo-openapi` 的 `v0.3.0` tag；后续 `apollo-openapi/main` 仍可能继续演进 | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
-| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 18 个走 OpenAPI、103 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
+| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 36 个走 OpenAPI、85 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
 | 认证 | `/openapi/**` 先经过 Portal session 识别，再走 consumer token 认证 | 自定义 SSO 若没有让 `/openapi/**` 复用 Portal 登录态，会出现 401 | 明确 filter 顺序和 SSO 接入要求，补回归测试 |
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
@@ -38,16 +38,18 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 - 已经切到 OpenAPI 的 App 前端调用改为最新 spec 路径：`load_navtree` 调用 `/openapi/v1/apps/{appId}/env-cluster-info`，`find_miss_envs` 调用 `/openapi/v1/apps/{appId}/miss-envs`。`AppService.js` 会把新的数组响应转换回 `AppUtil.collectData` 仍在消费的 `entities/body` 结构。
 - `/openapi/v1/apps/{appId}/navtree` 和 `/openapi/v1/apps/{appId}/miss_envs` 虽然已在 `v0.1.0` 发布，但已确认没有外部用户使用。本轮把这两个 App 旧路径作为明确兼容例外，不保留 alias；这个例外不能泛化到其它已发布的 `v0.1.0` path。
 - Item 域已完成第一批 UI 切流：`ConfigService.js` 中 item create/update/delete、text batch update、diff、sync、syntax check、revocation 和 paged find 已指向 `/openapi/v1/...`，并在前端 service 内保持旧数组返回、旧 diff shape 和 `orderBy` 行为。`load_namespace`、`load_all_namespaces`、associated public namespace 等 Namespace 形状接口仍暂留 WebAPI。
+- Namespace Core 切片已切到 OpenAPI：namespace 读取、associated public namespace 读取、namespace lock 查询、missing namespace 查询/创建、cluster 删除、AppNamespace 创建/删除/读取/列表、namespace 创建/删除、release status、usage 和 public namespace instances 都已走 OpenAPI。后端在 `v0.3.0` 已有契约的地方实现 generated management interfaces，Portal UI 需要的响应兼容只保留在前端 service 内。
+- Namespace 和 item 的 `extendInfo` 已承载 UI 还原旧视图需要的状态；text mode item update 改为后端根据 path 派生 `namespaceId`，不再依赖 UI 从 legacy `baseInfo.id` 取值。
 
 ## 迁移矩阵
 
 | 领域 | WebAPI / 前端 service | OpenAPI 覆盖 | 迁移策略 |
 | --- | --- | --- | --- |
 | Env / Organization | `EnvService.js`、`OrganizationService.js` | 已有基础只读接口 | 保持 OpenAPI 路径，验证 SSO 与 prefix path |
-| Cluster | `ClusterService.js` | 已有 get/create/delete | 统一加 `AppUtil.prefixPath()`，补 operator 与 USER/CONSUMER 语义 |
-| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env | 只读接口已部分切流；nav tree 和 missing envs 已使用最新 spec 路径并在前端做响应兼容转换，写接口仍等待 operator contract/Portal 用户语义对齐后再切 UI |
-| Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | 部分 spec 已在 `apollo-openapi/main` | 优先迁移只读和 lock，再迁移创建/删除 |
-| Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation 已有契约方向 | 本轮已切 Config item/UI 操作；后续继续观察 key 编码、text mode 和更多 e2e 覆盖 |
+| Cluster | `ClusterService.js` | 已有 get/create/delete | 前端 service 已全部使用 OpenAPI 创建、读取和删除；继续保持 USER/CONSUMER operator 回归覆盖 |
+| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env、missing namespace | app 只读、missing env 和 missing namespace 已走 OpenAPI 并在前端做响应兼容转换；其余 app 写接口仍等待 operator contract/Portal 用户语义对齐后再切 UI |
+| Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | `v0.3.0` 已包含 Namespace、AppNamespace、lock、usage、release status、public instance APIs | Namespace Core 前端 service 调用已迁移；后续推进 branch/release 和剩余 response-shape hardening |
+| Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation、namespace read 已有契约方向 | Item 和 Namespace Core UI 路径已走 OpenAPI；后续继续观察 key 编码、text mode 和更多 e2e 覆盖 |
 | Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | release、gray release、merge、rollback 部分已有 | 先补灰度分支和 rollback 双认证测试 |
 | Instance | `InstanceService.js` | 部分只读接口已有 | 只读迁移，保留分页和 response shape |
 | Permission / AccessKey | `PermissionService.js`、`AccessKeyService.js` | `apollo-openapi/main` 已有新增契约 | 先完成权限模型验证，再迁移管理 UI |

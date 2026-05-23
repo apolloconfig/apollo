@@ -6,8 +6,8 @@
 
 - Service 文件数：24
 - URL 条目数：121
-- OpenAPI 条目数：18
-- WebAPI 条目数：103
+- OpenAPI 条目数：36
+- WebAPI 条目数：85
 - 未使用 `AppUtil.prefixPath()` 的条目数：0
 
 ## 按 Service 汇总
@@ -15,12 +15,12 @@
 | Service | OpenAPI | WebAPI | No prefix | Total |
 | --- | ---: | ---: | ---: | ---: |
 | `AccessKeyService.js` | 0 | 5 | 0 | 5 |
-| `AppService.js` | 4 | 9 | 0 | 13 |
+| `AppService.js` | 6 | 7 | 0 | 13 |
 | `AuditLogService.js` | 0 | 6 | 0 | 6 |
-| `ClusterService.js` | 2 | 1 | 0 | 3 |
+| `ClusterService.js` | 3 | 0 | 0 | 3 |
 | `CommitService.js` | 0 | 1 | 0 | 1 |
 | `CommonService.js` | 0 | 1 | 0 | 1 |
-| `ConfigService.js` | 9 | 3 | 0 | 12 |
+| `ConfigService.js` | 12 | 0 | 0 | 12 |
 | `ConsumerService.js` | 0 | 5 | 0 | 5 |
 | `EnvService.js` | 2 | 0 | 0 | 2 |
 | `ExportService.js` | 0 | 1 | 0 | 1 |
@@ -28,8 +28,8 @@
 | `GlobalSearchValueService.js` | 0 | 1 | 0 | 1 |
 | `InstanceService.js` | 0 | 4 | 0 | 4 |
 | `NamespaceBranchService.js` | 0 | 6 | 0 | 6 |
-| `NamespaceLockService.js` | 0 | 1 | 0 | 1 |
-| `NamespaceService.js` | 0 | 11 | 0 | 11 |
+| `NamespaceLockService.js` | 1 | 0 | 0 | 1 |
+| `NamespaceService.js` | 11 | 0 | 0 | 11 |
 | `OrganizationService.js` | 1 | 0 | 0 | 1 |
 | `PermissionService.js` | 0 | 20 | 0 | 20 |
 | `ReleaseHistoryService.js` | 0 | 1 | 0 | 1 |
@@ -56,11 +56,11 @@
 | `AppService.js` | 44 | `update_app` | `PUT` | WebAPI | yes | `/apps/:appId` |
 | `AppService.js` | 48 | `create_app_remote` | `POST` | WebAPI | yes | `/apps/envs/:env` |
 | `AppService.js` | 52 | `find_miss_envs` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/miss-envs` |
-| `AppService.js` | 57 | `create_missing_namespaces` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
-| `AppService.js` | 61 | `find_missing_namespaces` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
-| `AppService.js` | 69 | `allow_app_master_assign_role` | `POST` | WebAPI | yes | `/apps/:appId/system/master/:userId` |
-| `AppService.js` | 73 | `delete_app_master_assign_role` | `DELETE` | WebAPI | yes | `/apps/:appId/system/master/:userId` |
-| `AppService.js` | 77 | `has_create_application_role` | `GET` | WebAPI | yes | `/system/role/createApplication/:userId` |
+| `AppService.js` | 57 | `create_missing_namespaces` | `POST` | OpenAPI | yes | `/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
+| `AppService.js` | 61 | `find_missing_namespaces` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces` |
+| `AppService.js` | 70 | `allow_app_master_assign_role` | `POST` | WebAPI | yes | `/apps/:appId/system/master/:userId` |
+| `AppService.js` | 74 | `delete_app_master_assign_role` | `DELETE` | WebAPI | yes | `/apps/:appId/system/master/:userId` |
+| `AppService.js` | 78 | `has_create_application_role` | `GET` | WebAPI | yes | `/system/role/createApplication/:userId` |
 | `AuditLogService.js` | 21 | `get_properties` | `GET` | WebAPI | yes | `/apollo/audit/properties` |
 | `AuditLogService.js` | 26 | `find_all_logs` | `GET` | WebAPI | yes | `/apollo/audit/logs?page=:page&size=:size` |
 | `AuditLogService.js` | 31 | `find_logs_by_opName` | `GET` | WebAPI | yes | `/apollo/audit/logs/opName?opName=:opName&page=:page&size=:size&startDate=:startDate&endDate=:endDate` |
@@ -69,12 +69,12 @@
 | `AuditLogService.js` | 46 | `search_by_name_or_type_or_operator` | `GET` | WebAPI | yes | `/apollo/audit/logs/by-name-or-type-or-operator?query=:query&page=:page&size=:size` |
 | `ClusterService.js` | 21 | `create_cluster` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters` |
 | `ClusterService.js` | 25 | `load_cluster` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName` |
-| `ClusterService.js` | 29 | `delete_cluster` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName` |
+| `ClusterService.js` | 29 | `delete_cluster` | `DELETE` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName` |
 | `CommitService.js` | 22 | `find_commits` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/commits?page=:page` |
 | `CommonService.js` | 23 | `page_setting` | `GET` | WebAPI | yes | `/page-settings` |
-| `ConfigService.js` | 25 | `load_namespace` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName` |
-| `ConfigService.js` | 30 | `load_public_namespace_for_associated_namespace` | `GET` | WebAPI | yes | `/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/associated-public-namespace` |
-| `ConfigService.js` | 35 | `load_all_namespaces` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces` |
+| `ConfigService.js` | 25 | `load_namespace` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName` |
+| `ConfigService.js` | 30 | `load_public_namespace_for_associated_namespace` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/associated-public-namespace` |
+| `ConfigService.js` | 35 | `load_all_namespaces` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces` |
 | `ConfigService.js` | 40 | `find_items` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/items` |
 | `ConfigService.js` | 44 | `modify_items` | `PUT` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/items` |
 | `ConfigService.js` | 48 | `diff` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/items/diff` |
@@ -107,18 +107,18 @@
 | `NamespaceBranchService.js` | 37 | `merge_and_release_branch` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge` |
 | `NamespaceBranchService.js` | 42 | `find_branch_gray_rules` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
 | `NamespaceBranchService.js` | 47 | `update_branch_gray_rules` | `PUT` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
-| `NamespaceLockService.js` | 21 | `get_namespace_lock` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info` |
-| `NamespaceService.js` | 22 | `find_public_namespaces` | `GET` | WebAPI | yes | `/appnamespaces/public` |
-| `NamespaceService.js` | 26 | `createNamespace` | `POST` | WebAPI | yes | `/apps/:appId/namespaces` |
-| `NamespaceService.js` | 31 | `createAppNamespace` | `POST` | WebAPI | yes | `/apps/:appId/appnamespaces?appendNamespacePrefix=:appendNamespacePrefix` |
-| `NamespaceService.js` | 36 | `getNamespacePublishInfo` | `GET` | WebAPI | yes | `/apps/:appId/namespaces/publish_info` |
-| `NamespaceService.js` | 40 | `deleteLinkedNamespace` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/linked-namespaces/:namespaceName` |
-| `NamespaceService.js` | 44 | `getPublicAppNamespaceAllNamespaces` | `GET` | WebAPI | yes | `/envs/:env/appnamespaces/:publicNamespaceName/namespaces` |
-| `NamespaceService.js` | 49 | `loadAppNamespace` | `GET` | WebAPI | yes | `/apps/:appId/appnamespaces/:namespaceName` |
-| `NamespaceService.js` | 53 | `deleteAppNamespace` | `DELETE` | WebAPI | yes | `/apps/:appId/appnamespaces/:namespaceName` |
-| `NamespaceService.js` | 57 | `getLinkedNamespaceUsage` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/linked-namespaces/:namespaceName/usage` |
-| `NamespaceService.js` | 62 | `getNamespaceUsage` | `GET` | WebAPI | yes | `/apps/:appId/namespaces/:namespaceName/usage` |
-| `NamespaceService.js` | 68 | `findPublicNamespaceNames` | `GET` | WebAPI | yes | `/appnamespaces/public/names` |
+| `NamespaceLockService.js` | 21 | `get_namespace_lock` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/lock` |
+| `NamespaceService.js` | 22 | `find_public_namespaces` | `GET` | OpenAPI | yes | `/openapi/v1/appnamespaces` |
+| `NamespaceService.js` | 26 | `createNamespace` | `POST` | OpenAPI | yes | `/openapi/v1/namespaces` |
+| `NamespaceService.js` | 31 | `createAppNamespace` | `POST` | OpenAPI | yes | `/openapi/v1/apps/:appId/appnamespaces` |
+| `NamespaceService.js` | 36 | `getNamespacePublishInfo` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/namespaces/releases/status` |
+| `NamespaceService.js` | 40 | `deleteLinkedNamespace` | `DELETE` | OpenAPI | yes | `/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName` |
+| `NamespaceService.js` | 44 | `getPublicAppNamespaceAllNamespaces` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/appnamespaces/:publicNamespaceName/instances` |
+| `NamespaceService.js` | 49 | `loadAppNamespace` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/appnamespaces/:namespaceName` |
+| `NamespaceService.js` | 53 | `deleteAppNamespace` | `DELETE` | OpenAPI | yes | `/openapi/v1/apps/:appId/appnamespaces/:namespaceName` |
+| `NamespaceService.js` | 57 | `getLinkedNamespaceUsage` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/usage` |
+| `NamespaceService.js` | 62 | `getNamespaceUsage` | `GET` | OpenAPI | yes | `/openapi/v1/apps/:appId/appnamespaces/:namespaceName/usage` |
+| `NamespaceService.js` | 68 | `findPublicNamespaceNames` | `GET` | OpenAPI | yes | `/openapi/v1/appnamespaces` |
 | `OrganizationService.js` | 22 | `find_organizations` | `GET` | OpenAPI | yes | `/openapi/v1/organizations` |
 | `PermissionService.js` | 21 | `init_app_namespace_permission` | `POST` | WebAPI | yes | `/apps/:appId/initPermission` |
 | `PermissionService.js` | 28 | `init_cluster_ns_permission` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/initNsPermission` |

@@ -44,6 +44,7 @@ import com.ctrip.framework.apollo.openapi.dto.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.ClusterOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
+import com.ctrip.framework.apollo.openapi.server.service.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.PortalApplication;
@@ -113,7 +114,10 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
   private AdminServiceAddressLocator adminServiceAddressLocator;
 
   @MockitoBean
-  private com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService namespaceOpenApiService;
+  private NamespaceOpenApiService namespaceOpenApiService;
+
+  @MockitoBean
+  private com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService legacyNamespaceOpenApiService;
 
   @MockitoBean
   private com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService releaseOpenApiService;
@@ -244,21 +248,22 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     verify(clusterOpenApiService).createCluster(eq(ENV), clusterCaptor.capture(), eq(OPERATOR));
     assertThat(clusterCaptor.getValue().getDataChangeCreatedBy()).isEqualTo(OPERATOR);
 
-    OpenNamespaceDTO namespace = legacyNamespace();
-    when(namespaceOpenApiService.getNamespaces(APP_ID, ENV, CLUSTER, false))
+    com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO namespace = generatedNamespace();
+    when(namespaceOpenApiService.findNamespaces(APP_ID, ENV, CLUSTER, false, false))
         .thenReturn(Collections.singletonList(namespace));
     List<OpenNamespaceDTO> namespaces = client.getNamespaces(APP_ID, ENV, null, false);
     assertThat(namespaces).extracting(OpenNamespaceDTO::getNamespaceName)
         .containsExactly(NAMESPACE);
-    verify(namespaceOpenApiService).getNamespaces(APP_ID, ENV, CLUSTER, false);
+    verify(namespaceOpenApiService).findNamespaces(APP_ID, ENV, CLUSTER, false, false);
 
-    when(namespaceOpenApiService.getNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true))
+    when(namespaceOpenApiService.findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true, false))
         .thenReturn(namespace);
     OpenNamespaceDTO loadedNamespace = client.getNamespace(APP_ID, ENV, null, null, true);
     assertThat(loadedNamespace.getNamespaceName()).isEqualTo(NAMESPACE);
-    verify(namespaceOpenApiService).getNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true);
+    verify(namespaceOpenApiService).findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true, false);
 
-    OpenNamespaceLockDTO lock = new OpenNamespaceLockDTO();
+    com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO lock =
+        new com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO();
     lock.setNamespaceName(NAMESPACE);
     lock.setLockedBy(OPERATOR);
     when(namespaceOpenApiService.getNamespaceLock(APP_ID, ENV, CLUSTER, NAMESPACE))
@@ -272,13 +277,17 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     appNamespace.setName("legacyNamespace");
     appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
     appNamespace.setDataChangeCreatedBy(OPERATOR);
-    when(namespaceOpenApiService.createAppNamespace(any(OpenAppNamespaceDTO.class)))
-        .thenReturn(appNamespace);
+    when(namespaceOpenApiService.createAppNamespace(eq(APP_ID),
+        any(com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO.class), eq(OPERATOR)))
+        .thenReturn(generatedAppNamespace("legacyNamespace"));
     OpenAppNamespaceDTO createdAppNamespace = client.createAppNamespace(appNamespace);
     assertThat(createdAppNamespace.getName()).isEqualTo("legacyNamespace");
-    ArgumentCaptor<OpenAppNamespaceDTO> appNamespaceCaptor =
-        ArgumentCaptor.forClass(OpenAppNamespaceDTO.class);
-    verify(namespaceOpenApiService).createAppNamespace(appNamespaceCaptor.capture());
+    ArgumentCaptor<com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO>
+        appNamespaceCaptor =
+            ArgumentCaptor.forClass(
+                com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO.class);
+    verify(namespaceOpenApiService).createAppNamespace(eq(APP_ID), appNamespaceCaptor.capture(),
+        eq(OPERATOR));
     assertThat(appNamespaceCaptor.getValue().getAppId()).isEqualTo(APP_ID);
     assertThat(appNamespaceCaptor.getValue().getName()).isEqualTo("legacyNamespace");
     assertThat(appNamespaceCaptor.getValue().getDataChangeCreatedBy()).isEqualTo(OPERATOR);
@@ -418,6 +427,30 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     namespace.setPublic(false);
     namespace.setItems(Collections.singletonList(legacyItem("timeout", "100")));
     return namespace;
+  }
+
+  private com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO generatedNamespace() {
+    com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO namespace =
+        new com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO();
+    namespace.setAppId(APP_ID);
+    namespace.setClusterName(CLUSTER);
+    namespace.setNamespaceName(NAMESPACE);
+    namespace.setFormat(ConfigFileFormat.Properties.getValue());
+    namespace.setIsPublic(false);
+    namespace.setItems(Collections.singletonList(generatedItem("timeout", "100")));
+    return namespace;
+  }
+
+  private com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO generatedAppNamespace(
+      String namespaceName) {
+    com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO appNamespace =
+        new com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO();
+    appNamespace.setAppId(APP_ID);
+    appNamespace.setName(namespaceName);
+    appNamespace.setFormat(ConfigFileFormat.Properties.getValue());
+    appNamespace.setDataChangeCreatedBy(OPERATOR);
+    appNamespace.setDataChangeLastModifiedBy(OPERATOR);
+    return appNamespace;
   }
 
   private OpenItemDTO legacyItem(String key, String value) {

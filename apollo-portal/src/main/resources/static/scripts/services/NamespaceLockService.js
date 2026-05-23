@@ -18,9 +18,19 @@ appService.service('NamespaceLockService', ['$resource', '$q', 'AppUtil', functi
     var resource = $resource('', {}, {
         get_namespace_lock: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/lock-info'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/lock'
         }
     });
+
+    function toLegacyNamespaceLock(openNamespaceLock) {
+        var lock = openNamespaceLock || {};
+        return {
+            namespaceName: lock.namespaceName,
+            isLocked: !!lock.isLocked,
+            lockOwner: lock.lockedBy,
+            isEmergencyPublishAllowed: !!lock.isEmergencyPublishAllowed
+        };
+    }
 
     return {
         get_namespace_lock: function (appId, env, clusterName, namespaceName) {
@@ -31,7 +41,7 @@ appService.service('NamespaceLockService', ['$resource', '$q', 'AppUtil', functi
                                             clusterName: clusterName,
                                             namespaceName: namespaceName
                                         }, function (result) {
-                d.resolve(result);
+                d.resolve(toLegacyNamespaceLock(result));
             }, function (result) {
                 d.reject(result);
             });

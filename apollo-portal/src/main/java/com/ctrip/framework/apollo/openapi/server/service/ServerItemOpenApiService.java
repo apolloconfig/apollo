@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
@@ -31,6 +32,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
+import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,9 +45,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class ServerItemOpenApiService implements ItemOpenApiService {
 
   private final ItemService itemService;
+  private final NamespaceService namespaceService;
 
-  public ServerItemOpenApiService(ItemService itemService) {
+  public ServerItemOpenApiService(ItemService itemService, NamespaceService namespaceService) {
     this.itemService = itemService;
+    this.namespaceService = namespaceService;
   }
 
   @Override
@@ -146,6 +150,9 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
     namespaceTextModel.setClusterName(clusterName);
     namespaceTextModel.setNamespaceName(namespaceName);
     namespaceTextModel.setOperator(operator);
+    NamespaceDTO namespace =
+        namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
+    namespaceTextModel.setNamespaceId(namespace.getId());
     itemService.updateConfigItemByText(namespaceTextModel, operator);
   }
 

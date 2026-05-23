@@ -17,12 +17,21 @@
 package com.ctrip.framework.apollo.openapi.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
+import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 public class OpenApiModelConvertersTest {
@@ -83,6 +92,67 @@ public class OpenApiModelConvertersTest {
 
     assertEquals("DEV", result.getEnv());
     assertEquals(0, result.getClusters().size());
+  }
+
+  @Test
+  public void fromNamespaceBOShouldExposeNamespaceAndItemExtendInfo() {
+    NamespaceDTO baseInfo = new NamespaceDTO();
+    baseInfo.setId(100L);
+    baseInfo.setAppId("sample-app");
+    baseInfo.setClusterName("default");
+    baseInfo.setNamespaceName("application");
+
+    ItemDTO item = new ItemDTO("timeout", "200", "comment", 1);
+    item.setNamespaceId(100L);
+    ItemBO itemBO = new ItemBO();
+    itemBO.setItem(item);
+    itemBO.setModified(true);
+    itemBO.setNewlyAdded(true);
+    itemBO.setDeleted(false);
+    itemBO.setOldValue("100");
+    itemBO.setNewValue("200");
+
+    NamespaceBO namespaceBO = new NamespaceBO();
+    namespaceBO.setBaseInfo(baseInfo);
+    namespaceBO.setFormat("properties");
+    namespaceBO.setComment("namespace comment");
+    namespaceBO.setPublic(true);
+    namespaceBO.setParentAppId("public-app");
+    namespaceBO.setItemModifiedCnt(1);
+    namespaceBO.setConfigHidden(true);
+    namespaceBO.setItems(Collections.singletonList(itemBO));
+
+    OpenNamespaceDTO result = OpenApiModelConverters.fromNamespaceBO(namespaceBO);
+
+    assertNotNull(result.getExtendInfo());
+    assertEquals(true, result.getExtendInfo().getIsConfigHidden());
+    assertEquals("public-app", result.getExtendInfo().getParentAppId());
+    assertEquals(1, result.getExtendInfo().getItemModifiedCnt());
+    assertEquals(1, result.getItems().size());
+    assertNotNull(result.getItems().get(0).getExtendInfo());
+    assertEquals(100L, result.getItems().get(0).getExtendInfo().getNamespaceId());
+    assertEquals(true, result.getItems().get(0).getExtendInfo().getIsModified());
+    assertEquals(true, result.getItems().get(0).getExtendInfo().getIsNewlyAdded());
+    assertEquals(false, result.getItems().get(0).getExtendInfo().getIsDeleted());
+    assertEquals("100", result.getItems().get(0).getExtendInfo().getOldValue());
+    assertEquals("200", result.getItems().get(0).getExtendInfo().getNewValue());
+  }
+
+  @Test
+  public void appNamespaceConvertersShouldPreserveGeneratedIsPublicFlag() {
+    OpenAppNamespaceDTO openAppNamespace = new OpenAppNamespaceDTO();
+    openAppNamespace.setAppId("provider-app");
+    openAppNamespace.setName("public.namespace");
+    openAppNamespace.setFormat("properties");
+    openAppNamespace.setIsPublic(true);
+
+    AppNamespace appNamespace = OpenApiModelConverters.toAppNamespace(openAppNamespace);
+
+    assertEquals(true, appNamespace.isPublic());
+
+    OpenAppNamespaceDTO result = OpenApiModelConverters.fromAppNamespace(appNamespace);
+
+    assertEquals(true, result.getIsPublic());
   }
 
   private ClusterDTO createCluster(String name, String appId, String comment) {

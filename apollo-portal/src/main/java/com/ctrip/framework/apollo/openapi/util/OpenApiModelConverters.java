@@ -38,11 +38,14 @@ import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenItemExtendDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceExtendDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceTextModel;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceUsageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
@@ -51,6 +54,7 @@ import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
+import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
@@ -168,13 +172,17 @@ public final class OpenApiModelConverters {
   // originally defined in OpenApiBeanUtils
   public static OpenAppNamespaceDTO fromAppNamespace(AppNamespace appNamespace) {
     Preconditions.checkArgument(appNamespace != null);
-    return BeanUtils.transform(OpenAppNamespaceDTO.class, appNamespace);
+    OpenAppNamespaceDTO result = BeanUtils.transform(OpenAppNamespaceDTO.class, appNamespace);
+    result.setIsPublic(appNamespace.isPublic());
+    return result;
   }
 
   // originally defined in OpenApiBeanUtils
   public static AppNamespace toAppNamespace(OpenAppNamespaceDTO openAppNamespaceDTO) {
     Preconditions.checkArgument(openAppNamespaceDTO != null);
-    return BeanUtils.transform(AppNamespace.class, openAppNamespaceDTO);
+    AppNamespace result = BeanUtils.transform(AppNamespace.class, openAppNamespaceDTO);
+    result.setPublic(Boolean.TRUE.equals(openAppNamespaceDTO.getIsPublic()));
+    return result;
   }
 
   // originally defined in OpenApiBeanUtils
@@ -213,14 +221,33 @@ public final class OpenApiModelConverters {
     openNamespaceDTO.setFormat(namespaceBO.getFormat());
     openNamespaceDTO.setComment(namespaceBO.getComment());
     openNamespaceDTO.setIsPublic(namespaceBO.isPublic());
+    OpenNamespaceExtendDTO namespaceExtend = new OpenNamespaceExtendDTO();
+    namespaceExtend.setIsConfigHidden(namespaceBO.isConfigHidden());
+    namespaceExtend.setParentAppId(namespaceBO.getParentAppId());
+    namespaceExtend.setItemModifiedCnt(namespaceBO.getItemModifiedCnt());
+    openNamespaceDTO.setExtendInfo(namespaceExtend);
     List<OpenItemDTO> items = new LinkedList<>();
     List<ItemBO> itemBOs = namespaceBO.getItems();
     if (!CollectionUtils.isEmpty(itemBOs)) {
-      items.addAll(itemBOs.stream().map(itemBO -> fromItemDTO(itemBO.getItem()))
-          .collect(Collectors.toList()));
+      items.addAll(
+          itemBOs.stream().map(OpenApiModelConverters::fromItemBO).collect(Collectors.toList()));
     }
     openNamespaceDTO.setItems(items);
     return openNamespaceDTO;
+  }
+
+  public static OpenItemDTO fromItemBO(ItemBO itemBO) {
+    Preconditions.checkArgument(itemBO != null);
+    OpenItemDTO openItemDTO = fromItemDTO(itemBO.getItem());
+    OpenItemExtendDTO itemExtend = new OpenItemExtendDTO();
+    itemExtend.setNamespaceId(itemBO.getItem().getNamespaceId());
+    itemExtend.setIsModified(itemBO.isModified());
+    itemExtend.setIsDeleted(itemBO.isDeleted());
+    itemExtend.setIsNewlyAdded(itemBO.isNewlyAdded());
+    itemExtend.setOldValue(itemBO.getOldValue());
+    itemExtend.setNewValue(itemBO.getNewValue());
+    openItemDTO.setExtendInfo(itemExtend);
+    return openItemDTO;
   }
 
   // originally defined in OpenApiBeanUtils
@@ -250,6 +277,28 @@ public final class OpenApiModelConverters {
   public static OpenNamespaceDTO fromNamespaceDTO(NamespaceDTO namespaceDTO) {
     Preconditions.checkArgument(namespaceDTO != null);
     return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+  }
+
+  public static List<OpenNamespaceDTO> fromNamespaceDTOs(List<NamespaceDTO> namespaces) {
+    if (CollectionUtils.isEmpty(namespaces)) {
+      return Collections.emptyList();
+    }
+    return namespaces.stream().map(OpenApiModelConverters::fromNamespaceDTO)
+        .collect(Collectors.toList());
+  }
+
+  public static OpenNamespaceUsageDTO fromNamespaceUsage(NamespaceUsage namespaceUsage) {
+    Preconditions.checkArgument(namespaceUsage != null);
+    return BeanUtils.transform(OpenNamespaceUsageDTO.class, namespaceUsage);
+  }
+
+  public static List<OpenNamespaceUsageDTO> fromNamespaceUsages(
+      List<NamespaceUsage> namespaceUsages) {
+    if (CollectionUtils.isEmpty(namespaceUsages)) {
+      return Collections.emptyList();
+    }
+    return namespaceUsages.stream().map(OpenApiModelConverters::fromNamespaceUsage)
+        .collect(Collectors.toList());
   }
 
   // newly added

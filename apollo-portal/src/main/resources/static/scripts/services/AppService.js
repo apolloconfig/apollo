@@ -54,11 +54,12 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         create_missing_namespaces: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces'
         },
         find_missing_namespaces: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/missing-namespaces',
+            isArray: true
         },
         delete_app: {
             method: 'DELETE',
@@ -94,6 +95,12 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
             response.entities.push(entity);
         });
         return response;
+    }
+
+    function normalizeOpenApiStringArray(result) {
+        return normalizeOpenApiStatusArray(result, function (item) {
+            return item;
+        });
     }
 
     return {
@@ -207,7 +214,7 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
                                             env: env,
                                             clusterName: clusterName
                                         }, function (result) {
-                d.resolve(result);
+                d.resolve(normalizeOpenApiStringArray(result));
             }, function (result) {
                 d.reject(result);
             });

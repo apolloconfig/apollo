@@ -16,90 +16,266 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService;
-import com.ctrip.framework.apollo.openapi.dto.OpenAppNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.openapi.api.AppNamespaceManagementApi;
+import com.ctrip.framework.apollo.openapi.api.NamespaceLockManagementApi;
+import com.ctrip.framework.apollo.openapi.api.NamespaceManagementApi;
+import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceUsageDTO;
+import com.ctrip.framework.apollo.openapi.server.service.NamespaceOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 @RestController("openapiNamespaceController")
-public class NamespaceController {
+public class NamespaceController
+    implements NamespaceManagementApi, AppNamespaceManagementApi, NamespaceLockManagementApi {
 
   private final UserService userService;
+  private final UserInfoHolder userInfoHolder;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final NamespaceOpenApiService namespaceOpenApiService;
 
-  public NamespaceController(final UserService userService,
+  public NamespaceController(final UserService userService, final UserInfoHolder userInfoHolder,
+      final UnifiedPermissionValidator unifiedPermissionValidator,
       NamespaceOpenApiService namespaceOpenApiService) {
     this.userService = userService;
+    this.userInfoHolder = userInfoHolder;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
     this.namespaceOpenApiService = namespaceOpenApiService;
   }
 
+  @Override
+  public Optional<NativeWebRequest> getRequest() {
+    return Optional.empty();
+  }
+
+  @Override
+  public ResponseEntity<List<OpenAppNamespaceDTO>> getAppNamespaces() {
+    return ResponseEntity.ok(namespaceOpenApiService.getAppNamespaces());
+  }
+
+  @Override
+  public ResponseEntity<List<OpenAppNamespaceDTO>> getAppNamespacesByAppId(String appId) {
+    return ResponseEntity.ok(namespaceOpenApiService.getAppNamespacesByAppId(appId));
+  }
+
+  @Override
+  public ResponseEntity<OpenAppNamespaceDTO> findAppNamespace(String appId, String namespaceName,
+      Boolean extendInfo) {
+    return ResponseEntity.ok(namespaceOpenApiService.findAppNamespace(appId, namespaceName));
+  }
+
+  @Override
+  public ResponseEntity<List<OpenNamespaceUsageDTO>> findAppNamespaceUsage(String appId,
+      String namespaceName) {
+    return ResponseEntity.ok(namespaceOpenApiService.findAppNamespaceUsage(appId, namespaceName));
+  }
+
+  @PreAuthorize(value = "@openapiNamespaceController.canCreateAppNamespace(#appId, #appNamespace)")
+  @ApolloAuditLog(type = OpType.CREATE, name = "AppNamespace.create")
+  @Override
+  public ResponseEntity<OpenAppNamespaceDTO> createAppNamespace(String appId,
+      OpenAppNamespaceDTO appNamespace, String operator) {
+    validateCreateAppNamespaceRequest(appId, appNamespace);
+    String resolvedOperator = resolveOperator(operator, appNamespace.getDataChangeCreatedBy());
+    appNamespace.setDataChangeCreatedBy(resolvedOperator);
+    appNamespace.setDataChangeLastModifiedBy(resolvedOperator);
+    return ResponseEntity
+        .ok(namespaceOpenApiService.createAppNamespace(appId, appNamespace, resolvedOperator));
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasDeleteNamespacePermission(#appId)")
+  @ApolloAuditLog(type = OpType.DELETE, name = "AppNamespace.delete")
+  @Override
+  public ResponseEntity<Void> deleteAppNamespace(String appId, String namespaceName,
+      String operator) {
+    namespaceOpenApiService.deleteAppNamespace(appId, namespaceName,
+        resolveOperator(operator, null));
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public ResponseEntity<List<OpenNamespaceDTO>> getPublicAppNamespaceInstances(String env,
+      String publicNamespaceName, Integer page, Integer size) {
+    int resolvedPage = page == null ? 0 : page;
+    int resolvedSize = size == null ? 10 : size;
+    return ResponseEntity.ok(namespaceOpenApiService.getPublicAppNamespaceInstances(env,
+        publicNamespaceName, resolvedPage, resolvedSize));
+  }
+
+  @Override
+  public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
+      String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
+    return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
+        namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
+  }
+
+  @Override
+  public ResponseEntity<List<OpenNamespaceDTO>> findNamespaces(String appId, String env,
+      String clusterName, Boolean fillItemDetail, Boolean extendInfo) {
+    return ResponseEntity.ok(namespaceOpenApiService.findNamespaces(appId, env, clusterName,
+        Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
+  }
+
+  @Override
+  public ResponseEntity<OpenNamespaceDTO> findPublicNamespaceForAssociatedNamespace(String env,
+      String appId, String clusterName, String namespaceName, Boolean extendInfo) {
+    return ResponseEntity.ok(namespaceOpenApiService.findPublicNamespaceForAssociatedNamespace(env,
+        appId, clusterName, namespaceName, Boolean.TRUE.equals(extendInfo)));
+  }
+
+  @Override
+  public ResponseEntity<OpenNamespaceLockDTO> getNamespaceLock(String appId, String env,
+      String clusterName, String namespaceName) {
+    return ResponseEntity
+        .ok(namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName));
+  }
+
+  @PreAuthorize(value = "@openapiNamespaceController.canCreateNamespaces(#openCreateNamespaceDTO)")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.create")
+  @Override
+  public ResponseEntity<Void> createNamespaces(List<OpenCreateNamespaceDTO> openCreateNamespaceDTO,
+      String operator) {
+    String resolvedOperator = resolveOperator(operator, null);
+    namespaceOpenApiService.createNamespaces(openCreateNamespaceDTO, resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasDeleteNamespacePermission(#appId)")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Namespace.deleteLinkedNamespace")
+  @Override
+  public ResponseEntity<Void> deleteNamespace(String appId, String env, String clusterName,
+      String namespaceName, String operator) {
+    String resolvedOperator = resolveOperator(operator, null);
+    namespaceOpenApiService.deleteNamespace(appId, env, clusterName, namespaceName,
+        resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  public ResponseEntity<List<OpenNamespaceUsageDTO>> findNamespaceUsage(String appId, String env,
+      String clusterName, String namespaceName) {
+    return ResponseEntity
+        .ok(namespaceOpenApiService.findNamespaceUsage(appId, env, clusterName, namespaceName));
+  }
+
+  @Override
+  public ResponseEntity<Map<String, Map<String, Boolean>>> getNamespacesReleaseStatus(
+      String appId) {
+    return ResponseEntity.ok(namespaceOpenApiService.getNamespacesReleaseStatus(appId));
+  }
+
+  @Override
+  public ResponseEntity<List<String>> findMissingNamespaces(String appId, String env,
+      String clusterName) {
+    return ResponseEntity
+        .ok(namespaceOpenApiService.findMissingNamespaces(appId, env, clusterName));
+  }
+
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
-  @PostMapping(value = "/openapi/v1/apps/{appId}/appnamespaces")
-  public OpenAppNamespaceDTO createNamespace(@PathVariable String appId,
-      @RequestBody OpenAppNamespaceDTO appNamespaceDTO) {
+  @ApolloAuditLog(type = OpType.CREATE, name = "Namespace.createMissingNamespaces")
+  @Override
+  public ResponseEntity<Void> createMissingNamespaces(String appId, String env, String clusterName,
+      String operator) {
+    namespaceOpenApiService.createMissingNamespaces(appId, env, clusterName,
+        resolveOperator(operator, null));
+    return ResponseEntity.ok().build();
+  }
 
-    if (!Objects.equals(appId, appNamespaceDTO.getAppId())) {
+  private void validateCreateAppNamespaceRequest(String appId, OpenAppNamespaceDTO appNamespace) {
+    RequestPrecondition.checkArguments(appNamespace != null,
+        "app namespace payload can not be empty");
+    if (!Objects.equals(appId, appNamespace.getAppId())) {
       throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s",
-          appId, appNamespaceDTO.getAppId());
+          appId, appNamespace.getAppId());
     }
-    RequestPrecondition.checkArgumentsNotEmpty(appNamespaceDTO.getAppId(),
-        appNamespaceDTO.getName(), appNamespaceDTO.getFormat(),
-        appNamespaceDTO.getDataChangeCreatedBy());
+    RequestPrecondition.checkArgumentsNotEmpty(appNamespace.getAppId(), appNamespace.getName(),
+        appNamespace.getFormat());
 
-    if (!InputValidator.isValidAppNamespace(appNamespaceDTO.getName())) {
+    if (!InputValidator.isValidAppNamespace(appNamespace.getName())) {
       throw BadRequestException
           .invalidNamespaceFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
               + InputValidator.INVALID_NAMESPACE_NAMESPACE_MESSAGE);
     }
 
-    if (!ConfigFileFormat.isValidFormat(appNamespaceDTO.getFormat())) {
-      throw BadRequestException.invalidNamespaceFormat(appNamespaceDTO.getFormat());
+    if (!ConfigFileFormat.isValidFormat(appNamespace.getFormat())) {
+      throw BadRequestException.invalidNamespaceFormat(appNamespace.getFormat());
+    }
+  }
+
+  public boolean canCreateAppNamespace(String appId, OpenAppNamespaceDTO appNamespace) {
+    if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasCreateNamespacePermission(appId);
+    }
+    if (appNamespace == null) {
+      return true;
     }
 
-    String operator = appNamespaceDTO.getDataChangeCreatedBy();
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
+    AppNamespace permissionModel = new AppNamespace();
+    permissionModel.setAppId(appNamespace.getAppId());
+    permissionModel.setName(appNamespace.getName());
+    permissionModel.setPublic(Boolean.TRUE.equals(appNamespace.getIsPublic()));
+    return unifiedPermissionValidator.hasCreateAppNamespacePermission(appId, permissionModel);
+  }
+
+  public boolean canCreateNamespaces(List<OpenCreateNamespaceDTO> namespaces) {
+    if (CollectionUtils.isEmpty(namespaces)) {
+      return true;
+    }
+    for (OpenCreateNamespaceDTO namespace : namespaces) {
+      if (namespace == null || StringUtils.isBlank(namespace.getAppId())) {
+        continue;
+      }
+      if (!unifiedPermissionValidator.hasCreateNamespacePermission(namespace.getAppId())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private String resolveOperator(String queryOperator, String payloadOperator) {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      UserInfo loginUser = userInfoHolder.getUser();
+      if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
+        throw new BadRequestException("Current user not found");
+      }
+      return loginUser.getUserId();
     }
 
-    return this.namespaceOpenApiService.createAppNamespace(appNamespaceDTO);
-  }
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      String operator = StringUtils.isBlank(queryOperator) ? payloadOperator : queryOperator;
+      RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
+          "operator should not be null or empty");
+      if (userService.findByUserId(operator) == null) {
+        throw BadRequestException.userNotExists(operator);
+      }
+      return operator;
+    }
 
-  @GetMapping(value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces")
-  public List<OpenNamespaceDTO> findNamespaces(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName,
-      @RequestParam(defaultValue = "true") boolean fillItemDetail) {
-    return this.namespaceOpenApiService.getNamespaces(appId, env, clusterName, fillItemDetail);
+    throw new BadRequestException("Unsupported auth type: %s",
+        UserIdentityContextHolder.getAuthType());
   }
-
-  @GetMapping(
-      value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName:.+}")
-  public OpenNamespaceDTO loadNamespace(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @RequestParam(defaultValue = "true") boolean fillItemDetail) {
-    return this.namespaceOpenApiService.getNamespace(appId, env, clusterName, namespaceName,
-        fillItemDetail);
-  }
-
-  @GetMapping(
-      value = "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/lock")
-  public OpenNamespaceLockDTO getNamespaceLock(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName) {
-    return this.namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName);
-  }
-
 }

@@ -22,7 +22,7 @@ Portal UI behavior.
 | Area | Current state | Risk | Next step |
 | --- | --- | --- | --- |
 | OpenAPI contract | `apollo-portal` points to the `apollo-openapi` `v0.3.0` tag; future `apollo-openapi/main` changes may still move further | Portal implementation, generated interfaces, and SDKs can drift | Run compatibility checks before changing the spec URL, and pin a clear tag or commit |
-| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 18 of the current 121 URL entries call OpenAPI, and 103 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
+| Frontend calls | See the [frontend URL migration inventory](./apollo-portal-openapi-frontend-url-inventory.md): 36 of the current 121 URL entries call OpenAPI, and 85 still call WebAPI | One-off migrations miss prefix path, SSO, permissions, and response shape details | Migrate by domain after backend dual-auth validation |
 | Authentication | `/openapi/**` first detects Portal sessions, then falls back to consumer token auth | Custom SSO integrations may return 401 if `/openapi/**` does not share the Portal login context | Document filter order and SSO requirements; add regression coverage |
 | Authorization | `UnifiedPermissionValidator` dispatches by `USER` or `CONSUMER` | OpenAPI read behavior can differ from `configView.memberOnly.envs` | Keep token compatibility first, then add explicit read-permission policy |
 | Models | Generated models, legacy `apollo-openapi` Java DTO/API classes, and Portal DTOs coexist | Maintaining three model layers increases conversion cost | Prefer generated `*ManagementApi` and `model.*` for new endpoints |
@@ -40,16 +40,18 @@ Portal UI behavior.
 - This adaptation pass now points the default POM URL to `apollo-openapi` `v0.3.0` and passes Portal compile, full unit tests, and Portal e2e without a local spec override. Remaining `v0.1.0` differences from the compatibility checker must stay documented as explicit compatibility exceptions or be handled by future aliases; they are not silently compatible.
 - The already-migrated App frontend calls now follow the latest spec paths: `load_navtree` calls `/openapi/v1/apps/{appId}/env-cluster-info`, and `find_miss_envs` calls `/openapi/v1/apps/{appId}/miss-envs`. `AppService.js` normalizes the new array responses back into the legacy `entities/body` shape consumed by `AppUtil.collectData`.
 - The legacy App OpenAPI paths `/openapi/v1/apps/{appId}/navtree` and `/openapi/v1/apps/{appId}/miss_envs` were published in `v0.1.0` but are confirmed unused. This pass treats them as explicit compatibility exceptions and does not keep aliases; do not generalize this exception to other published `v0.1.0` paths.
+- The Namespace Core slice now runs through OpenAPI: namespace reads, associated public namespace reads, namespace lock lookup, missing namespace lookup/create, cluster delete, AppNamespace create/delete/load/list, namespace create/delete, release status, usage, and public namespace instances. Backend routes implement the generated management interfaces where the `v0.3.0` contract already exists, and Portal UI response adapters stay local to frontend services.
+- Namespace and item `extendInfo` now carries the Portal-only view state needed by the UI, while text-mode item updates derive `namespaceId` server-side from the path so UI callers do not depend on legacy `baseInfo.id`.
 
 ## Migration Matrix
 
 | Domain | WebAPI / frontend service | OpenAPI coverage | Migration strategy |
 | --- | --- | --- | --- |
 | Env / Organization | `EnvService.js`, `OrganizationService.js` | Basic read APIs exist | Keep OpenAPI paths and validate SSO plus prefix path |
-| Cluster | `ClusterService.js` | get/create/delete exist | Use `AppUtil.prefixPath()` consistently; validate operator and USER/CONSUMER semantics |
-| App | `AppService.js` | app query, create, update, delete, env cluster, and missing env APIs exist | Read-only endpoints are partially migrated; latest spec paths are used for nav tree and missing envs with frontend response normalization. Write endpoints still need operator contract/Portal user semantics alignment before UI migration |
-| Namespace / AppNamespace / Lock | `NamespaceService.js`, `NamespaceLockService.js` | Partial spec exists on `apollo-openapi/main` | Migrate read and lock paths first, then create/delete |
-| Item | `ConfigService.js` | item CRUD, diff, sync, validation, and revocation are represented in the contract direction | Confirm key encoding and text-mode behavior before UI migration |
+| Cluster | `ClusterService.js` | get/create/delete exist | Frontend service now uses OpenAPI for create, read, and delete; keep USER/CONSUMER operator regression coverage |
+| App | `AppService.js` | app query, create, update, delete, env cluster, missing env, and missing namespace APIs exist | Read-only app calls, missing envs, and missing namespaces use OpenAPI with frontend response normalization. Remaining app write endpoints still need operator contract/Portal user semantics alignment before UI migration |
+| Namespace / AppNamespace / Lock | `NamespaceService.js`, `NamespaceLockService.js` | Namespace, AppNamespace, lock, usage, release status, and public instance APIs exist in `v0.3.0` | Namespace Core frontend service calls are migrated; continue with branch/release and any remaining response-shape hardening |
+| Item | `ConfigService.js` | item CRUD, diff, sync, validation, revocation, and namespace read APIs are represented in the contract direction | Item and Namespace Core UI paths now use OpenAPI; continue observing key encoding, text mode, and broader e2e coverage |
 | Release / Branch | `ReleaseService.js`, `NamespaceBranchService.js` | release, gray release, merge, and rollback are partially covered | Add dual-auth tests for branch and rollback flows |
 | Instance | `InstanceService.js` | Several read APIs exist | Migrate as read-only while preserving pagination and response shape |
 | Permission / AccessKey | `PermissionService.js`, `AccessKeyService.js` | New contracts exist on `apollo-openapi/main` | Validate the permission model before migrating management UI |
