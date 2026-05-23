@@ -17,6 +17,9 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +27,8 @@ import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
@@ -37,6 +42,7 @@ import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceLockService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,6 +112,32 @@ class ServerNamespaceManagementOpenApiServiceTest {
         LINKED_NAMESPACE);
   }
 
+  @Test
+  void createNamespacesShouldRejectNullEntriesBeforeSideEffects() {
+    assertThatThrownBy(() -> service
+        .createNamespaces(Arrays.asList(null, createNamespaceRequest("created")), "operator"))
+        .isInstanceOf(BadRequestException.class);
+
+    verify(namespaceService, never()).createNamespace(any(), any(), any());
+    verify(roleInitializationService, never()).initNamespaceRoles(any(), any(), any());
+    verify(roleInitializationService, never()).initNamespaceEnvRoles(any(), any(), any());
+  }
+
+  @Test
+  void createNamespacesShouldReportCreateFailuresAndSkipRoleAssignmentForFailures() {
+    OpenCreateNamespaceDTO created = createNamespaceRequest("created");
+    OpenCreateNamespaceDTO failed = createNamespaceRequest("failed");
+    when(namespaceService.createNamespace(eq(Env.valueOf(ENV)), any(NamespaceDTO.class),
+        eq("operator"))).thenReturn(new NamespaceDTO())
+        .thenThrow(new RuntimeException("create failed"));
+
+    assertThatThrownBy(() -> service.createNamespaces(Arrays.asList(created, failed), "operator"))
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("DEV/default/failed");
+
+    verify(namespaceService).assignNamespaceRoleToOperator(APP_ID, "created", "operator");
+    verify(namespaceService, never()).assignNamespaceRoleToOperator(APP_ID, "failed", "operator");
+  }
+
   private NamespaceBO createNamespaceBO() {
     NamespaceDTO baseInfo = new NamespaceDTO();
     baseInfo.setId(100L);
@@ -124,5 +156,14 @@ class ServerNamespaceManagementOpenApiServiceTest {
     namespaceBO.setFormat("properties");
     namespaceBO.setItems(Collections.singletonList(itemBO));
     return namespaceBO;
+  }
+
+  private OpenCreateNamespaceDTO createNamespaceRequest(String namespaceName) {
+    OpenCreateNamespaceDTO request = new OpenCreateNamespaceDTO();
+    request.setAppId(APP_ID);
+    request.setEnv(ENV);
+    request.setClusterName(CLUSTER);
+    request.setAppNamespaceName(namespaceName);
+    return request;
   }
 }

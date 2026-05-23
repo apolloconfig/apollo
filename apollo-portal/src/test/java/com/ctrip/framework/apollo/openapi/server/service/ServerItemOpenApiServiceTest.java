@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -28,6 +29,7 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
@@ -117,6 +119,21 @@ class ServerItemOpenApiServiceTest {
     assertThat(delegated.getClusterName()).isEqualTo(CLUSTER);
     assertThat(delegated.getNamespaceName()).isEqualTo(NAMESPACE);
     assertThat(delegated.getNamespaceId()).isEqualTo(88L);
+  }
+
+  @Test
+  void batchUpdateItemsByTextShouldRejectMissingNamespace() {
+    when(namespaceService.loadNamespaceBaseInfo(APP_ID, Env.valueOf(ENV), CLUSTER, NAMESPACE))
+        .thenReturn(null);
+
+    OpenNamespaceTextModel model = new OpenNamespaceTextModel();
+    model.setFormat("properties");
+    model.setConfigText("timeout=100");
+
+    assertThatThrownBy(
+        () -> service.batchUpdateItemsByText(APP_ID, ENV, CLUSTER, NAMESPACE, model, "operator"))
+        .isInstanceOf(NotFoundException.class);
+    verify(itemService, never()).updateConfigItemByText(any(), any());
   }
 
   @Test

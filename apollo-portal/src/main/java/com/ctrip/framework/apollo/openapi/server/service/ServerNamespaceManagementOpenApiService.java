@@ -47,6 +47,7 @@ import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -159,11 +160,10 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
   @Override
   public void createNamespaces(List<OpenCreateNamespaceDTO> namespaces, String operator) {
     checkModel(!CollectionUtils.isEmpty(namespaces));
+    validateCreateNamespaceRequests(namespaces);
 
+    List<String> failedNamespaces = new ArrayList<>();
     for (OpenCreateNamespaceDTO model : namespaces) {
-      RequestPrecondition.checkArgumentsNotEmpty(model.getEnv(), model.getAppId(),
-          model.getClusterName(), model.getAppNamespaceName());
-
       String appId = model.getAppId();
       String namespaceName = model.getAppNamespaceName();
       roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
@@ -178,12 +178,19 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
 
       try {
         namespaceService.createNamespace(Env.valueOf(model.getEnv()), namespace, operator);
+        namespaceService.assignNamespaceRoleToOperator(appId, namespaceName, operator);
       } catch (Exception e) {
         logger.error("create namespace fail.", e);
         Tracer.logError(String.format("create namespace fail. (env=%s namespace=%s)",
             model.getEnv(), namespaceName), e);
+        failedNamespaces
+            .add(String.format("%s/%s/%s", model.getEnv(), model.getClusterName(), namespaceName));
       }
-      namespaceService.assignNamespaceRoleToOperator(appId, namespaceName, operator);
+    }
+
+    if (!failedNamespaces.isEmpty()) {
+      throw new BadRequestException("create namespace failed for: %s",
+          String.join(", ", failedNamespaces));
     }
   }
 
@@ -326,5 +333,13 @@ public class ServerNamespaceManagementOpenApiService implements NamespaceOpenApi
       throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
     }
     return appNamespace;
+  }
+
+  private void validateCreateNamespaceRequests(List<OpenCreateNamespaceDTO> namespaces) {
+    for (OpenCreateNamespaceDTO model : namespaces) {
+      checkModel(model != null);
+      RequestPrecondition.checkArgumentsNotEmpty(model.getEnv(), model.getAppId(),
+          model.getClusterName(), model.getAppNamespaceName());
+    }
   }
 }

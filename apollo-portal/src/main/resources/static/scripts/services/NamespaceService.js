@@ -124,6 +124,17 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         };
     }
 
+    function firstNamespaceId(items) {
+        var namespaceId;
+        angular.forEach(items || [], function (itemBO) {
+            if (namespaceId || !itemBO.item) {
+                return;
+            }
+            namespaceId = itemBO.item.namespaceId;
+        });
+        return namespaceId;
+    }
+
     function toLegacyNamespace(openNamespace) {
         var namespace = angular.copy(openNamespace || {});
         var extendInfo = namespace.extendInfo || {};
@@ -131,16 +142,21 @@ appService.service("NamespaceService", ['$resource', '$q', 'AppUtil', function (
         angular.forEach(namespace.items || [], function (item) {
             items.push(toLegacyItem(item));
         });
+        var baseInfo = {
+            appId: namespace.appId,
+            clusterName: namespace.clusterName,
+            namespaceName: namespace.namespaceName,
+            dataChangeCreatedBy: namespace.dataChangeCreatedBy,
+            dataChangeLastModifiedBy: namespace.dataChangeLastModifiedBy,
+            dataChangeCreatedTime: namespace.dataChangeCreatedTime,
+            dataChangeLastModifiedTime: namespace.dataChangeLastModifiedTime
+        };
+        var namespaceId = namespace.id || firstNamespaceId(items);
+        if (namespaceId) {
+            baseInfo.id = namespaceId;
+        }
         return {
-            baseInfo: {
-                appId: namespace.appId,
-                clusterName: namespace.clusterName,
-                namespaceName: namespace.namespaceName,
-                dataChangeCreatedBy: namespace.dataChangeCreatedBy,
-                dataChangeLastModifiedBy: namespace.dataChangeLastModifiedBy,
-                dataChangeCreatedTime: namespace.dataChangeCreatedTime,
-                dataChangeLastModifiedTime: namespace.dataChangeLastModifiedTime
-            },
+            baseInfo: baseInfo,
             itemModifiedCnt: extendInfo.itemModifiedCnt || 0,
             items: items,
             format: namespace.format,
