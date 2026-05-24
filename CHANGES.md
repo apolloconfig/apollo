@@ -14,6 +14,7 @@ Apollo 3.0.0
 * [Change: adapt Apollo Portal OpenAPI migration to apollo-openapi v0.2.0](https://github.com/apolloconfig/apollo/pull/5608)
 * [Change: migrate Apollo Portal config item UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5610)
 * [Change: migrate Apollo Portal namespace core UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5612)
+* [Change: migrate Apollo Portal release, branch, and instance UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5616)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
