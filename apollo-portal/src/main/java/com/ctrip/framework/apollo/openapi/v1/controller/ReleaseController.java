@@ -78,8 +78,13 @@ public class ReleaseController implements ReleaseManagementApi {
   @Override
   public ResponseEntity<OpenReleaseDiffDTO> compareRelease(String env, Long baseReleaseId,
       Long toCompareReleaseId) {
+    Env targetEnv = Env.valueOf(env);
+    ReleaseDTO baseRelease = findReleaseOrThrow(targetEnv, baseReleaseId);
+    ReleaseDTO toCompareRelease = findReleaseOrThrow(targetEnv, toCompareReleaseId);
+    checkReleaseReadAllowed(env, baseRelease);
+    checkReleaseReadAllowed(env, toCompareRelease);
     return ResponseEntity.ok(OpenApiModelConverters.fromReleaseCompareResult(
-        releaseService.compare(Env.valueOf(env), baseReleaseId, toCompareReleaseId)));
+        releaseService.compare(targetEnv, baseReleaseId, toCompareReleaseId)));
   }
 
   @PreAuthorize(
@@ -161,14 +166,8 @@ public class ReleaseController implements ReleaseManagementApi {
 
   @Override
   public ResponseEntity<OpenReleaseDTO> getReleaseById(String env, Long releaseId) {
-    ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
-    if (release == null) {
-      throw NotFoundException.releaseNotFound(releaseId);
-    }
-    if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
-        release.getNamespaceName())) {
-      throw new AccessDeniedException("Access is denied");
-    }
+    ReleaseDTO release = findReleaseOrThrow(Env.valueOf(env), releaseId);
+    checkReleaseReadAllowed(env, release);
     return ResponseEntity.ok(OpenApiModelConverters.fromReleaseDTO(release));
   }
 
@@ -273,6 +272,26 @@ public class ReleaseController implements ReleaseManagementApi {
     return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
+  }
+
+  private ReleaseDTO findReleaseOrThrow(Env env, long releaseId) {
+    ReleaseDTO release = releaseService.findReleaseById(env, releaseId);
+    if (release == null) {
+      throw NotFoundException.releaseNotFound(releaseId);
+    }
+    return release;
+  }
+
+  private void checkReleaseReadAllowed(String env, ReleaseDTO release) {
+    if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
+        release.getNamespaceName())) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env,
+            release.getClusterName(), release.getNamespaceName())) {
+      throw new AccessDeniedException("Access is denied");
+    }
   }
 
   private void publishEvent(String appId, String clusterName, String namespaceName, long releaseId,

@@ -47,11 +47,6 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
             method: 'GET',
             url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/releases/:releaseId'
         },
-        find_all_releases: {
-            method: 'GET',
-            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active',
-            isArray: true
-        },
         find_active_releases: {
             method: 'GET',
             url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active',
@@ -121,23 +116,6 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
                          releaseId: releaseId
                          }, function (result) {
             d.resolve(adaptReleaseDiff(result));
-        }, function (result) {
-            d.reject(result);
-        });
-        return d.promise;
-    }
-
-    function findAllReleases(appId, env, clusterName, namespaceName, page, size) {
-        var d = $q.defer();
-        resource.find_all_releases({
-                                       appId: appId,
-                                       env: env,
-                                       clusterName: clusterName,
-                                       namespaceName: namespaceName,
-                                       page: page,
-                                       size: size
-                                   }, function (result) {
-            d.resolve(result);
         }, function (result) {
             d.reject(result);
         });
@@ -233,7 +211,6 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
         publish: createRelease,
         grayPublish: createGrayRelease,
         get: get,
-        findAllRelease: findAllReleases,
         findActiveReleases: findActiveReleases,
         findLatestActiveRelease: findLatestActiveRelease,
         compare: compare,

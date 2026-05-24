@@ -62,8 +62,17 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<List<OpenInstanceDTO>> getByReleasesAndNamespaceNotIn(String env,
       String appId, String clusterName, String namespaceName, String releaseIds) {
-    Set<Long> releaseIdSet = RELEASE_ID_SPLITTER.splitToStream(releaseIds).map(Long::parseLong)
-        .collect(Collectors.toSet());
+    if (releaseIds == null || releaseIds.trim().isEmpty()) {
+      throw new BadRequestException("releaseIds should not be empty");
+    }
+
+    Set<Long> releaseIdSet;
+    try {
+      releaseIdSet = RELEASE_ID_SPLITTER.splitToStream(releaseIds).map(Long::parseLong)
+          .collect(Collectors.toSet());
+    } catch (NumberFormatException ex) {
+      throw new BadRequestException("releaseIds should be comma separated numbers");
+    }
     if (releaseIdSet.isEmpty()) {
       throw new BadRequestException("releaseIds should not be empty");
     }

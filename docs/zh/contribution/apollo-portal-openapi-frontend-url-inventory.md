@@ -5,8 +5,8 @@
 ## 汇总
 
 - Service 文件数：24
-- URL 条目数：121
-- OpenAPI 条目数：53
+- URL 条目数：120
+- OpenAPI 条目数：52
 - WebAPI 条目数：68
 - 未使用 `AppUtil.prefixPath()` 的条目数：0
 
@@ -33,7 +33,7 @@
 | `OrganizationService.js` | 1 | 0 | 0 | 1 |
 | `PermissionService.js` | 0 | 20 | 0 | 20 |
 | `ReleaseHistoryService.js` | 0 | 1 | 0 | 1 |
-| `ReleaseService.js` | 7 | 0 | 0 | 7 |
+| `ReleaseService.js` | 6 | 0 | 0 | 6 |
 | `ServerConfigService.js` | 0 | 6 | 0 | 6 |
 | `SystemInfoService.js` | 0 | 2 | 0 | 2 |
 | `SystemRoleService.js` | 0 | 4 | 0 | 4 |
@@ -141,13 +141,12 @@
 | `PermissionService.js` | 108 | `assign_cluster_ns_role_to_user` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType` |
 | `PermissionService.js` | 115 | `remove_cluster_ns_role_from_user` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType?user=:user` |
 | `ReleaseHistoryService.js` | 21 | `find_release_history_by_namespace` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/histories` |
-| `ReleaseService.js` | 21 | `get` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId` |
-| `ReleaseService.js` | 25 | `find_all_releases` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
-| `ReleaseService.js` | 30 | `find_active_releases` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
-| `ReleaseService.js` | 35 | `compare` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/comparison` |
-| `ReleaseService.js` | 39 | `release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases` |
-| `ReleaseService.js` | 43 | `gray_release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases` |
-| `ReleaseService.js` | 47 | `rollback` | `PUT` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId/rollback` |
+| `ReleaseService.js` | 48 | `get` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId` |
+| `ReleaseService.js` | 52 | `find_active_releases` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
+| `ReleaseService.js` | 57 | `compare` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/comparison` |
+| `ReleaseService.js` | 61 | `release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases` |
+| `ReleaseService.js` | 65 | `gray_release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases` |
+| `ReleaseService.js` | 69 | `rollback` | `PUT` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId/rollback` |
 | `ServerConfigService.js` | 21 | `create_portal_db_config` | `POST` | WebAPI | yes | `/server/portal-db/config` |
 | `ServerConfigService.js` | 25 | `create_config_db_config` | `POST` | WebAPI | yes | `/server/envs/:env/config-db/config` |
 | `ServerConfigService.js` | 29 | `delete_portal_db_config` | `DELETE` | WebAPI | yes | `/server/portal-db/config` |

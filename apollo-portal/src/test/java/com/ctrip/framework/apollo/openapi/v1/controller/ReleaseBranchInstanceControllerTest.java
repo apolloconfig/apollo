@@ -248,6 +248,9 @@ class ReleaseBranchInstanceControllerTest {
 
   @Test
   void compareReleaseShouldReturnGeneratedDiffShape() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
+    when(releaseService.findReleaseById(Env.DEV, 2L)).thenReturn(release(2L));
     ReleaseCompareResult compareResult = new ReleaseCompareResult();
     compareResult.addEntityPair(ChangeType.MODIFIED, new KVEntity("timeout", "100"),
         new KVEntity("timeout", "200"));
@@ -260,6 +263,34 @@ class ReleaseBranchInstanceControllerTest {
     assertThat(response.getBody().getChanges().get(0).getKey()).isEqualTo("timeout");
     assertThat(response.getBody().getChanges().get(0).getOldValue()).isEqualTo("100");
     assertThat(response.getBody().getChanges().get(0).getNewValue()).isEqualTo("200");
+  }
+
+  @Test
+  void compareReleaseShouldRejectHiddenPortalRelease() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
+    when(releaseService.findReleaseById(Env.DEV, 2L)).thenReturn(release(2L));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    assertThatThrownBy(() -> releaseController.compareRelease(ENV, 1L, 2L))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(releaseService, never()).compare(Env.DEV, 1L, 2L);
+  }
+
+  @Test
+  void compareReleaseShouldRejectConsumerWithoutReleasePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
+    when(releaseService.findReleaseById(Env.DEV, 2L)).thenReturn(release(2L));
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(() -> releaseController.compareRelease(ENV, 1L, 2L))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(releaseService, never()).compare(Env.DEV, 1L, 2L);
   }
 
   @Test
@@ -369,6 +400,15 @@ class ReleaseBranchInstanceControllerTest {
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody()).hasSize(1);
     assertThat(response.getBody().get(0).getIp()).isEqualTo("10.0.0.1");
+  }
+
+  @Test
+  void getByReleasesNotInShouldRejectInvalidReleaseIds() {
+    assertThatThrownBy(() -> instanceController.getByReleasesAndNamespaceNotIn(ENV, APP_ID, CLUSTER,
+        NAMESPACE, "1,not-a-number")).isInstanceOf(BadRequestException.class);
+
+    verify(instanceService, never()).getByReleasesNotIn(eq(Env.DEV), eq(APP_ID), eq(CLUSTER),
+        eq(NAMESPACE), any());
   }
 
   private NamespaceReleaseDTO releaseRequest(String title, String releasedBy,
