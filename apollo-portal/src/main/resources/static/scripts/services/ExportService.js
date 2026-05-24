@@ -18,7 +18,7 @@ appService.service('ExportService', ['$resource', '$q', 'AppUtil', function ($re
     var resource = $resource('', {}, {
         importConfig: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/import',
+            url: AppUtil.prefixPath() + '/openapi/v1/import',
             headers: {'Content-Type': undefined},
         }
     });

@@ -18,7 +18,7 @@ appService.service('ReleaseHistoryService', ['$resource', '$q', 'AppUtil', funct
     var resource = $resource('', {}, {
         find_release_history_by_namespace: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/histories',
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/histories',
             isArray: true
         }
     });

@@ -58,12 +58,14 @@ import com.ctrip.framework.apollo.openapi.model.OpenPermissionConditionDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseChangeDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenUserInfoDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
+import com.ctrip.framework.apollo.portal.entity.po.UserPO;
 import com.ctrip.framework.apollo.portal.entity.vo.AppRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.ClusterNamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
@@ -560,6 +562,14 @@ public final class OpenApiModelConverters {
     return BeanUtils.transform(OpenUserInfoDTO.class, userInfo);
   }
 
+  public static List<OpenUserInfoDTO> fromUserInfos(final List<UserInfo> userInfos) {
+    if (CollectionUtils.isEmpty(userInfos)) {
+      return Collections.emptyList();
+    }
+    return userInfos.stream().map(OpenApiModelConverters::fromUserInfo)
+        .collect(Collectors.toList());
+  }
+
   public static List<OpenUserInfoDTO> fromUserInfos(final Set<UserInfo> userInfos) {
     if (CollectionUtils.isEmpty(userInfos)) {
       return Collections.emptyList();
@@ -567,6 +577,17 @@ public final class OpenApiModelConverters {
     return userInfos.stream()
         .sorted(Comparator.comparing(UserInfo::getUserId, Comparator.nullsFirst(String::compareTo)))
         .map(OpenApiModelConverters::fromUserInfo).collect(Collectors.toList());
+  }
+
+  public static UserPO toUserPO(final OpenUserDTO user) {
+    Preconditions.checkArgument(user != null);
+    UserPO result = new UserPO();
+    result.setUsername(user.getUsername());
+    result.setUserDisplayName(user.getUserDisplayName());
+    result.setPassword(user.getPassword());
+    result.setEmail(user.getEmail());
+    result.setEnabled(user.getEnabled() == null ? 0 : user.getEnabled());
+    return result;
   }
 
   public static OpenAppRoleUserDTO fromAppRolesAssignedUsers(

@@ -18,19 +18,26 @@ package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.entity.App;
+import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.AdditionalUserInfoEnrichService;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,13 +63,27 @@ class ServerAppOpenApiServiceTest {
   private ApplicationEventPublisher publisher;
   @Mock
   private RoleInitializationService roleInitializationService;
+  @Mock
+  private AdditionalUserInfoEnrichService additionalUserInfoEnrichService;
 
   private ServerAppOpenApiService service;
 
   @BeforeEach
   void setUp() {
     service = new ServerAppOpenApiService(portalSettings, clusterService, appService, publisher,
-        roleInitializationService);
+        roleInitializationService, additionalUserInfoEnrichService);
+  }
+
+  @Test
+  void getAppsInfoShouldEnrichOwnerDisplayNameForPortalUi() {
+    App app = App.builder().appId("someApp").ownerName("owner").build();
+    when(appService.findByAppIds(Collections.singleton("someApp")))
+        .thenReturn(Collections.singletonList(app));
+
+    List<OpenAppDTO> result = service.getAppsInfo(Collections.singletonList("someApp"));
+
+    assertEquals(1, result.size());
+    verify(additionalUserInfoEnrichService).enrichAdditionalUserInfo(eq(result), any());
   }
 
   @Test

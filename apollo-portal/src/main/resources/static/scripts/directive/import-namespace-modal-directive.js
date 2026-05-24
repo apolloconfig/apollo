@@ -54,7 +54,7 @@ function importNamespaceModalDirective($window, $q, $translate, $http, toastr, A
                 form.append('file', file);
                 $http({
                           method: 'POST',
-                          url: AppUtil.prefixPath() + '/apps/' + toImportNamespace.baseInfo.appId + '/envs/' + scope.env + '/clusters/'
+                          url: AppUtil.prefixPath() + '/openapi/v1/apps/' + toImportNamespace.baseInfo.appId + '/envs/' + scope.env + '/clusters/'
                                + toImportNamespace.baseInfo.clusterName
                                + '/namespaces/' + toImportNamespace.baseInfo.namespaceName + "/items/import",
                           data: form,
@@ -76,6 +76,5 @@ function importNamespaceModalDirective($window, $q, $translate, $http, toastr, A
         }
     }
 }
-
 
 

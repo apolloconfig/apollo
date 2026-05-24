@@ -38,7 +38,7 @@ directive_module.directive('apollonav',
                    $('#app-search-list').select2({
                       placeholder: placeholderLabel,
                       ajax: {
-                        url: AppUtil.prefixPath() + "/apps/search/by-appid-or-name",
+                        url: AppUtil.prefixPath() + "/openapi/v1/apps/search/by-appid-or-name",
                         dataType: 'json',
                         delay: 400,
                         data: function (params) {
@@ -306,7 +306,7 @@ directive_module.directive('apollouserselector', function ($compile, $window,App
 
             var select2Options = {
                 ajax: {
-                    url: AppUtil.prefixPath() + '/users',
+                    url: AppUtil.prefixPath() + '/openapi/v1/users',
                     dataType: 'json',
                     delay: 250,
                     data: function (params) {
@@ -357,7 +357,7 @@ directive_module.directive('apollomultipleuserselector', function ($compile, $wi
 
             var searchUsersAjax = {
                 ajax: {
-                    url: AppUtil.prefixPath() + '/users',
+                    url: AppUtil.prefixPath() + '/openapi/v1/users',
                     dataType: 'json',
                     delay: 250,
                     data: function (params) {
@@ -390,5 +390,3 @@ directive_module.directive('apollomultipleuserselector', function ($compile, $wi
         }
     }
 });
-
-

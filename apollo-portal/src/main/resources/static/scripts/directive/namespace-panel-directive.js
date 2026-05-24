@@ -1185,7 +1185,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
 
             function exportNamespace(namespace) {
                 $window.location.href =
-                    AppUtil.prefixPath() + '/apps/' + scope.appId + "/envs/" + scope.env + "/clusters/" + scope.cluster
+                    AppUtil.prefixPath() + '/openapi/v1/apps/' + scope.appId + "/envs/" + scope.env + "/clusters/" + scope.cluster
                     + "/namespaces/" + namespace.baseInfo.namespaceName + "/items/export"
             }
 

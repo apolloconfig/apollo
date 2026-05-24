@@ -18,32 +18,32 @@ appService.service('AuditLogService', ['$resource', '$q', 'AppUtil', function ($
   var audit_resource = $resource('', {}, {
     get_properties: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/properties',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/properties',
       isArray: false
     },
     find_all_logs: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs?page=:page&size=:size',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/logs?page=:page&size=:size',
       isArray: true
     },
     find_logs_by_opName: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs/opName?opName=:opName&page=:page&size=:size&startDate=:startDate&endDate=:endDate',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/logs/opName?opName=:opName&page=:page&size=:size&startDate=:startDate&endDate=:endDate',
       isArray: true
     },
     find_trace_details: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/trace?traceId=:traceId',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/trace?traceId=:traceId',
       isArray: true
     },
     find_dataInfluences_by_field: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs/dataInfluences/field?entityName=:entityName&entityId=:entityId&fieldName=:fieldName&page=:page&size=:size',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/logs/dataInfluences/field?entityName=:entityName&entityId=:entityId&fieldName=:fieldName&page=:page&size=:size',
       isArray: true
     },
     search_by_name_or_type_or_operator: {
       method: 'GET',
-      url: AppUtil.prefixPath() + '/apollo/audit/logs/by-name-or-type-or-operator?query=:query&page=:page&size=:size',
+      url: AppUtil.prefixPath() + '/openapi/v1/apollo/audit/logs/by-name-or-type-or-operator?query=:query&page=:page&size=:size',
       isArray: true
     }
   });

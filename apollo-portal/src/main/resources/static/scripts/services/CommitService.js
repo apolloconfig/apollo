@@ -19,7 +19,7 @@ appService.service('CommitService', ['$resource', '$q','AppUtil', function ($res
         find_commits: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/commits?page=:page'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/commits?page=:page'
         }
     });
     return {

@@ -15,7 +15,7 @@
  *
  */
 appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', function ($resource, $q, AppUtil, UserService) {
-    var app_resource = $resource(AppUtil.prefixPath() + '/apps/:appId', {}, {
+    var app_resource = $resource('', {}, {
         find_apps: {
             method: 'GET',
             isArray: true,
@@ -33,19 +33,20 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', f
         },
         load_app: {
             method: 'GET',
-            isArray: false
+            isArray: false,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         create_app: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps'
         },
         update_app: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/apps/:appId'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         create_app_remote: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/envs/:env'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/envs/:env'
         },
         find_miss_envs: {
             method: 'GET',
@@ -63,7 +64,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', f
         },
         delete_app: {
             method: 'DELETE',
-            isArray: false
+            isArray: false,
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId'
         },
         allow_app_master_assign_role: {
             method: 'POST',
@@ -157,8 +159,14 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', f
         },
         create: function (app) {
             var d = $q.defer();
-            app_resource.create_app({}, app, function (result) {
-                d.resolve(result);
+            var appPayload = angular.copy(app);
+            delete appPayload.admins;
+            app_resource.create_app({}, {
+                app: appPayload,
+                admins: app.admins,
+                assignAppRoleToSelf: false
+            }, function () {
+                d.resolve(app);
             }, function (result) {
                 d.reject(result);
             });

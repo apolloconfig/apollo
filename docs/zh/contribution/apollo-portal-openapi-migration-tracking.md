@@ -18,8 +18,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 
 | 领域 | 当前状态 | 风险 | 下一步 |
 | --- | --- | --- | --- |
-| OpenAPI 契约 | `apollo-portal` 已引用 `apollo-openapi` 发布的 `v0.3.2` tag，用于 Release/Branch/Instance 切片 | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
-| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 120 个 URL 条目中 52 个走 OpenAPI、68 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
+| OpenAPI 契约 | `apollo-portal` 在 Permission/AccessKey 切片后已引用 `apollo-openapi` 发布的 `v0.3.3` tag | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
+| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 131 个前端 API URL 条目全部走 OpenAPI，WebAPI 条目为 0，no-prefix 条目为 0 | 剩余风险已经从 URL 覆盖转为上传/下载、SSO、权限和 response shape 回归 | 在完整 UT 和 Portal UI e2e 通过前，继续把清单作为验证项 |
 | 认证 | `/openapi/**` 先经过 Portal session 识别，再走 consumer token 认证 | 自定义 SSO 若没有让 `/openapi/**` 复用 Portal 登录态，会出现 401 | 明确 filter 顺序和 SSO 接入要求，补回归测试 |
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
@@ -31,17 +31,19 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 - OpenAPI 认证链路已加测试保护：`PortalUserSessionFilter`、`ConsumerAuthenticationFilter`、`UserTypeResolverFilter` 的顺序和 `/openapi/*` pattern 已由测试锁定。
 - `UserTypeResolverFilter` 测试已改为覆盖生产实现，避免测试 classpath 中的同名 shadow class 掩盖真实行为。
 - `UnifiedPermissionValidator` 的 USER/CONSUMER 分发测试已扩展到 namespace、application、hide-config 和 create/delete 相关入口。
-- App 域已完成第一批只读切流：`find_apps`、`find_app_by_self`、`load_navtree` 和 `find_miss_envs` 已指向 OpenAPI；`load_app` 在最新 spec 适配轮次仍暂留 WebAPI，以控制本轮 PR 范围。最新本地契约已经包含 `ownerDisplayName`，可在下一轮 App 域切流中处理。
+- App 前端域已全部切到 OpenAPI：查询、by-self、navtree/env-cluster info、load、create、update、delete、missing env、missing namespace、app-master role 和 create-application role 都使用 `/openapi/v1/...`。Portal UI 需要的 `ownerDisplayName` 由后端补齐。
 - `/openapi/v1/apps/by-self` 已补齐 Portal USER 语义：Portal cookie 请求复用原 WebAPI 的 user role 解析，token 请求继续使用 consumer 授权 appId。
-- `apollo-openapi` `v0.3.2` 已作为当前适配目标。相比 `v0.1.0`，`v0.3.x` 系列新增 Release/Branch/Instance 等 operation，删除或重命名了多个 `v0.1.0` path，并收紧了 App 创建/更新/删除、Cluster 删除、env cluster info、missing envs 等生成接口返回类型。
-- 本轮适配已切换默认 POM URL 到 `apollo-openapi` `v0.3.2`，并在不使用本地 spec override 的情况下通过 Portal 编译、全量 UT 和 Portal e2e。兼容性检查中剩余的 `v0.1.0` 差异需要作为明确兼容例外或后续 alias 处理，不能视为静默兼容。
+- `apollo-openapi` `v0.3.3` 已作为当前适配目标。相比 `v0.1.0`，`v0.3.x` 系列新增 Release/Branch/Instance/Permission/AccessKey 等 operation，删除或重命名了多个 `v0.1.0` path，并收紧了 App 创建/更新/删除、Cluster 删除、env cluster info、missing envs 等生成接口返回类型。
+- 本轮适配已切换默认 POM URL 到 `apollo-openapi` `v0.3.3`。兼容性检查中剩余的 `v0.1.0` 差异需要作为明确兼容例外或后续 alias 处理，不能视为静默兼容。
 - 已经切到 OpenAPI 的 App 前端调用改为最新 spec 路径：`load_navtree` 调用 `/openapi/v1/apps/{appId}/env-cluster-info`，`find_miss_envs` 调用 `/openapi/v1/apps/{appId}/miss-envs`。`AppService.js` 会把新的数组响应转换回 `AppUtil.collectData` 仍在消费的 `entities/body` 结构。
 - `/openapi/v1/apps/{appId}/navtree` 和 `/openapi/v1/apps/{appId}/miss_envs` 虽然已在 `v0.1.0` 发布，但已确认没有外部用户使用。本轮把这两个 App 旧路径作为明确兼容例外，不保留 alias；这个例外不能泛化到其它已发布的 `v0.1.0` path。
-- Item 域已完成第一批 UI 切流：`ConfigService.js` 中 item create/update/delete、text batch update、diff、sync、syntax check、revocation 和 paged find 已指向 `/openapi/v1/...`，并在前端 service 内保持旧数组返回、旧 diff shape 和 `orderBy` 行为。`load_namespace`、`load_all_namespaces`、associated public namespace 等 Namespace 形状接口仍暂留 WebAPI。
+- Item 和 Namespace 域已切到 OpenAPI。`ConfigService.js` 继续在前端 service 内保留旧数组返回、旧 diff shape 和 `orderBy` 兼容 adapter，namespace 形状读取和写入由 generated OpenAPI controller 承接。
 - Namespace Core 切片已切到 OpenAPI：namespace 读取、associated public namespace 读取、namespace lock 查询、missing namespace 查询/创建、cluster 删除、AppNamespace 创建/删除/读取/列表、namespace 创建/删除、release status、usage 和 public namespace instances 都已走 OpenAPI。后端在 `v0.3.0` 已有契约的地方实现 generated management interfaces，Portal UI 需要的响应兼容只保留在前端 service 内。
 - Namespace 和 item 的 `extendInfo` 已承载 UI 还原旧视图需要的状态；text mode item update 改为后端根据 path 派生 `namespaceId`，不再依赖 UI 从 legacy `baseInfo.id` 取值。
 - Release/Branch/Instance 切片已切到 OpenAPI：`ReleaseService.js`、`NamespaceBranchService.js`、`InstanceService.js` 全部使用 `/openapi/v1/...`。`ReleaseController`、`NamespaceBranchController`、`InstanceController` 实现 generated management interfaces，前端仅在 service 内保留实例分页 `content`、实例数量 `{num}` 和 release compare `{changes}` 兼容 adapter。
 - 发布的 `v0.3.2` spec 为 rollback 增加 `toReleaseId`，把 branch delete/rule-update 的 `operator` query 放宽为 optional，并保持 release id 为 `int64`，使 Portal USER 请求从登录态推导 operator，同时 token CONSUMER 客户端继续保留 payload/query operator 行为。
+- Permission/AccessKey 切片已切到 OpenAPI：`PermissionService.js`、`SystemRoleService.js` 和 `AccessKeyService.js` 都已使用 `/openapi/v1/...`；前端清单脚本也已覆盖 `static/scripts/services` 之外的直接 `$http`、select2 `ajax.url` 和下载 URL 调用。
+- 最后一批 Portal UI 管理面已补齐 Portal-session-only OpenAPI：user、consumer、audit、commit history、release history、page settings、favorites、global search、server config、system info、config import/export、app search 和 namespace item import/export 均已迁移。前端清单现在为 131/131 OpenAPI。
 
 ## 迁移矩阵
 
@@ -49,14 +51,14 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | --- | --- | --- | --- |
 | Env / Organization | `EnvService.js`、`OrganizationService.js` | 已有基础只读接口 | 保持 OpenAPI 路径，验证 SSO 与 prefix path |
 | Cluster | `ClusterService.js` | 已有 get/create/delete | 前端 service 已全部使用 OpenAPI 创建、读取和删除；继续保持 USER/CONSUMER operator 回归覆盖 |
-| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env、missing namespace | app 只读、missing env 和 missing namespace 已走 OpenAPI 并在前端做响应兼容转换；其余 app 写接口仍等待 operator contract/Portal 用户语义对齐后再切 UI |
+| App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env、missing namespace、app-master role API | App 前端调用已全部迁移；Portal USER 请求在需要时从登录态推导 operator，响应兼容仍保留在前端 service 内 |
 | Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | `v0.3.0` 已包含 Namespace、AppNamespace、lock、usage、release status、public instance APIs | Namespace Core 前端 service 调用已迁移；后续推进 branch/release 和剩余 response-shape hardening |
 | Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation、namespace read 已有契约方向 | Item 和 Namespace Core UI 路径已走 OpenAPI；后续继续观察 key 编码、text mode 和更多 e2e 覆盖 |
 | Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | `v0.3.2` 已覆盖 release、gray release、branch 创建/删除/合并/rules、compare、active releases 和 rollback | 前端 service 已迁移；继续保留双认证和 Java client 兼容测试 |
 | Instance | `InstanceService.js` | 已有 by-release、by-namespace、releases-not-in 和 count API | 前端 service 已迁移，并在本地 adapter 保留分页/count 旧形状 |
-| Permission / AccessKey | `PermissionService.js`、`AccessKeyService.js` | `apollo-openapi/main` 已有新增契约 | 先完成权限模型验证，再迁移管理 UI |
-| User / Consumer / System | `UserService.js`、`ConsumerService.js`、`SystemRoleService.js` | 用户接口仍有未合并 PR | 不纳入第一批切流，等待契约稳定 |
-| Admin / Audit / Import / Export | `ServerConfigService.js`、`AuditLogService.js`、导入导出 service | OpenAPI 覆盖不足 | 独立设计，避免把管理面和配置面混在一个 PR |
+| Permission / AccessKey | `PermissionService.js`、`SystemRoleService.js`、`AccessKeyService.js` | Permission、system-role 和 AccessKey 契约已进入 `v0.3.3` | 前端 service 调用已迁移；后续 review 继续优先保护 token caller 兼容性 |
+| User / Consumer | `UserService.js`、`ConsumerService.js`、select2 用户搜索 directive | User 和 consumer 的 Portal UI API 已由 Portal-session-only OpenAPI 覆盖 | 前端调用已迁移；这些管理接口只允许 Portal USER session，不改变既有公开 OpenAPI token 操作的兼容行为 |
+| Admin / Audit / Import / Export / Search / Favorites | `ServerConfigService.js`、`AuditLogService.js`、`CommonService.js`、`CommitService.js`、`ReleaseHistoryService.js`、`FavoriteService.js`、`GlobalSearchValueService.js`、`ConfigExportController.js`、导入导出 directive | Portal-session-only OpenAPI 已覆盖剩余管理、读取、下载和上传面 | 前端调用已迁移，包括直接 `$http`、select2 `ajax.url`、HEAD 检查和下载链接 |
 
 ## 契约规则
 

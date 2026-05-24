@@ -17,7 +17,7 @@ import tempfile
 from pathlib import Path
 import unittest
 
-from collect_portal_frontend_urls import collect_service_urls, main, render_markdown
+from collect_portal_frontend_urls import collect_service_urls, collect_urls, main, render_markdown
 
 
 class CollectPortalFrontendUrlsTest(unittest.TestCase):
@@ -84,6 +84,84 @@ appService.service('SampleService', ['$resource', 'AppUtil', function ($resource
     self.assertIn("URL entries: 1", markdown)
     self.assertIn("OpenAPI entries: 1", markdown)
     self.assertIn("`/openapi/v1/apps`", markdown)
+
+  def test_collects_direct_frontend_api_calls_outside_services(self):
+    with tempfile.TemporaryDirectory() as tmpdir:
+      root = Path(tmpdir)
+      services_dir = root / "services"
+      controllers_dir = root / "controller"
+      directives_dir = root / "directive"
+      services_dir.mkdir()
+      controllers_dir.mkdir()
+      directives_dir.mkdir()
+      (services_dir / "SampleService.js").write_text(
+          """
+appService.service('SampleService', ['$resource', 'AppUtil', function ($resource, AppUtil) {
+  var resource = $resource('', {}, {
+    find_apps: {
+      method: 'GET',
+      url: AppUtil.prefixPath() + '/openapi/v1/apps'
+    }
+  });
+}]);
+""",
+          encoding="utf-8",
+      )
+      (controllers_dir / "SampleController.js").write_text(
+          """
+sample.controller('SampleController', ['$http', '$window', 'AppUtil',
+  function ($http, $window, AppUtil) {
+    $window.location.href = AppUtil.prefixPath() + '/configs/export?envs=' + selectedEnvStr;
+    $window.location.href =
+        AppUtil.prefixPath() + '/apps/' + appId + '/envs/' + env
+        + '/clusters/' + cluster + '/namespaces/' + namespaceName + '/items/export';
+    $http({
+      method: 'POST',
+      url: AppUtil.prefixPath() + '/configs/import?envs=' + selectedEnvStr + '&conflictAction='
+        + conflictAction
+    });
+    var exportUrl = AppUtil.prefixPath() + '/apps/' + appId + '/envs/' + env
+        + '/clusters/' + cluster + '/export';
+    $http({
+      method: 'HEAD',
+      url: exportUrl
+    });
+  }]);
+""",
+          encoding="utf-8",
+      )
+      (directives_dir / "SampleDirective.js").write_text(
+          """
+directive.directive('sample', function (AppUtil) {
+  return {
+    link: function () {
+      $('#users').select2({
+        ajax: {
+          url: AppUtil.prefixPath() + '/users',
+          dataType: 'json'
+        }
+      });
+    }
+  };
+});
+""",
+          encoding="utf-8",
+      )
+
+      urls = collect_urls(services_dir, root)
+
+    paths = {url.path for url in urls}
+    self.assertIn("/openapi/v1/apps", paths)
+    self.assertIn("/configs/export?envs=:param", paths)
+    self.assertIn(
+        "/apps/:param/envs/:param/clusters/:param/namespaces/:param/items/export",
+        paths,
+    )
+    self.assertIn("/configs/import?envs=:param&conflictAction=:param", paths)
+    self.assertIn("/apps/:param/envs/:param/clusters/:param/export", paths)
+    self.assertIn("/users", paths)
+    self.assertIn("controller/SampleController.js", {url.service for url in urls})
+    self.assertIn("directive/SampleDirective.js", {url.service for url in urls})
 
   def test_main_fails_for_invalid_services_dir(self):
     with tempfile.TemporaryDirectory() as tmpdir:

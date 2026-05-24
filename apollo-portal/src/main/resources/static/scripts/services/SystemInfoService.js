@@ -18,11 +18,11 @@ appService.service('SystemInfoService', ['$resource', '$q', 'AppUtil', function 
     var system_info_resource = $resource('', {}, {
         load_system_info: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/system-info'
+            url: AppUtil.prefixPath() + '/openapi/v1/system-info'
         },
         check_health: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/system-info/health'
+            url: AppUtil.prefixPath() + '/openapi/v1/system-info/health'
         }
     });
     return {

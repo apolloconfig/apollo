@@ -19,7 +19,7 @@ appService.service('GlobalSearchValueService', ['$resource', '$q', 'AppUtil', fu
         get_item_Info_by_key_and_Value: {
             isArray: false,
             method: 'GET',
-            url: AppUtil.prefixPath() + '/global-search/item-info/by-key-or-value',
+            url: AppUtil.prefixPath() + '/openapi/v1/global-search/item-info/by-key-or-value',
             params: {
                 key: 'key',
                 value: 'value'

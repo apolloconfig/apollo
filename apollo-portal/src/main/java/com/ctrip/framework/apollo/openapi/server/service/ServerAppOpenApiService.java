@@ -28,10 +28,11 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
-import com.ctrip.framework.apollo.portal.entity.model.AppModel;
+import com.ctrip.framework.apollo.portal.enricher.adapter.OpenAppDtoUserInfoEnrichedAdapter;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppDeletionEvent;
 import com.ctrip.framework.apollo.portal.listener.AppInfoChangedEvent;
+import com.ctrip.framework.apollo.portal.service.AdditionalUserInfoEnrichService;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
@@ -61,16 +62,19 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   private final AppService appService;
   private final ApplicationEventPublisher publisher;
   private final RoleInitializationService roleInitializationService;
+  private final AdditionalUserInfoEnrichService additionalUserInfoEnrichService;
   private static final Logger logger = LoggerFactory.getLogger(ServerAppOpenApiService.class);
 
   public ServerAppOpenApiService(PortalSettings portalSettings, ClusterService clusterService,
       AppService appService, ApplicationEventPublisher publisher,
-      RoleInitializationService roleInitializationService) {
+      RoleInitializationService roleInitializationService,
+      AdditionalUserInfoEnrichService additionalUserInfoEnrichService) {
     this.portalSettings = portalSettings;
     this.clusterService = clusterService;
     this.appService = appService;
     this.publisher = publisher;
     this.roleInitializationService = roleInitializationService;
+    this.additionalUserInfoEnrichService = additionalUserInfoEnrichService;
   }
 
   private App convert(OpenAppDTO dto) {
@@ -137,7 +141,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
   @Override
   public List<OpenAppDTO> getAllApps() {
     final List<App> apps = this.appService.findAll();
-    return OpenApiModelConverters.fromApps(apps);
+    return enrichApps(OpenApiModelConverters.fromApps(apps));
   }
 
   @Override
@@ -146,7 +150,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
       return Collections.emptyList();
     }
     final List<App> apps = this.appService.findByAppIds(new HashSet<>(appIds));
-    return OpenApiModelConverters.fromApps(apps);
+    return enrichApps(OpenApiModelConverters.fromApps(apps));
   }
 
   @Override
@@ -180,7 +184,7 @@ public class ServerAppOpenApiService implements AppOpenApiService {
       return Collections.emptyList();
     }
     List<App> apps = appService.findByAppIds(targetAppIds, pageable);
-    return OpenApiModelConverters.fromApps(apps);
+    return enrichApps(OpenApiModelConverters.fromApps(apps));
   }
 
   /**
@@ -244,5 +248,11 @@ public class ServerAppOpenApiService implements AppOpenApiService {
       }
     }
     return response;
+  }
+
+  private List<OpenAppDTO> enrichApps(List<OpenAppDTO> apps) {
+    additionalUserInfoEnrichService.enrichAdditionalUserInfo(apps,
+        OpenAppDtoUserInfoEnrichedAdapter::new);
+    return apps;
   }
 }

@@ -20,7 +20,7 @@ appService.service('CommonService', ['$resource', '$q', 'AppUtil',
         page_setting: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/page-settings'
+            url: AppUtil.prefixPath() + '/openapi/v1/page-settings'
         }
     });
 

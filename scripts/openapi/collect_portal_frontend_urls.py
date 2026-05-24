@@ -13,7 +13,7 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-"""Collect Apollo Portal frontend service URLs for OpenAPI migration tracking."""
+"""Collect Apollo Portal frontend URLs for OpenAPI migration tracking."""
 
 from __future__ import annotations
 
@@ -28,11 +28,13 @@ from typing import Dict, Iterable, List, Optional, Sequence
 
 PATH_START_RE = re.compile(
     r"^/?(?:"
-    r"apollo|appnamespaces|apps|consumer-tokens|consumers|envs|favorites|global-search|"
-    r"import|namespaces|openapi|page-settings|permissions|server|system|system-info|user|users"
+    r"apollo|appnamespaces|apps|clusters|configs|consumer-tokens|consumers|envs|favorites|"
+    r"global-search|import|namespaces|openapi|page-settings|permissions|server|system|"
+    r"system-info|user|users"
     r")\b"
 )
 STRING_RE = re.compile(r"""(['"])(.*?)\1""")
+VARIABLE_ASSIGNMENT_RE = re.compile(r"\b(?:var|let|const)\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=")
 
 
 @dataclass(frozen=True)
@@ -57,10 +59,64 @@ def normalize_path(path: str) -> str:
 
 
 def extract_path(expression: str) -> Optional[str]:
-  parts = [value for _, value in STRING_RE.findall(expression) if is_path_literal(value)]
-  if not parts:
+  matches = list(STRING_RE.finditer(expression))
+  first_path_index = None
+  for index, match in enumerate(matches):
+    if is_path_literal(match.group(2)):
+      first_path_index = index
+      break
+  if first_path_index is None:
     return None
-  return normalize_path("".join(parts))
+
+  path = matches[first_path_index].group(2)
+  previous_match = matches[first_path_index]
+  for match in matches[first_path_index + 1:]:
+    value = match.group(2)
+    if not is_path_continuation(value, path):
+      previous_match = match
+      continue
+    gap = expression[previous_match.end():match.start()]
+    if has_dynamic_gap(gap):
+      path = append_dynamic_placeholder(path, value)
+    path += value
+    previous_match = match
+
+  trailing_gap = expression[previous_match.end():]
+  if has_dynamic_gap(trailing_gap):
+    path = append_trailing_dynamic_placeholder(path)
+
+  return normalize_path(path)
+
+
+def is_path_continuation(value: str, path: str) -> bool:
+  return (
+      value.startswith("/")
+      or value.startswith("?")
+      or value.startswith("&")
+      or path.endswith("/")
+      or "?" in path
+  )
+
+
+def has_dynamic_gap(gap: str) -> bool:
+  normalized = re.sub(r"[\s+().;'\",{}\[\]]", "", gap)
+  return bool(normalized)
+
+
+def append_dynamic_placeholder(path: str, next_value: str) -> str:
+  if path.endswith("/") and next_value.startswith("/"):
+    return path + ":param"
+  if path.endswith(("=", "/", "?", "&")):
+    return path + ":param"
+  if next_value.startswith("/") and not path.endswith("/"):
+    return path + "/:param"
+  return path
+
+
+def append_trailing_dynamic_placeholder(path: str) -> str:
+  if path.endswith(("=", "/", "?", "&")):
+    return path + ":param"
+  return path
 
 
 def find_action(lines: Sequence[str], line_index: int) -> str:
@@ -71,27 +127,33 @@ def find_action(lines: Sequence[str], line_index: int) -> str:
   return "-"
 
 
-def find_method(lines: Sequence[str], line_index: int) -> str:
+def find_method(lines: Sequence[str], line_index: int, default: str = "GET") -> str:
   for index in range(line_index, max(-1, line_index - 12), -1):
     match = re.search(r"method:\s*['\"]([A-Z]+)['\"]", lines[index])
     if match:
       return match.group(1)
-  return "RESOURCE_BASE"
+  return default
 
 
-def collect_url_expression(lines: Sequence[str], line_index: int) -> str:
-  expression_lines = [lines[line_index].split("url:", 1)[1]]
+def collect_continued_expression(lines: Sequence[str], line_index: int, expression: str) -> str:
+  expression_lines = [expression]
   index = line_index
   while index + 1 < len(lines):
     next_line = lines[index + 1]
-    expression = "\n".join(expression_lines)
-    if extract_path(expression) and not next_line.lstrip().startswith("+"):
+    current_expression = "\n".join(expression_lines)
+    current_line = expression_lines[-1].rstrip()
+    if not current_expression.strip() or current_line.endswith("+") or next_line.lstrip().startswith("+"):
+      index += 1
+      expression_lines.append(lines[index])
+      continue
+    if extract_path(current_expression):
       break
-    if not next_line.lstrip().startswith("+"):
-      break
-    index += 1
-    expression_lines.append(lines[index])
+    break
   return "\n".join(expression_lines)
+
+
+def collect_url_expression(lines: Sequence[str], line_index: int) -> str:
+  return collect_continued_expression(lines, line_index, lines[line_index].split("url:", 1)[1])
 
 
 def collect_resource_expression(line: str) -> Optional[str]:
@@ -104,22 +166,51 @@ def collect_resource_expression(line: str) -> Optional[str]:
   return expression
 
 
-def collect_service_urls(service_file: Path) -> List[FrontendUrl]:
-  lines = service_file.read_text(encoding="utf-8").splitlines()
+def collect_variable_assignments(lines: Sequence[str]) -> Dict[str, str]:
+  assignments: Dict[str, str] = {}
+  for line_index, line in enumerate(lines):
+    match = VARIABLE_ASSIGNMENT_RE.search(line)
+    if not match:
+      continue
+    expression = collect_continued_expression(lines, line_index, line.split("=", 1)[1])
+    if extract_path(expression):
+      assignments[match.group(1)] = expression
+  return assignments
+
+
+def resolve_expression(expression: str, variables: Dict[str, str]) -> str:
+  candidate = expression.strip().rstrip(",;")
+  return variables.get(candidate, expression)
+
+
+def collect_file_urls(
+    source_file: Path,
+    source_name: Optional[str] = None,
+    collect_resource_base: bool = True,
+) -> List[FrontendUrl]:
+  lines = source_file.read_text(encoding="utf-8").splitlines()
+  variables = collect_variable_assignments(lines)
   urls: List[FrontendUrl] = []
-  service = service_file.name
+  service = source_name or source_file.name
   seen = set()
 
   for line_index, line in enumerate(lines):
     expression = None
     action = "-"
-    method = "RESOURCE_BASE"
+    method = "GET"
     if "url:" in line:
       expression = collect_url_expression(lines, line_index)
+      expression = resolve_expression(expression, variables)
       action = find_action(lines, line_index)
       method = find_method(lines, line_index)
-    elif "$resource(" in line:
+    elif "$window.location.href" in line and "=" in line:
+      expression = collect_continued_expression(lines, line_index, line.split("=", 1)[1])
+      expression = resolve_expression(expression, variables)
+      action = "$window.location.href"
+      method = "GET"
+    elif collect_resource_base and "$resource(" in line:
       expression = collect_resource_expression(line)
+      method = "RESOURCE_BASE"
 
     if not expression:
       continue
@@ -147,10 +238,32 @@ def collect_service_urls(service_file: Path) -> List[FrontendUrl]:
   return urls
 
 
-def collect_urls(services_dir: Path) -> List[FrontendUrl]:
+def collect_service_urls(service_file: Path) -> List[FrontendUrl]:
+  return collect_file_urls(service_file)
+
+
+def collect_urls(services_dir: Path, scripts_dir: Optional[Path] = None) -> List[FrontendUrl]:
   urls: List[FrontendUrl] = []
+  seen_files = set()
   for service_file in sorted(services_dir.glob("*.js")):
     urls.extend(collect_service_urls(service_file))
+    seen_files.add(service_file.resolve())
+
+  if scripts_dir is not None:
+    for script_file in sorted(scripts_dir.rglob("*.js")):
+      if script_file.resolve() in seen_files:
+        continue
+      try:
+        source_name = str(script_file.relative_to(scripts_dir))
+      except ValueError:
+        source_name = script_file.name
+      urls.extend(
+          collect_file_urls(
+              script_file,
+              source_name=source_name,
+              collect_resource_base=False,
+          )
+      )
   return urls
 
 
@@ -167,7 +280,7 @@ def render_summary(urls: Sequence[FrontendUrl]) -> List[str]:
     by_service[url.service]["Total"] += 1
 
   lines = [
-      "| Service | OpenAPI | WebAPI | No prefix | Total |",
+      "| Source | OpenAPI | WebAPI | No prefix | Total |",
       "| --- | ---: | ---: | ---: | ---: |",
   ]
   for service in sorted(by_service):
@@ -181,7 +294,7 @@ def render_summary(urls: Sequence[FrontendUrl]) -> List[str]:
 
 def render_inventory(urls: Sequence[FrontendUrl]) -> List[str]:
   lines = [
-      "| Service | Line | Action | Method | Surface | Prefix path | Path |",
+      "| Source | Line | Action | Method | Surface | Prefix path | Path |",
       "| --- | ---: | --- | --- | --- | --- | --- |",
   ]
   for url in urls:
@@ -201,13 +314,13 @@ def render_markdown(urls: Sequence[FrontendUrl], language: str) -> str:
     title = "Apollo Portal 前端 URL 迁移清单（临时）"
     intro = (
         "本文档由 `scripts/openapi/collect_portal_frontend_urls.py` 生成，用于跟踪 "
-        "Portal 前端 service 到 OpenAPI 的迁移进度。迁移完成后应删除。"
+        "Portal 前端 API 调用到 OpenAPI 的迁移进度。迁移完成后应删除。"
     )
     summary_title = "## 汇总"
-    service_title = "## 按 Service 汇总"
+    service_title = "## 按来源汇总"
     inventory_title = "## URL 清单"
     summary = [
-        f"- Service 文件数：{service_count}",
+        f"- 前端文件数：{service_count}",
         f"- URL 条目数：{len(urls)}",
         f"- OpenAPI 条目数：{surface_count['OpenAPI']}",
         f"- WebAPI 条目数：{surface_count['WebAPI']}",
@@ -217,14 +330,14 @@ def render_markdown(urls: Sequence[FrontendUrl], language: str) -> str:
     title = "Apollo Portal Frontend URL Migration Inventory (Temporary)"
     intro = (
         "This document is generated by `scripts/openapi/collect_portal_frontend_urls.py` "
-        "to track Portal frontend service migration toward OpenAPI. Delete it after the "
+        "to track Portal frontend API call migration toward OpenAPI. Delete it after the "
         "migration is complete."
     )
     summary_title = "## Summary"
-    service_title = "## By Service"
+    service_title = "## By Source"
     inventory_title = "## URL Inventory"
     summary = [
-        f"- Service files: {service_count}",
+        f"- Frontend files: {service_count}",
         f"- URL entries: {len(urls)}",
         f"- OpenAPI entries: {surface_count['OpenAPI']}",
         f"- WebAPI entries: {surface_count['WebAPI']}",
@@ -260,6 +373,11 @@ def parse_args(argv: Optional[Iterable[str]] = None) -> argparse.Namespace:
       help="Path to apollo-portal static service JavaScript directory.",
   )
   parser.add_argument(
+      "--scripts-dir",
+      default="apollo-portal/src/main/resources/static/scripts",
+      help="Path to apollo-portal static JavaScript directory for direct API calls.",
+  )
+  parser.add_argument(
       "--language",
       choices=("en", "zh"),
       default="zh",
@@ -275,8 +393,12 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
   if not services_dir.is_dir():
     print(f"--services-dir not found or not a directory: {services_dir}", file=sys.stderr)
     return 1
+  scripts_dir = Path(args.scripts_dir)
+  if not scripts_dir.is_dir():
+    print(f"--scripts-dir not found or not a directory: {scripts_dir}", file=sys.stderr)
+    return 1
 
-  urls = collect_urls(services_dir)
+  urls = collect_urls(services_dir, scripts_dir)
   markdown = render_markdown(urls, args.language)
   if args.output:
     Path(args.output).write_text(markdown, encoding="utf-8")

@@ -18,20 +18,20 @@ appService.service('UserService', ['$resource', '$q', 'AppUtil', function ($reso
     const user_resource = $resource('', {}, {
         load_user: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/user'
+            url: AppUtil.prefixPath() + '/openapi/v1/user'
         },
         find_users: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/users?keyword=:keyword&includeInactiveUsers=:includeInactiveUsers&offset=:offset&limit=:limit'
+            url: AppUtil.prefixPath() + '/openapi/v1/users?keyword=:keyword&includeInactiveUsers=:includeInactiveUsers&offset=:offset&limit=:limit'
         },
         change_user_enabled: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/users/enabled'
+            url: AppUtil.prefixPath() + '/openapi/v1/users/enabled'
         },
         create_or_update_user: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/users?isCreate=:isCreate'
+            url: AppUtil.prefixPath() + '/openapi/v1/users?isCreate=:isCreate'
         }
     });
     return {

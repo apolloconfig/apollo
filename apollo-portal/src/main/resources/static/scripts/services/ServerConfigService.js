@@ -18,31 +18,31 @@ appService.service('ServerConfigService', ['$resource', '$q', 'AppUtil', functio
     let server_config_resource = $resource('', {}, {
         create_portal_db_config: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/server/portal-db/config'
+            url: AppUtil.prefixPath() + '/openapi/v1/server/portal-db/config'
         },
         create_config_db_config: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config'
+            url: AppUtil.prefixPath() + '/openapi/v1/server/envs/:env/config-db/config'
         },
         delete_portal_db_config: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/server/portal-db/config'
+            url: AppUtil.prefixPath() + '/openapi/v1/server/portal-db/config'
         },
         delete_config_db_config: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/server/envs/:env/config-db/config'
+            url: AppUtil.prefixPath() + '/openapi/v1/server/envs/:env/config-db/config'
         },
         find_portal_db_config: {
             method: 'GET',
             isArray: true,
             url: AppUtil.prefixPath()
-                + '/server/portal-db/config/find-all-config'
+                + '/openapi/v1/server/portal-db/config/find-all-config'
         },
         find_config_db_config: {
             method: 'GET',
             isArray: true,
             url: AppUtil.prefixPath()
-                + '/server/envs/:env/config-db/config/find-all-config'
+                + '/openapi/v1/server/envs/:env/config-db/config/find-all-config'
         }
     });
     return {

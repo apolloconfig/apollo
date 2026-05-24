@@ -67,7 +67,7 @@ config_export_module.controller('ConfigExportController',
                                           }
 
                                           var selectedEnvStr = selectedEnvs.join(",");
-                                          $window.location.href = AppUtil.prefixPath() + '/configs/export?envs=' + selectedEnvStr;
+                                          $window.location.href = AppUtil.prefixPath() + '/openapi/v1/configs/export?envs=' + selectedEnvStr;
 
                                           toastr.success($translate.instant('ConfigExport.ExportSuccess'));
                                      };
@@ -97,7 +97,7 @@ config_export_module.controller('ConfigExportController',
                                          form.append('file', file);
                                          $http({
                                                    method: 'POST',
-                                                   url: AppUtil.prefixPath() + '/configs/import?envs=' + selectedEnvStr + "&conflictAction="
+                                                   url: AppUtil.prefixPath() + '/openapi/v1/configs/import?envs=' + selectedEnvStr + "&conflictAction="
                                                         + $scope.conflictAction,
                                                    data: form,
                                                    headers: {'Content-Type': undefined},
@@ -136,7 +136,7 @@ config_export_module.controller('ConfigExportController',
                                               return;
                                          }
 
-                                         var exportUrl = AppUtil.prefixPath() + '/apps/' + $scope.cluster.appId +
+                                         var exportUrl = AppUtil.prefixPath() + '/openapi/v1/apps/' + $scope.cluster.appId +
                                          '/envs/' + $scope.cluster.env + '/clusters/' + $scope.cluster.name + '/export';
 
                                          $http({
@@ -172,7 +172,7 @@ config_export_module.controller('ConfigExportController',
                                            form.append('file', file);
                                            $http({
                                                      method: 'POST',
-                                                     url: AppUtil.prefixPath() + '/apps/' + $scope.cluster.appId + '/envs/' + $scope.cluster.env +
+                                                     url: AppUtil.prefixPath() + '/openapi/v1/apps/' + $scope.cluster.appId + '/envs/' + $scope.cluster.env +
                                                      '/clusters/' + $scope.cluster.name + '/import?conflictAction=' + $scope.conflictAction,
                                                      data: form,
                                                      headers: {'Content-Type': undefined},
