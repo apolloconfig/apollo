@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
@@ -320,8 +321,7 @@ class ReleaseBranchInstanceControllerTest {
         () -> releaseController.findActiveReleases(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 10))
         .isInstanceOf(AccessDeniedException.class);
 
-    verify(releaseService, never()).findActiveReleases(eq(APP_ID), eq(Env.DEV), eq(CLUSTER),
-        eq(NAMESPACE), eq(0), eq(10));
+    verifyNoInteractions(releaseService);
   }
 
   @Test
@@ -345,8 +345,7 @@ class ReleaseBranchInstanceControllerTest {
         () -> releaseController.loadLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE))
         .isInstanceOf(AccessDeniedException.class);
 
-    verify(releaseService, never()).loadLatestRelease(eq(APP_ID), eq(Env.DEV), eq(CLUSTER),
-        eq(NAMESPACE));
+    verifyNoInteractions(releaseService);
   }
 
   @Test
