@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
+appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', function ($resource, $q, AppUtil, UserService) {
     var app_resource = $resource(AppUtil.prefixPath() + '/apps/:appId', {}, {
         find_apps: {
             method: 'GET',
@@ -67,17 +67,31 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         allow_app_master_assign_role: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/:appId/system/master/:userId'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/roles/master'
         },
         delete_app_master_assign_role: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/apps/:appId/system/master/:userId'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/roles/master'
         },
         has_create_application_role: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/system/role/createApplication/:userId'
+            url: AppUtil.prefixPath() + '/openapi/v1/system/roles/create-application'
         }
     });
+    var current_user_promise;
+
+    function loadCurrentUserId() {
+        if (!current_user_promise) {
+            current_user_promise = UserService.load_user().then(function (user) {
+                return user.userId;
+            }, function (result) {
+                current_user_promise = null;
+                return $q.reject(result);
+            });
+        }
+        return current_user_promise;
+    }
+
     function normalizeOpenApiStatusArray(result, bodyMapper) {
         var response = {
             entities: []
@@ -233,11 +247,16 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         allow_app_master_assign_role: function (appId, userId) {
             var d = $q.defer();
-            app_resource.allow_app_master_assign_role({
-                appId: appId,
-                userId: userId
-            }, null, function (result) {
-                d.resolve(result);
+            loadCurrentUserId().then(function (operator) {
+                app_resource.allow_app_master_assign_role({
+                    appId: appId,
+                    userId: userId,
+                    operator: operator
+                }, null, function (result) {
+                    d.resolve(result);
+                }, function (result) {
+                    d.reject(result);
+                });
             }, function (result) {
                 d.reject(result);
             });
@@ -245,11 +264,16 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', function ($resou
         },
         delete_app_master_assign_role: function (appId, userId) {
             var d = $q.defer();
-            app_resource.delete_app_master_assign_role({
-                appId: appId,
-                userId: userId
-            }, function (result) {
-                d.resolve(result);
+            loadCurrentUserId().then(function (operator) {
+                app_resource.delete_app_master_assign_role({
+                    appId: appId,
+                    userId: userId,
+                    operator: operator
+                }, function (result) {
+                    d.resolve(result);
+                }, function (result) {
+                    d.reject(result);
+                });
             }, function (result) {
                 d.reject(result);
             });

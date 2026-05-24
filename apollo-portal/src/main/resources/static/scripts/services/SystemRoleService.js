@@ -14,57 +14,85 @@
  * limitations under the License.
  *
  */
-appService.service('SystemRoleService', ['$resource', '$q', 'AppUtil', function ($resource, $q,AppUtil) {
+appService.service('SystemRoleService', ['$resource', '$q', 'AppUtil', 'UserService', function ($resource, $q, AppUtil, UserService) {
     var system_role_service = $resource('', {}, {
         add_create_application_role: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/system/role/createApplication'
+            url: AppUtil.prefixPath() + '/openapi/v1/system/roles/create-application'
         },
         delete_create_application_role: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/system/role/createApplication/:userId'
+            url: AppUtil.prefixPath() + '/openapi/v1/system/roles/create-application'
         },
         get_create_application_role_users: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/system/role/createApplication',
+            url: AppUtil.prefixPath() + '/openapi/v1/system/roles/create-application/role-users',
             isArray: true
         },
         has_open_manage_app_master_role_limit: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/system/role/manageAppMaster'
+            url: AppUtil.prefixPath() + '/openapi/v1/system/role/manage-app-master'
         }
     });
+
+    var current_user_promise;
+
+    function loadCurrentUserId() {
+        if (!current_user_promise) {
+            current_user_promise = UserService.load_user().then(function (user) {
+                return user.userId;
+            }, function (result) {
+                current_user_promise = null;
+                return $q.reject(result);
+            });
+        }
+        return current_user_promise;
+    }
+
     return {
         add_create_application_role: function (userId) {
             var finished = false;
             var d = $q.defer();
-            system_role_service.add_create_application_role([
-                   userId
-                ],
-                function (result) {
-                    finished = true;
-                    d.resolve(result);
-                },
-                function (result) {
-                    finished = true;
-                    d.reject(result);
-                });
+            loadCurrentUserId().then(function (operator) {
+                system_role_service.add_create_application_role({
+                        operator: operator
+                    }, [
+                        userId
+                    ],
+                    function (result) {
+                        finished = true;
+                        d.resolve(result);
+                    },
+                    function (result) {
+                        finished = true;
+                        d.reject(result);
+                    });
+            }, function (result) {
+                finished = true;
+                d.reject(result);
+            });
             return d.promise;
         },
         delete_create_application_role: function (userId) {
             var finished = false;
             var d = $q.defer();
-            system_role_service.delete_create_application_role({
-                    "userId" : userId
-                },
-                function (result) {
-                    finished = true;
-                    d.resolve(result);
-                },
-                function (result) {
-                    finished = true;
-                    d.reject(result);
-                });
+            loadCurrentUserId().then(function (operator) {
+                system_role_service.delete_create_application_role({
+                        userId: userId,
+                        operator: operator
+                    },
+                    function (result) {
+                        finished = true;
+                        d.resolve(result);
+                    },
+                    function (result) {
+                        finished = true;
+                        d.reject(result);
+                    });
+            }, function (result) {
+                finished = true;
+                d.reject(result);
+            });
             return d.promise;
         },
         get_create_application_role_users: function () {

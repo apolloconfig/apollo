@@ -157,7 +157,7 @@ public class ConsumerAuthenticationFilterTest {
       }
     };
 
-    int realQps = qps + 3;
+    int realQps = qps * 3;
     executeWithQps(realQps, task, durationInSeconds);
 
     int leastTimes = qps * durationInSeconds;
@@ -201,6 +201,14 @@ public class ConsumerAuthenticationFilterTest {
     }
 
     executor.shutdown();
+    try {
+      if (!executor.awaitTermination(durationInSeconds + 5, TimeUnit.SECONDS)) {
+        throw new RuntimeException("Timed out waiting for rate limit tasks to finish");
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
+    }
   }
 
 }

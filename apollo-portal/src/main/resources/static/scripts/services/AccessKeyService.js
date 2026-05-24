@@ -14,30 +14,56 @@
  * limitations under the License.
  *
  */
-appService.service('AccessKeyService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
+appService.service('AccessKeyService', ['$resource', '$q', 'AppUtil', 'UserService', function ($resource, $q, AppUtil, UserService) {
     var access_key_resource = $resource('', {}, {
         load_access_keys: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/accesskeys'
         },
         create_access_key: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/accesskeys'
         },
         remove_access_key: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys/:id'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/accesskeys/:id'
         },
         enable_access_key: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys/:id/enable?mode=:mode'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/accesskeys/:id/activation'
         },
         disable_access_key: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/accesskeys/:id/disable'
+            url: AppUtil.prefixPath() + '/openapi/v1/apps/:appId/envs/:env/accesskeys/:id/deactivation'
         }
     });
+
+    var current_user_promise;
+
+    function loadCurrentUserId() {
+        if (!current_user_promise) {
+            current_user_promise = UserService.load_user().then(function (user) {
+                return user.userId;
+            }, function (result) {
+                current_user_promise = null;
+                return $q.reject(result);
+            });
+        }
+        return current_user_promise;
+    }
+
+    function resolveOperator(operator) {
+        if (operator) {
+            return $q.when(operator);
+        }
+        return loadCurrentUserId();
+    }
+
+    function withOperator(operator, callback) {
+        return resolveOperator(operator).then(callback);
+    }
+
     return {
         load_access_keys: function (appId, env) {
             var d = $q.defer();
@@ -54,58 +80,78 @@ appService.service('AccessKeyService', ['$resource', '$q', 'AppUtil', function (
         },
         create_access_key: function (appId, env, user) {
             var d = $q.defer();
-            access_key_resource.create_access_key({
+            withOperator(user, function (operator) {
+                access_key_resource.create_access_key({
                     appId: appId,
-                    env: env
-                }, { dataChangeCreatedBy: user },
-                function (result) {
-                    d.resolve(result);
-                }, function (result) {
-                    d.reject(result);
-                });
+                    env: env,
+                    operator: operator
+                }, {},
+                    function (result) {
+                        d.resolve(result);
+                    }, function (result) {
+                        d.reject(result);
+                    });
+            }).catch(function (result) {
+                d.reject(result);
+            });
             return d.promise;
         },
         remove_access_key: function (appId, env, id) {
             var d = $q.defer();
-            access_key_resource.remove_access_key({
+            withOperator(null, function (operator) {
+                access_key_resource.remove_access_key({
                     appId: appId,
                     env: env,
-                    id: id
+                    id: id,
+                    operator: operator
                 },
-                function (result) {
-                    d.resolve(result);
-                }, function (result) {
-                    d.reject(result);
-                });
+                    function (result) {
+                        d.resolve(result);
+                    }, function (result) {
+                        d.reject(result);
+                    });
+            }).catch(function (result) {
+                d.reject(result);
+            });
             return d.promise;
         },
         enable_access_key: function (appId, env, id, mode) {
             var d = $q.defer();
-            access_key_resource.enable_access_key({
+            withOperator(null, function (operator) {
+                access_key_resource.enable_access_key({
                     appId: appId,
                     env: env,
                     id: id,
-                    mode: mode
+                    mode: mode,
+                    operator: operator
                 }, {},
-                function (result) {
-                    d.resolve(result);
-                }, function (result) {
-                    d.reject(result);
-                });
+                    function (result) {
+                        d.resolve(result);
+                    }, function (result) {
+                        d.reject(result);
+                    });
+            }).catch(function (result) {
+                d.reject(result);
+            });
             return d.promise;
         },
         disable_access_key: function (appId, env, id) {
             var d = $q.defer();
-            access_key_resource.disable_access_key({
+            withOperator(null, function (operator) {
+                access_key_resource.disable_access_key({
                     appId: appId,
                     env: env,
-                    id: id
+                    id: id,
+                    operator: operator
                 }, {},
-                function (result) {
-                    d.resolve(result);
-                }, function (result) {
-                    d.reject(result);
-                });
+                    function (result) {
+                        d.resolve(result);
+                    }, function (result) {
+                        d.reject(result);
+                    });
+            }).catch(function (result) {
+                d.reject(result);
+            });
             return d.promise;
         }
     }

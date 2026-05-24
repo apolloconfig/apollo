@@ -24,6 +24,7 @@ const {
   clearNamespaceRoleViaPortalApi,
   assignNamespaceRoleViaUi,
   revokeNamespaceRoleViaUi,
+  exerciseAccessKeyViaUi,
   openConfigPage,
   createNamespaceItem,
   createBranchNamespaceItem,
@@ -119,6 +120,14 @@ test.describe.serial('@regression Apollo Portal high-priority user-guide scenari
       userId: USERNAME,
       env: modifyRoleEnv,
     });
+  });
+
+  test('access key page uses OpenAPI for lifecycle operations @regression', async ({ page }) => {
+    const appId = generateUniqueId('e2e-ak-');
+
+    await login(page);
+    await createAppViaUi(page, appId);
+    await exerciseAccessKeyViaUi(page, appId);
   });
 
   test('text mode edit and publish are readable from config service @regression', async ({ page, request }) => {

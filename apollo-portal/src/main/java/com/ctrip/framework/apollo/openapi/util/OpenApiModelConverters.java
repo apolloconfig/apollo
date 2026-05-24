@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.util;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
@@ -31,7 +32,11 @@ import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenClusterNamespaceRoleUserDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
@@ -45,21 +50,30 @@ import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceExtendDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceIdentifier;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceTextModel;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceUsageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.model.OpenPermissionConditionDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseChangeDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenUserInfoDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
+import com.ctrip.framework.apollo.portal.entity.vo.AppRolesAssignedUsers;
+import com.ctrip.framework.apollo.portal.entity.vo.ClusterNamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
+import com.ctrip.framework.apollo.portal.entity.vo.NamespaceEnvRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
+import com.ctrip.framework.apollo.portal.entity.vo.NamespaceRolesAssignedUsers;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
+import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.entity.vo.Change;
 import com.google.common.base.Preconditions;
@@ -68,6 +82,7 @@ import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -515,6 +530,87 @@ public final class OpenApiModelConverters {
     }
     return clusters.stream().map(OpenApiModelConverters::fromClusterDTO)
         .collect(Collectors.toList());
+  }
+  // endregion
+
+  // region Permission and access key conversions
+  public static OpenAccessKeyDTO fromAccessKeyDTO(final AccessKeyDTO accessKey) {
+    Preconditions.checkArgument(accessKey != null);
+    return BeanUtils.transform(OpenAccessKeyDTO.class, accessKey);
+  }
+
+  public static List<OpenAccessKeyDTO> fromAccessKeyDTOs(final List<AccessKeyDTO> accessKeys) {
+    if (CollectionUtils.isEmpty(accessKeys)) {
+      return Collections.emptyList();
+    }
+    return accessKeys.stream().map(OpenApiModelConverters::fromAccessKeyDTO)
+        .collect(Collectors.toList());
+  }
+
+  public static OpenPermissionConditionDTO fromPermissionCondition(
+      final PermissionCondition condition) {
+    Preconditions.checkArgument(condition != null);
+    OpenPermissionConditionDTO result = new OpenPermissionConditionDTO();
+    result.setHasPermission(condition.hasPermission());
+    return result;
+  }
+
+  public static OpenUserInfoDTO fromUserInfo(final UserInfo userInfo) {
+    Preconditions.checkArgument(userInfo != null);
+    return BeanUtils.transform(OpenUserInfoDTO.class, userInfo);
+  }
+
+  public static List<OpenUserInfoDTO> fromUserInfos(final Set<UserInfo> userInfos) {
+    if (CollectionUtils.isEmpty(userInfos)) {
+      return Collections.emptyList();
+    }
+    return userInfos.stream()
+        .sorted(Comparator.comparing(UserInfo::getUserId, Comparator.nullsFirst(String::compareTo)))
+        .map(OpenApiModelConverters::fromUserInfo).collect(Collectors.toList());
+  }
+
+  public static OpenAppRoleUserDTO fromAppRolesAssignedUsers(
+      final AppRolesAssignedUsers assignedUsers) {
+    Preconditions.checkArgument(assignedUsers != null);
+    OpenAppRoleUserDTO result = new OpenAppRoleUserDTO();
+    result.setAppId(assignedUsers.getAppId());
+    result.setMasterUsers(fromUserInfos(assignedUsers.getMasterUsers()));
+    return result;
+  }
+
+  public static OpenNamespaceRoleUserDTO fromNamespaceRolesAssignedUsers(
+      final NamespaceRolesAssignedUsers assignedUsers) {
+    Preconditions.checkArgument(assignedUsers != null);
+    OpenNamespaceRoleUserDTO result = new OpenNamespaceRoleUserDTO();
+    result.setAppId(assignedUsers.getAppId());
+    result.setNamespaceName(assignedUsers.getNamespaceName());
+    result.setModifyRoleUsers(fromUserInfos(assignedUsers.getModifyRoleUsers()));
+    result.setReleaseRoleUsers(fromUserInfos(assignedUsers.getReleaseRoleUsers()));
+    return result;
+  }
+
+  public static OpenEnvNamespaceRoleUserDTO fromNamespaceEnvRolesAssignedUsers(
+      final NamespaceEnvRolesAssignedUsers assignedUsers) {
+    Preconditions.checkArgument(assignedUsers != null);
+    OpenEnvNamespaceRoleUserDTO result = new OpenEnvNamespaceRoleUserDTO();
+    result.setAppId(assignedUsers.getAppId());
+    result.setNamespaceName(assignedUsers.getNamespaceName());
+    result.setModifyRoleUsers(fromUserInfos(assignedUsers.getModifyRoleUsers()));
+    result.setReleaseRoleUsers(fromUserInfos(assignedUsers.getReleaseRoleUsers()));
+    result.setEnv(assignedUsers.getEnv().getName());
+    return result;
+  }
+
+  public static OpenClusterNamespaceRoleUserDTO fromClusterNamespaceRolesAssignedUsers(
+      final ClusterNamespaceRolesAssignedUsers assignedUsers) {
+    Preconditions.checkArgument(assignedUsers != null);
+    OpenClusterNamespaceRoleUserDTO result = new OpenClusterNamespaceRoleUserDTO();
+    result.setAppId(assignedUsers.getAppId());
+    result.setEnv(assignedUsers.getEnv());
+    result.setCluster(assignedUsers.getCluster());
+    result.setModifyRoleUsers(fromUserInfos(assignedUsers.getModifyRoleUsers()));
+    result.setReleaseRoleUsers(fromUserInfos(assignedUsers.getReleaseRoleUsers()));
+    return result;
   }
   // endregion
 

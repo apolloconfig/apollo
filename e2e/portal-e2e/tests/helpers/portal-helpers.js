@@ -358,8 +358,8 @@ async function clearNamespaceRoleViaPortalApi(page, appId, namespaceName, option
   const envPath = env ? encodePathSegment(env) : '';
   const userQuery = encodePathSegment(userId);
   const path = env
-    ? `/apps/${appPath}/envs/${envPath}/namespaces/${namespacePath}/roles/${roleType}?user=${userQuery}`
-    : `/apps/${appPath}/namespaces/${namespacePath}/roles/${roleType}?user=${userQuery}`;
+    ? `/openapi/v1/apps/${appPath}/envs/${envPath}/namespaces/${namespacePath}/roles/${roleType}?userId=${userQuery}`
+    : `/openapi/v1/apps/${appPath}/namespaces/${namespacePath}/roles/${roleType}?userId=${userQuery}`;
   const response = await page.context().request.delete(path);
   expect([200, 204, 400, 404]).toContain(response.status());
 }
@@ -436,9 +436,10 @@ async function assignNamespaceRoleViaUi(page, appId, namespaceName, options = {}
     page,
     'POST',
     [
-      `/apps/${appId}/`,
+      `/openapi/v1/apps/${appId}/`,
       '/namespaces/',
       `/roles/${roleType}`,
+      `userId=${encodePathSegment(userId)}`,
       ...(targetEnv ? [`/envs/${targetEnv}/`] : []),
     ]
   );
@@ -516,9 +517,10 @@ async function assignNamespaceRoleViaUiBySearch(page, appId, namespaceName, opti
     page,
     'POST',
     [
-      `/apps/${appId}/`,
+      `/openapi/v1/apps/${appId}/`,
       '/namespaces/',
       `/roles/${roleType}`,
+      `userId=${encodePathSegment(selectedUserId)}`,
       ...(targetEnv ? [`/envs/${targetEnv}/`] : []),
     ]
   );
@@ -572,9 +574,10 @@ async function revokeNamespaceRoleViaUi(page, appId, namespaceName, options = {}
     page,
     'DELETE',
     [
-      `/apps/${appId}/`,
+      `/openapi/v1/apps/${appId}/`,
       '/namespaces/',
       `/roles/${roleType}`,
+      `userId=${encodePathSegment(userId)}`,
       ...(env ? [`/envs/${env}/`] : []),
     ],
     [200, 204, 400, 404]
@@ -586,6 +589,91 @@ async function revokeNamespaceRoleViaUi(page, appId, namespaceName, options = {}
   ]);
 
   await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
+}
+
+async function clickWithAcceptedDialog(page, locator) {
+  const dialogPromise = page.waitForEvent('dialog', { timeout: 30000 })
+    .then((dialog) => dialog.accept());
+  await locator.click();
+  await dialogPromise;
+}
+
+async function exerciseAccessKeyViaUi(page, appId, options = {}) {
+  const { env = DEFAULT_ENV } = options;
+  const encodedAppId = encodePathSegment(appId);
+  const encodedEnv = encodePathSegment(env);
+  await page.goto(`/app/access_key.html?#/appid=${encodedAppId}`, {
+    waitUntil: 'domcontentloaded',
+  });
+  await page.locator('.apollo-container[ng-controller="AccessKeyController"]').waitFor({
+    state: 'visible',
+    timeout: 60000,
+  });
+
+  const envSelect = page.locator('select[ng-model="addAccessKeySelectedEnv"]').first();
+  await envSelect.waitFor({ state: 'visible', timeout: 60000 });
+  await envSelect.selectOption(env);
+
+  const createResponse = waitForApiResponse(
+    page,
+    'POST',
+    `/openapi/v1/apps/${encodedAppId}/envs/${encodedEnv}/accesskeys`
+  );
+  await page.locator('form[ng-submit="create()"] button[type="submit"]').first().click();
+  const created = await createResponse;
+  const createdAccessKey = await created.json();
+  expect(createdAccessKey.id).toBeTruthy();
+  expect(createdAccessKey.secret).toBeTruthy();
+
+  const accessKeyRow = () => page.locator('tr[ng-repeat="accessKey in accessKeys[env]"]')
+    .filter({ hasText: createdAccessKey.secret })
+    .first();
+  await accessKeyRow().waitFor({ state: 'visible', timeout: 60000 });
+
+  const activationPath =
+    `/openapi/v1/apps/${encodedAppId}/envs/${encodedEnv}/accesskeys/${createdAccessKey.id}/activation`;
+  const enableResponse = waitForApiResponseByFragments(page, 'PUT', [
+    activationPath,
+    'mode=0',
+  ]);
+  await clickWithAcceptedDialog(
+    page,
+    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 0)"]').first()
+  );
+  await enableResponse;
+
+  const observeResponse = waitForApiResponseByFragments(page, 'PUT', [
+    activationPath,
+    'mode=1',
+  ]);
+  await clickWithAcceptedDialog(
+    page,
+    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 1)"]').first()
+  );
+  await observeResponse;
+
+  const disableResponse = waitForApiResponse(
+    page,
+    'PUT',
+    `/openapi/v1/apps/${encodedAppId}/envs/${encodedEnv}/accesskeys/${createdAccessKey.id}/deactivation`
+  );
+  await clickWithAcceptedDialog(
+    page,
+    accessKeyRow().locator('a[ng-click="disable(accessKey.id, env)"]').first()
+  );
+  await disableResponse;
+
+  const deleteResponse = waitForApiResponse(
+    page,
+    'DELETE',
+    `/openapi/v1/apps/${encodedAppId}/envs/${encodedEnv}/accesskeys/${createdAccessKey.id}`
+  );
+  await clickWithAcceptedDialog(
+    page,
+    accessKeyRow().locator('a[ng-click="remove(accessKey.id, env)"]').first()
+  );
+  await deleteResponse;
+  await expect(accessKeyRow()).toBeHidden({ timeout: 60000 });
 }
 
 async function openConfigPage(page, appId, options = {}) {
@@ -1510,6 +1598,7 @@ module.exports = {
   assignNamespaceRoleViaUi,
   assignNamespaceRoleViaUiBySearch,
   revokeNamespaceRoleViaUi,
+  exerciseAccessKeyViaUi,
   openConfigPage,
   switchNamespaceView,
   editNamespaceTextViaUi,
