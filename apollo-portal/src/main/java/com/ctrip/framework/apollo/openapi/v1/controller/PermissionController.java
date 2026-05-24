@@ -78,6 +78,7 @@ public class PermissionController implements PermissionManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
+  @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignClusterNamespaceRoleToUser")
   public ResponseEntity<Void> assignClusterNamespaceRoleToUser(String appId, String env,
       String clusterName, String roleType, String userId, String operator) {
     permissionOpenApiService.assignClusterNamespaceRoleToUser(appId, env, clusterName, roleType,
@@ -184,6 +185,7 @@ public class PermissionController implements PermissionManagementApi {
   }
 
   @Override
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(String appId, String namespaceName,
       String operator) {
@@ -193,6 +195,7 @@ public class PermissionController implements PermissionManagementApi {
   }
 
   @Override
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initClusterNamespacePermission")
   public ResponseEntity<Void> initClusterNamespacePermission(String appId, String env,
       String clusterName, String operator) {
@@ -218,6 +221,7 @@ public class PermissionController implements PermissionManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
+  @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeClusterNamespaceRoleFromUser")
   public ResponseEntity<Void> removeClusterNamespaceRoleFromUser(String appId, String env,
       String clusterName, String roleType, String userId, String operator) {
     permissionOpenApiService.removeClusterNamespaceRoleFromUser(appId, env, clusterName, roleType,

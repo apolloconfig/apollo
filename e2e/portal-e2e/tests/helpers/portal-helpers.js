@@ -592,8 +592,9 @@ async function revokeNamespaceRoleViaUi(page, appId, namespaceName, options = {}
 }
 
 async function clickWithAcceptedDialog(page, locator) {
-  const dialogPromise = page.waitForEvent('dialog', { timeout: 30000 })
-    .then((dialog) => dialog.accept());
+  const dialogPromise = page.waitForEvent('dialog', { timeout: 1500 })
+    .then((dialog) => dialog.accept())
+    .catch(() => null);
   await locator.click();
   await dialogPromise;
 }

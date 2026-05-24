@@ -16,7 +16,9 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,6 +48,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * Low-level parameter binding tests for {@link AccessKeyController}.
+ */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -108,7 +113,8 @@ public class AccessKeyControllerParamBindLowLevelTest {
     mockMvc.perform(put("/openapi/v1/apps/{appId}/envs/{env}/accesskeys/{accessKeyId}/deactivation",
         APP_ID, ENV, ACCESS_KEY_ID)).andExpect(status().isBadRequest());
 
-    verify(accessKeyOpenApiService, never()).disableAccessKey(APP_ID, ENV, ACCESS_KEY_ID, null);
+    verify(accessKeyOpenApiService, never()).disableAccessKey(eq(APP_ID), eq(ENV),
+        eq(ACCESS_KEY_ID), any());
   }
 
   @Test

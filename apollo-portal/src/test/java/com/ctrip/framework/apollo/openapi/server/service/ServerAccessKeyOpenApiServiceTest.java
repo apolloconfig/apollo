@@ -36,6 +36,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * Unit tests for {@link ServerAccessKeyOpenApiService}.
+ */
 @ExtendWith(MockitoExtension.class)
 class ServerAccessKeyOpenApiServiceTest {
 
