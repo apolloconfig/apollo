@@ -68,6 +68,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 
+/**
+ * Tests the Portal OpenAPI release, branch, and instance controllers against generated contracts
+ * and legacy token-client compatibility requirements.
+ */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ReleaseBranchInstanceControllerTest {
