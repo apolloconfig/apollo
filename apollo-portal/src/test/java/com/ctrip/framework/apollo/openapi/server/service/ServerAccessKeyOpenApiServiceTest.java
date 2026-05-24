@@ -18,12 +18,14 @@ package com.ctrip.framework.apollo.openapi.server.service;
 
 import static com.ctrip.framework.apollo.common.constants.AccessKeyMode.FILTER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AccessKeyService;
@@ -77,5 +79,11 @@ class ServerAccessKeyOpenApiServiceTest {
     service.disableAccessKey("some-app", "DEV", 100L, "operator");
 
     verify(accessKeyService).disable(Env.DEV, "some-app", 100L, "operator");
+  }
+
+  @Test
+  void findAccessKeysShouldRejectInvalidEnv() {
+    assertThatThrownBy(() -> service.findAccessKeys("some-app", "invalid"))
+        .isInstanceOf(BadRequestException.class).hasMessageContaining("invalid env format:invalid");
   }
 }

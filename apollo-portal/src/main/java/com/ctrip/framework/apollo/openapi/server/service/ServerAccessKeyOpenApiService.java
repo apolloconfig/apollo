@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.server.service;
 import static com.ctrip.framework.apollo.common.constants.AccessKeyMode.FILTER;
 
 import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.utils.UniqueKeyGenerator;
 import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
@@ -42,7 +43,7 @@ public class ServerAccessKeyOpenApiService implements AccessKeyOpenApiService {
   @Override
   public List<OpenAccessKeyDTO> findAccessKeys(String appId, String env) {
     return OpenApiModelConverters
-        .fromAccessKeyDTOs(accessKeyService.findByAppId(Env.valueOf(env), appId));
+        .fromAccessKeyDTOs(accessKeyService.findByAppId(normalizeEnv(env), appId));
   }
 
   @Override
@@ -53,23 +54,31 @@ public class ServerAccessKeyOpenApiService implements AccessKeyOpenApiService {
     accessKey.setDataChangeCreatedBy(operator);
     accessKey.setDataChangeLastModifiedBy(operator);
     return OpenApiModelConverters
-        .fromAccessKeyDTO(accessKeyService.createAccessKey(Env.valueOf(env), accessKey));
+        .fromAccessKeyDTO(accessKeyService.createAccessKey(normalizeEnv(env), accessKey));
   }
 
   @Override
   public void deleteAccessKey(String appId, String env, Long accessKeyId, String operator) {
-    accessKeyService.deleteAccessKey(Env.valueOf(env), appId, accessKeyId, operator);
+    accessKeyService.deleteAccessKey(normalizeEnv(env), appId, accessKeyId, operator);
   }
 
   @Override
   public void enableAccessKey(String appId, String env, Long accessKeyId, Integer mode,
       String operator) {
     int resolvedMode = mode == null ? FILTER : mode;
-    accessKeyService.enable(Env.valueOf(env), appId, accessKeyId, resolvedMode, operator);
+    accessKeyService.enable(normalizeEnv(env), appId, accessKeyId, resolvedMode, operator);
   }
 
   @Override
   public void disableAccessKey(String appId, String env, Long accessKeyId, String operator) {
-    accessKeyService.disable(Env.valueOf(env), appId, accessKeyId, operator);
+    accessKeyService.disable(normalizeEnv(env), appId, accessKeyId, operator);
+  }
+
+  private Env normalizeEnv(String env) {
+    Env transformedEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN == transformedEnv) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    return transformedEnv;
   }
 }
