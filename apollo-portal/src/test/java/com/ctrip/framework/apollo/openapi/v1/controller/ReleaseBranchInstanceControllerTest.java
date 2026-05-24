@@ -120,7 +120,8 @@ class ReleaseBranchInstanceControllerTest {
     namespaceBranchController =
         new NamespaceBranchController(unifiedPermissionValidator, releaseService,
             namespaceBranchService, userService, userInfoHolder, portalConfig, publisher);
-    instanceController = new InstanceController(instanceService);
+    instanceController =
+        new InstanceController(instanceService, releaseService, unifiedPermissionValidator);
 
     UserInfo userInfo = userInfo(PORTAL_USER);
     when(userInfoHolder.getUser()).thenReturn(userInfo);
@@ -507,7 +508,38 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void getByNamespaceShouldRejectConsumerWithoutNamespacePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(
+        () -> instanceController.getByNamespace(ENV, APP_ID, CLUSTER, NAMESPACE, 0, 20, null))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verifyNoInteractions(instanceService);
+  }
+
+  @Test
+  void getByNamespaceShouldReturnEmptyPageWhenPortalUserShouldHideConfig() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    ResponseEntity<OpenInstancePageDTO> response =
+        instanceController.getByNamespace(ENV, APP_ID, CLUSTER, NAMESPACE, 1, 10, "client-app");
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getInstances()).isEmpty();
+    assertThat(response.getBody().getPage()).isEqualTo(1);
+    assertThat(response.getBody().getSize()).isEqualTo(10);
+    assertThat(response.getBody().getTotal()).isZero();
+    verifyNoInteractions(instanceService);
+  }
+
+  @Test
   void getByReleaseShouldDefaultMissingPageAndSize() {
+    when(releaseService.findReleaseById(Env.DEV, 10L)).thenReturn(release(10L));
     when(instanceService.getByRelease(Env.DEV, 10L, 0, 20)).thenReturn(instancePage());
 
     ResponseEntity<OpenInstancePageDTO> response =
@@ -533,12 +565,80 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void getByReleaseShouldRejectConsumerWithoutReleasePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(releaseService.findReleaseById(Env.DEV, 10L)).thenReturn(release(10L));
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(() -> instanceController.getByRelease(ENV, 10L, 0, 20))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(instanceService, never()).getByRelease(Env.DEV, 10L, 0, 20);
+  }
+
+  @Test
+  void getByReleasesNotInShouldRejectConsumerWithoutNamespacePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(() -> instanceController.getByReleasesAndNamespaceNotIn(ENV, APP_ID, CLUSTER,
+        NAMESPACE, "1,2")).isInstanceOf(AccessDeniedException.class);
+
+    verify(instanceService, never()).getByReleasesNotIn(eq(Env.DEV), eq(APP_ID), eq(CLUSTER),
+        eq(NAMESPACE), any());
+  }
+
+  @Test
+  void getByReleasesNotInShouldReturnEmptyListWhenPortalUserShouldHideConfig() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    ResponseEntity<java.util.List<OpenInstanceDTO>> response =
+        instanceController.getByReleasesAndNamespaceNotIn(ENV, APP_ID, CLUSTER, NAMESPACE, "1,2");
+
+    assertThat(response.getBody()).isEmpty();
+    verify(instanceService, never()).getByReleasesNotIn(eq(Env.DEV), eq(APP_ID), eq(CLUSTER),
+        eq(NAMESPACE), any());
+  }
+
+  @Test
   void getByReleasesNotInShouldRejectInvalidReleaseIds() {
     assertThatThrownBy(() -> instanceController.getByReleasesAndNamespaceNotIn(ENV, APP_ID, CLUSTER,
         NAMESPACE, "1,not-a-number")).isInstanceOf(BadRequestException.class);
 
     verify(instanceService, never()).getByReleasesNotIn(eq(Env.DEV), eq(APP_ID), eq(CLUSTER),
         eq(NAMESPACE), any());
+  }
+
+  @Test
+  void getInstanceCountByNamespaceShouldRejectConsumerWithoutNamespacePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(
+        () -> instanceController.getInstanceCountByNamespace(ENV, APP_ID, CLUSTER, NAMESPACE))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(instanceService, never()).getInstanceCountByNamespace(APP_ID, Env.DEV, CLUSTER,
+        NAMESPACE);
+  }
+
+  @Test
+  void getInstanceCountByNamespaceShouldReturnZeroWhenPortalUserShouldHideConfig() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    ResponseEntity<Integer> response =
+        instanceController.getInstanceCountByNamespace(ENV, APP_ID, CLUSTER, NAMESPACE);
+
+    assertThat(response.getBody()).isZero();
+    verify(instanceService, never()).getInstanceCountByNamespace(APP_ID, Env.DEV, CLUSTER,
+        NAMESPACE);
   }
 
   private NamespaceReleaseDTO releaseRequest(String title, String releasedBy,

@@ -16,18 +16,29 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.common.dto.InstanceDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.api.InstanceManagementApi;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
 import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.InstanceService;
+import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.google.common.base.Splitter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -41,22 +52,36 @@ public class InstanceController implements InstanceManagementApi {
       Splitter.on(',').trimResults().omitEmptyStrings();
 
   private final InstanceService instanceService;
+  private final ReleaseService releaseService;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public InstanceController(final InstanceService instanceService) {
+  public InstanceController(final InstanceService instanceService,
+      final ReleaseService releaseService,
+      final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.instanceService = instanceService;
+    this.releaseService = releaseService;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @Override
   public ResponseEntity<OpenInstancePageDTO> getByNamespace(String env, String appId,
       String clusterName, String namespaceName, Integer page, Integer size, String instanceAppId) {
-    return ResponseEntity.ok(OpenApiModelConverters
-        .fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env), appId, clusterName,
-            namespaceName, instanceAppId, resolvePage(page), resolvePageSize(size))));
+    int resolvedPage = resolvePage(page);
+    int resolvedSize = resolvePageSize(size);
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(emptyInstancePage(resolvedPage, resolvedSize));
+    }
+    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
+    return ResponseEntity.ok(
+        OpenApiModelConverters.fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env),
+            appId, clusterName, namespaceName, instanceAppId, resolvedPage, resolvedSize)));
   }
 
   @Override
   public ResponseEntity<OpenInstancePageDTO> getByRelease(String env, Long releaseId, Integer page,
       Integer size) {
+    ReleaseDTO release = findReleaseOrThrow(Env.valueOf(env), releaseId);
+    checkReleaseReadAllowed(env, release);
     return ResponseEntity.ok(OpenApiModelConverters.fromInstancePageDTO(instanceService
         .getByRelease(Env.valueOf(env), releaseId, resolvePage(page), resolvePageSize(size))));
   }
@@ -64,6 +89,10 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<List<OpenInstanceDTO>> getByReleasesAndNamespaceNotIn(String env,
       String appId, String clusterName, String namespaceName, String releaseIds) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
+    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
     if (releaseIds == null || releaseIds.trim().isEmpty()) {
       throw new BadRequestException("releaseIds should not be empty");
     }
@@ -85,8 +114,50 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<Integer> getInstanceCountByNamespace(String env, String appId,
       String clusterName, String namespaceName) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(0);
+    }
+    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env),
         clusterName, namespaceName));
+  }
+
+  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName);
+  }
+
+  private void checkReleaseNamespaceReadAllowed(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+  }
+
+  private ReleaseDTO findReleaseOrThrow(Env env, long releaseId) {
+    ReleaseDTO release = releaseService.findReleaseById(env, releaseId);
+    if (release == null) {
+      throw NotFoundException.releaseNotFound(releaseId);
+    }
+    return release;
+  }
+
+  private void checkReleaseReadAllowed(String env, ReleaseDTO release) {
+    if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
+        release.getNamespaceName())) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    checkReleaseNamespaceReadAllowed(release.getAppId(), env, release.getClusterName(),
+        release.getNamespaceName());
+  }
+
+  private OpenInstancePageDTO emptyInstancePage(int page, int size) {
+    return OpenApiModelConverters.fromInstancePageDTO(
+        new PageDTO<>(Collections.<InstanceDTO>emptyList(), PageRequest.of(page, size), 0L));
   }
 
   private int resolvePage(Integer page) {
