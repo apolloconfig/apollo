@@ -203,9 +203,11 @@ public class ConsumerAuthenticationFilterTest {
     executor.shutdown();
     try {
       if (!executor.awaitTermination(durationInSeconds + 5, TimeUnit.SECONDS)) {
+        executor.shutdownNow();
         throw new RuntimeException("Timed out waiting for rate limit tasks to finish");
       }
     } catch (InterruptedException e) {
+      executor.shutdownNow();
       Thread.currentThread().interrupt();
       throw new RuntimeException(e);
     }

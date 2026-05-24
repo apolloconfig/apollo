@@ -591,12 +591,21 @@ async function revokeNamespaceRoleViaUi(page, appId, namespaceName, options = {}
   await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
 }
 
-async function clickWithAcceptedDialog(page, locator) {
-  const dialogPromise = page.waitForEvent('dialog', { timeout: 1500 })
-    .then((dialog) => dialog.accept())
-    .catch(() => null);
-  await locator.click();
-  await dialogPromise;
+async function clickWithAcceptedDialog(page, locator, completionPromise) {
+  let dialogObserved = false;
+  const acceptDialog = (dialog) => {
+    dialogObserved = true;
+    return dialog.accept().catch(() => null);
+  };
+  page.once('dialog', acceptDialog);
+  try {
+    await locator.click();
+    await (completionPromise || page.waitForTimeout(1500));
+  } finally {
+    if (!dialogObserved) {
+      page.off('dialog', acceptDialog);
+    }
+  }
 }
 
 async function exerciseAccessKeyViaUi(page, appId, options = {}) {
@@ -639,7 +648,8 @@ async function exerciseAccessKeyViaUi(page, appId, options = {}) {
   ]);
   await clickWithAcceptedDialog(
     page,
-    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 0)"]').first()
+    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 0)"]').first(),
+    enableResponse
   );
   await enableResponse;
 
@@ -649,7 +659,8 @@ async function exerciseAccessKeyViaUi(page, appId, options = {}) {
   ]);
   await clickWithAcceptedDialog(
     page,
-    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 1)"]').first()
+    accessKeyRow().locator('a[ng-click="enable(accessKey.id, env, 1)"]').first(),
+    observeResponse
   );
   await observeResponse;
 
@@ -660,7 +671,8 @@ async function exerciseAccessKeyViaUi(page, appId, options = {}) {
   );
   await clickWithAcceptedDialog(
     page,
-    accessKeyRow().locator('a[ng-click="disable(accessKey.id, env)"]').first()
+    accessKeyRow().locator('a[ng-click="disable(accessKey.id, env)"]').first(),
+    disableResponse
   );
   await disableResponse;
 
@@ -671,7 +683,8 @@ async function exerciseAccessKeyViaUi(page, appId, options = {}) {
   );
   await clickWithAcceptedDialog(
     page,
-    accessKeyRow().locator('a[ng-click="remove(accessKey.id, env)"]').first()
+    accessKeyRow().locator('a[ng-click="remove(accessKey.id, env)"]').first(),
+    deleteResponse
   );
   await deleteResponse;
   await expect(accessKeyRow()).toBeHidden({ timeout: 60000 });

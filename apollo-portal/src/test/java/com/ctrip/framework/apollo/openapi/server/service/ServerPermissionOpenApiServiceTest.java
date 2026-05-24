@@ -92,16 +92,45 @@ class ServerPermissionOpenApiServiceTest {
   }
 
   @Test
-  void removeNamespaceRoleShouldRejectMissingTargetUser() {
+  void removeNamespaceRoleShouldAllowMissingTargetUserAndDelegateRoleName() {
+    String appId = "some-app";
+    String namespaceName = "application";
+    String roleType = PermissionType.MODIFY_NAMESPACE;
     String userId = "missing-user";
-    when(userService.findByUserId(userId)).thenReturn(null);
+    String operator = "operator";
+    String roleName = RoleUtils.buildNamespaceRoleName(appId, namespaceName, roleType);
 
-    assertThrows(BadRequestException.class, () -> service.removeNamespaceRoleFromUser("some-app",
-        "application", PermissionType.MODIFY_NAMESPACE, userId, "operator"));
+    service.removeNamespaceRoleFromUser(appId, namespaceName, roleType, userId, operator);
 
-    verify(rolePermissionService, never()).removeRoleFromUsers(RoleUtils
-        .buildNamespaceRoleName("some-app", "application", PermissionType.MODIFY_NAMESPACE),
-        Sets.newHashSet(userId), "operator");
+    verify(userService, never()).findByUserId(userId);
+    verify(rolePermissionService).removeRoleFromUsers(roleName, Sets.newHashSet(userId), operator);
+  }
+
+  @Test
+  void deleteCreateApplicationRoleShouldAllowMissingTargetUserAndDelegate() {
+    String userId = "missing-user";
+    String operator = "operator";
+
+    service.deleteCreateApplicationRoleFromUser(userId, operator);
+
+    verify(userService, never()).findByUserId(userId);
+    verify(rolePermissionService).removeRoleFromUsers(
+        SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME, Sets.newHashSet(userId), operator);
+  }
+
+  @Test
+  void removeManageAppMasterRoleShouldAllowMissingTargetUserAndDelegate() {
+    String appId = "some-app";
+    String userId = "missing-user";
+    String operator = "operator";
+
+    service.removeManageAppMasterRoleFromUser(appId, userId, operator);
+
+    verify(userService, never()).findByUserId(userId);
+    verify(roleInitializationService).initManageAppMasterRole(appId, operator);
+    verify(rolePermissionService).removeRoleFromUsers(
+        RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER),
+        Sets.newHashSet(userId), operator);
   }
 
   @Test

@@ -238,7 +238,7 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
 
   @Override
   public void deleteCreateApplicationRoleFromUser(String userId, String operator) {
-    checkUserExists(userId);
+    RequestPrecondition.checkArgumentsNotEmpty(userId);
     rolePermissionService.removeRoleFromUsers(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME,
         Sets.newHashSet(userId), operator);
   }
@@ -264,7 +264,7 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
 
   @Override
   public void removeManageAppMasterRoleFromUser(String appId, String userId, String operator) {
-    checkUserExists(userId);
+    RequestPrecondition.checkArgumentsNotEmpty(userId);
     roleInitializationService.initManageAppMasterRole(appId, operator);
     rolePermissionService.removeRoleFromUsers(
         RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER),
@@ -284,7 +284,7 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
   }
 
   private void assignRole(String roleName, String roleType, String userId, String operator) {
-    validateRoleMutation(roleType, userId);
+    validateRoleAssignment(roleType, userId);
     Set<String> assignedUsers =
         rolePermissionService.assignRoleToUsers(roleName, Sets.newHashSet(userId), operator);
     if (CollectionUtils.isEmpty(assignedUsers)) {
@@ -293,13 +293,17 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
   }
 
   private void removeRole(String roleName, String roleType, String userId, String operator) {
-    validateRoleMutation(roleType, userId);
+    validateRoleRemoval(roleType, userId);
     rolePermissionService.removeRoleFromUsers(roleName, Sets.newHashSet(userId), operator);
   }
 
-  private void validateRoleMutation(String roleType, String userId) {
-    RequestPrecondition.checkArgumentsNotEmpty(userId);
+  private void validateRoleAssignment(String roleType, String userId) {
+    validateRoleRemoval(roleType, userId);
     checkUserExists(userId);
+  }
+
+  private void validateRoleRemoval(String roleType, String userId) {
+    RequestPrecondition.checkArgumentsNotEmpty(userId);
     if (!RoleType.isValidRoleType(roleType)) {
       throw BadRequestException.invalidRoleTypeFormat(roleType);
     }
