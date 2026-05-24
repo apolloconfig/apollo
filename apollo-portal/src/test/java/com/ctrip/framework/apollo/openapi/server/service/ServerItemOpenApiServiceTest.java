@@ -29,7 +29,6 @@ import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO;
@@ -124,7 +123,7 @@ class ServerItemOpenApiServiceTest {
   @Test
   void batchUpdateItemsByTextShouldRejectMissingNamespace() {
     when(namespaceService.loadNamespaceBaseInfo(APP_ID, Env.valueOf(ENV), CLUSTER, NAMESPACE))
-        .thenReturn(null);
+        .thenThrow(BadRequestException.namespaceNotExists(APP_ID, CLUSTER, NAMESPACE));
 
     OpenNamespaceTextModel model = new OpenNamespaceTextModel();
     model.setFormat("properties");
@@ -132,7 +131,7 @@ class ServerItemOpenApiServiceTest {
 
     assertThatThrownBy(
         () -> service.batchUpdateItemsByText(APP_ID, ENV, CLUSTER, NAMESPACE, model, "operator"))
-        .isInstanceOf(NotFoundException.class);
+        .isInstanceOf(BadRequestException.class);
     verify(itemService, never()).updateConfigItemByText(any(), any());
   }
 

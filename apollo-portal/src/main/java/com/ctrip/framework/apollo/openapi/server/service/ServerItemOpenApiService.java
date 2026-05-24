@@ -152,9 +152,6 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
     namespaceTextModel.setOperator(operator);
     NamespaceDTO namespace =
         namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
-    if (namespace == null) {
-      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
-    }
     namespaceTextModel.setNamespaceId(namespace.getId());
     itemService.updateConfigItemByText(namespaceTextModel, operator);
   }
