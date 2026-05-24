@@ -15,36 +15,63 @@
  *
  */
 appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($resource, $q,AppUtil) {
+    function toLegacyReleaseChange(change) {
+        if (!change || change.entity) {
+            return change;
+        }
+        return {
+            type: change.changeType,
+            entity: {
+                firstEntity: {
+                    key: change.key,
+                    value: change.oldValue
+                },
+                secondEntity: {
+                    key: change.key,
+                    value: change.newValue
+                }
+            }
+        };
+    }
+
+    function adaptReleaseDiff(result) {
+        if (!result || !result.changes) {
+            return result;
+        }
+        result.changes = result.changes.map(toLegacyReleaseChange);
+        return result;
+    }
+
     var resource = $resource('', {}, {
         get: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/envs/:env/releases/:releaseId'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/releases/:releaseId'
         },
         find_all_releases: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/all',
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active',
             isArray: true
         },
         find_active_releases: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/active',
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active',
             isArray: true
         },
         compare: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/envs/:env/releases/compare'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/releases/comparison'
         },
         release: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases'
         },
         gray_release: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases'
         },
         rollback: {
             method: 'PUT',
-            url: AppUtil.prefixPath() + "/envs/:env/releases/:releaseId/rollback"
+            url: AppUtil.prefixPath() + "/openapi/v1/envs/:env/releases/:releaseId/rollback"
         }
     });
 
@@ -60,7 +87,7 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
                              releaseComment: comment,
                              isEmergencyPublish: isEmergencyPublish
                          }, function (result) {
-            d.resolve(result);
+            d.resolve(adaptReleaseDiff(result));
         }, function (result) {
             d.reject(result);
         });
@@ -93,7 +120,7 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
                          env: env,
                          releaseId: releaseId
                          }, function (result) {
-            d.resolve(result);
+            d.resolve(adaptReleaseDiff(result));
         }, function (result) {
             d.reject(result);
         });
@@ -164,7 +191,7 @@ appService.service('ReleaseService', ['$resource', '$q','AppUtil', function ($re
                              baseReleaseId: baseReleaseId,
                              toCompareReleaseId: toCompareReleaseId
                          }, function (result) {
-            d.resolve(result);
+            d.resolve(adaptReleaseDiff(result));
         }, function (result) {
             d.reject(result);
         });

@@ -16,22 +16,65 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import com.ctrip.framework.apollo.openapi.api.InstanceOpenApiService;
-import org.springframework.web.bind.annotation.*;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.openapi.api.InstanceManagementApi;
+import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.InstanceService;
+import com.google.common.base.Splitter;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController("openapiInstanceController")
-@RequestMapping("/openapi/v1/envs/{env}")
-public class InstanceController {
-  private final InstanceOpenApiService instanceOpenApiService;
+public class InstanceController implements InstanceManagementApi {
 
-  public InstanceController(InstanceOpenApiService instanceOpenApiService) {
-    this.instanceOpenApiService = instanceOpenApiService;
+  private static final Splitter RELEASE_ID_SPLITTER =
+      Splitter.on(',').trimResults().omitEmptyStrings();
+
+  private final InstanceService instanceService;
+
+  public InstanceController(final InstanceService instanceService) {
+    this.instanceService = instanceService;
   }
 
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/instances")
-  public int getInstanceCountByNamespace(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName) {
-    return this.instanceOpenApiService.getInstanceCountByNamespace(appId, env, clusterName,
-        namespaceName);
+  @Override
+  public ResponseEntity<OpenInstancePageDTO> getByNamespace(String env, String appId,
+      String clusterName, String namespaceName, Integer page, Integer size, String instanceAppId) {
+    return ResponseEntity.ok(
+        OpenApiModelConverters.fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env),
+            appId, clusterName, namespaceName, instanceAppId, page, size)));
+  }
+
+  @Override
+  public ResponseEntity<OpenInstancePageDTO> getByRelease(String env, Long releaseId, Integer page,
+      Integer size) {
+    return ResponseEntity.ok(OpenApiModelConverters.fromInstancePageDTO(
+        instanceService.getByRelease(Env.valueOf(env), releaseId, page, size)));
+  }
+
+  @Override
+  public ResponseEntity<List<OpenInstanceDTO>> getByReleasesAndNamespaceNotIn(String env,
+      String appId, String clusterName, String namespaceName, String releaseIds) {
+    Set<Long> releaseIdSet = RELEASE_ID_SPLITTER.splitToStream(releaseIds).map(Long::parseLong)
+        .collect(Collectors.toSet());
+    if (releaseIdSet.isEmpty()) {
+      throw new BadRequestException("releaseIds should not be empty");
+    }
+    return ResponseEntity.ok(OpenApiModelConverters.fromInstanceDTOs(instanceService
+        .getByReleasesNotIn(Env.valueOf(env), appId, clusterName, namespaceName, releaseIdSet)));
+  }
+
+  @Override
+  public ResponseEntity<Integer> getInstanceCountByNamespace(String env, String appId,
+      String clusterName, String namespaceName) {
+    return ResponseEntity.ok(instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env),
+        clusterName, namespaceName));
   }
 }

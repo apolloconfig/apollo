@@ -36,6 +36,7 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemExtendDTO;
@@ -47,8 +48,11 @@ import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceTextModel;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceUsageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseChangeDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
+import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
@@ -56,6 +60,8 @@ import com.ctrip.framework.apollo.portal.entity.vo.ItemDiffs;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.entity.vo.NamespaceUsage;
 import com.ctrip.framework.apollo.portal.entity.vo.Organization;
+import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
+import com.ctrip.framework.apollo.portal.entity.vo.Change;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -208,6 +214,38 @@ public final class OpenApiModelConverters {
     Map<String, String> configs = GSON.fromJson(release.getConfigurations(), TYPE);
     openReleaseDTO.setConfigurations(configs);
     return openReleaseDTO;
+  }
+
+  public static List<OpenReleaseDTO> fromReleaseDTOs(List<ReleaseDTO> releases) {
+    if (CollectionUtils.isEmpty(releases)) {
+      return Collections.emptyList();
+    }
+    return releases.stream().map(OpenApiModelConverters::fromReleaseDTO)
+        .collect(Collectors.toList());
+  }
+
+  public static OpenReleaseDiffDTO fromReleaseCompareResult(
+      ReleaseCompareResult releaseCompareResult) {
+    Preconditions.checkArgument(releaseCompareResult != null);
+    OpenReleaseDiffDTO result = new OpenReleaseDiffDTO();
+    if (CollectionUtils.isEmpty(releaseCompareResult.getChanges())) {
+      result.setChanges(Collections.emptyList());
+      return result;
+    }
+    result.setChanges(releaseCompareResult.getChanges().stream()
+        .map(OpenApiModelConverters::fromReleaseCompareChange).collect(Collectors.toList()));
+    return result;
+  }
+
+  private static OpenReleaseChangeDTO fromReleaseCompareChange(Change change) {
+    OpenReleaseChangeDTO result = new OpenReleaseChangeDTO();
+    result.setChangeType(change.getType().name());
+    KVEntity oldEntity = change.getEntity().getFirstEntity();
+    KVEntity newEntity = change.getEntity().getSecondEntity();
+    result.setKey(oldEntity == null ? newEntity.getKey() : oldEntity.getKey());
+    result.setOldValue(oldEntity == null ? null : oldEntity.getValue());
+    result.setNewValue(newEntity == null ? null : newEntity.getValue());
+    return result;
   }
 
   // endregion
@@ -438,6 +476,16 @@ public final class OpenApiModelConverters {
     }
     return instanceDTOs.stream().map(OpenApiModelConverters::fromInstanceDTO)
         .collect(Collectors.toList());
+  }
+
+  public static OpenInstancePageDTO fromInstancePageDTO(final PageDTO<InstanceDTO> page) {
+    Preconditions.checkArgument(page != null);
+    OpenInstancePageDTO result = new OpenInstancePageDTO();
+    result.setPage(page.getPage());
+    result.setSize(page.getSize());
+    result.setTotal(page.getTotal());
+    result.setInstances(fromInstanceDTOs(page.getContent()));
+    return result;
   }
   // endregion
 

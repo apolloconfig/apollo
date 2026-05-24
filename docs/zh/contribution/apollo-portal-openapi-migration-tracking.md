@@ -18,8 +18,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 
 | 领域 | 当前状态 | 风险 | 下一步 |
 | --- | --- | --- | --- |
-| OpenAPI 契约 | `apollo-portal` 当前引用 `apollo-openapi` 的 `v0.3.0` tag；后续 `apollo-openapi/main` 仍可能继续演进 | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
-| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 36 个走 OpenAPI、85 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
+| OpenAPI 契约 | `apollo-portal` 当前仍引用 `apollo-openapi` 的 `v0.3.0` tag；Release/Branch/Instance 切片在 `v0.3.1` 本地候选 spec 上验证，等待 tag 发布后再切默认 URL | Portal 实现、生成接口和 SDK 容易漂移 | 每次更新 spec URL 前运行兼容性检查，记录明确 tag 或 commit |
+| 前端调用 | 见 [前端 URL 迁移清单](./apollo-portal-openapi-frontend-url-inventory.md)，当前 121 个 URL 条目中 53 个走 OpenAPI、68 个仍走 WebAPI | 零散切流会遗漏 prefix path、SSO、权限和 response shape | 按领域迁移，每个领域先完成后端双认证验证 |
 | 认证 | `/openapi/**` 先经过 Portal session 识别，再走 consumer token 认证 | 自定义 SSO 若没有让 `/openapi/**` 复用 Portal 登录态，会出现 401 | 明确 filter 顺序和 SSO 接入要求，补回归测试 |
 | 权限 | `UnifiedPermissionValidator` 已按 `USER`/`CONSUMER` 分发 | OpenAPI 读接口历史上较开放，与 `configView.memberOnly.envs` 可能不一致 | 先保持 token 兼容，新增可控策略对齐只读权限 |
 | 模型 | 生成模型、`apollo-openapi` Java artifact 旧 DTO/API、Portal DTO 并存 | 长期维护三套模型会持续放大转换成本 | 新接口优先实现 generated `*ManagementApi` 和 `model.*` |
@@ -40,6 +40,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 - Item 域已完成第一批 UI 切流：`ConfigService.js` 中 item create/update/delete、text batch update、diff、sync、syntax check、revocation 和 paged find 已指向 `/openapi/v1/...`，并在前端 service 内保持旧数组返回、旧 diff shape 和 `orderBy` 行为。`load_namespace`、`load_all_namespaces`、associated public namespace 等 Namespace 形状接口仍暂留 WebAPI。
 - Namespace Core 切片已切到 OpenAPI：namespace 读取、associated public namespace 读取、namespace lock 查询、missing namespace 查询/创建、cluster 删除、AppNamespace 创建/删除/读取/列表、namespace 创建/删除、release status、usage 和 public namespace instances 都已走 OpenAPI。后端在 `v0.3.0` 已有契约的地方实现 generated management interfaces，Portal UI 需要的响应兼容只保留在前端 service 内。
 - Namespace 和 item 的 `extendInfo` 已承载 UI 还原旧视图需要的状态；text mode item update 改为后端根据 path 派生 `namespaceId`，不再依赖 UI 从 legacy `baseInfo.id` 取值。
+- Release/Branch/Instance 切片已切到 OpenAPI：`ReleaseService.js`、`NamespaceBranchService.js`、`InstanceService.js` 全部使用 `/openapi/v1/...`。`ReleaseController`、`NamespaceBranchController`、`InstanceController` 实现 generated management interfaces，前端仅在 service 内保留实例分页 `content`、实例数量 `{num}` 和 release compare `{changes}` 兼容 adapter。
+- `v0.3.1` 候选 spec 为 rollback 增加 `toReleaseId`，并把 branch delete/rule-update 的 `operator` query 放宽为 optional，使 Portal USER 请求从登录态推导 operator，同时 token CONSUMER 客户端继续保留 payload/query operator 行为。
 
 ## 迁移矩阵
 
@@ -50,8 +52,8 @@ OpenAPI。这个双轨设计让 UI、SDK、CLI、MCP 等调用面都需要重复
 | App | `AppService.js` | 已有 app 查询、创建、更新、删除、env cluster、missing env、missing namespace | app 只读、missing env 和 missing namespace 已走 OpenAPI 并在前端做响应兼容转换；其余 app 写接口仍等待 operator contract/Portal 用户语义对齐后再切 UI |
 | Namespace / AppNamespace / Lock | `NamespaceService.js`、`NamespaceLockService.js` | `v0.3.0` 已包含 Namespace、AppNamespace、lock、usage、release status、public instance APIs | Namespace Core 前端 service 调用已迁移；后续推进 branch/release 和剩余 response-shape hardening |
 | Item | `ConfigService.js` | item CRUD、diff、sync、validation、revocation、namespace read 已有契约方向 | Item 和 Namespace Core UI 路径已走 OpenAPI；后续继续观察 key 编码、text mode 和更多 e2e 覆盖 |
-| Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | release、gray release、merge、rollback 部分已有 | 先补灰度分支和 rollback 双认证测试 |
-| Instance | `InstanceService.js` | 部分只读接口已有 | 只读迁移，保留分页和 response shape |
+| Release / Branch | `ReleaseService.js`、`NamespaceBranchService.js` | `v0.3.1` 候选已覆盖 release、gray release、branch 创建/删除/合并/rules、compare、active releases 和 rollback | 前端 service 已迁移；等待 spec tag 发布期间继续保留双认证和 Java client 兼容测试 |
+| Instance | `InstanceService.js` | 已有 by-release、by-namespace、releases-not-in 和 count API | 前端 service 已迁移，并在本地 adapter 保留分页/count 旧形状 |
 | Permission / AccessKey | `PermissionService.js`、`AccessKeyService.js` | `apollo-openapi/main` 已有新增契约 | 先完成权限模型验证，再迁移管理 UI |
 | User / Consumer / System | `UserService.js`、`ConsumerService.js`、`SystemRoleService.js` | 用户接口仍有未合并 PR | 不纳入第一批切流，等待契约稳定 |
 | Admin / Audit / Import / Export | `ServerConfigService.js`、`AuditLogService.js`、导入导出 service | OpenAPI 覆盖不足 | 独立设计，避免把管理面和配置面混在一个 PR |

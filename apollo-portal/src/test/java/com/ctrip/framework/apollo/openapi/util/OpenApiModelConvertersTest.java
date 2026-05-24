@@ -20,18 +20,28 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.dto.InstanceDTO;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
+import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
+import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.enums.ChangeType;
 import com.google.common.collect.Lists;
 import java.util.Collections;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.Test;
 
 public class OpenApiModelConvertersTest {
@@ -153,6 +163,68 @@ public class OpenApiModelConvertersTest {
     OpenAppNamespaceDTO result = OpenApiModelConverters.fromAppNamespace(appNamespace);
 
     assertEquals(true, result.getIsPublic());
+  }
+
+  @Test
+  public void fromReleaseDTOShouldParseConfigurationsIntoGeneratedMap() {
+    ReleaseDTO release = new ReleaseDTO();
+    release.setId(123L);
+    release.setAppId("sample-app");
+    release.setClusterName("default");
+    release.setNamespaceName("application");
+    release.setName("release-1");
+    release.setConfigurations("{\"timeout\":\"200\",\"feature.enabled\":\"true\"}");
+
+    OpenReleaseDTO result = OpenApiModelConverters.fromReleaseDTO(release);
+
+    assertEquals(123L, result.getId());
+    assertEquals("sample-app", result.getAppId());
+    assertEquals("default", result.getClusterName());
+    assertEquals("application", result.getNamespaceName());
+    assertEquals("200", result.getConfigurations().get("timeout"));
+    assertEquals("true", result.getConfigurations().get("feature.enabled"));
+  }
+
+  @Test
+  public void fromReleaseCompareResultShouldExposeFlatReleaseChanges() {
+    ReleaseCompareResult compareResult = new ReleaseCompareResult();
+    compareResult.addEntityPair(ChangeType.MODIFIED, new KVEntity("timeout", "100"),
+        new KVEntity("timeout", "200"));
+    compareResult.addEntityPair(ChangeType.ADDED, new KVEntity("enabled", ""),
+        new KVEntity("enabled", "true"));
+
+    OpenReleaseDiffDTO result = OpenApiModelConverters.fromReleaseCompareResult(compareResult);
+
+    assertEquals(2, result.getChanges().size());
+    assertEquals("MODIFIED", result.getChanges().get(0).getChangeType());
+    assertEquals("timeout", result.getChanges().get(0).getKey());
+    assertEquals("100", result.getChanges().get(0).getOldValue());
+    assertEquals("200", result.getChanges().get(0).getNewValue());
+    assertEquals("ADDED", result.getChanges().get(1).getChangeType());
+    assertEquals("enabled", result.getChanges().get(1).getKey());
+    assertEquals("", result.getChanges().get(1).getOldValue());
+    assertEquals("true", result.getChanges().get(1).getNewValue());
+  }
+
+  @Test
+  public void fromInstancePageDTOShouldExposeGeneratedInstancesField() {
+    InstanceDTO instance = new InstanceDTO();
+    instance.setId(10L);
+    instance.setAppId("client-app");
+    instance.setClusterName("default");
+    instance.setIp("10.0.0.1");
+
+    PageDTO<InstanceDTO> page =
+        new PageDTO<>(Collections.singletonList(instance), PageRequest.of(2, 10), 21L);
+
+    OpenInstancePageDTO result = OpenApiModelConverters.fromInstancePageDTO(page);
+
+    assertEquals(2, result.getPage());
+    assertEquals(10, result.getSize());
+    assertEquals(21L, result.getTotal());
+    assertEquals(1, result.getInstances().size());
+    assertEquals("client-app", result.getInstances().get(0).getAppId());
+    assertEquals("10.0.0.1", result.getInstances().get(0).getIp());
   }
 
   private ClusterDTO createCluster(String name, String appId, String comment) {

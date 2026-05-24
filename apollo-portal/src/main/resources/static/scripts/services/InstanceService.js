@@ -15,25 +15,38 @@
  *
  */
 appService.service('InstanceService', ['$resource', '$q', 'AppUtil', function ($resource, $q, AppUtil) {
+    function adaptInstancePage(data) {
+        var result = angular.fromJson(data);
+        if (result && result.instances && !result.content) {
+            result.content = result.instances;
+        }
+        return result;
+    }
+
     var resource = $resource('', {}, {
         find_instances_by_release: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/envs/:env/instances/by-release'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/instances/by-release',
+            transformResponse: adaptInstancePage
         },
         find_instances_by_namespace: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/envs/:env/instances/by-namespace'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/instances/by-namespace',
+            transformResponse: adaptInstancePage
         },
         find_by_releases_not_in: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/envs/:env/instances/by-namespace-and-releases-not-in'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/instances/by-namespace-and-releases-not-in'
         },
         get_instance_count_by_namespace: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + "/envs/:env/instances/by-namespace/count"
+            url: AppUtil.prefixPath() + "/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/instances",
+            transformResponse: function (data) {
+                return {num: angular.fromJson(data)};
+            }
         }
     });
 

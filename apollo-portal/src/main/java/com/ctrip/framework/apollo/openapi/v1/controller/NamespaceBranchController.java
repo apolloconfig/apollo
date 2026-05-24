@@ -18,148 +18,260 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
-import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.common.utils.RequestPrecondition;
-import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
-import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenGrayReleaseRuleDTO;
-import com.ctrip.framework.apollo.openapi.dto.OpenNamespaceDTO;
-import com.ctrip.framework.apollo.openapi.util.OpenApiBeanUtils;
+import com.ctrip.framework.apollo.openapi.api.NamespaceBranchManagementApi;
+import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.listener.ConfigPublishEvent;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @RestController("openapiNamespaceBranchController")
-@RequestMapping("/openapi/v1/envs/{env}")
-public class NamespaceBranchController {
+public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final ReleaseService releaseService;
   private final NamespaceBranchService namespaceBranchService;
   private final UserService userService;
+  private final UserInfoHolder userInfoHolder;
+  private final PortalConfig portalConfig;
+  private final ApplicationEventPublisher publisher;
 
   public NamespaceBranchController(final UnifiedPermissionValidator unifiedPermissionValidator,
       final ReleaseService releaseService, final NamespaceBranchService namespaceBranchService,
-      final UserService userService) {
+      final UserService userService, final UserInfoHolder userInfoHolder,
+      final PortalConfig portalConfig, final ApplicationEventPublisher publisher) {
     this.unifiedPermissionValidator = unifiedPermissionValidator;
     this.releaseService = releaseService;
     this.namespaceBranchService = namespaceBranchService;
     this.userService = userService;
-  }
-
-  @GetMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
-  public OpenNamespaceDTO findBranch(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName) {
-    NamespaceBO namespaceBO = namespaceBranchService.findBranch(appId,
-        Env.valueOf(env.toUpperCase()), clusterName, namespaceName);
-    if (namespaceBO == null) {
-      return null;
-    }
-    return OpenApiBeanUtils.transformFromNamespaceBO(namespaceBO);
-  }
-
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateNamespacePermission(#appId)")
-  @PostMapping(value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches")
-  public OpenNamespaceDTO createBranch(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @RequestParam("operator") String operator) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
-        "operator can not be empty");
-
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
-    }
-
-    NamespaceDTO namespaceDTO = namespaceBranchService.createBranch(appId,
-        Env.valueOf(env.toUpperCase()), clusterName, namespaceName, operator);
-    if (namespaceDTO == null) {
-      return null;
-    }
-    return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+    this.userInfoHolder = userInfoHolder;
+    this.portalConfig = portalConfig;
+    this.publisher = publisher;
   }
 
   @PreAuthorize(
-      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @DeleteMapping(
-      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}")
-  public void deleteBranch(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String branchName, @RequestParam("operator") String operator) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
-        "operator can not be empty");
+      value = "@openapiNamespaceBranchController.canCreateBranch(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<OpenNamespaceDTO> createBranch(String appId, String env, String clusterName,
+      String namespaceName, String operator) {
+    String resolvedOperator = resolveOperator(operator, null);
+    NamespaceDTO namespaceDTO = namespaceBranchService.createBranch(appId, Env.valueOf(env),
+        clusterName, namespaceName, resolvedOperator);
+    return namespaceDTO == null ? ResponseEntity.ok().build()
+        : ResponseEntity.ok(OpenApiModelConverters.fromNamespaceDTO(namespaceDTO));
+  }
 
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
-    }
-
-    boolean canDelete = unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env,
-        clusterName, namespaceName)
-        || (unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
-            namespaceName)
-            && releaseService.loadLatestRelease(appId, Env.valueOf(env), branchName,
-                namespaceName) == null);
-
-    if (!canDelete) {
+  @Override
+  public ResponseEntity<Void> deleteBranch(String env, String appId, String clusterName,
+      String namespaceName, String branchName, String operator) {
+    String resolvedOperator = resolveOperator(operator, null);
+    if (!canDeleteBranch(appId, env, clusterName, namespaceName, branchName)) {
       throw new AccessDeniedException(
-          "Forbidden operation. " + "Caused by: 1.you don't have release permission "
+          "Forbidden operation. Caused by: 1.you don't have release permission "
               + "or 2. you don't have modification permission "
               + "or 3. you have modification permission but branch has been released");
     }
-    namespaceBranchService.deleteBranch(appId, Env.valueOf(env.toUpperCase()), clusterName,
-        namespaceName, branchName, operator);
-
+    namespaceBranchService.deleteBranch(appId, Env.valueOf(env), clusterName, namespaceName,
+        branchName, resolvedOperator);
+    return ResponseEntity.ok().build();
   }
 
-  @GetMapping(
-      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
-  public OpenGrayReleaseRuleDTO getBranchGrayRules(@PathVariable String appId,
-      @PathVariable String env, @PathVariable String clusterName,
-      @PathVariable String namespaceName, @PathVariable String branchName) {
-    GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
-        Env.valueOf(env.toUpperCase()), clusterName, namespaceName, branchName);
-    if (grayReleaseRuleDTO == null) {
-      return null;
+  @Override
+  public ResponseEntity<OpenNamespaceDTO> findBranch(String appId, String env, String clusterName,
+      String namespaceName, Boolean extendInfo) {
+    NamespaceBO namespaceBO =
+        namespaceBranchService.findBranch(appId, Env.valueOf(env), clusterName, namespaceName);
+    if (namespaceBO == null) {
+      return ResponseEntity.ok().build();
     }
-    return OpenApiBeanUtils.transformFromGrayReleaseRuleDTO(grayReleaseRuleDTO);
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      namespaceBO.hideItems();
+    }
+    return ResponseEntity.ok(OpenApiModelConverters.fromNamespaceBO(namespaceBO));
+  }
+
+  @Override
+  public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(String appId, String env,
+      String clusterName, String namespaceName, String branchName) {
+    GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
+        Env.valueOf(env), clusterName, namespaceName, branchName);
+    return grayReleaseRuleDTO == null ? ResponseEntity.ok().build()
+        : ResponseEntity.ok(OpenApiModelConverters.fromGrayReleaseRuleDTO(grayReleaseRuleDTO));
   }
 
   @PreAuthorize(
-      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
-  @PutMapping(
-      value = "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/rules")
-  public void updateBranchRules(@PathVariable String appId, @PathVariable String env,
-      @PathVariable String clusterName, @PathVariable String namespaceName,
-      @PathVariable String branchName, @RequestBody OpenGrayReleaseRuleDTO rules,
-      @RequestParam("operator") String operator) {
-    RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
-        "operator can not be empty");
+      value = "@openapiNamespaceBranchController.canMergeBranch(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<OpenReleaseDTO> merge(String appId, String env, String clusterName,
+      String namespaceName, String branchName, Boolean deleteBranch,
+      NamespaceReleaseDTO namespaceReleaseDTO) {
+    return mergeBranchInternal(appId, env, clusterName, namespaceName, branchName, deleteBranch,
+        namespaceReleaseDTO, null);
+  }
 
-    if (userService.findByUserId(operator) == null) {
-      throw BadRequestException.userNotExists(operator);
+  @PreAuthorize(
+      value = "@openapiNamespaceBranchController.canMergeBranch(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<OpenReleaseDTO> mergeBranch(String env, String appId, String clusterName,
+      String namespaceName, String branchName, Boolean deleteBranch,
+      NamespaceReleaseDTO namespaceReleaseDTO, String operator) {
+    return mergeBranchInternal(appId, env, clusterName, namespaceName, branchName, deleteBranch,
+        namespaceReleaseDTO, operator);
+  }
+
+  @PreAuthorize(
+      value = "@openapiNamespaceBranchController.canUpdateBranchRules(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<Void> updateBranchRules(String appId, String env, String clusterName,
+      String namespaceName, String branchName, OpenGrayReleaseRuleDTO openGrayReleaseRuleDTO,
+      String operator) {
+    RequestPrecondition.checkArguments(openGrayReleaseRuleDTO != null,
+        "gray release rule payload can not be empty");
+    String resolvedOperator = resolveOperator(operator, null);
+
+    openGrayReleaseRuleDTO.setAppId(appId);
+    openGrayReleaseRuleDTO.setClusterName(clusterName);
+    openGrayReleaseRuleDTO.setNamespaceName(namespaceName);
+    openGrayReleaseRuleDTO.setBranchName(branchName);
+
+    namespaceBranchService.updateBranchGrayRules(appId, Env.valueOf(env), clusterName,
+        namespaceName, branchName,
+        OpenApiModelConverters.toGrayReleaseRuleDTO(openGrayReleaseRuleDTO), resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  public boolean canCreateBranch(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasCreateNamespacePermission(appId);
+    }
+    return false;
+  }
+
+  public boolean canMergeBranch(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    return false;
+  }
+
+  public boolean canUpdateBranchRules(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasOperateNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    return false;
+  }
+
+  private ResponseEntity<OpenReleaseDTO> mergeBranchInternal(String appId, String env,
+      String clusterName, String namespaceName, String branchName, Boolean deleteBranch,
+      NamespaceReleaseDTO namespaceReleaseDTO, String operator) {
+    RequestPrecondition.checkArguments(namespaceReleaseDTO != null,
+        "release payload can not be empty");
+    RequestPrecondition.checkArguments(
+        !StringUtils.isContainEmpty(namespaceReleaseDTO.getReleaseTitle()),
+        "Params(releaseTitle) can not be empty");
+
+    String resolvedOperator = resolveOperator(operator, namespaceReleaseDTO.getReleasedBy());
+    boolean emergencyPublish = Boolean.TRUE.equals(namespaceReleaseDTO.getIsEmergencyPublish());
+    checkEmergencyPublishAllowedForUser(env, emergencyPublish);
+
+    ReleaseDTO createdRelease = namespaceBranchService.merge(appId, Env.valueOf(env), clusterName,
+        namespaceName, branchName, namespaceReleaseDTO.getReleaseTitle(),
+        namespaceReleaseDTO.getReleaseComment(), emergencyPublish,
+        Boolean.TRUE.equals(deleteBranch), resolvedOperator);
+
+    ConfigPublishEvent event = ConfigPublishEvent.instance();
+    event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)
+        .withReleaseId(createdRelease.getId()).setMergeEvent(true).setEnv(Env.valueOf(env));
+    publisher.publishEvent(event);
+
+    return ResponseEntity.ok(OpenApiModelConverters.fromReleaseDTO(createdRelease));
+  }
+
+  private boolean canDeleteBranch(String appId, String env, String clusterName,
+      String namespaceName, String branchName) {
+    boolean hasReleasePermission = unifiedPermissionValidator.hasReleaseNamespacePermission(appId,
+        env, clusterName, namespaceName);
+    boolean hasModifyPermission = unifiedPermissionValidator.hasModifyNamespacePermission(appId,
+        env, clusterName, namespaceName);
+    return hasReleasePermission || (hasModifyPermission && releaseService.loadLatestRelease(appId,
+        Env.valueOf(env), branchName, namespaceName) == null);
+  }
+
+  private void checkEmergencyPublishAllowedForUser(String env, boolean emergencyPublish) {
+    if (emergencyPublish
+        && UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
+      throw new BadRequestException("Env: %s is not supported emergency publish now", env);
+    }
+  }
+
+  private String resolveOperator(String queryOperator, String payloadOperator) {
+    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      UserInfo loginUser = userInfoHolder.getUser();
+      if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
+        throw new BadRequestException("Current user not found");
+      }
+      return loginUser.getUserId();
     }
 
-    rules.setAppId(appId);
-    rules.setClusterName(clusterName);
-    rules.setNamespaceName(namespaceName);
-    rules.setBranchName(branchName);
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+      String operator = StringUtils.isBlank(queryOperator) ? payloadOperator : queryOperator;
+      RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
+          "operator should not be null or empty");
+      if (userService.findByUserId(operator) == null) {
+        throw BadRequestException.userNotExists(operator);
+      }
+      return operator;
+    }
 
-    GrayReleaseRuleDTO grayReleaseRuleDTO = OpenApiBeanUtils.transformToGrayReleaseRuleDTO(rules);
-    namespaceBranchService.updateBranchGrayRules(appId, Env.valueOf(env.toUpperCase()), clusterName,
-        namespaceName, branchName, grayReleaseRuleDTO, operator);
+    throw new BadRequestException("Unsupported auth type: %s",
+        UserIdentityContextHolder.getAuthType());
+  }
 
+  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName);
   }
 }

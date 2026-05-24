@@ -626,6 +626,7 @@ async function openConfigPage(page, appId, options = {}) {
 
   const isBranchVisible = await branchPublishButton.isVisible().catch(() => false);
   if (isBranchVisible && !allowBranchView) {
+    await dismissGrayReleaseWithoutRulesTips(page);
     await namespacePanel.locator('a[ng-click="switchBranch(\'master\', true)"]').first().click();
   }
 
@@ -633,6 +634,15 @@ async function openConfigPage(page, appId, options = {}) {
     state: 'visible',
     timeout: 90000,
   });
+}
+
+async function dismissGrayReleaseWithoutRulesTips(page) {
+  const grayRuleTips = page.locator('#grayReleaseWithoutRulesTips');
+  if (!(await grayRuleTips.isVisible().catch(() => false))) {
+    return;
+  }
+  await grayRuleTips.locator('.modal-footer button.btn-danger').first().click();
+  await expect(grayRuleTips).toBeHidden({ timeout: 30000 });
 }
 
 async function switchNamespaceView(page, namespaceName, viewType) {
@@ -790,7 +800,7 @@ async function createBranchViaUi(page, appId, options = {}) {
     page,
     'POST',
     [
-      `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/branches`,
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/branches`,
     ]
   );
 
@@ -850,7 +860,7 @@ async function addGrayRuleViaUi(page, appId, options = {}) {
     page,
     'PUT',
     [
-      `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
       '/rules',
     ]
   );
@@ -882,7 +892,7 @@ async function grayPublishNamespaceViaUi(page, appId, releaseName, comment, opti
     page,
     'POST',
     [
-      `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
       '/releases',
     ]
   );
@@ -922,7 +932,7 @@ async function mergeAndPublishNamespaceViaUi(page, appId, releaseName, comment, 
     page,
     'POST',
     [
-      `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
       '/merge',
     ]
   );
@@ -951,7 +961,7 @@ async function discardGrayBranchViaUi(page, appId, options = {}) {
     page,
     'DELETE',
     [
-      `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
+      `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/branches/`,
     ]
   );
 
@@ -1139,15 +1149,16 @@ async function publishNamespace(page, appId, releaseName, comment, options = {})
   const releaseResponse = waitForApiResponse(
     page,
     'POST',
-    `/apps/${appId}/envs/${env}/clusters/${clusterName}/namespaces/${namespaceName}/releases`
+    `/openapi/v1/envs/${env}/apps/${appId}/clusters/${clusterName}/namespaces/${namespaceName}/releases`
   );
 
-  await Promise.all([
+  const [response] = await Promise.all([
     releaseResponse,
     page.click('#releaseModal button.btn-primary[type="submit"]'),
   ]);
 
   await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
+  return response.json().catch(() => null);
 }
 
 async function loadNamespaceViaPortalApi(page, appId, options = {}) {
@@ -1190,7 +1201,7 @@ async function createBranchViaPortalApi(page, appId, options = {}) {
     namespaceName = DEFAULT_NAMESPACE,
   } = options;
   const response = await page.context().request.post(
-    `/apps/${encodePathSegment(appId)}/envs/${encodePathSegment(env)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches`,
+    `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches`,
     { data: {} }
   );
   expect(response.status()).toBe(200);
@@ -1209,7 +1220,7 @@ async function updateGrayRulesViaPortalApi(page, appId, branchName, options = {}
     clientLabelList = [],
   } = options;
   const response = await page.context().request.put(
-    `/apps/${encodePathSegment(appId)}/envs/${encodePathSegment(env)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches/${encodePathSegment(branchName)}/rules`,
+    `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches/${encodePathSegment(branchName)}/rules`,
     {
       data: {
         appId,
@@ -1236,7 +1247,7 @@ async function publishGrayReleaseViaPortalApi(page, appId, branchName, releaseTi
     namespaceName = DEFAULT_NAMESPACE,
   } = options;
   const response = await page.context().request.post(
-    `/apps/${encodePathSegment(appId)}/envs/${encodePathSegment(env)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches/${encodePathSegment(branchName)}/releases`,
+    `/openapi/v1/envs/${encodePathSegment(env)}/apps/${encodePathSegment(appId)}/clusters/${encodePathSegment(clusterName)}/namespaces/${encodePathSegment(namespaceName)}/branches/${encodePathSegment(branchName)}/releases`,
     {
       data: {
         releaseTitle,
@@ -1428,13 +1439,55 @@ async function rollbackLatestRelease(page, options = {}) {
   await page.click('#rollbackModal button[type="submit"]');
   await expect(page.locator('#rollbackAlertDialog')).toBeVisible({ timeout: 30000 });
 
-  const rollbackResponse = waitForApiResponse(page, 'PUT', `/envs/${env}/releases/`);
+  const rollbackResponse = waitForApiResponse(page, 'PUT', `/openapi/v1/envs/${env}/releases/`);
   await Promise.all([
     rollbackResponse,
     page.click('#rollbackAlertDialog button.btn-danger'),
   ]);
 
   await expect(page.locator('.toast-success').first()).toBeVisible({ timeout: 30000 });
+}
+
+async function rollbackToReleaseFromHistory(page, appId, toReleaseId, options = {}) {
+  const {
+    env = DEFAULT_ENV,
+    clusterName = DEFAULT_CLUSTER,
+    namespaceName = DEFAULT_NAMESPACE,
+    expectedDiffTexts = [],
+  } = options;
+
+  await page.goto(
+    `/config/history.html?#/appid=${encodePathSegment(appId)}&env=${encodePathSegment(env)}&clusterName=${encodePathSegment(clusterName)}&namespaceName=${encodePathSegment(namespaceName)}&releaseId=${toReleaseId}`,
+    { waitUntil: 'domcontentloaded' }
+  );
+  await expect(page.locator('.release-history-list .media').first()).toBeVisible({ timeout: 30000 });
+
+  await page.locator('button[ng-click="preRollback()"]:visible').first().click();
+  await expect(page.locator('#rollbackModal')).toBeVisible({ timeout: 30000 });
+
+  for (const expectedText of expectedDiffTexts) {
+    await expect(page.locator('#rollbackModal')).toContainText(expectedText, { timeout: 30000 });
+  }
+
+  await page.click('#rollbackModal button[type="submit"]');
+  await expect(page.locator('#rollbackAlertDialog')).toBeVisible({ timeout: 30000 });
+
+  const rollbackResponse = waitForApiResponseByFragments(
+    page,
+    'PUT',
+    [
+      `/openapi/v1/envs/${env}/releases/`,
+      `toReleaseId=${toReleaseId}`,
+    ]
+  );
+  await Promise.all([
+    rollbackResponse,
+    page.click('#rollbackAlertDialog button.btn-danger'),
+  ]);
+
+  await expect(page.locator('.release-history-list .media').first()).toContainText(/Rollback/, {
+    timeout: 30000,
+  });
 }
 
 module.exports = {
@@ -1486,4 +1539,5 @@ module.exports = {
   waitForRawConfig,
   toPropertiesText,
   rollbackLatestRelease,
+  rollbackToReleaseFromHistory,
 };

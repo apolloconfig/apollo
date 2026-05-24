@@ -6,8 +6,8 @@
 
 - Service 文件数：24
 - URL 条目数：121
-- OpenAPI 条目数：36
-- WebAPI 条目数：85
+- OpenAPI 条目数：53
+- WebAPI 条目数：68
 - 未使用 `AppUtil.prefixPath()` 的条目数：0
 
 ## 按 Service 汇总
@@ -26,14 +26,14 @@
 | `ExportService.js` | 0 | 1 | 0 | 1 |
 | `FavoriteService.js` | 0 | 4 | 0 | 4 |
 | `GlobalSearchValueService.js` | 0 | 1 | 0 | 1 |
-| `InstanceService.js` | 0 | 4 | 0 | 4 |
-| `NamespaceBranchService.js` | 0 | 6 | 0 | 6 |
+| `InstanceService.js` | 4 | 0 | 0 | 4 |
+| `NamespaceBranchService.js` | 6 | 0 | 0 | 6 |
 | `NamespaceLockService.js` | 1 | 0 | 0 | 1 |
 | `NamespaceService.js` | 11 | 0 | 0 | 11 |
 | `OrganizationService.js` | 1 | 0 | 0 | 1 |
 | `PermissionService.js` | 0 | 20 | 0 | 20 |
 | `ReleaseHistoryService.js` | 0 | 1 | 0 | 1 |
-| `ReleaseService.js` | 0 | 7 | 0 | 7 |
+| `ReleaseService.js` | 7 | 0 | 0 | 7 |
 | `ServerConfigService.js` | 0 | 6 | 0 | 6 |
 | `SystemInfoService.js` | 0 | 2 | 0 | 2 |
 | `SystemRoleService.js` | 0 | 4 | 0 | 4 |
@@ -97,16 +97,16 @@
 | `FavoriteService.js` | 30 | `delete_favorite` | `DELETE` | WebAPI | yes | `/favorites/:favoriteId` |
 | `FavoriteService.js` | 34 | `to_top` | `PUT` | WebAPI | yes | `/favorites/:favoriteId` |
 | `GlobalSearchValueService.js` | 22 | `get_item_Info_by_key_and_Value` | `GET` | WebAPI | yes | `/global-search/item-info/by-key-or-value` |
-| `InstanceService.js` | 21 | `find_instances_by_release` | `GET` | WebAPI | yes | `/envs/:env/instances/by-release` |
-| `InstanceService.js` | 26 | `find_instances_by_namespace` | `GET` | WebAPI | yes | `/envs/:env/instances/by-namespace` |
-| `InstanceService.js` | 31 | `find_by_releases_not_in` | `GET` | WebAPI | yes | `/envs/:env/instances/by-namespace-and-releases-not-in` |
-| `InstanceService.js` | 36 | `get_instance_count_by_namespace` | `GET` | WebAPI | yes | `/envs/:env/instances/by-namespace/count` |
-| `NamespaceBranchService.js` | 22 | `find_namespace_branch` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches` |
-| `NamespaceBranchService.js` | 27 | `create_branch` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches` |
-| `NamespaceBranchService.js` | 32 | `delete_branch` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName` |
-| `NamespaceBranchService.js` | 37 | `merge_and_release_branch` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge` |
-| `NamespaceBranchService.js` | 42 | `find_branch_gray_rules` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
-| `NamespaceBranchService.js` | 47 | `update_branch_gray_rules` | `PUT` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
+| `InstanceService.js` | 29 | `find_instances_by_release` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/instances/by-release` |
+| `InstanceService.js` | 35 | `find_instances_by_namespace` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/instances/by-namespace` |
+| `InstanceService.js` | 41 | `find_by_releases_not_in` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/instances/by-namespace-and-releases-not-in` |
+| `InstanceService.js` | 46 | `get_instance_count_by_namespace` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/instances` |
+| `NamespaceBranchService.js` | 22 | `find_namespace_branch` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches` |
+| `NamespaceBranchService.js` | 27 | `create_branch` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches` |
+| `NamespaceBranchService.js` | 32 | `delete_branch` | `DELETE` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName` |
+| `NamespaceBranchService.js` | 37 | `merge_and_release_branch` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge` |
+| `NamespaceBranchService.js` | 42 | `find_branch_gray_rules` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
+| `NamespaceBranchService.js` | 47 | `update_branch_gray_rules` | `PUT` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules` |
 | `NamespaceLockService.js` | 21 | `get_namespace_lock` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/lock` |
 | `NamespaceService.js` | 22 | `find_public_namespaces` | `GET` | OpenAPI | yes | `/openapi/v1/appnamespaces` |
 | `NamespaceService.js` | 26 | `createNamespace` | `POST` | OpenAPI | yes | `/openapi/v1/namespaces` |
@@ -141,13 +141,13 @@
 | `PermissionService.js` | 108 | `assign_cluster_ns_role_to_user` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType` |
 | `PermissionService.js` | 115 | `remove_cluster_ns_role_from_user` | `DELETE` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/ns_roles/:roleType?user=:user` |
 | `ReleaseHistoryService.js` | 21 | `find_release_history_by_namespace` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/histories` |
-| `ReleaseService.js` | 21 | `get` | `GET` | WebAPI | yes | `/envs/:env/releases/:releaseId` |
-| `ReleaseService.js` | 25 | `find_all_releases` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/all` |
-| `ReleaseService.js` | 30 | `find_active_releases` | `GET` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
-| `ReleaseService.js` | 35 | `compare` | `GET` | WebAPI | yes | `/envs/:env/releases/compare` |
-| `ReleaseService.js` | 39 | `release` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/releases` |
-| `ReleaseService.js` | 43 | `gray_release` | `POST` | WebAPI | yes | `/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases` |
-| `ReleaseService.js` | 47 | `rollback` | `PUT` | WebAPI | yes | `/envs/:env/releases/:releaseId/rollback` |
+| `ReleaseService.js` | 21 | `get` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId` |
+| `ReleaseService.js` | 25 | `find_all_releases` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
+| `ReleaseService.js` | 30 | `find_active_releases` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases/active` |
+| `ReleaseService.js` | 35 | `compare` | `GET` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/comparison` |
+| `ReleaseService.js` | 39 | `release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/releases` |
+| `ReleaseService.js` | 43 | `gray_release` | `POST` | OpenAPI | yes | `/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/releases` |
+| `ReleaseService.js` | 47 | `rollback` | `PUT` | OpenAPI | yes | `/openapi/v1/envs/:env/releases/:releaseId/rollback` |
 | `ServerConfigService.js` | 21 | `create_portal_db_config` | `POST` | WebAPI | yes | `/server/portal-db/config` |
 | `ServerConfigService.js` | 25 | `create_config_db_config` | `POST` | WebAPI | yes | `/server/envs/:env/config-db/config` |
 | `ServerConfigService.js` | 29 | `delete_portal_db_config` | `DELETE` | WebAPI | yes | `/server/portal-db/config` |

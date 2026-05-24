@@ -27,6 +27,7 @@ const {
   revokeNamespaceItemsViaUi,
   publishNamespace,
   rollbackLatestRelease,
+  rollbackToReleaseFromHistory,
 } = require('./helpers/portal-helpers');
 
 test.describe.serial('@smoke Apollo Portal config lifecycle', () => {
@@ -34,6 +35,7 @@ test.describe.serial('@smoke Apollo Portal config lifecycle', () => {
   let itemKey = '';
   let firstReleaseName = '';
   let secondReleaseName = '';
+  let firstReleaseId = 0;
 
   test('login flow works @smoke', async ({ page }) => {
     await login(page);
@@ -70,7 +72,9 @@ test.describe.serial('@smoke Apollo Portal config lifecycle', () => {
     await login(page);
     await openConfigPage(page, createdAppId);
     await createNamespaceItem(page, createdAppId, itemKey, '100', 'portal smoke create item');
-    await publishNamespace(page, createdAppId, firstReleaseName, 'portal smoke first release');
+    const release = await publishNamespace(page, createdAppId, firstReleaseName, 'portal smoke first release');
+    firstReleaseId = release?.id;
+    expect(firstReleaseId).toBeTruthy();
   });
 
   test('update item and second release works @smoke', async ({ page }) => {
@@ -85,11 +89,24 @@ test.describe.serial('@smoke Apollo Portal config lifecycle', () => {
     await publishNamespace(page, createdAppId, secondReleaseName, 'portal smoke second release');
   });
 
+  test('rollback to selected release works @smoke', async ({ page }) => {
+    expect(createdAppId).toBeTruthy();
+    expect(firstReleaseId).toBeTruthy();
+
+    await login(page);
+    await rollbackToReleaseFromHistory(page, createdAppId, firstReleaseId, {
+      expectedDiffTexts: [itemKey, '100', '200'],
+    });
+  });
+
   test('rollback latest release works @smoke', async ({ page }) => {
     expect(createdAppId).toBeTruthy();
+    expect(itemKey).toBeTruthy();
 
     await login(page);
     await openConfigPage(page, createdAppId);
+    await updateNamespaceItem(page, createdAppId, itemKey, '300', 'portal smoke update item after rollback-to');
+    await publishNamespace(page, createdAppId, generateUniqueId('release_'), 'portal smoke third release');
     await rollbackLatestRelease(page);
   });
 

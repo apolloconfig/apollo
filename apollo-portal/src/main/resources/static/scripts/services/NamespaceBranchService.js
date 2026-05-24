@@ -19,35 +19,109 @@ appService.service('NamespaceBranchService', ['$resource', '$q', 'AppUtil', func
         find_namespace_branch: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches'
         },
         create_branch: {
             method: 'POST',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches'
         },
         delete_branch: {
             method: 'DELETE',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName'
         },
         merge_and_release_branch: {
             method: 'POST',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/merge'
         },
         find_branch_gray_rules: {
             method: 'GET',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules'
         },
         update_branch_gray_rules: {
             method: 'PUT',
             isArray: false,
-            url: AppUtil.prefixPath() + '/apps/:appId/envs/:env/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules'
+            url: AppUtil.prefixPath() + '/openapi/v1/envs/:env/apps/:appId/clusters/:clusterName/namespaces/:namespaceName/branches/:branchName/rules'
         }
 
     });
+
+    function toLegacyItem(openItem) {
+        var item = angular.copy(openItem || {});
+        var extendInfo = item.extendInfo || {};
+        delete item.extendInfo;
+        if (extendInfo.namespaceId) {
+            item.namespaceId = extendInfo.namespaceId;
+        }
+        return {
+            item: item,
+            isModified: !!extendInfo.isModified,
+            isDeleted: !!extendInfo.isDeleted,
+            isNewlyAdded: !!extendInfo.isNewlyAdded,
+            oldValue: extendInfo.oldValue,
+            newValue: extendInfo.newValue
+        };
+    }
+
+    function firstNamespaceId(items) {
+        var namespaceId;
+        angular.forEach(items || [], function (itemBO) {
+            if (namespaceId || !itemBO.item) {
+                return;
+            }
+            namespaceId = itemBO.item.namespaceId;
+        });
+        return namespaceId;
+    }
+
+    function toLegacyNamespace(openNamespace) {
+        if (!openNamespace || openNamespace.baseInfo) {
+            return openNamespace;
+        }
+
+        var namespace = angular.copy(openNamespace || {});
+        if (!namespace.appId && !namespace.clusterName && !namespace.namespaceName) {
+            return {};
+        }
+
+        var extendInfo = namespace.extendInfo || {};
+        var items = [];
+        angular.forEach(namespace.items || [], function (item) {
+            items.push(toLegacyItem(item));
+        });
+
+        var baseInfo = {
+            appId: namespace.appId,
+            clusterName: namespace.clusterName,
+            namespaceName: namespace.namespaceName,
+            dataChangeCreatedBy: namespace.dataChangeCreatedBy,
+            dataChangeLastModifiedBy: namespace.dataChangeLastModifiedBy,
+            dataChangeCreatedTime: namespace.dataChangeCreatedTime,
+            dataChangeLastModifiedTime: namespace.dataChangeLastModifiedTime
+        };
+        var namespaceId = namespace.id || firstNamespaceId(items);
+        if (namespaceId) {
+            baseInfo.id = namespaceId;
+        }
+
+        return {
+            baseInfo: baseInfo,
+            itemModifiedCnt: extendInfo.itemModifiedCnt || 0,
+            items: items,
+            format: namespace.format,
+            isPublic: !!namespace.isPublic,
+            parentAppId: extendInfo.parentAppId,
+            comment: namespace.comment,
+            isConfigHidden: !!extendInfo.isConfigHidden
+        };
+    }
+
+    function toDeleteBranchValue(deleteBranch) {
+        return deleteBranch === false || deleteBranch === 'false' ? false : true;
+    }
 
     function find_namespace_branch(appId, env, clusterName, namespaceName) {
         var d = $q.defer();
@@ -58,7 +132,7 @@ appService.service('NamespaceBranchService', ['$resource', '$q', 'AppUtil', func
                                            namespaceName: namespaceName
                                        },
                                        function (result) {
-                                           d.resolve(result);
+                                           d.resolve(toLegacyNamespace(result));
                                        }, function (result) {
                 d.reject(result);
             });
@@ -74,7 +148,7 @@ appService.service('NamespaceBranchService', ['$resource', '$q', 'AppUtil', func
                                    namespaceName: namespaceName
                                }, {},
                                function (result) {
-                                   d.resolve(result);
+                                   d.resolve(toLegacyNamespace(result));
                                }, function (result) {
                 d.reject(result);
             });
@@ -107,7 +181,7 @@ appService.service('NamespaceBranchService', ['$resource', '$q', 'AppUtil', func
                                               clusterName: clusterName,
                                               namespaceName: namespaceName,
                                               branchName: branchName,
-                                              deleteBranch:deleteBranch
+                                              deleteBranch: toDeleteBranchValue(deleteBranch)
                                           }, {
                                               releaseTitle: title,
                                               releaseComment: comment,

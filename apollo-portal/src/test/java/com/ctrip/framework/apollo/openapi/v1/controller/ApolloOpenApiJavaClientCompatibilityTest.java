@@ -51,8 +51,11 @@ import com.ctrip.framework.apollo.portal.PortalApplication;
 import com.ctrip.framework.apollo.portal.component.AdminServiceAddressLocator;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.environment.Env;
+import com.ctrip.framework.apollo.portal.service.InstanceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceBranchService;
 import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
@@ -120,6 +123,9 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
   private com.ctrip.framework.apollo.openapi.api.NamespaceOpenApiService legacyNamespaceOpenApiService;
 
   @MockitoBean
+  private PortalConfig portalConfig;
+
+  @MockitoBean
   private com.ctrip.framework.apollo.openapi.api.ReleaseOpenApiService releaseOpenApiService;
 
   @MockitoBean
@@ -142,6 +148,9 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
 
   @MockitoBean
   private NamespaceBranchService namespaceBranchService;
+
+  @MockitoBean
+  private InstanceService instanceService;
 
   @MockitoBean
   private ApplicationEventPublisher applicationEventPublisher;
@@ -168,6 +177,7 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(anyString(), anyString(),
         anyString(), anyString())).thenReturn(false);
+    when(portalConfig.isEmergencyPublishAllowed(any())).thenReturn(true);
   }
 
   @Test
@@ -373,38 +383,35 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     releaseRequest.setReleasedBy(OPERATOR);
     releaseRequest.setEmergencyPublish(true);
 
-    when(releaseOpenApiService.publishNamespace(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
-        any(NamespaceReleaseDTO.class))).thenReturn(legacyRelease(10L));
+    when(releaseService.publish(any(NamespaceReleaseModel.class))).thenReturn(releaseDTO(10L));
     OpenReleaseDTO publishedRelease =
         client.publishNamespace(APP_ID, ENV, null, null, releaseRequest);
     assertThat(publishedRelease.getId()).isEqualTo(10L);
-    ArgumentCaptor<NamespaceReleaseDTO> releaseCaptor =
-        ArgumentCaptor.forClass(NamespaceReleaseDTO.class);
-    verify(releaseOpenApiService).publishNamespace(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
-        releaseCaptor.capture());
+    ArgumentCaptor<NamespaceReleaseModel> releaseCaptor =
+        ArgumentCaptor.forClass(NamespaceReleaseModel.class);
+    verify(releaseService).publish(releaseCaptor.capture());
     assertThat(releaseCaptor.getValue().getReleasedBy()).isEqualTo(OPERATOR);
     assertThat(releaseCaptor.getValue().isEmergencyPublish()).isTrue();
+    assertThat(releaseCaptor.getValue().getAppId()).isEqualTo(APP_ID);
+    assertThat(releaseCaptor.getValue().getClusterName()).isEqualTo(CLUSTER);
+    assertThat(releaseCaptor.getValue().getNamespaceName()).isEqualTo(NAMESPACE);
 
-    when(releaseOpenApiService.getLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE))
-        .thenReturn(legacyRelease(11L));
+    when(releaseService.loadLatestRelease(APP_ID, Env.DEV, CLUSTER, NAMESPACE))
+        .thenReturn(releaseDTO(11L));
     OpenReleaseDTO latestRelease = client.getLatestActiveRelease(APP_ID, ENV, null, null);
     assertThat(latestRelease.getId()).isEqualTo(11L);
-    verify(releaseOpenApiService).getLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE);
+    verify(releaseService).loadLatestRelease(APP_ID, Env.DEV, CLUSTER, NAMESPACE);
 
-    ReleaseDTO release = new ReleaseDTO();
-    release.setId(12L);
-    release.setAppId(APP_ID);
-    release.setClusterName(CLUSTER);
-    release.setNamespaceName(NAMESPACE);
+    ReleaseDTO release = releaseDTO(12L);
     when(releaseService.findReleaseById(Env.valueOf(ENV), 12L)).thenReturn(release);
     client.rollbackRelease(ENV, 12L, OPERATOR);
-    verify(releaseOpenApiService).rollbackRelease(ENV, 12L, OPERATOR);
+    verify(releaseService).rollback(Env.DEV, 12L, OPERATOR);
 
-    when(instanceOpenApiService.getInstanceCountByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE))
+    when(instanceService.getInstanceCountByNamespace(APP_ID, Env.DEV, CLUSTER, NAMESPACE))
         .thenReturn(3);
     int instanceCount = client.getInstanceCountByNamespace(APP_ID, ENV, null, null);
     assertThat(instanceCount).isEqualTo(3);
-    verify(instanceOpenApiService).getInstanceCountByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE);
+    verify(instanceService).getInstanceCountByNamespace(APP_ID, Env.DEV, CLUSTER, NAMESPACE);
   }
 
   private OpenAppDTO legacyApp(String appId) {
@@ -471,6 +478,18 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     release.setName("legacy-release");
     release.setComment("legacy release comment");
     release.setConfigurations(Map.of("timeout", "100"));
+    return release;
+  }
+
+  private ReleaseDTO releaseDTO(long id) {
+    ReleaseDTO release = new ReleaseDTO();
+    release.setId(id);
+    release.setAppId(APP_ID);
+    release.setClusterName(CLUSTER);
+    release.setNamespaceName(NAMESPACE);
+    release.setName("legacy-release");
+    release.setComment("legacy release comment");
+    release.setConfigurations("{\"timeout\":\"100\"}");
     return release;
   }
 

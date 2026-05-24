@@ -90,9 +90,10 @@ test.describe.serial('@regression Apollo Portal extended scenarios', () => {
     expect(download.suggestedFilename()).toContain(appId);
 
     await openConfigPage(page, appId);
-    const byNamespaceResponse =
-      waitForApiResponse(page, 'GET', '/envs/LOCAL/instances/by-namespace', 200);
     await page.locator('[ng-click="switchView(namespace, \'instance\')"]').first().click();
+    const byNamespaceResponse =
+      waitForApiResponse(page, 'GET', '/openapi/v1/envs/LOCAL/instances/by-namespace', 200);
+    await page.locator('[ng-click="switchInstanceViewType(namespace, \'all\')"]').first().click();
 
     const response = await byNamespaceResponse;
     expect(response.status()).toBe(200);
