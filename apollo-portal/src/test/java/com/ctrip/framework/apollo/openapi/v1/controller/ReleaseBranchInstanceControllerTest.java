@@ -271,6 +271,23 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void compareReleaseShouldAllowZeroReleaseIdSentinel() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(releaseService.findReleaseById(Env.DEV, 2L)).thenReturn(release(2L));
+    ReleaseCompareResult compareResult = new ReleaseCompareResult();
+    compareResult.addEntityPair(ChangeType.ADDED, new KVEntity("timeout", ""),
+        new KVEntity("timeout", "200"));
+    when(releaseService.compare(Env.DEV, 0L, 2L)).thenReturn(compareResult);
+
+    ResponseEntity<OpenReleaseDiffDTO> response = releaseController.compareRelease(ENV, 0L, 2L);
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getChanges()).hasSize(1);
+    verify(releaseService, never()).findReleaseById(Env.DEV, 0L);
+    verify(releaseService).compare(Env.DEV, 0L, 2L);
+  }
+
+  @Test
   void compareReleaseShouldRejectHiddenPortalRelease() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
     when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
@@ -322,6 +339,20 @@ class ReleaseBranchInstanceControllerTest {
         .isInstanceOf(AccessDeniedException.class);
 
     verifyNoInteractions(releaseService);
+  }
+
+  @Test
+  void findActiveReleasesShouldDefaultMissingPageAndSize() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(releaseService.findActiveReleases(APP_ID, Env.DEV, CLUSTER, NAMESPACE, 0, 5))
+        .thenReturn(Collections.singletonList(release(10L)));
+
+    ResponseEntity<java.util.List<com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO>> response =
+        releaseController.findActiveReleases(APP_ID, ENV, CLUSTER, NAMESPACE, null, null);
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody()).hasSize(1);
+    verify(releaseService).findActiveReleases(APP_ID, Env.DEV, CLUSTER, NAMESPACE, 0, 5);
   }
 
   @Test
@@ -394,6 +425,23 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void mergeBranchShouldDefaultDeleteBranchToTrue() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(namespaceBranchService.merge(APP_ID, Env.DEV, CLUSTER, NAMESPACE, BRANCH, "merge title",
+        "release comment", false, true, PORTAL_USER)).thenReturn(release(104L));
+
+    NamespaceReleaseDTO request = releaseRequest("merge title", "spoofed-user", false);
+
+    com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO response = namespaceBranchController
+        .merge(APP_ID, ENV, CLUSTER, NAMESPACE, BRANCH, null, request).getBody();
+
+    assertThat(response).isNotNull();
+    assertThat(response.getId()).isEqualTo(104L);
+    verify(namespaceBranchService).merge(APP_ID, Env.DEV, CLUSTER, NAMESPACE, BRANCH, "merge title",
+        "release comment", false, true, PORTAL_USER);
+  }
+
+  @Test
   void updateBranchRulesShouldUseCurrentPortalUserAndPathFields() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
 
@@ -442,6 +490,32 @@ class ReleaseBranchInstanceControllerTest {
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().getInstances()).hasSize(1);
     assertThat(response.getBody().getInstances().get(0).getAppId()).isEqualTo("client-app");
+  }
+
+  @Test
+  void getByNamespaceShouldDefaultMissingPageAndSize() {
+    when(instanceService.getByNamespace(Env.DEV, APP_ID, CLUSTER, NAMESPACE, "client-app", 0, 20))
+        .thenReturn(instancePage());
+
+    ResponseEntity<OpenInstancePageDTO> response = instanceController.getByNamespace(ENV, APP_ID,
+        CLUSTER, NAMESPACE, null, null, "client-app");
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getInstances()).hasSize(1);
+    verify(instanceService).getByNamespace(Env.DEV, APP_ID, CLUSTER, NAMESPACE, "client-app", 0,
+        20);
+  }
+
+  @Test
+  void getByReleaseShouldDefaultMissingPageAndSize() {
+    when(instanceService.getByRelease(Env.DEV, 10L, 0, 20)).thenReturn(instancePage());
+
+    ResponseEntity<OpenInstancePageDTO> response =
+        instanceController.getByRelease(ENV, 10L, null, null);
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getInstances()).hasSize(1);
+    verify(instanceService).getByRelease(Env.DEV, 10L, 0, 20);
   }
 
   @Test

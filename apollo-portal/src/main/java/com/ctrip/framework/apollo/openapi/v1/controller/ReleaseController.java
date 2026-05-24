@@ -54,6 +54,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("openapiReleaseController")
 public class ReleaseController implements ReleaseManagementApi {
 
+  private static final int DEFAULT_PAGE = 0;
+  private static final int DEFAULT_RELEASE_PAGE_SIZE = 5;
+
   private final ReleaseService releaseService;
   private final UserService userService;
   private final NamespaceBranchService namespaceBranchService;
@@ -79,8 +82,8 @@ public class ReleaseController implements ReleaseManagementApi {
   public ResponseEntity<OpenReleaseDiffDTO> compareRelease(String env, Long baseReleaseId,
       Long toCompareReleaseId) {
     Env targetEnv = Env.valueOf(env);
-    ReleaseDTO baseRelease = findReleaseOrThrow(targetEnv, baseReleaseId);
-    ReleaseDTO toCompareRelease = findReleaseOrThrow(targetEnv, toCompareReleaseId);
+    ReleaseDTO baseRelease = findReleaseForCompareOrThrow(targetEnv, baseReleaseId);
+    ReleaseDTO toCompareRelease = findReleaseForCompareOrThrow(targetEnv, toCompareReleaseId);
     checkReleaseReadAllowed(env, baseRelease);
     checkReleaseReadAllowed(env, toCompareRelease);
     return ResponseEntity.ok(OpenApiModelConverters.fromReleaseCompareResult(
@@ -161,8 +164,9 @@ public class ReleaseController implements ReleaseManagementApi {
       return ResponseEntity.ok(Collections.emptyList());
     }
     checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
-    return ResponseEntity.ok(OpenApiModelConverters.fromReleaseDTOs(releaseService
-        .findActiveReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size)));
+    return ResponseEntity.ok(OpenApiModelConverters
+        .fromReleaseDTOs(releaseService.findActiveReleases(appId, Env.valueOf(env), clusterName,
+            namespaceName, resolvePage(page), resolvePageSize(size, DEFAULT_RELEASE_PAGE_SIZE))));
   }
 
   @Override
@@ -292,7 +296,14 @@ public class ReleaseController implements ReleaseManagementApi {
     return release;
   }
 
+  private ReleaseDTO findReleaseForCompareOrThrow(Env env, long releaseId) {
+    return releaseId == 0 ? null : findReleaseOrThrow(env, releaseId);
+  }
+
   private void checkReleaseReadAllowed(String env, ReleaseDTO release) {
+    if (release == null) {
+      return;
+    }
     if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
         release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
@@ -302,6 +313,14 @@ public class ReleaseController implements ReleaseManagementApi {
             release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
+  }
+
+  private int resolvePage(Integer page) {
+    return page == null ? DEFAULT_PAGE : page;
+  }
+
+  private int resolvePageSize(Integer size, int defaultSize) {
+    return size == null ? defaultSize : size;
   }
 
   private void publishEvent(String appId, String clusterName, String namespaceName, long releaseId,

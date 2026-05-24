@@ -217,7 +217,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
     ReleaseDTO createdRelease = namespaceBranchService.merge(appId, Env.valueOf(env), clusterName,
         namespaceName, branchName, namespaceReleaseDTO.getReleaseTitle(),
         namespaceReleaseDTO.getReleaseComment(), emergencyPublish,
-        Boolean.TRUE.equals(deleteBranch), resolvedOperator);
+        deleteBranch == null || deleteBranch, resolvedOperator);
 
     ConfigPublishEvent event = ConfigPublishEvent.instance();
     event.withAppId(appId).withCluster(clusterName).withNamespace(namespaceName)

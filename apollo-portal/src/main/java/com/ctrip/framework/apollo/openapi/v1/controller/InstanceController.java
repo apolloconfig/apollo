@@ -35,6 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("openapiInstanceController")
 public class InstanceController implements InstanceManagementApi {
 
+  private static final int DEFAULT_PAGE = 0;
+  private static final int DEFAULT_INSTANCE_PAGE_SIZE = 20;
   private static final Splitter RELEASE_ID_SPLITTER =
       Splitter.on(',').trimResults().omitEmptyStrings();
 
@@ -47,16 +49,16 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<OpenInstancePageDTO> getByNamespace(String env, String appId,
       String clusterName, String namespaceName, Integer page, Integer size, String instanceAppId) {
-    return ResponseEntity.ok(
-        OpenApiModelConverters.fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env),
-            appId, clusterName, namespaceName, instanceAppId, page, size)));
+    return ResponseEntity.ok(OpenApiModelConverters
+        .fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env), appId, clusterName,
+            namespaceName, instanceAppId, resolvePage(page), resolvePageSize(size))));
   }
 
   @Override
   public ResponseEntity<OpenInstancePageDTO> getByRelease(String env, Long releaseId, Integer page,
       Integer size) {
-    return ResponseEntity.ok(OpenApiModelConverters.fromInstancePageDTO(
-        instanceService.getByRelease(Env.valueOf(env), releaseId, page, size)));
+    return ResponseEntity.ok(OpenApiModelConverters.fromInstancePageDTO(instanceService
+        .getByRelease(Env.valueOf(env), releaseId, resolvePage(page), resolvePageSize(size))));
   }
 
   @Override
@@ -85,5 +87,13 @@ public class InstanceController implements InstanceManagementApi {
       String clusterName, String namespaceName) {
     return ResponseEntity.ok(instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env),
         clusterName, namespaceName));
+  }
+
+  private int resolvePage(Integer page) {
+    return page == null ? DEFAULT_PAGE : page;
+  }
+
+  private int resolvePageSize(Integer size) {
+    return size == null ? DEFAULT_INSTANCE_PAGE_SIZE : size;
   }
 }
