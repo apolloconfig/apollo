@@ -311,6 +311,45 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void findActiveReleasesShouldRejectConsumerWithoutReleasePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(
+        () -> releaseController.findActiveReleases(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 10))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(releaseService, never()).findActiveReleases(eq(APP_ID), eq(Env.DEV), eq(CLUSTER),
+        eq(NAMESPACE), eq(0), eq(10));
+  }
+
+  @Test
+  void loadLatestActiveReleaseShouldReturnEmptyBodyWhenNoActiveReleaseExists() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(releaseService.loadLatestRelease(APP_ID, Env.DEV, CLUSTER, NAMESPACE)).thenReturn(null);
+
+    ResponseEntity<com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO> response =
+        releaseController.loadLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE);
+
+    assertThat(response.getBody()).isNull();
+  }
+
+  @Test
+  void loadLatestActiveReleaseShouldRejectConsumerWithoutReleasePermission() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+    when(unifiedPermissionValidator.hasReleaseNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    assertThatThrownBy(
+        () -> releaseController.loadLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(releaseService, never()).loadLatestRelease(eq(APP_ID), eq(Env.DEV), eq(CLUSTER),
+        eq(NAMESPACE));
+  }
+
+  @Test
   void createBranchShouldUseCurrentPortalUser() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
     when(namespaceBranchService.createBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, PORTAL_USER))
@@ -318,6 +357,20 @@ class ReleaseBranchInstanceControllerTest {
 
     ResponseEntity<OpenNamespaceDTO> response =
         namespaceBranchController.createBranch(APP_ID, ENV, CLUSTER, NAMESPACE, null);
+
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getClusterName()).isEqualTo(BRANCH);
+    verify(namespaceBranchService).createBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, PORTAL_USER);
+  }
+
+  @Test
+  void createBranchShouldAcceptLowercaseEnv() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(namespaceBranchService.createBranch(APP_ID, Env.DEV, CLUSTER, NAMESPACE, PORTAL_USER))
+        .thenReturn(namespace(BRANCH));
+
+    ResponseEntity<OpenNamespaceDTO> response =
+        namespaceBranchController.createBranch(APP_ID, "dev", CLUSTER, NAMESPACE, null);
 
     assertThat(response.getBody()).isNotNull();
     assertThat(response.getBody().getClusterName()).isEqualTo(BRANCH);

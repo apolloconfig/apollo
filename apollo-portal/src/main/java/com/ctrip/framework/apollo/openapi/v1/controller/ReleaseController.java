@@ -160,6 +160,7 @@ public class ReleaseController implements ReleaseManagementApi {
     if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
+    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(OpenApiModelConverters.fromReleaseDTOs(releaseService
         .findActiveReleases(appId, Env.valueOf(env), clusterName, namespaceName, page, size)));
   }
@@ -177,11 +178,11 @@ public class ReleaseController implements ReleaseManagementApi {
     if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
+    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
     ReleaseDTO release =
         releaseService.loadLatestRelease(appId, Env.valueOf(env), clusterName, namespaceName);
     if (release == null) {
-      throw NotFoundException
-          .releaseNotFound(String.format("%s+%s+%s+%s", appId, env, clusterName, namespaceName));
+      return ResponseEntity.ok().build();
     }
     return ResponseEntity.ok(OpenApiModelConverters.fromReleaseDTO(release));
   }
@@ -272,6 +273,15 @@ public class ReleaseController implements ReleaseManagementApi {
     return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
+  }
+
+  private void checkReleaseNamespaceReadAllowed(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
   }
 
   private ReleaseDTO findReleaseOrThrow(Env env, long releaseId) {
