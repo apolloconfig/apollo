@@ -63,6 +63,26 @@ appService.service('SampleService', ['$resource', 'AppUtil', function ($resource
     )
     self.assertFalse(urls[3].prefix_path)
 
+  def test_collects_variable_based_resource_base_paths(self):
+    with tempfile.TemporaryDirectory() as tmpdir:
+      service_file = Path(tmpdir) / "SampleService.js"
+      service_file.write_text(
+          """
+appService.service('SampleService', ['$resource', 'AppUtil', function ($resource, AppUtil) {
+  var baseUrl = AppUtil.prefixPath() + '/apps/:appId/envs/:env';
+  var resource = $resource(baseUrl, {}, {});
+}]);
+""",
+          encoding="utf-8",
+      )
+
+      urls = collect_service_urls(service_file)
+
+    self.assertEqual(1, len(urls))
+    self.assertEqual("/apps/:appId/envs/:env", urls[0].path)
+    self.assertEqual("RESOURCE_BASE", urls[0].method)
+    self.assertTrue(urls[0].prefix_path)
+
   def test_renders_summary(self):
     with tempfile.TemporaryDirectory() as tmpdir:
       service_file = Path(tmpdir) / "SampleService.js"

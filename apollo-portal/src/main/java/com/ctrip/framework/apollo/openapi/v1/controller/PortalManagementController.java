@@ -219,16 +219,17 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<List<Object>> findCommits(String appId, String env, String clusterName,
       String namespaceName, String key, Integer page, Integer size) {
     requirePortalUserRequest();
+    Env targetEnv = parseEnv(env);
     if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
         namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     if (StringUtils.isEmpty(key)) {
-      return ResponseEntity.ok(asObjects(
-          commitService.find(appId, Env.valueOf(env), clusterName, namespaceName, page, size)));
+      return ResponseEntity.ok(
+          asObjects(commitService.find(appId, targetEnv, clusterName, namespaceName, page, size)));
     }
-    return ResponseEntity.ok(asObjects(commitService.findByKey(appId, Env.valueOf(env), clusterName,
-        namespaceName, key, page, size)));
+    return ResponseEntity.ok(asObjects(
+        commitService.findByKey(appId, targetEnv, clusterName, namespaceName, key, page, size)));
   }
 
   @Override
@@ -291,9 +292,7 @@ public class PortalManagementController implements PortalManagementApi {
         if (StringUtils.isEmpty(env)) {
           continue;
         }
-        if (Env.UNKNOWN.equals(Env.transformEnv(env))) {
-          throw BadRequestException.invalidEnvFormat(env);
-        }
+        parseEnv(env);
         consumerRoles.addAll(consumerService.assignNamespaceRoleToConsumer(token, appId,
             namespaceName, env, currentUserId()));
       }
@@ -373,12 +372,13 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<List<Object>> findReleaseHistoriesByNamespace(String appId, String env,
       String clusterName, String namespaceName, Integer page, Integer size) {
     requirePortalUserRequest();
+    Env targetEnv = parseEnv(env);
     if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
         namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     List<ReleaseHistoryBO> histories = releaseHistoryService.findNamespaceReleaseHistory(appId,
-        Env.valueOf(env), clusterName, namespaceName, page, size);
+        targetEnv, clusterName, namespaceName, page, size);
     return ResponseEntity.ok(asObjects(histories));
   }
 
@@ -398,7 +398,7 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Object> createOrUpdateConfigDBConfig(String env, Object body) {
     requirePortalUserRequest();
     ServerConfig serverConfig = convertBody(body, ServerConfig.class);
-    return ResponseEntity.ok(serverConfigService.createOrUpdateConfigDBConfig(Env.transformEnv(env),
+    return ResponseEntity.ok(serverConfigService.createOrUpdateConfigDBConfig(parseEnv(env),
         serverConfig, currentUserId()));
   }
 
@@ -416,7 +416,7 @@ public class PortalManagementController implements PortalManagementApi {
   @ApolloAuditLog(type = OpType.DELETE, name = "ServerConfig.deleteConfigDBConfig")
   public ResponseEntity<Void> deleteConfigDBConfig(String env, String key, String cluster) {
     requirePortalUserRequest();
-    serverConfigService.deleteConfigDBConfig(Env.transformEnv(env), key, cluster, currentUserId());
+    serverConfigService.deleteConfigDBConfig(parseEnv(env), key, cluster, currentUserId());
     return ResponseEntity.ok().build();
   }
 
@@ -431,8 +431,7 @@ public class PortalManagementController implements PortalManagementApi {
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   public ResponseEntity<List<Object>> findAllConfigDBConfig(String env) {
     requirePortalUserRequest();
-    return ResponseEntity
-        .ok(asObjects(serverConfigService.findAllConfigDBConfig(Env.transformEnv(env))));
+    return ResponseEntity.ok(asObjects(serverConfigService.findAllConfigDBConfig(parseEnv(env))));
   }
 
   @Override
@@ -471,7 +470,7 @@ public class PortalManagementController implements PortalManagementApi {
     requirePortalUserRequest();
     String filename =
         "apollo_config_export_" + DateFormatUtils.format(new Date(), "yyyy_MMdd_HH_mm_ss") + ".zip";
-    List<Env> exportEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(Env::valueOf)
+    List<Env> exportEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(this::parseEnv)
         .collect(Collectors.toList());
 
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -488,7 +487,7 @@ public class PortalManagementController implements PortalManagementApi {
       MultipartFile file) {
     requirePortalUserRequest();
     validateConflictAction(conflictAction);
-    List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(Env::valueOf)
+    List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(this::parseEnv)
         .collect(Collectors.toList());
     try (ZipInputStream zipInputStream =
         new ZipInputStream(new ByteArrayInputStream(file.getBytes()))) {
@@ -511,10 +510,11 @@ public class PortalManagementController implements PortalManagementApi {
   @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
   public ResponseEntity<Resource> exportAppConfig(String appId, String env, String clusterName) {
     requirePortalUserRequest();
+    Env targetEnv = parseEnv(env);
     String filename = String.format("%s+%s+%s+%s.zip", appId, env, clusterName,
         DateFormatUtils.format(new Date(), "yyyy_MMdd_HH_mm_ss"));
     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      configsExportService.exportAppConfigByEnvAndCluster(appId, Env.valueOf(env), clusterName,
+      configsExportService.exportAppConfigByEnvAndCluster(appId, targetEnv, clusterName,
           outputStream);
       return resourceResponse(filename, outputStream.toByteArray());
     } catch (IOException e) {
@@ -526,6 +526,7 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Resource> exportNamespaceItems(String appId, String env, String clusterName,
       String namespaceName) {
     requirePortalUserRequest();
+    Env targetEnv = parseEnv(env);
     if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
         namespaceName)) {
       throw new AccessDeniedException("Access is denied");
@@ -537,8 +538,8 @@ public class PortalManagementController implements PortalManagementApi {
       fileName = Joiner.on(".").join(namespaceName, ConfigFileFormat.Properties.getValue());
     }
 
-    NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(appId, Env.valueOf(env), clusterName,
-        namespaceName, true, false);
+    NamespaceBO namespaceBO =
+        namespaceService.loadNamespaceBO(appId, targetEnv, clusterName, namespaceName, true, false);
     String configFileContent = NamespaceBOUtils.convert2configFileContent(namespaceBO);
     return resourceResponse(fileName, configFileContent.getBytes(StandardCharsets.UTF_8));
   }
@@ -549,10 +550,11 @@ public class PortalManagementController implements PortalManagementApi {
       String conflictAction, MultipartFile file) {
     requirePortalUserRequest();
     validateConflictAction(conflictAction);
+    Env targetEnv = parseEnv(env);
     try (ZipInputStream zipInputStream =
         new ZipInputStream(new ByteArrayInputStream(file.getBytes()))) {
-      configsImportService.importAppConfigFromZipFile(appId, Env.valueOf(env), clusterName,
-          zipInputStream, CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
+      configsImportService.importAppConfigFromZipFile(appId, targetEnv, clusterName, zipInputStream,
+          CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new BadRequestException("import app configs failed: %s", e.getMessage());
@@ -584,12 +586,13 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Void> importNamespaceItems(String appId, String env, String clusterName,
       String namespaceName, MultipartFile file) {
     requirePortalUserRequest();
+    Env targetEnv = parseEnv(env);
     try {
       ConfigFileUtils.check(file);
       String format = ConfigFileUtils.getFormat(file.getOriginalFilename());
       String standardFilename = ConfigFileUtils.toFilename(appId, clusterName, namespaceName,
           ConfigFileFormat.fromString(format));
-      configsImportService.forceImportNamespaceFromFile(Env.valueOf(env), standardFilename,
+      configsImportService.forceImportNamespaceFromFile(targetEnv, standardFilename,
           file.getInputStream(), currentUserId());
       return ResponseEntity.ok().build();
     } catch (IOException e) {
@@ -751,6 +754,14 @@ public class PortalManagementController implements PortalManagementApi {
     } catch (ParseException e) {
       throw new BadRequestException("Invalid audit date format: %s", value);
     }
+  }
+
+  private Env parseEnv(String env) {
+    Env targetEnv = Env.transformEnv(env);
+    if (Env.UNKNOWN.equals(targetEnv)) {
+      throw BadRequestException.invalidEnvFormat(env);
+    }
+    return targetEnv;
   }
 
   private Pageable pageable(Integer page, Integer size) {

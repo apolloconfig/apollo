@@ -210,6 +210,8 @@ def collect_file_urls(
       method = "GET"
     elif collect_resource_base and "$resource(" in line:
       expression = collect_resource_expression(line)
+      if expression:
+        expression = resolve_expression(expression, variables)
       method = "RESOURCE_BASE"
 
     if not expression:
@@ -320,11 +322,11 @@ def render_markdown(urls: Sequence[FrontendUrl], language: str) -> str:
     service_title = "## 按来源汇总"
     inventory_title = "## URL 清单"
     summary = [
-        f"- 前端文件数：{service_count}",
-        f"- URL 条目数：{len(urls)}",
-        f"- OpenAPI 条目数：{surface_count['OpenAPI']}",
-        f"- WebAPI 条目数：{surface_count['WebAPI']}",
-        f"- 未使用 `AppUtil.prefixPath()` 的条目数：{no_prefix_count}",
+        f"- 前端文件数: {service_count}",
+        f"- URL 条目数: {len(urls)}",
+        f"- OpenAPI 条目数: {surface_count['OpenAPI']}",
+        f"- WebAPI 条目数: {surface_count['WebAPI']}",
+        f"- 未使用 `AppUtil.prefixPath()` 的条目数: {no_prefix_count}",
     ]
   else:
     title = "Apollo Portal Frontend URL Migration Inventory (Temporary)"

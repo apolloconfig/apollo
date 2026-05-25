@@ -4,11 +4,11 @@
 
 ## 汇总
 
-- 前端文件数：28
-- URL 条目数：131
-- OpenAPI 条目数：131
-- WebAPI 条目数：0
-- 未使用 `AppUtil.prefixPath()` 的条目数：0
+- 前端文件数: 28
+- URL 条目数: 131
+- OpenAPI 条目数: 131
+- WebAPI 条目数: 0
+- 未使用 `AppUtil.prefixPath()` 的条目数: 0
 
 ## 按来源汇总
 

@@ -16,10 +16,10 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -56,18 +56,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.ResponseEntity;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 
-@RunWith(MockitoJUnitRunner.class)
+/**
+ * Tests Portal Management OpenAPI endpoints that require a portal user session.
+ */
+@ExtendWith(MockitoExtension.class)
 public class PortalManagementControllerTest {
 
   @InjectMocks
@@ -112,12 +115,12 @@ public class PortalManagementControllerTest {
   @Mock
   private ObjectMapper objectMapper;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     UserIdentityContextHolder.clear();
   }
@@ -153,13 +156,33 @@ public class PortalManagementControllerTest {
   }
 
   @Test
+  public void findCommitsShouldRejectInvalidEnv() {
+    assertThrows(BadRequestException.class,
+        () -> controller.findCommits("someApp", "invalid", "default", "application", null, 0, 10));
+
+    verifyNoInteractions(unifiedPermissionValidator, commitService);
+  }
+
+  @Test
+  public void findCommitsShouldAcceptLowercaseEnv() {
+    when(commitService.find("someApp", Env.DEV, "default", "application", 0, 10))
+        .thenReturn(Collections.emptyList());
+
+    ResponseEntity<List<Object>> response =
+        controller.findCommits("someApp", "dev", "default", "application", null, 0, 10);
+
+    assertEquals(200, response.getStatusCode().value());
+    assertNotNull(response.getBody());
+    assertTrue(response.getBody().isEmpty());
+    verify(commitService).find("someApp", Env.DEV, "default", "application", 0, 10);
+  }
+
+  @Test
   public void searchItemInfoByKeyOrValueShouldRejectNullCriteria() {
-    try {
-      controller.searchItemInfoByKeyOrValue(null, null);
-      fail("Expected BadRequestException");
-    } catch (BadRequestException expected) {
-      verifyNoInteractions(globalSearchService);
-    }
+    assertThrows(BadRequestException.class,
+        () -> controller.searchItemInfoByKeyOrValue(null, null));
+
+    verifyNoInteractions(globalSearchService);
   }
 
   @Test
@@ -210,12 +233,10 @@ public class PortalManagementControllerTest {
   public void exportNamespaceItemsShouldRejectConsumerTokenBeforeConfigVisibilityCheck() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
 
-    try {
-      controller.exportNamespaceItems("someApp", "DEV", "default", "application");
-      fail("Expected AccessDeniedException");
-    } catch (AccessDeniedException expected) {
-      verifyNoInteractions(unifiedPermissionValidator, namespaceService);
-    }
+    assertThrows(AccessDeniedException.class,
+        () -> controller.exportNamespaceItems("someApp", "DEV", "default", "application"));
+
+    verifyNoInteractions(unifiedPermissionValidator, namespaceService);
   }
 
   @Test
@@ -223,20 +244,18 @@ public class PortalManagementControllerTest {
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(
         "someApp", "DEV", "default", "application")).thenReturn(true);
 
-    try {
-      controller.exportNamespaceItems("someApp", "DEV", "default", "application");
-      fail("Expected AccessDeniedException");
-    } catch (AccessDeniedException expected) {
-      verify(unifiedPermissionValidator)
-          .shouldHideConfigToCurrentUser("someApp", "DEV", "default", "application");
-      verifyNoInteractions(namespaceService);
-    }
+    assertThrows(AccessDeniedException.class,
+        () -> controller.exportNamespaceItems("someApp", "DEV", "default", "application"));
+
+    verify(unifiedPermissionValidator)
+        .shouldHideConfigToCurrentUser("someApp", "DEV", "default", "application");
+    verifyNoInteractions(namespaceService);
   }
 
-  @Test(expected = AccessDeniedException.class)
+  @Test
   public void getPageSettingsShouldRejectConsumerToken() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
 
-    controller.getPageSettings();
+    assertThrows(AccessDeniedException.class, () -> controller.getPageSettings());
   }
 }

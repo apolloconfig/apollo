@@ -85,7 +85,7 @@ public class PortalUserController implements PortalUserManagementApi {
     if (!unifiedPermissionValidator.isSuperAdmin()
         && (!user.getUsername().equals(userInfoHolder.getUser().getUserId())
             || user.getEnabled() != USER_ENABLED)) {
-      throw new UnsupportedOperationException("Create or update user operation is unsupported");
+      throw new AccessDeniedException("Create or update user operation is forbidden");
     }
 
     CheckResult pwdCheckRes = passwordChecker.checkWeakPassword(user.getPassword());

@@ -16,10 +16,12 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.openapi.model.OpenUserDTO;
@@ -35,18 +37,21 @@ import com.ctrip.framework.apollo.portal.util.checker.AuthUserPasswordChecker;
 import com.ctrip.framework.apollo.portal.util.checker.CheckResult;
 import java.util.Collections;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 
-@RunWith(MockitoJUnitRunner.class)
+/**
+ * Tests Portal User OpenAPI endpoints that are backed by the portal user session.
+ */
+@ExtendWith(MockitoExtension.class)
 public class PortalUserControllerTest {
 
   @InjectMocks
@@ -64,12 +69,12 @@ public class PortalUserControllerTest {
   @Mock
   private UserInfoHolder userInfoHolder;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
   }
 
-  @After
+  @AfterEach
   public void tearDown() {
     UserIdentityContextHolder.clear();
   }
@@ -131,10 +136,26 @@ public class PortalUserControllerTest {
     assertEquals(1, captor.getValue().getEnabled());
   }
 
-  @Test(expected = AccessDeniedException.class)
+  @Test
+  public void createOrUpdateUserShouldRejectUnauthorizedUserUpdate() {
+    OpenUserDTO user = new OpenUserDTO();
+    user.setUsername("other");
+    user.setPassword("password");
+    user.setEnabled(1);
+    UserInfo currentUser = new UserInfo("jason");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    assertThrows(AccessDeniedException.class,
+        () -> portalUserController.createOrUpdateUser(user, false));
+
+    verifyNoInteractions(passwordChecker, userService);
+  }
+
+  @Test
   public void searchUsersShouldRejectConsumerToken() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
 
-    portalUserController.searchUsers("ja", false, 0, 10);
+    assertThrows(AccessDeniedException.class,
+        () -> portalUserController.searchUsers("ja", false, 0, 10));
   }
 }
