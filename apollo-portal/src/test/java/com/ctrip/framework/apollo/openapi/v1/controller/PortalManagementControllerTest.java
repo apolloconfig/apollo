@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.when;
 import com.ctrip.framework.apollo.audit.ApolloAuditProperties;
 import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.http.SearchResponseEntity;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
@@ -35,6 +38,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.vo.ItemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
@@ -149,6 +153,31 @@ public class PortalManagementControllerTest {
   }
 
   @Test
+  public void searchItemInfoByKeyOrValueShouldRejectNullCriteria() {
+    try {
+      controller.searchItemInfoByKeyOrValue(null, null);
+      fail("Expected BadRequestException");
+    } catch (BadRequestException expected) {
+      verifyNoInteractions(globalSearchService);
+    }
+  }
+
+  @Test
+  public void searchItemInfoByKeyOrValueShouldAllowOneNullCriterion() {
+    when(portalConfig.getPerEnvSearchMaxResults()).thenReturn(10);
+    SearchResponseEntity<List<ItemInfo>> searchResponse =
+        SearchResponseEntity.ok(Collections.emptyList());
+    when(globalSearchService.getAllEnvItemInfoBySearch(null, "timeout", 0, 10))
+        .thenReturn(searchResponse);
+
+    ResponseEntity<Object> response = controller.searchItemInfoByKeyOrValue(null, "timeout");
+
+    assertEquals(200, response.getStatusCode().value());
+    assertEquals(searchResponse, response.getBody());
+    verify(globalSearchService).getAllEnvItemInfoBySearch(null, "timeout", 0, 10);
+  }
+
+  @Test
   public void exportNamespaceItemsShouldReturnConfigContentAsResource() throws Exception {
     ItemDTO item = new ItemDTO();
     item.setKey("timeout");
@@ -175,6 +204,33 @@ public class PortalManagementControllerTest {
     assertTrue(content.contains("\"value\":\"100\""));
     verify(namespaceService).loadNamespaceBO("someApp", Env.DEV, "default", "application", true,
         false);
+  }
+
+  @Test
+  public void exportNamespaceItemsShouldRejectConsumerTokenBeforeConfigVisibilityCheck() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+
+    try {
+      controller.exportNamespaceItems("someApp", "DEV", "default", "application");
+      fail("Expected AccessDeniedException");
+    } catch (AccessDeniedException expected) {
+      verifyNoInteractions(unifiedPermissionValidator, namespaceService);
+    }
+  }
+
+  @Test
+  public void exportNamespaceItemsShouldRejectHiddenConfig() {
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(
+        "someApp", "DEV", "default", "application")).thenReturn(true);
+
+    try {
+      controller.exportNamespaceItems("someApp", "DEV", "default", "application");
+      fail("Expected AccessDeniedException");
+    } catch (AccessDeniedException expected) {
+      verify(unifiedPermissionValidator)
+          .shouldHideConfigToCurrentUser("someApp", "DEV", "default", "application");
+      verifyNoInteractions(namespaceService);
+    }
   }
 
   @Test(expected = AccessDeniedException.class)

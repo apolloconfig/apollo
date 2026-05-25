@@ -361,7 +361,7 @@ public class PortalManagementController implements PortalManagementApi {
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   public ResponseEntity<Object> searchItemInfoByKeyOrValue(String key, String value) {
     requirePortalUserRequest();
-    if (key.isEmpty() && value.isEmpty()) {
+    if (StringUtils.isEmpty(key) && StringUtils.isEmpty(value)) {
       throw new BadRequestException(
           "Please enter at least one search criterion in either key or value.");
     }
@@ -523,11 +523,13 @@ public class PortalManagementController implements PortalManagementApi {
   }
 
   @Override
-  @PreAuthorize(
-      value = "!@unifiedPermissionValidator.shouldHideConfigToCurrentUser(#appId, #env, #clusterName, #namespaceName)")
   public ResponseEntity<Resource> exportNamespaceItems(String appId, String env, String clusterName,
       String namespaceName) {
     requirePortalUserRequest();
+    if (unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+        namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
     List<String> fileNameSplit = Splitter.on(".").splitToList(namespaceName);
     String fileName = namespaceName;
     if (fileNameSplit.size() <= 1
