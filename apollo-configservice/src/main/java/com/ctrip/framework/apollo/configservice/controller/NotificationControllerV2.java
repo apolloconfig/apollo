@@ -41,6 +41,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -97,7 +98,7 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
   }
 
   @GetMapping
-  public DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> pollNotification(
+  public DeferredResult<ResponseEntity<?>> pollNotification(
       @RequestParam(value = "appId") String appId, @RequestParam(value = "cluster") String cluster,
       @RequestParam(value = "notifications") String notificationsAsString,
       @RequestParam(value = "dataCenter", required = false) String dataCenter,
@@ -281,6 +282,9 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     ApolloConfigNotification configNotification =
         new ApolloConfigNotification(changedNamespace, message.getId());
     configNotification.addMessage(content, message.getId());
+    ResponseEntity<String> serializedNotificationResponse = ResponseEntity.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(gson.toJson(Lists.newArrayList(configNotification)));
 
     // do async notification if too many clients
     if (results.size() > bizConfig.releaseMessageNotificationBatch()) {
@@ -297,7 +301,7 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
             }
           }
           logger.debug("Async notify {}", results.get(i));
-          results.get(i).setResult(configNotification);
+          results.get(i).setResult(configNotification, serializedNotificationResponse);
         }
       });
       return;
@@ -306,7 +310,7 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     logger.debug("Notify {} clients for key {}", results.size(), content);
 
     for (DeferredResultWrapper result : results) {
-      result.setResult(configNotification);
+      result.setResult(configNotification, serializedNotificationResponse);
     }
     logger.debug("Notification completed");
   }

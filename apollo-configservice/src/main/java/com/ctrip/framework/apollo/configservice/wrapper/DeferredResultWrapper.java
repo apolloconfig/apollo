@@ -37,7 +37,7 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
       new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 
   private Map<String, String> normalizedNamespaceNameToOriginalNamespaceName;
-  private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result;
+  private DeferredResult<ResponseEntity<?>> result;
 
 
   public DeferredResultWrapper(long timeoutInMilli) {
@@ -67,8 +67,18 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     setResult(Lists.newArrayList(notification));
   }
 
+  public void setResult(ApolloConfigNotification notification,
+      ResponseEntity<String> serializedNotificationResponse) {
+    if (!shouldRestoreOriginalNamespaceName(notification.getNamespaceName())) {
+      result.setResult(serializedNotificationResponse);
+      return;
+    }
+    setResult(copyApolloConfigNotification(notification));
+  }
+
   /**
-   * The namespace name is used as a key in client side, so we have to return the original one instead of the correct one
+   * The namespace name is used as a key in client side, so we have to return the original
+   * one instead of the correct one.
    */
   public void setResult(List<ApolloConfigNotification> notifications) {
     if (normalizedNamespaceNameToOriginalNamespaceName != null) {
@@ -82,8 +92,21 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     result.setResult(new ResponseEntity<>(notifications, HttpStatus.OK));
   }
 
-  public DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> getResult() {
+  public DeferredResult<ResponseEntity<?>> getResult() {
     return result;
+  }
+
+  private boolean shouldRestoreOriginalNamespaceName(String namespaceName) {
+    return normalizedNamespaceNameToOriginalNamespaceName != null
+        && normalizedNamespaceNameToOriginalNamespaceName.containsKey(namespaceName);
+  }
+
+  private ApolloConfigNotification copyApolloConfigNotification(
+      ApolloConfigNotification notification) {
+    ApolloConfigNotification copiedNotification = new ApolloConfigNotification(
+        notification.getNamespaceName(), notification.getNotificationId());
+    notification.getMessages().getDetails().forEach(copiedNotification::addMessage);
+    return copiedNotification;
   }
 
   @Override
