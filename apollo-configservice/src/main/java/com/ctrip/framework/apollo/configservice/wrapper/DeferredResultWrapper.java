@@ -74,6 +74,9 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
       result.setResult((ResponseEntity) serializedNotificationResponse);
       return;
     }
+    // The ApolloConfigNotification is shared across all deferred results for the same release
+    // message. Copy it before restoring the client-side namespace name to avoid mutating
+    // the shared notification and affecting other clients.
     setResult(copyApolloConfigNotification(notification));
   }
 
