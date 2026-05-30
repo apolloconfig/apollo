@@ -335,6 +335,18 @@ public class PortalManagementControllerTest {
   }
 
   @Test
+  public void importAllConfigsShouldDefaultMissingConflictActionToIgnore() throws Exception {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+    MultipartFile file = mock(MultipartFile.class);
+    when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+
+    controller.importAllConfigs("DEV", null, file);
+
+    verify(configsImportService).importDataFromZipFile(eq(Collections.singletonList(Env.DEV)),
+        any(ZipInputStream.class), eq(true), eq("operator"));
+  }
+
+  @Test
   public void importAppConfigShouldStreamMultipartInput() throws Exception {
     when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
     MultipartFile file = mock(MultipartFile.class);
@@ -346,6 +358,18 @@ public class PortalManagementControllerTest {
     verify(file, never()).getBytes();
     verify(configsImportService).importAppConfigFromZipFile(eq("someApp"), eq(Env.DEV),
         eq("default"), any(ZipInputStream.class), eq(false), eq("operator"));
+  }
+
+  @Test
+  public void importAppConfigShouldDefaultMissingConflictActionToIgnore() throws Exception {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+    MultipartFile file = mock(MultipartFile.class);
+    when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+
+    controller.importAppConfig("someApp", "DEV", "default", null, file);
+
+    verify(configsImportService).importAppConfigFromZipFile(eq("someApp"), eq(Env.DEV),
+        eq("default"), any(ZipInputStream.class), eq(true), eq("operator"));
   }
 
   @Test

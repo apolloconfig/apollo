@@ -491,12 +491,12 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Void> importAllConfigs(String envs, String conflictAction,
       MultipartFile file) {
     requirePortalUserRequest();
-    validateConflictAction(conflictAction);
+    String resolvedConflictAction = resolveConflictAction(conflictAction);
     List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(this::parseEnv)
         .collect(Collectors.toList());
     try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
       configsImportService.importDataFromZipFile(importEnvs, zipInputStream,
-          CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
+          CONFLICT_ACTION_IGNORE.equals(resolvedConflictAction), currentUserId());
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new BadRequestException("import configs failed: %s", e.getMessage());
@@ -549,11 +549,11 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Void> importAppConfig(String appId, String env, String clusterName,
       String conflictAction, MultipartFile file) {
     requirePortalUserRequest();
-    validateConflictAction(conflictAction);
+    String resolvedConflictAction = resolveConflictAction(conflictAction);
     Env targetEnv = parseEnv(env);
     try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
       configsImportService.importAppConfigFromZipFile(appId, targetEnv, clusterName, zipInputStream,
-          CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
+          CONFLICT_ACTION_IGNORE.equals(resolvedConflictAction), currentUserId());
       return ResponseEntity.ok().build();
     } catch (IOException e) {
       throw new BadRequestException("import app configs failed: %s", e.getMessage());
@@ -797,6 +797,14 @@ public class PortalManagementController implements PortalManagementApi {
         && !CONFLICT_ACTION_IGNORE.equals(conflictAction)) {
       throw new BadRequestException("ConflictAction is incorrect.");
     }
+  }
+
+  private String resolveConflictAction(String conflictAction) {
+    if (StringUtils.isEmpty(conflictAction)) {
+      return CONFLICT_ACTION_IGNORE;
+    }
+    validateConflictAction(conflictAction);
+    return conflictAction;
   }
 
   private void validateServerConfig(ServerConfig serverConfig) {
