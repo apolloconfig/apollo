@@ -65,7 +65,6 @@ import com.ctrip.framework.apollo.portal.util.NamespaceBOUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -113,6 +112,8 @@ public class PortalManagementController implements PortalManagementApi {
   private static final String CONFLICT_ACTION_COVER = "cover";
   private static final String CONFIG_SERVICE_URL_PATH = "/services/config";
   private static final String ADMIN_SERVICE_URL_PATH = "/services/admin";
+  private static final int DEFAULT_PAGE = 0;
+  private static final int DEFAULT_PAGE_SIZE = 10;
   private static final Date DEFAULT_EXPIRES =
       new GregorianCalendar(2099, Calendar.JANUARY, 1).getTime();
 
@@ -230,11 +231,11 @@ public class PortalManagementController implements PortalManagementApi {
       return ResponseEntity.ok(Collections.emptyList());
     }
     if (StringUtils.isEmpty(key)) {
-      return ResponseEntity.ok(
-          asObjects(commitService.find(appId, targetEnv, clusterName, namespaceName, page, size)));
+      return ResponseEntity.ok(asObjects(commitService.find(appId, targetEnv, clusterName,
+          namespaceName, page(page), size(size))));
     }
-    return ResponseEntity.ok(asObjects(
-        commitService.findByKey(appId, targetEnv, clusterName, namespaceName, key, page, size)));
+    return ResponseEntity.ok(asObjects(commitService.findByKey(appId, targetEnv, clusterName,
+        namespaceName, key, page(page), size(size))));
   }
 
   @Override
@@ -383,7 +384,7 @@ public class PortalManagementController implements PortalManagementApi {
       return ResponseEntity.ok(Collections.emptyList());
     }
     List<ReleaseHistoryBO> histories = releaseHistoryService.findNamespaceReleaseHistory(appId,
-        targetEnv, clusterName, namespaceName, page, size);
+        targetEnv, clusterName, namespaceName, page(page), size(size));
     return ResponseEntity.ok(asObjects(histories));
   }
 
@@ -491,8 +492,7 @@ public class PortalManagementController implements PortalManagementApi {
     validateConflictAction(conflictAction);
     List<Env> importEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(this::parseEnv)
         .collect(Collectors.toList());
-    try (ZipInputStream zipInputStream =
-        new ZipInputStream(new ByteArrayInputStream(file.getBytes()))) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
       configsImportService.importDataFromZipFile(importEnvs, zipInputStream,
           CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
       return ResponseEntity.ok().build();
@@ -549,8 +549,7 @@ public class PortalManagementController implements PortalManagementApi {
     requirePortalUserRequest();
     validateConflictAction(conflictAction);
     Env targetEnv = parseEnv(env);
-    try (ZipInputStream zipInputStream =
-        new ZipInputStream(new ByteArrayInputStream(file.getBytes()))) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(file.getInputStream())) {
       configsImportService.importAppConfigFromZipFile(appId, targetEnv, clusterName, zipInputStream,
           CONFLICT_ACTION_IGNORE.equals(conflictAction), currentUserId());
       return ResponseEntity.ok().build();
@@ -829,7 +828,15 @@ public class PortalManagementController implements PortalManagementApi {
   }
 
   private Pageable pageable(Integer page, Integer size) {
-    return PageRequest.of(page == null ? 0 : page, size == null ? 10 : size);
+    return PageRequest.of(page(page), size(size));
+  }
+
+  private int page(Integer page) {
+    return page == null ? DEFAULT_PAGE : page;
+  }
+
+  private int size(Integer size) {
+    return size == null ? DEFAULT_PAGE_SIZE : size;
   }
 
   private String currentUserId() {

@@ -25,9 +25,12 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenPermissionConditionDTO;
 import com.ctrip.framework.apollo.openapi.server.service.PermissionOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -188,6 +191,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(String appId, String namespaceName,
       String operator) {
+    requirePortalUserRequest();
     permissionOpenApiService.initAppPermission(appId, namespaceName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -197,6 +201,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initClusterNamespacePermission")
   public ResponseEntity<Void> initClusterNamespacePermission(String appId, String env,
       String clusterName, String operator) {
+    requirePortalUserRequest();
     permissionOpenApiService.initClusterNamespacePermission(appId, env, clusterName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -255,5 +260,11 @@ public class PermissionController implements PermissionManagementApi {
     permissionOpenApiService.removeNamespaceRoleFromUser(appId, namespaceName, roleType, userId,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
+  }
+
+  private void requirePortalUserRequest() {
+    if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      throw new AccessDeniedException("Portal user session is required");
+    }
   }
 }

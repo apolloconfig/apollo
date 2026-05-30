@@ -25,6 +25,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -43,6 +45,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -58,11 +61,13 @@ import com.ctrip.framework.apollo.portal.service.ReleaseHistoryService;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.ZipInputStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +78,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Tests Portal Management OpenAPI endpoints that require a portal user session.
@@ -185,6 +191,44 @@ public class PortalManagementControllerTest {
   }
 
   @Test
+  public void findCommitsShouldDefaultPaginationWhenOmitted() {
+    when(commitService.find("someApp", Env.DEV, "default", "application", 0, 10))
+        .thenReturn(Collections.emptyList());
+
+    ResponseEntity<List<Object>> response =
+        controller.findCommits("someApp", "DEV", "default", "application", null, null, null);
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(commitService).find("someApp", Env.DEV, "default", "application", 0, 10);
+  }
+
+  @Test
+  public void findCommitsByKeyShouldDefaultPaginationWhenOmitted() {
+    when(commitService.findByKey("someApp", Env.DEV, "default", "application", "timeout", 0, 10))
+        .thenReturn(Collections.emptyList());
+
+    ResponseEntity<List<Object>> response = controller.findCommits("someApp", "DEV", "default",
+        "application", "timeout", null, null);
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(commitService).findByKey("someApp", Env.DEV, "default", "application", "timeout", 0,
+        10);
+  }
+
+  @Test
+  public void findReleaseHistoriesShouldDefaultPaginationWhenOmitted() {
+    when(releaseHistoryService.findNamespaceReleaseHistory("someApp", Env.DEV, "default",
+        "application", 0, 10)).thenReturn(Collections.emptyList());
+
+    ResponseEntity<List<Object>> response = controller.findReleaseHistoriesByNamespace("someApp",
+        "DEV", "default", "application", null, null);
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(releaseHistoryService).findNamespaceReleaseHistory("someApp", Env.DEV, "default",
+        "application", 0, 10);
+  }
+
+  @Test
   public void searchItemInfoByKeyOrValueShouldRejectNullCriteria() {
     assertThrows(BadRequestException.class,
         () -> controller.searchItemInfoByKeyOrValue(null, null));
@@ -247,6 +291,34 @@ public class PortalManagementControllerTest {
     }
     verify(configsExportService).exportAppConfigByEnvAndCluster(eq("someApp"), eq(Env.DEV),
         eq("default"), any(OutputStream.class));
+  }
+
+  @Test
+  public void importAllConfigsShouldStreamMultipartInput() throws Exception {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+    MultipartFile file = mock(MultipartFile.class);
+    when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+
+    controller.importAllConfigs("DEV", "ignore", file);
+
+    verify(file).getInputStream();
+    verify(file, never()).getBytes();
+    verify(configsImportService).importDataFromZipFile(eq(Collections.singletonList(Env.DEV)),
+        any(ZipInputStream.class), eq(true), eq("operator"));
+  }
+
+  @Test
+  public void importAppConfigShouldStreamMultipartInput() throws Exception {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+    MultipartFile file = mock(MultipartFile.class);
+    when(file.getInputStream()).thenReturn(new ByteArrayInputStream(new byte[0]));
+
+    controller.importAppConfig("someApp", "DEV", "default", "cover", file);
+
+    verify(file).getInputStream();
+    verify(file, never()).getBytes();
+    verify(configsImportService).importAppConfigFromZipFile(eq("someApp"), eq(Env.DEV),
+        eq("default"), any(ZipInputStream.class), eq(false), eq("operator"));
   }
 
   @Test

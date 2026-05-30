@@ -132,6 +132,15 @@ public class PermissionControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void initAppPermissionShouldRejectConsumerToken() throws Exception {
+    mockMvc.perform(post("/openapi/v1/apps/{appId}/namespaces/{namespaceName}/permission-init",
+        APP_ID, NAMESPACE).param("operator", "api-operator")).andExpect(status().isForbidden());
+
+    verify(permissionOpenApiService, never()).initAppPermission(anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
   public void initClusterNamespacePermissionShouldUseCurrentPortalUser() throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
     when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID)).thenReturn(false);
@@ -143,5 +152,17 @@ public class PermissionControllerParamBindLowLevelTest {
     verify(permissionOpenApiService).initClusterNamespacePermission(APP_ID, "DEV", "default",
         "portal-user");
     verify(unifiedPermissionValidator, never()).hasAssignRolePermission(APP_ID);
+  }
+
+  @Test
+  public void initClusterNamespacePermissionShouldRejectConsumerToken() throws Exception {
+    mockMvc
+        .perform(post(
+            "/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/permission-init",
+            APP_ID, "DEV", "default").param("operator", "api-operator"))
+        .andExpect(status().isForbidden());
+
+    verify(permissionOpenApiService, never()).initClusterNamespacePermission(anyString(),
+        anyString(), anyString(), anyString());
   }
 }
