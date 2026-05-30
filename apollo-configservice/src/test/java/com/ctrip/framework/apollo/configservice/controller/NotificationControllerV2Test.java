@@ -245,8 +245,7 @@ public class NotificationControllerV2Test {
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
-    ResponseEntity<?> result =
-        (ResponseEntity<?>) deferredResult.getResult();
+    ResponseEntity<?> result = (ResponseEntity<?>) deferredResult.getResult();
 
     List<ApolloConfigNotification> notifications = getNotifications(result);
 
@@ -291,8 +290,7 @@ public class NotificationControllerV2Test {
 
     controller.handleMessage(someReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
 
-    ResponseEntity<?> response =
-        (ResponseEntity<?>) deferredResult.getResult();
+    ResponseEntity<?> response = (ResponseEntity<?>) deferredResult.getResult();
 
     List<ApolloConfigNotification> notifications = getNotifications(response);
 
@@ -418,8 +416,7 @@ public class NotificationControllerV2Test {
 
     assertTrue(deferredResult.hasResult());
 
-    ResponseEntity<?> response =
-        (ResponseEntity<?>) deferredResult.getResult();
+    ResponseEntity<?> response = (ResponseEntity<?>) deferredResult.getResult();
 
     List<ApolloConfigNotification> notifications = getNotifications(response);
 

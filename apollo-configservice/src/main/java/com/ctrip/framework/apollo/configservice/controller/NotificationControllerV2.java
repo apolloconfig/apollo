@@ -282,9 +282,9 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     ApolloConfigNotification configNotification =
         new ApolloConfigNotification(changedNamespace, message.getId());
     configNotification.addMessage(content, message.getId());
-    ResponseEntity<String> serializedNotificationResponse = ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(gson.toJson(Lists.newArrayList(configNotification)));
+    ResponseEntity<String> serializedNotificationResponse =
+        ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+            .body(gson.toJson(Lists.newArrayList(configNotification)));
 
     // do async notification if too many clients
     if (results.size() > bizConfig.releaseMessageNotificationBatch()) {
