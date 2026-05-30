@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -121,10 +122,26 @@ public class PermissionControllerParamBindLowLevelTest {
   @Test
   public void initAppPermissionShouldUseCurrentPortalUser() throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID)).thenReturn(false);
 
     mockMvc.perform(post("/openapi/v1/apps/{appId}/namespaces/{namespaceName}/permission-init",
         APP_ID, NAMESPACE)).andExpect(status().isOk());
 
     verify(permissionOpenApiService).initAppPermission(APP_ID, NAMESPACE, "portal-user");
+    verify(unifiedPermissionValidator, never()).hasAssignRolePermission(APP_ID);
+  }
+
+  @Test
+  public void initClusterNamespacePermissionShouldUseCurrentPortalUser() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID)).thenReturn(false);
+
+    mockMvc.perform(post(
+        "/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/permission-init",
+        APP_ID, "DEV", "default")).andExpect(status().isOk());
+
+    verify(permissionOpenApiService).initClusterNamespacePermission(APP_ID, "DEV", "default",
+        "portal-user");
+    verify(unifiedPermissionValidator, never()).hasAssignRolePermission(APP_ID);
   }
 }

@@ -185,7 +185,6 @@ public class PermissionController implements PermissionManagementApi {
   }
 
   @Override
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(String appId, String namespaceName,
       String operator) {
@@ -195,7 +194,6 @@ public class PermissionController implements PermissionManagementApi {
   }
 
   @Override
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasAssignRolePermission(#appId)")
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initClusterNamespacePermission")
   public ResponseEntity<Void> initClusterNamespacePermission(String appId, String env,
       String clusterName, String operator) {

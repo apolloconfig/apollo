@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
@@ -74,6 +76,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   @PreAuthorize(
       value = "@openapiNamespaceBranchController.canCreateBranch(#appId, #env, #clusterName, #namespaceName)")
+  @ApolloAuditLog(type = OpType.CREATE, name = "NamespaceBranch.create")
   @Override
   public ResponseEntity<OpenNamespaceDTO> createBranch(String appId, String env, String clusterName,
       String namespaceName, String operator) {
@@ -85,6 +88,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   }
 
   @Override
+  @ApolloAuditLog(type = OpType.DELETE, name = "NamespaceBranch.delete")
   public ResponseEntity<Void> deleteBranch(String env, String appId, String clusterName,
       String namespaceName, String branchName, String operator) {
     String resolvedOperator = resolveOperator(operator, null);
@@ -124,6 +128,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   @PreAuthorize(
       value = "@openapiNamespaceBranchController.canMergeBranch(#appId, #env, #clusterName, #namespaceName)")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
   @Override
   public ResponseEntity<OpenReleaseDTO> merge(String appId, String env, String clusterName,
       String namespaceName, String branchName, Boolean deleteBranch,
@@ -134,6 +139,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   @PreAuthorize(
       value = "@openapiNamespaceBranchController.canMergeBranch(#appId, #env, #clusterName, #namespaceName)")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.merge")
   @Override
   public ResponseEntity<OpenReleaseDTO> mergeBranch(String env, String appId, String clusterName,
       String namespaceName, String branchName, Boolean deleteBranch,
@@ -144,6 +150,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   @PreAuthorize(
       value = "@openapiNamespaceBranchController.canUpdateBranchRules(#appId, #env, #clusterName, #namespaceName)")
+  @ApolloAuditLog(type = OpType.UPDATE, name = "NamespaceBranch.updateBranchRules")
   @Override
   public ResponseEntity<Void> updateBranchRules(String appId, String env, String clusterName,
       String namespaceName, String branchName, OpenGrayReleaseRuleDTO openGrayReleaseRuleDTO,

@@ -44,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -75,6 +76,7 @@ public class ClusterControllerParamBindLowLevelTest {
   public void setUp() {
     when(unifiedPermissionValidator.hasCreateClusterPermission(anyString())).thenReturn(true);
     when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
 
     UserInfo user = new UserInfo();
     user.setUserId("tester");
@@ -175,5 +177,21 @@ public class ClusterControllerParamBindLowLevelTest {
     assertThat(appIdCaptor.getValue()).isEqualTo(appId);
     assertThat(clusterNameCaptor.getValue()).isEqualTo(clusterName);
     assertThat(operatorCaptor.getValue()).isEqualTo(operator);
+  }
+
+  @Test
+  public void deleteCluster_shouldRejectAppAdminWithoutSuperAdmin() throws Exception {
+    String appId = "app-1";
+    String env = "DEV";
+    String clusterName = "default";
+    String operator = "tester";
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+
+    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+        clusterName).param("operator", operator)).andExpect(status().isForbidden());
+
+    verify(clusterOpenApiService, never()).deleteCluster(anyString(), anyString(), anyString(),
+        anyString());
   }
 }

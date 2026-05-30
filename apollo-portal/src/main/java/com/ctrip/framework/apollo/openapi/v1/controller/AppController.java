@@ -193,7 +193,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
+  @ApolloAuditLog(type = OpType.RPC, name = "App.delete")
   public ResponseEntity<Void> deleteApp(String appId, String operator) {
     String resolvedOperator = resolveOperator(operator);
     appOpenApiService.deleteApp(appId, resolvedOperator);

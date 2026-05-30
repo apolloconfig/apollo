@@ -81,6 +81,7 @@ public class ClusterControllerTest {
     when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(
         true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
 
     authenticatedUser = new UserInfo();
     authenticatedUser.setUserId("test-operator");

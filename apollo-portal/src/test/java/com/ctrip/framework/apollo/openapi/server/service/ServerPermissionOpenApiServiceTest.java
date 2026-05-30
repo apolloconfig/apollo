@@ -107,26 +107,55 @@ class ServerPermissionOpenApiServiceTest {
   }
 
   @Test
-  void deleteCreateApplicationRoleShouldAllowMissingTargetUserAndDelegate() {
+  void deleteCreateApplicationRoleShouldRejectMissingTargetUser() {
     String userId = "missing-user";
     String operator = "operator";
+    when(userService.findByUserId(userId)).thenReturn(null);
+
+    assertThrows(BadRequestException.class,
+        () -> service.deleteCreateApplicationRoleFromUser(userId, operator));
+
+    verify(rolePermissionService, never()).removeRoleFromUsers(
+        SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME, Sets.newHashSet(userId), operator);
+  }
+
+  @Test
+  void deleteCreateApplicationRoleShouldValidateTargetUserAndDelegate() {
+    String userId = "target-user";
+    String operator = "operator";
+    when(userService.findByUserId(userId)).thenReturn(new UserInfo(userId));
 
     service.deleteCreateApplicationRoleFromUser(userId, operator);
 
-    verify(userService, never()).findByUserId(userId);
     verify(rolePermissionService).removeRoleFromUsers(
         SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME, Sets.newHashSet(userId), operator);
   }
 
   @Test
-  void removeManageAppMasterRoleShouldAllowMissingTargetUserAndDelegate() {
+  void removeManageAppMasterRoleShouldRejectMissingTargetUser() {
     String appId = "some-app";
     String userId = "missing-user";
     String operator = "operator";
+    when(userService.findByUserId(userId)).thenReturn(null);
+
+    assertThrows(BadRequestException.class,
+        () -> service.removeManageAppMasterRoleFromUser(appId, userId, operator));
+
+    verify(roleInitializationService, never()).initManageAppMasterRole(appId, operator);
+    verify(rolePermissionService, never()).removeRoleFromUsers(
+        RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER),
+        Sets.newHashSet(userId), operator);
+  }
+
+  @Test
+  void removeManageAppMasterRoleShouldValidateTargetUserAndDelegate() {
+    String appId = "some-app";
+    String userId = "target-user";
+    String operator = "operator";
+    when(userService.findByUserId(userId)).thenReturn(new UserInfo(userId));
 
     service.removeManageAppMasterRoleFromUser(appId, userId, operator);
 
-    verify(userService, never()).findByUserId(userId);
     verify(roleInitializationService).initManageAppMasterRole(appId, operator);
     verify(rolePermissionService).removeRoleFromUsers(
         RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER),

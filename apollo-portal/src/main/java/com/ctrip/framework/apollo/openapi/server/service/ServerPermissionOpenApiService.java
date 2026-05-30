@@ -239,6 +239,7 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
   @Override
   public void deleteCreateApplicationRoleFromUser(String userId, String operator) {
     RequestPrecondition.checkArgumentsNotEmpty(userId);
+    checkUserExists(userId);
     rolePermissionService.removeRoleFromUsers(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME,
         Sets.newHashSet(userId), operator);
   }
@@ -265,6 +266,7 @@ public class ServerPermissionOpenApiService implements PermissionOpenApiService 
   @Override
   public void removeManageAppMasterRoleFromUser(String appId, String userId, String operator) {
     RequestPrecondition.checkArgumentsNotEmpty(userId);
+    checkUserExists(userId);
     roleInitializationService.initManageAppMasterRole(appId, operator);
     rolePermissionService.removeRoleFromUsers(
         RoleUtils.buildAppRoleName(appId, PermissionType.MANAGE_APP_MASTER),
