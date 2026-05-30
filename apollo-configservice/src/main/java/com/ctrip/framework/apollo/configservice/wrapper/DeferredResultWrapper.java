@@ -37,7 +37,7 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
       new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 
   private Map<String, String> normalizedNamespaceNameToOriginalNamespaceName;
-  private DeferredResult<ResponseEntity<?>> result;
+  private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result;
 
 
   public DeferredResultWrapper(long timeoutInMilli) {
@@ -67,10 +67,11 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     setResult(Lists.newArrayList(notification));
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void setResult(ApolloConfigNotification notification,
       ResponseEntity<String> serializedNotificationResponse) {
     if (!shouldRestoreOriginalNamespaceName(notification.getNamespaceName())) {
-      result.setResult(serializedNotificationResponse);
+      result.setResult((ResponseEntity) serializedNotificationResponse);
       return;
     }
     setResult(copyApolloConfigNotification(notification));
@@ -92,7 +93,7 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     result.setResult(new ResponseEntity<>(notifications, HttpStatus.OK));
   }
 
-  public DeferredResult<ResponseEntity<?>> getResult() {
+  public DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> getResult() {
     return result;
   }
 

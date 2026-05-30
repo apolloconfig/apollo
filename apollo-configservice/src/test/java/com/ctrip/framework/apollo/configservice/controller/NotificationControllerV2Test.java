@@ -128,7 +128,7 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -154,7 +154,7 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -195,7 +195,7 @@ public class NotificationControllerV2Test {
         Sets.newHashSet(defaultNamespace, somePublicNamespace, somePublicNamespaceAsFile),
         someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -241,7 +241,7 @@ public class NotificationControllerV2Test {
     String notificationAsString = transformApolloConfigNotificationsToString(defaultNamespace,
         someNotificationId, somePublicNamespace, someNotificationId);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -279,7 +279,7 @@ public class NotificationControllerV2Test {
     String notificationAsString = transformApolloConfigNotificationsToString(defaultNamespace,
         someNotificationId, somePublicNamespace, someNotificationId);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -326,10 +326,10 @@ public class NotificationControllerV2Test {
     when(bizConfig.releaseMessageNotificationBatch()).thenReturn(someBatch);
     when(bizConfig.releaseMessageNotificationBatchIntervalInMilli()).thenReturn(someBatchInterval);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
-    DeferredResult<ResponseEntity<?>> anotherDeferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> anotherDeferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -361,7 +361,7 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
             someClientIp);
 
@@ -406,7 +406,7 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(appIdWithIncorrectCase, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<?>> deferredResult =
+    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
         controller.pollNotification(appIdWithIncorrectCase, someCluster, notificationAsString,
             someDataCenter, someClientIp);
 
