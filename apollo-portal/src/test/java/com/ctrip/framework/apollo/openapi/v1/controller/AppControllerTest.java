@@ -144,6 +144,7 @@ public class AppControllerTest {
     when(unifiedPermissionValidator.hasCreateNamespacePermission(Mockito.any()))
         .thenReturn(true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
@@ -506,7 +507,6 @@ public class AppControllerTest {
         new UsernamePasswordAuthenticationToken(userInfo, null, Collections.emptyList()));
 
     when(appOpenApiService.deleteApp(appId, operator)).thenReturn(new OpenAppDTO());
-    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
 
     mockMvc.perform(delete("/openapi/v1/apps/" + appId).param("operator", operator))
         .andExpect(MockMvcResultMatchers.status().isOk())

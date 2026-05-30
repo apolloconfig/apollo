@@ -78,6 +78,7 @@ public class AppController implements AppManagementApi {
    */
   @Transactional
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
+  @ApolloAuditLog(type = OpType.CREATE, name = "App.create")
   @Override
   public ResponseEntity<Void> createApp(OpenCreateAppDTO req) {
     if (null == req.getApp()) {
@@ -172,7 +173,8 @@ public class AppController implements AppManagementApi {
    * POST /openapi/v1/apps/envs/{env}
    */
   @Override
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()")
+  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()"
+      + " || (#app != null && @unifiedPermissionValidator.isAppAdmin(#app.appId))")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> createAppInEnv(String env, OpenAppDTO app, String operator) {
     if (app == null) {
@@ -190,7 +192,7 @@ public class AppController implements AppManagementApi {
    * Delete App (new added)
    */
   @Override
-  @PreAuthorize(value = "@unifiedPermissionValidator.isAppAdmin(#appId)")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
   @ApolloAuditLog(type = OpType.DELETE, name = "App.delete")
   public ResponseEntity<Void> deleteApp(String appId, String operator) {
     String resolvedOperator = resolveOperator(operator);

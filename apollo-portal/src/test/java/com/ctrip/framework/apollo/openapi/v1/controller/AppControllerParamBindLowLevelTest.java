@@ -25,6 +25,8 @@ import com.ctrip.framework.apollo.openapi.repository.ConsumerTokenRepository;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
@@ -116,6 +118,7 @@ public class AppControllerParamBindLowLevelTest {
   public void setUp() {
     when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
     when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
 
     UserInfo user = new UserInfo();
     user.setUserId("tester");
@@ -209,6 +212,16 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createApp_shouldKeepAuditAnnotation() throws Exception {
+    ApolloAuditLog auditLog = AppController.class.getMethod("createApp", OpenCreateAppDTO.class)
+        .getAnnotation(ApolloAuditLog.class);
+
+    assertThat(auditLog).isNotNull();
+    assertThat(auditLog.type()).isEqualTo(OpType.CREATE);
+    assertThat(auditLog.name()).isEqualTo("App.create");
+  }
+
+  @Test
   public void createAppInEnv_shouldBind_env_query_body() throws Exception {
     OpenAppDTO dto = new OpenAppDTO();
     dto.setAppId("demo");
@@ -259,6 +272,46 @@ public class AppControllerParamBindLowLevelTest {
     assertThat(operatorCap.getValue()).isEqualTo("portal-user");
     assertThat(dtoCap.getValue().getDataChangeCreatedBy()).isEqualTo("portal-user");
     assertThat(dtoCap.getValue().getDataChangeLastModifiedBy()).isEqualTo("portal-user");
+  }
+
+  @Test
+  public void createAppInEnv_shouldAllowAppAdminWithoutCreateApplicationPermission()
+      throws Exception {
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(true);
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId("demo");
+    dto.setName("demo-name");
+
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
+
+    verify(appOpenApiService, times(1)).createAppInEnv(eq("DEV"), any(OpenAppDTO.class),
+        eq("portal-user"));
+  }
+
+  @Test
+  public void createAppInEnv_shouldRejectNonAppAdminWithoutCreateApplicationPermission()
+      throws Exception {
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(false);
+
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId("demo");
+    dto.setName("demo-name");
+
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV").param("operator", "bob")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isForbidden());
+
+    verify(appOpenApiService, never()).createAppInEnv(anyString(), any(OpenAppDTO.class),
+        anyString());
   }
 
   @Test
@@ -347,5 +400,18 @@ public class AppControllerParamBindLowLevelTest {
             .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(appOpenApiService, times(1)).deleteApp("app-1", "alice");
+  }
+
+  @Test
+  public void deleteApp_shouldRejectAppAdminWithoutSuperAdmin() throws Exception {
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("app-1")).thenReturn(true);
+
+    mockMvc.perform(delete("/openapi/v1/apps/{appId}", "app-1").param("operator", "alice"))
+        .andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+                .isForbidden());
+
+    verify(appOpenApiService, never()).deleteApp(anyString(), anyString());
   }
 }

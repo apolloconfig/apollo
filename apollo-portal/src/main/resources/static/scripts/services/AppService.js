@@ -165,8 +165,8 @@ appService.service('AppService', ['$resource', '$q', 'AppUtil', 'UserService', f
                 app: appPayload,
                 admins: app.admins,
                 assignAppRoleToSelf: false
-            }, function () {
-                d.resolve(app);
+            }, function (result) {
+                d.resolve(result || app);
             }, function (result) {
                 d.reject(result);
             });
