@@ -68,16 +68,13 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public void setResult(ApolloConfigNotification notification,
+  public void setResult(String namespaceName, ApolloConfigNotification notification,
       ResponseEntity<String> serializedNotificationResponse) {
-    if (!shouldRestoreOriginalNamespaceName(notification.getNamespaceName())) {
+    if (!shouldRestoreOriginalNamespaceName(namespaceName)) {
       result.setResult((ResponseEntity) serializedNotificationResponse);
       return;
     }
-    // The ApolloConfigNotification is shared across all deferred results for the same release
-    // message. Copy it before restoring the client-side namespace name to avoid mutating
-    // the shared notification and affecting other clients.
-    setResult(copyApolloConfigNotification(notification));
+    setResult(notification);
   }
 
   /**
@@ -103,14 +100,6 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
   private boolean shouldRestoreOriginalNamespaceName(String namespaceName) {
     return normalizedNamespaceNameToOriginalNamespaceName != null
         && normalizedNamespaceNameToOriginalNamespaceName.containsKey(namespaceName);
-  }
-
-  private ApolloConfigNotification copyApolloConfigNotification(
-      ApolloConfigNotification notification) {
-    ApolloConfigNotification copiedNotification = new ApolloConfigNotification(
-        notification.getNamespaceName(), notification.getNotificationId());
-    notification.getMessages().getDetails().forEach(copiedNotification::addMessage);
-    return copiedNotification;
   }
 
   @Override

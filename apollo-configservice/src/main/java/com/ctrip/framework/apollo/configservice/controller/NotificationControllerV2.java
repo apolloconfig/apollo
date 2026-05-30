@@ -302,7 +302,8 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
             }
           }
           logger.debug("Async notify {}", results.get(i));
-          results.get(i).setResult(configNotification, serializedNotificationResponse);
+          results.get(i).setResult(changedNamespace, configNotification,
+              serializedNotificationResponse);
         }
       });
       return;
@@ -311,7 +312,7 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     logger.debug("Notify {} clients for key {}", results.size(), content);
 
     for (DeferredResultWrapper result : results) {
-      result.setResult(configNotification, serializedNotificationResponse);
+      result.setResult(changedNamespace, configNotification, serializedNotificationResponse);
     }
     logger.debug("Notification completed");
   }
