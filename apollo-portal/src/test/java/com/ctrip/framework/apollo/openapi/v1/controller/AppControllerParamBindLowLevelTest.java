@@ -378,9 +378,12 @@ public class AppControllerParamBindLowLevelTest {
 
   @Test
   public void updateApp_shouldBind_path_query_body() throws Exception {
-    OpenAppDTO dto = new OpenAppDTO();
+    OpenAppDTO dto = validPortalApp();
     dto.setAppId("app-1");
     dto.setName("new-name");
+    dto.setOrgId("org-1");
+    dto.setOrgName("Org");
+    dto.setOwnerName("owner");
 
     doNothing().when(appOpenApiService).updateApp(any(OpenAppDTO.class), eq("david"));
 
@@ -401,7 +404,7 @@ public class AppControllerParamBindLowLevelTest {
     currentUser.setUserId("portal-user");
     when(userInfoHolder.getUser()).thenReturn(currentUser);
 
-    OpenAppDTO dto = new OpenAppDTO();
+    OpenAppDTO dto = validPortalApp();
     dto.setAppId("app-1");
     dto.setName("new-name");
 
@@ -412,6 +415,26 @@ public class AppControllerParamBindLowLevelTest {
             org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk());
 
     verify(appOpenApiService, times(1)).updateApp(any(OpenAppDTO.class), eq("portal-user"));
+  }
+
+  @Test
+  public void updateApp_shouldRejectBlankPortalAppName() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenAppDTO dto = validPortalApp();
+    dto.setAppId("app-1");
+    dto.setName(" ");
+
+    mockMvc
+        .perform(put("/openapi/v1/apps/{appId}", "app-1").contentType(MediaType.APPLICATION_JSON)
+            .content(gson.toJson(dto)))
+        .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+            .isBadRequest());
+
+    verify(appOpenApiService, never()).updateApp(any(OpenAppDTO.class), anyString());
   }
 
   @Test

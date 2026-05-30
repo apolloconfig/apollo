@@ -89,7 +89,7 @@ public class AppController implements AppManagementApi {
     if (!StringUtils.hasText(app.getAppId())) {
       throw new BadRequestException("AppId is null or blank");
     }
-    validatePortalCreateApp(app);
+    validatePortalApp(app);
     String resolvedOperator = resolveOperator(app.getDataChangeCreatedBy());
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
@@ -153,6 +153,7 @@ public class AppController implements AppManagementApi {
     if (!Objects.equals(appId, dto.getAppId())) {
       throw new BadRequestException("The App Id of path variable and request body is different");
     }
+    validatePortalApp(dto);
     String resolvedOperator = resolveOperator(operator);
     dto.setDataChangeLastModifiedBy(resolvedOperator);
     appOpenApiService.updateApp(dto, resolvedOperator);
@@ -233,7 +234,7 @@ public class AppController implements AppManagementApi {
         UserIdentityContextHolder.getAuthType());
   }
 
-  private void validatePortalCreateApp(OpenAppDTO app) {
+  private void validatePortalApp(OpenAppDTO app) {
     if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
       return;
     }

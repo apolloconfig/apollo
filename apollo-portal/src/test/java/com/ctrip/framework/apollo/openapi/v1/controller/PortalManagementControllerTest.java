@@ -46,6 +46,7 @@ import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -226,6 +227,32 @@ public class PortalManagementControllerTest {
     assertEquals(200, response.getStatusCode().value());
     verify(releaseHistoryService).findNamespaceReleaseHistory("someApp", Env.DEV, "default",
         "application", 0, 10);
+  }
+
+  @Test
+  public void createOrUpdatePortalDBConfigShouldRejectBlankKey() {
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey(" ");
+    serverConfig.setValue("value");
+    when(objectMapper.convertValue(serverConfig, ServerConfig.class)).thenReturn(serverConfig);
+
+    assertThrows(BadRequestException.class,
+        () -> controller.createOrUpdatePortalDBConfig(serverConfig));
+
+    verifyNoInteractions(serverConfigService);
+  }
+
+  @Test
+  public void createOrUpdateConfigDBConfigShouldRejectBlankValue() {
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setKey("timeout");
+    serverConfig.setValue(" ");
+    when(objectMapper.convertValue(serverConfig, ServerConfig.class)).thenReturn(serverConfig);
+
+    assertThrows(BadRequestException.class,
+        () -> controller.createOrUpdateConfigDBConfig("DEV", serverConfig));
+
+    verifyNoInteractions(serverConfigService);
   }
 
   @Test

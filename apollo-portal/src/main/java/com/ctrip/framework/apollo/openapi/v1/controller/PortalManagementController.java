@@ -394,6 +394,7 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Object> createOrUpdatePortalDBConfig(Object body) {
     requirePortalUserRequest();
     ServerConfig serverConfig = convertBody(body, ServerConfig.class);
+    validateServerConfig(serverConfig);
     return ResponseEntity
         .ok(serverConfigService.createOrUpdatePortalDBConfig(serverConfig, currentUserId()));
   }
@@ -404,6 +405,7 @@ public class PortalManagementController implements PortalManagementApi {
   public ResponseEntity<Object> createOrUpdateConfigDBConfig(String env, Object body) {
     requirePortalUserRequest();
     ServerConfig serverConfig = convertBody(body, ServerConfig.class);
+    validateServerConfig(serverConfig);
     return ResponseEntity.ok(serverConfigService.createOrUpdateConfigDBConfig(parseEnv(env),
         serverConfig, currentUserId()));
   }
@@ -794,6 +796,18 @@ public class PortalManagementController implements PortalManagementApi {
     if (!CONFLICT_ACTION_COVER.equals(conflictAction)
         && !CONFLICT_ACTION_IGNORE.equals(conflictAction)) {
       throw new BadRequestException("ConflictAction is incorrect.");
+    }
+  }
+
+  private void validateServerConfig(ServerConfig serverConfig) {
+    if (serverConfig == null) {
+      throw new BadRequestException("ServerConfig can not be null");
+    }
+    if (!org.springframework.util.StringUtils.hasText(serverConfig.getKey())) {
+      throw new BadRequestException("ServerConfig.Key cannot be blank");
+    }
+    if (!org.springframework.util.StringUtils.hasText(serverConfig.getValue())) {
+      throw new BadRequestException("ServerConfig.Value cannot be blank");
     }
   }
 
