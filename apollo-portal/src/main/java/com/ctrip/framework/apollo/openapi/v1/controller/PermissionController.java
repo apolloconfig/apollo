@@ -25,6 +25,7 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenPermissionConditionDTO;
 import com.ctrip.framework.apollo.openapi.server.service.PermissionOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import java.util.List;
@@ -42,11 +43,14 @@ public class PermissionController implements PermissionManagementApi {
 
   private final PermissionOpenApiService permissionOpenApiService;
   private final OpenApiOperatorResolver operatorResolver;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public PermissionController(PermissionOpenApiService permissionOpenApiService,
-      OpenApiOperatorResolver operatorResolver) {
+      OpenApiOperatorResolver operatorResolver,
+      UnifiedPermissionValidator unifiedPermissionValidator) {
     this.permissionOpenApiService = permissionOpenApiService;
     this.operatorResolver = operatorResolver;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @Override
@@ -191,7 +195,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(String appId, String namespaceName,
       String operator) {
-    requirePortalUserRequest();
+    requirePortalUserOrAssignRolePermission(appId);
     permissionOpenApiService.initAppPermission(appId, namespaceName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -201,7 +205,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initClusterNamespacePermission")
   public ResponseEntity<Void> initClusterNamespacePermission(String appId, String env,
       String clusterName, String operator) {
-    requirePortalUserRequest();
+    requirePortalUserOrAssignRolePermission(appId);
     permissionOpenApiService.initClusterNamespacePermission(appId, env, clusterName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -262,9 +266,25 @@ public class PermissionController implements PermissionManagementApi {
     return ResponseEntity.ok().build();
   }
 
-  private void requirePortalUserRequest() {
-    if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
-      throw new AccessDeniedException("Portal user session is required");
+  /**
+   * The permission-init operations are idempotent bootstrap hooks used by Portal UI, and the
+   * legacy WebAPI routes did not require assign-role permission from session users. Keep that
+   * behavior for Portal USER requests so role records can be initialized during app or namespace
+   * setup before normal role assignment.
+   *
+   * <p>OpenAPI CONSUMER token requests still use the public role-management surface, so they must
+   * prove app-scoped ASSIGN_ROLE permission and then provide a valid explicit operator through
+   * {@link OpenApiOperatorResolver}.
+   */
+  private void requirePortalUserOrAssignRolePermission(String appId) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)) {
+      return;
     }
+    if (UserIdentityConstants.CONSUMER.equals(authType)
+        && unifiedPermissionValidator.hasAssignRolePermission(appId)) {
+      return;
+    }
+    throw new AccessDeniedException("Assign role permission is required");
   }
 }

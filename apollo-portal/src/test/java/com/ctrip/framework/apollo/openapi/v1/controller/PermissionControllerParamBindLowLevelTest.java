@@ -132,10 +132,22 @@ public class PermissionControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void initAppPermissionShouldRejectConsumerToken() throws Exception {
+  public void initAppPermissionShouldAllowAuthorizedConsumerToken() throws Exception {
+    mockMvc.perform(post("/openapi/v1/apps/{appId}/namespaces/{namespaceName}/permission-init",
+        APP_ID, NAMESPACE).param("operator", "api-operator")).andExpect(status().isOk());
+
+    verify(unifiedPermissionValidator).hasAssignRolePermission(APP_ID);
+    verify(permissionOpenApiService).initAppPermission(APP_ID, NAMESPACE, "api-operator");
+  }
+
+  @Test
+  public void initAppPermissionShouldRejectUnauthorizedConsumerToken() throws Exception {
+    when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID)).thenReturn(false);
+
     mockMvc.perform(post("/openapi/v1/apps/{appId}/namespaces/{namespaceName}/permission-init",
         APP_ID, NAMESPACE).param("operator", "api-operator")).andExpect(status().isForbidden());
 
+    verify(unifiedPermissionValidator).hasAssignRolePermission(APP_ID);
     verify(permissionOpenApiService, never()).initAppPermission(anyString(), anyString(),
         anyString());
   }
@@ -155,13 +167,27 @@ public class PermissionControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void initClusterNamespacePermissionShouldRejectConsumerToken() throws Exception {
+  public void initClusterNamespacePermissionShouldAllowAuthorizedConsumerToken() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/permission-init",
+        APP_ID, "DEV", "default").param("operator", "api-operator")).andExpect(status().isOk());
+
+    verify(unifiedPermissionValidator).hasAssignRolePermission(APP_ID);
+    verify(permissionOpenApiService).initClusterNamespacePermission(APP_ID, "DEV", "default",
+        "api-operator");
+  }
+
+  @Test
+  public void initClusterNamespacePermissionShouldRejectUnauthorizedConsumerToken() throws Exception {
+    when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID)).thenReturn(false);
+
     mockMvc
         .perform(post(
             "/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/permission-init",
             APP_ID, "DEV", "default").param("operator", "api-operator"))
         .andExpect(status().isForbidden());
 
+    verify(unifiedPermissionValidator).hasAssignRolePermission(APP_ID);
     verify(permissionOpenApiService, never()).initClusterNamespacePermission(anyString(),
         anyString(), anyString(), anyString());
   }
