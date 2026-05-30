@@ -99,7 +99,7 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
   }
 
   @GetMapping
-  public DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> pollNotification(
+  public DeferredResult<ResponseEntity<?>> pollNotification(
       @RequestParam(value = "appId") String appId, @RequestParam(value = "cluster") String cluster,
       @RequestParam(value = "notifications") String notificationsAsString,
       @RequestParam(value = "dataCenter", required = false) String dataCenter,

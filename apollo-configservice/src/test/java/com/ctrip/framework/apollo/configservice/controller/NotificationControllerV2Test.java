@@ -129,9 +129,8 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     assertEquals(watchKeysMap.size(), deferredResults.size());
 
@@ -155,9 +154,8 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     assertEquals(watchKeysMap.size(), deferredResults.size());
 
@@ -196,9 +194,8 @@ public class NotificationControllerV2Test {
         Sets.newHashSet(defaultNamespace, somePublicNamespace, somePublicNamespaceAsFile),
         someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     assertEquals(watchKeysMap.size(), deferredResults.size());
 
@@ -242,9 +239,8 @@ public class NotificationControllerV2Test {
     String notificationAsString = transformApolloConfigNotificationsToString(defaultNamespace,
         someNotificationId, somePublicNamespace, someNotificationId);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     ResponseEntity<?> result = (ResponseEntity<?>) deferredResult.getResult();
 
@@ -279,9 +275,8 @@ public class NotificationControllerV2Test {
     String notificationAsString = transformApolloConfigNotificationsToString(defaultNamespace,
         someNotificationId, somePublicNamespace, someNotificationId);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     assertEquals(watchKeysMap.size(), deferredResults.size());
 
@@ -325,12 +320,10 @@ public class NotificationControllerV2Test {
     when(bizConfig.releaseMessageNotificationBatch()).thenReturn(someBatch);
     when(bizConfig.releaseMessageNotificationBatchIntervalInMilli()).thenReturn(someBatchInterval);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> anotherDeferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
+    DeferredResult<ResponseEntity<?>> anotherDeferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     long someId = 1;
     ReleaseMessage someReleaseMessage = new ReleaseMessage(someWatchKey);
@@ -360,9 +353,8 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(someAppId, someCluster, notificationAsString, someDataCenter,
-            someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster, notificationAsString, someDataCenter, someClientIp);
 
     long someId = 1;
     ReleaseMessage someReleaseMessage = new ReleaseMessage(someWatchKey);
@@ -406,9 +398,8 @@ public class NotificationControllerV2Test {
     when(watchKeysUtil.assembleAllWatchKeys(appIdWithIncorrectCase, someCluster,
         Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
 
-    DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> deferredResult =
-        controller.pollNotification(appIdWithIncorrectCase, someCluster, notificationAsString,
-            someDataCenter, someClientIp);
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(
+        appIdWithIncorrectCase, someCluster, notificationAsString, someDataCenter, someClientIp);
 
     long someId = 1;
     ReleaseMessage someReleaseMessage = new ReleaseMessage(someMessage);
@@ -432,6 +423,53 @@ public class NotificationControllerV2Test {
     assertEquals(1, notificationMessages.getDetails().size());
     assertEquals(someId, notificationMessages.get(someMessage).longValue());
 
+  }
+
+  @Test
+  public void testPollNotificationWithMultipleIncorrectCaseClientsRestoresEachOriginalNamespace()
+      throws Exception {
+    String namespaceWithIncorrectCase = defaultNamespace.toUpperCase();
+    String anotherNamespaceWithIncorrectCase = "Application";
+    String someMessage = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(someAppId,
+        someCluster, defaultNamespace);
+    String someWatchKey = Joiner.on(ConfigConsts.CLUSTER_NAMESPACE_SEPARATOR).join(someAppId,
+        someCluster, defaultNamespace);
+
+    Multimap<String, String> watchKeysMap =
+        assembleMultiMap(defaultNamespace, Lists.newArrayList(someWatchKey));
+
+    when(namespaceUtil.filterNamespaceName(namespaceWithIncorrectCase))
+        .thenReturn(namespaceWithIncorrectCase);
+    when(namespaceUtil.filterNamespaceName(anotherNamespaceWithIncorrectCase))
+        .thenReturn(anotherNamespaceWithIncorrectCase);
+    when(namespaceUtil.normalizeNamespace(someAppId, namespaceWithIncorrectCase))
+        .thenReturn(defaultNamespace);
+    when(namespaceUtil.normalizeNamespace(someAppId, anotherNamespaceWithIncorrectCase))
+        .thenReturn(defaultNamespace);
+    when(watchKeysUtil.assembleAllWatchKeys(someAppId, someCluster,
+        Sets.newHashSet(defaultNamespace), someDataCenter)).thenReturn(watchKeysMap);
+
+    DeferredResult<ResponseEntity<?>> deferredResult = controller.pollNotification(someAppId,
+        someCluster,
+        transformApolloConfigNotificationsToString(namespaceWithIncorrectCase, someNotificationId),
+        someDataCenter, someClientIp);
+    DeferredResult<ResponseEntity<?>> anotherDeferredResult = controller.pollNotification(someAppId,
+        someCluster, transformApolloConfigNotificationsToString(anotherNamespaceWithIncorrectCase,
+            someNotificationId),
+        someDataCenter, someClientIp);
+
+    long someId = 1;
+    ReleaseMessage someReleaseMessage = new ReleaseMessage(someMessage);
+    someReleaseMessage.setId(someId);
+
+    controller.handleMessage(someReleaseMessage, Topics.APOLLO_RELEASE_TOPIC);
+
+    ResponseEntity<?> response = (ResponseEntity<?>) deferredResult.getResult();
+    ResponseEntity<?> anotherResponse = (ResponseEntity<?>) anotherDeferredResult.getResult();
+
+    assertEquals(namespaceWithIncorrectCase, getNotifications(response).get(0).getNamespaceName());
+    assertEquals(anotherNamespaceWithIncorrectCase,
+        getNotifications(anotherResponse).get(0).getNamespaceName());
   }
 
   private String transformApolloConfigNotificationsToString(String namespace, long notificationId) {

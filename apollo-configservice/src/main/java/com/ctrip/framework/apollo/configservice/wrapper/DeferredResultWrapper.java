@@ -37,7 +37,7 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
       new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
 
   private Map<String, String> normalizedNamespaceNameToOriginalNamespaceName;
-  private DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> result;
+  private DeferredResult<ResponseEntity<?>> result;
 
 
   public DeferredResultWrapper(long timeoutInMilli) {
@@ -67,11 +67,10 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
     setResult(Lists.newArrayList(notification));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public void setResult(String namespaceName, ApolloConfigNotification notification,
       ResponseEntity<String> serializedNotificationResponse) {
     if (!shouldRestoreOriginalNamespaceName(namespaceName)) {
-      result.setResult((ResponseEntity) serializedNotificationResponse);
+      result.setResult(serializedNotificationResponse);
       return;
     }
     setResult(notification);
@@ -83,23 +82,45 @@ public class DeferredResultWrapper implements Comparable<DeferredResultWrapper> 
    */
   public void setResult(List<ApolloConfigNotification> notifications) {
     if (normalizedNamespaceNameToOriginalNamespaceName != null) {
-      notifications.stream()
-          .filter(notification -> normalizedNamespaceNameToOriginalNamespaceName
-              .containsKey(notification.getNamespaceName()))
-          .forEach(notification -> notification.setNamespaceName(
-              normalizedNamespaceNameToOriginalNamespaceName.get(notification.getNamespaceName())));
+      // Most responses can reuse the shared notification object. Copy only when
+      // this wrapper must restore a client-supplied namespace name, because that
+      // restoration mutates the DTO and must not affect other long-poll clients.
+      List<ApolloConfigNotification> notificationsToReturn = notifications;
+      for (int i = 0; i < notifications.size(); i++) {
+        ApolloConfigNotification notification = notifications.get(i);
+        if (!normalizedNamespaceNameToOriginalNamespaceName
+            .containsKey(notification.getNamespaceName())) {
+          continue;
+        }
+        if (notificationsToReturn == notifications) {
+          notificationsToReturn = Lists.newArrayList(notifications);
+        }
+        ApolloConfigNotification copiedNotification = copyApolloConfigNotification(notification);
+        copiedNotification.setNamespaceName(
+            normalizedNamespaceNameToOriginalNamespaceName.get(notification.getNamespaceName()));
+        notificationsToReturn.set(i, copiedNotification);
+      }
+      notifications = notificationsToReturn;
     }
 
     result.setResult(new ResponseEntity<>(notifications, HttpStatus.OK));
   }
 
-  public DeferredResult<ResponseEntity<List<ApolloConfigNotification>>> getResult() {
+  public DeferredResult<ResponseEntity<?>> getResult() {
     return result;
   }
 
   private boolean shouldRestoreOriginalNamespaceName(String namespaceName) {
     return normalizedNamespaceNameToOriginalNamespaceName != null
         && normalizedNamespaceNameToOriginalNamespaceName.containsKey(namespaceName);
+  }
+
+  private ApolloConfigNotification copyApolloConfigNotification(
+      ApolloConfigNotification notification) {
+    ApolloConfigNotification copiedNotification = new ApolloConfigNotification(
+        notification.getNamespaceName(), notification.getNotificationId());
+    notification.getMessages().getDetails().forEach(copiedNotification::addMessage);
+    return copiedNotification;
   }
 
   @Override
