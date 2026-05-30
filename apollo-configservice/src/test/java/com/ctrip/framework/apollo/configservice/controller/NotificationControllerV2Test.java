@@ -46,8 +46,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.async.DeferredResult;
 
-import java.util.Collection;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -372,7 +373,8 @@ public class NotificationControllerV2Test {
     ResponseEntity<?> response = (ResponseEntity<?>) deferredResult.getResult();
 
     assertTrue(response.getBody() instanceof String);
-    assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+    assertEquals(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8),
+        response.getHeaders().getContentType());
 
     List<ApolloConfigNotification> notifications = getNotifications(response);
 

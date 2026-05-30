@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -282,9 +283,9 @@ public class NotificationControllerV2 implements ReleaseMessageListener {
     ApolloConfigNotification configNotification =
         new ApolloConfigNotification(changedNamespace, message.getId());
     configNotification.addMessage(content, message.getId());
-    ResponseEntity<String> serializedNotificationResponse =
-        ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(gson.toJson(Lists.newArrayList(configNotification)));
+    ResponseEntity<String> serializedNotificationResponse = ResponseEntity.ok()
+        .contentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8))
+        .body(gson.toJson(Lists.newArrayList(configNotification)));
 
     // do async notification if too many clients
     if (results.size() > bizConfig.releaseMessageNotificationBatch()) {
