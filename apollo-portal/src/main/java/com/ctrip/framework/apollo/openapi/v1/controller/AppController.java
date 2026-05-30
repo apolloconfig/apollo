@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.openapi.api.AppManagementApi;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
@@ -88,6 +89,7 @@ public class AppController implements AppManagementApi {
     if (!StringUtils.hasText(app.getAppId())) {
       throw new BadRequestException("AppId is null or blank");
     }
+    validatePortalCreateApp(app);
     String resolvedOperator = resolveOperator(app.getDataChangeCreatedBy());
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
@@ -229,6 +231,28 @@ public class AppController implements AppManagementApi {
 
     throw new BadRequestException("Unsupported auth type: %s",
         UserIdentityContextHolder.getAuthType());
+  }
+
+  private void validatePortalCreateApp(OpenAppDTO app) {
+    if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return;
+    }
+    if (!StringUtils.hasText(app.getName())) {
+      throw BadRequestException.appNameIsBlank();
+    }
+    if (!InputValidator.isValidClusterNamespace(app.getAppId())) {
+      throw new BadRequestException("Invalid AppId format: %s",
+          InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE);
+    }
+    if (!StringUtils.hasText(app.getOrgId())) {
+      throw BadRequestException.orgIdIsBlank();
+    }
+    if (!StringUtils.hasText(app.getOrgName())) {
+      throw new BadRequestException("orgName can not be blank");
+    }
+    if (!StringUtils.hasText(app.getOwnerName())) {
+      throw BadRequestException.ownerNameIsBlank();
+    }
   }
 
   private Set<String> findAppIdsAuthorizedByCurrentIdentity() {

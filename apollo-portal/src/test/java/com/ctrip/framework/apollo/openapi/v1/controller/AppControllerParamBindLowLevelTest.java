@@ -177,6 +177,8 @@ public class AppControllerParamBindLowLevelTest {
     app.setAppId("demo");
     app.setName("demo-name");
     app.setOwnerName("owner");
+    app.setOrgId("org-1");
+    app.setOrgName("Org");
 
     OpenCreateAppDTO request = new OpenCreateAppDTO();
     request.setApp(app);
@@ -198,6 +200,42 @@ public class AppControllerParamBindLowLevelTest {
     app.setName("demo-name");
     app.setOwnerName("owner");
     app.setDataChangeCreatedBy("api-operator");
+
+    OpenCreateAppDTO request = new OpenCreateAppDTO();
+    request.setApp(app);
+
+    mockMvc
+        .perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
+            .content(gson.toJson(request)))
+        .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+            .isBadRequest());
+
+    verify(appOpenApiService, never()).createApp(any(OpenCreateAppDTO.class), anyString());
+  }
+
+  @Test
+  public void createApp_shouldRejectBlankPortalAppName() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    OpenAppDTO app = validPortalApp();
+    app.setName(" ");
+
+    OpenCreateAppDTO request = new OpenCreateAppDTO();
+    request.setApp(app);
+
+    mockMvc
+        .perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
+            .content(gson.toJson(request)))
+        .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+            .isBadRequest());
+
+    verify(appOpenApiService, never()).createApp(any(OpenCreateAppDTO.class), anyString());
+  }
+
+  @Test
+  public void createApp_shouldRejectInvalidPortalAppId() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    OpenAppDTO app = validPortalApp();
+    app.setAppId(".");
 
     OpenCreateAppDTO request = new OpenCreateAppDTO();
     request.setApp(app);
@@ -413,5 +451,15 @@ public class AppControllerParamBindLowLevelTest {
                 .isForbidden());
 
     verify(appOpenApiService, never()).deleteApp(anyString(), anyString());
+  }
+
+  private OpenAppDTO validPortalApp() {
+    OpenAppDTO app = new OpenAppDTO();
+    app.setAppId("demo");
+    app.setName("demo-name");
+    app.setOwnerName("owner");
+    app.setOrgId("org-1");
+    app.setOrgName("Org");
+    return app;
   }
 }

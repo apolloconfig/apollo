@@ -17,9 +17,14 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -53,6 +58,8 @@ import com.ctrip.framework.apollo.portal.service.ReleaseHistoryService;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -198,6 +205,48 @@ public class PortalManagementControllerTest {
     assertEquals(200, response.getStatusCode().value());
     assertEquals(searchResponse, response.getBody());
     verify(globalSearchService).getAllEnvItemInfoBySearch(null, "timeout", 0, 10);
+  }
+
+  @Test
+  public void exportAllConfigsShouldReturnFileBackedResource() throws Exception {
+    byte[] exported = {1, 2, 3};
+    doAnswer(invocation -> {
+      OutputStream outputStream = invocation.getArgument(0);
+      outputStream.write(exported);
+      return null;
+    }).when(configsExportService).exportData(any(OutputStream.class), anyList());
+
+    ResponseEntity<Resource> response = controller.exportAllConfigs("DEV");
+
+    assertEquals(200, response.getStatusCode().value());
+    assertEquals(3, response.getHeaders().getContentLength());
+    assertNotNull(response.getBody());
+    try (InputStream inputStream = response.getBody().getInputStream()) {
+      assertArrayEquals(exported, inputStream.readAllBytes());
+    }
+    verify(configsExportService).exportData(any(OutputStream.class), anyList());
+  }
+
+  @Test
+  public void exportAppConfigShouldReturnFileBackedResource() throws Exception {
+    byte[] exported = {4, 5};
+    doAnswer(invocation -> {
+      OutputStream outputStream = invocation.getArgument(3);
+      outputStream.write(exported);
+      return null;
+    }).when(configsExportService).exportAppConfigByEnvAndCluster(eq("someApp"), eq(Env.DEV),
+        eq("default"), any(OutputStream.class));
+
+    ResponseEntity<Resource> response = controller.exportAppConfig("someApp", "DEV", "default");
+
+    assertEquals(200, response.getStatusCode().value());
+    assertEquals(2, response.getHeaders().getContentLength());
+    assertNotNull(response.getBody());
+    try (InputStream inputStream = response.getBody().getInputStream()) {
+      assertArrayEquals(exported, inputStream.readAllBytes());
+    }
+    verify(configsExportService).exportAppConfigByEnvAndCluster(eq("someApp"), eq(Env.DEV),
+        eq("default"), any(OutputStream.class));
   }
 
   @Test

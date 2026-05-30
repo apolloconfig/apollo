@@ -66,8 +66,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,6 +88,7 @@ import jakarta.annotation.PostConstruct;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.springframework.boot.health.contributor.Health;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -473,12 +478,9 @@ public class PortalManagementController implements PortalManagementApi {
     List<Env> exportEnvs = Splitter.on(ENV_SEPARATOR).splitToList(envs).stream().map(this::parseEnv)
         .collect(Collectors.toList());
 
-    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      configsExportService.exportData(outputStream, exportEnvs);
-      return resourceResponse(filename, outputStream.toByteArray());
-    } catch (IOException e) {
-      throw new BadRequestException("export configs failed: %s", e.getMessage());
-    }
+    return exportZipResource(filename,
+        outputStream -> configsExportService.exportData(outputStream, exportEnvs),
+        "export configs failed");
   }
 
   @Override
@@ -513,13 +515,9 @@ public class PortalManagementController implements PortalManagementApi {
     Env targetEnv = parseEnv(env);
     String filename = String.format("%s+%s+%s+%s.zip", appId, env, clusterName,
         DateFormatUtils.format(new Date(), "yyyy_MMdd_HH_mm_ss"));
-    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      configsExportService.exportAppConfigByEnvAndCluster(appId, targetEnv, clusterName,
-          outputStream);
-      return resourceResponse(filename, outputStream.toByteArray());
-    } catch (IOException e) {
-      throw new BadRequestException("export app configs failed: %s", e.getMessage());
-    }
+    return exportZipResource(filename, outputStream -> configsExportService
+        .exportAppConfigByEnvAndCluster(appId, targetEnv, clusterName, outputStream),
+        "export app configs failed");
   }
 
   @Override
@@ -721,10 +719,76 @@ public class PortalManagementController implements PortalManagementApi {
   }
 
   private ResponseEntity<Resource> resourceResponse(String filename, byte[] content) {
+    return resourceResponse(filename, new ByteArrayResource(content), content.length);
+  }
+
+  private ResponseEntity<Resource> exportZipResource(String filename, OutputStreamExporter exporter,
+      String errorMessage) {
+    Path tempFile = null;
+    try {
+      tempFile = Files.createTempFile("apollo-config-export-", ".zip");
+      try (OutputStream outputStream = Files.newOutputStream(tempFile)) {
+        exporter.export(outputStream);
+      }
+      return resourceResponse(filename, new DeleteOnCloseFileResource(tempFile),
+          Files.size(tempFile));
+    } catch (IOException e) {
+      deleteQuietly(tempFile);
+      throw new BadRequestException("%s: %s", errorMessage, e.getMessage());
+    } catch (RuntimeException e) {
+      deleteQuietly(tempFile);
+      throw e;
+    }
+  }
+
+  private interface OutputStreamExporter {
+
+    void export(OutputStream outputStream);
+  }
+
+  private ResponseEntity<Resource> resourceResponse(String filename, Resource resource,
+      long contentLength) {
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + filename)
-        .contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(content.length)
-        .body(new ByteArrayResource(content));
+        .contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(contentLength)
+        .body(resource);
+  }
+
+  private static void deleteQuietly(Path path) {
+    if (path == null) {
+      return;
+    }
+    try {
+      Files.deleteIfExists(path);
+    } catch (IOException ignored) {
+      // Best effort cleanup for a failed export response.
+    }
+  }
+
+  private static class DeleteOnCloseFileResource extends FileSystemResource {
+
+    private final Path path;
+
+    DeleteOnCloseFileResource(Path path) {
+      super(path.toFile());
+      this.path = path;
+      path.toFile().deleteOnExit();
+    }
+
+    @Override
+    public InputStream getInputStream() throws IOException {
+      InputStream delegate = super.getInputStream();
+      return new FilterInputStream(delegate) {
+        @Override
+        public void close() throws IOException {
+          try {
+            super.close();
+          } finally {
+            Files.deleteIfExists(path);
+          }
+        }
+      };
+    }
   }
 
   private void validateConflictAction(String conflictAction) {
