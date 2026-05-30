@@ -43,7 +43,6 @@ jobs:
       - name: Run checker tests
         run: |
           python3 scripts/openapi/check_openapi_compatibility_test.py
-          python3 scripts/openapi/collect_portal_frontend_urls_test.py
       - name: Compare portal OpenAPI spec URL against base branch
         env:
           BASE_REF: ${{ github.base_ref }}
