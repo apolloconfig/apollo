@@ -61,6 +61,8 @@ import com.ctrip.framework.apollo.portal.service.ReleaseService;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -72,9 +74,15 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Compatibility tests for the published apollo-openapi Java client against Portal OpenAPI routes.
@@ -91,6 +99,8 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
   private static final String CLUSTER = "default";
   private static final String NAMESPACE = "application";
   private static final String OPERATOR = "legacy-operator";
+  private static final String AUDIT_CREATED_BY_DISPLAY_NAME = "Legacy Creator";
+  private static final String AUDIT_LAST_MODIFIED_BY_DISPLAY_NAME = "Legacy Operator";
 
   @Value("${local.server.port}")
   private int port;
@@ -156,11 +166,13 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
   private ApplicationEventPublisher applicationEventPublisher;
 
   private ApolloOpenApiClient client;
+  private RestTemplate rawRestTemplate;
 
   @BeforeEach
   public void setUp() {
     client = ApolloOpenApiClient.newBuilder().withPortalUrl("http://localhost:" + port)
         .withToken("legacy-token").build();
+    rawRestTemplate = new RestTemplate();
 
     UserInfo operator = new UserInfo();
     operator.setUserId(OPERATOR);
@@ -376,6 +388,47 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
   }
 
   @Test
+  public void openApiBaseDtoResponsesShouldIncludeAuditDisplayNames() {
+    when(itemOpenApiService.getItem(APP_ID, ENV, CLUSTER, NAMESPACE, "timeout"))
+        .thenReturn(generatedItemWithAudit("timeout", "100"));
+
+    JsonObject loadedItem = getJsonObject(String.format(
+        "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/items/timeout",
+        ENV, APP_ID, CLUSTER, NAMESPACE));
+    assertAuditDisplayNames(loadedItem);
+
+    when(itemOpenApiService.createItem(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
+        any(com.ctrip.framework.apollo.openapi.model.OpenItemDTO.class), eq(OPERATOR)))
+        .thenReturn(generatedItemWithAudit("create-key", "create-value"));
+    JsonObject createdItem = postJsonObject(String.format(
+        "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/items?operator=%s",
+        ENV, APP_ID, CLUSTER, NAMESPACE, OPERATOR),
+        "{\"key\":\"create-key\",\"value\":\"create-value\",\"type\":0,\"comment\":\"legacy comment\"}");
+    assertAuditDisplayNames(createdItem);
+
+    com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO page =
+        new com.ctrip.framework.apollo.openapi.model.OpenItemPageDTO();
+    page.setPage(0);
+    page.setSize(50);
+    page.setTotal(1L);
+    page.setContent(Collections.singletonList(generatedItemWithAudit("page-key", "page-value")));
+    when(itemOpenApiService.findItemsByNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, 0, 50))
+        .thenReturn(page);
+    JsonObject itemPage = getJsonObject(String.format(
+        "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/items?page=0&size=50",
+        ENV, APP_ID, CLUSTER, NAMESPACE));
+    assertAuditDisplayNames(itemPage.getAsJsonArray("content").get(0).getAsJsonObject());
+
+    when(namespaceOpenApiService.findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true, true))
+        .thenReturn(generatedNamespaceWithAudit());
+    JsonObject namespace = getJsonObject(String.format(
+        "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s?fillItemDetail=true&extendInfo=true",
+        ENV, APP_ID, CLUSTER, NAMESPACE));
+    assertAuditDisplayNames(namespace);
+    assertAuditDisplayNames(namespace.getAsJsonArray("items").get(0).getAsJsonObject());
+  }
+
+  @Test
   public void legacyReleaseAndInstanceMethodsShouldRemainCompatible() {
     NamespaceReleaseDTO releaseRequest = new NamespaceReleaseDTO();
     releaseRequest.setReleaseTitle("legacy-release");
@@ -445,6 +498,16 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     namespace.setFormat(ConfigFileFormat.Properties.getValue());
     namespace.setIsPublic(false);
     namespace.setItems(Collections.singletonList(generatedItem("timeout", "100")));
+    return namespace;
+  }
+
+  private com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO generatedNamespaceWithAudit() {
+    com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO namespace = generatedNamespace();
+    namespace.setDataChangeCreatedBy("legacy-creator");
+    namespace.setDataChangeCreatedByDisplayName(AUDIT_CREATED_BY_DISPLAY_NAME);
+    namespace.setDataChangeLastModifiedBy(OPERATOR);
+    namespace.setDataChangeLastModifiedByDisplayName(AUDIT_LAST_MODIFIED_BY_DISPLAY_NAME);
+    namespace.setItems(Collections.singletonList(generatedItemWithAudit("timeout", "100")));
     return namespace;
   }
 
@@ -523,5 +586,47 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     item.setType(0);
     item.setComment("legacy comment");
     return item;
+  }
+
+  private com.ctrip.framework.apollo.openapi.model.OpenItemDTO generatedItemWithAudit(String key,
+      String value) {
+    com.ctrip.framework.apollo.openapi.model.OpenItemDTO item = generatedItem(key, value);
+    item.setDataChangeCreatedBy("legacy-creator");
+    item.setDataChangeCreatedByDisplayName(AUDIT_CREATED_BY_DISPLAY_NAME);
+    item.setDataChangeLastModifiedBy(OPERATOR);
+    item.setDataChangeLastModifiedByDisplayName(AUDIT_LAST_MODIFIED_BY_DISPLAY_NAME);
+    return item;
+  }
+
+  private JsonObject getJsonObject(String path) {
+    ResponseEntity<String> response =
+        rawRestTemplate.exchange(url(path), HttpMethod.GET, jsonEntity(null), String.class);
+    assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+    return JsonParser.parseString(response.getBody()).getAsJsonObject();
+  }
+
+  private JsonObject postJsonObject(String path, String body) {
+    ResponseEntity<String> response =
+        rawRestTemplate.exchange(url(path), HttpMethod.POST, jsonEntity(body), String.class);
+    assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
+    return JsonParser.parseString(response.getBody()).getAsJsonObject();
+  }
+
+  private HttpEntity<String> jsonEntity(String body) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set("Authorization", "legacy-token");
+    return new HttpEntity<>(body, headers);
+  }
+
+  private String url(String path) {
+    return "http://localhost:" + port + path;
+  }
+
+  private void assertAuditDisplayNames(JsonObject json) {
+    assertThat(json.get("dataChangeCreatedByDisplayName").getAsString())
+        .isEqualTo(AUDIT_CREATED_BY_DISPLAY_NAME);
+    assertThat(json.get("dataChangeLastModifiedByDisplayName").getAsString())
+        .isEqualTo(AUDIT_LAST_MODIFIED_BY_DISPLAY_NAME);
   }
 }

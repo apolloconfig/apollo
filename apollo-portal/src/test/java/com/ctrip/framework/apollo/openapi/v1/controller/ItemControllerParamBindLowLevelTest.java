@@ -126,6 +126,10 @@ public class ItemControllerParamBindLowLevelTest {
     OpenItemDTO response = new OpenItemDTO();
     response.setKey("timeout");
     response.setValue("100");
+    response.setDataChangeCreatedBy("api-operator");
+    response.setDataChangeCreatedByDisplayName("API Operator");
+    response.setDataChangeLastModifiedBy("api-operator");
+    response.setDataChangeLastModifiedByDisplayName("API Operator");
     when(itemOpenApiService.createItem(anyString(), anyString(), anyString(), anyString(),
         any(OpenItemDTO.class), anyString())).thenReturn(response);
 
@@ -133,7 +137,9 @@ public class ItemControllerParamBindLowLevelTest {
         "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
         ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
         .content(gson.toJson(request))).andExpect(status().isOk())
-        .andExpect(jsonPath("$.key").value("timeout"));
+        .andExpect(jsonPath("$.key").value("timeout"))
+        .andExpect(jsonPath("$.dataChangeCreatedByDisplayName").value("API Operator"))
+        .andExpect(jsonPath("$.dataChangeLastModifiedByDisplayName").value("API Operator"));
 
     ArgumentCaptor<OpenItemDTO> itemCaptor = ArgumentCaptor.forClass(OpenItemDTO.class);
     ArgumentCaptor<String> operatorCaptor = ArgumentCaptor.forClass(String.class);

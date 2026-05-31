@@ -27,8 +27,10 @@ import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenReleaseDiffDTO;
@@ -111,9 +113,17 @@ public class OpenApiModelConvertersTest {
     baseInfo.setAppId("sample-app");
     baseInfo.setClusterName("default");
     baseInfo.setNamespaceName("application");
+    baseInfo.setDataChangeCreatedBy("apollo");
+    baseInfo.setDataChangeCreatedByDisplayName("Apollo");
+    baseInfo.setDataChangeLastModifiedBy("operator");
+    baseInfo.setDataChangeLastModifiedByDisplayName("Operator");
 
     ItemDTO item = new ItemDTO("timeout", "200", "comment", 1);
     item.setNamespaceId(100L);
+    item.setDataChangeCreatedBy("apollo");
+    item.setDataChangeCreatedByDisplayName("Apollo");
+    item.setDataChangeLastModifiedBy("operator");
+    item.setDataChangeLastModifiedByDisplayName("Operator");
     ItemBO itemBO = new ItemBO();
     itemBO.setItem(item);
     itemBO.setModified(true);
@@ -134,6 +144,8 @@ public class OpenApiModelConvertersTest {
 
     OpenNamespaceDTO result = OpenApiModelConverters.fromNamespaceBO(namespaceBO);
 
+    assertEquals("Apollo", result.getDataChangeCreatedByDisplayName());
+    assertEquals("Operator", result.getDataChangeLastModifiedByDisplayName());
     assertNotNull(result.getExtendInfo());
     assertEquals(true, result.getExtendInfo().getIsConfigHidden());
     assertEquals("public-app", result.getExtendInfo().getParentAppId());
@@ -146,6 +158,43 @@ public class OpenApiModelConvertersTest {
     assertEquals(false, result.getItems().get(0).getExtendInfo().getIsDeleted());
     assertEquals("100", result.getItems().get(0).getExtendInfo().getOldValue());
     assertEquals("200", result.getItems().get(0).getExtendInfo().getNewValue());
+    assertEquals("Apollo", result.getItems().get(0).getDataChangeCreatedByDisplayName());
+    assertEquals("Operator", result.getItems().get(0).getDataChangeLastModifiedByDisplayName());
+  }
+
+  @Test
+  public void baseDtoConvertersShouldPreserveAuditDisplayNames() {
+    ItemDTO item = new ItemDTO("timeout", "200", "comment", 1);
+    item.setDataChangeCreatedByDisplayName("Item Creator");
+    item.setDataChangeLastModifiedByDisplayName("Item Operator");
+    OpenItemDTO openItem = OpenApiModelConverters.fromItemDTO(item);
+    assertEquals("Item Creator", openItem.getDataChangeCreatedByDisplayName());
+    assertEquals("Item Operator", openItem.getDataChangeLastModifiedByDisplayName());
+
+    ClusterDTO cluster = createCluster("default", "sample-app", "comment");
+    cluster.setDataChangeCreatedByDisplayName("Cluster Creator");
+    cluster.setDataChangeLastModifiedByDisplayName("Cluster Operator");
+    OpenClusterDTO openCluster = OpenApiModelConverters.fromClusterDTO(cluster);
+    assertEquals("Cluster Creator", openCluster.getDataChangeCreatedByDisplayName());
+    assertEquals("Cluster Operator", openCluster.getDataChangeLastModifiedByDisplayName());
+
+    NamespaceDTO namespace = new NamespaceDTO();
+    namespace.setAppId("sample-app");
+    namespace.setClusterName("default");
+    namespace.setNamespaceName("application");
+    namespace.setDataChangeCreatedByDisplayName("Namespace Creator");
+    namespace.setDataChangeLastModifiedByDisplayName("Namespace Operator");
+    OpenNamespaceDTO openNamespace = OpenApiModelConverters.fromNamespaceDTO(namespace);
+    assertEquals("Namespace Creator", openNamespace.getDataChangeCreatedByDisplayName());
+    assertEquals("Namespace Operator", openNamespace.getDataChangeLastModifiedByDisplayName());
+
+    ReleaseDTO release = new ReleaseDTO();
+    release.setConfigurations("{}");
+    release.setDataChangeCreatedByDisplayName("Release Creator");
+    release.setDataChangeLastModifiedByDisplayName("Release Operator");
+    OpenReleaseDTO openRelease = OpenApiModelConverters.fromReleaseDTO(release);
+    assertEquals("Release Creator", openRelease.getDataChangeCreatedByDisplayName());
+    assertEquals("Release Operator", openRelease.getDataChangeLastModifiedByDisplayName());
   }
 
   @Test
