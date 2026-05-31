@@ -180,12 +180,29 @@ public class ClusterControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void deleteCluster_shouldRejectAppAdminWithoutSuperAdmin() throws Exception {
+  public void deleteCluster_shouldAllowConsumerAppAdminWithoutSuperAdmin() throws Exception {
     String appId = "app-1";
     String env = "DEV";
     String clusterName = "default";
     String operator = "tester";
     when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+
+    doNothing().when(clusterOpenApiService).deleteCluster(env, appId, clusterName, operator);
+
+    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+        clusterName).param("operator", operator)).andExpect(status().isOk());
+
+    verify(clusterOpenApiService, times(1)).deleteCluster(env, appId, clusterName, operator);
+  }
+
+  @Test
+  public void deleteCluster_shouldRejectConsumerWithoutAppAdminOrSuperAdmin() throws Exception {
+    String appId = "app-1";
+    String env = "DEV";
+    String clusterName = "default";
+    String operator = "tester";
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(false);
     when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
 
     mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,

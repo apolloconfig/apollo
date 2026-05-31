@@ -335,6 +335,26 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createAppInEnv_shouldRejectConsumerAppAdminWithoutCreateApplicationPermission()
+      throws Exception {
+    when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(true);
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
+
+    OpenAppDTO dto = new OpenAppDTO();
+    dto.setAppId("demo");
+    dto.setName("demo-name");
+
+    mockMvc.perform(post("/openapi/v1/apps/envs/{env}", "DEV").param("operator", "bob")
+        .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto))).andExpect(
+            org.springframework.test.web.servlet.result.MockMvcResultMatchers.status()
+                .isForbidden());
+
+    verify(appOpenApiService, never()).createAppInEnv(anyString(), any(OpenAppDTO.class),
+        anyString());
+  }
+
+  @Test
   public void createAppInEnv_shouldRejectNonAppAdminWithoutCreateApplicationPermission()
       throws Exception {
     when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);

@@ -59,8 +59,15 @@ class OpenApiControllerAnnotationParityTest {
         ClusterController.class.getMethod("createCluster", String.class, String.class,
             OpenClusterDTO.class),
         "@unifiedPermissionValidator.hasCreateClusterPermission(#appId)");
-    assertPreAuthorize(ClusterController.class.getMethod("deleteCluster", String.class,
-        String.class, String.class, String.class), "@unifiedPermissionValidator.isSuperAdmin()");
+    assertPreAuthorize(
+        ClusterController.class.getMethod("deleteCluster", String.class, String.class, String.class,
+            String.class),
+        "(T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).USER"
+            + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
+            + ".getAuthType()) && @unifiedPermissionValidator.isSuperAdmin())"
+            + " || (T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).CONSUMER"
+            + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
+            + ".getAuthType()) && @unifiedPermissionValidator.isAppAdmin(#appId))");
   }
 
   @Test

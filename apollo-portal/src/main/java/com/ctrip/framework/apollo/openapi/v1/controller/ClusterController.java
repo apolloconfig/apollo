@@ -84,7 +84,12 @@ public class ClusterController implements ClusterManagementApi {
   /**
    * Delete Clusters
    */
-  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @PreAuthorize(value = "(T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).USER"
+      + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
+      + ".getAuthType()) && @unifiedPermissionValidator.isSuperAdmin())"
+      + " || (T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).CONSUMER"
+      + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
+      + ".getAuthType()) && @unifiedPermissionValidator.isAppAdmin(#appId))")
   @ApolloAuditLog(type = OpType.DELETE, name = "Cluster.delete")
   @Override
   public ResponseEntity<Void> deleteCluster(String env, String appId, String clusterName,

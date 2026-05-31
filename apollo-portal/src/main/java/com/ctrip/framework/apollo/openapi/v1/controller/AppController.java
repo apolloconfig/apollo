@@ -177,7 +177,9 @@ public class AppController implements AppManagementApi {
    */
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()"
-      + " || (#app != null && @unifiedPermissionValidator.isAppAdmin(#app.appId))")
+      + " || (T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).USER"
+      + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
+      + ".getAuthType()) && #app != null && @unifiedPermissionValidator.isAppAdmin(#app.appId))")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> createAppInEnv(String env, OpenAppDTO app, String operator) {
     if (app == null) {
