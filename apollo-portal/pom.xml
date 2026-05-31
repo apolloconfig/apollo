@@ -27,7 +27,7 @@
 	<artifactId>apollo-portal</artifactId>
 	<name>Apollo Portal</name>
 	<properties>
-		<apollo.openapi.spec.url>https://raw.githubusercontent.com/apolloconfig/apollo-openapi/c756d605f7ba026db6fdcf27738bd15eb3e1b779/apollo-openapi.yaml</apollo.openapi.spec.url>
+		<apollo.openapi.spec.url>https://raw.githubusercontent.com/apolloconfig/apollo-openapi/753775cc99e6d3c7486b67219a7529131a1e9e86/apollo-openapi.yaml</apollo.openapi.spec.url>
 		<github.path>${project.artifactId}</github.path>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 	</properties>
