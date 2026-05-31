@@ -396,6 +396,7 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
         "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/items/timeout",
         ENV, APP_ID, CLUSTER, NAMESPACE));
     assertAuditDisplayNames(loadedItem);
+    assertThat(loadedItem.get("lineNum").getAsInt()).isEqualTo(3);
 
     when(itemOpenApiService.createItem(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
         any(com.ctrip.framework.apollo.openapi.model.OpenItemDTO.class), eq(OPERATOR)))
@@ -418,6 +419,8 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
         "/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/items?page=0&size=50",
         ENV, APP_ID, CLUSTER, NAMESPACE));
     assertAuditDisplayNames(itemPage.getAsJsonArray("content").get(0).getAsJsonObject());
+    assertThat(itemPage.getAsJsonArray("content").get(0).getAsJsonObject().get("lineNum")
+        .getAsInt()).isEqualTo(3);
 
     when(namespaceOpenApiService.findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, true, true))
         .thenReturn(generatedNamespaceWithAudit());
@@ -585,6 +588,7 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     item.setValue(value);
     item.setType(0);
     item.setComment("legacy comment");
+    item.setLineNum(3);
     return item;
   }
 

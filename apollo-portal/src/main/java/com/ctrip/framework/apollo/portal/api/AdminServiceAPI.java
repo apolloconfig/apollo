@@ -19,7 +19,6 @@ package com.ctrip.framework.apollo.portal.api;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.*;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.google.common.base.Joiner;
@@ -176,8 +175,8 @@ public class AdminServiceAPI {
   @Service
   public static class ItemAPI extends API {
 
-    private final ParameterizedTypeReference<PageDTO<OpenItemDTO>> openItemPageDTO =
-        new ParameterizedTypeReference<PageDTO<OpenItemDTO>>() {};
+    private final ParameterizedTypeReference<PageDTO<ItemDTO>> itemPageDTO =
+        new ParameterizedTypeReference<PageDTO<ItemDTO>>() {};
 
     private final ParameterizedTypeReference<PageDTO<ItemInfoDTO>> pageItemInfoDTO =
         new ParameterizedTypeReference<PageDTO<ItemInfoDTO>>() {};
@@ -259,11 +258,11 @@ public class AdminServiceAPI {
       restTemplate.delete(env, "items/{itemId}?operator={operator}", itemId, operator);
     }
 
-    public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
+    public PageDTO<ItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
         String namespaceName, int page, int size) {
-      ResponseEntity<PageDTO<OpenItemDTO>> entity = restTemplate.get(env,
+      ResponseEntity<PageDTO<ItemDTO>> entity = restTemplate.get(env,
           "/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items-with-page?page={page}&size={size}",
-          openItemPageDTO, appId, clusterName, namespaceName, page, size);
+          itemPageDTO, appId, clusterName, namespaceName, page, size);
       return entity.getBody();
     }
   }

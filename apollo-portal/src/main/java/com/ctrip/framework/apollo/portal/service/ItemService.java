@@ -23,8 +23,6 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
-import com.ctrip.framework.apollo.openapi.utils.UrlUtils;
-import com.ctrip.framework.apollo.openapi.dto.OpenItemDTO;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ItemAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.NamespaceAPI;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI.ReleaseAPI;
@@ -40,6 +38,7 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -54,6 +53,8 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
   private static final Gson GSON = new Gson();
+  private static final Pattern ITEM_KEY_PATH_SEPARATOR_PATTERN =
+      Pattern.compile("[/\\\\]+", Pattern.CASE_INSENSITIVE);
 
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
   private final AdminServiceAPI.ItemAPI itemAPI;
@@ -167,10 +168,14 @@ public class ItemService {
 
   public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName,
       String key) {
-    if (UrlUtils.hasIllegalChar(key)) {
+    if (hasPathSeparator(key)) {
       return itemAPI.loadItemByEncodeKey(env, appId, clusterName, namespaceName, key);
     }
     return itemAPI.loadItem(env, appId, clusterName, namespaceName, key);
+  }
+
+  private boolean hasPathSeparator(String key) {
+    return key != null && ITEM_KEY_PATH_SEPARATOR_PATTERN.matcher(key).find();
   }
 
   public ItemDTO loadItemById(Env env, long itemId) {
@@ -274,7 +279,7 @@ public class ItemService {
     return result;
   }
 
-  public PageDTO<OpenItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
+  public PageDTO<ItemDTO> findItemsByNamespace(String appId, Env env, String clusterName,
       String namespaceName, int page, int size) {
     return itemAPI.findItemsByNamespace(appId, env, clusterName, namespaceName, page, size);
   }

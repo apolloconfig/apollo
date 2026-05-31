@@ -76,15 +76,18 @@ class ServerItemOpenApiServiceTest {
   }
 
   @Test
-  void findItemsByNamespaceShouldConvertLegacyOpenItemPage() {
-    com.ctrip.framework.apollo.openapi.dto.OpenItemDTO legacyItem =
-        new com.ctrip.framework.apollo.openapi.dto.OpenItemDTO();
-    legacyItem.setKey("timeout");
-    legacyItem.setValue("100");
-    legacyItem.setComment("comment");
-    legacyItem.setDataChangeCreatedBy("apollo");
-    PageDTO<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> page =
-        new PageDTO<>(Collections.singletonList(legacyItem), PageRequest.of(1, 20), 23);
+  void findItemsByNamespaceShouldPreserveItemAuditDisplayNamesAndLineNum() {
+    ItemDTO item = new ItemDTO();
+    item.setKey("timeout");
+    item.setValue("100");
+    item.setComment("comment");
+    item.setLineNum(12);
+    item.setDataChangeCreatedBy("apollo");
+    item.setDataChangeCreatedByDisplayName("Apollo Admin");
+    item.setDataChangeLastModifiedBy("operator");
+    item.setDataChangeLastModifiedByDisplayName("API Operator");
+    PageDTO<ItemDTO> page =
+        new PageDTO<>(Collections.singletonList(item), PageRequest.of(1, 20), 23);
     when(itemService.findItemsByNamespace(APP_ID, Env.valueOf(ENV), CLUSTER, NAMESPACE, 1, 20))
         .thenReturn(page);
 
@@ -94,6 +97,11 @@ class ServerItemOpenApiServiceTest {
     assertThat(result.getSize()).isEqualTo(20);
     assertThat(result.getTotal()).isEqualTo(23);
     assertThat(result.getContent()).extracting(OpenItemDTO::getKey).containsExactly("timeout");
+    assertThat(result.getContent()).extracting(OpenItemDTO::getLineNum).containsExactly(12);
+    assertThat(result.getContent()).extracting(OpenItemDTO::getDataChangeCreatedByDisplayName)
+        .containsExactly("Apollo Admin");
+    assertThat(result.getContent()).extracting(OpenItemDTO::getDataChangeLastModifiedByDisplayName)
+        .containsExactly("API Operator");
   }
 
   @Test

@@ -129,9 +129,9 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public OpenItemPageDTO findItemsByNamespace(String appId, String env, String clusterName,
       String namespaceName, int page, int size) {
-    PageDTO<com.ctrip.framework.apollo.openapi.dto.OpenItemDTO> items = this.itemService
-        .findItemsByNamespace(appId, Env.valueOf(env), clusterName, namespaceName, page, size);
-    return OpenApiModelConverters.fromLegacyOpenItemPageDTO(items);
+    PageDTO<ItemDTO> items = this.itemService.findItemsByNamespace(appId, Env.valueOf(env),
+        clusterName, namespaceName, page, size);
+    return OpenApiModelConverters.fromItemPageDTO(items);
   }
 
   @Override

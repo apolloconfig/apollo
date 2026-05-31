@@ -165,9 +165,11 @@ public class OpenApiModelConvertersTest {
   @Test
   public void baseDtoConvertersShouldPreserveAuditDisplayNames() {
     ItemDTO item = new ItemDTO("timeout", "200", "comment", 1);
+    item.setLineNum(12);
     item.setDataChangeCreatedByDisplayName("Item Creator");
     item.setDataChangeLastModifiedByDisplayName("Item Operator");
     OpenItemDTO openItem = OpenApiModelConverters.fromItemDTO(item);
+    assertEquals(12, openItem.getLineNum());
     assertEquals("Item Creator", openItem.getDataChangeCreatedByDisplayName());
     assertEquals("Item Operator", openItem.getDataChangeLastModifiedByDisplayName());
 
