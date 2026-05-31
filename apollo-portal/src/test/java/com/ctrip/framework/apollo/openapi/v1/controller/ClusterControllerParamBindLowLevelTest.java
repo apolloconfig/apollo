@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.gson.Gson;
 import org.junit.After;
@@ -69,6 +70,9 @@ public class ClusterControllerParamBindLowLevelTest {
 
   @MockitoBean
   private ClusterOpenApiService clusterOpenApiService;
+
+  @MockitoBean
+  private UserInfoHolder userInfoHolder;
 
   private final Gson gson = new Gson();
 
@@ -207,6 +211,40 @@ public class ClusterControllerParamBindLowLevelTest {
 
     mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
         clusterName).param("operator", operator)).andExpect(status().isForbidden());
+
+    verify(clusterOpenApiService, never()).deleteCluster(anyString(), anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
+  public void deleteCluster_shouldAllowPortalSuperAdmin() throws Exception {
+    String appId = "app-1";
+    String env = "DEV";
+    String clusterName = "default";
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(false);
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("portal-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+        clusterName)).andExpect(status().isOk());
+
+    verify(clusterOpenApiService, times(1)).deleteCluster(env, appId, clusterName, "portal-user");
+  }
+
+  @Test
+  public void deleteCluster_shouldRejectPortalUserWithoutSuperAdmin() throws Exception {
+    String appId = "app-1";
+    String env = "DEV";
+    String clusterName = "default";
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+    when(unifiedPermissionValidator.isAppAdmin(appId)).thenReturn(true);
+
+    mockMvc.perform(delete("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}", env, appId,
+        clusterName)).andExpect(status().isForbidden());
 
     verify(clusterOpenApiService, never()).deleteCluster(anyString(), anyString(), anyString(),
         anyString());

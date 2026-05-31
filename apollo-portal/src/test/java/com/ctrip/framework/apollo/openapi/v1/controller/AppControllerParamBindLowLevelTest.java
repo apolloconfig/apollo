@@ -313,10 +313,10 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void createAppInEnv_shouldAllowAppAdminWithoutCreateApplicationPermission()
+  public void createAppInEnv_shouldAllowPortalUserWithoutCreateApplicationPermission()
       throws Exception {
     when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
-    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(true);
+    when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(false);
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
     UserInfo currentUser = new UserInfo();
     currentUser.setUserId("portal-user");
@@ -355,7 +355,7 @@ public class AppControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void createAppInEnv_shouldRejectNonAppAdminWithoutCreateApplicationPermission()
+  public void createAppInEnv_shouldRejectConsumerWithoutCreateApplicationPermission()
       throws Exception {
     when(unifiedPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
     when(unifiedPermissionValidator.isAppAdmin("demo")).thenReturn(false);

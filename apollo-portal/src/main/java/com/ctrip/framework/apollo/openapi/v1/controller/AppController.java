@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.openapi.server.service.AppOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
@@ -39,6 +40,7 @@ import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -61,17 +63,20 @@ public class AppController implements AppManagementApi {
   private final UserService userService;
   private final UserInfoHolder userInfoHolder;
   private final RolePermissionService rolePermissionService;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
   public AppController(final ConsumerAuthUtil consumerAuthUtil,
       final ConsumerService consumerService, final AppOpenApiService appOpenApiService,
       final UserService userService, final UserInfoHolder userInfoHolder,
-      final RolePermissionService rolePermissionService) {
+      final RolePermissionService rolePermissionService,
+      final UnifiedPermissionValidator unifiedPermissionValidator) {
     this.consumerAuthUtil = consumerAuthUtil;
     this.consumerService = consumerService;
     this.appOpenApiService = appOpenApiService;
     this.userService = userService;
     this.userInfoHolder = userInfoHolder;
     this.rolePermissionService = rolePermissionService;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   /**
@@ -176,15 +181,12 @@ public class AppController implements AppManagementApi {
    * POST /openapi/v1/apps/envs/{env}
    */
   @Override
-  @PreAuthorize(value = "@unifiedPermissionValidator.hasCreateApplicationPermission()"
-      + " || (T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).USER"
-      + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
-      + ".getAuthType()) && #app != null && @unifiedPermissionValidator.isAppAdmin(#app.appId))")
   @ApolloAuditLog(type = OpType.CREATE, name = "App.create.forEnv")
   public ResponseEntity<Void> createAppInEnv(String env, OpenAppDTO app, String operator) {
     if (app == null) {
       throw new BadRequestException("App is null");
     }
+    requireCreateAppInEnvPermission();
     String resolvedOperator = resolveOperator(operator);
     app.setDataChangeCreatedBy(resolvedOperator);
     app.setDataChangeLastModifiedBy(resolvedOperator);
@@ -211,6 +213,21 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<List<OpenMissEnvDTO>> findMissEnvs(String appId) {
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
+  }
+
+  private void requireCreateAppInEnvPermission() {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)) {
+      // The legacy Portal WebAPI path for creating an app in a missing environment did not
+      // perform method-level authorization. Keep Portal UI behavior compatible after routing
+      // it through OpenAPI, but do not extend that compatibility to consumer tokens.
+      return;
+    }
+    if (UserIdentityConstants.CONSUMER.equals(authType)
+        && unifiedPermissionValidator.hasCreateApplicationPermission()) {
+      return;
+    }
+    throw new AccessDeniedException("Create application permission is required");
   }
 
   private String resolveOperator(String operator) {

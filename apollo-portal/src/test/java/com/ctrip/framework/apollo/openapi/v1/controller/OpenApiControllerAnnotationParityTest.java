@@ -21,9 +21,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -33,6 +35,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 class OpenApiControllerAnnotationParityTest {
 
+  private static final List<Class<?>> OPENAPI_CONTROLLER_CLASSES = List.of(
+      AccessKeyController.class, AppController.class, ClusterController.class, ItemController.class,
+      NamespaceBranchController.class, NamespaceController.class, PermissionController.class,
+      PortalManagementController.class, PortalUserController.class, ReleaseController.class);
+
   @Test
   void appAuditAnnotationsShouldMatchLegacyController() throws Exception {
     assertAudit(AppController.class.getMethod("deleteApp", String.class, String.class), OpType.RPC,
@@ -41,6 +48,8 @@ class OpenApiControllerAnnotationParityTest {
 
   @Test
   void appPermissionAnnotationsShouldMatchLegacyController() throws Exception {
+    assertNoPreAuthorize(AppController.class.getMethod("createAppInEnv", String.class,
+        OpenAppDTO.class, String.class));
     assertPreAuthorize(AppController.class.getMethod("deleteApp", String.class, String.class),
         "@unifiedPermissionValidator.isSuperAdmin()");
   }
@@ -59,15 +68,8 @@ class OpenApiControllerAnnotationParityTest {
         ClusterController.class.getMethod("createCluster", String.class, String.class,
             OpenClusterDTO.class),
         "@unifiedPermissionValidator.hasCreateClusterPermission(#appId)");
-    assertPreAuthorize(
-        ClusterController.class.getMethod("deleteCluster", String.class, String.class, String.class,
-            String.class),
-        "(T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).USER"
-            + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
-            + ".getAuthType()) && @unifiedPermissionValidator.isSuperAdmin())"
-            + " || (T(com.ctrip.framework.apollo.portal.constant.UserIdentityConstants).CONSUMER"
-            + ".equals(T(com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder)"
-            + ".getAuthType()) && @unifiedPermissionValidator.isAppAdmin(#appId))");
+    assertNoPreAuthorize(ClusterController.class.getMethod("deleteCluster", String.class,
+        String.class, String.class, String.class));
   }
 
   @Test
@@ -116,6 +118,23 @@ class OpenApiControllerAnnotationParityTest {
         PermissionController.class.getMethod("initClusterNamespacePermission", String.class,
             String.class, String.class, String.class),
         OpType.CREATE, "Auth.initClusterNamespacePermission");
+  }
+
+  @Test
+  void openApiPreAuthorizeExpressionsShouldNotEmbedAuthTypeBranching() {
+    for (Class<?> controllerClass : OPENAPI_CONTROLLER_CLASSES) {
+      for (Method method : controllerClass.getDeclaredMethods()) {
+        PreAuthorize preAuthorize = method.getAnnotation(PreAuthorize.class);
+        if (preAuthorize == null) {
+          continue;
+        }
+        // Keep auth-type compatibility branches in Java helpers or method bodies. Embedding them
+        // directly in SpEL is hard to compare against legacy WebAPI behavior and easy to regress.
+        assertThat(preAuthorize.value()).doesNotContain("UserIdentityContextHolder")
+            .doesNotContain("UserIdentityConstants").doesNotContain("T(").doesNotContain("&&")
+            .doesNotContain("||");
+      }
+    }
   }
 
   private void assertAudit(Method method, OpType type, String name) {
