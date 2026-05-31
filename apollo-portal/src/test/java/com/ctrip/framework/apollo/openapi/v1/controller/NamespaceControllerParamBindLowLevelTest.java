@@ -322,13 +322,15 @@ public class NamespaceControllerParamBindLowLevelTest {
     lock.setNamespaceName(NAMESPACE);
     lock.setIsLocked(true);
     lock.setLockedBy("operator");
+    lock.setIsEmergencyPublishAllowed(true);
     when(namespaceOpenApiService.getNamespaceLock(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(lock);
 
     mockMvc.perform(get(
         "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/lock",
         ENV, APP_ID, CLUSTER, NAMESPACE)).andExpect(status().isOk())
-        .andExpect(jsonPath("$.lockedBy").value("operator"));
+        .andExpect(jsonPath("$.lockedBy").value("operator"))
+        .andExpect(jsonPath("$.isEmergencyPublishAllowed").value(true));
 
     verify(namespaceOpenApiService).getNamespaceLock(APP_ID, ENV, CLUSTER, NAMESPACE);
   }

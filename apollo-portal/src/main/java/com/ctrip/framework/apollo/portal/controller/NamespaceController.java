@@ -65,6 +65,11 @@ import java.util.stream.Collectors;
 
 import static com.ctrip.framework.apollo.common.utils.RequestPrecondition.checkModel;
 
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 public class NamespaceController {
 

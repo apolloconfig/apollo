@@ -27,6 +27,11 @@ import java.util.List;
 /**
  * @author Jason Song(song_s@ctrip.com)
  */
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 @RequestMapping("/organizations")
 public class OrganizationController {

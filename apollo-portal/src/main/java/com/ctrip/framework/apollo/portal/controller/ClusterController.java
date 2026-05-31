@@ -33,6 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 public class ClusterController {
 

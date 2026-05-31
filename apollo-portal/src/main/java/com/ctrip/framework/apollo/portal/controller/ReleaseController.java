@@ -47,6 +47,11 @@ import java.util.Collections;
 import java.util.List;
 
 @Validated
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 public class ReleaseController {
 

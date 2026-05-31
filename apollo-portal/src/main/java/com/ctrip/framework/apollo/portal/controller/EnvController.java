@@ -25,6 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 @RequestMapping("/envs")
 public class EnvController {

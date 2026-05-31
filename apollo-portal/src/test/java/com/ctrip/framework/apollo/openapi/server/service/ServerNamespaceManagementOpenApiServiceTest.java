@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
@@ -37,6 +38,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.ItemBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.vo.LockInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceLockService;
@@ -136,6 +138,29 @@ class ServerNamespaceManagementOpenApiServiceTest {
 
     verify(namespaceService).assignNamespaceRoleToOperator(APP_ID, "created", "operator");
     verify(namespaceService, never()).assignNamespaceRoleToOperator(APP_ID, "failed", "operator");
+  }
+
+  @Test
+  void getNamespaceLockShouldPreserveLegacyLockInfoFieldsForPortalUi() {
+    NamespaceDTO namespace = new NamespaceDTO();
+    namespace.setNamespaceName(LINKED_NAMESPACE);
+    LockInfo lockInfo = new LockInfo();
+    lockInfo.setLockOwner("operator");
+    lockInfo.setEmergencyPublishAllowed(true);
+    when(
+        namespaceService.loadNamespaceBaseInfo(APP_ID, Env.valueOf(ENV), CLUSTER, LINKED_NAMESPACE))
+        .thenReturn(namespace);
+    when(namespaceLockService.getNamespaceLockInfo(APP_ID, Env.valueOf(ENV), CLUSTER,
+        LINKED_NAMESPACE)).thenReturn(lockInfo);
+
+    OpenNamespaceLockDTO result = service.getNamespaceLock(APP_ID, ENV, CLUSTER, LINKED_NAMESPACE);
+
+    assertThat(result.getNamespaceName()).isEqualTo(LINKED_NAMESPACE);
+    assertThat(result.getIsLocked()).isTrue();
+    assertThat(result.getLockedBy()).isEqualTo("operator");
+    assertThat(result.getIsEmergencyPublishAllowed()).isTrue();
+    verify(namespaceLockService).getNamespaceLockInfo(APP_ID, Env.valueOf(ENV), CLUSTER,
+        LINKED_NAMESPACE);
   }
 
   private NamespaceBO createNamespaceBO() {

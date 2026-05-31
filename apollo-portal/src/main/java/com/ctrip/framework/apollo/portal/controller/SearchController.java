@@ -39,6 +39,11 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * @author lepdou 2021-09-13
  */
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController("/app")
 public class SearchController {
 

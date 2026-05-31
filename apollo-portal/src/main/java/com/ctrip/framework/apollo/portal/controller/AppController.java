@@ -66,6 +66,11 @@ import java.util.Objects;
 import java.util.Set;
 
 
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 @RequestMapping("/apps")
 public class AppController {

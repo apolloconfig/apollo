@@ -39,10 +39,15 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 /**
- * Import the configs from file.
- * First version: move code from {@link ConfigsExportController}
+ * Import the configs from file. First version: move code from {@link ConfigsExportController}
+ *
  * @author wxq
  */
+/**
+ * @deprecated Portal UI uses /openapi/v1 endpoints. This legacy WebAPI controller is kept for
+ *     compatibility.
+ */
+@Deprecated
 @RestController
 public class ConfigsImportController {
   private static final String ENV_SEPARATOR = ",";
