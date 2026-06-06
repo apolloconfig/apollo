@@ -125,10 +125,10 @@ class ConsumerControllerTest {
 
     final String token = "token-xxx";
     {
-      ConsumerToken ConsumerToken = new ConsumerToken();
-      ConsumerToken.setToken(token);
+      ConsumerToken consumerToken = new ConsumerToken();
+      consumerToken.setToken(token);
       Mockito.when(consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(),
-          Mockito.any(), Mockito.eq("apollo"))).thenReturn(ConsumerToken);
+          Mockito.any(), Mockito.eq("apollo"))).thenReturn(consumerToken);
     }
     consumerController.create(requestVO, null);
 
