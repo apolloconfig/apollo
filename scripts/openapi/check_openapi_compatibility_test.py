@@ -511,6 +511,12 @@ components:
         schema_signature({"type": "object"}),
     )
 
+  def test_schema_signature_keeps_array_validation_constraints(self):
+    self.assertNotEqual(
+        schema_signature({"type": "array", "items": {"type": "object"}, "minItems": 1}),
+        schema_signature({"type": "array", "items": {"type": "object"}}),
+    )
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:
