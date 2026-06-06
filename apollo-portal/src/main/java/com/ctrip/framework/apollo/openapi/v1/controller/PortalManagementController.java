@@ -32,11 +32,7 @@ import com.ctrip.framework.apollo.openapi.api.PortalManagementApi;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerCreateRequestDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerTokenDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
-import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
@@ -50,7 +46,7 @@ import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvironmentInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.entity.vo.SystemInfo;
-import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerCreateRequestVO;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.portal.service.AppService;
@@ -253,9 +249,9 @@ public class PortalManagementController implements PortalManagementApi {
   @Override
   @Transactional
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<OpenConsumerInfoDTO> createConsumer(OpenConsumerCreateRequestDTO request,
-      String expires) {
+  public ResponseEntity<Object> createConsumer(Object body, String expires) {
     requirePortalUserRequest();
+    ConsumerCreateRequestVO request = convertBody(body, ConsumerCreateRequestVO.class);
     validateConsumerCreateRequest(request);
 
     String operator = currentUserId();
@@ -264,23 +260,20 @@ public class PortalManagementController implements PortalManagementApi {
     int rateLimit = resolveConsumerRateLimit(request);
     ConsumerToken consumerToken = consumerService.generateAndSaveConsumerToken(createdConsumer,
         rateLimit, resolvedExpires, operator);
-    if (Boolean.TRUE.equals(request.getAllowCreateApplication())) {
+    if (request.isAllowCreateApplication()) {
       consumerService.assignCreateApplicationRoleToConsumer(consumerToken.getToken(), operator);
     }
-    if (Boolean.TRUE.equals(request.getAllowManageUsers())) {
+    if (request.isAllowManageUsers()) {
       consumerService.assignManageUsersRoleToConsumer(consumerToken.getToken(), operator);
     }
-    return ResponseEntity.ok(OpenApiModelConverters
-        .fromConsumerInfo(consumerService.getConsumerInfoByAppId(request.getAppId())));
+    return ResponseEntity.ok(consumerService.getConsumerInfoByAppId(request.getAppId()));
   }
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<OpenConsumerTokenDTO> getConsumerTokenByAppId(String appId) {
+  public ResponseEntity<Object> getConsumerTokenByAppId(String appId) {
     requirePortalUserRequest();
-    ConsumerToken consumerToken = consumerService.getConsumerTokenByAppId(appId);
-    return ResponseEntity
-        .ok(consumerToken == null ? null : OpenApiModelConverters.fromConsumerToken(consumerToken));
+    return ResponseEntity.ok(consumerService.getConsumerTokenByAppId(appId));
   }
 
   @Override
@@ -322,10 +315,9 @@ public class PortalManagementController implements PortalManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<List<OpenConsumerInfoDTO>> getConsumerList(Integer page, Integer size) {
+  public ResponseEntity<List<Object>> getConsumerList(Integer page, Integer size) {
     requirePortalUserRequest();
-    List<ConsumerInfo> consumers = consumerService.findConsumerInfoList(pageable(page, size));
-    return ResponseEntity.ok(OpenApiModelConverters.fromConsumerInfosWithoutToken(consumers));
+    return ResponseEntity.ok(asObjects(consumerService.findConsumerInfoList(pageable(page, size))));
   }
 
   @Override
@@ -609,7 +601,7 @@ public class PortalManagementController implements PortalManagementApi {
     }
   }
 
-  private Consumer convertToConsumer(OpenConsumerCreateRequestDTO request) {
+  private Consumer convertToConsumer(ConsumerCreateRequestVO request) {
     Consumer consumer = new Consumer();
     consumer.setAppId(request.getAppId());
     consumer.setName(request.getName());
@@ -619,7 +611,7 @@ public class PortalManagementController implements PortalManagementApi {
     return consumer;
   }
 
-  private void validateConsumerCreateRequest(OpenConsumerCreateRequestDTO request) {
+  private void validateConsumerCreateRequest(ConsumerCreateRequestVO request) {
     if (StringUtils.isBlank(request.getAppId())) {
       throw BadRequestException.appIdIsBlank();
     }
@@ -632,15 +624,15 @@ public class PortalManagementController implements PortalManagementApi {
     if (StringUtils.isBlank(request.getOrgId())) {
       throw BadRequestException.orgIdIsBlank();
     }
-    if (Boolean.TRUE.equals(request.getRateLimitEnabled())) {
-      if (request.getRateLimit() == null || request.getRateLimit() <= 0) {
+    if (request.isRateLimitEnabled()) {
+      if (request.getRateLimit() <= 0) {
         throw BadRequestException.rateLimitIsInvalid();
       }
     }
   }
 
-  private int resolveConsumerRateLimit(OpenConsumerCreateRequestDTO request) {
-    return Boolean.TRUE.equals(request.getRateLimitEnabled()) ? request.getRateLimit() : 0;
+  private int resolveConsumerRateLimit(ConsumerCreateRequestVO request) {
+    return request.isRateLimitEnabled() ? request.getRateLimit() : 0;
   }
 
   private PageDTO<App> searchByItem(String itemKey, Pageable pageable) {
@@ -878,6 +870,9 @@ public class PortalManagementController implements PortalManagementApi {
   }
 
   private <T> T convertBody(Object body, Class<T> clazz) {
+    if (clazz.isInstance(body)) {
+      return clazz.cast(body);
+    }
     return objectMapper.convertValue(body, clazz);
   }
 

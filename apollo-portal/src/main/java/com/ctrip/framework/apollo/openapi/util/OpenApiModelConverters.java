@@ -30,15 +30,12 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
-import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterNamespaceRoleUserDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerTokenDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
@@ -81,18 +78,14 @@ import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.entity.vo.Change;
-import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -553,55 +546,6 @@ public final class OpenApiModelConverters {
     result.setEmail(user.getEmail());
     result.setEnabled(user.getEnabled() == null ? 0 : user.getEnabled());
     return result;
-  }
-
-  public static OpenConsumerInfoDTO fromConsumerInfo(final ConsumerInfo consumerInfo) {
-    Preconditions.checkArgument(consumerInfo != null);
-    OpenConsumerInfoDTO result = BeanUtils.transform(OpenConsumerInfoDTO.class, consumerInfo);
-    result.setRateLimitEnabled(isRateLimitEnabled(consumerInfo));
-    return result;
-  }
-
-  public static OpenConsumerInfoDTO fromConsumerInfoWithoutToken(final ConsumerInfo consumerInfo) {
-    OpenConsumerInfoDTO result = fromConsumerInfo(consumerInfo);
-    result.setToken(null);
-    return result;
-  }
-
-  public static OpenConsumerTokenDTO fromConsumerToken(final ConsumerToken consumerToken) {
-    Preconditions.checkArgument(consumerToken != null);
-    OpenConsumerTokenDTO result = new OpenConsumerTokenDTO();
-    result.setConsumerId(consumerToken.getConsumerId());
-    result.token(consumerToken.getToken());
-    result.setRateLimit(consumerToken.getRateLimit());
-    result.setExpires(toOffsetDateTime(consumerToken.getExpires()));
-    result.setDataChangeCreatedBy(consumerToken.getDataChangeCreatedBy());
-    result.setDataChangeCreatedTime(toOffsetDateTime(consumerToken.getDataChangeCreatedTime()));
-    result.setDataChangeLastModifiedBy(consumerToken.getDataChangeLastModifiedBy());
-    result.setDataChangeLastModifiedTime(
-        toOffsetDateTime(consumerToken.getDataChangeLastModifiedTime()));
-    return result;
-  }
-
-  public static List<OpenConsumerInfoDTO> fromConsumerInfosWithoutToken(
-      final List<ConsumerInfo> consumerInfos) {
-    if (CollectionUtils.isEmpty(consumerInfos)) {
-      return Collections.emptyList();
-    }
-    return consumerInfos.stream().map(OpenApiModelConverters::fromConsumerInfoWithoutToken)
-        .collect(Collectors.toList());
-  }
-
-  private static boolean isRateLimitEnabled(final ConsumerInfo consumerInfo) {
-    Integer rateLimit = consumerInfo.getRateLimit();
-    return rateLimit != null && rateLimit > 0;
-  }
-
-  private static OffsetDateTime toOffsetDateTime(Date date) {
-    if (date == null) {
-      return null;
-    }
-    return OffsetDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
   }
 
   public static OpenAppRoleUserDTO fromAppRolesAssignedUsers(

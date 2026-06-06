@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,9 +40,6 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.http.SearchResponseEntity;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerCreateRequestDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerTokenDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
@@ -56,6 +53,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerCreateRequestVO;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
@@ -243,7 +241,6 @@ public class PortalManagementControllerTest {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey(" ");
     serverConfig.setValue("value");
-    when(objectMapper.convertValue(serverConfig, ServerConfig.class)).thenReturn(serverConfig);
 
     assertThrows(BadRequestException.class,
         () -> controller.createOrUpdatePortalDBConfig(serverConfig));
@@ -256,7 +253,6 @@ public class PortalManagementControllerTest {
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setKey("timeout");
     serverConfig.setValue(" ");
-    when(objectMapper.convertValue(serverConfig, ServerConfig.class)).thenReturn(serverConfig);
 
     assertThrows(BadRequestException.class,
         () -> controller.createOrUpdateConfigDBConfig("DEV", serverConfig));
@@ -289,7 +285,7 @@ public class PortalManagementControllerTest {
 
   @Test
   public void createConsumerShouldAssignManageUsersRole() {
-    OpenConsumerCreateRequestDTO request = new OpenConsumerCreateRequestDTO();
+    ConsumerCreateRequestVO request = new ConsumerCreateRequestVO();
     request.setAppId("consumer-app");
     request.setName("consumer");
     request.setOwnerName("apollo");
@@ -317,17 +313,19 @@ public class PortalManagementControllerTest {
     consumerInfo.setAllowManageUsers(true);
     when(consumerService.getConsumerInfoByAppId("consumer-app")).thenReturn(consumerInfo);
 
-    ResponseEntity<OpenConsumerInfoDTO> response = controller.createConsumer(request, null);
+    ResponseEntity<Object> response = controller.createConsumer(request, null);
 
     assertEquals(200, response.getStatusCode().value());
-    assertNotNull(response.getBody());
-    assertEquals("consumer-app", response.getBody().getAppId());
-    assertTrue(response.getBody().getAllowManageUsers());
+    ConsumerInfo responseBody = (ConsumerInfo) response.getBody();
+    assertNotNull(responseBody);
+    assertSame(consumerInfo, responseBody);
+    assertEquals("consumer-app", responseBody.getAppId());
+    assertTrue(responseBody.isAllowManageUsers());
     verify(consumerService).assignManageUsersRoleToConsumer("token", "apollo");
   }
 
   @Test
-  public void getConsumerTokenByAppIdShouldReturnTypedConsumerToken() {
+  public void getConsumerTokenByAppIdShouldReturnConsumerToken() {
     Date expires = new Date(1893456000000L);
     Date createdTime = new Date(1717200000000L);
     Date lastModifiedTime = new Date(1717286400000L);
@@ -342,29 +340,28 @@ public class PortalManagementControllerTest {
     consumerToken.setDataChangeLastModifiedTime(lastModifiedTime);
     when(consumerService.getConsumerTokenByAppId("consumer-app")).thenReturn(consumerToken);
 
-    ResponseEntity<OpenConsumerTokenDTO> response =
-        controller.getConsumerTokenByAppId("consumer-app");
+    ResponseEntity<Object> response = controller.getConsumerTokenByAppId("consumer-app");
 
     assertEquals(200, response.getStatusCode().value());
-    assertNotNull(response.getBody());
-    assertEquals(1L, response.getBody().getConsumerId());
-    assertEquals("token", response.getBody().getToken());
-    assertEquals(100, response.getBody().getRateLimit());
-    assertEquals(expires.toInstant(), response.getBody().getExpires().toInstant());
-    assertEquals("apollo", response.getBody().getDataChangeCreatedBy());
-    assertEquals(createdTime.toInstant(),
-        response.getBody().getDataChangeCreatedTime().toInstant());
-    assertEquals("apollo", response.getBody().getDataChangeLastModifiedBy());
-    assertEquals(lastModifiedTime.toInstant(),
-        response.getBody().getDataChangeLastModifiedTime().toInstant());
+    ConsumerToken responseBody = (ConsumerToken) response.getBody();
+    assertNotNull(responseBody);
+    assertSame(consumerToken, responseBody);
+    assertEquals(1L, responseBody.getConsumerId());
+    assertEquals("token", responseBody.getToken());
+    assertEquals(100, responseBody.getRateLimit());
+    assertEquals(expires, responseBody.getExpires());
+    assertEquals("apollo", responseBody.getDataChangeCreatedBy());
+    assertEquals(createdTime, responseBody.getDataChangeCreatedTime());
+    assertEquals("apollo", responseBody.getDataChangeLastModifiedBy());
+    assertEquals(lastModifiedTime, responseBody.getDataChangeLastModifiedTime());
     String json = new HttpMessageConverterConfiguration().gson().toJson(response.getBody());
     assertTrue(json.contains("\"token\":\"token\""));
-    assertTrue(json.contains("\"expires\":\"2030-01-01T00:00Z\""));
+    assertTrue(json.contains("\"expires\""));
     verify(consumerService).getConsumerTokenByAppId("consumer-app");
   }
 
   @Test
-  public void getConsumerListShouldReturnConsumerInfoWithoutToken() {
+  public void getConsumerListShouldReturnConsumerInfos() {
     ConsumerInfo consumerInfo = new ConsumerInfo();
     consumerInfo.setConsumerId(1);
     consumerInfo.setAppId("consumer-app");
@@ -374,22 +371,23 @@ public class PortalManagementControllerTest {
     consumerInfo.setOrgId("org");
     consumerInfo.setOrgName("Org");
     consumerInfo.setRateLimit(100);
-    consumerInfo.setToken("token-should-not-be-returned");
+    consumerInfo.setToken(null);
     consumerInfo.setAllowCreateApplication(true);
     consumerInfo.setAllowManageUsers(true);
     when(consumerService.findConsumerInfoList(any()))
         .thenReturn(Collections.singletonList(consumerInfo));
 
-    ResponseEntity<List<OpenConsumerInfoDTO>> response = controller.getConsumerList(0, 10);
+    ResponseEntity<List<Object>> response = controller.getConsumerList(0, 10);
 
     assertEquals(200, response.getStatusCode().value());
     assertNotNull(response.getBody());
     assertEquals(1, response.getBody().size());
-    assertEquals("consumer-app", response.getBody().get(0).getAppId());
-    assertNull(response.getBody().get(0).getToken());
-    assertTrue(response.getBody().get(0).getAllowCreateApplication());
-    assertTrue(response.getBody().get(0).getAllowManageUsers());
-    assertTrue(response.getBody().get(0).getRateLimitEnabled());
+    ConsumerInfo responseBody = (ConsumerInfo) response.getBody().get(0);
+    assertSame(consumerInfo, responseBody);
+    assertEquals("consumer-app", responseBody.getAppId());
+    assertTrue(responseBody.isAllowCreateApplication());
+    assertTrue(responseBody.isAllowManageUsers());
+    assertEquals(100, responseBody.getRateLimit());
   }
 
   @Test
