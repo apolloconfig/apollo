@@ -24,7 +24,9 @@ import com.ctrip.framework.apollo.portal.constant.PermissionType;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Permission;
 import com.ctrip.framework.apollo.portal.entity.po.Role;
+import com.ctrip.framework.apollo.portal.repository.PermissionRepository;
 import com.ctrip.framework.apollo.portal.service.RolePermissionService;
+import com.ctrip.framework.apollo.portal.service.SystemRoleManagerService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultRoleInitializationService;
 import com.ctrip.framework.apollo.portal.util.RoleUtils;
@@ -53,6 +55,8 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
   private UserInfoHolder userInfoHolder;
   @Mock
   private PortalConfig portalConfig;
+  @Mock
+  private PermissionRepository permissionRepository;
   @InjectMocks
   private DefaultRoleInitializationService roleInitializationService;
 
@@ -229,6 +233,24 @@ public class RoleInitializationServiceTest extends AbstractUnitTest {
     verify(rolePermissionService, times(2)).findRoleByRoleName(anyString());
     verify(rolePermissionService, times(1)).createPermission(any());
     verify(rolePermissionService, times(1)).createRoleWithPermissions(any(), anySet());
+  }
+
+  @Test
+  public void testInitManageUsersRoleNotExisted() {
+    when(rolePermissionService.findRoleByRoleName(SystemRoleManagerService.MANAGE_USERS_ROLE_NAME))
+        .thenReturn(null);
+    when(permissionRepository.findTopByPermissionTypeAndTargetId(PermissionType.MANAGE_USERS,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID)).thenReturn(null);
+    when(rolePermissionService.createPermission(any())).thenReturn(mockPermission());
+
+    roleInitializationService.initManageUsersRole();
+
+    verify(rolePermissionService)
+        .findRoleByRoleName(SystemRoleManagerService.MANAGE_USERS_ROLE_NAME);
+    verify(permissionRepository).findTopByPermissionTypeAndTargetId(PermissionType.MANAGE_USERS,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    verify(rolePermissionService).createPermission(any());
+    verify(rolePermissionService).createRoleWithPermissions(any(), anySet());
   }
 
   private App mockApp() {

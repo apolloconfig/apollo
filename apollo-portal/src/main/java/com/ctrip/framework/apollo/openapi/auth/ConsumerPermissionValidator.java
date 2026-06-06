@@ -90,6 +90,13 @@ public class ConsumerPermissionValidator extends AbstractPermissionValidator
   }
 
   @Override
+  public boolean hasManageUsersPermission() {
+    long consumerId = consumerAuthUtil.retrieveConsumerIdFromCtx();
+    return permissionService.consumerHasPermission(consumerId, PermissionType.MANAGE_USERS,
+        SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Override
   public boolean hasManageAppMasterPermission(String appId) {
     throw new UnsupportedOperationException("Not supported operation");
   }

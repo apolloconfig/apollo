@@ -32,7 +32,11 @@ import com.ctrip.framework.apollo.openapi.api.PortalManagementApi;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerCreateRequestDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerSummaryDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
@@ -46,7 +50,6 @@ import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvironmentInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.entity.vo.SystemInfo;
-import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerCreateRequestVO;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
@@ -250,27 +253,34 @@ public class PortalManagementController implements PortalManagementApi {
   @Override
   @Transactional
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<Object> createConsumer(Object body, String expires) {
+  public ResponseEntity<OpenConsumerInfoDTO> createConsumer(OpenConsumerCreateRequestDTO request,
+      String expires) {
     requirePortalUserRequest();
-    ConsumerCreateRequestVO request = convertBody(body, ConsumerCreateRequestVO.class);
     validateConsumerCreateRequest(request);
 
     String operator = currentUserId();
     Consumer createdConsumer = consumerService.createConsumer(convertToConsumer(request), operator);
     Date resolvedExpires = parseConsumerExpires(expires);
+    int rateLimit = resolveConsumerRateLimit(request);
     ConsumerToken consumerToken = consumerService.generateAndSaveConsumerToken(createdConsumer,
-        request.getRateLimit(), resolvedExpires, operator);
-    if (request.isAllowCreateApplication()) {
+        rateLimit, resolvedExpires, operator);
+    if (Boolean.TRUE.equals(request.getAllowCreateApplication())) {
       consumerService.assignCreateApplicationRoleToConsumer(consumerToken.getToken(), operator);
     }
-    return ResponseEntity.ok(consumerService.getConsumerInfoByAppId(request.getAppId()));
+    if (Boolean.TRUE.equals(request.getAllowManageUsers())) {
+      consumerService.assignManageUsersRoleToConsumer(consumerToken.getToken(), operator);
+    }
+    return ResponseEntity.ok(OpenApiModelConverters
+        .fromConsumerInfo(consumerService.getConsumerInfoByAppId(request.getAppId())));
   }
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<Object> getConsumerTokenByAppId(String appId) {
+  public ResponseEntity<OpenConsumerInfoDTO> getConsumerTokenByAppId(String appId) {
     requirePortalUserRequest();
-    return ResponseEntity.ok(consumerService.getConsumerTokenByAppId(appId));
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    return ResponseEntity
+        .ok(consumerInfo == null ? null : OpenApiModelConverters.fromConsumerInfo(consumerInfo));
   }
 
   @Override
@@ -312,10 +322,10 @@ public class PortalManagementController implements PortalManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<List<Object>> getConsumerList(Integer page, Integer size) {
+  public ResponseEntity<List<OpenConsumerSummaryDTO>> getConsumerList(Integer page, Integer size) {
     requirePortalUserRequest();
     List<ConsumerInfo> consumers = consumerService.findConsumerInfoList(pageable(page, size));
-    return ResponseEntity.ok(asObjects(consumers));
+    return ResponseEntity.ok(OpenApiModelConverters.fromConsumerSummaries(consumers));
   }
 
   @Override
@@ -599,7 +609,7 @@ public class PortalManagementController implements PortalManagementApi {
     }
   }
 
-  private Consumer convertToConsumer(ConsumerCreateRequestVO request) {
+  private Consumer convertToConsumer(OpenConsumerCreateRequestDTO request) {
     Consumer consumer = new Consumer();
     consumer.setAppId(request.getAppId());
     consumer.setName(request.getName());
@@ -609,7 +619,7 @@ public class PortalManagementController implements PortalManagementApi {
     return consumer;
   }
 
-  private void validateConsumerCreateRequest(ConsumerCreateRequestVO request) {
+  private void validateConsumerCreateRequest(OpenConsumerCreateRequestDTO request) {
     if (StringUtils.isBlank(request.getAppId())) {
       throw BadRequestException.appIdIsBlank();
     }
@@ -622,13 +632,15 @@ public class PortalManagementController implements PortalManagementApi {
     if (StringUtils.isBlank(request.getOrgId())) {
       throw BadRequestException.orgIdIsBlank();
     }
-    if (request.isRateLimitEnabled()) {
-      if (request.getRateLimit() <= 0) {
+    if (Boolean.TRUE.equals(request.getRateLimitEnabled())) {
+      if (request.getRateLimit() == null || request.getRateLimit() <= 0) {
         throw BadRequestException.rateLimitIsInvalid();
       }
-    } else {
-      request.setRateLimit(0);
     }
+  }
+
+  private int resolveConsumerRateLimit(OpenConsumerCreateRequestDTO request) {
+    return Boolean.TRUE.equals(request.getRateLimitEnabled()) ? request.getRateLimit() : 0;
   }
 
   private PageDTO<App> searchByItem(String itemKey, Pageable pageable) {

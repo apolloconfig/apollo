@@ -36,6 +36,11 @@ import com.ctrip.framework.apollo.audit.api.ApolloAuditLogApi;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.http.SearchResponseEntity;
+import com.ctrip.framework.apollo.openapi.entity.Consumer;
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerCreateRequestDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerSummaryDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
@@ -49,6 +54,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.ItemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.portal.service.AppService;
@@ -276,6 +282,100 @@ public class PortalManagementControllerTest {
     assertEquals(200, response.getStatusCode().value());
     assertEquals(searchResponse, response.getBody());
     verify(globalSearchService).getAllEnvItemInfoBySearch(null, "timeout", 0, 10);
+  }
+
+  @Test
+  public void createConsumerShouldAssignManageUsersRole() {
+    OpenConsumerCreateRequestDTO request = new OpenConsumerCreateRequestDTO();
+    request.setAppId("consumer-app");
+    request.setName("consumer");
+    request.setOwnerName("apollo");
+    request.setOrgId("org");
+    request.setRateLimit(0);
+    request.setAllowManageUsers(true);
+    UserInfo currentUser = new UserInfo("apollo");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+    Consumer createdConsumer = new Consumer();
+    createdConsumer.setId(1);
+    createdConsumer.setAppId("consumer-app");
+    when(consumerService.createConsumer(any(Consumer.class), eq("apollo")))
+        .thenReturn(createdConsumer);
+    ConsumerToken consumerToken = new ConsumerToken();
+    consumerToken.setToken("token");
+    when(consumerService.generateAndSaveConsumerToken(eq(createdConsumer), eq(0), any(),
+        eq("apollo"))).thenReturn(consumerToken);
+    ConsumerInfo consumerInfo = new ConsumerInfo();
+    consumerInfo.setConsumerId(1);
+    consumerInfo.setAppId("consumer-app");
+    consumerInfo.setName("consumer");
+    consumerInfo.setOwnerName("apollo");
+    consumerInfo.setOrgId("org");
+    consumerInfo.setToken("token");
+    consumerInfo.setAllowManageUsers(true);
+    when(consumerService.getConsumerInfoByAppId("consumer-app")).thenReturn(consumerInfo);
+
+    ResponseEntity<OpenConsumerInfoDTO> response = controller.createConsumer(request, null);
+
+    assertEquals(200, response.getStatusCode().value());
+    assertNotNull(response.getBody());
+    assertEquals("consumer-app", response.getBody().getAppId());
+    assertTrue(response.getBody().getAllowManageUsers());
+    verify(consumerService).assignManageUsersRoleToConsumer("token", "apollo");
+  }
+
+  @Test
+  public void getConsumerTokenByAppIdShouldReturnTypedConsumerInfo() {
+    ConsumerInfo consumerInfo = new ConsumerInfo();
+    consumerInfo.setConsumerId(1);
+    consumerInfo.setAppId("consumer-app");
+    consumerInfo.setName("consumer");
+    consumerInfo.setOwnerName("apollo");
+    consumerInfo.setOwnerEmail("apollo@example.com");
+    consumerInfo.setOrgId("org");
+    consumerInfo.setOrgName("Org");
+    consumerInfo.setToken("token");
+    consumerInfo.setRateLimit(100);
+    consumerInfo.setAllowCreateApplication(true);
+    consumerInfo.setAllowManageUsers(true);
+    when(consumerService.getConsumerInfoByAppId("consumer-app")).thenReturn(consumerInfo);
+
+    ResponseEntity<OpenConsumerInfoDTO> response =
+        controller.getConsumerTokenByAppId("consumer-app");
+
+    assertEquals(200, response.getStatusCode().value());
+    assertNotNull(response.getBody());
+    assertEquals("consumer-app", response.getBody().getAppId());
+    assertEquals("token", response.getBody().getToken());
+    assertTrue(response.getBody().getAllowCreateApplication());
+    assertTrue(response.getBody().getAllowManageUsers());
+    assertTrue(response.getBody().getRateLimitEnabled());
+  }
+
+  @Test
+  public void getConsumerListShouldReturnTypedConsumerSummary() {
+    ConsumerInfo consumerInfo = new ConsumerInfo();
+    consumerInfo.setConsumerId(1);
+    consumerInfo.setAppId("consumer-app");
+    consumerInfo.setName("consumer");
+    consumerInfo.setOwnerName("apollo");
+    consumerInfo.setOwnerEmail("apollo@example.com");
+    consumerInfo.setOrgId("org");
+    consumerInfo.setOrgName("Org");
+    consumerInfo.setRateLimit(100);
+    consumerInfo.setAllowCreateApplication(true);
+    consumerInfo.setAllowManageUsers(true);
+    when(consumerService.findConsumerInfoList(any()))
+        .thenReturn(Collections.singletonList(consumerInfo));
+
+    ResponseEntity<List<OpenConsumerSummaryDTO>> response = controller.getConsumerList(0, 10);
+
+    assertEquals(200, response.getStatusCode().value());
+    assertNotNull(response.getBody());
+    assertEquals(1, response.getBody().size());
+    assertEquals("consumer-app", response.getBody().get(0).getAppId());
+    assertTrue(response.getBody().get(0).getAllowCreateApplication());
+    assertTrue(response.getBody().get(0).getAllowManageUsers());
+    assertTrue(response.getBody().get(0).getRateLimitEnabled());
   }
 
   @Test

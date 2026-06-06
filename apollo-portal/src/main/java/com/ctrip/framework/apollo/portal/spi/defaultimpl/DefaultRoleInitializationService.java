@@ -138,23 +138,29 @@ public class DefaultRoleInitializationService implements RoleInitializationServi
   @Transactional
   @Override
   public void initCreateAppRole() {
-    if (rolePermissionService
-        .findRoleByRoleName(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME) != null) {
+    initSystemRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME,
+        PermissionType.CREATE_APPLICATION);
+  }
+
+  @Transactional
+  @Override
+  public void initManageUsersRole() {
+    initSystemRole(SystemRoleManagerService.MANAGE_USERS_ROLE_NAME, PermissionType.MANAGE_USERS);
+  }
+
+  private void initSystemRole(String roleName, String permissionType) {
+    if (rolePermissionService.findRoleByRoleName(roleName) != null) {
       return;
     }
-    Permission createAppPermission = permissionRepository.findTopByPermissionTypeAndTargetId(
-        PermissionType.CREATE_APPLICATION, SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
-    if (createAppPermission == null) {
-      // create application permission init
-      createAppPermission = createPermission(SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID,
-          PermissionType.CREATE_APPLICATION, "apollo");
-      rolePermissionService.createPermission(createAppPermission);
+    Permission permission = permissionRepository.findTopByPermissionTypeAndTargetId(permissionType,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+    if (permission == null) {
+      permission = createPermission(SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID,
+          permissionType, "apollo");
+      rolePermissionService.createPermission(permission);
     }
-    // create application role init
-    Role createAppRole =
-        createRole(SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME, "apollo");
-    rolePermissionService.createRoleWithPermissions(createAppRole,
-        Sets.newHashSet(createAppPermission.getId()));
+    Role role = createRole(roleName, "apollo");
+    rolePermissionService.createRoleWithPermissions(role, Sets.newHashSet(permission.getId()));
   }
 
   @Transactional

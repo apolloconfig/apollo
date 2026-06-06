@@ -32,6 +32,7 @@ public class ConsumerInfo {
   private long consumerId;
   private String token;
   private boolean allowCreateApplication;
+  private boolean allowManageUsers;
 
   private Integer rateLimit;
 
@@ -105,6 +106,14 @@ public class ConsumerInfo {
 
   public void setAllowCreateApplication(boolean allowCreateApplication) {
     this.allowCreateApplication = allowCreateApplication;
+  }
+
+  public boolean isAllowManageUsers() {
+    return allowManageUsers;
+  }
+
+  public void setAllowManageUsers(boolean allowManageUsers) {
+    this.allowManageUsers = allowManageUsers;
   }
 
   public Integer getRateLimit() {

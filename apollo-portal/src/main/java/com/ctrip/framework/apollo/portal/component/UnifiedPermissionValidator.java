@@ -98,6 +98,11 @@ public class UnifiedPermissionValidator implements PermissionValidator {
   }
 
   @Override
+  public boolean hasManageUsersPermission() {
+    return getDelegate().hasManageUsersPermission();
+  }
+
+  @Override
   public boolean hasDeleteNamespacePermission(String appId) {
     return getDelegate().hasDeleteNamespacePermission(appId);
   }

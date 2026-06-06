@@ -34,6 +34,9 @@ public class SystemRoleManagerService {
       RoleUtils.buildCreateApplicationRoleName(PermissionType.CREATE_APPLICATION,
           SYSTEM_PERMISSION_TARGET_ID);
 
+  public static final String MANAGE_USERS_ROLE_NAME =
+      RoleUtils.buildSystemRoleName(PermissionType.MANAGE_USERS, SYSTEM_PERMISSION_TARGET_ID);
+
   public static final String CREATE_APPLICATION_LIMIT_SWITCH_KEY =
       "role.create-application.enabled";
   public static final String MANAGE_APP_MASTER_LIMIT_SWITCH_KEY = "role.manage-app-master.enabled";
@@ -54,6 +57,7 @@ public class SystemRoleManagerService {
   @PostConstruct
   private void init() {
     roleInitializationService.initCreateAppRole();
+    roleInitializationService.initManageUsersRole();
   }
 
   private boolean isCreateApplicationPermissionEnabled() {
@@ -70,6 +74,11 @@ public class SystemRoleManagerService {
     }
 
     return rolePermissionService.userHasPermission(userId, PermissionType.CREATE_APPLICATION,
+        SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  public boolean hasManageUsersPermission(String userId) {
+    return rolePermissionService.userHasPermission(userId, PermissionType.MANAGE_USERS,
         SYSTEM_PERMISSION_TARGET_ID);
   }
 

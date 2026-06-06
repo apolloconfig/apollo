@@ -202,6 +202,42 @@ public class ConsumerPermissionValidatorTest {
   }
 
   @Test
+  public void testHasManageUsersPermission_UserHasPermission_ReturnsTrue() {
+    when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
+    when(permissionService.consumerHasPermission(
+        CONSUMER_ID,
+        PermissionType.MANAGE_USERS,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID))
+        .thenReturn(true);
+
+    boolean result = validator.hasManageUsersPermission();
+
+    assertTrue(result);
+    verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
+    verify(permissionService, times(1))
+        .consumerHasPermission(CONSUMER_ID, PermissionType.MANAGE_USERS,
+            SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Test
+  public void testHasManageUsersPermission_UserHasNoPermission_ReturnsFalse() {
+    when(consumerAuthUtil.retrieveConsumerIdFromCtx()).thenReturn(CONSUMER_ID);
+    when(permissionService.consumerHasPermission(
+        CONSUMER_ID,
+        PermissionType.MANAGE_USERS,
+        SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID))
+        .thenReturn(false);
+
+    boolean result = validator.hasManageUsersPermission();
+
+    assertFalse(result);
+    verify(consumerAuthUtil, times(1)).retrieveConsumerIdFromCtx();
+    verify(permissionService, times(1))
+        .consumerHasPermission(CONSUMER_ID, PermissionType.MANAGE_USERS,
+            SystemRoleManagerService.SYSTEM_PERMISSION_TARGET_ID);
+  }
+
+  @Test
   public void testHasManageAppMasterPermission_NotSupported_ThrowsException() {
     // Act & Assert
     assertThrows(UnsupportedOperationException.class, () -> {

@@ -36,6 +36,8 @@ import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterNamespaceRoleUserDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerSummaryDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
@@ -78,6 +80,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.Organization;
 import com.ctrip.framework.apollo.portal.entity.vo.PermissionCondition;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.entity.vo.Change;
+import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerInfo;
 import com.google.common.base.Preconditions;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -546,6 +549,34 @@ public final class OpenApiModelConverters {
     result.setEmail(user.getEmail());
     result.setEnabled(user.getEnabled() == null ? 0 : user.getEnabled());
     return result;
+  }
+
+  public static OpenConsumerInfoDTO fromConsumerInfo(final ConsumerInfo consumerInfo) {
+    Preconditions.checkArgument(consumerInfo != null);
+    OpenConsumerInfoDTO result = BeanUtils.transform(OpenConsumerInfoDTO.class, consumerInfo);
+    result.setRateLimitEnabled(isRateLimitEnabled(consumerInfo));
+    return result;
+  }
+
+  public static OpenConsumerSummaryDTO fromConsumerSummary(final ConsumerInfo consumerInfo) {
+    Preconditions.checkArgument(consumerInfo != null);
+    OpenConsumerSummaryDTO result = BeanUtils.transform(OpenConsumerSummaryDTO.class, consumerInfo);
+    result.setRateLimitEnabled(isRateLimitEnabled(consumerInfo));
+    return result;
+  }
+
+  public static List<OpenConsumerSummaryDTO> fromConsumerSummaries(
+      final List<ConsumerInfo> consumerInfos) {
+    if (CollectionUtils.isEmpty(consumerInfos)) {
+      return Collections.emptyList();
+    }
+    return consumerInfos.stream().map(OpenApiModelConverters::fromConsumerSummary)
+        .collect(Collectors.toList());
+  }
+
+  private static boolean isRateLimitEnabled(final ConsumerInfo consumerInfo) {
+    Integer rateLimit = consumerInfo.getRateLimit();
+    return rateLimit != null && rateLimit > 0;
   }
 
   public static OpenAppRoleUserDTO fromAppRolesAssignedUsers(

@@ -80,6 +80,19 @@
 
                         <div class="form-group">
                             <label class="col-sm-2 control-label">
+                                {{'Open.Manage.Consumer.AllowManageUsers' | translate }}
+                            </label>
+                            <div class="col-sm-3">
+                                <input type="checkbox"
+                                       ng-model="consumer.allowManageUsers"
+                                       name="allowManageUsers"
+                                />
+                                <small>{{'Open.Manage.Consumer.AllowManageUsersTips' | translate }}</small>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">
                                 {{ 'Open.Manage.Consumer.RateLimit.Enabled' | translate }}
                             </label>
                             <div class="col-sm-3">

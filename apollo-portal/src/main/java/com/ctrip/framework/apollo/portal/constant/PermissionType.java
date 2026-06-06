@@ -22,6 +22,7 @@ public interface PermissionType {
    * system level permission
    */
   String CREATE_APPLICATION = "CreateApplication";
+  String MANAGE_USERS = "ManageUsers";
   String MANAGE_APP_MASTER = "ManageAppMaster";
 
   /**

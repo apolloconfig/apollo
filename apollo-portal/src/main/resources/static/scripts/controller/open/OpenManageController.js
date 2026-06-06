@@ -22,7 +22,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
 
     var $orgWidget = $('#organization');
 
-    $scope.consumer = {};
+    $scope.consumer = defaultConsumer();
     $scope.consumerRole = {
         type: 'NamespaceRole'
     };
@@ -205,7 +205,7 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
                 $scope.consumerToken = consumerToken;
                 $scope.consumerRole.token = consumerToken.token;
                 $scope.submitBtnDisabled = false;
-                $scope.consumer = {};
+                $scope.consumer = defaultConsumer();
             }, function (response) {
                 AppUtil.showErrorMsg(response, $translate.instant('Common.CreateFailed'));
                 $scope.submitBtnDisabled = false;
@@ -230,6 +230,15 @@ function OpenManageController($scope, $translate, toastr, AppUtil, OrganizationS
             }, function (response) {
                 AppUtil.showErrorMsg(response, $translate.instant('Open.Manage.GrantFailed'));
             })
+    }
+
+    function defaultConsumer() {
+        return {
+            allowCreateApplication: false,
+            allowManageUsers: false,
+            rateLimitEnabled: false,
+            rateLimit: 0
+        };
     }
 
     init();

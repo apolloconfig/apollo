@@ -198,11 +198,13 @@ public class UnifiedPermissionValidatorTest {
     when(userPermissionValidator.isSuperAdmin()).thenReturn(false);
     when(userPermissionValidator.hasCreateApplicationPermission()).thenReturn(true);
     when(userPermissionValidator.hasCreateApplicationPermission(userId)).thenReturn(false);
+    when(userPermissionValidator.hasManageUsersPermission()).thenReturn(true);
 
     assertTrue(unifiedPermissionValidator.hasAssignRolePermission(appId));
     assertFalse(unifiedPermissionValidator.isSuperAdmin());
     assertTrue(unifiedPermissionValidator.hasCreateApplicationPermission());
     assertFalse(unifiedPermissionValidator.hasCreateApplicationPermission(userId));
+    assertTrue(unifiedPermissionValidator.hasManageUsersPermission());
   }
 
   @Test
@@ -215,10 +217,12 @@ public class UnifiedPermissionValidatorTest {
     when(consumerPermissionValidator.isSuperAdmin()).thenReturn(true);
     when(consumerPermissionValidator.hasCreateApplicationPermission()).thenReturn(false);
     when(consumerPermissionValidator.hasCreateApplicationPermission(userId)).thenReturn(true);
+    when(consumerPermissionValidator.hasManageUsersPermission()).thenReturn(false);
 
     assertFalse(unifiedPermissionValidator.hasAssignRolePermission(appId));
     assertTrue(unifiedPermissionValidator.isSuperAdmin());
     assertFalse(unifiedPermissionValidator.hasCreateApplicationPermission());
     assertTrue(unifiedPermissionValidator.hasCreateApplicationPermission(userId));
+    assertFalse(unifiedPermissionValidator.hasManageUsersPermission());
   }
 }

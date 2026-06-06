@@ -128,6 +128,10 @@ public class RoleUtils {
 
   public static String buildCreateApplicationRoleName(String permissionType,
       String permissionTargetId) {
+    return buildSystemRoleName(permissionType, permissionTargetId);
+  }
+
+  public static String buildSystemRoleName(String permissionType, String permissionTargetId) {
     return STRING_JOINER.join(permissionType, permissionTargetId);
   }
 }

@@ -100,6 +100,11 @@ public class UserPermissionValidator extends AbstractPermissionValidator
   }
 
   @Override
+  public boolean hasManageUsersPermission() {
+    return systemRoleManagerService.hasManageUsersPermission(userInfoHolder.getUser().getUserId());
+  }
+
+  @Override
   public boolean hasManageAppMasterPermission(String appId) {
     // the manage app master permission might not be initialized, so we need to check isSuperAdmin
     // first

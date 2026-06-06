@@ -22,6 +22,7 @@ package com.ctrip.framework.apollo.portal.entity.vo.consumer;
 public class ConsumerCreateRequestVO {
   private String appId;
   private boolean allowCreateApplication;
+  private boolean allowManageUsers;
   private String name;
   private String orgId;
   private String orgName;
@@ -43,6 +44,14 @@ public class ConsumerCreateRequestVO {
 
   public void setAllowCreateApplication(boolean allowCreateApplication) {
     this.allowCreateApplication = allowCreateApplication;
+  }
+
+  public boolean isAllowManageUsers() {
+    return allowManageUsers;
+  }
+
+  public void setAllowManageUsers(boolean allowManageUsers) {
+    this.allowManageUsers = allowManageUsers;
   }
 
   public String getName() {

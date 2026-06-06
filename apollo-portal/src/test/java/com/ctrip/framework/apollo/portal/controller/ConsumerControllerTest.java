@@ -72,6 +72,8 @@ class ConsumerControllerTest {
         Mockito.any(), Mockito.any(), Mockito.eq("apollo"));
     Mockito.verify(consumerService, Mockito.times(0))
         .assignCreateApplicationRoleToConsumer(Mockito.any(), Mockito.any());
+    Mockito.verify(consumerService, Mockito.times(0)).assignManageUsersRoleToConsumer(Mockito.any(),
+        Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());
   }
 
@@ -103,6 +105,41 @@ class ConsumerControllerTest {
         Mockito.any(), Mockito.any(), Mockito.eq("apollo"));
     Mockito.verify(consumerService, Mockito.times(1))
         .assignCreateApplicationRoleToConsumer(Mockito.eq(token), Mockito.eq("apollo"));
+    Mockito.verify(consumerService, Mockito.times(0)).assignManageUsersRoleToConsumer(Mockito.any(),
+        Mockito.any());
+    Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());
+  }
+
+  @Test
+  void createAndAssignManageUsersRoleToConsumer() {
+    ConsumerService consumerService = Mockito.mock(ConsumerService.class);
+    UserInfoHolder userInfoHolder = Mockito.mock(UserInfoHolder.class);
+    Mockito.when(userInfoHolder.getUser()).thenReturn(new UserInfo("apollo"));
+    ConsumerController consumerController = new ConsumerController(consumerService, userInfoHolder);
+    ConsumerCreateRequestVO requestVO = new ConsumerCreateRequestVO();
+    requestVO.setAppId("appId1");
+    requestVO.setName("app 1");
+    requestVO.setOwnerName("user1");
+    requestVO.setOrgId("orgId1");
+    requestVO.setAllowManageUsers(true);
+
+    final String token = "token-xxx";
+    {
+      ConsumerToken ConsumerToken = new ConsumerToken();
+      ConsumerToken.setToken(token);
+      Mockito.when(consumerService.generateAndSaveConsumerToken(Mockito.any(), Mockito.any(),
+          Mockito.any(), Mockito.eq("apollo"))).thenReturn(ConsumerToken);
+    }
+    consumerController.create(requestVO, null);
+
+    Mockito.verify(consumerService, Mockito.times(1)).createConsumer(Mockito.any(),
+        Mockito.eq("apollo"));
+    Mockito.verify(consumerService, Mockito.times(1)).generateAndSaveConsumerToken(Mockito.any(),
+        Mockito.any(), Mockito.any(), Mockito.eq("apollo"));
+    Mockito.verify(consumerService, Mockito.times(1))
+        .assignManageUsersRoleToConsumer(Mockito.eq(token), Mockito.eq("apollo"));
+    Mockito.verify(consumerService, Mockito.times(0))
+        .assignCreateApplicationRoleToConsumer(Mockito.any(), Mockito.any());
     Mockito.verify(consumerService, Mockito.times(1)).getConsumerInfoByAppId(Mockito.any());
   }
 }

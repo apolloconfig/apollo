@@ -170,6 +170,13 @@ class UserPermissionValidatorTest {
     assertThat(validator.hasCreateApplicationPermission()).isFalse();
   }
 
+  @Test
+  void hasManageUsersPermission_delegatesToSystemRoleManagerService() {
+    when(systemRoleManagerService.hasManageUsersPermission(USER_ID)).thenReturn(true);
+
+    assertThat(validator.hasManageUsersPermission()).isTrue();
+  }
+
   // 5. hasManageAppMasterPermission tests
 
   @Test

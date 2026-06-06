@@ -110,6 +110,9 @@ public class ConsumerController {
     if (requestVO.isAllowCreateApplication()) {
       consumerService.assignCreateApplicationRoleToConsumer(consumerToken.getToken(), operator);
     }
+    if (requestVO.isAllowManageUsers()) {
+      consumerService.assignManageUsersRoleToConsumer(consumerToken.getToken(), operator);
+    }
     return consumerService.getConsumerInfoByAppId(requestVO.getAppId());
   }
 

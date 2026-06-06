@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.openapi.service;
 
+import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.CREATE_APPLICATION_ROLE_NAME;
+import static com.ctrip.framework.apollo.portal.service.SystemRoleManagerService.MANAGE_USERS_ROLE_NAME;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
@@ -193,6 +195,8 @@ public class ConsumerServiceTest {
     assertThrows(BadRequestException.class,
         () -> consumerService.assignCreateApplicationRoleToConsumer("token", " "));
     assertThrows(BadRequestException.class,
+        () -> consumerService.assignManageUsersRoleToConsumer("token", " "));
+    assertThrows(BadRequestException.class,
         () -> consumerService.assignAppRoleToConsumer("token", testAppId, " "));
     assertThrows(BadRequestException.class,
         () -> consumerService.assignAppRoleToConsumer(1L, testAppId, " "));
@@ -274,6 +278,7 @@ public class ConsumerServiceTest {
     }
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
     assertFalse(consumerInfo.isAllowCreateApplication());
+    assertFalse(consumerInfo.isAllowManageUsers());
     assertEquals(appId, consumerInfo.getAppId());
     assertEquals(token, consumerInfo.getToken());
   }
@@ -300,7 +305,7 @@ public class ConsumerServiceTest {
     {
       Role role = new Role();
       role.setId(roleId);
-      when(rolePermissionService.findRoleByRoleName(any())).thenReturn(role);
+      when(rolePermissionService.findRoleByRoleName(CREATE_APPLICATION_ROLE_NAME)).thenReturn(role);
 
       ConsumerRole consumerRole = new ConsumerRole();
       consumerRole.setConsumerId(consumerId);
@@ -310,9 +315,66 @@ public class ConsumerServiceTest {
 
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
     assertTrue(consumerInfo.isAllowCreateApplication());
+    assertFalse(consumerInfo.isAllowManageUsers());
     assertEquals(appId, consumerInfo.getAppId());
     assertEquals(token, consumerInfo.getToken());
     assertEquals(consumerId, consumerInfo.getConsumerId());
+  }
+
+  @Test
+  void allowManageUsers() {
+    final String appId = "appId-consumer-manage-users";
+    final String token = "token-manage-users";
+    final long consumerId = 2024;
+    final long roleId = 202406;
+
+    {
+      Consumer consumer = new Consumer();
+      consumer.setAppId(appId);
+      consumer.setId(consumerId);
+      when(consumerRepository.findByAppId(eq(appId))).thenReturn(consumer);
+
+      ConsumerToken consumerToken = new ConsumerToken();
+      consumerToken.setToken(token);
+      consumerToken.setRateLimit(0);
+      when(consumerTokenRepository.findByConsumerId(eq(consumerId))).thenReturn(consumerToken);
+    }
+
+    {
+      Role role = new Role();
+      role.setId(roleId);
+      when(rolePermissionService.findRoleByRoleName(MANAGE_USERS_ROLE_NAME)).thenReturn(role);
+
+      ConsumerRole consumerRole = new ConsumerRole();
+      consumerRole.setConsumerId(consumerId);
+      when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(roleId)))
+          .thenReturn(consumerRole);
+    }
+
+    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    assertFalse(consumerInfo.isAllowCreateApplication());
+    assertTrue(consumerInfo.isAllowManageUsers());
+    assertEquals(appId, consumerInfo.getAppId());
+    assertEquals(token, consumerInfo.getToken());
+    assertEquals(consumerId, consumerInfo.getConsumerId());
+  }
+
+  @Test
+  public void testAssignManageUsersRoleToConsumer() {
+    long consumerId = 1L;
+    long roleId = 2L;
+    String token = "token";
+    doReturn(consumerId).when(consumerService).getConsumerIdByToken(token);
+    Role role = createRole(roleId, MANAGE_USERS_ROLE_NAME);
+    when(rolePermissionService.findRoleByRoleName(MANAGE_USERS_ROLE_NAME)).thenReturn(role);
+    ConsumerRole consumerRole = createConsumerRole(consumerId, roleId);
+    doReturn(consumerRole).when(consumerService).createConsumerRole(consumerId, roleId, testOwner);
+    when(consumerRoleRepository.save(consumerRole)).thenReturn(consumerRole);
+
+    ConsumerRole created = consumerService.assignManageUsersRoleToConsumer(token, testOwner);
+
+    assertEquals(consumerRole, created);
+    verify(consumerRoleRepository).save(consumerRole);
   }
 
   private Consumer createConsumer(String name, String appId, String ownerName) {

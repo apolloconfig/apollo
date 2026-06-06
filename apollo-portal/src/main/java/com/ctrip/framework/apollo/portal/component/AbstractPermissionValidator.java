@@ -97,6 +97,11 @@ public abstract class AbstractPermissionValidator implements PermissionValidator
   public abstract boolean hasCreateApplicationPermission();
 
   @Override
+  public boolean hasManageUsersPermission() {
+    return false;
+  }
+
+  @Override
   public abstract boolean hasManageAppMasterPermission(String appId);
 
   protected abstract boolean hasPermissions(List<Permission> requiredPerms);
