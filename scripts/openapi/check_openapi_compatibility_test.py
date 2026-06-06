@@ -505,6 +505,12 @@ components:
 
     self.assertEqual(schema_signature(left_schema), schema_signature(right_schema))
 
+  def test_schema_signature_keeps_object_validation_constraints(self):
+    self.assertNotEqual(
+        schema_signature({"type": "object", "minProperties": 1}),
+        schema_signature({"type": "object"}),
+    )
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:

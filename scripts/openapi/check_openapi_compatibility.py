@@ -108,6 +108,8 @@ def schema_signature(schema: Any) -> Optional[str]:
       "properties",
       "required",
       "additionalProperties",
+      "maxProperties",
+      "minProperties",
       "allOf",
       "anyOf",
       "oneOf",
