@@ -353,6 +353,96 @@ components:
         for issue in issues
     ))
 
+  def test_rejects_unconstrained_object_schemas_to_non_object_refs(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+    OpenConsumerInfoDTO:
+      type: object
+    OpenConsumerSummaryDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: string
+    OpenConsumerInfoDTO:
+      type: integer
+    OpenConsumerSummaryDTO:
+      type: array
+      items:
+        type: string
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual(3, len(issues))
+    self.assertTrue(any(
+        issue.startswith("Changed request schema for POST /openapi/v1/consumers:")
+        for issue in issues
+    ))
+    self.assertTrue(any(
+        issue.startswith("Changed response schemas for GET /openapi/v1/consumers:")
+        for issue in issues
+    ))
+    self.assertTrue(any(
+        issue.startswith("Changed response schemas for POST /openapi/v1/consumers:")
+        for issue in issues
+    ))
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:

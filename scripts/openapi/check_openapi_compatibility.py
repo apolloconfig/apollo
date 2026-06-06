@@ -67,6 +67,7 @@ class Operation:
 class OpenApiSnapshot:
   operations: Dict[Tuple[str, str], Operation] = field(default_factory=dict)
   schemas: Set[str] = field(default_factory=set)
+  schema_signatures: Dict[str, str] = field(default_factory=dict)
   schema_required: Dict[str, Set[str]] = field(default_factory=dict)
   schema_properties: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
@@ -117,28 +118,58 @@ def load_schema_signature(signature: str) -> Optional[Dict[str, Any]]:
   return value if isinstance(value, dict) else None
 
 
-def schema_signature_change_is_compatible(base_signature: str, head_signature: str) -> bool:
+def component_schema_name(ref: Any) -> Optional[str]:
+  if not isinstance(ref, str):
+    return None
+  prefix = "#/components/schemas/"
+  if not ref.startswith(prefix):
+    return None
+  return ref[len(prefix):].replace("~1", "/").replace("~0", "~")
+
+
+def ref_target_is_object_schema(
+    schema: Dict[str, Any], head_schema_signatures: Dict[str, str]
+) -> bool:
+  schema_name = component_schema_name(schema.get("$ref"))
+  if schema_name is None:
+    return False
+  target_schema = load_schema_signature(head_schema_signatures.get(schema_name, ""))
+  if target_schema is None:
+    return False
+  return (
+      target_schema.get("type") == "object"
+      or "properties" in target_schema
+      or "additionalProperties" in target_schema
+      or "allOf" in target_schema
+  )
+
+
+def schema_signature_change_is_compatible(
+    base_signature: str, head_signature: str, head_schema_signatures: Dict[str, str]
+) -> bool:
   base_schema = load_schema_signature(base_signature)
   head_schema = load_schema_signature(head_signature)
   if base_schema is None or head_schema is None:
     return False
 
   if base_schema == {"type": "object"}:
-    return "$ref" in head_schema
+    return ref_target_is_object_schema(head_schema, head_schema_signatures)
 
   if base_schema == {"items": {"type": "object"}, "type": "array"}:
     head_items = head_schema.get("items")
     return (
         head_schema.get("type") == "array"
         and isinstance(head_items, dict)
-        and "$ref" in head_items
+        and ref_target_is_object_schema(head_items, head_schema_signatures)
     )
 
   return False
 
 
 def request_schema_change_is_compatible(
-    base_request_schema: str, head_request_schema: Optional[str]
+    base_request_schema: str,
+    head_request_schema: Optional[str],
+    head_schema_signatures: Dict[str, str],
 ) -> bool:
   if head_request_schema is None:
     return False
@@ -163,7 +194,9 @@ def request_schema_change_is_compatible(
       return False
     if base_entry[0] != head_entry[0]:
       return False
-    if not schema_signature_change_is_compatible(base_entry[1], head_entry[1]):
+    if not schema_signature_change_is_compatible(
+        base_entry[1], head_entry[1], head_schema_signatures
+    ):
       return False
   return True
 
@@ -171,6 +204,7 @@ def request_schema_change_is_compatible(
 def response_schemas_change_is_compatible(
     base_response_schemas: Tuple[Tuple[str, str, str], ...],
     head_response_schemas: Tuple[Tuple[str, str, str], ...],
+    head_schema_signatures: Dict[str, str],
 ) -> bool:
   if len(base_response_schemas) != len(head_response_schemas):
     return False
@@ -180,7 +214,9 @@ def response_schemas_change_is_compatible(
     head_status, head_media_type, head_signature = head_entry
     if base_status != head_status or base_media_type != head_media_type:
       return False
-    if not schema_signature_change_is_compatible(base_signature, head_signature):
+    if not schema_signature_change_is_compatible(
+        base_signature, head_signature, head_schema_signatures
+    ):
       return False
   return True
 
@@ -256,6 +292,10 @@ def parse_spec(text: str) -> OpenApiSnapshot:
       if not isinstance(schema, dict):
         continue
 
+      signature = schema_signature(schema)
+      if signature:
+        snapshot.schema_signatures[schema_name] = signature
+
       required = schema.get("required") or []
       if isinstance(required, list):
         snapshot.schema_required[schema_name].update(str(field_name) for field_name in required)
@@ -312,7 +352,9 @@ def compare_specs(
     base_request_schema = base.operations[(path, method)].request_schema
     head_request_schema = head.operations[(path, method)].request_schema
     if base_request_schema and base_request_schema != head_request_schema:
-      if not request_schema_change_is_compatible(base_request_schema, head_request_schema):
+      if not request_schema_change_is_compatible(
+          base_request_schema, head_request_schema, head.schema_signatures
+      ):
         issues.append(
             f"Changed request schema for {key}: {base_request_schema} -> "
             f"{head_request_schema}"
@@ -321,7 +363,9 @@ def compare_specs(
     base_response_schemas = base.operations[(path, method)].response_schemas
     head_response_schemas = head.operations[(path, method)].response_schemas
     if base_response_schemas and base_response_schemas != head_response_schemas:
-      if not response_schemas_change_is_compatible(base_response_schemas, head_response_schemas):
+      if not response_schemas_change_is_compatible(
+          base_response_schemas, head_response_schemas, head.schema_signatures
+      ):
         issues.append(
             f"Changed response schemas for {key}: {base_response_schemas} -> "
             f"{head_response_schemas}"
