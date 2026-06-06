@@ -24,6 +24,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
 import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.boot.http.converter.autoconfigure.HttpMessageConverters;
 import org.springframework.context.annotation.Bean;
@@ -55,10 +56,20 @@ public class HttpMessageConverterConfiguration {
       }
       return Instant.parse(json.getAsString()); // Deserialize from ISO-8601 string
     };
+    JsonSerializer<OffsetDateTime> offsetDateTimeJsonSerializer = (src, typeOfSrc,
+        context) -> src == null ? JsonNull.INSTANCE : new JsonPrimitive(src.toString());
+    JsonDeserializer<OffsetDateTime> offsetDateTimeJsonDeserializer = (json, typeOfT, context) -> {
+      if (json == null || json.isJsonNull()) {
+        return null;
+      }
+      return OffsetDateTime.parse(json.getAsString());
+    };
 
     return new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
         .registerTypeAdapter(Instant.class, instantJsonSerializer)
-        .registerTypeAdapter(Instant.class, instantJsonDeserializer).create();
+        .registerTypeAdapter(Instant.class, instantJsonDeserializer)
+        .registerTypeAdapter(OffsetDateTime.class, offsetDateTimeJsonSerializer)
+        .registerTypeAdapter(OffsetDateTime.class, offsetDateTimeJsonDeserializer).create();
   }
 
   @Bean

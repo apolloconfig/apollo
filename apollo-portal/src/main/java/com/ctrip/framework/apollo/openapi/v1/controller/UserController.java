@@ -38,10 +38,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * OpenAPI v1 controller for portal user management.
+ * OpenAPI v1 controller for user management.
  */
-@RestController("openapiPortalUserController")
-public class PortalUserController implements UserManagementApi {
+@RestController("openapiUserController")
+public class UserController implements UserManagementApi {
   private static final int USER_ENABLED = 1;
 
   private final UserInfoHolder userInfoHolder;
@@ -50,7 +50,7 @@ public class PortalUserController implements UserManagementApi {
   private final UnifiedPermissionValidator unifiedPermissionValidator;
   private final OpenApiOperatorResolver operatorResolver;
 
-  public PortalUserController(UserInfoHolder userInfoHolder, UserService userService,
+  public UserController(UserInfoHolder userInfoHolder, UserService userService,
       AuthUserPasswordChecker passwordChecker,
       UnifiedPermissionValidator unifiedPermissionValidator,
       OpenApiOperatorResolver operatorResolver) {

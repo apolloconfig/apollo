@@ -34,7 +34,7 @@ import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.model.OpenConsumerCreateRequestDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerSummaryDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerTokenDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -276,11 +276,11 @@ public class PortalManagementController implements PortalManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<OpenConsumerInfoDTO> getConsumerTokenByAppId(String appId) {
+  public ResponseEntity<OpenConsumerTokenDTO> getConsumerTokenByAppId(String appId) {
     requirePortalUserRequest();
-    ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
+    ConsumerToken consumerToken = consumerService.getConsumerTokenByAppId(appId);
     return ResponseEntity
-        .ok(consumerInfo == null ? null : OpenApiModelConverters.fromConsumerInfo(consumerInfo));
+        .ok(consumerToken == null ? null : OpenApiModelConverters.fromConsumerToken(consumerToken));
   }
 
   @Override
@@ -322,10 +322,10 @@ public class PortalManagementController implements PortalManagementApi {
 
   @Override
   @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
-  public ResponseEntity<List<OpenConsumerSummaryDTO>> getConsumerList(Integer page, Integer size) {
+  public ResponseEntity<List<OpenConsumerInfoDTO>> getConsumerList(Integer page, Integer size) {
     requirePortalUserRequest();
     List<ConsumerInfo> consumers = consumerService.findConsumerInfoList(pageable(page, size));
-    return ResponseEntity.ok(OpenApiModelConverters.fromConsumerSummaries(consumers));
+    return ResponseEntity.ok(OpenApiModelConverters.fromConsumerInfosWithoutToken(consumers));
   }
 
   @Override

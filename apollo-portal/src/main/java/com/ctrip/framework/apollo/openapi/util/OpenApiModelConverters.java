@@ -30,6 +30,7 @@ import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.entity.App;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenAccessKeyDTO;
@@ -37,7 +38,7 @@ import com.ctrip.framework.apollo.openapi.model.OpenAppRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenClusterNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenConsumerInfoDTO;
-import com.ctrip.framework.apollo.openapi.model.OpenConsumerSummaryDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerTokenDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvNamespaceRoleUserDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
@@ -87,8 +88,11 @@ import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -558,25 +562,46 @@ public final class OpenApiModelConverters {
     return result;
   }
 
-  public static OpenConsumerSummaryDTO fromConsumerSummary(final ConsumerInfo consumerInfo) {
-    Preconditions.checkArgument(consumerInfo != null);
-    OpenConsumerSummaryDTO result = BeanUtils.transform(OpenConsumerSummaryDTO.class, consumerInfo);
-    result.setRateLimitEnabled(isRateLimitEnabled(consumerInfo));
+  public static OpenConsumerInfoDTO fromConsumerInfoWithoutToken(final ConsumerInfo consumerInfo) {
+    OpenConsumerInfoDTO result = fromConsumerInfo(consumerInfo);
+    result.setToken(null);
     return result;
   }
 
-  public static List<OpenConsumerSummaryDTO> fromConsumerSummaries(
+  public static OpenConsumerTokenDTO fromConsumerToken(final ConsumerToken consumerToken) {
+    Preconditions.checkArgument(consumerToken != null);
+    OpenConsumerTokenDTO result = new OpenConsumerTokenDTO();
+    result.setConsumerId(consumerToken.getConsumerId());
+    result.token(consumerToken.getToken());
+    result.setRateLimit(consumerToken.getRateLimit());
+    result.setExpires(toOffsetDateTime(consumerToken.getExpires()));
+    result.setDataChangeCreatedBy(consumerToken.getDataChangeCreatedBy());
+    result.setDataChangeCreatedTime(toOffsetDateTime(consumerToken.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedBy(consumerToken.getDataChangeLastModifiedBy());
+    result.setDataChangeLastModifiedTime(
+        toOffsetDateTime(consumerToken.getDataChangeLastModifiedTime()));
+    return result;
+  }
+
+  public static List<OpenConsumerInfoDTO> fromConsumerInfosWithoutToken(
       final List<ConsumerInfo> consumerInfos) {
     if (CollectionUtils.isEmpty(consumerInfos)) {
       return Collections.emptyList();
     }
-    return consumerInfos.stream().map(OpenApiModelConverters::fromConsumerSummary)
+    return consumerInfos.stream().map(OpenApiModelConverters::fromConsumerInfoWithoutToken)
         .collect(Collectors.toList());
   }
 
   private static boolean isRateLimitEnabled(final ConsumerInfo consumerInfo) {
     Integer rateLimit = consumerInfo.getRateLimit();
     return rateLimit != null && rateLimit > 0;
+  }
+
+  private static OffsetDateTime toOffsetDateTime(Date date) {
+    if (date == null) {
+      return null;
+    }
+    return OffsetDateTime.ofInstant(date.toInstant(), ZoneOffset.UTC);
   }
 
   public static OpenAppRoleUserDTO fromAppRolesAssignedUsers(

@@ -51,13 +51,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
- * Tests Portal User OpenAPI endpoints that are backed by the portal user session.
+ * Tests User Management OpenAPI endpoints.
  */
 @ExtendWith(MockitoExtension.class)
-public class PortalUserControllerTest {
+public class UserControllerTest {
 
   @InjectMocks
-  private PortalUserController portalUserController;
+  private UserController userController;
 
   @Mock
   private SpringSecurityUserService userService;
@@ -93,7 +93,7 @@ public class PortalUserControllerTest {
     currentUser.setEnabled(1);
     when(userInfoHolder.getUser()).thenReturn(currentUser);
 
-    ResponseEntity<OpenUserInfoDTO> response = portalUserController.getCurrentUser();
+    ResponseEntity<OpenUserInfoDTO> response = userController.getCurrentUser();
 
     assertEquals(200, response.getStatusCode().value());
     assertNotNull(response.getBody());
@@ -108,8 +108,7 @@ public class PortalUserControllerTest {
     UserInfo user = new UserInfo("jason");
     when(userService.searchUsers("ja", 2, 20, true)).thenReturn(Collections.singletonList(user));
 
-    ResponseEntity<List<OpenUserInfoDTO>> response =
-        portalUserController.searchUsers("ja", true, 2, 20);
+    ResponseEntity<List<OpenUserInfoDTO>> response = userController.searchUsers("ja", true, 2, 20);
 
     assertEquals(200, response.getStatusCode().value());
     assertNotNull(response.getBody());
@@ -129,7 +128,7 @@ public class PortalUserControllerTest {
     when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(new CheckResult(true, ""));
 
-    ResponseEntity<Void> response = portalUserController.createOrUpdateUser(user, true, "ignored");
+    ResponseEntity<Void> response = userController.createOrUpdateUser(user, true, "ignored");
 
     assertEquals(200, response.getStatusCode().value());
     ArgumentCaptor<UserPO> captor = ArgumentCaptor.forClass(UserPO.class);
@@ -152,7 +151,7 @@ public class PortalUserControllerTest {
     when(userInfoHolder.getUser()).thenReturn(currentUser);
 
     assertThrows(AccessDeniedException.class,
-        () -> portalUserController.createOrUpdateUser(user, false, "ignored"));
+        () -> userController.createOrUpdateUser(user, false, "ignored"));
 
     verifyNoInteractions(passwordChecker, userService, operatorResolver);
   }
@@ -162,8 +161,7 @@ public class PortalUserControllerTest {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
     when(unifiedPermissionValidator.hasManageUsersPermission()).thenReturn(false);
 
-    assertThrows(AccessDeniedException.class,
-        () -> portalUserController.searchUsers("ja", false, 0, 10));
+    assertThrows(AccessDeniedException.class, () -> userController.searchUsers("ja", false, 0, 10));
 
     verify(unifiedPermissionValidator).hasManageUsersPermission();
     verifyNoInteractions(userService);
@@ -176,8 +174,7 @@ public class PortalUserControllerTest {
     UserInfo user = new UserInfo("jason");
     when(userService.searchUsers("ja", 0, 10, false)).thenReturn(Collections.singletonList(user));
 
-    ResponseEntity<List<OpenUserInfoDTO>> response =
-        portalUserController.searchUsers("ja", false, 0, 10);
+    ResponseEntity<List<OpenUserInfoDTO>> response = userController.searchUsers("ja", false, 0, 10);
 
     assertEquals(200, response.getStatusCode().value());
     assertNotNull(response.getBody());
@@ -194,7 +191,7 @@ public class PortalUserControllerTest {
     user.setName("Jason");
     when(userService.findByUserId("jason")).thenReturn(user);
 
-    ResponseEntity<OpenUserInfoDTO> response = portalUserController.getUserByUserId("jason");
+    ResponseEntity<OpenUserInfoDTO> response = userController.getUserByUserId("jason");
 
     assertEquals(200, response.getStatusCode().value());
     assertNotNull(response.getBody());
@@ -206,7 +203,7 @@ public class PortalUserControllerTest {
   public void getUserByUserIdShouldRejectUnknownUser() {
     when(userService.findByUserId("missing")).thenReturn(null);
 
-    assertThrows(BadRequestException.class, () -> portalUserController.getUserByUserId("missing"));
+    assertThrows(BadRequestException.class, () -> userController.getUserByUserId("missing"));
   }
 
   @Test
@@ -222,7 +219,7 @@ public class PortalUserControllerTest {
     when(operatorResolver.resolve("operator")).thenReturn("operator");
     when(passwordChecker.checkWeakPassword(anyString())).thenReturn(new CheckResult(true, ""));
 
-    ResponseEntity<Void> response = portalUserController.createOrUpdateUser(user, true, "operator");
+    ResponseEntity<Void> response = userController.createOrUpdateUser(user, true, "operator");
 
     assertEquals(200, response.getStatusCode().value());
     ArgumentCaptor<UserPO> captor = ArgumentCaptor.forClass(UserPO.class);
@@ -241,7 +238,7 @@ public class PortalUserControllerTest {
     when(unifiedPermissionValidator.hasManageUsersPermission()).thenReturn(false);
 
     assertThrows(AccessDeniedException.class,
-        () -> portalUserController.createOrUpdateUser(user, true, "operator"));
+        () -> userController.createOrUpdateUser(user, true, "operator"));
 
     verify(unifiedPermissionValidator).hasManageUsersPermission();
     verifyNoMoreInteractions(unifiedPermissionValidator);
@@ -257,7 +254,7 @@ public class PortalUserControllerTest {
     when(unifiedPermissionValidator.hasManageUsersPermission()).thenReturn(true);
     when(operatorResolver.resolve("operator")).thenReturn("operator");
 
-    ResponseEntity<Void> response = portalUserController.changeUserEnabled(user, "operator");
+    ResponseEntity<Void> response = userController.changeUserEnabled(user, "operator");
 
     assertEquals(200, response.getStatusCode().value());
     ArgumentCaptor<UserPO> captor = ArgumentCaptor.forClass(UserPO.class);

@@ -38,7 +38,7 @@ class OpenApiControllerAnnotationParityTest {
   private static final List<Class<?>> OPENAPI_CONTROLLER_CLASSES = List.of(
       AccessKeyController.class, AppController.class, ClusterController.class, ItemController.class,
       NamespaceBranchController.class, NamespaceController.class, PermissionController.class,
-      PortalManagementController.class, PortalUserController.class, ReleaseController.class);
+      PortalManagementController.class, UserController.class, ReleaseController.class);
 
   @Test
   void appAuditAnnotationsShouldMatchLegacyController() throws Exception {
