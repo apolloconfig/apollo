@@ -443,6 +443,128 @@ components:
         for issue in issues
     ))
 
+  def test_rejects_unconstrained_object_schema_to_non_object_all_of_ref(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      allOf:
+        - type: string
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual(1, len(issues))
+    self.assertTrue(
+        issues[0].startswith("Changed request schema for POST /openapi/v1/consumers:")
+    )
+
+  def test_ignores_semantically_unordered_schema_lists(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/apps:
+    post:
+      operationId: createApp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    appId:
+                      type: string
+                - type: object
+                  properties:
+                    name:
+                      type: string
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    OpenAppDTO:
+      type: object
+      required:
+        - appId
+        - name
+      properties:
+        status:
+          type: string
+          enum:
+            - enabled
+            - disabled
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/apps:
+    post:
+      operationId: createApp
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                - type: object
+                  properties:
+                    appId:
+                      type: string
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    OpenAppDTO:
+      type: object
+      required:
+        - name
+        - appId
+      properties:
+        status:
+          type: string
+          enum:
+            - disabled
+            - enabled
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual([], issues)
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:

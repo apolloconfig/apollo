@@ -55,6 +55,8 @@ HTTP_METHODS = {
     "trace",
 }
 
+UNORDERED_SCHEMA_LIST_KEYS = {"allOf", "anyOf", "enum", "oneOf", "required"}
+
 
 @dataclass
 class Operation:
@@ -83,11 +85,17 @@ def schema_signature(schema: Any) -> Optional[str]:
   if not isinstance(schema, dict):
     return None
 
-  def normalize(value: Any) -> Any:
+  def normalized_sort_key(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"))
+
+  def normalize(value: Any, parent_key: Optional[str] = None) -> Any:
     if isinstance(value, dict):
-      return {key: normalize(value[key]) for key in sorted(value)}
+      return {key: normalize(value[key], key) for key in sorted(value)}
     if isinstance(value, list):
-      return [normalize(item) for item in value]
+      normalized_items = [normalize(item) for item in value]
+      if parent_key in UNORDERED_SCHEMA_LIST_KEYS:
+        return sorted(normalized_items, key=normalized_sort_key)
+      return normalized_items
     return value
 
   keys = (
@@ -104,7 +112,7 @@ def schema_signature(schema: Any) -> Optional[str]:
       "anyOf",
       "oneOf",
   )
-  signature = {key: normalize(schema[key]) for key in keys if key in schema}
+  signature = {key: normalize(schema[key], key) for key in keys if key in schema}
   if not signature:
     return None
   return json.dumps(signature, sort_keys=True, separators=(",", ":"))
@@ -130,18 +138,75 @@ def component_schema_name(ref: Any) -> Optional[str]:
 def ref_target_is_object_schema(
     schema: Dict[str, Any], head_schema_signatures: Dict[str, str]
 ) -> bool:
+  return schema_is_object_schema(schema, head_schema_signatures, set())
+
+
+def resolve_ref_schema(
+    schema: Dict[str, Any], head_schema_signatures: Dict[str, str], seen: Set[str]
+) -> Optional[Dict[str, Any]]:
   schema_name = component_schema_name(schema.get("$ref"))
   if schema_name is None:
-    return False
+    return None
+  if schema_name in seen:
+    return None
+  seen.add(schema_name)
   target_schema = load_schema_signature(head_schema_signatures.get(schema_name, ""))
-  if target_schema is None:
+  if isinstance(target_schema, dict):
+    return target_schema
+  return None
+
+
+def schema_forbids_object(
+    schema: Any, head_schema_signatures: Dict[str, str], seen: Set[str]
+) -> bool:
+  if not isinstance(schema, dict):
     return False
-  return (
-      target_schema.get("type") == "object"
-      or "properties" in target_schema
-      or "additionalProperties" in target_schema
-      or "allOf" in target_schema
-  )
+
+  next_seen = set(seen)
+  target_schema = resolve_ref_schema(schema, head_schema_signatures, next_seen)
+  if target_schema is not None:
+    return schema_forbids_object(target_schema, head_schema_signatures, next_seen)
+
+  schema_type = schema.get("type")
+  if isinstance(schema_type, str):
+    return schema_type != "object"
+  if isinstance(schema_type, list):
+    return "object" not in schema_type
+
+  all_of = schema.get("allOf")
+  if isinstance(all_of, list):
+    return any(schema_forbids_object(member, head_schema_signatures, set(seen))
+        for member in all_of)
+
+  return False
+
+
+def schema_is_object_schema(
+    schema: Any, head_schema_signatures: Dict[str, str], seen: Set[str]
+) -> bool:
+  if not isinstance(schema, dict):
+    return False
+
+  next_seen = set(seen)
+  target_schema = resolve_ref_schema(schema, head_schema_signatures, next_seen)
+  if target_schema is not None:
+    return schema_is_object_schema(target_schema, head_schema_signatures, next_seen)
+
+  if schema_forbids_object(schema, head_schema_signatures, set(seen)):
+    return False
+  if (
+      schema.get("type") == "object"
+      or "properties" in schema
+      or "additionalProperties" in schema
+  ):
+    return True
+
+  all_of = schema.get("allOf")
+  if isinstance(all_of, list):
+    return any(schema_is_object_schema(member, head_schema_signatures, set(seen))
+        for member in all_of)
+
+  return False
 
 
 def schema_signature_change_is_compatible(
