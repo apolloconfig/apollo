@@ -138,75 +138,29 @@ def component_schema_name(ref: Any) -> Optional[str]:
 def ref_target_is_object_schema(
     schema: Dict[str, Any], head_schema_signatures: Dict[str, str]
 ) -> bool:
-  return schema_is_object_schema(schema, head_schema_signatures, set())
+  def is_object_schema(candidate: Any) -> bool:
+    if not isinstance(candidate, dict):
+      return False
 
+    schema_name = component_schema_name(candidate.get("$ref"))
+    if schema_name:
+      return is_object_schema(load_schema_signature(head_schema_signatures.get(schema_name, "")))
 
-def resolve_ref_schema(
-    schema: Dict[str, Any], head_schema_signatures: Dict[str, str], seen: Set[str]
-) -> Optional[Dict[str, Any]]:
-  schema_name = component_schema_name(schema.get("$ref"))
-  if schema_name is None:
-    return None
-  if schema_name in seen:
-    return None
-  seen.add(schema_name)
-  target_schema = load_schema_signature(head_schema_signatures.get(schema_name, ""))
-  if isinstance(target_schema, dict):
-    return target_schema
-  return None
+    schema_type = candidate.get("type")
+    if schema_type and schema_type != "object":
+      return False
 
+    all_of = candidate.get("allOf")
+    if isinstance(all_of, list):
+      return bool(all_of) and all(is_object_schema(member) for member in all_of)
 
-def schema_forbids_object(
-    schema: Any, head_schema_signatures: Dict[str, str], seen: Set[str]
-) -> bool:
-  if not isinstance(schema, dict):
-    return False
+    return (
+        schema_type == "object"
+        or "properties" in candidate
+        or "additionalProperties" in candidate
+    )
 
-  next_seen = set(seen)
-  target_schema = resolve_ref_schema(schema, head_schema_signatures, next_seen)
-  if target_schema is not None:
-    return schema_forbids_object(target_schema, head_schema_signatures, next_seen)
-
-  schema_type = schema.get("type")
-  if isinstance(schema_type, str):
-    return schema_type != "object"
-  if isinstance(schema_type, list):
-    return "object" not in schema_type
-
-  all_of = schema.get("allOf")
-  if isinstance(all_of, list):
-    return any(schema_forbids_object(member, head_schema_signatures, set(seen))
-        for member in all_of)
-
-  return False
-
-
-def schema_is_object_schema(
-    schema: Any, head_schema_signatures: Dict[str, str], seen: Set[str]
-) -> bool:
-  if not isinstance(schema, dict):
-    return False
-
-  next_seen = set(seen)
-  target_schema = resolve_ref_schema(schema, head_schema_signatures, next_seen)
-  if target_schema is not None:
-    return schema_is_object_schema(target_schema, head_schema_signatures, next_seen)
-
-  if schema_forbids_object(schema, head_schema_signatures, set(seen)):
-    return False
-  if (
-      schema.get("type") == "object"
-      or "properties" in schema
-      or "additionalProperties" in schema
-  ):
-    return True
-
-  all_of = schema.get("allOf")
-  if isinstance(all_of, list):
-    return any(schema_is_object_schema(member, head_schema_signatures, set(seen))
-        for member in all_of)
-
-  return False
+  return is_object_schema(schema)
 
 
 def schema_signature_change_is_compatible(

@@ -15,7 +15,7 @@
 
 import unittest
 
-from check_openapi_compatibility import compare_specs, parse_spec
+from check_openapi_compatibility import compare_specs, parse_spec, schema_signature
 
 
 BASE_SPEC = """
@@ -181,9 +181,9 @@ components:
     base_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -193,7 +193,7 @@ paths:
                 items:
                   type: object
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
@@ -207,19 +207,19 @@ paths:
                 type: object
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: object
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: object
 """
     head_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -227,27 +227,27 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+                  $ref: "#/components/schemas/TypedSummaryDTO"
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+                $ref: "#/components/schemas/TypedInfoDTO"
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: object
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: object
 """
     issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
@@ -257,9 +257,9 @@ components:
     base_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -273,7 +273,7 @@ paths:
                     id:
                       type: integer
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
@@ -295,19 +295,19 @@ paths:
                     type: string
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: object
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: object
 """
     head_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -315,41 +315,41 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+                  $ref: "#/components/schemas/TypedSummaryDTO"
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+                $ref: "#/components/schemas/TypedInfoDTO"
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: object
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: object
 """
     issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
     self.assertEqual(3, len(issues))
     self.assertTrue(any(
-        issue.startswith("Changed request schema for POST /openapi/v1/consumers:")
+        issue.startswith("Changed request schema for POST /openapi/v1/object-contracts:")
         for issue in issues
     ))
     self.assertTrue(any(
-        issue.startswith("Changed response schemas for GET /openapi/v1/consumers:")
+        issue.startswith("Changed response schemas for GET /openapi/v1/object-contracts:")
         for issue in issues
     ))
     self.assertTrue(any(
-        issue.startswith("Changed response schemas for POST /openapi/v1/consumers:")
+        issue.startswith("Changed response schemas for POST /openapi/v1/object-contracts:")
         for issue in issues
     ))
 
@@ -357,9 +357,9 @@ components:
     base_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -369,7 +369,7 @@ paths:
                 items:
                   type: object
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
@@ -383,19 +383,19 @@ paths:
                 type: object
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: object
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: object
 """
     head_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     get:
-      operationId: getConsumerList
+      operationId: listObjectContracts
       responses:
         "200":
           content:
@@ -403,27 +403,27 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+                  $ref: "#/components/schemas/TypedSummaryDTO"
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+                $ref: "#/components/schemas/TypedInfoDTO"
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: string
-    OpenConsumerInfoDTO:
+    TypedInfoDTO:
       type: integer
-    OpenConsumerSummaryDTO:
+    TypedSummaryDTO:
       type: array
       items:
         type: string
@@ -431,15 +431,15 @@ components:
     issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
     self.assertEqual(3, len(issues))
     self.assertTrue(any(
-        issue.startswith("Changed request schema for POST /openapi/v1/consumers:")
+        issue.startswith("Changed request schema for POST /openapi/v1/object-contracts:")
         for issue in issues
     ))
     self.assertTrue(any(
-        issue.startswith("Changed response schemas for GET /openapi/v1/consumers:")
+        issue.startswith("Changed response schemas for GET /openapi/v1/object-contracts:")
         for issue in issues
     ))
     self.assertTrue(any(
-        issue.startswith("Changed response schemas for POST /openapi/v1/consumers:")
+        issue.startswith("Changed response schemas for POST /openapi/v1/object-contracts:")
         for issue in issues
     ))
 
@@ -447,9 +447,9 @@ components:
     base_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
@@ -460,110 +460,50 @@ paths:
           description: ok
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       type: object
 """
     head_spec = """
 openapi: 3.0.1
 paths:
-  /openapi/v1/consumers:
+  /openapi/v1/object-contracts:
     post:
-      operationId: createConsumer
+      operationId: createObjectContract
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
       responses:
         "200":
           description: ok
 components:
   schemas:
-    OpenConsumerCreateRequestDTO:
+    TypedCreateRequestDTO:
       allOf:
         - type: string
 """
     issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
     self.assertEqual(1, len(issues))
     self.assertTrue(
-        issues[0].startswith("Changed request schema for POST /openapi/v1/consumers:")
+        issues[0].startswith("Changed request schema for POST /openapi/v1/object-contracts:")
     )
 
-  def test_ignores_semantically_unordered_schema_lists(self):
-    base_spec = """
-openapi: 3.0.1
-paths:
-  /openapi/v1/apps:
-    post:
-      operationId: createApp
-      requestBody:
-        content:
-          application/json:
-            schema:
-              allOf:
-                - type: object
-                  properties:
-                    appId:
-                      type: string
-                - type: object
-                  properties:
-                    name:
-                      type: string
-      responses:
-        "200":
-          description: ok
-components:
-  schemas:
-    OpenAppDTO:
-      type: object
-      required:
-        - appId
-        - name
-      properties:
-        status:
-          type: string
-          enum:
-            - enabled
-            - disabled
-"""
-    head_spec = """
-openapi: 3.0.1
-paths:
-  /openapi/v1/apps:
-    post:
-      operationId: createApp
-      requestBody:
-        content:
-          application/json:
-            schema:
-              allOf:
-                - type: object
-                  properties:
-                    name:
-                      type: string
-                - type: object
-                  properties:
-                    appId:
-                      type: string
-      responses:
-        "200":
-          description: ok
-components:
-  schemas:
-    OpenAppDTO:
-      type: object
-      required:
-        - name
-        - appId
-      properties:
-        status:
-          type: string
-          enum:
-            - disabled
-            - enabled
-"""
-    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
-    self.assertEqual([], issues)
+  def test_schema_signature_ignores_semantically_unordered_lists(self):
+    left_schema = {
+        "required": ["appId", "name"],
+        "properties": {"status": {"type": "string", "enum": ["enabled", "disabled"]}},
+        "allOf": [{"type": "object", "properties": {"appId": {"type": "string"}}},
+            {"type": "object", "properties": {"name": {"type": "string"}}}],
+    }
+    right_schema = {
+        "required": ["name", "appId"],
+        "properties": {"status": {"type": "string", "enum": ["disabled", "enabled"]}},
+        "allOf": [{"type": "object", "properties": {"name": {"type": "string"}}},
+            {"type": "object", "properties": {"appId": {"type": "string"}}}],
+    }
+
+    self.assertEqual(schema_signature(left_schema), schema_signature(right_schema))
 
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
