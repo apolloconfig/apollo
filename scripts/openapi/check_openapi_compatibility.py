@@ -107,6 +107,82 @@ def schema_signature(schema: Any) -> Optional[str]:
   return json.dumps(signature, sort_keys=True, separators=(",", ":"))
 
 
+def load_schema_signature(signature: str) -> Optional[Dict[str, Any]]:
+  try:
+    value = json.loads(signature)
+  except json.JSONDecodeError:
+    return None
+  return value if isinstance(value, dict) else None
+
+
+def schema_signature_change_is_compatible(base_signature: str, head_signature: str) -> bool:
+  base_schema = load_schema_signature(base_signature)
+  head_schema = load_schema_signature(head_signature)
+  if base_schema is None or head_schema is None:
+    return False
+
+  if base_schema == {"type": "object"}:
+    return "$ref" in head_schema
+
+  if base_schema == {"items": {"type": "object"}, "type": "array"}:
+    head_items = head_schema.get("items")
+    return (
+        head_schema.get("type") == "array"
+        and isinstance(head_items, dict)
+        and "$ref" in head_items
+    )
+
+  return False
+
+
+def request_schema_change_is_compatible(
+    base_request_schema: str, head_request_schema: Optional[str]
+) -> bool:
+  if head_request_schema is None:
+    return False
+  try:
+    base_schemas = json.loads(base_request_schema)
+    head_schemas = json.loads(head_request_schema)
+  except json.JSONDecodeError:
+    return False
+
+  if not isinstance(base_schemas, list) or not isinstance(head_schemas, list):
+    return False
+  if len(base_schemas) != len(head_schemas):
+    return False
+
+  for base_entry, head_entry in zip(base_schemas, head_schemas):
+    if not (
+        isinstance(base_entry, list)
+        and isinstance(head_entry, list)
+        and len(base_entry) == 2
+        and len(head_entry) == 2
+    ):
+      return False
+    if base_entry[0] != head_entry[0]:
+      return False
+    if not schema_signature_change_is_compatible(base_entry[1], head_entry[1]):
+      return False
+  return True
+
+
+def response_schemas_change_is_compatible(
+    base_response_schemas: Tuple[Tuple[str, str, str], ...],
+    head_response_schemas: Tuple[Tuple[str, str, str], ...],
+) -> bool:
+  if len(base_response_schemas) != len(head_response_schemas):
+    return False
+
+  for base_entry, head_entry in zip(base_response_schemas, head_response_schemas):
+    base_status, base_media_type, base_signature = base_entry
+    head_status, head_media_type, head_signature = head_entry
+    if base_status != head_status or base_media_type != head_media_type:
+      return False
+    if not schema_signature_change_is_compatible(base_signature, head_signature):
+      return False
+  return True
+
+
 def extract_request_schema(operation: Dict[str, Any]) -> Optional[str]:
   request_body = operation.get("requestBody")
   if not isinstance(request_body, dict):
@@ -234,18 +310,20 @@ def compare_specs(
     base_request_schema = base.operations[(path, method)].request_schema
     head_request_schema = head.operations[(path, method)].request_schema
     if base_request_schema and base_request_schema != head_request_schema:
-      issues.append(
-          f"Changed request schema for {key}: {base_request_schema} -> "
-          f"{head_request_schema}"
-      )
+      if not request_schema_change_is_compatible(base_request_schema, head_request_schema):
+        issues.append(
+            f"Changed request schema for {key}: {base_request_schema} -> "
+            f"{head_request_schema}"
+        )
 
     base_response_schemas = base.operations[(path, method)].response_schemas
     head_response_schemas = head.operations[(path, method)].response_schemas
     if base_response_schemas and base_response_schemas != head_response_schemas:
-      issues.append(
-          f"Changed response schemas for {key}: {base_response_schemas} -> "
-          f"{head_response_schemas}"
-      )
+      if not response_schemas_change_is_compatible(base_response_schemas, head_response_schemas):
+        issues.append(
+            f"Changed response schemas for {key}: {base_response_schemas} -> "
+            f"{head_response_schemas}"
+        )
 
   for schema in sorted(base.schemas):
     if schema not in head.schemas:

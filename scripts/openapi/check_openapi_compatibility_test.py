@@ -177,6 +177,82 @@ components:
     self.assertEqual(1, len(issues))
     self.assertTrue(issues[0].startswith("Changed request schema for POST /openapi/v1/apps:"))
 
+  def test_allows_unconstrained_object_schemas_to_typed_refs(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+    OpenConsumerInfoDTO:
+      type: object
+    OpenConsumerSummaryDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+    OpenConsumerInfoDTO:
+      type: object
+    OpenConsumerSummaryDTO:
+      type: object
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual([], issues)
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:
