@@ -269,14 +269,12 @@ public class ConsumerService {
     }
 
     long roleId = role.getId();
-    List<Boolean> list = new ArrayList<>(consumerIdList.size());
-    for (Long consumerId : consumerIdList) {
-      ConsumerRole consumerRole =
-          consumerRoleRepository.findByConsumerIdAndRoleId(consumerId, roleId);
-      list.add(consumerRole != null);
-    }
+    List<ConsumerRole> consumerRoles =
+        consumerRoleRepository.findByConsumerIdInAndRoleId(consumerIdList, roleId);
+    Set<Long> consumerIdsWithRole = CollectionUtils.isEmpty(consumerRoles) ? Collections.emptySet()
+        : consumerRoles.stream().map(ConsumerRole::getConsumerId).collect(Collectors.toSet());
 
-    return list;
+    return consumerIdList.stream().map(consumerIdsWithRole::contains).collect(Collectors.toList());
   }
 
   private List<Integer> getRateLimit(List<Long> consumerIds) {

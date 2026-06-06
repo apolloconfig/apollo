@@ -43,6 +43,8 @@ public interface ConsumerRoleRepository extends JpaRepository<ConsumerRole, Long
 
   ConsumerRole findByConsumerIdAndRoleId(long consumerId, long roleId);
 
+  List<ConsumerRole> findByConsumerIdInAndRoleId(List<Long> consumerIds, long roleId);
+
   @Modifying
   @Query("UPDATE ConsumerRole SET isDeleted = true, "
       + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "

@@ -38,6 +38,7 @@ import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Optional;
@@ -309,8 +310,9 @@ public class ConsumerServiceTest {
 
       ConsumerRole consumerRole = new ConsumerRole();
       consumerRole.setConsumerId(consumerId);
-      when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(roleId)))
-          .thenReturn(consumerRole);
+      when(consumerRoleRepository
+          .findByConsumerIdInAndRoleId(eq(Collections.singletonList(consumerId)), eq(roleId)))
+          .thenReturn(Collections.singletonList(consumerRole));
     }
 
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
@@ -347,8 +349,9 @@ public class ConsumerServiceTest {
 
       ConsumerRole consumerRole = new ConsumerRole();
       consumerRole.setConsumerId(consumerId);
-      when(consumerRoleRepository.findByConsumerIdAndRoleId(eq(consumerId), eq(roleId)))
-          .thenReturn(consumerRole);
+      when(consumerRoleRepository
+          .findByConsumerIdInAndRoleId(eq(Collections.singletonList(consumerId)), eq(roleId)))
+          .thenReturn(Collections.singletonList(consumerRole));
     }
 
     ConsumerInfo consumerInfo = consumerService.getConsumerInfoByAppId(appId);
