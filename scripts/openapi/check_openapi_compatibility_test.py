@@ -253,6 +253,106 @@ components:
     issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
     self.assertEqual([], issues)
 
+  def test_rejects_constrained_inline_object_schemas_to_typed_refs(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id]
+                  properties:
+                    id:
+                      type: integer
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [appId]
+              properties:
+                appId:
+                  type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [token]
+                properties:
+                  token:
+                    type: string
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+    OpenConsumerInfoDTO:
+      type: object
+    OpenConsumerSummaryDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/consumers:
+    get:
+      operationId: getConsumerList
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenConsumerSummaryDTO"
+    post:
+      operationId: createConsumer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenConsumerCreateRequestDTO"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenConsumerInfoDTO"
+components:
+  schemas:
+    OpenConsumerCreateRequestDTO:
+      type: object
+    OpenConsumerInfoDTO:
+      type: object
+    OpenConsumerSummaryDTO:
+      type: object
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual(3, len(issues))
+    self.assertTrue(any(
+        issue.startswith("Changed request schema for POST /openapi/v1/consumers:")
+        for issue in issues
+    ))
+    self.assertTrue(any(
+        issue.startswith("Changed response schemas for GET /openapi/v1/consumers:")
+        for issue in issues
+    ))
+    self.assertTrue(any(
+        issue.startswith("Changed response schemas for POST /openapi/v1/consumers:")
+        for issue in issues
+    ))
+
   def test_rejects_optional_property_removal(self):
     head_spec = BASE_SPEC.replace(
         """        name:

@@ -96,6 +96,8 @@ def schema_signature(schema: Any) -> Optional[str]:
       "nullable",
       "enum",
       "items",
+      "properties",
+      "required",
       "additionalProperties",
       "allOf",
       "anyOf",
