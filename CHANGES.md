@@ -17,6 +17,7 @@ Apollo 3.0.0
 * [Change: migrate Apollo Portal release, branch, and instance UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5616)
 * [Change: migrate Apollo Portal permission and AccessKey UI operations to OpenAPI](https://github.com/apolloconfig/apollo/pull/5617)
 * [Change: complete Apollo Portal UI management OpenAPI migration](https://github.com/apolloconfig/apollo/pull/5618)
+* [Feature: allow explicitly authorized consumer tokens to manage portal users](https://github.com/apolloconfig/apollo/pull/5623)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
