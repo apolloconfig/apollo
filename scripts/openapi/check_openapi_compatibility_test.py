@@ -489,6 +489,161 @@ components:
         issues[0].startswith("Changed request schema for POST /openapi/v1/object-contracts:")
     )
 
+  def test_allows_mixed_response_schema_migration_with_unchanged_response(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    get:
+      operationId: listObjectContracts
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExceptionResponse"
+components:
+  schemas:
+    ExceptionResponse:
+      type: object
+    TypedSummaryDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    get:
+      operationId: listObjectContracts
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TypedSummaryDTO"
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExceptionResponse"
+components:
+  schemas:
+    ExceptionResponse:
+      type: object
+    TypedSummaryDTO:
+      type: object
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual([], issues)
+
+  def test_allows_mixed_request_schema_migration_with_unchanged_media_type(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    post:
+      operationId: createObjectContract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+          application/yaml:
+            schema:
+              $ref: "#/components/schemas/YamlRequestDTO"
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    TypedCreateRequestDTO:
+      type: object
+    YamlRequestDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    post:
+      operationId: createObjectContract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
+          application/yaml:
+            schema:
+              $ref: "#/components/schemas/YamlRequestDTO"
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    TypedCreateRequestDTO:
+      type: object
+    YamlRequestDTO:
+      type: object
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual([], issues)
+
+  def test_allows_object_all_of_refs_with_constraint_only_members(self):
+    base_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    post:
+      operationId: createObjectContract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    TypedCreateRequestDTO:
+      type: object
+"""
+    head_spec = """
+openapi: 3.0.1
+paths:
+  /openapi/v1/object-contracts:
+    post:
+      operationId: createObjectContract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TypedCreateRequestDTO"
+      responses:
+        "200":
+          description: ok
+components:
+  schemas:
+    TypedCreateRequestDTO:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: string
+        - required: [id]
+"""
+    issues = compare_specs(parse_spec(base_spec), parse_spec(head_spec))
+    self.assertEqual([], issues)
+
   def test_schema_signature_ignores_semantically_unordered_lists(self):
     left_schema = {
         "required": ["appId", "name"],

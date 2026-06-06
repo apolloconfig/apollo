@@ -143,29 +143,38 @@ def component_schema_name(ref: Any) -> Optional[str]:
 def ref_target_is_object_schema(
     schema: Dict[str, Any], head_schema_signatures: Dict[str, str]
 ) -> bool:
-  def is_object_schema(candidate: Any) -> bool:
+  def object_schema_state(candidate: Any) -> str:
     if not isinstance(candidate, dict):
-      return False
+      return "reject"
 
     schema_name = component_schema_name(candidate.get("$ref"))
     if schema_name:
-      return is_object_schema(load_schema_signature(head_schema_signatures.get(schema_name, "")))
+      return object_schema_state(load_schema_signature(head_schema_signatures.get(schema_name, "")))
 
     schema_type = candidate.get("type")
     if schema_type and schema_type != "object":
-      return False
+      return "reject"
 
     all_of = candidate.get("allOf")
     if isinstance(all_of, list):
-      return bool(all_of) and all(is_object_schema(member) for member in all_of)
+      if not all_of:
+        return "reject"
+      member_states = [object_schema_state(member) for member in all_of]
+      if "reject" in member_states:
+        return "reject"
+      if "accept" in member_states:
+        return "accept"
+      return "neutral"
 
-    return (
+    if (
         schema_type == "object"
         or "properties" in candidate
         or "additionalProperties" in candidate
-    )
+    ):
+      return "accept"
+    return "neutral"
 
-  return is_object_schema(schema)
+  return object_schema_state(schema) == "accept"
 
 
 def schema_signature_change_is_compatible(
@@ -218,6 +227,8 @@ def request_schema_change_is_compatible(
       return False
     if base_entry[0] != head_entry[0]:
       return False
+    if base_entry[1] == head_entry[1]:
+      continue
     if not schema_signature_change_is_compatible(
         base_entry[1], head_entry[1], head_schema_signatures
     ):
@@ -238,6 +249,8 @@ def response_schemas_change_is_compatible(
     head_status, head_media_type, head_signature = head_entry
     if base_status != head_status or base_media_type != head_media_type:
       return False
+    if base_signature == head_signature:
+      continue
     if not schema_signature_change_is_compatible(
         base_signature, head_signature, head_schema_signatures
     ):
