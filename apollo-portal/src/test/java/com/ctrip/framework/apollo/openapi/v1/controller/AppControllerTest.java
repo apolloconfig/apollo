@@ -301,6 +301,8 @@ public class AppControllerTest {
     List<OpenAppDTO> apps = Lists.newArrayList(app1, app2);
 
     when(appOpenApiService.getAllApps()).thenReturn(apps);
+    when(unifiedPermissionValidator.hasReadApplicationPermission(Mockito.anyString()))
+        .thenReturn(false);
 
     mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps"))
         .andExpect(MockMvcResultMatchers.status().isOk())
@@ -308,6 +310,8 @@ public class AppControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value("app2"));
 
     Mockito.verify(appOpenApiService).getAllApps();
+    Mockito.verify(unifiedPermissionValidator, Mockito.never())
+        .hasReadApplicationPermission(Mockito.anyString());
   }
 
   @Test

@@ -110,7 +110,7 @@ public class AppController implements AppManagementApi {
 
   @Override
   public ResponseEntity<List<OpenEnvClusterInfo>> getEnvClusterInfo(String appId) {
-    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+    if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     return ResponseEntity.ok(appOpenApiService.getEnvClusterInfo(appId));
@@ -118,7 +118,7 @@ public class AppController implements AppManagementApi {
 
   @Override
   public ResponseEntity<List<OpenEnvClusterDTO>> getEnvClusters(String appId) {
-    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+    if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     return ResponseEntity.ok(appOpenApiService.getEnvClusters(appId));
@@ -151,7 +151,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<OpenAppDTO> getApp(String appId) {
-    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+    if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       throw new BadRequestException("App not found: " + appId);
     }
     List<OpenAppDTO> apps = appOpenApiService.getAppsInfo(Collections.singletonList(appId));
@@ -229,7 +229,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenMissEnvDTO>> findMissEnvs(String appId) {
-    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+    if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
@@ -337,9 +337,16 @@ public class AppController implements AppManagementApi {
       return Collections.emptyList();
     }
     return apps.stream()
-        .filter(app -> app != null
-            && unifiedPermissionValidator.hasReadApplicationPermission(app.getAppId()))
+        .filter(
+            app -> app != null && hasReadApplicationPermissionForCurrentIdentity(app.getAppId()))
         .collect(Collectors.toList());
+  }
+
+  private boolean hasReadApplicationPermissionForCurrentIdentity(String appId) {
+    if (!UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return true;
+    }
+    return unifiedPermissionValidator.hasReadApplicationPermission(appId);
   }
 
   private List<OpenAppDTO> page(List<OpenAppDTO> apps, Integer page, Integer size) {
