@@ -135,13 +135,17 @@ public class UserController implements UserManagementApi {
   }
 
   private void requirePortalUserRequest() {
-    if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (!isPortalUserIdentity()) {
       throw new AccessDeniedException("Portal user session is required");
     }
   }
 
   private void requireUserManagementReadPermission() {
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+      return;
+    }
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.hasManageUsersPermission()) {
       return;
     }
     if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
@@ -155,6 +159,12 @@ public class UserController implements UserManagementApi {
     if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
       return false;
     }
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      if (!unifiedPermissionValidator.hasManageUsersPermission()) {
+        throw new AccessDeniedException("Manage users permission is required");
+      }
+      return false;
+    }
     if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
       if (!unifiedPermissionValidator.hasManageUsersPermission()) {
         throw new AccessDeniedException("Manage users permission is required");
@@ -163,5 +173,10 @@ public class UserController implements UserManagementApi {
       return true;
     }
     throw new AccessDeniedException("Unsupported auth type");
+  }
+
+  private boolean isPortalUserIdentity() {
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        || UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType());
   }
 }

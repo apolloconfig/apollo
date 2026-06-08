@@ -1134,6 +1134,98 @@ table th {
     width: 375px;
 }
 
+.user-token-operation-list .checkbox-inline,
+.user-token-env-list .checkbox-inline {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.user-token-operation-list .checkbox-inline + .checkbox-inline,
+.user-token-env-list .checkbox-inline + .checkbox-inline {
+    margin-left: 0;
+}
+
+.user-token-inline-help {
+    display: inline-block;
+    margin: 0 0 0 10px;
+    padding-top: 7px;
+    color: #999;
+    vertical-align: top;
+}
+
+.user-token-transfer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.user-token-transfer-column {
+    width: 265px;
+}
+
+.user-token-transfer-title {
+    margin-bottom: 5px;
+    color: #666;
+    font-weight: 600;
+}
+
+.user-token-transfer-select {
+    height: 130px !important;
+}
+
+.user-token-transfer-actions {
+    display: flex;
+    flex-direction: column;
+    margin: 22px 10px 0;
+}
+
+.user-token-transfer-actions .btn {
+    width: 46px;
+    margin-bottom: 6px;
+}
+
+.user-token-transfer-help {
+    flex-basis: 100%;
+    margin: 5px 0 0;
+    color: #999;
+}
+
+.user-token-detail-list dd {
+    min-height: 20px;
+    word-break: break-all;
+}
+
+.user-token-detail-value {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.user-token-admin-filter .form-group {
+    margin-right: 12px;
+    margin-bottom: 10px;
+}
+
+.user-token-admin-filter label {
+    margin-right: 6px;
+}
+
+.user-token-admin-table td {
+    vertical-align: middle !important;
+}
+
+.user-token-admin-actions {
+    min-width: 150px;
+    white-space: nowrap;
+}
+
 /*backTop component style*/
 .back-top {
     position: fixed;

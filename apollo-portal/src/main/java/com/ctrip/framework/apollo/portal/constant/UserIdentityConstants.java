@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.constant;
 public final class UserIdentityConstants {
 
   public static final String USER = "USER";
+  public static final String USER_TOKEN = "USER_TOKEN";
   public static final String CONSUMER = "CONSUMER";
   public static final String ANONYMOUS = "ANONYMOUS";
 

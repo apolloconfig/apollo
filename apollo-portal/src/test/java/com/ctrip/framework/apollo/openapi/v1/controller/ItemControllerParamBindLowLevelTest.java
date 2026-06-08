@@ -182,6 +182,38 @@ public class ItemControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createItemShouldUseCurrentUserTokenUserAndIgnoreSpoofedPayloadOperator()
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    UserInfo tokenUser = new UserInfo();
+    tokenUser.setUserId("token-user");
+    when(userInfoHolder.getUser()).thenReturn(tokenUser);
+
+    OpenItemDTO request = new OpenItemDTO();
+    request.setKey("timeout");
+    request.setValue("100");
+    request.setDataChangeCreatedBy("spoofed-user");
+
+    OpenItemDTO response = new OpenItemDTO();
+    response.setKey("timeout");
+    when(itemOpenApiService.createItem(anyString(), anyString(), anyString(), anyString(),
+        any(OpenItemDTO.class), anyString())).thenReturn(response);
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(request))).andExpect(status().isOk());
+
+    ArgumentCaptor<OpenItemDTO> itemCaptor = ArgumentCaptor.forClass(OpenItemDTO.class);
+    ArgumentCaptor<String> operatorCaptor = ArgumentCaptor.forClass(String.class);
+    verify(itemOpenApiService).createItem(anyString(), anyString(), anyString(), anyString(),
+        itemCaptor.capture(), operatorCaptor.capture());
+    assertThat(itemCaptor.getValue().getDataChangeCreatedBy()).isEqualTo("token-user");
+    assertThat(itemCaptor.getValue().getDataChangeLastModifiedBy()).isEqualTo("token-user");
+    assertThat(operatorCaptor.getValue()).isEqualTo("token-user");
+  }
+
+  @Test
   public void updateItemShouldRejectPathPayloadKeyMismatch() throws Exception {
     OpenItemDTO request = new OpenItemDTO();
     request.setKey("other-key");
@@ -210,6 +242,23 @@ public class ItemControllerParamBindLowLevelTest {
   @Test
   public void findItemsShouldReturnEmptyPageForHiddenPortalUserConfig() throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE).param("page", "0").param("size", "50"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.page").value(0))
+        .andExpect(jsonPath("$.size").value(50)).andExpect(jsonPath("$.total").value(0))
+        .andExpect(jsonPath("$.content.length()").value(0));
+
+    verify(itemOpenApiService, never()).findItemsByNamespace(anyString(), anyString(), anyString(),
+        anyString(), any(Integer.class), any(Integer.class));
+  }
+
+  @Test
+  public void findItemsShouldReturnEmptyPageForHiddenUserTokenConfig() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 

@@ -1,0 +1,211 @@
+<!--
+  ~ Copyright 2025 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="user_token">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="./img/config.png">
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+
+    <title>{{'UserToken.AdminTitle' | translate }}</title>
+</head>
+
+<body>
+
+    <apollonav></apollonav>
+    <div class="container-fluid apollo-container" ng-controller="AdminUserTokenController">
+        <div class="col-md-10 col-md-offset-1 panel">
+            <section class="panel-body" ng-show="isRootUser">
+                <header class="panel-heading">
+                    {{'UserToken.AdminTitle' | translate }}
+                    <small>{{'UserToken.AdminTitleTips' | translate }}</small>
+                </header>
+
+                <form class="form-inline panel-body user-token-admin-filter" ng-submit="loadTokens()">
+                    <div class="form-group">
+                        <label>{{'UserToken.UserId' | translate }}</label>
+                        <input type="text" class="form-control" ng-model="filters.userId"
+                               placeholder="{{'UserToken.FilterUserId' | translate }}">
+                    </div>
+                    <div class="form-group">
+                        <label>{{'UserToken.FilterStatus' | translate }}</label>
+                        <select class="form-control" ng-model="filters.status">
+                            <option value="all">{{'UserToken.AllStatuses' | translate }}</option>
+                            <option value="active">{{'UserToken.Active' | translate }}</option>
+                            <option value="expired">{{'UserToken.ExpiredStatus' | translate }}</option>
+                            <option value="revoked">{{'UserToken.RevokedStatus' | translate }}</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">{{'Common.Search' | translate }}</button>
+                    <button type="button" class="btn btn-default" ng-click="resetFilters()">
+                        {{'UserToken.Reset' | translate }}</button>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover user-token-admin-table">
+                        <tr>
+                            <th>{{'UserToken.UserId' | translate }}</th>
+                            <th>{{'UserToken.Name' | translate }}</th>
+                            <th>{{'UserToken.Prefix' | translate }}</th>
+                            <th>{{'UserToken.Expires' | translate }}</th>
+                            <th>{{'UserToken.LastUsedTime' | translate }}</th>
+                            <th>{{'UserToken.Status' | translate }}</th>
+                            <th>{{'UserToken.Operations' | translate }}</th>
+                            <th>{{'UserToken.Operation' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="token in tokens">
+                            <td>{{token.userId}}</td>
+                            <td>{{token.name}}</td>
+                            <td>{{token.tokenPrefix}}</td>
+                            <td>{{token.expires | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                            <td>{{token.lastUsedTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                            <td><span class="label" ng-class="statusClass(token)">{{statusLabel(token)}}</span></td>
+                            <td class="word-break">{{formatOperations(token)}}</td>
+                            <td class="user-token-admin-actions">
+                                <button type="button" class="btn btn-default btn-xs" ng-click="showTokenDetail(token)">
+                                    {{'UserToken.View' | translate }}</button>
+                                <button type="button" class="btn btn-danger btn-xs" ng-click="revokeToken(token)"
+                                        ng-disabled="tokenStatus(token) !== 'active'">
+                                    {{'UserToken.Revoke' | translate }}</button>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="deleteToken(token)">
+                                    {{'UserToken.Delete' | translate }}</button>
+                            </td>
+                        </tr>
+                        <tr ng-show="!tokens || tokens.length === 0">
+                            <td colspan="8" class="text-center">{{'UserToken.NoToken' | translate }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="adminUserTokenDetailModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header panel-primary">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">{{'UserToken.DetailTitle' | translate }}</h4>
+                            </div>
+                            <div class="modal-body">
+                                <dl class="dl-horizontal user-token-detail-list">
+                                    <dt>{{'UserToken.UserId' | translate }}</dt>
+                                    <dd>{{selectedToken.userId}}</dd>
+
+                                    <dt>{{'UserToken.Name' | translate }}</dt>
+                                    <dd>{{selectedToken.name}}</dd>
+
+                                    <dt>{{'UserToken.Prefix' | translate }}</dt>
+                                    <dd>{{selectedToken.tokenPrefix}}</dd>
+
+                                    <dt>{{'UserToken.Status' | translate }}</dt>
+                                    <dd><span class="label" ng-class="statusClass(selectedToken)">
+                                        {{statusLabel(selectedToken)}}</span></dd>
+
+                                    <dt>{{'UserToken.Expires' | translate }}</dt>
+                                    <dd>{{selectedToken.expires | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+
+                                    <dt>{{'UserToken.RateLimit' | translate }}</dt>
+                                    <dd>{{formatRateLimit(selectedToken)}}</dd>
+
+                                    <dt>{{'UserToken.Operations' | translate }}</dt>
+                                    <dd>
+                                        <pre class="user-token-detail-value" ng-bind="formatOperations(selectedToken)"></pre>
+                                    </dd>
+
+                                    <dt>{{'UserToken.AppIds' | translate }}</dt>
+                                    <dd>{{formatStringList(selectedToken.appIds)}}</dd>
+
+                                    <dt>{{'UserToken.Envs' | translate }}</dt>
+                                    <dd>{{formatStringList(selectedToken.envs)}}</dd>
+
+                                    <dt>{{'UserToken.Namespaces' | translate }}</dt>
+                                    <dd>
+                                        <pre class="user-token-detail-value" ng-bind="formatNamespaces(selectedToken)"></pre>
+                                    </dd>
+
+                                    <dt>{{'UserToken.LastUsedTime' | translate }}</dt>
+                                    <dd>{{selectedToken.lastUsedTime | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+
+                                    <dt>{{'UserToken.LastUsedIp' | translate }}</dt>
+                                    <dd>{{selectedToken.lastUsedIp}}</dd>
+
+                                    <dt>{{'UserToken.LastUsedUserAgent' | translate }}</dt>
+                                    <dd>{{selectedToken.lastUsedUserAgent}}</dd>
+
+                                    <dt>{{'UserToken.RevokedAt' | translate }}</dt>
+                                    <dd>{{selectedToken.revokedAt | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+
+                                    <dt>{{'UserToken.RevokedBy' | translate }}</dt>
+                                    <dd>{{selectedToken.revokedBy}}</dd>
+
+                                    <dt>{{'UserToken.CreatedTime' | translate }}</dt>
+                                    <dd>{{selectedToken.dataChangeCreatedTime | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+                                </dl>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" ng-click="revokeToken(selectedToken)"
+                                        ng-disabled="tokenStatus(selectedToken) !== 'active'">
+                                    {{'UserToken.Revoke' | translate }}</button>
+                                <button type="button" class="btn btn-default" ng-click="deleteToken(selectedToken)">
+                                    {{'UserToken.Delete' | translate }}</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    {{'Component.PublishDeny.Close' | translate }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel-body text-center" ng-if="!isRootUser">
+                <h4>{{'Common.IsRootUser' | translate }}</h4>
+            </section>
+        </div>
+    </div>
+
+    <div ng-include="'views/common/footer.html'"></div>
+
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserTokenService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/controller/AdminUserTokenController.js"></script>
+</body>
+
+</html>

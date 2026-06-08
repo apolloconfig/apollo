@@ -250,7 +250,9 @@ public class ReleaseController implements ReleaseManagementApi {
   }
 
   private String resolveOperator(String queryOperator, String payloadOperator) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       UserInfo loginUser = userInfoHolder.getUser();
       if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
         throw new BadRequestException("Current user not found");
@@ -258,7 +260,7 @@ public class ReleaseController implements ReleaseManagementApi {
       return loginUser.getUserId();
     }
 
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       String operator = StringUtils.isBlank(queryOperator) ? payloadOperator : queryOperator;
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
           "operator should not be null or empty");
@@ -268,13 +270,14 @@ public class ReleaseController implements ReleaseManagementApi {
       return operator;
     }
 
-    throw new BadRequestException("Unsupported auth type: %s",
-        UserIdentityContextHolder.getAuthType());
+    throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 
   private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
       String namespaceName) {
-    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+    String authType = UserIdentityContextHolder.getAuthType();
+    return (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }

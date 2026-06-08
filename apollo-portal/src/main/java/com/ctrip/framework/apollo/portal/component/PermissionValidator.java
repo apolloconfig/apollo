@@ -48,6 +48,10 @@ public interface PermissionValidator {
     return isSuperAdmin() || hasAssignRolePermission(appId);
   }
 
+  default boolean hasReadApplicationPermission(String appId) {
+    return true;
+  }
+
   boolean isSuperAdmin();
 
   boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,

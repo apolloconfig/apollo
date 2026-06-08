@@ -31,6 +31,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil.CONSUMER_ID;
+import static com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil.USER_TOKEN;
 
 public class UserTypeResolverFilter extends OncePerRequestFilter {
   @Override
@@ -47,6 +48,10 @@ public class UserTypeResolverFilter extends OncePerRequestFilter {
   }
 
   private String resolve(HttpServletRequest req) {
+    if (req.getAttribute(USER_TOKEN) != null) {
+      return UserIdentityConstants.USER_TOKEN;
+    }
+
     if (req.getAttribute(CONSUMER_ID) != null) {
       return UserIdentityConstants.CONSUMER;
     }

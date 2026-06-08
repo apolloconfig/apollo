@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
@@ -145,6 +146,8 @@ public class AppControllerTest {
         .thenReturn(true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
     when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+    when(unifiedPermissionValidator.hasReadApplicationPermission(Mockito.anyString()))
+        .thenReturn(true);
 
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId("test");
@@ -156,6 +159,31 @@ public class AppControllerTest {
   @After
   public void tearDown() {
     UserIdentityContextHolder.clear();
+  }
+
+  @Test
+  public void testCreateAppForUserTokenUsesCurrentTokenUser() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    UserInfo tokenUser = new UserInfo();
+    tokenUser.setUserId("token-user");
+    when(userInfoHolder.getUser()).thenReturn(tokenUser);
+
+    OpenAppDTO app = new OpenAppDTO();
+    app.setAppId("user-token-app");
+    app.setDataChangeCreatedBy("spoofed-user");
+    OpenCreateAppDTO request = new OpenCreateAppDTO();
+    request.setApp(app);
+
+    mockMvc.perform(post("/openapi/v1/apps").contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(request))).andExpect(MockMvcResultMatchers.status().isOk());
+
+    ArgumentCaptor<OpenCreateAppDTO> requestCaptor =
+        ArgumentCaptor.forClass(OpenCreateAppDTO.class);
+    ArgumentCaptor<String> operatorCaptor = ArgumentCaptor.forClass(String.class);
+    Mockito.verify(appOpenApiService).createApp(requestCaptor.capture(), operatorCaptor.capture());
+    assertEquals("token-user", operatorCaptor.getValue());
+    assertEquals("token-user", requestCaptor.getValue().getApp().getDataChangeCreatedBy());
+    assertEquals("token-user", requestCaptor.getValue().getApp().getDataChangeLastModifiedBy());
   }
 
   @Test
@@ -278,6 +306,26 @@ public class AppControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.[1].appId").value("app2"));
+
+    Mockito.verify(appOpenApiService).getAllApps();
+  }
+
+  @Test
+  public void testFindAllAppsFiltersUserTokenScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    OpenAppDTO app1 = new OpenAppDTO();
+    app1.setAppId("app1");
+    OpenAppDTO app2 = new OpenAppDTO();
+    app2.setAppId("app2");
+    when(appOpenApiService.getAllApps()).thenReturn(Lists.newArrayList(app1, app2));
+    when(unifiedPermissionValidator.hasReadApplicationPermission(Mockito.anyString()))
+        .thenReturn(false);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("app1")).thenReturn(true);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"));
 
     Mockito.verify(appOpenApiService).getAllApps();
   }
@@ -428,6 +476,56 @@ public class AppControllerTest {
     Mockito.verify(rolePermissionService).findUserRoles(loginUser.getUserId());
     Mockito.verify(appOpenApiService).getAppsBySelf(Collections.emptySet(), page, size);
     Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+  }
+
+  @Test
+  public void testFindAppsAuthorizedForUserTokenUsesReadableApps() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    OpenAppDTO app1 = new OpenAppDTO();
+    app1.setAppId("app1");
+    OpenAppDTO app2 = new OpenAppDTO();
+    app2.setAppId("app2");
+    when(appOpenApiService.getAllApps()).thenReturn(Lists.newArrayList(app1, app2));
+    when(unifiedPermissionValidator.hasReadApplicationPermission(Mockito.anyString()))
+        .thenReturn(false);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("app1")).thenReturn(true);
+
+    mockMvc.perform(MockMvcRequestBuilders.get("/openapi/v1/apps/authorized"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"));
+
+    Mockito.verify(appOpenApiService).getAllApps();
+    Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+    Mockito.verify(appOpenApiService, never()).getAppsInfo(Mockito.anyList());
+  }
+
+  @Test
+  public void testGetAppsBySelfForUserTokenUsesReadableApps() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    OpenAppDTO app1 = new OpenAppDTO();
+    app1.setAppId("app1");
+    OpenAppDTO app2 = new OpenAppDTO();
+    app2.setAppId("app2");
+    OpenAppDTO app3 = new OpenAppDTO();
+    app3.setAppId("app3");
+    when(appOpenApiService.getAllApps()).thenReturn(Lists.newArrayList(app1, app2, app3));
+    when(unifiedPermissionValidator.hasReadApplicationPermission(Mockito.anyString()))
+        .thenReturn(false);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("app1")).thenReturn(true);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("app2")).thenReturn(true);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps/by-self").param("page", "0")
+            .param("size", "1"))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.[0].appId").value("app1"));
+
+    Mockito.verify(appOpenApiService).getAllApps();
+    Mockito.verify(consumerAuthUtil, never()).retrieveConsumerIdFromCtx();
+    Mockito.verify(appOpenApiService, never()).getAppsBySelf(Mockito.anySet(), Mockito.anyInt(),
+        Mockito.anyInt());
   }
 
   @Test

@@ -160,6 +160,24 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void createReleaseShouldUseCurrentUserTokenUserAndIgnorePayloadReleasedBy() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    UserInfo tokenUser = userInfo("token-user");
+    when(userInfoHolder.getUser()).thenReturn(tokenUser);
+    when(releaseService.publish(any(NamespaceReleaseModel.class))).thenReturn(release(102L));
+
+    NamespaceReleaseDTO request = releaseRequest("release title", "spoofed-user", false);
+
+    releaseController.createRelease(APP_ID, ENV, CLUSTER, NAMESPACE, request, null);
+
+    ArgumentCaptor<NamespaceReleaseModel> modelCaptor =
+        ArgumentCaptor.forClass(NamespaceReleaseModel.class);
+    verify(releaseService).publish(modelCaptor.capture());
+    assertThat(modelCaptor.getValue().getReleasedBy()).isEqualTo("token-user");
+    verify(userService, never()).findByUserId("spoofed-user");
+  }
+
+  @Test
   void createReleaseShouldKeepConsumerPayloadReleasedByForLegacyClients() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
     when(releaseService.publish(any(NamespaceReleaseModel.class))).thenReturn(release(101L));
@@ -303,6 +321,20 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void compareReleaseShouldRejectHiddenUserTokenRelease() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
+    when(releaseService.findReleaseById(Env.DEV, 2L)).thenReturn(release(2L));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    assertThatThrownBy(() -> releaseController.compareRelease(ENV, 1L, 2L))
+        .isInstanceOf(AccessDeniedException.class);
+
+    verify(releaseService, never()).compare(Env.DEV, 1L, 2L);
+  }
+
+  @Test
   void compareReleaseShouldRejectConsumerWithoutReleasePermission() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
     when(releaseService.findReleaseById(Env.DEV, 1L)).thenReturn(release(1L));
@@ -365,6 +397,19 @@ class ReleaseBranchInstanceControllerTest {
         releaseController.loadLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE);
 
     assertThat(response.getBody()).isNull();
+  }
+
+  @Test
+  void loadLatestActiveReleaseShouldHideUserTokenReleaseWithoutConfigRead() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    ResponseEntity<com.ctrip.framework.apollo.openapi.model.OpenReleaseDTO> response =
+        releaseController.loadLatestActiveRelease(APP_ID, ENV, CLUSTER, NAMESPACE);
+
+    assertThat(response.getBody()).isNull();
+    verifyNoInteractions(releaseService);
   }
 
   @Test

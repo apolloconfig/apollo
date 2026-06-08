@@ -39,10 +39,12 @@ import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
@@ -74,23 +76,33 @@ public class NamespaceController
 
   @Override
   public ResponseEntity<List<OpenAppNamespaceDTO>> getAppNamespaces() {
-    return ResponseEntity.ok(namespaceOpenApiService.getAppNamespaces());
+    return ResponseEntity
+        .ok(filterReadableAppNamespaces(namespaceOpenApiService.getAppNamespaces()));
   }
 
   @Override
   public ResponseEntity<List<OpenAppNamespaceDTO>> getAppNamespacesByAppId(String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity.ok(namespaceOpenApiService.getAppNamespacesByAppId(appId));
   }
 
   @Override
   public ResponseEntity<OpenAppNamespaceDTO> findAppNamespace(String appId, String namespaceName,
       Boolean extendInfo) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity.ok(namespaceOpenApiService.findAppNamespace(appId, namespaceName));
   }
 
   @Override
   public ResponseEntity<List<OpenNamespaceUsageDTO>> findAppNamespaceUsage(String appId,
       String namespaceName) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity.ok(namespaceOpenApiService.findAppNamespaceUsage(appId, namespaceName));
   }
 
@@ -122,13 +134,16 @@ public class NamespaceController
       String publicNamespaceName, Integer page, Integer size) {
     int resolvedPage = page == null ? 0 : page;
     int resolvedSize = size == null ? 10 : size;
-    return ResponseEntity.ok(namespaceOpenApiService.getPublicAppNamespaceInstances(env,
-        publicNamespaceName, resolvedPage, resolvedSize));
+    return ResponseEntity.ok(filterReadableNamespaces(null, env, null, namespaceOpenApiService
+        .getPublicAppNamespaceInstances(env, publicNamespaceName, resolvedPage, resolvedSize)));
   }
 
   @Override
   public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
       String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
         namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
   }
@@ -136,13 +151,17 @@ public class NamespaceController
   @Override
   public ResponseEntity<List<OpenNamespaceDTO>> findNamespaces(String appId, String env,
       String clusterName, Boolean fillItemDetail, Boolean extendInfo) {
-    return ResponseEntity.ok(namespaceOpenApiService.findNamespaces(appId, env, clusterName,
-        Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
+    return ResponseEntity.ok(filterReadableNamespaces(appId, env, clusterName,
+        namespaceOpenApiService.findNamespaces(appId, env, clusterName,
+            Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo))));
   }
 
   @Override
   public ResponseEntity<OpenNamespaceDTO> findPublicNamespaceForAssociatedNamespace(String env,
       String appId, String clusterName, String namespaceName, Boolean extendInfo) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity.ok(namespaceOpenApiService.findPublicNamespaceForAssociatedNamespace(env,
         appId, clusterName, namespaceName, Boolean.TRUE.equals(extendInfo)));
   }
@@ -150,6 +169,9 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceLockDTO> getNamespaceLock(String appId, String env,
       String clusterName, String namespaceName) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity
         .ok(namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName));
   }
@@ -178,6 +200,9 @@ public class NamespaceController
   @Override
   public ResponseEntity<List<OpenNamespaceUsageDTO>> findNamespaceUsage(String appId, String env,
       String clusterName, String namespaceName) {
+    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity
         .ok(namespaceOpenApiService.findNamespaceUsage(appId, env, clusterName, namespaceName));
   }
@@ -185,12 +210,18 @@ public class NamespaceController
   @Override
   public ResponseEntity<Map<String, Map<String, Boolean>>> getNamespacesReleaseStatus(
       String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyMap());
+    }
     return ResponseEntity.ok(namespaceOpenApiService.getNamespacesReleaseStatus(appId));
   }
 
   @Override
   public ResponseEntity<List<String>> findMissingNamespaces(String appId, String env,
       String clusterName) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity
         .ok(namespaceOpenApiService.findMissingNamespaces(appId, env, clusterName));
   }
@@ -256,8 +287,44 @@ public class NamespaceController
     return true;
   }
 
+  private List<OpenAppNamespaceDTO> filterReadableAppNamespaces(
+      List<OpenAppNamespaceDTO> appNamespaces) {
+    if (appNamespaces == null) {
+      return Collections.emptyList();
+    }
+    return appNamespaces.stream()
+        .filter(appNamespace -> appNamespace != null
+            && unifiedPermissionValidator.hasReadApplicationPermission(appNamespace.getAppId()))
+        .collect(Collectors.toList());
+  }
+
+  private List<OpenNamespaceDTO> filterReadableNamespaces(String appId, String env,
+      String clusterName, List<OpenNamespaceDTO> namespaces) {
+    if (namespaces == null) {
+      return Collections.emptyList();
+    }
+    return namespaces.stream()
+        .filter(namespace -> namespace != null && !shouldHideConfigToCurrentUser(
+            StringUtils.isBlank(namespace.getAppId()) ? appId : namespace.getAppId(), env,
+            StringUtils.isBlank(namespace.getClusterName()) ? clusterName
+                : namespace.getClusterName(),
+            namespace.getNamespaceName()))
+        .collect(Collectors.toList());
+  }
+
+  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+      String namespaceName) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    return (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType))
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName);
+  }
+
   private String resolveOperator(String queryOperator, String payloadOperator) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       UserInfo loginUser = userInfoHolder.getUser();
       if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
         throw new BadRequestException("Current user not found");
@@ -265,7 +332,7 @@ public class NamespaceController
       return loginUser.getUserId();
     }
 
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       String operator = StringUtils.isBlank(queryOperator) ? payloadOperator : queryOperator;
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
           "operator should not be null or empty");
@@ -275,7 +342,6 @@ public class NamespaceController
       return operator;
     }
 
-    throw new BadRequestException("Unsupported auth type: %s",
-        UserIdentityContextHolder.getAuthType());
+    throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 }

@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.filter;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
@@ -77,6 +78,10 @@ public class ConsumerAuthenticationFilter implements Filter {
     HttpServletResponse response = (HttpServletResponse) resp;
 
     if (Boolean.TRUE.equals(request.getAttribute(PORTAL_USER_AUTHENTICATED))) {
+      chain.doFilter(req, resp);
+      return;
+    }
+    if (request.getAttribute(UserTokenAuthUtil.USER_TOKEN) != null) {
       chain.doFilter(req, resp);
       return;
     }

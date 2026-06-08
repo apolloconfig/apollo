@@ -53,6 +53,8 @@ public class PortalConfig extends RefreshableConfig {
   private static final int DEFAULT_CONNECT_POOL_MAX_TOTAL = 20;
   private static final int DEFAULT_CONNECT_POOL_MAX_PER_ROUTE = 2;
   private static final int DEFAULT_PER_ENV_SEARCH_MAX_RESULTS = 200;
+  private static final int DEFAULT_USER_TOKEN_EXPIRE_DAYS = 90;
+  private static final int DEFAULT_USER_TOKEN_MAX_EXPIRE_DAYS = 365;
 
   private static final Gson GSON = new Gson();
   private static final Type ORGANIZATION = new TypeToken<List<Organization>>() {}.getType();
@@ -251,6 +253,17 @@ public class PortalConfig extends RefreshableConfig {
 
   public String consumerTokenSalt() {
     return getValue("consumer.token.salt", "apollo-portal");
+  }
+
+  public int userTokenDefaultExpireDays() {
+    int maxExpireDays = userTokenMaxExpireDays();
+    return checkInt(getIntProperty("user.token.defaultExpireDays", DEFAULT_USER_TOKEN_EXPIRE_DAYS),
+        1, maxExpireDays, Math.min(DEFAULT_USER_TOKEN_EXPIRE_DAYS, maxExpireDays));
+  }
+
+  public int userTokenMaxExpireDays() {
+    return checkInt(getIntProperty("user.token.maxExpireDays", DEFAULT_USER_TOKEN_MAX_EXPIRE_DAYS),
+        1, Integer.MAX_VALUE, DEFAULT_USER_TOKEN_MAX_EXPIRE_DAYS);
   }
 
   public boolean isEmailEnabled() {

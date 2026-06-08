@@ -56,9 +56,10 @@
                 <li class="dropdown" ng-if="hasRootPermission == true">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                         <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.AdminTools' | translate }}
-                        <span class="caret"></span></a>
+                    <span class="caret"></span></a>
                     <ul class="dropdown-menu" >
                         <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
+                        <li><a ng-href="{{ '/user-token-admin.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserTokenAdmin' | translate }}</a></li>
                         <li><a href="{{ '/system-role-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemRoleManage' | translate }}</a></li>
                         <li><a href="{{ '/open/manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.OpenMange' | translate }}</a></li>
                         <li><a href="{{ '/server_config_manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemConfig' | translate }}</a></li>
@@ -86,6 +87,7 @@
                         <span class="glyphicon glyphicon-user"></span>&nbsp;{{userDisplayName}}({{userName}})
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
+                        <li><a href="{{ '/user-token.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserToken' | translate }}</a></li>
                         <li><a href="{{ '/user/logout' | prefixPath }}">{{'Common.Nav.Logout' | translate }}</a></li>
                     </ul>
                 </li>

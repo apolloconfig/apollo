@@ -28,6 +28,7 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultLogoutHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultSsoHeartbeatHandler;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserService;
+import com.ctrip.framework.apollo.portal.filter.UserTokenAuthenticationFilter;
 import com.ctrip.framework.apollo.portal.spi.ldap.ApolloLdapAuthenticationProvider;
 import com.ctrip.framework.apollo.portal.spi.ldap.FilterLdapByGroupUserSearch;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
@@ -76,6 +77,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class AuthConfiguration {
@@ -183,9 +185,12 @@ public class AuthConfiguration {
 
     @Bean
     @Order(99)
-    public SecurityFilterChain authSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain authSecurityFilterChain(HttpSecurity http,
+        UserTokenAuthenticationFilter userTokenAuthenticationFilter) throws Exception {
       http.csrf(csrf -> csrf.disable());
       http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+      http.addFilterBefore(userTokenAuthenticationFilter,
+          UsernamePasswordAuthenticationFilter.class);
       http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
           .requestMatchers(BY_PASS_URLS).permitAll().anyRequest().hasAnyRole(USER_ROLE));
       http.formLogin(formLogin -> formLogin.loginPage("/signin").defaultSuccessUrl("/", true)
@@ -322,10 +327,13 @@ public class AuthConfiguration {
     @Bean
     @Order(99)
     public SecurityFilterChain ldapSecurityFilterChain(HttpSecurity http,
-        LdapAuthenticationProvider ldapAuthenticationProvider) throws Exception {
+        LdapAuthenticationProvider ldapAuthenticationProvider,
+        UserTokenAuthenticationFilter userTokenAuthenticationFilter) throws Exception {
       http.authenticationProvider(ldapAuthenticationProvider);
       http.csrf(csrf -> csrf.disable());
       http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
+      http.addFilterBefore(userTokenAuthenticationFilter,
+          UsernamePasswordAuthenticationFilter.class);
       http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
           .requestMatchers(BY_PASS_URLS).permitAll().anyRequest().authenticated());
       http.formLogin(formLogin -> formLogin.loginPage("/signin").defaultSuccessUrl("/", true)
@@ -410,8 +418,11 @@ public class AuthConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain oidcSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain oidcSecurityFilterChain(HttpSecurity http,
+        UserTokenAuthenticationFilter userTokenAuthenticationFilter) throws Exception {
       http.csrf(csrf -> csrf.disable());
+      http.addFilterBefore(userTokenAuthenticationFilter,
+          UsernamePasswordAuthenticationFilter.class);
       http.authorizeHttpRequests(requests -> requests.requestMatchers(BY_PASS_URLS).permitAll()
           .anyRequest().authenticated());
       http.oauth2Login(configure -> configure

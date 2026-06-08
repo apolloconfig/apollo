@@ -73,6 +73,70 @@ ApolloOpenApiClient client = ApolloOpenApiClient.newBuilder()
 * 使用示例：[openapi-usage-example.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi-usage-example.sh)
 * 全部和openapi有关的shell脚本在文件夹 https://github.com/apolloconfig/apollo/tree/master/scripts/openapi/bash 下
 
+#### 2.5 用户访问 Token
+
+除第三方应用 Token 外，Apollo 还支持用户在 Portal 的 `访问 Token` 页面创建代表自己身份的用户访问 Token。用户访问 Token 适合 AI Agent、自动化脚本等以“当前用户”身份调用 Apollo API 的场景。
+
+用户访问 Token 的权限不会复制用户角色，而是在每次请求时实时计算：
+
+* 当前用户拥有的权限
+* Token 自身配置的操作范围、AppId、环境和 Namespace 范围
+* Token 未过期且未被撤销
+
+实际可执行权限为以上条件的交集。因此，当用户权限被收回、用户被禁用、Token 过期或 Token 被撤销后，请求会立即失效或降权。
+
+调用时使用标准 Bearer 认证：
+
+```bash
+curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
+     -H "Content-Type: application/json;charset=UTF-8" \
+     "http://{portal_address}/openapi/v1/user"
+```
+
+用户访问 Token 只用于 Open API 调用，不会作为 Portal 页面或 legacy WebAPI 的登录凭证使用。
+
+AI Agent 或自动化脚本可以先调用当前 Token 能力查询接口，确认当前身份和可用范围：
+
+```bash
+curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
+     "http://{portal_address}/openapi/v1/user-tokens/current"
+```
+
+等价路径包括 `/openapi/v1/user-tokens/whoami` 和
+`/openapi/v1/user-tokens/current/capabilities`。响应中包含当前用户、Token 前缀、过期时间、限流值，以及
+`operations`、`appIds`、`envs`、`namespaces` 等范围。`allOperations`、`allApps`、`allEnvs`、
+`allNamespaces` 为 `true` 时表示对应范围未被 Token 进一步限制。
+
+响应还包含 `actions` 接口能力列表，供 AI Agent 或自动化客户端直接发现当前 Token 可调用的
+Open API。每个 action 包含：
+
+字段名 | 说明
+--- | ---
+id | 稳定的能力标识，如 `item.list`、`release.create`
+method | HTTP 方法
+path | Open API 路径模板
+requiredOperations | 调用该接口需要的 Token 操作范围；多个值表示满足其中任意一个即可
+grantedOperations | 当前 Token 实际命中的操作范围；用于区分可替代权限和当前已授予权限
+operationMatch | `ANY` 表示 `requiredOperations` 任意匹配，`NONE` 表示只要求有效用户 Token
+resourceScope | 该接口主要受哪些资源范围约束，如 `app`、`namespace`、`item`、`release`
+description | 面向客户端展示或规划用的简短说明
+
+Portal 创建 Token 时展示的“操作范围”和 `actions.requiredOperations` 使用同一组 operation 字符串，
+例如 `config:read`、`config:modify`、`config:release`、`namespace:create`、`namespace:delete`、
+`cluster:create`、`app:manage-role`、`app:create`。`actions` 已经按当前 Token 的 `operations`
+过滤；客户端仍需结合返回的 `appIds`、`envs`、`namespaces` 判断具体资源是否在授权范围内。
+
+其中 `config:release` 只表示发布相关能力，例如 `release.create`、`release.gray-create`、
+`release.gray-delete`、`release.rollback`。读取 release 内容、发布快照或 diff 可能暴露配置值，
+因此 `release.latest`、`release.active-list`、`release.get`、`release.compare` 等读取类 action
+使用 `config:read` 控制。
+
+当一个 action 支持多个可替代权限时，`requiredOperations` 会保留全部可替代项，`grantedOperations`
+只返回当前 Token 实际满足的项。例如某些应用管理 action 可由 `app:manage-role` 或 `system:admin`
+满足，普通应用管理员 Token 会在 `grantedOperations` 中只看到 `app:manage-role`。
+
+用户访问 Token 明文只会在创建或轮换时展示一次，Apollo 只保存 Token 哈希和前缀。用户可以在 Portal 页面查看前缀、过期时间、最后使用时间，并可撤销、轮换或删除 Token 记录。
+
 ### 三、 接口文档
 
 #### 3.1 URL路径参数说明
@@ -665,4 +729,3 @@ size | false | int | 页大小，默认为 50
 接口访问的Method不正确，比如应该使用POST的接口使用了GET访问等，客户端需要检查接口访问方式是否正确。
 ####  4.6 500 - Internal Server Error
 其它类型的错误默认都会返回500，对这类错误如果应用无法根据提示信息找到原因的话，可以找Apollo研发团队一起排查问题。
-

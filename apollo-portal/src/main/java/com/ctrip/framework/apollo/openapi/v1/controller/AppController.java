@@ -53,6 +53,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController("openapiAppController")
 public class AppController implements AppManagementApi {
@@ -109,21 +110,27 @@ public class AppController implements AppManagementApi {
 
   @Override
   public ResponseEntity<List<OpenEnvClusterInfo>> getEnvClusterInfo(String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity.ok(appOpenApiService.getEnvClusterInfo(appId));
   }
 
   @Override
   public ResponseEntity<List<OpenEnvClusterDTO>> getEnvClusters(String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity.ok(appOpenApiService.getEnvClusters(appId));
   }
 
   @Override
   public ResponseEntity<List<OpenAppDTO>> findApps(String appIds) {
     if (StringUtils.hasText(appIds)) {
-      return ResponseEntity
-          .ok(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(","))));
+      return ResponseEntity.ok(
+          filterReadableApps(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(",")))));
     } else {
-      return ResponseEntity.ok(this.appOpenApiService.getAllApps());
+      return ResponseEntity.ok(filterReadableApps(this.appOpenApiService.getAllApps()));
     }
   }
 
@@ -132,6 +139,9 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenAppDTO>> findAppsAuthorized() {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return ResponseEntity.ok(filterReadableApps(this.appOpenApiService.getAllApps()));
+    }
     Set<String> appIds = findAppIdsAuthorizedByCurrentIdentity();
     return ResponseEntity.ok(appOpenApiService.getAppsInfo(new ArrayList<>(appIds)));
   }
@@ -141,6 +151,9 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<OpenAppDTO> getApp(String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      throw new BadRequestException("App not found: " + appId);
+    }
     List<OpenAppDTO> apps = appOpenApiService.getAppsInfo(Collections.singletonList(appId));
     if (null == apps || apps.isEmpty()) {
       throw new BadRequestException("App not found: " + appId);
@@ -171,6 +184,10 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenAppDTO>> getAppsBySelf(Integer page, Integer size) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return ResponseEntity
+          .ok(page(filterReadableApps(this.appOpenApiService.getAllApps()), page, size));
+    }
     Set<String> authorizedAppIds = findAppIdsAuthorizedByCurrentIdentity();
     List<OpenAppDTO> apps = appOpenApiService.getAppsBySelf(authorizedAppIds, page, size);
     return ResponseEntity.ok(apps);
@@ -212,6 +229,9 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenMissEnvDTO>> findMissEnvs(String appId) {
+    if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     return ResponseEntity.ok(appOpenApiService.findMissEnvs(appId));
   }
 
@@ -227,11 +247,17 @@ public class AppController implements AppManagementApi {
         && unifiedPermissionValidator.hasCreateApplicationPermission()) {
       return;
     }
+    if (UserIdentityConstants.USER_TOKEN.equals(authType)
+        && unifiedPermissionValidator.hasCreateApplicationPermission()) {
+      return;
+    }
     throw new AccessDeniedException("Create application permission is required");
   }
 
   private String resolveOperator(String operator) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       UserInfo loginUser = userInfoHolder.getUser();
       if (loginUser == null || !StringUtils.hasText(loginUser.getUserId())) {
         throw new BadRequestException("Current user not found");
@@ -239,7 +265,7 @@ public class AppController implements AppManagementApi {
       return loginUser.getUserId();
     }
 
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       if (!StringUtils.hasText(operator)) {
         throw new BadRequestException("operator should not be null or empty");
       }
@@ -249,8 +275,7 @@ public class AppController implements AppManagementApi {
       return operator;
     }
 
-    throw new BadRequestException("Unsupported auth type: %s",
-        UserIdentityContextHolder.getAuthType());
+    throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 
   private void validatePortalApp(OpenAppDTO app) {
@@ -305,5 +330,28 @@ public class AppController implements AppManagementApi {
 
     throw new BadRequestException("Unsupported auth type: %s",
         UserIdentityContextHolder.getAuthType());
+  }
+
+  private List<OpenAppDTO> filterReadableApps(List<OpenAppDTO> apps) {
+    if (apps == null) {
+      return Collections.emptyList();
+    }
+    return apps.stream()
+        .filter(app -> app != null
+            && unifiedPermissionValidator.hasReadApplicationPermission(app.getAppId()))
+        .collect(Collectors.toList());
+  }
+
+  private List<OpenAppDTO> page(List<OpenAppDTO> apps, Integer page, Integer size) {
+    if (apps == null || apps.isEmpty()) {
+      return Collections.emptyList();
+    }
+    int resolvedPage = page == null || page < 0 ? 0 : page;
+    int resolvedSize = size == null || size <= 0 ? apps.size() : size;
+    int fromIndex = resolvedPage * resolvedSize;
+    if (fromIndex >= apps.size()) {
+      return Collections.emptyList();
+    }
+    return apps.subList(fromIndex, Math.min(fromIndex + resolvedSize, apps.size()));
   }
 }

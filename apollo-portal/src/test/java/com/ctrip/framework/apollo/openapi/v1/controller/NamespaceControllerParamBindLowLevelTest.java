@@ -18,6 +18,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -25,6 +26,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,6 +103,7 @@ public class NamespaceControllerParamBindLowLevelTest {
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(anyString(), anyString(),
         anyString(), anyString())).thenReturn(false);
     when(unifiedPermissionValidator.isAppAdmin(anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasReadApplicationPermission(anyString())).thenReturn(true);
 
     UserInfo user = new UserInfo();
     user.setUserId("tester");
@@ -314,6 +317,47 @@ public class NamespaceControllerParamBindLowLevelTest {
         .andExpect(status().isOk()).andExpect(jsonPath("$.namespaceName").value(NAMESPACE));
 
     verify(namespaceOpenApiService).findNamespace(APP_ID, ENV, CLUSTER, NAMESPACE, false, true);
+  }
+
+  @Test
+  public void findNamespaceShouldReturnEmptyBodyForHiddenUserTokenConfig() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    mockMvc
+        .perform(get(
+            "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}",
+            ENV, APP_ID, CLUSTER, NAMESPACE))
+        .andExpect(status().isOk()).andExpect(content().string(""));
+
+    verify(namespaceOpenApiService, never()).findNamespace(anyString(), anyString(), anyString(),
+        anyString(), anyBoolean(), anyBoolean());
+  }
+
+  @Test
+  public void findNamespacesShouldFilterHiddenUserTokenNamespaces() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    OpenNamespaceDTO visible = new OpenNamespaceDTO();
+    visible.setAppId(APP_ID);
+    visible.setClusterName(CLUSTER);
+    visible.setNamespaceName(NAMESPACE);
+    OpenNamespaceDTO hidden = new OpenNamespaceDTO();
+    hidden.setAppId(APP_ID);
+    hidden.setClusterName(CLUSTER);
+    hidden.setNamespaceName("secret");
+    when(namespaceOpenApiService.findNamespaces(APP_ID, ENV, CLUSTER, false, false))
+        .thenReturn(Arrays.asList(visible, hidden));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, "secret"))
+        .thenReturn(true);
+
+    mockMvc
+        .perform(get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces", ENV,
+            APP_ID, CLUSTER).param("fillItemDetail", "false").param("extendInfo", "false"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE));
+
+    verify(namespaceOpenApiService).findNamespaces(APP_ID, ENV, CLUSTER, false, false);
   }
 
   @Test

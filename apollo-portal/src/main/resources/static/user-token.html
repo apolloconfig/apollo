@@ -1,0 +1,274 @@
+<!--
+  ~ Copyright 2025 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<!doctype html>
+<html ng-app="user_token">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="icon" href="./img/config.png">
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/angular/angular-toastr-1.4.1.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <link rel="stylesheet" type="text/css" media='all' href="vendor/angular/loading-bar.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/common-style.css">
+
+    <title>{{'UserToken.Title' | translate }}</title>
+</head>
+
+<body>
+
+    <apollonav></apollonav>
+    <div class="container-fluid apollo-container" ng-controller="UserTokenController">
+        <div class="col-md-10 col-md-offset-1 panel">
+            <section class="panel-body">
+                <header class="panel-heading">
+                    {{'UserToken.Title' | translate }}
+                    <small>{{'UserToken.TitleTips' | translate }}</small>
+                </header>
+
+                <div class="alert alert-warning" ng-show="createdTokenValue">
+                    <strong>{{'UserToken.OneTimeToken' | translate }}</strong>
+                    <input type="text" class="form-control" readonly ng-model="createdTokenValue"
+                           style="margin-top: 8px">
+                </div>
+
+                <form class="form-horizontal panel-body" ng-submit="createToken()">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.Name' | translate }}</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" ng-model="form.name">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.Expires' | translate }}</label>
+                        <div class="col-sm-3">
+                            <input type="date" class="form-control" ng-model="form.expires">
+                        </div>
+                        <div class="col-sm-5 help-block">
+                            {{'UserToken.MaxExpireDays' | translate }} {{capabilities.maxExpireDays}}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.RateLimit' | translate }}</label>
+                        <div class="col-sm-3">
+                            <input type="number" min="0" class="form-control" ng-model="form.rateLimit">
+                        </div>
+                        <div class="col-sm-5 help-block">
+                            {{'UserToken.RateLimitTips' | translate }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.Operations' | translate }}</label>
+                        <div class="col-sm-9 user-token-operation-list">
+                            <label class="checkbox-inline" ng-repeat="operation in capabilities.operations">
+                                <input type="checkbox" ng-model="operationSelection[operation]"> {{operation}}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.Envs' | translate }}</label>
+                        <div class="col-sm-9 user-token-env-list">
+                            <label class="checkbox-inline" ng-repeat="env in envs">
+                                <input type="checkbox" ng-model="envSelection[env]"> {{env}}
+                            </label>
+                            <span class="help-block user-token-inline-help">
+                                {{'UserToken.EmptyMeansAll' | translate }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.AppIds' | translate }}</label>
+                        <div class="col-sm-9 user-token-transfer">
+                            <div class="user-token-transfer-column">
+                                <div class="user-token-transfer-title">
+                                    {{'UserToken.AvailableApps' | translate }}</div>
+                                <select class="form-control user-token-transfer-select" multiple
+                                        ng-model="selectedAvailableAppIds">
+                                    <option ng-repeat="app in availableApps" ng-if="!isAppSelected(app)"
+                                            value="{{app.appId || app.id}}">
+                                        {{appLabel(app)}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="user-token-transfer-actions">
+                                <button type="button" class="btn btn-default btn-sm"
+                                        ng-click="addSelectedApp()"
+                                        ng-disabled="!selectedAvailableAppIds.length">&gt;</button>
+                                <button type="button" class="btn btn-default btn-sm"
+                                        ng-click="removeSelectedApp()"
+                                        ng-disabled="!selectedSelectedAppIds.length">&lt;</button>
+                                <button type="button" class="btn btn-default btn-sm"
+                                        ng-click="addAllApps()"
+                                        ng-disabled="availableApps.length === selectedApps.length">&gt;&gt;</button>
+                                <button type="button" class="btn btn-default btn-sm"
+                                        ng-click="removeAllApps()"
+                                        ng-disabled="!selectedApps.length">&lt;&lt;</button>
+                            </div>
+                            <div class="user-token-transfer-column">
+                                <div class="user-token-transfer-title">
+                                    {{'UserToken.SelectedApps' | translate }}</div>
+                                <select class="form-control user-token-transfer-select" multiple
+                                        ng-model="selectedSelectedAppIds">
+                                    <option ng-repeat="app in selectedApps" value="{{app.appId || app.id}}">
+                                        {{appLabel(app)}}
+                                    </option>
+                                </select>
+                            </div>
+                            <span class="help-block user-token-transfer-help">
+                                {{'UserToken.EmptyMeansAll' | translate }}</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{'UserToken.Namespaces' | translate }}</label>
+                        <div class="col-sm-7">
+                            <textarea class="form-control" rows="3" ng-model="form.namespaces"
+                                      placeholder="{{'UserToken.NamespacesPlaceholder' | translate }}"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-9">
+                            <button type="submit" class="btn btn-primary">{{'Common.Submit' | translate }}</button>
+                            <button type="button" class="btn" ng-click="resetForm()">{{'UserToken.Reset' | translate }}</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover">
+                        <tr>
+                            <th>{{'UserToken.Name' | translate }}</th>
+                            <th>{{'UserToken.Prefix' | translate }}</th>
+                            <th>{{'UserToken.Expires' | translate }}</th>
+                            <th>{{'UserToken.LastUsedTime' | translate }}</th>
+                            <th>{{'UserToken.Status' | translate }}</th>
+                            <th>{{'UserToken.Operation' | translate }}</th>
+                        </tr>
+                        <tr ng-repeat="token in tokens">
+                            <td>{{token.name}}</td>
+                            <td>{{token.tokenPrefix}}</td>
+                            <td>{{token.expires | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                            <td>{{token.lastUsedTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                            <td>
+                                <span class="label label-primary" ng-show="!token.revokedAt">{{'UserToken.Active' | translate }}</span>
+                                <span class="label label-default" ng-show="token.revokedAt">{{'UserToken.RevokedStatus' | translate }}</span>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="showTokenDetail(token)">
+                                    {{'UserToken.View' | translate }}</button>
+                                <button type="button" class="btn btn-primary btn-xs" ng-click="rotateToken(token)"
+                                        ng-disabled="token.revokedAt">{{'UserToken.Rotate' | translate }}</button>
+                                <button type="button" class="btn btn-danger btn-xs" ng-click="revokeToken(token)"
+                                        ng-disabled="token.revokedAt">{{'UserToken.Revoke' | translate }}</button>
+                                <button type="button" class="btn btn-default btn-xs" ng-click="deleteToken(token)">
+                                    {{'UserToken.Delete' | translate }}</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="userTokenDetailModal" class="modal fade" tabindex="-1" role="dialog">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header panel-primary">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">{{'UserToken.DetailTitle' | translate }}</h4>
+                            </div>
+                            <div class="modal-body">
+                                <dl class="dl-horizontal user-token-detail-list">
+                                    <dt>{{'UserToken.Name' | translate }}</dt>
+                                    <dd>{{selectedToken.name}}</dd>
+
+                                    <dt>{{'UserToken.Prefix' | translate }}</dt>
+                                    <dd>{{selectedToken.tokenPrefix}}</dd>
+
+                                    <dt>{{'UserToken.Status' | translate }}</dt>
+                                    <dd>
+                                        <span class="label label-primary" ng-show="selectedToken && !selectedToken.revokedAt">
+                                            {{'UserToken.Active' | translate }}</span>
+                                        <span class="label label-default" ng-show="selectedToken.revokedAt">
+                                            {{'UserToken.RevokedStatus' | translate }}</span>
+                                    </dd>
+
+                                    <dt>{{'UserToken.Expires' | translate }}</dt>
+                                    <dd>{{selectedToken.expires | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+
+                                    <dt>{{'UserToken.RateLimit' | translate }}</dt>
+                                    <dd>{{formatRateLimit(selectedToken)}}</dd>
+
+                                    <dt>{{'UserToken.Operations' | translate }}</dt>
+                                    <dd>
+                                        <pre class="user-token-detail-value" ng-bind="formatOperations(selectedToken)"></pre>
+                                    </dd>
+
+                                    <dt>{{'UserToken.AppIds' | translate }}</dt>
+                                    <dd>{{formatStringList(selectedToken.appIds)}}</dd>
+
+                                    <dt>{{'UserToken.Envs' | translate }}</dt>
+                                    <dd>{{formatStringList(selectedToken.envs)}}</dd>
+
+                                    <dt>{{'UserToken.Namespaces' | translate }}</dt>
+                                    <dd>
+                                        <pre class="user-token-detail-value" ng-bind="formatNamespaces(selectedToken)"></pre>
+                                    </dd>
+
+                                    <dt>{{'UserToken.LastUsedTime' | translate }}</dt>
+                                    <dd>{{selectedToken.lastUsedTime | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+
+                                    <dt>{{'UserToken.CreatedTime' | translate }}</dt>
+                                    <dd>{{selectedToken.dataChangeCreatedTime | date:'yyyy-MM-dd HH:mm:ss'}}</dd>
+                                </dl>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">
+                                    {{'Component.PublishDeny.Close' | translate }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div ng-include="'views/common/footer.html'"></div>
+
+    <script src="vendor/angular/angular.min.js"></script>
+    <script src="vendor/angular/angular-resource.min.js"></script>
+    <script src="vendor/angular/angular-toastr-1.4.1.tpls.min.js"></script>
+    <script src="vendor/angular/loading-bar.min.js"></script>
+    <script src="vendor/angular/angular-cookies.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-loader-static-files.min.js"></script>
+    <script src="vendor/angular/angular-translate.2.18.1/angular-translate-storage-cookie.min.js"></script>
+
+    <script src="vendor/jquery.min.js" type="text/javascript"></script>
+    <script src="vendor/select2/select2.min.js" type="text/javascript"></script>
+    <script src="vendor/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+
+    <script type="application/javascript" src="scripts/app.js"></script>
+    <script type="application/javascript" src="scripts/services/AppService.js"></script>
+    <script type="application/javascript" src="scripts/services/EnvService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserService.js"></script>
+    <script type="application/javascript" src="scripts/services/UserTokenService.js"></script>
+    <script type="application/javascript" src="scripts/services/CommonService.js"></script>
+    <script type="application/javascript" src="scripts/AppUtils.js"></script>
+    <script type="application/javascript" src="scripts/directive/directive.js"></script>
+    <script type="application/javascript" src="scripts/services/PermissionService.js"></script>
+    <script type="application/javascript" src="scripts/controller/UserTokenController.js"></script>
+</body>
+
+</html>

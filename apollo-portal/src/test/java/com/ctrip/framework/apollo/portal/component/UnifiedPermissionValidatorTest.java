@@ -38,6 +38,9 @@ public class UnifiedPermissionValidatorTest {
   private UserPermissionValidator userPermissionValidator;
 
   @Mock
+  private UserTokenPermissionValidator userTokenPermissionValidator;
+
+  @Mock
   private ConsumerPermissionValidator consumerPermissionValidator;
 
   @InjectMocks
@@ -79,6 +82,20 @@ public class UnifiedPermissionValidatorTest {
   }
 
   @Test
+  public void hasManageAppMasterPermission_UserTokenAuthType_DelegatesToUserTokenValidator() {
+    final String appId = "testAppId";
+    final boolean expectedPermission = true;
+
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(userTokenPermissionValidator.hasManageAppMasterPermission(appId))
+        .thenReturn(expectedPermission);
+
+    boolean result = unifiedPermissionValidator.hasManageAppMasterPermission(appId);
+
+    assertTrue(result);
+  }
+
+  @Test
   public void hasManageAppMasterPermission_UnknownAuthType_ThrowsException() {
     final String appId = "testAppId";
 
@@ -111,6 +128,20 @@ public class UnifiedPermissionValidatorTest {
     // Set authentication type to CONSUMER
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
     when(consumerPermissionValidator.hasCreateNamespacePermission(appId))
+        .thenReturn(expectedPermission);
+
+    boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);
+
+    assertTrue(result);
+  }
+
+  @Test
+  public void hasCreateNamespacePermission_UserTokenAuthType_UsesUserTokenPermissionValidator() {
+    final String appId = "testAppId";
+    final boolean expectedPermission = true;
+
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(userTokenPermissionValidator.hasCreateNamespacePermission(appId))
         .thenReturn(expectedPermission);
 
     boolean result = unifiedPermissionValidator.hasCreateNamespacePermission(appId);

@@ -40,7 +40,9 @@ public class OpenApiOperatorResolver {
   }
 
   public String resolve(String operator) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       UserInfo loginUser = userInfoHolder.getUser();
       if (loginUser == null || !StringUtils.hasText(loginUser.getUserId())) {
         throw new BadRequestException("Current user not found");
@@ -48,7 +50,7 @@ public class OpenApiOperatorResolver {
       return loginUser.getUserId();
     }
 
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       if (!StringUtils.hasText(operator)) {
         throw new BadRequestException("operator should not be null or empty");
       }
@@ -58,7 +60,6 @@ public class OpenApiOperatorResolver {
       return operator;
     }
 
-    throw new BadRequestException("Unsupported auth type: %s",
-        UserIdentityContextHolder.getAuthType());
+    throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 }

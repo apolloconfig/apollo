@@ -20,7 +20,11 @@ import com.ctrip.framework.apollo.openapi.filter.ConsumerAuthenticationFilter;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.filter.PortalUserSessionFilter;
+import com.ctrip.framework.apollo.portal.filter.UserTokenAuthenticationFilter;
 import com.ctrip.framework.apollo.portal.filter.UserTypeResolverFilter;
+import com.ctrip.framework.apollo.portal.service.UserTokenService;
+import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
+import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +34,24 @@ import org.springframework.core.env.Environment;
 public class AuthFilterConfiguration {
 
   private static final int OPEN_API_AUTH_ORDER = -98;
+
+  @Bean
+  public UserTokenAuthenticationFilter userTokenAuthenticationFilter(
+      UserTokenService userTokenService, UserTokenAuthUtil userTokenAuthUtil,
+      UserTokenAuditUtil userTokenAuditUtil) {
+    return new UserTokenAuthenticationFilter(userTokenService, userTokenAuthUtil,
+        userTokenAuditUtil);
+  }
+
+  @Bean
+  public FilterRegistrationBean<UserTokenAuthenticationFilter> userTokenFilterRegistration(
+      UserTokenAuthenticationFilter userTokenAuthenticationFilter) {
+    FilterRegistrationBean<UserTokenAuthenticationFilter> registration =
+        new FilterRegistrationBean<>();
+    registration.setFilter(userTokenAuthenticationFilter);
+    registration.setEnabled(false);
+    return registration;
+  }
 
   @Bean
   public FilterRegistrationBean<ConsumerAuthenticationFilter> openApiAuthenticationFilter(

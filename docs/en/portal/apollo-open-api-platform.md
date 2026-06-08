@@ -78,6 +78,82 @@ Encapsulated bash functions, the underlying use of curl to send HTTP requests
 * Usage example: [openapi-usage-example.sh](https://github.com/apolloconfig/apollo/blob/master/scripts/openapi/bash/openapi-usage-example.sh)
 * All the shell scripts related to openapi are in the folder https://github.com/apolloconfig/apollo/tree/master/scripts/openapi/bash
 
+#### 2.5 User access tokens
+
+Besides third-party application tokens, Apollo also supports user access tokens created from the
+Portal `Access Tokens` page. User access tokens are intended for AI agents and automation scripts
+that need to call Apollo APIs as the current user.
+
+User access token permissions are not copied from user roles. They are evaluated on every request
+from the intersection of:
+
+* the current permissions of the owning user
+* the operation, AppId, environment, and Namespace scopes configured on the token
+* the token state: not expired and not revoked
+
+So when the user's permissions are removed, the user is disabled, the token expires, or the token is
+revoked, subsequent requests are denied or downgraded immediately.
+
+Use standard Bearer authentication when calling APIs:
+
+```bash
+curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
+     -H "Content-Type: application/json;charset=UTF-8" \
+     "http://{portal_address}/openapi/v1/user"
+```
+
+User access tokens are only accepted by Open API endpoints. They are not treated as Portal page or
+legacy WebAPI login credentials.
+
+AI agents and automation scripts can call the current token capability endpoint before making
+changes:
+
+```bash
+curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
+     "http://{portal_address}/openapi/v1/user-tokens/current"
+```
+
+Equivalent paths are `/openapi/v1/user-tokens/whoami` and
+`/openapi/v1/user-tokens/current/capabilities`. The response includes the current user, token
+prefix, expiration time, rate limit, and the `operations`, `appIds`, `envs`, and `namespaces`
+scopes. When `allOperations`, `allApps`, `allEnvs`, or `allNamespaces` is `true`, that dimension is
+not further restricted by the token.
+
+The response also includes an `actions` capability list so AI agents and automation clients can
+discover the Open API surface available to the current token. Each action contains:
+
+| field | description |
+| ----- | ----------- |
+| id | Stable action id, such as `item.list` or `release.create` |
+| method | HTTP method |
+| path | Open API path template |
+| requiredOperations | Token operations required by the endpoint; multiple values mean any one is enough |
+| grantedOperations | Operations actually matched by the current token; use this to distinguish alternatives from currently granted operations |
+| operationMatch | `ANY` means any `requiredOperations` entry matches, `NONE` means only a valid user token is required |
+| resourceScope | Main resource dimension enforced by the endpoint, such as `app`, `namespace`, `item`, or `release` |
+| description | Short client-facing description |
+
+The operations shown in the Portal token form and `actions.requiredOperations` use the same
+operation strings, such as `config:read`, `config:modify`, `config:release`, `namespace:create`,
+`namespace:delete`, `cluster:create`, `app:manage-role`, and `app:create`. `actions` is already
+filtered by the current token's `operations`. Clients should still combine it with `appIds`, `envs`,
+and `namespaces` to decide whether a concrete resource is in scope.
+
+`config:release` only grants publish-related release actions, such as `release.create`,
+`release.gray-create`, `release.gray-delete`, and `release.rollback`. Reading release contents,
+published snapshots, or diffs may expose configuration values, so read actions such as
+`release.latest`, `release.active-list`, `release.get`, and `release.compare` require
+`config:read`.
+
+When an action supports alternative permissions, `requiredOperations` keeps all alternatives and
+`grantedOperations` contains only the entries matched by the current token. For example, some app
+management actions can be satisfied by `app:manage-role` or `system:admin`; a normal app manager
+token will only include `app:manage-role` in `grantedOperations`.
+
+The plain token value is shown only once when the token is created or rotated. Apollo stores only the
+token hash and prefix. Users can view token prefixes, expiration time, last-used time, and can revoke,
+rotate, or delete token records in Portal.
+
 ### III. Interface documentation
 
 #### 3.1 URL path parameter description

@@ -120,6 +120,7 @@ public class LdapUserService implements UserService {
 
   private static final String MEMBER_OF_ATTR_NAME = "memberOf";
   private static final String MEMBER_UID_ATTR_NAME = "memberUid";
+  private static final int ENABLED = 1;
 
   public LdapUserService(final LdapTemplate ldapTemplate) {
     this.ldapTemplate = ldapTemplate;
@@ -134,6 +135,7 @@ public class LdapUserService implements UserService {
     userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
     userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
     userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
+    userInfo.setEnabled(ENABLED);
     return userInfo;
   };
 
@@ -173,6 +175,7 @@ public class LdapUserService implements UserService {
       if (userDisplayNameAttribute != null && userDisplayNameAttribute.get() != null) {
         tmp.setName(userDisplayNameAttribute.get().toString());
       }
+      tmp.setEnabled(ENABLED);
 
       if (userIds != null) {
         if (userIds.stream().anyMatch(c -> c.equals(tmp.getUserId()))) {
@@ -193,6 +196,7 @@ public class LdapUserService implements UserService {
         userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
         userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
         userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
+        userInfo.setEnabled(ENABLED);
         return userInfo;
       });
     } catch (EmptyResultDataAccessException ex) {

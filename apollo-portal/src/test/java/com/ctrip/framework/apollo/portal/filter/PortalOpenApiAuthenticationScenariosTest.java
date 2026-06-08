@@ -19,7 +19,9 @@ package com.ctrip.framework.apollo.portal.filter;
 import static org.hamcrest.Matchers.endsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -29,7 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.ctrip.framework.apollo.portal.entity.po.UserToken;
+import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.spi.configuration.AuthFilterConfiguration;
+import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
+import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import java.util.Date;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -61,6 +67,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,9 +100,12 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     @Bean
     @Order(0)
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http,
+        UserTokenAuthenticationFilter userTokenAuthenticationFilter) throws Exception {
       http.securityMatcher("/signin", "/apps/**", "/openapi/**");
       http.csrf(csrf -> csrf.disable());
+      http.addFilterBefore(userTokenAuthenticationFilter,
+          UsernamePasswordAuthenticationFilter.class);
       http.authorizeHttpRequests(
           authorizeHttpRequests -> authorizeHttpRequests.requestMatchers("/signin").permitAll()
               .requestMatchers("/openapi/**").permitAll().anyRequest().hasRole("user"));
@@ -110,6 +120,11 @@ public class PortalOpenApiAuthenticationScenariosTest {
     public UserDetailsService userDetailsService() {
       return new InMemoryUserDetailsManager(
           User.withUsername("apollo").password("{noop}password").roles("user").build());
+    }
+
+    @Bean
+    public UserTokenAuthUtil userTokenAuthUtil() {
+      return new UserTokenAuthUtil();
     }
   }
 
@@ -150,9 +165,15 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @MockitoBean
   private ConsumerAuditUtil consumerAuditUtil;
 
+  @MockitoBean
+  private UserTokenService userTokenService;
+
+  @MockitoBean
+  private UserTokenAuditUtil userTokenAuditUtil;
+
   @After
   public void tearDown() {
-    reset(consumerAuthUtil, consumerAuditUtil);
+    reset(consumerAuthUtil, consumerAuditUtil, userTokenService, userTokenAuditUtil);
   }
 
   // Scenario 2.1-1: Portal endpoint with valid session returns 200 OK.
@@ -166,6 +187,18 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @Test
   public void portalRequestWithExpiredSession_shouldRedirectToSignin() throws Exception {
     assertExpiredSessionHandling(PORTAL_URI);
+  }
+
+  @Test
+  public void portalRequestWithUserToken_shouldNotAuthenticateAsPortalUser() throws Exception {
+    String tokenValue = UserTokenService.TOKEN_PREFIX + "abc_secret";
+
+    mockMvc.perform(get(PORTAL_URI).header("Authorization", "Bearer " + tokenValue))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(header().string("Location", endsWith("/signin")));
+
+    verify(userTokenService, never()).authenticate(eq(tokenValue), any(HttpServletRequest.class));
+    verify(userTokenAuditUtil, never()).audit(any(HttpServletRequest.class), any(UserToken.class));
   }
 
   // Scenario 2.2-1: Portal user hitting OpenAPI with valid session returns 200 OK.
@@ -197,6 +230,26 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     mockMvc.perform(get(OPEN_API_URI).header("Authorization", "valid-token"))
         .andExpect(status().isOk());
+  }
+
+  @Test
+  public void openApiRequestWithValidUserToken_shouldReturnOkAndSkipConsumerAuth()
+      throws Exception {
+    String tokenValue = UserTokenService.TOKEN_PREFIX + "abc_secret";
+    UserToken userToken = new UserToken();
+    userToken.setId(1L);
+    userToken.setUserId("apollo");
+    userToken.setTokenPrefix("abc");
+    userToken.setRateLimit(0);
+
+    when(userTokenService.authenticate(eq(tokenValue), any(HttpServletRequest.class)))
+        .thenReturn(userToken);
+    when(userTokenAuditUtil.audit(any(HttpServletRequest.class), eq(userToken))).thenReturn(true);
+
+    mockMvc.perform(get(OPEN_API_URI).header("Authorization", "Bearer " + tokenValue))
+        .andExpect(status().isOk());
+
+    verify(consumerAuthUtil, never()).getConsumerToken(any());
   }
 
   // Scenario 2.2-4: Unauthenticated call without token gets 401 Unauthorized.

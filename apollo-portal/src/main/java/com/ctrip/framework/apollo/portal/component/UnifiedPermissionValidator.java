@@ -25,11 +25,14 @@ import org.springframework.stereotype.Component;
 public class UnifiedPermissionValidator implements PermissionValidator {
 
   private final UserPermissionValidator userPermissionValidator;
+  private final UserTokenPermissionValidator userTokenPermissionValidator;
   private final ConsumerPermissionValidator consumerPermissionValidator;
 
   public UnifiedPermissionValidator(UserPermissionValidator userPermissionValidator,
+      UserTokenPermissionValidator userTokenPermissionValidator,
       ConsumerPermissionValidator consumerPermissionValidator) {
     this.userPermissionValidator = userPermissionValidator;
+    this.userTokenPermissionValidator = userTokenPermissionValidator;
     this.consumerPermissionValidator = consumerPermissionValidator;
   }
 
@@ -37,6 +40,9 @@ public class UnifiedPermissionValidator implements PermissionValidator {
     String type = UserIdentityContextHolder.getAuthType();
     if (UserIdentityConstants.USER.equals(type)) {
       return userPermissionValidator;
+    }
+    if (UserIdentityConstants.USER_TOKEN.equals(type)) {
+      return userTokenPermissionValidator;
     }
     if (UserIdentityConstants.CONSUMER.equals(type)) {
       return consumerPermissionValidator;
@@ -79,6 +85,11 @@ public class UnifiedPermissionValidator implements PermissionValidator {
   @Override
   public boolean isSuperAdmin() {
     return getDelegate().isSuperAdmin();
+  }
+
+  @Override
+  public boolean hasReadApplicationPermission(String appId) {
+    return getDelegate().hasReadApplicationPermission(appId);
   }
 
   @Override
