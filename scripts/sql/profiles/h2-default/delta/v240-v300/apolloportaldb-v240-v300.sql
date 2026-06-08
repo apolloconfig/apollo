@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `UserToken` (
   UNIQUE KEY `UserToken_UK_TokenPrefix_DeletedAt` (`TokenPrefix`,`DeletedAt`),
   KEY `UserToken_IX_UserId` (`UserId`),
   KEY `UserToken_IX_DataChange_LastTime` (`DataChange_LastTime`)
-);
+)   COMMENT='用户访问token表';
 
 CREATE TABLE IF NOT EXISTS `UserTokenAudit` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',
@@ -54,4 +54,4 @@ CREATE TABLE IF NOT EXISTS `UserTokenAudit` (
   KEY `UserTokenAudit_IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `UserTokenAudit_IX_TokenId` (`TokenId`),
   KEY `UserTokenAudit_IX_UserId` (`UserId`)
-);
+)   COMMENT='用户访问token审计表';

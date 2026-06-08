@@ -58,7 +58,8 @@ public class ApolloH2ConverterUtil {
 
 
   private static final Pattern OPERATION_TABLE_PATTERN = Pattern.compile(
-      "(?<operation>DROP|CREATE|ALTER)\\s+TABLE\\s+(`)?(?<tableName>[a-zA-Z0-9\\-_]+)(`)?\\s*",
+      "(?<operation>DROP|CREATE|ALTER)\\s+TABLE\\s+"
+          + "(IF\\s+(NOT\\s+)?EXISTS\\s+)?(`)?(?<tableName>[a-zA-Z0-9\\-_]+)(`)?\\s*",
       Pattern.CASE_INSENSITIVE);
 
   private static final Pattern CREATE_INDEX_ON_PATTERN = Pattern.compile(
