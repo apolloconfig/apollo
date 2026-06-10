@@ -55,5 +55,5 @@ CREATE TABLE IF NOT EXISTS `UserTokenAudit` (
   KEY `UserTokenAudit_IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `UserTokenAudit_IX_TokenId` (`TokenId`),
   KEY `UserTokenAudit_IX_UserId` (`UserId`),
-  CONSTRAINT `UserTokenAudit_FK_TokenId` FOREIGN KEY (`TokenId`) REFERENCES `UserToken` (`Id`) ON DELETE SET NULL
+  CONSTRAINT `FK_UserTokenAudit_TokenId` FOREIGN KEY (`TokenId`) REFERENCES `UserToken` (`Id`) ON DELETE SET NULL
 )   COMMENT='用户访问token审计表';
