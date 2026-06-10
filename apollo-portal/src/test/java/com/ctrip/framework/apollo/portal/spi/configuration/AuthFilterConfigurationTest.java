@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.spi.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -34,6 +35,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.core.env.Environment;
 
+/**
+ * Unit tests for portal authentication filter registration and ordering.
+ */
 public class AuthFilterConfigurationTest {
 
   @Test
@@ -59,6 +63,6 @@ public class AuthFilterConfigurationTest {
     assertEquals(Collections.singleton("/openapi/*"),
         consumerAuthenticationFilter.getUrlPatterns());
     assertEquals(Collections.singleton("/*"), userTypeResolverFilter.getUrlPatterns());
-    assertTrue(!userTokenFilterRegistration.isEnabled());
+    assertFalse(userTokenFilterRegistration.isEnabled());
   }
 }

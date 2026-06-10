@@ -21,19 +21,29 @@ import java.util.Collection;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Spring Security authentication for a successfully validated user access token.
+ */
 public class UserTokenAuthenticationToken extends AbstractAuthenticationToken {
 
   private final String userId;
   private final long tokenId;
   private final String tokenPrefix;
 
-  public UserTokenAuthenticationToken(UserToken userToken,
+  private UserTokenAuthenticationToken(UserToken userToken,
       Collection<? extends GrantedAuthority> authorities) {
     super(authorities);
     this.userId = userToken.getUserId();
     this.tokenId = userToken.getId();
     this.tokenPrefix = userToken.getTokenPrefix();
-    setAuthenticated(true);
+  }
+
+  public static UserTokenAuthenticationToken authenticated(UserToken userToken,
+      Collection<? extends GrantedAuthority> authorities) {
+    UserTokenAuthenticationToken authentication =
+        new UserTokenAuthenticationToken(userToken, authorities);
+    authentication.setAuthenticated(true);
+    return authentication;
   }
 
   @Override

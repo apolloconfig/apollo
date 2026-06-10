@@ -19,18 +19,18 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenCurrentCapability;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenNamespaceScope;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenOpenApiAction;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.po.UserToken;
-import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenCurrentCapability;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenNamespaceScope;
-import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOpenApiAction;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
@@ -48,6 +48,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 
+/**
+ * Unit tests for current user token OpenAPI capability responses.
+ */
 @ExtendWith(MockitoExtension.class)
 public class UserTokenOpenApiControllerTest {
 
@@ -87,10 +90,10 @@ public class UserTokenOpenApiControllerTest {
     when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
     when(userTokenService.parseScope(userToken)).thenReturn(scope);
 
-    ResponseEntity<UserTokenCurrentCapability> response = controller.current();
+    ResponseEntity<OpenUserTokenCurrentCapability> response = controller.getCurrentUserToken();
 
     assertEquals(200, response.getStatusCode().value());
-    UserTokenCurrentCapability body = response.getBody();
+    OpenUserTokenCurrentCapability body = response.getBody();
     assertNotNull(body);
     assertEquals(UserIdentityConstants.USER_TOKEN, body.getAuthType());
     assertEquals("apollo", body.getUserId());
@@ -98,15 +101,19 @@ public class UserTokenOpenApiControllerTest {
     assertEquals("agent", body.getTokenName());
     assertEquals("abc", body.getTokenPrefix());
     assertEquals(Integer.valueOf(90), body.getRateLimit());
-    assertFalse(body.isDenyAll());
-    assertFalse(body.isAllOperations());
+    assertFalse(body.getDenyAll());
+    assertFalse(body.getAllOperations());
     assertTrue(body.getOperations().contains(UserTokenOperation.CONFIG_READ));
-    assertFalse(body.isAllApps());
+    assertFalse(body.getAllApps());
     assertEquals(Collections.singleton("app1"), body.getAppIds());
-    assertFalse(body.isAllEnvs());
+    assertFalse(body.getAllEnvs());
     assertEquals(Collections.singleton("DEV"), body.getEnvs());
-    assertFalse(body.isAllNamespaces());
-    assertSame(namespace, body.getNamespaces().get(0));
+    assertFalse(body.getAllNamespaces());
+    OpenUserTokenNamespaceScope openNamespace = body.getNamespaces().get(0);
+    assertEquals(namespace.getAppId(), openNamespace.getAppId());
+    assertEquals(namespace.getEnv(), openNamespace.getEnv());
+    assertEquals(namespace.getClusterName(), openNamespace.getClusterName());
+    assertEquals(namespace.getNamespaceName(), openNamespace.getNamespaceName());
     assertTrue(hasAction(body, "user-token.current"));
     assertTrue(hasAction(body, "user.current"));
     assertTrue(hasAction(body, "app.list"));
@@ -115,7 +122,7 @@ public class UserTokenOpenApiControllerTest {
     assertFalse(hasAction(body, "release.create"));
     assertFalse(hasAction(body, "namespace.create"));
     assertFalse(hasAction(body, "user.search"));
-    UserTokenOpenApiAction appListAction = actionById(body, "app.list");
+    OpenUserTokenOpenApiAction appListAction = actionById(body, "app.list");
     assertNotNull(appListAction);
     assertEquals("GET", appListAction.getMethod());
     assertEquals("app", appListAction.getResourceScope());
@@ -133,15 +140,16 @@ public class UserTokenOpenApiControllerTest {
     when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
     when(userTokenService.parseScope(userToken)).thenReturn(UserTokenScope.allowAll());
 
-    ResponseEntity<UserTokenCurrentCapability> response = controller.current();
+    ResponseEntity<OpenUserTokenCurrentCapability> response =
+        controller.getCurrentUserTokenCapabilities();
 
-    UserTokenCurrentCapability body = response.getBody();
+    OpenUserTokenCurrentCapability body = response.getBody();
     assertNotNull(body);
-    assertFalse(body.isDenyAll());
-    assertTrue(body.isAllOperations());
-    assertTrue(body.isAllApps());
-    assertTrue(body.isAllEnvs());
-    assertTrue(body.isAllNamespaces());
+    assertFalse(body.getDenyAll());
+    assertTrue(body.getAllOperations());
+    assertTrue(body.getAllApps());
+    assertTrue(body.getAllEnvs());
+    assertTrue(body.getAllNamespaces());
     assertTrue(body.getOperations().isEmpty());
     assertTrue(body.getAppIds().isEmpty());
     assertTrue(body.getEnvs().isEmpty());
@@ -161,7 +169,7 @@ public class UserTokenOpenApiControllerTest {
     when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
 
     when(userTokenService.parseScope(userToken)).thenReturn(readScope);
-    UserTokenCurrentCapability readBody = controller.current().getBody();
+    OpenUserTokenCurrentCapability readBody = controller.getCurrentUserToken().getBody();
     assertNotNull(readBody);
     assertTrue(hasAction(readBody, "release.latest"));
     assertTrue(hasAction(readBody, "release.active-list"));
@@ -175,7 +183,7 @@ public class UserTokenOpenApiControllerTest {
         actionById(readBody, "release.latest").getGrantedOperations());
 
     when(userTokenService.parseScope(userToken)).thenReturn(publishScope);
-    UserTokenCurrentCapability publishBody = controller.current().getBody();
+    OpenUserTokenCurrentCapability publishBody = controller.getCurrentUserToken().getBody();
     assertNotNull(publishBody);
     assertFalse(hasAction(publishBody, "release.latest"));
     assertFalse(hasAction(publishBody, "release.active-list"));
@@ -198,10 +206,10 @@ public class UserTokenOpenApiControllerTest {
     when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
     when(userTokenService.parseScope(userToken)).thenReturn(scope);
 
-    UserTokenCurrentCapability body = controller.current().getBody();
+    OpenUserTokenCurrentCapability body = controller.getCurrentUserTokenWhoami().getBody();
 
     assertNotNull(body);
-    UserTokenOpenApiAction appUpdateAction = actionById(body, "app.update");
+    OpenUserTokenOpenApiAction appUpdateAction = actionById(body, "app.update");
     assertNotNull(appUpdateAction);
     assertTrue(
         appUpdateAction.getRequiredOperations().contains(UserTokenOperation.APP_MANAGE_ROLE));
@@ -214,7 +222,7 @@ public class UserTokenOpenApiControllerTest {
   public void currentShouldRejectNonUserTokenIdentity() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
 
-    assertThrows(AccessDeniedException.class, () -> controller.current());
+    assertThrows(AccessDeniedException.class, () -> controller.getCurrentUserToken());
     verifyNoInteractions(userTokenAuthUtil, userTokenService);
   }
 
@@ -237,13 +245,13 @@ public class UserTokenOpenApiControllerTest {
     return scope;
   }
 
-  private boolean hasAction(UserTokenCurrentCapability capability, String actionId) {
+  private boolean hasAction(OpenUserTokenCurrentCapability capability, String actionId) {
     return actionById(capability, actionId) != null;
   }
 
-  private UserTokenOpenApiAction actionById(UserTokenCurrentCapability capability,
+  private OpenUserTokenOpenApiAction actionById(OpenUserTokenCurrentCapability capability,
       String actionId) {
-    for (UserTokenOpenApiAction action : capability.getActions()) {
+    for (OpenUserTokenOpenApiAction action : capability.getActions()) {
       if (actionId.equals(action.getId())) {
         return action;
       }

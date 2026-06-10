@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Request payload for creating a portal-managed user access token.
+ */
 public class UserTokenCreateRequest {
 
   private String name;
@@ -79,10 +82,10 @@ public class UserTokenCreateRequest {
   }
 
   public Date getExpires() {
-    return expires;
+    return expires == null ? null : new Date(expires.getTime());
   }
 
   public void setExpires(Date expires) {
-    this.expires = expires;
+    this.expires = expires == null ? null : new Date(expires.getTime());
   }
 }

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `UserToken` (
   `Name` varchar(128) NOT NULL DEFAULT '' COMMENT 'token名称',
   `TokenPrefix` varchar(32) NOT NULL DEFAULT '' COMMENT 'token前缀',
   `TokenHash` varchar(128) NOT NULL DEFAULT '' COMMENT 'token哈希',
-  `Scopes` varchar(4096) DEFAULT NULL COMMENT 'token权限范围',
+  `Scopes` varchar(4096) DEFAULT NULL COMMENT 'token权限范围JSON，字段: operations/appIds/envs/namespaces',
   `RateLimit` int NOT NULL DEFAULT '0' COMMENT '限流值',
   `Expires` datetime NOT NULL COMMENT 'token失效时间',
   `LastUsedTime` datetime DEFAULT NULL COMMENT '最后使用时间',
@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS `UserToken` (
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UK_TokenPrefix_DeletedAt` (`TokenPrefix`,`DeletedAt`),
   KEY `IX_UserId` (`UserId`),
+  KEY `IX_TokenHash` (`TokenHash`),
   KEY `IX_DataChange_LastTime` (`DataChange_LastTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户访问token表';
 
@@ -53,5 +54,6 @@ CREATE TABLE IF NOT EXISTS `UserTokenAudit` (
   PRIMARY KEY (`Id`),
   KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `IX_TokenId` (`TokenId`),
-  KEY `IX_UserId` (`UserId`)
+  KEY `IX_UserId` (`UserId`),
+  CONSTRAINT `FK_UserTokenAudit_TokenId` FOREIGN KEY (`TokenId`) REFERENCES `UserToken` (`Id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户访问token审计表';

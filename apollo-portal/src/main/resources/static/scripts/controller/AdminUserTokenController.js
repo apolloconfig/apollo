@@ -16,10 +16,10 @@
  */
 user_token_module.controller('AdminUserTokenController',
     ['$scope', '$translate', 'toastr', 'AppUtil', 'PermissionService', 'UserTokenService',
-        AdminUserTokenController]);
+        'UserTokenFormatterService', AdminUserTokenController]);
 
 function AdminUserTokenController($scope, $translate, toastr, AppUtil, PermissionService,
-                                  UserTokenService) {
+                                  UserTokenService, UserTokenFormatterService) {
     $scope.tokens = [];
     $scope.filters = {
         userId: '',
@@ -33,13 +33,13 @@ function AdminUserTokenController($scope, $translate, toastr, AppUtil, Permissio
     $scope.showTokenDetail = showTokenDetail;
     $scope.revokeToken = revokeToken;
     $scope.deleteToken = deleteToken;
-    $scope.tokenStatus = tokenStatus;
-    $scope.statusLabel = statusLabel;
-    $scope.statusClass = statusClass;
-    $scope.formatOperations = formatOperations;
-    $scope.formatStringList = formatStringList;
-    $scope.formatNamespaces = formatNamespaces;
-    $scope.formatRateLimit = formatRateLimit;
+    $scope.tokenStatus = UserTokenFormatterService.tokenStatus;
+    $scope.statusLabel = UserTokenFormatterService.statusLabel;
+    $scope.statusClass = UserTokenFormatterService.statusClass;
+    $scope.formatOperations = UserTokenFormatterService.formatOperations;
+    $scope.formatStringList = UserTokenFormatterService.formatStringList;
+    $scope.formatNamespaces = UserTokenFormatterService.formatNamespaces;
+    $scope.formatRateLimit = UserTokenFormatterService.formatRateLimit;
 
     init();
 
@@ -110,78 +110,4 @@ function AdminUserTokenController($scope, $translate, toastr, AppUtil, Permissio
         });
     }
 
-    function tokenStatus(token) {
-        if (!token) {
-            return '';
-        }
-        if (token.status) {
-            return token.status;
-        }
-        if (token.revokedAt) {
-            return 'revoked';
-        }
-        if (token.expires && new Date(token.expires).getTime() <= new Date().getTime()) {
-            return 'expired';
-        }
-        return 'active';
-    }
-
-    function statusLabel(token) {
-        var status = tokenStatus(token);
-        if (status === 'revoked') {
-            return $translate.instant('UserToken.RevokedStatus');
-        }
-        if (status === 'expired') {
-            return $translate.instant('UserToken.ExpiredStatus');
-        }
-        return $translate.instant('UserToken.Active');
-    }
-
-    function statusClass(token) {
-        var status = tokenStatus(token);
-        if (status === 'revoked') {
-            return 'label-default';
-        }
-        if (status === 'expired') {
-            return 'label-warning';
-        }
-        return 'label-primary';
-    }
-
-    function formatOperations(token) {
-        if (!token.operations || token.operations.length === 0) {
-            return $translate.instant('UserToken.AllCurrentPermissions');
-        }
-        return token.operations.join(', ');
-    }
-
-    function formatStringList(items) {
-        if (!items || items.length === 0) {
-            return $translate.instant('UserToken.All');
-        }
-        return items.join(', ');
-    }
-
-    function formatNamespaces(token) {
-        var namespaces = token && token.namespaces;
-        if (!namespaces || namespaces.length === 0) {
-            return $translate.instant('UserToken.All');
-        }
-        return namespaces.map(function (namespace) {
-            return [
-                namespace.appId || '*',
-                namespace.env || '*',
-                namespace.clusterName || '*',
-                namespace.namespaceName || '*'
-            ].join(', ');
-        }).join('\n');
-    }
-
-    function formatRateLimit(token) {
-        var rateLimit = token && token.rateLimit;
-        if (!rateLimit || rateLimit <= 0) {
-            return $translate.instant('UserToken.Unlimited');
-        }
-        return rateLimit;
-    }
 }

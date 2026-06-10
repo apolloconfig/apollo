@@ -16,10 +16,15 @@
  */
 package com.ctrip.framework.apollo.portal.entity.vo.usertoken;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * User token details returned to portal token management pages.
+ */
 public class UserTokenInfo {
 
   private long id;
@@ -90,35 +95,35 @@ public class UserTokenInfo {
   }
 
   public Set<String> getOperations() {
-    return operations;
+    return operations == null ? null : new HashSet<>(operations);
   }
 
   public void setOperations(Set<String> operations) {
-    this.operations = operations;
+    this.operations = operations == null ? null : new HashSet<>(operations);
   }
 
   public Set<String> getAppIds() {
-    return appIds;
+    return appIds == null ? null : new HashSet<>(appIds);
   }
 
   public void setAppIds(Set<String> appIds) {
-    this.appIds = appIds;
+    this.appIds = appIds == null ? null : new HashSet<>(appIds);
   }
 
   public Set<String> getEnvs() {
-    return envs;
+    return envs == null ? null : new HashSet<>(envs);
   }
 
   public void setEnvs(Set<String> envs) {
-    this.envs = envs;
+    this.envs = envs == null ? null : new HashSet<>(envs);
   }
 
   public List<UserTokenNamespaceScope> getNamespaces() {
-    return namespaces;
+    return namespaces == null ? null : new ArrayList<>(namespaces);
   }
 
   public void setNamespaces(List<UserTokenNamespaceScope> namespaces) {
-    this.namespaces = namespaces;
+    this.namespaces = namespaces == null ? null : new ArrayList<>(namespaces);
   }
 
   public Integer getRateLimit() {
@@ -130,19 +135,19 @@ public class UserTokenInfo {
   }
 
   public Date getExpires() {
-    return expires;
+    return expires == null ? null : new Date(expires.getTime());
   }
 
   public void setExpires(Date expires) {
-    this.expires = expires;
+    this.expires = expires == null ? null : new Date(expires.getTime());
   }
 
   public Date getLastUsedTime() {
-    return lastUsedTime;
+    return lastUsedTime == null ? null : new Date(lastUsedTime.getTime());
   }
 
   public void setLastUsedTime(Date lastUsedTime) {
-    this.lastUsedTime = lastUsedTime;
+    this.lastUsedTime = lastUsedTime == null ? null : new Date(lastUsedTime.getTime());
   }
 
   public String getLastUsedIp() {
@@ -162,11 +167,11 @@ public class UserTokenInfo {
   }
 
   public Date getRevokedAt() {
-    return revokedAt;
+    return revokedAt == null ? null : new Date(revokedAt.getTime());
   }
 
   public void setRevokedAt(Date revokedAt) {
-    this.revokedAt = revokedAt;
+    this.revokedAt = revokedAt == null ? null : new Date(revokedAt.getTime());
   }
 
   public String getRevokedBy() {
@@ -178,10 +183,11 @@ public class UserTokenInfo {
   }
 
   public Date getDataChangeCreatedTime() {
-    return dataChangeCreatedTime;
+    return dataChangeCreatedTime == null ? null : new Date(dataChangeCreatedTime.getTime());
   }
 
   public void setDataChangeCreatedTime(Date dataChangeCreatedTime) {
-    this.dataChangeCreatedTime = dataChangeCreatedTime;
+    this.dataChangeCreatedTime =
+        dataChangeCreatedTime == null ? null : new Date(dataChangeCreatedTime.getTime());
   }
 }

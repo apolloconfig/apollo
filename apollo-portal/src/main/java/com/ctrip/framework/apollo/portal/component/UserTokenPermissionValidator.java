@@ -27,6 +27,9 @@ import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
+/**
+ * Permission validator combining portal user permissions with user token scope restrictions.
+ */
 @Component("userTokenPermissionValidator")
 public class UserTokenPermissionValidator implements PermissionValidator {
 

@@ -19,5 +19,8 @@ package com.ctrip.framework.apollo.portal.repository;
 import com.ctrip.framework.apollo.portal.entity.po.UserTokenAudit;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+/**
+ * Repository for user token audit records.
+ */
 public interface UserTokenAuditRepository extends JpaRepository<UserTokenAudit, Long> {
 }

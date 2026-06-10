@@ -37,7 +37,7 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="{{pageSetting.wikiAddress}}" target="_blank">
+                    <a href="{{pageSetting.wikiAddress}}" target="_blank" rel="noopener noreferrer">
                         <span class="glyphicon glyphicon-question-sign"></span> {{'Common.Nav.Help' | translate }}
                     </a>
                 </li>
@@ -58,16 +58,16 @@
                         <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.AdminTools' | translate }}
                     <span class="caret"></span></a>
                     <ul class="dropdown-menu" >
-                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
-                        <li><a ng-href="{{ '/user-token-admin.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserTokenAdmin' | translate }}</a></li>
-                        <li><a href="{{ '/system-role-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemRoleManage' | translate }}</a></li>
-                        <li><a href="{{ '/open/manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.OpenMange' | translate }}</a></li>
-                        <li><a href="{{ '/server_config_manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemConfig' | translate }}</a></li>
-                        <li><a href="{{ '/delete_app_cluster_namespace.html' | prefixPath }}" target="_blank">{{'Common.Nav.DeleteApp-Cluster-Namespace' | translate }}</a></li>
-                        <li><a href="{{ '/system_info.html' | prefixPath }}" target="_blank">{{'Common.Nav.SystemInfo' | translate }}</a></li>
-                        <li><a href="{{ '/config_export.html' | prefixPath }}" target="_blank">{{'Common.Nav.ConfigExport' | translate }}</a></li>
-                        <li><a href="{{ '/audit_log_menu.html' | prefixPath }}" target="_blank">{{'ApolloAuditLog.Title' | translate }}</a></li>
-                        <li><a href="{{ '/global_search_value.html' | prefixPath }}" target="_blank">{{'Global.Title' | translate }}</a></li>
+                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.UserManage' | translate }}</a></li>
+                        <li><a ng-href="{{ '/user-token-admin.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.UserTokenAdmin' | translate }}</a></li>
+                        <li><a href="{{ '/system-role-manage.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.SystemRoleManage' | translate }}</a></li>
+                        <li><a href="{{ '/open/manage.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.OpenMange' | translate }}</a></li>
+                        <li><a href="{{ '/server_config_manage.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.SystemConfig' | translate }}</a></li>
+                        <li><a href="{{ '/delete_app_cluster_namespace.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.DeleteApp-Cluster-Namespace' | translate }}</a></li>
+                        <li><a href="{{ '/system_info.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.SystemInfo' | translate }}</a></li>
+                        <li><a href="{{ '/config_export.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.ConfigExport' | translate }}</a></li>
+                        <li><a href="{{ '/audit_log_menu.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'ApolloAuditLog.Title' | translate }}</a></li>
+                        <li><a href="{{ '/global_search_value.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Global.Title' | translate }}</a></li>
                     </ul>
                 </li>
 
@@ -77,8 +77,8 @@
                         <span class="glyphicon glyphicon-cog"></span>&nbsp;{{'Common.Nav.NonAdminTools' | translate }}
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu" >
-                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserManage' | translate }}</a></li>
-                        <li><a ng-href="{{ '/config_export.html' | prefixPath }}" target="_blank">{{'Common.Nav.ConfigExport' | translate }}</a></li>
+                        <li><a ng-href="{{ '/user-manage.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.UserManage' | translate }}</a></li>
+                        <li><a ng-href="{{ '/config_export.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.ConfigExport' | translate }}</a></li>
                     </ul>
                 </li>
 
@@ -87,7 +87,7 @@
                         <span class="glyphicon glyphicon-user"></span>&nbsp;{{userDisplayName}}({{userName}})
                         <span class="caret"></span></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ '/user-token.html' | prefixPath }}" target="_blank">{{'Common.Nav.UserToken' | translate }}</a></li>
+                        <li><a href="{{ '/user-token.html' | prefixPath }}" target="_blank" rel="noopener noreferrer">{{'Common.Nav.UserToken' | translate }}</a></li>
                         <li><a href="{{ '/user/logout' | prefixPath }}">{{'Common.Nav.Logout' | translate }}</a></li>
                     </ul>
                 </li>

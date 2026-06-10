@@ -162,16 +162,15 @@
                             <td>{{token.expires | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                             <td>{{token.lastUsedTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                             <td>
-                                <span class="label label-primary" ng-show="!token.revokedAt">{{'UserToken.Active' | translate }}</span>
-                                <span class="label label-default" ng-show="token.revokedAt">{{'UserToken.RevokedStatus' | translate }}</span>
+                                <span class="label" ng-class="statusClass(token)">{{statusLabel(token)}}</span>
                             </td>
                             <td>
                                 <button type="button" class="btn btn-default btn-xs" ng-click="showTokenDetail(token)">
                                     {{'UserToken.View' | translate }}</button>
                                 <button type="button" class="btn btn-primary btn-xs" ng-click="rotateToken(token)"
-                                        ng-disabled="token.revokedAt">{{'UserToken.Rotate' | translate }}</button>
+                                        ng-disabled="tokenStatus(token) !== 'active'">{{'UserToken.Rotate' | translate }}</button>
                                 <button type="button" class="btn btn-danger btn-xs" ng-click="revokeToken(token)"
-                                        ng-disabled="token.revokedAt">{{'UserToken.Revoke' | translate }}</button>
+                                        ng-disabled="tokenStatus(token) !== 'active'">{{'UserToken.Revoke' | translate }}</button>
                                 <button type="button" class="btn btn-default btn-xs" ng-click="deleteToken(token)">
                                     {{'UserToken.Delete' | translate }}</button>
                             </td>
@@ -198,10 +197,8 @@
 
                                     <dt>{{'UserToken.Status' | translate }}</dt>
                                     <dd>
-                                        <span class="label label-primary" ng-show="selectedToken && !selectedToken.revokedAt">
-                                            {{'UserToken.Active' | translate }}</span>
-                                        <span class="label label-default" ng-show="selectedToken.revokedAt">
-                                            {{'UserToken.RevokedStatus' | translate }}</span>
+                                        <span class="label" ng-class="statusClass(selectedToken)">
+                                            {{statusLabel(selectedToken)}}</span>
                                     </dd>
 
                                     <dt>{{'UserToken.Expires' | translate }}</dt>

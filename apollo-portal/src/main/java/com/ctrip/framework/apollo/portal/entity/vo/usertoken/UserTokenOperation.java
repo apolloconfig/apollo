@@ -20,6 +20,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Operation constants used by user token authorization scopes.
+ */
 public final class UserTokenOperation {
 
   public static final String CONFIG_READ = "config:read";

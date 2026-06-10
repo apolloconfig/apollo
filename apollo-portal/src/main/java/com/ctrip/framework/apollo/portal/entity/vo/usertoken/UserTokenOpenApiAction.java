@@ -16,7 +16,7 @@
  */
 package com.ctrip.framework.apollo.portal.entity.vo.usertoken;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,8 +41,8 @@ public class UserTokenOpenApiAction {
     this.id = id;
     this.method = method;
     this.path = path;
-    this.requiredOperations = requiredOperations;
-    this.grantedOperations = Collections.emptyList();
+    this.requiredOperations = copyList(requiredOperations);
+    this.grantedOperations = new ArrayList<>();
     this.operationMatch = operationMatch;
     this.resourceScope = resourceScope;
     this.description = description;
@@ -73,19 +73,19 @@ public class UserTokenOpenApiAction {
   }
 
   public List<String> getRequiredOperations() {
-    return requiredOperations;
+    return copyList(requiredOperations);
   }
 
   public void setRequiredOperations(List<String> requiredOperations) {
-    this.requiredOperations = requiredOperations;
+    this.requiredOperations = copyList(requiredOperations);
   }
 
   public List<String> getGrantedOperations() {
-    return grantedOperations;
+    return copyList(grantedOperations);
   }
 
   public void setGrantedOperations(List<String> grantedOperations) {
-    this.grantedOperations = grantedOperations;
+    this.grantedOperations = copyList(grantedOperations);
   }
 
   public String getOperationMatch() {
@@ -110,5 +110,9 @@ public class UserTokenOpenApiAction {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  private static List<String> copyList(List<String> values) {
+    return values == null ? new ArrayList<>() : new ArrayList<>(values);
   }
 }

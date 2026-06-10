@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.controller;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenCapability;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenCreateRequest;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenInfo;
@@ -36,6 +37,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for portal user access token management.
+ */
 @RestController
 @RequestMapping("/user-tokens")
 public class UserTokenController {
@@ -118,6 +122,10 @@ public class UserTokenController {
     if (!UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
       throw new AccessDeniedException("Portal user session is required");
     }
-    return userInfoHolder.getUser().getUserId();
+    UserInfo user = userInfoHolder.getUser();
+    if (user == null || user.getUserId() == null) {
+      throw new AccessDeniedException("Portal user session is required");
+    }
+    return user.getUserId();
   }
 }

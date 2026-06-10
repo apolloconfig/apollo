@@ -25,32 +25,36 @@ import com.ctrip.framework.apollo.openapi.api.NamespaceLockManagementApi;
 import com.ctrip.framework.apollo.openapi.api.NamespaceManagementApi;
 import com.ctrip.framework.apollo.openapi.api.PermissionManagementApi;
 import com.ctrip.framework.apollo.openapi.api.ReleaseManagementApi;
+import com.ctrip.framework.apollo.openapi.api.UserTokenManagementApi;
 import com.ctrip.framework.apollo.openapi.api.UserManagementApi;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenCurrentCapability;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenNamespaceScope;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenOpenApiAction;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.po.UserToken;
-import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenCurrentCapability;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOpenApiAction;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * OpenAPI endpoint exposing the current user token identity and scopes.
  */
 @RestController("openapiUserTokenController")
-@RequestMapping("/openapi/v1/user-tokens")
-public class UserTokenOpenApiController {
+public class UserTokenOpenApiController implements UserTokenManagementApi {
 
   private static final String HTTP_GET = "GET";
   private static final String HTTP_POST = "POST";
@@ -284,31 +288,47 @@ public class UserTokenOpenApiController {
     this.userTokenAuthUtil = userTokenAuthUtil;
   }
 
-  @GetMapping({"/current", "/current/capabilities", "/whoami"})
-  public ResponseEntity<UserTokenCurrentCapability> current() {
+  @Override
+  public ResponseEntity<OpenUserTokenCurrentCapability> getCurrentUserToken() {
+    return current();
+  }
+
+  @Override
+  public ResponseEntity<OpenUserTokenCurrentCapability> getCurrentUserTokenCapabilities() {
+    return current();
+  }
+
+  @Override
+  public ResponseEntity<OpenUserTokenCurrentCapability> getCurrentUserTokenWhoami() {
+    return current();
+  }
+
+  private ResponseEntity<OpenUserTokenCurrentCapability> current() {
     UserToken userToken = requireUserToken();
     UserTokenScope scope = userTokenService.parseScope(userToken);
 
-    UserTokenCurrentCapability capability = new UserTokenCurrentCapability();
+    OpenUserTokenCurrentCapability capability = new OpenUserTokenCurrentCapability();
     capability.setAuthType(UserIdentityConstants.USER_TOKEN);
     capability.setUserId(userToken.getUserId());
     capability.setTokenId(userToken.getId());
     capability.setTokenName(userToken.getName());
     capability.setTokenPrefix(userToken.getTokenPrefix());
     capability.setRateLimit(userToken.getRateLimit());
-    capability.setExpires(userToken.getExpires());
-    capability.setLastUsedTime(userToken.getLastUsedTime());
-    capability.setDataChangeCreatedTime(userToken.getDataChangeCreatedTime());
+    capability.setExpires(toOffsetDateTime(userToken.getExpires()));
+    capability.setLastUsedTime(toOffsetDateTime(userToken.getLastUsedTime()));
+    capability.setDataChangeCreatedTime(toOffsetDateTime(userToken.getDataChangeCreatedTime()));
     capability.setDenyAll(scope.isDenyAll());
-    capability.setOperations(scope.getOperations());
+    capability.setOperations(new LinkedHashSet<>(scope.getOperations()));
     capability.setAllOperations(!scope.isDenyAll() && scope.getOperations().isEmpty());
-    capability.setAppIds(scope.getAppIds());
+    capability.setAppIds(new LinkedHashSet<>(scope.getAppIds()));
     capability.setAllApps(!scope.isDenyAll() && scope.getAppIds().isEmpty());
-    capability.setEnvs(scope.getEnvs());
+    capability.setEnvs(new LinkedHashSet<>(scope.getEnvs()));
     capability.setAllEnvs(!scope.isDenyAll() && scope.getEnvs().isEmpty());
-    capability.setNamespaces(scope.getNamespaces());
+    capability.setNamespaces(scope.getNamespaces().stream()
+        .map(UserTokenOpenApiController::toOpenNamespaceScope).collect(Collectors.toList()));
     capability.setAllNamespaces(!scope.isDenyAll() && scope.getNamespaces().isEmpty());
-    capability.setActions(actionsFor(scope));
+    capability.setActions(actionsFor(scope).stream().map(UserTokenOpenApiController::toOpenAction)
+        .collect(Collectors.toList()));
     return ResponseEntity.ok(capability);
   }
 
@@ -370,5 +390,35 @@ public class UserTokenOpenApiController {
     return new UserTokenOpenApiAction(id, method, path, safeRequiredOperations,
         safeRequiredOperations.isEmpty() ? OPERATION_MATCH_NONE : OPERATION_MATCH_ANY,
         resourceScope, description);
+  }
+
+  private static OpenUserTokenNamespaceScope toOpenNamespaceScope(
+      com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenNamespaceScope scope) {
+    OpenUserTokenNamespaceScope result = new OpenUserTokenNamespaceScope();
+    result.setAppId(scope.getAppId());
+    result.setEnv(scope.getEnv());
+    result.setClusterName(scope.getClusterName());
+    result.setNamespaceName(scope.getNamespaceName());
+    return result;
+  }
+
+  private static OpenUserTokenOpenApiAction toOpenAction(UserTokenOpenApiAction action) {
+    OpenUserTokenOpenApiAction result = new OpenUserTokenOpenApiAction();
+    result.setId(action.getId());
+    result.setMethod(action.getMethod());
+    result.setPath(action.getPath());
+    result.setRequiredOperations(action.getRequiredOperations());
+    result.setGrantedOperations(action.getGrantedOperations());
+    result.setOperationMatch(action.getOperationMatch());
+    result.setResourceScope(action.getResourceScope());
+    result.setDescription(action.getDescription());
+    return result;
+  }
+
+  private static OffsetDateTime toOffsetDateTime(Date date) {
+    if (date == null) {
+      return null;
+    }
+    return OffsetDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
   }
 }

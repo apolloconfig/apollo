@@ -16,6 +16,9 @@
  */
 package com.ctrip.framework.apollo.portal.entity.vo.usertoken;
 
+/**
+ * Namespace scope a user token is authorized to access.
+ */
 public class UserTokenNamespaceScope {
 
   private String appId;

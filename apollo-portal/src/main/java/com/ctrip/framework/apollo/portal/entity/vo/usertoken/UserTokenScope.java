@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Scope constraints that limit which OpenAPI operations and resources a user token may access.
+ */
 public class UserTokenScope {
 
   private Set<String> operations;

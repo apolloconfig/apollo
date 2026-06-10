@@ -16,9 +16,10 @@
  */
 user_token_module.controller('UserTokenController',
     ['$scope', '$translate', 'toastr', 'AppUtil', 'UserTokenService', 'EnvService', 'AppService',
-        UserTokenController]);
+        'UserTokenFormatterService', UserTokenController]);
 
-function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenService, EnvService, AppService) {
+function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenService, EnvService,
+                             AppService, UserTokenFormatterService) {
     $scope.tokens = [];
     $scope.capabilities = {};
     $scope.envs = [];
@@ -44,10 +45,13 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
     $scope.removeAllApps = removeAllApps;
     $scope.isAppSelected = isAppSelected;
     $scope.appLabel = appLabel;
-    $scope.formatOperations = formatOperations;
-    $scope.formatStringList = formatStringList;
-    $scope.formatNamespaces = formatNamespaces;
-    $scope.formatRateLimit = formatRateLimit;
+    $scope.tokenStatus = UserTokenFormatterService.tokenStatus;
+    $scope.statusLabel = UserTokenFormatterService.statusLabel;
+    $scope.statusClass = UserTokenFormatterService.statusClass;
+    $scope.formatOperations = UserTokenFormatterService.formatOperations;
+    $scope.formatStringList = UserTokenFormatterService.formatStringList;
+    $scope.formatNamespaces = UserTokenFormatterService.formatNamespaces;
+    $scope.formatRateLimit = UserTokenFormatterService.formatRateLimit;
 
     init();
 
@@ -194,8 +198,8 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
         if (expires instanceof Date) {
             date = new Date(expires.getFullYear(), expires.getMonth(), expires.getDate());
         } else if (typeof expires === 'string') {
-            var parts = expires.split('-');
-            if (parts.length === 3) {
+            if (/^\d{4}-\d{2}-\d{2}$/.test(expires)) {
+                var parts = expires.split('-');
                 date = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
             } else {
                 date = new Date(expires);
@@ -319,40 +323,4 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
         });
     }
 
-    function formatOperations(token) {
-        if (!token.operations || token.operations.length === 0) {
-            return $translate.instant('UserToken.AllCurrentPermissions');
-        }
-        return token.operations.join(', ');
-    }
-
-    function formatStringList(items) {
-        if (!items || items.length === 0) {
-            return $translate.instant('UserToken.All');
-        }
-        return items.join(', ');
-    }
-
-    function formatNamespaces(token) {
-        var namespaces = token && token.namespaces;
-        if (!namespaces || namespaces.length === 0) {
-            return $translate.instant('UserToken.All');
-        }
-        return namespaces.map(function (namespace) {
-            return [
-                namespace.appId || '*',
-                namespace.env || '*',
-                namespace.clusterName || '*',
-                namespace.namespaceName || '*'
-            ].join(', ');
-        }).join('\n');
-    }
-
-    function formatRateLimit(token) {
-        var rateLimit = token && token.rateLimit;
-        if (!rateLimit || rateLimit <= 0) {
-            return $translate.instant('UserToken.Unlimited');
-        }
-        return rateLimit;
-    }
 }

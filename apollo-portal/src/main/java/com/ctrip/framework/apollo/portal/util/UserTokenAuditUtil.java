@@ -31,10 +31,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import jakarta.annotation.PreDestroy;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
+/**
+ * Asynchronously records audit rows for mutating OpenAPI requests made with user tokens.
+ */
 @Service
 public class UserTokenAuditUtil implements InitializingBean {
 
@@ -86,7 +90,7 @@ public class UserTokenAuditUtil implements InitializingBean {
         try {
           Queues.drain(audits, toAudit, BATCH_SIZE, BATCH_TIMEOUT, BATCH_TIMEUNIT);
           if (!toAudit.isEmpty()) {
-            userTokenService.createUserTokenAudits(toAudit);
+            saveAudits(toAudit);
           }
         } catch (Throwable ex) {
           Tracer.logError(ex);
@@ -95,7 +99,34 @@ public class UserTokenAuditUtil implements InitializingBean {
     });
   }
 
+  @PreDestroy
   public void stopAudit() {
     auditStopped.set(true);
+    auditExecutorService.shutdown();
+    try {
+      if (!auditExecutorService.awaitTermination(BATCH_TIMEOUT, BATCH_TIMEUNIT)) {
+        auditExecutorService.shutdownNow();
+      }
+    } catch (InterruptedException e) {
+      auditExecutorService.shutdownNow();
+      Thread.currentThread().interrupt();
+    }
+    flushRemainingAudits();
+  }
+
+  private void flushRemainingAudits() {
+    List<UserTokenAudit> toAudit = Lists.newArrayList();
+    audits.drainTo(toAudit);
+    if (!toAudit.isEmpty()) {
+      saveAudits(toAudit);
+    }
+  }
+
+  private void saveAudits(List<UserTokenAudit> toAudit) {
+    try {
+      userTokenService.createUserTokenAudits(toAudit);
+    } catch (Throwable ex) {
+      Tracer.logError(ex);
+    }
   }
 }

@@ -25,6 +25,9 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
+/**
+ * Persistence model for portal-managed user access tokens.
+ */
 @Entity
 @Table(name = "`UserToken`")
 @SQLDelete(

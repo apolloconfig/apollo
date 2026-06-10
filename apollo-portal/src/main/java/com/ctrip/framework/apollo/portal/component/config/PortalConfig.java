@@ -255,12 +255,23 @@ public class PortalConfig extends RefreshableConfig {
     return getValue("consumer.token.salt", "apollo-portal");
   }
 
+  /**
+   * Returns the default expiration period for user tokens in days.
+   *
+   * <p>The configured value is clamped to the range from 1 day to
+   * {@link #userTokenMaxExpireDays()}.</p>
+   */
   public int userTokenDefaultExpireDays() {
     int maxExpireDays = userTokenMaxExpireDays();
     return checkInt(getIntProperty("user.token.defaultExpireDays", DEFAULT_USER_TOKEN_EXPIRE_DAYS),
         1, maxExpireDays, Math.min(DEFAULT_USER_TOKEN_EXPIRE_DAYS, maxExpireDays));
   }
 
+  /**
+   * Returns the maximum allowed expiration period for user tokens in days.
+   *
+   * <p>The configured value is bounded to at least 1 day.</p>
+   */
   public int userTokenMaxExpireDays() {
     return checkInt(getIntProperty("user.token.maxExpireDays", DEFAULT_USER_TOKEN_MAX_EXPIRE_DAYS),
         1, Integer.MAX_VALUE, DEFAULT_USER_TOKEN_MAX_EXPIRE_DAYS);

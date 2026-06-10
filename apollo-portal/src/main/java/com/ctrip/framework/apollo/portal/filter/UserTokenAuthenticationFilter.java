@@ -32,7 +32,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -40,6 +39,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * Authenticates OpenAPI requests carrying portal-managed user access tokens.
+ */
 public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(UserTokenAuthenticationFilter.class);
@@ -47,13 +49,11 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
   private static final String OPEN_API_PREFIX = "/openapi/";
   private static final String BEARER_PREFIX = "Bearer ";
   private static final String USER_ROLE = "ROLE_user";
-  private static final int WARMUP_MILLIS = 1000;
   private static final int RATE_LIMITER_CACHE_MAX_SIZE = 20000;
   private static final int TOO_MANY_REQUESTS = 429;
 
-  private static final Cache<String, ImmutablePair<Long, RateLimiter>> LIMITER =
-      CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS)
-          .maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
+  private static final Cache<String, RateLimiter> LIMITER = CacheBuilder.newBuilder()
+      .expireAfterAccess(1, TimeUnit.HOURS).maximumSize(RATE_LIMITER_CACHE_MAX_SIZE).build();
 
   private final UserTokenService userTokenService;
   private final UserTokenAuthUtil userTokenAuthUtil;
@@ -94,11 +94,8 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
     Integer rateLimit = userToken.getRateLimit();
     if (rateLimit != null && rateLimit > 0) {
       try {
-        ImmutablePair<Long, RateLimiter> rateLimiterPair =
-            getOrCreateRateLimiterPair(userToken.getTokenPrefix(), rateLimit);
-        long warmupToMillis = rateLimiterPair.getLeft() + WARMUP_MILLIS;
-        if (System.currentTimeMillis() > warmupToMillis
-            && !rateLimiterPair.getRight().tryAcquire()) {
+        RateLimiter rateLimiter = getOrCreateRateLimiter(userToken.getTokenPrefix(), rateLimit);
+        if (!rateLimiter.tryAcquire()) {
           response.sendError(TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
           return;
         }
@@ -111,8 +108,8 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
     userTokenAuthUtil.storeUserToken(request, userToken);
     userTokenAuditUtil.audit(request, userToken);
-    SecurityContextHolder.getContext().setAuthentication(new UserTokenAuthenticationToken(userToken,
-        Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
+    SecurityContextHolder.getContext().setAuthentication(UserTokenAuthenticationToken.authenticated(
+        userToken, Collections.singletonList(new SimpleGrantedAuthority(USER_ROLE))));
     filterChain.doFilter(request, response);
   }
 
@@ -128,11 +125,9 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
     return token;
   }
 
-  private ImmutablePair<Long, RateLimiter> getOrCreateRateLimiterPair(String key,
-      Integer limitCount) {
+  private RateLimiter getOrCreateRateLimiter(String key, Integer limitCount) {
     try {
-      return LIMITER.get(key,
-          () -> ImmutablePair.of(System.currentTimeMillis(), RateLimiter.create(limitCount)));
+      return LIMITER.get(key, () -> RateLimiter.create(limitCount));
     } catch (ExecutionException e) {
       throw new RuntimeException("Failed to create rate limiter", e);
     }

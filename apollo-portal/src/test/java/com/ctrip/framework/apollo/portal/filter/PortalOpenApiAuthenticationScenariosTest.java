@@ -41,9 +41,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -69,12 +69,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-@RunWith(org.springframework.test.context.junit4.SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = PortalOpenApiAuthenticationScenariosTest.TestApplication.class)
 @AutoConfigureMockMvc
 // Restrict helper beans (controllers + security config) to a synthetic profile so other tests
@@ -171,7 +172,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
   @MockitoBean
   private UserTokenAuditUtil userTokenAuditUtil;
 
-  @After
+  @AfterEach
   public void tearDown() {
     reset(consumerAuthUtil, consumerAuditUtil, userTokenService, userTokenAuditUtil);
   }
@@ -285,6 +286,7 @@ public class PortalOpenApiAuthenticationScenariosTest {
     FilterChain chain = new MockFilterChain();
 
     oidcFilter.doFilter(request, response, chain);
-    org.junit.Assert.assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    org.junit.jupiter.api.Assertions.assertEquals(HttpServletResponse.SC_UNAUTHORIZED,
+        response.getStatus());
   }
 }

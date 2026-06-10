@@ -56,6 +56,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
 
+/**
+ * Unit tests for user token lifecycle, validation, and authentication behavior.
+ */
 @ExtendWith(MockitoExtension.class)
 class UserTokenServiceTest {
 

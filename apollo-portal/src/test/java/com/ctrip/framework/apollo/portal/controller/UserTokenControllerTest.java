@@ -39,6 +39,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+/**
+ * Unit tests for portal user token management endpoints.
+ */
 @ExtendWith(MockitoExtension.class)
 class UserTokenControllerTest {
 
@@ -95,6 +98,13 @@ class UserTokenControllerTest {
   @Test
   void adminListRejectsNonPortalUserSession() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+
+    assertThrows(AccessDeniedException.class, () -> controller.adminList(null, "all"));
+  }
+
+  @Test
+  void adminListRejectsMissingPortalUserContext() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
 
     assertThrows(AccessDeniedException.class, () -> controller.adminList(null, "all"));
   }

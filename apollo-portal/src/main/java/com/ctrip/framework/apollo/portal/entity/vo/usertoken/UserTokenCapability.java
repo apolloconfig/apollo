@@ -18,6 +18,9 @@ package com.ctrip.framework.apollo.portal.entity.vo.usertoken;
 
 import java.util.List;
 
+/**
+ * Describes user token creation capabilities available to the current portal user.
+ */
 public class UserTokenCapability {
 
   private List<String> operations;

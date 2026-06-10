@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.ldap.LdapName;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,6 +90,12 @@ public class LdapUserService implements UserService {
   private String emailAttrName;
 
   /**
+   * Optional account status attribute. Missing or unmapped values keep users enabled.
+   */
+  @Value("${ldap.mapping.accountStatus:}")
+  private String accountStatusAttrName;
+
+  /**
    * rdn
    */
   @Value("${ldap.mapping.rdnKey:}")
@@ -121,6 +128,8 @@ public class LdapUserService implements UserService {
   private static final String MEMBER_OF_ATTR_NAME = "memberOf";
   private static final String MEMBER_UID_ATTR_NAME = "memberUid";
   private static final int ENABLED = 1;
+  private static final int DISABLED = 0;
+  private static final int USER_ACCOUNT_CONTROL_DISABLED = 0x2;
 
   public LdapUserService(final LdapTemplate ldapTemplate) {
     this.ldapTemplate = ldapTemplate;
@@ -135,7 +144,7 @@ public class LdapUserService implements UserService {
     userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
     userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
     userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
-    userInfo.setEnabled(ENABLED);
+    userInfo.setEnabled(resolveEnabled(contextAdapter));
     return userInfo;
   };
 
@@ -175,7 +184,7 @@ public class LdapUserService implements UserService {
       if (userDisplayNameAttribute != null && userDisplayNameAttribute.get() != null) {
         tmp.setName(userDisplayNameAttribute.get().toString());
       }
-      tmp.setEnabled(ENABLED);
+      tmp.setEnabled(resolveEnabled(attributes));
 
       if (userIds != null) {
         if (userIds.stream().anyMatch(c -> c.equals(tmp.getUserId()))) {
@@ -196,7 +205,7 @@ public class LdapUserService implements UserService {
         userInfo.setEmail(contextAdapter.getStringAttribute(emailAttrName));
         userInfo.setName(contextAdapter.getStringAttribute(userDisplayNameAttrName));
         userInfo.setUserId(contextAdapter.getStringAttribute(loginIdAttrName));
-        userInfo.setEnabled(ENABLED);
+        userInfo.setEnabled(resolveEnabled(contextAdapter));
         return userInfo;
       });
     } catch (EmptyResultDataAccessException ex) {
@@ -316,6 +325,51 @@ public class LdapUserService implements UserService {
     ContainerCriteria criteria = query().where(loginIdAttrName).is(userIds.get(0));
     userIds.stream().skip(1).forEach(userId -> criteria.or(loginIdAttrName).is(userId));
     return ldapTemplate.search(ldapQueryCriteria().and(criteria), ldapUserInfoMapper);
+  }
+
+  private int resolveEnabled(DirContextAdapter contextAdapter) {
+    if (Strings.isNullOrEmpty(accountStatusAttrName)) {
+      return ENABLED;
+    }
+    return resolveEnabled(contextAdapter.getStringAttribute(accountStatusAttrName));
+  }
+
+  private int resolveEnabled(Attributes attributes) throws javax.naming.NamingException {
+    if (Strings.isNullOrEmpty(accountStatusAttrName)) {
+      return ENABLED;
+    }
+    Attribute accountStatusAttribute = attributes.get(accountStatusAttrName);
+    if (accountStatusAttribute == null || accountStatusAttribute.get() == null) {
+      return ENABLED;
+    }
+    return resolveEnabled(accountStatusAttribute.get().toString());
+  }
+
+  private int resolveEnabled(String accountStatus) {
+    if (Strings.isNullOrEmpty(accountStatus)) {
+      return ENABLED;
+    }
+    String normalizedStatus = accountStatus.trim().toLowerCase();
+    if (Strings.isNullOrEmpty(normalizedStatus)) {
+      return ENABLED;
+    }
+    if ("useraccountcontrol".equalsIgnoreCase(accountStatusAttrName)) {
+      try {
+        int userAccountControl = Integer.parseInt(normalizedStatus);
+        return (userAccountControl & USER_ACCOUNT_CONTROL_DISABLED) == 0 ? ENABLED : DISABLED;
+      } catch (NumberFormatException ignored) {
+        return ENABLED;
+      }
+    }
+    if ("0".equals(normalizedStatus) || "false".equals(normalizedStatus)
+        || "no".equals(normalizedStatus) || "disabled".equals(normalizedStatus)
+        || "disable".equals(normalizedStatus) || "inactive".equals(normalizedStatus)
+        || "locked".equals(normalizedStatus) || "lock".equals(normalizedStatus)
+        || ("true".equals(normalizedStatus)
+            && "nsaccountlock".equalsIgnoreCase(accountStatusAttrName))) {
+      return DISABLED;
+    }
+    return ENABLED;
   }
 
 }

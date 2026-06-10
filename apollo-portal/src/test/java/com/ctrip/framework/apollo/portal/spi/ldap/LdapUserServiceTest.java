@@ -48,6 +48,7 @@ class LdapUserServiceTest {
     ReflectionTestUtils.setField(ldapUserService, "loginIdAttrName", "uid");
     ReflectionTestUtils.setField(ldapUserService, "userDisplayNameAttrName", "cn");
     ReflectionTestUtils.setField(ldapUserService, "emailAttrName", "mail");
+    ReflectionTestUtils.setField(ldapUserService, "accountStatusAttrName", "");
     ReflectionTestUtils.setField(ldapUserService, "memberOf", new String[] {});
     ReflectionTestUtils.setField(ldapUserService, "groupSearch", "");
   }
@@ -69,5 +70,47 @@ class LdapUserServiceTest {
     assertNotNull(userInfo);
     assertEquals("apollo", userInfo.getUserId());
     assertEquals(1, userInfo.getEnabled());
+  }
+
+  @Test
+  void findByUserIdMapsNsAccountLockToDisabledUser() {
+    ReflectionTestUtils.setField(ldapUserService, "accountStatusAttrName", "nsAccountLock");
+    when(ldapTemplate.searchForObject(any(LdapQuery.class), any(ContextMapper.class)))
+        .thenAnswer(invocation -> {
+          ContextMapper<UserInfo> mapper = invocation.getArgument(1);
+          DirContextAdapter context = userContext();
+          context.setAttributeValue("nsAccountLock", "true");
+          return mapper.mapFromContext(context);
+        });
+
+    UserInfo userInfo = ldapUserService.findByUserId("apollo");
+
+    assertNotNull(userInfo);
+    assertEquals(0, userInfo.getEnabled());
+  }
+
+  @Test
+  void findByUserIdMapsActiveDirectoryDisabledFlag() {
+    ReflectionTestUtils.setField(ldapUserService, "accountStatusAttrName", "userAccountControl");
+    when(ldapTemplate.searchForObject(any(LdapQuery.class), any(ContextMapper.class)))
+        .thenAnswer(invocation -> {
+          ContextMapper<UserInfo> mapper = invocation.getArgument(1);
+          DirContextAdapter context = userContext();
+          context.setAttributeValue("userAccountControl", "514");
+          return mapper.mapFromContext(context);
+        });
+
+    UserInfo userInfo = ldapUserService.findByUserId("apollo");
+
+    assertNotNull(userInfo);
+    assertEquals(0, userInfo.getEnabled());
+  }
+
+  private DirContextAdapter userContext() {
+    DirContextAdapter context = new DirContextAdapter();
+    context.setAttributeValue("uid", "apollo");
+    context.setAttributeValue("cn", "Apollo");
+    context.setAttributeValue("mail", "apollo@example.com");
+    return context;
   }
 }

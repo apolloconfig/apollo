@@ -184,7 +184,7 @@ CREATE TABLE `UserToken` (
   `Name` varchar(128) NOT NULL DEFAULT '' COMMENT 'token名称',
   `TokenPrefix` varchar(32) NOT NULL DEFAULT '' COMMENT 'token前缀',
   `TokenHash` varchar(128) NOT NULL DEFAULT '' COMMENT 'token哈希',
-  `Scopes` varchar(4096) DEFAULT NULL COMMENT 'token权限范围',
+  `Scopes` varchar(4096) DEFAULT NULL COMMENT 'token权限范围JSON，字段: operations/appIds/envs/namespaces',
   `RateLimit` int NOT NULL DEFAULT '0' COMMENT '限流值',
   `Expires` datetime NOT NULL COMMENT 'token失效时间',
   `LastUsedTime` datetime DEFAULT NULL COMMENT '最后使用时间',
@@ -201,6 +201,7 @@ CREATE TABLE `UserToken` (
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UserToken_UK_TokenPrefix_DeletedAt` (`TokenPrefix`,`DeletedAt`),
   KEY `UserToken_IX_UserId` (`UserId`),
+  KEY `UserToken_IX_TokenHash` (`TokenHash`),
   KEY `UserToken_IX_DataChange_LastTime` (`DataChange_LastTime`)
 )   COMMENT='用户访问token表';
 
@@ -220,7 +221,8 @@ CREATE TABLE `UserTokenAudit` (
   PRIMARY KEY (`Id`),
   KEY `UserTokenAudit_IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `UserTokenAudit_IX_TokenId` (`TokenId`),
-  KEY `UserTokenAudit_IX_UserId` (`UserId`)
+  KEY `UserTokenAudit_IX_UserId` (`UserId`),
+  CONSTRAINT `UserTokenAudit_FK_TokenId` FOREIGN KEY (`TokenId`) REFERENCES `UserToken` (`Id`) ON DELETE SET NULL
 )   COMMENT='用户访问token审计表';
 
 -- Dump of table favorite

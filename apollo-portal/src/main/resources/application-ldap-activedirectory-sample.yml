@@ -29,5 +29,6 @@ ldap:
     login-id: "sAMAccountName" # ldap 用户惟一 id，用来作为登录的 id
     user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "userPrincipalName" # ldap 邮箱属性
+#    account-status: "userAccountControl" # 可选项，用于映射账号禁用状态，未配置时默认用户启用
 #  filter: # 可选项，配置过滤，目前只支持 memberOf
 #    memberOf: "CN=ServiceDEV,OU=test,DC=example,DC=com|CN=WebDEV,OU=test,DC=example,DC=com" # 只允许 memberOf 属性为 ServiceDEV 和 WebDEV 的用户访问

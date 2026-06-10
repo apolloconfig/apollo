@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+/**
+ * Repository for portal-managed user access tokens.
+ */
 public interface UserTokenRepository extends JpaRepository<UserToken, Long> {
 
   List<UserToken> findAllByOrderByDataChangeCreatedTimeDesc();

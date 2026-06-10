@@ -26,6 +26,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
+/**
+ * Audit record for mutating OpenAPI requests authenticated by user access tokens.
+ */
 @Entity
 @Table(name = "`UserTokenAudit`")
 public class UserTokenAudit {
@@ -35,8 +38,8 @@ public class UserTokenAudit {
   @Column(name = "`Id`")
   private long id;
 
-  @Column(name = "`TokenId`", nullable = false)
-  private long tokenId;
+  @Column(name = "`TokenId`")
+  private Long tokenId;
 
   @Column(name = "`UserId`", nullable = false, length = 64)
   private String userId;
@@ -71,11 +74,11 @@ public class UserTokenAudit {
     this.id = id;
   }
 
-  public long getTokenId() {
+  public Long getTokenId() {
     return tokenId;
   }
 
-  public void setTokenId(long tokenId) {
+  public void setTokenId(Long tokenId) {
     this.tokenId = tokenId;
   }
 

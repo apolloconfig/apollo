@@ -30,6 +30,7 @@ ldap:
     rdn-key: "uid" # ldap rdn key，可选项，如需启用group search需要配置
     user-display-name: "cn" # ldap 用户名，用来作为显示名
     email: "mail" # ldap 邮箱属性
+#    account-status: "nsAccountLock" # 可选项，用于映射账号禁用/锁定状态，未配置时默认用户启用
 #  group: # 启用group search，可选配置，启用后只有特定group的用户可以登录apollo
 #    object-class: "posixGroup"  # 配置groupClassName
 #    group-base: "ou=group" # group search base

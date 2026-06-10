@@ -33,12 +33,11 @@ import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
 import com.ctrip.framework.apollo.portal.repository.UserTokenAuditRepository;
 import com.ctrip.framework.apollo.portal.repository.UserTokenRepository;
 import com.ctrip.framework.apollo.portal.spi.UserService;
-import com.google.common.base.Charsets;
 import com.google.common.base.Strings;
-import com.google.common.hash.Hashing;
 import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -53,6 +52,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service for creating, authenticating, rotating, and auditing portal user access tokens.
+ */
 @Service
 public class UserTokenService {
 
@@ -454,9 +456,22 @@ public class UserTokenService {
     return tokenPart;
   }
 
-  @SuppressWarnings("UnstableApiUsage")
   private String hash(String token) {
-    return Hashing.sha256().hashString(token, Charsets.UTF_8).toString();
+    try {
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+      StringBuilder result = new StringBuilder(hash.length * 2);
+      for (byte value : hash) {
+        String hex = Integer.toHexString(0xff & value);
+        if (hex.length() == 1) {
+          result.append('0');
+        }
+        result.append(hex);
+      }
+      return result.toString();
+    } catch (NoSuchAlgorithmException ex) {
+      throw new IllegalStateException("SHA-256 algorithm is not available", ex);
+    }
   }
 
   private boolean secureEquals(String expected, String actual) {
