@@ -1169,14 +1169,22 @@ table th {
     font-weight: 600;
 }
 
+.user-token-transfer-search {
+    margin-bottom: 6px;
+}
+
 .user-token-transfer-select {
     height: 130px !important;
+}
+
+.user-token-transfer-selected-select {
+    height: 170px !important;
 }
 
 .user-token-transfer-actions {
     display: flex;
     flex-direction: column;
-    margin: 22px 10px 0;
+    margin: 62px 10px 0;
 }
 
 .user-token-transfer-actions .btn {

@@ -95,9 +95,12 @@
                             <div class="user-token-transfer-column">
                                 <div class="user-token-transfer-title">
                                     {{'UserToken.AvailableApps' | translate }}</div>
+                                <input type="text" class="form-control user-token-transfer-search"
+                                       ng-model="availableAppSearch"
+                                       placeholder="{{'UserToken.SearchAppPlaceholder' | translate }}">
                                 <select class="form-control user-token-transfer-select" multiple
                                         ng-model="selectedAvailableAppIds">
-                                    <option ng-repeat="app in availableApps" ng-if="!isAppSelected(app)"
+                                    <option ng-repeat="app in availableApps | filter:availableAppFilter"
                                             value="{{app.appId || app.id}}">
                                         {{appLabel(app)}}
                                     </option>
@@ -112,7 +115,7 @@
                                         ng-disabled="!selectedSelectedAppIds.length">&lt;</button>
                                 <button type="button" class="btn btn-default btn-sm"
                                         ng-click="addAllApps()"
-                                        ng-disabled="availableApps.length === selectedApps.length">&gt;&gt;</button>
+                                        ng-disabled="!filteredAvailableAppCount()">&gt;&gt;</button>
                                 <button type="button" class="btn btn-default btn-sm"
                                         ng-click="removeAllApps()"
                                         ng-disabled="!selectedApps.length">&lt;&lt;</button>
@@ -120,7 +123,7 @@
                             <div class="user-token-transfer-column">
                                 <div class="user-token-transfer-title">
                                     {{'UserToken.SelectedApps' | translate }}</div>
-                                <select class="form-control user-token-transfer-select" multiple
+                                <select class="form-control user-token-transfer-select user-token-transfer-selected-select" multiple
                                         ng-model="selectedSelectedAppIds">
                                     <option ng-repeat="app in selectedApps" value="{{app.appId || app.id}}">
                                         {{appLabel(app)}}

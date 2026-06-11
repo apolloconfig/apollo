@@ -996,6 +996,7 @@
   "UserToken.CsvPlaceholder": "英文逗号分隔，留空表示全部",
   "UserToken.EmptyMeansAll": "不选择表示全部",
   "UserToken.AvailableApps": "可选 App",
+  "UserToken.SearchAppPlaceholder": "按 AppId 或名称搜索",
   "UserToken.SelectedApps": "已选 App",
   "UserToken.NamespacesPlaceholder": "每行一个：appId,env,clusterName,namespaceName。空字段或 * 表示全部。",
   "UserToken.Reset": "重置",

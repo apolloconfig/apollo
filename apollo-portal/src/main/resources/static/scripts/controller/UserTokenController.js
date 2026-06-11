@@ -31,6 +31,7 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
     $scope.selectedAvailableAppIds = [];
     $scope.selectedSelectedAppIds = [];
     $scope.selectedToken = {};
+    $scope.availableAppSearch = '';
     $scope.form = {};
 
     $scope.createToken = createToken;
@@ -44,6 +45,8 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
     $scope.addAllApps = addAllApps;
     $scope.removeAllApps = removeAllApps;
     $scope.isAppSelected = isAppSelected;
+    $scope.availableAppFilter = availableAppFilter;
+    $scope.filteredAvailableAppCount = filteredAvailableAppCount;
     $scope.appLabel = appLabel;
     $scope.tokenStatus = UserTokenFormatterService.tokenStatus;
     $scope.statusLabel = UserTokenFormatterService.statusLabel;
@@ -52,6 +55,10 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
     $scope.formatStringList = UserTokenFormatterService.formatStringList;
     $scope.formatNamespaces = UserTokenFormatterService.formatNamespaces;
     $scope.formatRateLimit = UserTokenFormatterService.formatRateLimit;
+
+    $scope.$watch('availableAppSearch', function () {
+        $scope.selectedAvailableAppIds = [];
+    });
 
     init();
 
@@ -102,6 +109,7 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
         $scope.selectedApps = [];
         $scope.selectedAvailableAppIds = [];
         $scope.selectedSelectedAppIds = [];
+        $scope.availableAppSearch = '';
         $scope.operationSelection = {};
         ($scope.capabilities.operations || []).forEach(function (operation) {
             $scope.operationSelection[operation] = true;
@@ -262,7 +270,11 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
     }
 
     function addAllApps() {
-        $scope.selectedApps = $scope.availableApps.slice();
+        filteredAvailableApps().forEach(function (app) {
+            if (!isAppSelected(app)) {
+                $scope.selectedApps.push(app);
+            }
+        });
         $scope.selectedAvailableAppIds = [];
         $scope.selectedSelectedAppIds = [];
     }
@@ -278,6 +290,25 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
         return $scope.selectedApps.some(function (selectedApp) {
             return getAppId(selectedApp) === appId;
         });
+    }
+
+    function availableAppFilter(app) {
+        if (isAppSelected(app)) {
+            return false;
+        }
+        var keyword = ($scope.availableAppSearch || '').toLowerCase();
+        if (!keyword) {
+            return true;
+        }
+        return appLabel(app).toLowerCase().indexOf(keyword) !== -1;
+    }
+
+    function filteredAvailableAppCount() {
+        return filteredAvailableApps().length;
+    }
+
+    function filteredAvailableApps() {
+        return ($scope.availableApps || []).filter(availableAppFilter);
     }
 
     function findAvailableApp(appId) {
@@ -297,7 +328,7 @@ function UserTokenController($scope, $translate, toastr, AppUtil, UserTokenServi
         if (app.name && app.name !== appId) {
             return appId + ' / ' + app.name;
         }
-        return appId;
+        return appId || '';
     }
 
     function getAppId(app) {

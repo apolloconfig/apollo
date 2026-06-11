@@ -996,6 +996,7 @@
   "UserToken.CsvPlaceholder": "Comma separated, empty means all",
   "UserToken.EmptyMeansAll": "Empty means all",
   "UserToken.AvailableApps": "Available Apps",
+  "UserToken.SearchAppPlaceholder": "Search by App ID or name",
   "UserToken.SelectedApps": "Selected Apps",
   "UserToken.NamespacesPlaceholder": "One per line: appId,env,clusterName,namespaceName. Empty fields or * mean all.",
   "UserToken.Reset": "Reset",
