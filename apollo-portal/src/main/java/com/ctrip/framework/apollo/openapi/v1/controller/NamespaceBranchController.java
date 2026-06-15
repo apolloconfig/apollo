@@ -253,8 +253,10 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   }
 
   private void checkEmergencyPublishAllowedForUser(String env, boolean emergencyPublish) {
+    String authType = UserIdentityContextHolder.getAuthType();
     if (emergencyPublish
-        && UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && (UserIdentityConstants.USER.equals(authType)
+            || UserIdentityConstants.USER_TOKEN.equals(authType))
         && !portalConfig.isEmergencyPublishAllowed(Env.valueOf(env))) {
       throw new BadRequestException("Env: %s is not supported emergency publish now", env);
     }

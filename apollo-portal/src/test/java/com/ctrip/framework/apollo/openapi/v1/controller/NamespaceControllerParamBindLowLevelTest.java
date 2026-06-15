@@ -394,7 +394,8 @@ public class NamespaceControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void findNamespacesShouldRejectUserTokenWhenAllNamespacesAreHidden() throws Exception {
+  public void findNamespacesShouldReturnEmptySubsetWhenAllUserTokenNamespacesAreHidden()
+      throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
     OpenNamespaceDTO hidden = new OpenNamespaceDTO();
     hidden.setAppId(APP_ID);
@@ -408,7 +409,7 @@ public class NamespaceControllerParamBindLowLevelTest {
     mockMvc
         .perform(get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces", ENV,
             APP_ID, CLUSTER).param("fillItemDetail", "false").param("extendInfo", "false"))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
 
     verify(namespaceOpenApiService).findNamespaces(APP_ID, ENV, CLUSTER, false, false);
   }

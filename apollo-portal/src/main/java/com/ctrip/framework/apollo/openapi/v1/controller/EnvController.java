@@ -19,6 +19,8 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import com.ctrip.framework.apollo.openapi.api.EnvironmentManagementApi;
 import com.ctrip.framework.apollo.openapi.server.service.EnvOpenApiService;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,8 @@ public class EnvController implements EnvironmentManagementApi {
   }
 
   private void requireMetadataReadPermissionForUserToken() {
-    if (!unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ)) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ)) {
       throw new AccessDeniedException("Metadata read permission is required");
     }
   }

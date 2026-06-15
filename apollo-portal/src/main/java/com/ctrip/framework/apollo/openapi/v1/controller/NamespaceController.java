@@ -329,10 +329,6 @@ public class NamespaceController
                 : namespace.getClusterName(),
             namespace.getNamespaceName()))
         .collect(Collectors.toList());
-    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
-        && !namespaces.isEmpty() && readableNamespaces.isEmpty()) {
-      throw new AccessDeniedException("Access is denied");
-    }
     return readableNamespaces;
   }
 

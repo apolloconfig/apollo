@@ -516,6 +516,19 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void mergeBranchShouldRejectUserTokenEmergencyPublishWhenEnvDisallowsIt() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(portalConfig.isEmergencyPublishAllowed(Env.DEV)).thenReturn(false);
+
+    NamespaceReleaseDTO request = releaseRequest("merge title", "spoofed-user", true);
+
+    assertThatThrownBy(() -> namespaceBranchController.merge(APP_ID, ENV, CLUSTER, NAMESPACE,
+        BRANCH, null, request)).isInstanceOf(BadRequestException.class);
+
+    verifyNoInteractions(namespaceBranchService);
+  }
+
+  @Test
   void updateBranchRulesShouldUseCurrentPortalUserAndPathFields() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
 

@@ -20,6 +20,8 @@ import com.ctrip.framework.apollo.openapi.api.OrganizationManagementApi;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
 import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
+import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +47,8 @@ public class OrganizationController implements OrganizationManagementApi {
   }
 
   private void requireMetadataReadPermissionForUserToken() {
-    if (!unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ)) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ)) {
       throw new AccessDeniedException("Metadata read permission is required");
     }
   }
