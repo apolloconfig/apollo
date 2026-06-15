@@ -91,13 +91,13 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   @ApolloAuditLog(type = OpType.DELETE, name = "NamespaceBranch.delete")
   public ResponseEntity<Void> deleteBranch(String env, String appId, String clusterName,
       String namespaceName, String branchName, String operator) {
-    String resolvedOperator = resolveOperator(operator, null);
     if (!canDeleteBranch(appId, env, clusterName, namespaceName, branchName)) {
       throw new AccessDeniedException(
           "Forbidden operation. Caused by: 1.you don't have release permission "
               + "or 2. you don't have modification permission "
               + "or 3. you have modification permission but branch has been released");
     }
+    String resolvedOperator = resolveOperator(operator, null);
     namespaceBranchService.deleteBranch(appId, Env.valueOf(env), clusterName, namespaceName,
         branchName, resolvedOperator);
     return ResponseEntity.ok().build();
@@ -106,6 +106,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   @Override
   public ResponseEntity<OpenNamespaceDTO> findBranch(String appId, String env, String clusterName,
       String namespaceName, Boolean extendInfo) {
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     NamespaceBO namespaceBO =
         namespaceBranchService.findBranch(appId, Env.valueOf(env), clusterName, namespaceName);
     if (namespaceBO == null) {
@@ -120,6 +121,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   @Override
   public ResponseEntity<OpenGrayReleaseRuleDTO> getBranchGrayRules(String appId, String env,
       String clusterName, String namespaceName, String branchName) {
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     GrayReleaseRuleDTO grayReleaseRuleDTO = namespaceBranchService.findBranchGrayRules(appId,
         Env.valueOf(env), clusterName, namespaceName, branchName);
     return grayReleaseRuleDTO == null ? ResponseEntity.ok().build()
@@ -172,11 +174,13 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   public boolean canCreateBranch(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
           namespaceName);
     }
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       return unifiedPermissionValidator.hasCreateNamespacePermission(appId);
     }
     return false;
@@ -184,11 +188,13 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   public boolean canMergeBranch(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)) {
       return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
           namespaceName);
     }
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       return unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
           namespaceName);
     }
@@ -197,11 +203,13 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
 
   public boolean canUpdateBranchRules(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)) {
       return unifiedPermissionValidator.hasOperateNamespacePermission(appId, env, clusterName,
           namespaceName);
     }
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       return unifiedPermissionValidator.hasModifyNamespacePermission(appId, env, clusterName,
           namespaceName);
     }
@@ -253,7 +261,9 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
   }
 
   private String resolveOperator(String queryOperator, String payloadOperator) {
-    if (UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType)) {
       UserInfo loginUser = userInfoHolder.getUser();
       if (loginUser == null || StringUtils.isBlank(loginUser.getUserId())) {
         throw new BadRequestException("Current user not found");
@@ -261,7 +271,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
       return loginUser.getUserId();
     }
 
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())) {
+    if (UserIdentityConstants.CONSUMER.equals(authType)) {
       String operator = StringUtils.isBlank(queryOperator) ? payloadOperator : queryOperator;
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(operator),
           "operator should not be null or empty");
@@ -271,8 +281,7 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
       return operator;
     }
 
-    throw new BadRequestException("Unsupported auth type: %s",
-        UserIdentityContextHolder.getAuthType());
+    throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 
   private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
@@ -280,5 +289,14 @@ public class NamespaceBranchController implements NamespaceBranchManagementApi {
     return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
+  }
+
+  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
   }
 }

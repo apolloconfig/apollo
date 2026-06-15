@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -275,6 +274,26 @@ public class NamespaceControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createNamespacesShouldRejectUserTokenWithoutNamespaceScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasCreateNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    OpenCreateNamespaceDTO request = new OpenCreateNamespaceDTO();
+    request.setAppId(APP_ID);
+    request.setEnv(ENV);
+    request.setClusterName(CLUSTER);
+    request.setAppNamespaceName(NAMESPACE);
+
+    mockMvc
+        .perform(post("/openapi/v1/namespaces").contentType(MediaType.APPLICATION_JSON)
+            .content(gson.toJson(Collections.singletonList(request))))
+        .andExpect(status().isForbidden());
+
+    verify(namespaceOpenApiService, never()).createNamespaces(any(), anyString());
+  }
+
+  @Test
   public void namespaceCreateOperationsShouldKeepAuditAnnotations() throws Exception {
     Method createAppNamespace = NamespaceController.class.getMethod("createAppNamespace",
         String.class, OpenAppNamespaceDTO.class, String.class);
@@ -320,19 +339,33 @@ public class NamespaceControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void findNamespaceShouldReturnEmptyBodyForHiddenUserTokenConfig() throws Exception {
+  public void findNamespaceShouldRejectHiddenUserTokenConfig() throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
 
-    mockMvc
-        .perform(get(
-            "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}",
+    mockMvc.perform(
+        get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}",
             ENV, APP_ID, CLUSTER, NAMESPACE))
-        .andExpect(status().isOk()).andExpect(content().string(""));
+        .andExpect(status().isForbidden());
 
     verify(namespaceOpenApiService, never()).findNamespace(anyString(), anyString(), anyString(),
         anyString(), anyBoolean(), anyBoolean());
+  }
+
+  @Test
+  public void deleteNamespaceShouldRejectUserTokenWithoutNamespaceScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasDeleteNamespacePermission(APP_ID)).thenReturn(true);
+    when(unifiedPermissionValidator.hasDeleteNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    mockMvc.perform(delete(
+        "/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/namespaces/{namespaceName}",
+        APP_ID, ENV, CLUSTER, NAMESPACE)).andExpect(status().isForbidden());
+
+    verify(namespaceOpenApiService, never()).deleteNamespace(anyString(), anyString(), anyString(),
+        anyString(), anyString());
   }
 
   @Test
@@ -356,6 +389,26 @@ public class NamespaceControllerParamBindLowLevelTest {
             APP_ID, CLUSTER).param("fillItemDetail", "false").param("extendInfo", "false"))
         .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE));
+
+    verify(namespaceOpenApiService).findNamespaces(APP_ID, ENV, CLUSTER, false, false);
+  }
+
+  @Test
+  public void findNamespacesShouldRejectUserTokenWhenAllNamespacesAreHidden() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    OpenNamespaceDTO hidden = new OpenNamespaceDTO();
+    hidden.setAppId(APP_ID);
+    hidden.setClusterName(CLUSTER);
+    hidden.setNamespaceName("secret");
+    when(namespaceOpenApiService.findNamespaces(APP_ID, ENV, CLUSTER, false, false))
+        .thenReturn(Collections.singletonList(hidden));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, "secret"))
+        .thenReturn(true);
+
+    mockMvc
+        .perform(get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces", ENV,
+            APP_ID, CLUSTER).param("fillItemDetail", "false").param("extendInfo", "false"))
+        .andExpect(status().isForbidden());
 
     verify(namespaceOpenApiService).findNamespaces(APP_ID, ENV, CLUSTER, false, false);
   }
@@ -391,5 +444,21 @@ public class NamespaceControllerParamBindLowLevelTest {
         .andExpect(jsonPath("$[1]").value("FX.apollo"));
 
     verify(namespaceOpenApiService).findMissingNamespaces(APP_ID, ENV, CLUSTER);
+  }
+
+  @Test
+  public void createMissingNamespacesShouldRejectUserTokenWithoutClusterScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasCreateNamespacePermission(APP_ID)).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateNamespacePermission(APP_ID, ENV, CLUSTER, null))
+        .thenReturn(false);
+
+    mockMvc.perform(
+        post("/openapi/v1/apps/{appId}/envs/{env}/clusters/{clusterName}/missing-namespaces",
+            APP_ID, ENV, CLUSTER))
+        .andExpect(status().isForbidden());
+
+    verify(namespaceOpenApiService, never()).createMissingNamespaces(anyString(), anyString(),
+        anyString(), anyString());
   }
 }

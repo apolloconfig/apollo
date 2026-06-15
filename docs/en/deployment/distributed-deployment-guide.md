@@ -1311,7 +1311,14 @@ config:
           login-id: "uid"
           user-display-name: "cn"
           email: "mail"
+          # Optional. Map an LDAP disabled/locked attribute. If omitted, users are treated as enabled.
+          # Use "userAccountControl" for Active Directory or "nsAccountLock" for OpenLDAP-like schemas.
+          account-status: "nsAccountLock"
 ```
+
+`ldap.mapping.account-status` is a general LDAP user-state mapping. When configured, disabled or
+locked LDAP users cannot sign in to Portal, and user access tokens owned by those disabled users are
+also rejected during Open API authentication.
 
 #### 2.4.1.5 Building a Docker image from source
 

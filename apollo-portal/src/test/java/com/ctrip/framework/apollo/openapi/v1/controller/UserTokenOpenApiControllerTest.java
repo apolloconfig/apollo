@@ -116,11 +116,18 @@ public class UserTokenOpenApiControllerTest {
     assertEquals(namespace.getNamespaceName(), openNamespace.getNamespaceName());
     assertTrue(hasAction(body, "user-token.current"));
     assertTrue(hasAction(body, "user.current"));
+    assertTrue(hasAction(body, "env.list"));
+    assertTrue(hasAction(body, "organization.list"));
     assertTrue(hasAction(body, "app.list"));
     assertTrue(hasAction(body, "item.list"));
     assertTrue(hasAction(body, "item.create"));
+    assertTrue(hasAction(body, "branch.get"));
+    assertTrue(hasAction(body, "branch.create"));
+    assertTrue(hasAction(body, "instance.by-namespace"));
     assertFalse(hasAction(body, "release.create"));
+    assertFalse(hasAction(body, "branch.merge"));
     assertFalse(hasAction(body, "namespace.create"));
+    assertFalse(hasAction(body, "access-key.list"));
     assertFalse(hasAction(body, "user.search"));
     OpenUserTokenOpenApiAction appListAction = actionById(body, "app.list");
     assertNotNull(appListAction);
@@ -155,9 +162,12 @@ public class UserTokenOpenApiControllerTest {
     assertTrue(body.getEnvs().isEmpty());
     assertTrue(body.getNamespaces().isEmpty());
     assertTrue(hasAction(body, "app.create"));
+    assertTrue(hasAction(body, "organization.list"));
     assertTrue(hasAction(body, "namespace.create"));
     assertTrue(hasAction(body, "release.create"));
+    assertTrue(hasAction(body, "access-key.create"));
     assertTrue(hasAction(body, "user.search"));
+    assertTrue(hasAction(body, "system.has-create-app-permission"));
     assertTrue(hasAction(body, "system.root-permission"));
   }
 
@@ -175,8 +185,12 @@ public class UserTokenOpenApiControllerTest {
     assertTrue(hasAction(readBody, "release.active-list"));
     assertTrue(hasAction(readBody, "release.get"));
     assertTrue(hasAction(readBody, "release.compare"));
+    assertTrue(hasAction(readBody, "branch.get"));
+    assertTrue(hasAction(readBody, "instance.by-release"));
     assertFalse(hasAction(readBody, "release.create"));
     assertFalse(hasAction(readBody, "release.rollback"));
+    assertFalse(hasAction(readBody, "branch.create"));
+    assertFalse(hasAction(readBody, "branch.merge"));
     assertEquals(Collections.singletonList(UserTokenOperation.CONFIG_READ),
         actionById(readBody, "release.latest").getRequiredOperations());
     assertEquals(Collections.singletonList(UserTokenOperation.CONFIG_READ),
@@ -189,10 +203,14 @@ public class UserTokenOpenApiControllerTest {
     assertFalse(hasAction(publishBody, "release.active-list"));
     assertFalse(hasAction(publishBody, "release.get"));
     assertFalse(hasAction(publishBody, "release.compare"));
+    assertFalse(hasAction(publishBody, "branch.get"));
+    assertFalse(hasAction(publishBody, "instance.by-release"));
     assertTrue(hasAction(publishBody, "release.create"));
     assertTrue(hasAction(publishBody, "release.gray-create"));
     assertTrue(hasAction(publishBody, "release.gray-delete"));
     assertTrue(hasAction(publishBody, "release.rollback"));
+    assertTrue(hasAction(publishBody, "branch.merge"));
+    assertTrue(hasAction(publishBody, "branch.delete"));
     assertEquals(Collections.singletonList(UserTokenOperation.CONFIG_RELEASE),
         actionById(publishBody, "release.create").getRequiredOperations());
     assertEquals(Collections.singletonList(UserTokenOperation.CONFIG_RELEASE),
@@ -216,6 +234,29 @@ public class UserTokenOpenApiControllerTest {
     assertTrue(appUpdateAction.getRequiredOperations().contains(UserTokenOperation.SYSTEM_ADMIN));
     assertEquals(Collections.singletonList(UserTokenOperation.APP_MANAGE_ROLE),
         appUpdateAction.getGrantedOperations());
+    OpenUserTokenOpenApiAction accessKeyAction = actionById(body, "access-key.list");
+    assertNotNull(accessKeyAction);
+    assertEquals(Collections.singletonList(UserTokenOperation.APP_MANAGE_ROLE),
+        accessKeyAction.getRequiredOperations());
+    assertEquals(Collections.singletonList(UserTokenOperation.APP_MANAGE_ROLE),
+        accessKeyAction.getGrantedOperations());
+    assertTrue(hasAction(body, "role.has-cluster-namespace-permission"));
+    assertTrue(hasAction(body, "role.init-cluster-namespace-permission"));
+  }
+
+  @Test
+  public void currentShouldHideMetadataActionsForUserManageOnlyScope() {
+    UserToken userToken = createUserToken();
+    UserTokenScope scope = scopeWithOperations(UserTokenOperation.USER_MANAGE);
+    when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
+    when(userTokenService.parseScope(userToken)).thenReturn(scope);
+
+    OpenUserTokenCurrentCapability body = controller.getCurrentUserToken().getBody();
+
+    assertNotNull(body);
+    assertFalse(hasAction(body, "env.list"));
+    assertFalse(hasAction(body, "organization.list"));
+    assertTrue(hasAction(body, "user.search"));
   }
 
   @Test

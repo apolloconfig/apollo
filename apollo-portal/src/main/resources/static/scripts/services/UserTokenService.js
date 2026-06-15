@@ -19,40 +19,40 @@ appService.service('UserTokenService', ['$resource', '$q', 'AppUtil', function (
         list: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/user-tokens'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens'
         },
         create: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/user-tokens'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens'
         },
         revoke: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/user-tokens/:tokenId/revoke'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/:tokenId/revoke'
         },
         rotate: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/user-tokens/:tokenId/rotate'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/:tokenId/rotate'
         },
         deleteToken: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/user-tokens/:tokenId'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/:tokenId'
         },
         capabilities: {
             method: 'GET',
-            url: AppUtil.prefixPath() + '/user-tokens/capabilities'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/capabilities'
         },
         adminList: {
             method: 'GET',
             isArray: true,
-            url: AppUtil.prefixPath() + '/user-tokens/admin'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/admin'
         },
         adminRevoke: {
             method: 'POST',
-            url: AppUtil.prefixPath() + '/user-tokens/admin/:tokenId/revoke'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/admin/:tokenId/revoke'
         },
         adminDeleteToken: {
             method: 'DELETE',
-            url: AppUtil.prefixPath() + '/user-tokens/admin/:tokenId'
+            url: AppUtil.prefixPath() + '/openapi/v1/user-tokens/admin/:tokenId'
         }
     });
 

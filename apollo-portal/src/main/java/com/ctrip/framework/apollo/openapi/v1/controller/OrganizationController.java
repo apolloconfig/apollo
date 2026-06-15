@@ -16,25 +16,37 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
-
 import com.ctrip.framework.apollo.openapi.api.OrganizationManagementApi;
-import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
 import com.ctrip.framework.apollo.openapi.model.OpenOrganizationDto;
+import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
+import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController("openapiOrganizationController")
 public class OrganizationController implements OrganizationManagementApi {
 
   private final OrganizationOpenApiService organizationOpenApiService;
+  private final UnifiedPermissionValidator unifiedPermissionValidator;
 
-  public OrganizationController(OrganizationOpenApiService organizationOpenApiService) {
+  public OrganizationController(OrganizationOpenApiService organizationOpenApiService,
+      UnifiedPermissionValidator unifiedPermissionValidator) {
     this.organizationOpenApiService = organizationOpenApiService;
+    this.unifiedPermissionValidator = unifiedPermissionValidator;
   }
 
   @Override
   public ResponseEntity<List<OpenOrganizationDto>> getOrganization() {
+    requireMetadataReadPermissionForUserToken();
     return ResponseEntity.ok(organizationOpenApiService.getOrganizations());
+  }
+
+  private void requireMetadataReadPermissionForUserToken() {
+    if (!unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ)) {
+      throw new AccessDeniedException("Metadata read permission is required");
+    }
   }
 }

@@ -1263,7 +1263,13 @@ config:
           login-id: "uid"
           user-display-name: "cn"
           email: "mail"
+          # 可选，映射 LDAP 账号禁用/锁定属性。未配置时默认用户启用。
+          # Active Directory 可使用 "userAccountControl"，OpenLDAP 类 schema 可使用 "nsAccountLock"。
+          account-status: "nsAccountLock"
 ```
+
+`ldap.mapping.account-status` 是通用的 LDAP 用户状态映射。配置后，被禁用或锁定的 LDAP 用户不能登录
+Portal；这些用户已创建的用户访问 Token 在 Open API 鉴权时也会被拒绝。
 
 #### 2.4.1.5 通过源码构建 Docker 镜像
 

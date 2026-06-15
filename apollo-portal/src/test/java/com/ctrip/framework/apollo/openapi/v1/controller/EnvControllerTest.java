@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,6 +76,8 @@ public class EnvControllerTest {
     when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(
         true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ))
+        .thenReturn(true);
 
     authenticatedUser = new UserInfo();
     authenticatedUser.setUserId("test-operator");
@@ -108,5 +111,20 @@ public class EnvControllerTest {
         .andExpect(jsonPath("$[0]", is("DEV"))).andExpect(jsonPath("$[1]", is("FAT")));
 
     verify(envOpenApiService).getEnvs();
+  }
+
+  @Test
+  public void getEnvsShouldRejectUserTokenWithoutMetadataScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ))
+        .thenReturn(false);
+
+    authenticate();
+
+    this.mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/envs").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+
+    Mockito.verify(envOpenApiService, Mockito.never()).getEnvs();
   }
 }

@@ -44,5 +44,9 @@ public final class UserTokenOperation {
       Arrays.asList(CONFIG_READ, CONFIG_MODIFY, CONFIG_RELEASE, NAMESPACE_CREATE, NAMESPACE_DELETE,
           CLUSTER_CREATE, APP_CREATE, APP_MANAGE_ROLE, USER_MANAGE, SYSTEM_ADMIN));
 
+  public static final List<String> METADATA_READ = Collections
+      .unmodifiableList(Arrays.asList(CONFIG_READ, CONFIG_MODIFY, CONFIG_RELEASE, NAMESPACE_CREATE,
+          NAMESPACE_DELETE, CLUSTER_CREATE, APP_CREATE, APP_MANAGE_ROLE, SYSTEM_ADMIN));
+
   private UserTokenOperation() {}
 }

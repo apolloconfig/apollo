@@ -95,6 +95,10 @@ curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
 
 用户访问 Token 只用于 Open API 调用，不会作为 Portal 页面或 legacy WebAPI 的登录凭证使用。
 
+固定前缀 `apollo_pat_` 用于识别 Portal 用户访问 Token。Open API 请求如果携带
+`Authorization: Bearer apollo_pat_...`，会优先进入用户 Token 鉴权；历史第三方应用
+Consumer Token 不使用这个前缀，仍走原有 Consumer Token 鉴权流程。
+
 AI Agent 或自动化脚本可以先调用当前 Token 能力查询接口，确认当前身份和可用范围：
 
 ```bash

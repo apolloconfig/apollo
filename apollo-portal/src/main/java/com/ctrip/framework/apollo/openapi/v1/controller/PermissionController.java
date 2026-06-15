@@ -88,6 +88,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignClusterNamespaceRoleToUser")
   public ResponseEntity<Void> assignClusterNamespaceRoleToUser(String appId, String env,
       String clusterName, String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, env, clusterName, null);
     permissionOpenApiService.assignClusterNamespaceRoleToUser(appId, env, clusterName, roleType,
         userId, operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -98,6 +99,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceEnvRoleToUser")
   public ResponseEntity<Void> assignNamespaceEnvRoleToUser(String appId, String env,
       String namespaceName, String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, env, null, namespaceName);
     permissionOpenApiService.assignNamespaceEnvRoleToUser(appId, env, namespaceName, roleType,
         userId, operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -108,6 +110,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.assignNamespaceRoleToUser")
   public ResponseEntity<Void> assignNamespaceRoleToUser(String appId, String namespaceName,
       String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, null, null, namespaceName);
     permissionOpenApiService.assignNamespaceRoleToUser(appId, namespaceName, roleType, userId,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -124,12 +127,14 @@ public class PermissionController implements PermissionManagementApi {
 
   @Override
   public ResponseEntity<OpenAppRoleUserDTO> getAppRoles(String appId) {
+    requireAppRoleReadPermission(appId);
     return ResponseEntity.ok(permissionOpenApiService.getAppRoles(appId));
   }
 
   @Override
   public ResponseEntity<OpenClusterNamespaceRoleUserDTO> getClusterNamespaceRoles(String appId,
       String env, String clusterName) {
+    requireAppRoleReadPermission(appId, env, clusterName, null);
     return ResponseEntity
         .ok(permissionOpenApiService.getClusterNamespaceRoles(appId, env, clusterName));
   }
@@ -143,6 +148,7 @@ public class PermissionController implements PermissionManagementApi {
   @Override
   public ResponseEntity<OpenEnvNamespaceRoleUserDTO> getNamespaceEnvRoleUsers(String appId,
       String env, String namespaceName) {
+    requireAppRoleReadPermission(appId, env, null, namespaceName);
     return ResponseEntity
         .ok(permissionOpenApiService.getNamespaceEnvRoleUsers(appId, env, namespaceName));
   }
@@ -150,12 +156,14 @@ public class PermissionController implements PermissionManagementApi {
   @Override
   public ResponseEntity<OpenNamespaceRoleUserDTO> getNamespaceRoles(String appId,
       String namespaceName) {
+    requireAppRoleReadPermission(appId, null, null, namespaceName);
     return ResponseEntity.ok(permissionOpenApiService.getNamespaceRoles(appId, namespaceName));
   }
 
   @Override
   public ResponseEntity<OpenPermissionConditionDTO> hasAppPermission(String appId,
       String permissionType, String userId) {
+    requireAppRoleReadPermission(appId);
     return ResponseEntity
         .ok(permissionOpenApiService.hasAppPermission(appId, permissionType, userId));
   }
@@ -163,18 +171,21 @@ public class PermissionController implements PermissionManagementApi {
   @Override
   public ResponseEntity<OpenPermissionConditionDTO> hasClusterNamespacePermission(String appId,
       String env, String clusterName, String permissionType, String userId) {
+    requireAppRoleReadPermission(appId, env, clusterName, null);
     return ResponseEntity.ok(permissionOpenApiService.hasClusterNamespacePermission(appId, env,
         clusterName, permissionType, userId));
   }
 
   @Override
   public ResponseEntity<Map<String, Boolean>> hasCreateApplicationPermission(String userId) {
+    requireSystemRoleReadPermission();
     return ResponseEntity.ok(permissionOpenApiService.hasCreateApplicationPermission(userId));
   }
 
   @Override
   public ResponseEntity<OpenPermissionConditionDTO> hasEnvNamespacePermission(String appId,
       String env, String namespaceName, String permissionType, String userId) {
+    requireAppRoleReadPermission(appId, env, null, namespaceName);
     return ResponseEntity.ok(permissionOpenApiService.hasEnvNamespacePermission(appId, env,
         namespaceName, permissionType, userId));
   }
@@ -182,12 +193,14 @@ public class PermissionController implements PermissionManagementApi {
   @Override
   public ResponseEntity<OpenPermissionConditionDTO> hasNamespacePermission(String appId,
       String namespaceName, String permissionType, String userId) {
+    requireAppRoleReadPermission(appId, null, null, namespaceName);
     return ResponseEntity.ok(permissionOpenApiService.hasNamespacePermission(appId, namespaceName,
         permissionType, userId));
   }
 
   @Override
   public ResponseEntity<OpenPermissionConditionDTO> hasRootPermission(String userId) {
+    requireSystemRoleReadPermission();
     return ResponseEntity.ok(permissionOpenApiService.hasRootPermission(userId));
   }
 
@@ -195,7 +208,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initAppPermission")
   public ResponseEntity<Void> initAppPermission(String appId, String namespaceName,
       String operator) {
-    requirePortalUserOrAssignRolePermission(appId);
+    requirePortalUserOrAssignRolePermission(appId, null, null, namespaceName);
     permissionOpenApiService.initAppPermission(appId, namespaceName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -205,7 +218,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.CREATE, name = "Auth.initClusterNamespacePermission")
   public ResponseEntity<Void> initClusterNamespacePermission(String appId, String env,
       String clusterName, String operator) {
-    requirePortalUserOrAssignRolePermission(appId);
+    requirePortalUserOrAssignRolePermission(appId, env, clusterName, null);
     permissionOpenApiService.initClusterNamespacePermission(appId, env, clusterName,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -213,6 +226,7 @@ public class PermissionController implements PermissionManagementApi {
 
   @Override
   public ResponseEntity<Map<String, Boolean>> isManageAppMasterPermissionEnabled() {
+    requireSystemRoleReadPermission();
     return ResponseEntity.ok(permissionOpenApiService.isManageAppMasterPermissionEnabled());
   }
 
@@ -231,6 +245,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeClusterNamespaceRoleFromUser")
   public ResponseEntity<Void> removeClusterNamespaceRoleFromUser(String appId, String env,
       String clusterName, String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, env, clusterName, null);
     permissionOpenApiService.removeClusterNamespaceRoleFromUser(appId, env, clusterName, roleType,
         userId, operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -251,6 +266,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceEnvRoleFromUser")
   public ResponseEntity<Void> removeNamespaceEnvRoleFromUser(String appId, String env,
       String namespaceName, String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, env, null, namespaceName);
     permissionOpenApiService.removeNamespaceEnvRoleFromUser(appId, env, namespaceName, roleType,
         userId, operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -261,6 +277,7 @@ public class PermissionController implements PermissionManagementApi {
   @ApolloAuditLog(type = OpType.DELETE, name = "Auth.removeNamespaceRoleFromUser")
   public ResponseEntity<Void> removeNamespaceRoleFromUser(String appId, String namespaceName,
       String roleType, String userId, String operator) {
+    requireAppRoleWritePermission(appId, null, null, namespaceName);
     permissionOpenApiService.removeNamespaceRoleFromUser(appId, namespaceName, roleType, userId,
         operatorResolver.resolve(operator));
     return ResponseEntity.ok().build();
@@ -277,6 +294,11 @@ public class PermissionController implements PermissionManagementApi {
    * {@link OpenApiOperatorResolver}.
    */
   private void requirePortalUserOrAssignRolePermission(String appId) {
+    requirePortalUserOrAssignRolePermission(appId, null, null, null);
+  }
+
+  private void requirePortalUserOrAssignRolePermission(String appId, String env, String clusterName,
+      String namespaceName) {
     String authType = UserIdentityContextHolder.getAuthType();
     if (UserIdentityConstants.USER.equals(authType)) {
       return;
@@ -285,6 +307,42 @@ public class PermissionController implements PermissionManagementApi {
         && unifiedPermissionValidator.hasAssignRolePermission(appId)) {
       return;
     }
+    if (UserIdentityConstants.USER_TOKEN.equals(authType) && unifiedPermissionValidator
+        .hasAssignRolePermission(appId, env, clusterName, namespaceName)) {
+      return;
+    }
     throw new AccessDeniedException("Assign role permission is required");
+  }
+
+  private void requireAppRoleReadPermission(String appId) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasAssignRolePermission(appId)) {
+      throw new AccessDeniedException("Assign role permission is required");
+    }
+  }
+
+  private void requireAppRoleReadPermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasAssignRolePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Assign role permission is required");
+    }
+  }
+
+  private void requireAppRoleWritePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasAssignRolePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Assign role permission is required");
+    }
+  }
+
+  private void requireSystemRoleReadPermission() {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.isSuperAdmin()) {
+      throw new AccessDeniedException("Super admin permission is required");
+    }
   }
 }

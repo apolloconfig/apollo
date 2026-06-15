@@ -160,7 +160,7 @@ public class ReleaseController implements ReleaseManagementApi {
   @Override
   public ResponseEntity<List<OpenReleaseDTO>> findActiveReleases(String appId, String env,
       String clusterName, String namespaceName, Integer page, Integer size) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
     checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
@@ -179,7 +179,7 @@ public class ReleaseController implements ReleaseManagementApi {
   @Override
   public ResponseEntity<OpenReleaseDTO> loadLatestActiveRelease(String appId, String env,
       String clusterName, String namespaceName) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
     checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
@@ -273,20 +273,22 @@ public class ReleaseController implements ReleaseManagementApi {
     throw new BadRequestException("Unsupported auth type: %s", authType);
   }
 
-  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+  private boolean shouldHideConfigToPortalUser(String appId, String env, String clusterName,
       String namespaceName) {
-    String authType = UserIdentityContextHolder.getAuthType();
-    return (UserIdentityConstants.USER.equals(authType)
-        || UserIdentityConstants.USER_TOKEN.equals(authType))
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }
 
   private void checkReleaseNamespaceReadAllowed(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
-        && !unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
-            namespaceName)) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER_TOKEN.equals(authType) && unifiedPermissionValidator
+        .shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    if (UserIdentityConstants.CONSUMER.equals(authType) && !unifiedPermissionValidator
+        .hasReleaseNamespacePermission(appId, env, clusterName, namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }
@@ -307,11 +309,14 @@ public class ReleaseController implements ReleaseManagementApi {
     if (release == null) {
       return;
     }
-    if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
-        release.getNamespaceName())) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if ((UserIdentityConstants.USER.equals(authType)
+        || UserIdentityConstants.USER_TOKEN.equals(authType))
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(release.getAppId(), env,
+            release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
+    if (UserIdentityConstants.CONSUMER.equals(authType)
         && !unifiedPermissionValidator.hasReleaseNamespacePermission(release.getAppId(), env,
             release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");

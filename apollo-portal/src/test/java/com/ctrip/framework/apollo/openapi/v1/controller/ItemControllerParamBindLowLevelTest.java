@@ -257,7 +257,7 @@ public class ItemControllerParamBindLowLevelTest {
   }
 
   @Test
-  public void findItemsShouldReturnEmptyPageForHiddenUserTokenConfig() throws Exception {
+  public void findItemsShouldRejectHiddenUserTokenConfig() throws Exception {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
     when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
         .thenReturn(true);
@@ -265,9 +265,7 @@ public class ItemControllerParamBindLowLevelTest {
     mockMvc.perform(get(
         "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items",
         ENV, APP_ID, CLUSTER, NAMESPACE).param("page", "0").param("size", "50"))
-        .andExpect(status().isOk()).andExpect(jsonPath("$.page").value(0))
-        .andExpect(jsonPath("$.size").value(50)).andExpect(jsonPath("$.total").value(0))
-        .andExpect(jsonPath("$.content.length()").value(0));
+        .andExpect(status().isForbidden());
 
     verify(itemOpenApiService, never()).findItemsByNamespace(anyString(), anyString(), anyString(),
         anyString(), any(Integer.class), any(Integer.class));
@@ -285,6 +283,35 @@ public class ItemControllerParamBindLowLevelTest {
         .andExpect(content().string(""));
 
     verify(itemOpenApiService, never()).getItem(anyString(), anyString(), anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
+  public void getItemShouldRejectHiddenUserTokenConfig() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}",
+        ENV, APP_ID, CLUSTER, NAMESPACE, "timeout")).andExpect(status().isForbidden());
+
+    verify(itemOpenApiService, never()).getItem(anyString(), anyString(), anyString(), anyString(),
+        anyString());
+  }
+
+  @Test
+  public void findBranchItemsShouldRejectHiddenUserTokenConfig() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    String branchName = "gray";
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, branchName,
+        NAMESPACE)).thenReturn(true);
+
+    mockMvc.perform(get(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/branches/{branchName}/items",
+        ENV, APP_ID, CLUSTER, NAMESPACE, branchName)).andExpect(status().isForbidden());
+
+    verify(itemOpenApiService, never()).findBranchItems(anyString(), anyString(), anyString(),
         anyString());
   }
 
@@ -376,5 +403,54 @@ public class ItemControllerParamBindLowLevelTest {
     verify(itemOpenApiService).compareItems(anyString(), anyString(), anyString(), anyString(),
         requestCaptor.capture());
     assertThat(requestCaptor.getValue().getSyncItems()).isEmpty();
+  }
+
+  @Test
+  public void compareItemsShouldRejectUserTokenWithoutSourceConfigRead() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+
+    OpenNamespaceSyncDTO request = syncRequest(APP_ID, ENV, CLUSTER, NAMESPACE);
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/diff",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(request))).andExpect(status().isForbidden());
+
+    verify(itemOpenApiService, never()).compareItems(anyString(), anyString(), anyString(),
+        anyString(), any(OpenNamespaceSyncDTO.class));
+  }
+
+  @Test
+  public void compareItemsShouldRejectUserTokenWithoutTargetConfigRead() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, "secret"))
+        .thenReturn(true);
+
+    OpenNamespaceSyncDTO request = syncRequest(APP_ID, ENV, CLUSTER, "secret");
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/diff",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(request))).andExpect(status().isForbidden());
+
+    verify(itemOpenApiService, never()).compareItems(anyString(), anyString(), anyString(),
+        anyString(), any(OpenNamespaceSyncDTO.class));
+  }
+
+  private OpenNamespaceSyncDTO syncRequest(String appId, String env, String clusterName,
+      String namespaceName) {
+    OpenNamespaceIdentifier namespaceIdentifier = new OpenNamespaceIdentifier();
+    namespaceIdentifier.setAppId(appId);
+    namespaceIdentifier.setEnv(env);
+    namespaceIdentifier.setClusterName(clusterName);
+    namespaceIdentifier.setNamespaceName(namespaceName);
+    OpenNamespaceSyncDTO request = new OpenNamespaceSyncDTO();
+    request.setSyncToNamespaces(Collections.singletonList(namespaceIdentifier));
+    request.setSyncItems(Collections.emptyList());
+    return request;
   }
 }

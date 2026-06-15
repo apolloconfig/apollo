@@ -49,6 +49,11 @@ public class AuthFilterConfiguration {
     FilterRegistrationBean<UserTokenAuthenticationFilter> registration =
         new FilterRegistrationBean<>();
     registration.setFilter(userTokenAuthenticationFilter);
+    // UserTokenAuthenticationFilter is registered inside springSecurityFilterChain by
+    // AuthConfiguration before UsernamePasswordAuthenticationFilter. The security chain keeps
+    // Spring Boot's default order ahead of these OPEN_API_AUTH_ORDER servlet filters, so user-token
+    // requests are authenticated and marked before ConsumerAuthenticationFilter sees them.
+    // Keep this standalone registration disabled to avoid running the same filter twice.
     registration.setEnabled(false);
     return registration;
   }

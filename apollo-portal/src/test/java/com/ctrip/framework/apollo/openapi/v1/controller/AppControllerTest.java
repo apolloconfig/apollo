@@ -212,6 +212,19 @@ public class AppControllerTest {
   }
 
   @Test
+  public void findAppsShouldRejectUserTokenWhenRequestedAppIsOutsideScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("app1")).thenReturn(true);
+    when(unifiedPermissionValidator.hasReadApplicationPermission("secret-app")).thenReturn(false);
+
+    this.mockMvc
+        .perform(MockMvcRequestBuilders.get("/openapi/v1/apps").param("appIds", "app1,secret-app"))
+        .andExpect(MockMvcResultMatchers.status().isForbidden());
+
+    verify(appOpenApiService, never()).getAppsInfo(anyList());
+  }
+
+  @Test
   public void testGetEnvClusters() throws Exception {
     String appId = "someAppId";
 

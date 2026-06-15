@@ -46,6 +46,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
@@ -82,6 +83,7 @@ public class NamespaceController
 
   @Override
   public ResponseEntity<List<OpenAppNamespaceDTO>> getAppNamespacesByAppId(String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -91,6 +93,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenAppNamespaceDTO> findAppNamespace(String appId, String namespaceName,
       Boolean extendInfo) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
       return ResponseEntity.ok().build();
     }
@@ -100,6 +103,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<List<OpenNamespaceUsageDTO>> findAppNamespaceUsage(String appId,
       String namespaceName) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -141,9 +145,10 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
       String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
         namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
   }
@@ -159,9 +164,10 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceDTO> findPublicNamespaceForAssociatedNamespace(String env,
       String appId, String clusterName, String namespaceName, Boolean extendInfo) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findPublicNamespaceForAssociatedNamespace(env,
         appId, clusterName, namespaceName, Boolean.TRUE.equals(extendInfo)));
   }
@@ -169,9 +175,10 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceLockDTO> getNamespaceLock(String appId, String env,
       String clusterName, String namespaceName) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok().build();
     }
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.getNamespaceLock(appId, env, clusterName, namespaceName));
   }
@@ -181,6 +188,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<Void> createNamespaces(List<OpenCreateNamespaceDTO> openCreateNamespaceDTO,
       String operator) {
+    requireCreateNamespacesPermissionForUserToken(openCreateNamespaceDTO);
     String resolvedOperator = resolveOperator(operator, null);
     namespaceOpenApiService.createNamespaces(openCreateNamespaceDTO, resolvedOperator);
     return ResponseEntity.ok().build();
@@ -191,6 +199,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<Void> deleteNamespace(String appId, String env, String clusterName,
       String namespaceName, String operator) {
+    requireDeleteNamespacePermissionForUserToken(appId, env, clusterName, namespaceName);
     String resolvedOperator = resolveOperator(operator, null);
     namespaceOpenApiService.deleteNamespace(appId, env, clusterName, namespaceName,
         resolvedOperator);
@@ -200,9 +209,10 @@ public class NamespaceController
   @Override
   public ResponseEntity<List<OpenNamespaceUsageDTO>> findNamespaceUsage(String appId, String env,
       String clusterName, String namespaceName) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
+    requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     return ResponseEntity
         .ok(namespaceOpenApiService.findNamespaceUsage(appId, env, clusterName, namespaceName));
   }
@@ -210,6 +220,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<Map<String, Map<String, Boolean>>> getNamespacesReleaseStatus(
       String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
       return ResponseEntity.ok(Collections.emptyMap());
     }
@@ -219,6 +230,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<List<String>> findMissingNamespaces(String appId, String env,
       String clusterName) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -231,6 +243,7 @@ public class NamespaceController
   @Override
   public ResponseEntity<Void> createMissingNamespaces(String appId, String env, String clusterName,
       String operator) {
+    requireCreateNamespacePermissionForUserToken(appId, env, clusterName, null);
     namespaceOpenApiService.createMissingNamespaces(appId, env, clusterName,
         resolveOperator(operator, null));
     return ResponseEntity.ok().build();
@@ -276,11 +289,17 @@ public class NamespaceController
     if (CollectionUtils.isEmpty(namespaces)) {
       return true;
     }
+    boolean isUserToken =
+        UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType());
     for (OpenCreateNamespaceDTO namespace : namespaces) {
       if (namespace == null || StringUtils.isBlank(namespace.getAppId())) {
         continue;
       }
-      if (!unifiedPermissionValidator.hasCreateNamespacePermission(namespace.getAppId())) {
+      boolean hasPermission = isUserToken
+          ? unifiedPermissionValidator.hasCreateNamespacePermission(namespace.getAppId(),
+              namespace.getEnv(), namespace.getClusterName(), namespace.getAppNamespaceName())
+          : unifiedPermissionValidator.hasCreateNamespacePermission(namespace.getAppId());
+      if (!hasPermission) {
         return false;
       }
     }
@@ -303,22 +322,83 @@ public class NamespaceController
     if (namespaces == null) {
       return Collections.emptyList();
     }
-    return namespaces.stream()
-        .filter(namespace -> namespace != null && !shouldHideConfigToCurrentUser(
+    List<OpenNamespaceDTO> readableNamespaces = namespaces.stream()
+        .filter(namespace -> namespace != null && !shouldDenyConfigReadToCurrentIdentity(
             StringUtils.isBlank(namespace.getAppId()) ? appId : namespace.getAppId(), env,
             StringUtils.isBlank(namespace.getClusterName()) ? clusterName
                 : namespace.getClusterName(),
             namespace.getNamespaceName()))
         .collect(Collectors.toList());
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !namespaces.isEmpty() && readableNamespaces.isEmpty()) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    return readableNamespaces;
   }
 
-  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+  private boolean shouldHideConfigToPortalUser(String appId, String env, String clusterName,
       String namespaceName) {
+    return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName);
+  }
+
+  private boolean shouldDenyConfigReadToCurrentIdentity(String appId, String env,
+      String clusterName, String namespaceName) {
     String authType = UserIdentityContextHolder.getAuthType();
     return (UserIdentityConstants.USER.equals(authType)
         || UserIdentityConstants.USER_TOKEN.equals(authType))
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
+  }
+
+  private void requireConfigReadForUserToken(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+  }
+
+  private void requireReadApplicationPermissionForUserToken(String appId) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+  }
+
+  private void requireCreateNamespacesPermissionForUserToken(
+      List<OpenCreateNamespaceDTO> namespaces) {
+    if (!UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        || CollectionUtils.isEmpty(namespaces)) {
+      return;
+    }
+    for (OpenCreateNamespaceDTO namespace : namespaces) {
+      if (namespace == null || StringUtils.isBlank(namespace.getAppId())) {
+        continue;
+      }
+      requireCreateNamespacePermissionForUserToken(namespace.getAppId(), namespace.getEnv(),
+          namespace.getClusterName(), namespace.getAppNamespaceName());
+    }
+  }
+
+  private void requireCreateNamespacePermissionForUserToken(String appId, String env,
+      String clusterName, String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasCreateNamespacePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Create namespace permission is required");
+    }
+  }
+
+  private void requireDeleteNamespacePermissionForUserToken(String appId, String env,
+      String clusterName, String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasDeleteNamespacePermission(appId, env, clusterName,
+            namespaceName)) {
+      throw new AccessDeniedException("Delete namespace permission is required");
+    }
   }
 
   private String resolveOperator(String queryOperator, String payloadOperator) {

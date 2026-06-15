@@ -158,6 +158,33 @@ public class ClusterControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void createCluster_shouldRejectUserTokenWithoutClusterScope() throws Exception {
+    String appId = "app-1";
+    String env = "DEV";
+    String clusterName = "new-cluster";
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasCreateClusterPermission(appId)).thenReturn(true);
+    when(unifiedPermissionValidator.hasCreateClusterPermission(appId, env, clusterName))
+        .thenReturn(false);
+
+    UserInfo currentUser = new UserInfo();
+    currentUser.setUserId("token-user");
+    when(userInfoHolder.getUser()).thenReturn(currentUser);
+
+    OpenClusterDTO dto = new OpenClusterDTO();
+    dto.setAppId(appId);
+    dto.setName(clusterName);
+
+    mockMvc
+        .perform(post("/openapi/v1/envs/{env}/apps/{appId}/clusters", env, appId)
+            .contentType(MediaType.APPLICATION_JSON).content(gson.toJson(dto)))
+        .andExpect(status().isForbidden());
+
+    verify(clusterOpenApiService, never()).createCluster(anyString(), any(OpenClusterDTO.class),
+        anyString());
+  }
+
+  @Test
   public void deleteCluster_shouldBind_path_and_query() throws Exception {
     String appId = "app-1";
     String env = "DEV";

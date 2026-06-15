@@ -23,6 +23,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.stereotype.Component;
@@ -72,22 +73,53 @@ public class UserTokenPermissionValidator implements PermissionValidator {
         && scope().allowsOperation(UserTokenOperation.APP_MANAGE_ROLE) && scope().allowsApp(appId);
   }
 
+  public boolean hasAssignRolePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    UserTokenScope scope = scope();
+    if (!userPermissionValidator.hasAssignRolePermission(appId)
+        || !scope.allowsOperation(UserTokenOperation.APP_MANAGE_ROLE)) {
+      return false;
+    }
+    if (env == null && clusterName == null && namespaceName == null) {
+      return scope.allowsApp(appId);
+    }
+    return scope.allowsNamespace(appId, env, clusterName, namespaceName);
+  }
+
   @Override
   public boolean hasCreateNamespacePermission(String appId) {
     return userPermissionValidator.hasCreateNamespacePermission(appId)
         && scope().allowsOperation(UserTokenOperation.NAMESPACE_CREATE) && scope().allowsApp(appId);
   }
 
+  public boolean hasCreateNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    UserTokenScope scope = scope();
+    return userPermissionValidator.hasCreateNamespacePermission(appId)
+        && scope.allowsOperation(UserTokenOperation.NAMESPACE_CREATE)
+        && scope.allowsNamespace(appId, env, clusterName, namespaceName);
+  }
+
   @Override
   public boolean hasCreateAppNamespacePermission(String appId, AppNamespace appNamespace) {
+    String namespaceName = appNamespace == null ? null : appNamespace.getName();
+    UserTokenScope scope = scope();
     return userPermissionValidator.hasCreateAppNamespacePermission(appId, appNamespace)
-        && scope().allowsOperation(UserTokenOperation.NAMESPACE_CREATE) && scope().allowsApp(appId);
+        && scope.allowsOperation(UserTokenOperation.NAMESPACE_CREATE)
+        && scope.allowsNamespace(appId, null, null, namespaceName);
   }
 
   @Override
   public boolean hasCreateClusterPermission(String appId) {
     return userPermissionValidator.hasCreateClusterPermission(appId)
         && scope().allowsOperation(UserTokenOperation.CLUSTER_CREATE) && scope().allowsApp(appId);
+  }
+
+  public boolean hasCreateClusterPermission(String appId, String env, String clusterName) {
+    UserTokenScope scope = scope();
+    return userPermissionValidator.hasCreateClusterPermission(appId)
+        && scope.allowsOperation(UserTokenOperation.CLUSTER_CREATE)
+        && scope.allowsNamespace(appId, env, clusterName, null);
   }
 
   @Override
@@ -135,10 +167,22 @@ public class UserTokenPermissionValidator implements PermissionValidator {
         && scope().allowsOperation(UserTokenOperation.NAMESPACE_DELETE) && scope().allowsApp(appId);
   }
 
+  public boolean hasDeleteNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    UserTokenScope scope = scope();
+    return userPermissionValidator.hasDeleteNamespacePermission(appId)
+        && scope.allowsOperation(UserTokenOperation.NAMESPACE_DELETE)
+        && scope.allowsNamespace(appId, env, clusterName, namespaceName);
+  }
+
   @Override
   public boolean hasManageAppMasterPermission(String appId) {
     return userPermissionValidator.hasManageAppMasterPermission(appId)
         && scope().allowsOperation(UserTokenOperation.APP_MANAGE_ROLE) && scope().allowsApp(appId);
+  }
+
+  public boolean hasAnyOperation(Collection<String> operations) {
+    return allowsAnyOperation(scope(), operations);
   }
 
   private UserTokenScope scope() {
@@ -146,7 +190,7 @@ public class UserTokenPermissionValidator implements PermissionValidator {
     return userTokenService.parseScope(userToken);
   }
 
-  private boolean allowsAnyOperation(UserTokenScope scope, Set<String> operations) {
+  private boolean allowsAnyOperation(UserTokenScope scope, Collection<String> operations) {
     for (String operation : operations) {
       if (scope.allowsOperation(operation)) {
         return true;

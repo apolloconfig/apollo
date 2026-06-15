@@ -32,6 +32,12 @@ import com.ctrip.framework.apollo.openapi.api.PortalManagementApi;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateUserTokenRequest;
+import com.ctrip.framework.apollo.openapi.model.OpenCreateUserTokenResponse;
+import com.ctrip.framework.apollo.openapi.model.OpenRotateUserTokenResponse;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenCapability;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenNamespaceScope;
+import com.ctrip.framework.apollo.openapi.model.OpenUserTokenSummary;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
@@ -41,12 +47,16 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.ReleaseHistoryBO;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.Favorite;
 import com.ctrip.framework.apollo.portal.entity.po.ServerConfig;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvironmentInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.PageSetting;
 import com.ctrip.framework.apollo.portal.entity.vo.SystemInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.consumer.ConsumerCreateRequestVO;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenCreateRequest;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenNamespaceScope;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.environment.PortalMetaDomainService;
 import com.ctrip.framework.apollo.portal.service.AppService;
@@ -58,6 +68,7 @@ import com.ctrip.framework.apollo.portal.service.GlobalSearchService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.ReleaseHistoryService;
 import com.ctrip.framework.apollo.portal.service.ServerConfigService;
+import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.ConfigFileUtils;
 import com.ctrip.framework.apollo.portal.util.NamespaceBOUtils;
@@ -73,13 +84,17 @@ import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import jakarta.annotation.PostConstruct;
@@ -96,6 +111,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -135,6 +156,7 @@ public class PortalManagementController implements PortalManagementApi {
   private final RestTemplateFactory restTemplateFactory;
   private final PortalMetaDomainService portalMetaDomainService;
   private final ObjectMapper objectMapper;
+  private final UserTokenService userTokenService;
 
   private RestTemplate restTemplate;
 
@@ -147,7 +169,7 @@ public class PortalManagementController implements PortalManagementApi {
       ConfigsExportService configsExportService, ConfigsImportService configsImportService,
       NamespaceService namespaceService, AppService appService, PortalSettings portalSettings,
       RestTemplateFactory restTemplateFactory, PortalMetaDomainService portalMetaDomainService,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper, UserTokenService userTokenService) {
     this.auditLogApi = auditLogApi;
     this.auditProperties = auditProperties;
     this.commitService = commitService;
@@ -167,11 +189,89 @@ public class PortalManagementController implements PortalManagementApi {
     this.restTemplateFactory = restTemplateFactory;
     this.portalMetaDomainService = portalMetaDomainService;
     this.objectMapper = objectMapper;
+    this.userTokenService = userTokenService;
   }
 
   @PostConstruct
   private void init() {
     restTemplate = restTemplateFactory.getObject();
+  }
+
+  @Override
+  @GetMapping("/openapi/v1/user-tokens")
+  public ResponseEntity<List<OpenUserTokenSummary>> listUserTokens() {
+    return ResponseEntity.ok(userTokenService.findUserTokens(requirePortalUserId()).stream()
+        .map(this::toOpenUserTokenSummary).collect(Collectors.toList()));
+  }
+
+  @Override
+  @PostMapping("/openapi/v1/user-tokens")
+  public ResponseEntity<OpenCreateUserTokenResponse> createUserToken(
+      @RequestBody OpenCreateUserTokenRequest request) {
+    String userId = requirePortalUserId();
+    UserTokenInfo userToken =
+        userTokenService.createToken(toUserTokenCreateRequest(request), userId);
+    return ResponseEntity.ok(toOpenCreateUserTokenResponse(userToken));
+  }
+
+  @Override
+  @PostMapping("/openapi/v1/user-tokens/{tokenId}/revoke")
+  public ResponseEntity<Void> revokeUserToken(@PathVariable("tokenId") Long tokenId) {
+    userTokenService.revokeToken(tokenId, requirePortalUserId());
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  @DeleteMapping("/openapi/v1/user-tokens/{tokenId}")
+  public ResponseEntity<Void> deleteUserToken(@PathVariable("tokenId") Long tokenId) {
+    userTokenService.deleteToken(tokenId, requirePortalUserId());
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  @PostMapping("/openapi/v1/user-tokens/{tokenId}/rotate")
+  public ResponseEntity<OpenRotateUserTokenResponse> rotateUserToken(
+      @PathVariable("tokenId") Long tokenId) {
+    return ResponseEntity.ok(toOpenRotateUserTokenResponse(
+        userTokenService.rotateToken(tokenId, requirePortalUserId())));
+  }
+
+  @Override
+  @GetMapping("/openapi/v1/user-tokens/capabilities")
+  public ResponseEntity<OpenUserTokenCapability> getUserTokenCapabilities() {
+    requirePortalUserId();
+    OpenUserTokenCapability capability = new OpenUserTokenCapability();
+    capability.setOperations(new LinkedHashSet<>(userTokenService.findAvailableOperations()));
+    capability.setDefaultExpireDays(portalConfig.userTokenDefaultExpireDays());
+    capability.setMaxExpireDays(portalConfig.userTokenMaxExpireDays());
+    return ResponseEntity.ok(capability);
+  }
+
+  @Override
+  @GetMapping("/openapi/v1/user-tokens/admin")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  public ResponseEntity<List<OpenUserTokenSummary>> adminListUserTokens(
+      @RequestParam(value = "userId", required = false) String userId,
+      @RequestParam(value = "status", required = false, defaultValue = "all") String status) {
+    requirePortalUserId();
+    return ResponseEntity.ok(userTokenService.findUserTokensForAdmin(userId, status).stream()
+        .map(this::toOpenUserTokenSummary).collect(Collectors.toList()));
+  }
+
+  @Override
+  @PostMapping("/openapi/v1/user-tokens/admin/{tokenId}/revoke")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  public ResponseEntity<Void> adminRevokeUserToken(@PathVariable("tokenId") Long tokenId) {
+    userTokenService.revokeTokenForAdmin(tokenId, requirePortalUserId());
+    return ResponseEntity.ok().build();
+  }
+
+  @Override
+  @DeleteMapping("/openapi/v1/user-tokens/admin/{tokenId}")
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  public ResponseEntity<Void> adminDeleteUserToken(@PathVariable("tokenId") Long tokenId) {
+    userTokenService.deleteTokenForAdmin(tokenId, requirePortalUserId());
+    return ResponseEntity.ok().build();
   }
 
   @Override
@@ -867,6 +967,116 @@ public class PortalManagementController implements PortalManagementApi {
 
   private String currentUserId() {
     return userInfoHolder.getUser().getUserId();
+  }
+
+  private UserTokenCreateRequest toUserTokenCreateRequest(OpenCreateUserTokenRequest request) {
+    UserTokenCreateRequest createRequest = new UserTokenCreateRequest();
+    if (request == null) {
+      return createRequest;
+    }
+    createRequest.setName(request.getName());
+    createRequest.setOperations(request.getOperations());
+    createRequest.setAppIds(request.getAppIds());
+    createRequest.setEnvs(request.getEnvs());
+    createRequest.setNamespaces(toUserTokenNamespaceScopes(request.getNamespaces()));
+    createRequest.setRateLimit(request.getRateLimit());
+    createRequest.setExpires(toDate(request.getExpires()));
+    return createRequest;
+  }
+
+  private OpenUserTokenSummary toOpenUserTokenSummary(UserTokenInfo userToken) {
+    return new OpenUserTokenSummary().id(userToken.getId()).userId(userToken.getUserId())
+        .name(userToken.getName()).tokenPrefix(userToken.getTokenPrefix())
+        .status(OpenUserTokenSummary.StatusEnum.fromValue(userToken.getStatus()))
+        .operations(nonNullSet(userToken.getOperations())).appIds(nonNullSet(userToken.getAppIds()))
+        .envs(nonNullSet(userToken.getEnvs()))
+        .namespaces(toOpenUserTokenNamespaceScopes(userToken.getNamespaces()))
+        .rateLimit(userToken.getRateLimit() == null ? 0 : userToken.getRateLimit())
+        .expires(toOffsetDateTime(userToken.getExpires()))
+        .lastUsedTime(toOffsetDateTime(userToken.getLastUsedTime()))
+        .lastUsedIp(userToken.getLastUsedIp()).lastUsedUserAgent(userToken.getLastUsedUserAgent())
+        .revokedAt(toOffsetDateTime(userToken.getRevokedAt())).revokedBy(userToken.getRevokedBy())
+        .dataChangeCreatedTime(toOffsetDateTime(userToken.getDataChangeCreatedTime()));
+  }
+
+  private OpenCreateUserTokenResponse toOpenCreateUserTokenResponse(UserTokenInfo userToken) {
+    return new OpenCreateUserTokenResponse().id(userToken.getId()).userId(userToken.getUserId())
+        .name(userToken.getName()).tokenPrefix(userToken.getTokenPrefix())
+        .status(OpenCreateUserTokenResponse.StatusEnum.fromValue(userToken.getStatus()))
+        .operations(nonNullSet(userToken.getOperations())).appIds(nonNullSet(userToken.getAppIds()))
+        .envs(nonNullSet(userToken.getEnvs()))
+        .namespaces(toOpenUserTokenNamespaceScopes(userToken.getNamespaces()))
+        .rateLimit(userToken.getRateLimit() == null ? 0 : userToken.getRateLimit())
+        .expires(toOffsetDateTime(userToken.getExpires()))
+        .lastUsedTime(toOffsetDateTime(userToken.getLastUsedTime()))
+        .lastUsedIp(userToken.getLastUsedIp()).lastUsedUserAgent(userToken.getLastUsedUserAgent())
+        .revokedAt(toOffsetDateTime(userToken.getRevokedAt())).revokedBy(userToken.getRevokedBy())
+        .dataChangeCreatedTime(toOffsetDateTime(userToken.getDataChangeCreatedTime()))
+        .tokenValue(userToken.getTokenValue());
+  }
+
+  private OpenRotateUserTokenResponse toOpenRotateUserTokenResponse(UserTokenInfo userToken) {
+    return new OpenRotateUserTokenResponse().id(userToken.getId()).userId(userToken.getUserId())
+        .name(userToken.getName()).tokenPrefix(userToken.getTokenPrefix())
+        .status(OpenRotateUserTokenResponse.StatusEnum.fromValue(userToken.getStatus()))
+        .operations(nonNullSet(userToken.getOperations())).appIds(nonNullSet(userToken.getAppIds()))
+        .envs(nonNullSet(userToken.getEnvs()))
+        .namespaces(toOpenUserTokenNamespaceScopes(userToken.getNamespaces()))
+        .rateLimit(userToken.getRateLimit() == null ? 0 : userToken.getRateLimit())
+        .expires(toOffsetDateTime(userToken.getExpires()))
+        .lastUsedTime(toOffsetDateTime(userToken.getLastUsedTime()))
+        .lastUsedIp(userToken.getLastUsedIp()).lastUsedUserAgent(userToken.getLastUsedUserAgent())
+        .revokedAt(toOffsetDateTime(userToken.getRevokedAt())).revokedBy(userToken.getRevokedBy())
+        .dataChangeCreatedTime(toOffsetDateTime(userToken.getDataChangeCreatedTime()))
+        .tokenValue(userToken.getTokenValue());
+  }
+
+  private List<OpenUserTokenNamespaceScope> toOpenUserTokenNamespaceScopes(
+      List<UserTokenNamespaceScope> namespaceScopes) {
+    if (namespaceScopes == null || namespaceScopes.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return namespaceScopes.stream().filter(Objects::nonNull)
+        .map(namespaceScope -> new OpenUserTokenNamespaceScope().appId(namespaceScope.getAppId())
+            .env(namespaceScope.getEnv()).clusterName(namespaceScope.getClusterName())
+            .namespaceName(namespaceScope.getNamespaceName()))
+        .collect(Collectors.toList());
+  }
+
+  private List<UserTokenNamespaceScope> toUserTokenNamespaceScopes(
+      List<OpenUserTokenNamespaceScope> namespaceScopes) {
+    if (namespaceScopes == null || namespaceScopes.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return namespaceScopes.stream().filter(Objects::nonNull).map(namespaceScope -> {
+      UserTokenNamespaceScope userTokenNamespaceScope = new UserTokenNamespaceScope();
+      userTokenNamespaceScope.setAppId(namespaceScope.getAppId());
+      userTokenNamespaceScope.setEnv(namespaceScope.getEnv());
+      userTokenNamespaceScope.setClusterName(namespaceScope.getClusterName());
+      userTokenNamespaceScope.setNamespaceName(namespaceScope.getNamespaceName());
+      return userTokenNamespaceScope;
+    }).collect(Collectors.toList());
+  }
+
+  private Set<String> nonNullSet(Set<String> values) {
+    return values == null ? Collections.emptySet() : values;
+  }
+
+  private OffsetDateTime toOffsetDateTime(Date date) {
+    return date == null ? null : date.toInstant().atOffset(ZoneOffset.UTC);
+  }
+
+  private Date toDate(OffsetDateTime dateTime) {
+    return dateTime == null ? null : Date.from(dateTime.toInstant());
+  }
+
+  private String requirePortalUserId() {
+    requirePortalUserRequest();
+    UserInfo user = userInfoHolder.getUser();
+    if (user == null || !org.springframework.util.StringUtils.hasText(user.getUserId())) {
+      throw new AccessDeniedException("Portal user session is required");
+    }
+    return user.getUserId();
   }
 
   private <T> T convertBody(Object body, Class<T> clazz) {

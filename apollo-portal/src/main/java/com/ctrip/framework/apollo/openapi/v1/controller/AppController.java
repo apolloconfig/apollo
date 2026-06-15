@@ -110,6 +110,7 @@ public class AppController implements AppManagementApi {
 
   @Override
   public ResponseEntity<List<OpenEnvClusterInfo>> getEnvClusterInfo(String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -118,6 +119,7 @@ public class AppController implements AppManagementApi {
 
   @Override
   public ResponseEntity<List<OpenEnvClusterDTO>> getEnvClusters(String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -127,8 +129,11 @@ public class AppController implements AppManagementApi {
   @Override
   public ResponseEntity<List<OpenAppDTO>> findApps(String appIds) {
     if (StringUtils.hasText(appIds)) {
-      return ResponseEntity.ok(
-          filterReadableApps(this.appOpenApiService.getAppsInfo(Arrays.asList(appIds.split(",")))));
+      List<String> requestedAppIds = Arrays.stream(appIds.split(",")).map(String::trim)
+          .filter(StringUtils::hasText).collect(Collectors.toList());
+      requireReadApplicationsPermissionForUserToken(requestedAppIds);
+      return ResponseEntity
+          .ok(filterReadableApps(this.appOpenApiService.getAppsInfo(requestedAppIds)));
     } else {
       return ResponseEntity.ok(filterReadableApps(this.appOpenApiService.getAllApps()));
     }
@@ -151,6 +156,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<OpenAppDTO> getApp(String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       throw new BadRequestException("App not found: " + appId);
     }
@@ -229,6 +235,7 @@ public class AppController implements AppManagementApi {
    */
   @Override
   public ResponseEntity<List<OpenMissEnvDTO>> findMissEnvs(String appId) {
+    requireReadApplicationPermissionForUserToken(appId);
     if (!hasReadApplicationPermissionForCurrentIdentity(appId)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -347,6 +354,24 @@ public class AppController implements AppManagementApi {
       return true;
     }
     return unifiedPermissionValidator.hasReadApplicationPermission(appId);
+  }
+
+  private void requireReadApplicationPermissionForUserToken(String appId) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
+        && !unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+  }
+
+  private void requireReadApplicationsPermissionForUserToken(List<String> appIds) {
+    if (!UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return;
+    }
+    for (String appId : appIds) {
+      if (!unifiedPermissionValidator.hasReadApplicationPermission(appId)) {
+        throw new AccessDeniedException("Access is denied");
+      }
+    }
   }
 
   private List<OpenAppDTO> page(List<OpenAppDTO> apps, Integer page, Integer size) {

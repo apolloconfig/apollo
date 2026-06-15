@@ -68,10 +68,10 @@ public class InstanceController implements InstanceManagementApi {
       String clusterName, String namespaceName, Integer page, Integer size, String instanceAppId) {
     int resolvedPage = resolvePage(page);
     int resolvedSize = resolvePageSize(size);
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(emptyInstancePage(resolvedPage, resolvedSize));
     }
-    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
+    checkConfigReadAllowed(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(
         OpenApiModelConverters.fromInstancePageDTO(instanceService.getByNamespace(Env.valueOf(env),
             appId, clusterName, namespaceName, instanceAppId, resolvedPage, resolvedSize)));
@@ -89,10 +89,10 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<List<OpenInstanceDTO>> getByReleasesAndNamespaceNotIn(String env,
       String appId, String clusterName, String namespaceName, String releaseIds) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(Collections.emptyList());
     }
-    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
+    checkConfigReadAllowed(appId, env, clusterName, namespaceName);
     if (releaseIds == null || releaseIds.trim().isEmpty()) {
       throw new BadRequestException("releaseIds should not be empty");
     }
@@ -114,26 +114,30 @@ public class InstanceController implements InstanceManagementApi {
   @Override
   public ResponseEntity<Integer> getInstanceCountByNamespace(String env, String appId,
       String clusterName, String namespaceName) {
-    if (shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
       return ResponseEntity.ok(0);
     }
-    checkReleaseNamespaceReadAllowed(appId, env, clusterName, namespaceName);
+    checkConfigReadAllowed(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(instanceService.getInstanceCountByNamespace(appId, Env.valueOf(env),
         clusterName, namespaceName));
   }
 
-  private boolean shouldHideConfigToCurrentUser(String appId, String env, String clusterName,
+  private boolean shouldHideConfigToPortalUser(String appId, String env, String clusterName,
       String namespaceName) {
     return UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }
 
-  private void checkReleaseNamespaceReadAllowed(String appId, String env, String clusterName,
+  private void checkConfigReadAllowed(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.CONSUMER.equals(UserIdentityContextHolder.getAuthType())
-        && !unifiedPermissionValidator.hasReleaseNamespacePermission(appId, env, clusterName,
-            namespaceName)) {
+    String authType = UserIdentityContextHolder.getAuthType();
+    if (UserIdentityConstants.USER_TOKEN.equals(authType) && unifiedPermissionValidator
+        .shouldHideConfigToCurrentUser(appId, env, clusterName, namespaceName)) {
+      throw new AccessDeniedException("Access is denied");
+    }
+    if (UserIdentityConstants.CONSUMER.equals(authType) && !unifiedPermissionValidator
+        .hasReleaseNamespacePermission(appId, env, clusterName, namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }
@@ -147,11 +151,13 @@ public class InstanceController implements InstanceManagementApi {
   }
 
   private void checkReleaseReadAllowed(String env, ReleaseDTO release) {
-    if (shouldHideConfigToCurrentUser(release.getAppId(), env, release.getClusterName(),
-        release.getNamespaceName())) {
+    if ((UserIdentityConstants.USER.equals(UserIdentityContextHolder.getAuthType())
+        || UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType()))
+        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(release.getAppId(), env,
+            release.getClusterName(), release.getNamespaceName())) {
       throw new AccessDeniedException("Access is denied");
     }
-    checkReleaseNamespaceReadAllowed(release.getAppId(), env, release.getClusterName(),
+    checkConfigReadAllowed(release.getAppId(), env, release.getClusterName(),
         release.getNamespaceName());
   }
 

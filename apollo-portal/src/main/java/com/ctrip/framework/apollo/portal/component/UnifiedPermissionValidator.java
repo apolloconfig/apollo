@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.component;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.openapi.auth.ConsumerPermissionValidator;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
+import java.util.Collection;
 import org.springframework.stereotype.Component;
 
 @Component("unifiedPermissionValidator")
@@ -67,8 +68,26 @@ public class UnifiedPermissionValidator implements PermissionValidator {
     return getDelegate().hasAssignRolePermission(appId);
   }
 
+  public boolean hasAssignRolePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return userTokenPermissionValidator.hasAssignRolePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    return getDelegate().hasAssignRolePermission(appId);
+  }
+
   @Override
   public boolean hasCreateNamespacePermission(String appId) {
+    return getDelegate().hasCreateNamespacePermission(appId);
+  }
+
+  public boolean hasCreateNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return userTokenPermissionValidator.hasCreateNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
     return getDelegate().hasCreateNamespacePermission(appId);
   }
 
@@ -79,6 +98,13 @@ public class UnifiedPermissionValidator implements PermissionValidator {
 
   @Override
   public boolean hasCreateClusterPermission(String appId) {
+    return getDelegate().hasCreateClusterPermission(appId);
+  }
+
+  public boolean hasCreateClusterPermission(String appId, String env, String clusterName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return userTokenPermissionValidator.hasCreateClusterPermission(appId, env, clusterName);
+    }
     return getDelegate().hasCreateClusterPermission(appId);
   }
 
@@ -116,6 +142,22 @@ public class UnifiedPermissionValidator implements PermissionValidator {
   @Override
   public boolean hasDeleteNamespacePermission(String appId) {
     return getDelegate().hasDeleteNamespacePermission(appId);
+  }
+
+  public boolean hasDeleteNamespacePermission(String appId, String env, String clusterName,
+      String namespaceName) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return userTokenPermissionValidator.hasDeleteNamespacePermission(appId, env, clusterName,
+          namespaceName);
+    }
+    return getDelegate().hasDeleteNamespacePermission(appId);
+  }
+
+  public boolean hasAnyUserTokenOperation(Collection<String> operations) {
+    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())) {
+      return userTokenPermissionValidator.hasAnyOperation(operations);
+    }
+    return true;
   }
 
   @Override

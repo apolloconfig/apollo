@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.portal.entity.po.UserToken;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenNamespaceScope;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
@@ -101,5 +102,73 @@ class UserTokenPermissionValidatorTest {
 
     assertTrue(validator.hasReadApplicationPermission("app"));
     assertFalse(validator.hasReadApplicationPermission("other-app"));
+  }
+
+  @Test
+  void hasAssignRolePermissionReturnsFalseWhenEnvScopeDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.APP_MANAGE_ROLE));
+    scope.setAppIds(Collections.singleton("app"));
+    scope.setEnvs(Collections.singleton("DEV"));
+    when(userPermissionValidator.hasAssignRolePermission("app")).thenReturn(true);
+
+    assertFalse(validator.hasAssignRolePermission("app", "PROD", null, null));
+  }
+
+  @Test
+  void hasAssignRolePermissionReturnsFalseWhenNamespaceScopeDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.APP_MANAGE_ROLE));
+    scope.setNamespaces(
+        Collections.singletonList(namespaceScope("app", "DEV", "default", "application")));
+    when(userPermissionValidator.hasAssignRolePermission("app")).thenReturn(true);
+
+    assertFalse(validator.hasAssignRolePermission("app", "DEV", "default", "secret"));
+  }
+
+  @Test
+  void hasCreateNamespacePermissionReturnsFalseWhenEnvScopeDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.NAMESPACE_CREATE));
+    scope.setAppIds(Collections.singleton("app"));
+    scope.setEnvs(Collections.singleton("DEV"));
+    when(userPermissionValidator.hasCreateNamespacePermission("app")).thenReturn(true);
+
+    assertFalse(validator.hasCreateNamespacePermission("app", "PROD", "default", "application"));
+  }
+
+  @Test
+  void hasDeleteNamespacePermissionReturnsFalseWhenNamespaceScopeDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.NAMESPACE_DELETE));
+    scope.setNamespaces(
+        Collections.singletonList(namespaceScope("app", "DEV", "default", "application")));
+    when(userPermissionValidator.hasDeleteNamespacePermission("app")).thenReturn(true);
+
+    assertFalse(validator.hasDeleteNamespacePermission("app", "DEV", "default", "secret"));
+  }
+
+  @Test
+  void hasCreateClusterPermissionReturnsFalseWhenClusterScopeDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.CLUSTER_CREATE));
+    scope.setNamespaces(Collections.singletonList(namespaceScope("app", "DEV", "default", "*")));
+    when(userPermissionValidator.hasCreateClusterPermission("app")).thenReturn(true);
+
+    assertFalse(validator.hasCreateClusterPermission("app", "DEV", "gray"));
+  }
+
+  @Test
+  void hasCreateClusterPermissionReturnsTrueWhenClusterScopeAllowsWildcardNamespace() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.CLUSTER_CREATE));
+    scope.setNamespaces(Collections.singletonList(namespaceScope("app", "DEV", "default", "*")));
+    when(userPermissionValidator.hasCreateClusterPermission("app")).thenReturn(true);
+
+    assertTrue(validator.hasCreateClusterPermission("app", "DEV", "default"));
+  }
+
+  private UserTokenNamespaceScope namespaceScope(String appId, String env, String clusterName,
+      String namespaceName) {
+    UserTokenNamespaceScope namespaceScope = new UserTokenNamespaceScope();
+    namespaceScope.setAppId(appId);
+    namespaceScope.setEnv(env);
+    namespaceScope.setClusterName(clusterName);
+    namespaceScope.setNamespaceName(namespaceName);
+    return namespaceScope;
   }
 }

@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
--- delta schema to upgrade apollo portal db from v2.4.0 to v3.0.0
+-- delta schema to upgrade apollo portal db from v2.5.0 to v3.0.0
 
 CREATE TABLE IF NOT EXISTS `UserToken` (
   `Id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增Id',

@@ -22,6 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -128,5 +129,18 @@ public class AccessKeyControllerParamBindLowLevelTest {
         .param("operator", "api-operator")).andExpect(status().isOk());
 
     verify(accessKeyOpenApiService).createAccessKey(APP_ID, ENV, "api-operator");
+  }
+
+  @Test
+  public void findAccessKeysShouldRejectUserTokenWithoutEnvScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.isAppAdmin(APP_ID)).thenReturn(true);
+    when(unifiedPermissionValidator.hasAssignRolePermission(APP_ID, ENV, null, null))
+        .thenReturn(false);
+
+    mockMvc.perform(get("/openapi/v1/apps/{appId}/envs/{env}/accesskeys", APP_ID, ENV))
+        .andExpect(status().isForbidden());
+
+    verify(accessKeyOpenApiService, never()).findAccessKeys(anyString(), anyString());
   }
 }

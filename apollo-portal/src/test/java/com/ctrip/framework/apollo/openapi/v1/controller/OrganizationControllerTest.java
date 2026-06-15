@@ -22,6 +22,7 @@ import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
 import com.ctrip.framework.apollo.portal.component.UserIdentityContextHolder;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,6 +77,8 @@ public class OrganizationControllerTest {
     when(unifiedPermissionValidator.hasCreateClusterPermission(Mockito.anyString())).thenReturn(
         true);
     when(unifiedPermissionValidator.isAppAdmin(Mockito.anyString())).thenReturn(true);
+    when(unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ))
+        .thenReturn(true);
 
     authenticatedUser = new UserInfo();
     authenticatedUser.setUserId("test-operator");
@@ -114,5 +117,20 @@ public class OrganizationControllerTest {
         .andExpect(jsonPath("$[0].orgName", is("Org One")));
 
     verify(organizationOpenApiService).getOrganizations();
+  }
+
+  @Test
+  public void getOrganizationsShouldRejectUserTokenWithoutMetadataScope() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasAnyUserTokenOperation(UserTokenOperation.METADATA_READ))
+        .thenReturn(false);
+
+    authenticate();
+
+    this.mockMvc.perform(
+        MockMvcRequestBuilders.get("/openapi/v1/organizations").accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden());
+
+    Mockito.verify(organizationOpenApiService, Mockito.never()).getOrganizations();
   }
 }

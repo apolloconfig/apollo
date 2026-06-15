@@ -64,5 +64,6 @@ public class AuthFilterConfigurationTest {
         consumerAuthenticationFilter.getUrlPatterns());
     assertEquals(Collections.singleton("/*"), userTypeResolverFilter.getUrlPatterns());
     assertFalse(userTokenFilterRegistration.isEnabled());
+    assertTrue(userTokenFilterRegistration.getUrlPatterns().isEmpty());
   }
 }

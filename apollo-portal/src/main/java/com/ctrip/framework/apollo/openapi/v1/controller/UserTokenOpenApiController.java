@@ -16,13 +16,17 @@
  */
 package com.ctrip.framework.apollo.openapi.v1.controller;
 
+import com.ctrip.framework.apollo.openapi.api.AccessKeyManagementApi;
 import com.ctrip.framework.apollo.openapi.api.AppManagementApi;
 import com.ctrip.framework.apollo.openapi.api.AppNamespaceManagementApi;
 import com.ctrip.framework.apollo.openapi.api.ClusterManagementApi;
 import com.ctrip.framework.apollo.openapi.api.EnvironmentManagementApi;
+import com.ctrip.framework.apollo.openapi.api.InstanceManagementApi;
 import com.ctrip.framework.apollo.openapi.api.ItemManagementApi;
+import com.ctrip.framework.apollo.openapi.api.NamespaceBranchManagementApi;
 import com.ctrip.framework.apollo.openapi.api.NamespaceLockManagementApi;
 import com.ctrip.framework.apollo.openapi.api.NamespaceManagementApi;
+import com.ctrip.framework.apollo.openapi.api.OrganizationManagementApi;
 import com.ctrip.framework.apollo.openapi.api.PermissionManagementApi;
 import com.ctrip.framework.apollo.openapi.api.ReleaseManagementApi;
 import com.ctrip.framework.apollo.openapi.api.UserTokenManagementApi;
@@ -83,7 +87,11 @@ public class UserTokenOpenApiController implements UserTokenManagementApi {
           action("user.current", HTTP_GET, UserManagementApi.PATH_GET_CURRENT_USER,
               NO_REQUIRED_OPERATIONS, "identity", "Read the user represented by this token."),
           action("env.list", HTTP_GET, EnvironmentManagementApi.PATH_GET_ENVS,
-              NO_REQUIRED_OPERATIONS, "environment", "List configured Apollo environments."),
+              UserTokenOperation.METADATA_READ, "environment",
+              "List configured Apollo environments."),
+          action("organization.list", HTTP_GET, OrganizationManagementApi.PATH_GET_ORGANIZATION,
+              UserTokenOperation.METADATA_READ, "organization",
+              "List configured Apollo organizations."),
 
           action("app.create", HTTP_POST, AppManagementApi.PATH_CREATE_APP,
               UserTokenOperation.APP_CREATE, "app", "Create a new Apollo app."),
@@ -109,10 +117,23 @@ public class UserTokenOpenApiController implements UserTokenManagementApi {
           action("app.env-clusters", HTTP_GET, AppManagementApi.PATH_GET_ENV_CLUSTERS,
               APP_READ_OPERATIONS, "app", "Read clusters grouped by env for one app."),
 
+          action("access-key.list", HTTP_GET, AccessKeyManagementApi.PATH_FIND_ACCESS_KEYS,
+              UserTokenOperation.APP_MANAGE_ROLE, "access-key", "List app access keys."),
+          action("access-key.create", HTTP_POST, AccessKeyManagementApi.PATH_CREATE_ACCESS_KEY,
+              UserTokenOperation.APP_MANAGE_ROLE, "access-key", "Create an app access key."),
+          action("access-key.enable", HTTP_PUT, AccessKeyManagementApi.PATH_ENABLE_ACCESS_KEY,
+              UserTokenOperation.APP_MANAGE_ROLE, "access-key", "Enable an app access key."),
+          action("access-key.disable", HTTP_PUT, AccessKeyManagementApi.PATH_DISABLE_ACCESS_KEY,
+              UserTokenOperation.APP_MANAGE_ROLE, "access-key", "Disable an app access key."),
+          action("access-key.delete", HTTP_DELETE, AccessKeyManagementApi.PATH_DELETE_ACCESS_KEY,
+              UserTokenOperation.APP_MANAGE_ROLE, "access-key", "Delete an app access key."),
+
           action("cluster.get", HTTP_GET, ClusterManagementApi.PATH_GET_CLUSTER,
               APP_READ_OPERATIONS, "cluster", "Read one cluster's metadata."),
           action("cluster.create", HTTP_POST, ClusterManagementApi.PATH_CREATE_CLUSTER,
               UserTokenOperation.CLUSTER_CREATE, "cluster", "Create a cluster for one app/env."),
+          action("cluster.delete", HTTP_DELETE, ClusterManagementApi.PATH_DELETE_CLUSTER,
+              UserTokenOperation.SYSTEM_ADMIN, "cluster", "Delete one cluster."),
 
           action("app-namespace.list", HTTP_GET, AppNamespaceManagementApi.PATH_GET_APP_NAMESPACES,
               APP_READ_OPERATIONS, "namespace", "List app namespaces readable by the token scope."),
@@ -193,6 +214,35 @@ public class UserTokenOpenApiController implements UserTokenManagementApi {
           action("item.syntax-check", HTTP_POST, ItemManagementApi.PATH_SYNTAX_CHECK,
               UserTokenOperation.CONFIG_MODIFY, "item", "Validate namespace text syntax."),
 
+          action("branch.get", HTTP_GET, NamespaceBranchManagementApi.PATH_FIND_BRANCH,
+              UserTokenOperation.CONFIG_READ, "branch", "Read one gray branch namespace."),
+          action("branch.rules", HTTP_GET, NamespaceBranchManagementApi.PATH_GET_BRANCH_GRAY_RULES,
+              UserTokenOperation.CONFIG_READ, "branch", "Read gray branch rules."),
+          action("branch.create", HTTP_POST, NamespaceBranchManagementApi.PATH_CREATE_BRANCH,
+              UserTokenOperation.CONFIG_MODIFY, "branch", "Create a gray branch."),
+          action("branch.merge", HTTP_POST, NamespaceBranchManagementApi.PATH_MERGE,
+              UserTokenOperation.CONFIG_RELEASE, "branch", "Merge a gray branch."),
+          action("branch.merge-new", HTTP_POST, NamespaceBranchManagementApi.PATH_MERGE_BRANCH,
+              UserTokenOperation.CONFIG_RELEASE, "branch", "Merge a gray branch."),
+          action("branch.update-rules", HTTP_PUT,
+              NamespaceBranchManagementApi.PATH_UPDATE_BRANCH_RULES,
+              UserTokenOperation.CONFIG_MODIFY, "branch", "Update gray branch rules."),
+          action("branch.delete", HTTP_DELETE, NamespaceBranchManagementApi.PATH_DELETE_BRANCH,
+              Arrays.asList(UserTokenOperation.CONFIG_RELEASE, UserTokenOperation.CONFIG_MODIFY),
+              "branch", "Delete a gray branch."),
+
+          action("instance.by-namespace", HTTP_GET, InstanceManagementApi.PATH_GET_BY_NAMESPACE,
+              UserTokenOperation.CONFIG_READ, "instance", "Page instances in one namespace."),
+          action("instance.by-release", HTTP_GET, InstanceManagementApi.PATH_GET_BY_RELEASE,
+              UserTokenOperation.CONFIG_READ, "instance", "Page instances by release."),
+          action("instance.not-in-releases", HTTP_GET,
+              InstanceManagementApi.PATH_GET_BY_RELEASES_AND_NAMESPACE_NOT_IN,
+              UserTokenOperation.CONFIG_READ, "instance",
+              "List instances not in specified releases."),
+          action("instance.count-by-namespace", HTTP_GET,
+              InstanceManagementApi.PATH_GET_INSTANCE_COUNT_BY_NAMESPACE,
+              UserTokenOperation.CONFIG_READ, "instance", "Read namespace instance count."),
+
           action("release.latest", HTTP_GET, ReleaseManagementApi.PATH_LOAD_LATEST_ACTIVE_RELEASE,
               UserTokenOperation.CONFIG_READ, "release", "Read latest active release."),
           action("release.active-list", HTTP_GET, ReleaseManagementApi.PATH_FIND_ACTIVE_RELEASES,
@@ -221,6 +271,28 @@ public class UserTokenOpenApiController implements UserTokenManagementApi {
           action("role.cluster-namespace-users", HTTP_GET,
               PermissionManagementApi.PATH_GET_CLUSTER_NAMESPACE_ROLES,
               UserTokenOperation.APP_MANAGE_ROLE, "role", "List cluster namespace role users."),
+          action("role.has-app-permission", HTTP_GET,
+              PermissionManagementApi.PATH_HAS_APP_PERMISSION, UserTokenOperation.APP_MANAGE_ROLE,
+              "role", "Check app permission for one user."),
+          action("role.has-namespace-permission", HTTP_GET,
+              PermissionManagementApi.PATH_HAS_NAMESPACE_PERMISSION,
+              UserTokenOperation.APP_MANAGE_ROLE, "role",
+              "Check app namespace permission for one user."),
+          action("role.has-env-namespace-permission", HTTP_GET,
+              PermissionManagementApi.PATH_HAS_ENV_NAMESPACE_PERMISSION,
+              UserTokenOperation.APP_MANAGE_ROLE, "role",
+              "Check env namespace permission for one user."),
+          action("role.has-cluster-namespace-permission", HTTP_GET,
+              PermissionManagementApi.PATH_HAS_CLUSTER_NAMESPACE_PERMISSION,
+              UserTokenOperation.APP_MANAGE_ROLE, "role",
+              "Check cluster namespace permission for one user."),
+          action("role.init-app-permission", HTTP_POST,
+              PermissionManagementApi.PATH_INIT_APP_PERMISSION, UserTokenOperation.APP_MANAGE_ROLE,
+              "role", "Initialize app namespace permission roles."),
+          action("role.init-cluster-namespace-permission", HTTP_POST,
+              PermissionManagementApi.PATH_INIT_CLUSTER_NAMESPACE_PERMISSION,
+              UserTokenOperation.APP_MANAGE_ROLE, "role",
+              "Initialize cluster namespace permission roles."),
           action("role.assign-app", HTTP_POST, PermissionManagementApi.PATH_ASSIGN_APP_ROLE_TO_USER,
               UserTokenOperation.APP_MANAGE_ROLE, "role", "Assign an app role to a user."),
           action("role.assign-namespace", HTTP_POST,
@@ -260,6 +332,14 @@ public class UserTokenOpenApiController implements UserTokenManagementApi {
           action("system.create-app-role-users", HTTP_GET,
               PermissionManagementApi.PATH_GET_CREATE_APPLICATION_ROLE_USERS,
               UserTokenOperation.SYSTEM_ADMIN, "system", "List create-application role users."),
+          action("system.has-create-app-permission", HTTP_GET,
+              PermissionManagementApi.PATH_HAS_CREATE_APPLICATION_PERMISSION,
+              UserTokenOperation.SYSTEM_ADMIN, "system",
+              "Check create-application permission for one user."),
+          action("system.manage-app-master-enabled", HTTP_GET,
+              PermissionManagementApi.PATH_IS_MANAGE_APP_MASTER_PERMISSION_ENABLED,
+              UserTokenOperation.SYSTEM_ADMIN, "system",
+              "Check whether manage-app-master role is enabled."),
           action("system.add-create-app-role-users", HTTP_POST,
               PermissionManagementApi.PATH_ADD_CREATE_APPLICATION_ROLE_TO_USERS,
               UserTokenOperation.SYSTEM_ADMIN, "system", "Grant create-application role to users."),

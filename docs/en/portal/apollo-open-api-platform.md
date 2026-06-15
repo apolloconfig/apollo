@@ -105,6 +105,11 @@ curl -H "Authorization: Bearer apollo_pat_xxx_xxx" \
 User access tokens are only accepted by Open API endpoints. They are not treated as Portal page or
 legacy WebAPI login credentials.
 
+The literal `apollo_pat_` prefix identifies Portal user access tokens. Open API requests with an
+`Authorization: Bearer apollo_pat_...` value are handled by user-token authentication first; legacy
+third-party consumer tokens do not use this prefix and continue through the existing consumer-token
+authentication path.
+
 AI agents and automation scripts can call the current token capability endpoint before making
 changes:
 
