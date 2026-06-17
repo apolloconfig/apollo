@@ -32,6 +32,7 @@ import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.openapi.model.NamespaceGrayDelReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.NamespaceReleaseDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
@@ -45,6 +46,7 @@ import com.ctrip.framework.apollo.portal.component.config.PortalConfig;
 import com.ctrip.framework.apollo.portal.constant.UserIdentityConstants;
 import com.ctrip.framework.apollo.portal.entity.bo.KVEntity;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.model.NamespaceGrayDelReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceReleaseModel;
 import com.ctrip.framework.apollo.portal.entity.vo.ReleaseCompareResult;
 import com.ctrip.framework.apollo.portal.environment.Env;
@@ -178,6 +180,20 @@ class ReleaseBranchInstanceControllerTest {
   }
 
   @Test
+  void createReleaseShouldRejectUserTokenEmergencyPublishWhenEnvDisallowsIt() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(portalConfig.isEmergencyPublishAllowed(Env.DEV)).thenReturn(false);
+
+    NamespaceReleaseDTO request = releaseRequest("release title", "spoofed-user", true);
+
+    assertThatThrownBy(
+        () -> releaseController.createRelease(APP_ID, ENV, CLUSTER, NAMESPACE, request, null))
+        .isInstanceOf(BadRequestException.class);
+
+    verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
+  }
+
+  @Test
   void createReleaseShouldKeepConsumerPayloadReleasedByForLegacyClients() {
     UserIdentityContextHolder.setAuthType(UserIdentityConstants.CONSUMER);
     when(releaseService.publish(any(NamespaceReleaseModel.class))).thenReturn(release(101L));
@@ -268,6 +284,33 @@ class ReleaseBranchInstanceControllerTest {
     verify(releaseService).publish(modelCaptor.capture());
     assertThat(modelCaptor.getValue().getClusterName()).isEqualTo(BRANCH);
     assertThat(modelCaptor.getValue().getReleasedBy()).isEqualTo(PORTAL_USER);
+  }
+
+  @Test
+  void createGrayReleaseShouldRejectUserTokenEmergencyPublishWhenEnvDisallowsIt() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(portalConfig.isEmergencyPublishAllowed(Env.DEV)).thenReturn(false);
+
+    NamespaceReleaseDTO request = releaseRequest("gray release", "spoofed-user", true);
+
+    assertThatThrownBy(() -> releaseController.createGrayRelease(APP_ID, ENV, CLUSTER, NAMESPACE,
+        BRANCH, request, null)).isInstanceOf(BadRequestException.class);
+
+    verify(releaseService, never()).publish(any(NamespaceReleaseModel.class));
+  }
+
+  @Test
+  void createGrayDelReleaseShouldRejectUserTokenEmergencyPublishWhenEnvDisallowsIt() {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(portalConfig.isEmergencyPublishAllowed(Env.DEV)).thenReturn(false);
+
+    NamespaceGrayDelReleaseDTO request =
+        grayDelReleaseRequest("gray delete release", "spoofed-user", true);
+
+    assertThatThrownBy(() -> releaseController.createGrayDelRelease(APP_ID, ENV, CLUSTER, NAMESPACE,
+        BRANCH, request, null)).isInstanceOf(BadRequestException.class);
+
+    verify(releaseService, never()).publish(any(NamespaceGrayDelReleaseModel.class), anyString());
   }
 
   @Test
@@ -843,6 +886,17 @@ class ReleaseBranchInstanceControllerTest {
     request.setReleaseComment("release comment");
     request.setReleasedBy(releasedBy);
     request.setIsEmergencyPublish(emergencyPublish);
+    return request;
+  }
+
+  private NamespaceGrayDelReleaseDTO grayDelReleaseRequest(String title, String releasedBy,
+      boolean emergencyPublish) {
+    NamespaceGrayDelReleaseDTO request = new NamespaceGrayDelReleaseDTO();
+    request.setReleaseTitle(title);
+    request.setReleaseComment("release comment");
+    request.setReleasedBy(releasedBy);
+    request.setIsEmergencyPublish(emergencyPublish);
+    request.setGrayDelKeys(Collections.singletonList("timeout"));
     return request;
   }
 

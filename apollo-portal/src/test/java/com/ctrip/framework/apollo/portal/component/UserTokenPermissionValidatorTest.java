@@ -21,10 +21,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.portal.entity.po.UserToken;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenNamespaceScope;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
+import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +50,12 @@ class UserTokenPermissionValidatorTest {
   @Mock
   private UserTokenAuthUtil userTokenAuthUtil;
 
+  @Mock
+  private RolePermissionService rolePermissionService;
+
+  @Mock
+  private UserInfoHolder userInfoHolder;
+
   private UserTokenPermissionValidator validator;
   private UserToken userToken;
   private UserTokenScope scope;
@@ -52,7 +63,7 @@ class UserTokenPermissionValidatorTest {
   @BeforeEach
   void setUp() {
     validator = new UserTokenPermissionValidator(userPermissionValidator, userTokenService,
-        userTokenAuthUtil);
+        userTokenAuthUtil, rolePermissionService, userInfoHolder);
     userToken = new UserToken();
     scope = new UserTokenScope();
     when(userTokenAuthUtil.retrieveUserTokenFromCtx()).thenReturn(userToken);
@@ -99,9 +110,28 @@ class UserTokenPermissionValidatorTest {
   void hasReadApplicationPermissionRespectsAppScope() {
     scope.setOperations(Collections.singleton(UserTokenOperation.CONFIG_READ));
     scope.setAppIds(Collections.singleton("app"));
+    allowCurrentUserApp("app");
 
     assertTrue(validator.hasReadApplicationPermission("app"));
     assertFalse(validator.hasReadApplicationPermission("other-app"));
+  }
+
+  @Test
+  void hasReadApplicationPermissionReturnsFalseWhenCurrentUserPermissionDenies() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.CONFIG_READ));
+    scope.setAppIds(Collections.singleton("app"));
+    denyCurrentUserApps();
+
+    assertFalse(validator.hasReadApplicationPermission("app"));
+  }
+
+  @Test
+  void hasReadApplicationPermissionIntersectsUnboundedAppScopeWithCurrentUserApps() {
+    scope.setOperations(Collections.singleton(UserTokenOperation.CONFIG_READ));
+    allowCurrentUserApp("app");
+
+    assertTrue(validator.hasReadApplicationPermission("app"));
+    assertFalse(validator.hasReadApplicationPermission("secret-app"));
   }
 
   @Test
@@ -170,5 +200,25 @@ class UserTokenPermissionValidatorTest {
     namespaceScope.setClusterName(clusterName);
     namespaceScope.setNamespaceName(namespaceName);
     return namespaceScope;
+  }
+
+  private void allowCurrentUserApp(String appId) {
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("token-user");
+    Role role = new Role();
+    role.setRoleName(RoleUtils.buildAppMasterRoleName(appId));
+    when(userInfoHolder.getUser()).thenReturn(userInfo);
+    when(rolePermissionService.isSuperAdmin(userInfo.getUserId())).thenReturn(false);
+    when(rolePermissionService.findUserRoles(userInfo.getUserId()))
+        .thenReturn(Collections.singletonList(role));
+  }
+
+  private void denyCurrentUserApps() {
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId("token-user");
+    when(userInfoHolder.getUser()).thenReturn(userInfo);
+    when(rolePermissionService.isSuperAdmin(userInfo.getUserId())).thenReturn(false);
+    when(rolePermissionService.findUserRoles(userInfo.getUserId()))
+        .thenReturn(Collections.emptyList());
   }
 }

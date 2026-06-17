@@ -17,14 +17,21 @@
 package com.ctrip.framework.apollo.portal.component;
 
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
+import com.ctrip.framework.apollo.core.utils.StringUtils;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.po.UserToken;
+import com.ctrip.framework.apollo.portal.entity.po.Role;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenOperation;
 import com.ctrip.framework.apollo.portal.entity.vo.usertoken.UserTokenScope;
+import com.ctrip.framework.apollo.portal.service.RolePermissionService;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
+import com.ctrip.framework.apollo.portal.util.RoleUtils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Component;
 
@@ -43,12 +50,17 @@ public class UserTokenPermissionValidator implements PermissionValidator {
   private final UserPermissionValidator userPermissionValidator;
   private final UserTokenService userTokenService;
   private final UserTokenAuthUtil userTokenAuthUtil;
+  private final RolePermissionService rolePermissionService;
+  private final UserInfoHolder userInfoHolder;
 
   public UserTokenPermissionValidator(final UserPermissionValidator userPermissionValidator,
-      final UserTokenService userTokenService, final UserTokenAuthUtil userTokenAuthUtil) {
+      final UserTokenService userTokenService, final UserTokenAuthUtil userTokenAuthUtil,
+      final RolePermissionService rolePermissionService, final UserInfoHolder userInfoHolder) {
     this.userPermissionValidator = userPermissionValidator;
     this.userTokenService = userTokenService;
     this.userTokenAuthUtil = userTokenAuthUtil;
+    this.rolePermissionService = rolePermissionService;
+    this.userInfoHolder = userInfoHolder;
   }
 
   @Override
@@ -131,7 +143,8 @@ public class UserTokenPermissionValidator implements PermissionValidator {
   @Override
   public boolean hasReadApplicationPermission(String appId) {
     UserTokenScope scope = scope();
-    return allowsAnyOperation(scope, APP_READ_OPERATIONS) && scope.allowsApp(appId);
+    return allowsAnyOperation(scope, APP_READ_OPERATIONS) && scope.allowsApp(appId)
+        && currentUserHasReadApplicationPermission(appId);
   }
 
   @Override
@@ -188,6 +201,27 @@ public class UserTokenPermissionValidator implements PermissionValidator {
   private UserTokenScope scope() {
     UserToken userToken = userTokenAuthUtil.retrieveUserTokenFromCtx();
     return userTokenService.parseScope(userToken);
+  }
+
+  private boolean currentUserHasReadApplicationPermission(String appId) {
+    UserInfo userInfo = userInfoHolder.getUser();
+    if (userInfo == null || StringUtils.isBlank(userInfo.getUserId())) {
+      return false;
+    }
+    String userId = userInfo.getUserId();
+    if (rolePermissionService.isSuperAdmin(userId)) {
+      return true;
+    }
+    List<Role> userRoles = rolePermissionService.findUserRoles(userId);
+    if (userRoles == null) {
+      return false;
+    }
+    for (Role role : userRoles) {
+      if (role != null && appId.equals(RoleUtils.extractAppIdFromRoleName(role.getRoleName()))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private boolean allowsAnyOperation(UserTokenScope scope, Collection<String> operations) {
