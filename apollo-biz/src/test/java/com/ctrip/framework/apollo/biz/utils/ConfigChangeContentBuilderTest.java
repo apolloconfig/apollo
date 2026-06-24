@@ -16,9 +16,10 @@
  */
 package com.ctrip.framework.apollo.biz.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,6 +71,43 @@ public class ConfigChangeContentBuilderTest {
     configChangeContentBuilder.getUpdateItems().clear();
     configChangeContentBuilder.getDeleteItems().clear();
     assertFalse(configChangeContentBuilder.hasContent());
+  }
+
+  @Test
+  public void testUpdateItemWithNullOldValue() {
+    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
+
+    Item oldItem = new Item();
+    oldItem.setKey("someKey");
+    oldItem.setValue(null);
+
+    Item newItem = new Item();
+    newItem.setKey("someKey");
+    newItem.setValue("newValue");
+
+    // Should NOT throw NPE; should detect change from null to non-null
+    builder.updateItem(oldItem, newItem);
+
+    assertTrue("should detect change from null to non-null", builder.hasContent());
+    assertEquals("should have one update item", 1, builder.getUpdateItems().size());
+  }
+
+  @Test
+  public void testUpdateItemWithBothNullValues() {
+    ConfigChangeContentBuilder builder = new ConfigChangeContentBuilder();
+
+    Item oldItem = new Item();
+    oldItem.setKey("someKey");
+    oldItem.setValue(null);
+
+    Item newItem = new Item();
+    newItem.setKey("someKey");
+    newItem.setValue(null);
+
+    // Both values are null so no change should be recorded
+    builder.updateItem(oldItem, newItem);
+
+    assertFalse("no change when both values are null", builder.hasContent());
   }
 
   @Test

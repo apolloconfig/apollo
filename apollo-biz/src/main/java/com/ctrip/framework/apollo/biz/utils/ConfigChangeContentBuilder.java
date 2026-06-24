@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.BeanUtils;
 
 public class ConfigChangeContentBuilder {
@@ -41,7 +42,7 @@ public class ConfigChangeContentBuilder {
   }
 
   public ConfigChangeContentBuilder updateItem(Item oldItem, Item newItem) {
-    if (!oldItem.getValue().equals(newItem.getValue())) {
+    if (!Objects.equals(oldItem.getValue(), newItem.getValue())) {
       ItemPair itemPair = new ItemPair(cloneItem(oldItem), cloneItem(newItem));
       updateItems.add(itemPair);
     }
