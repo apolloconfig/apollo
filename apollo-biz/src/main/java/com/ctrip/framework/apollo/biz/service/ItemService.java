@@ -240,7 +240,7 @@ public class ItemService {
       int grayNamespaceLimit) {
     Namespace parentNamespace = namespaceService.findParentNamespace(grayNamespace);
     if (parentNamespace != null) {
-      int parentLimit = getItemValueLengthLimit(grayNamespace);
+      int parentLimit = getItemValueLengthLimit(parentNamespace);
       if (parentLimit > grayNamespaceLimit) {
         return parentLimit;
       }
