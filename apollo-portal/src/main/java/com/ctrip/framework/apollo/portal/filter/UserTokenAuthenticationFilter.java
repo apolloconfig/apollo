@@ -96,8 +96,7 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
       try {
         RateLimiter rateLimiter = getOrCreateRateLimiter(userToken.getTokenPrefix(), rateLimit);
         if (!rateLimiter.tryAcquire()) {
-          writeOpenApiError(response, TOO_MANY_REQUESTS,
-              "Too Many Requests, the flow is limited");
+          writeOpenApiError(response, TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
           return;
         }
       } catch (Exception e) {

@@ -126,8 +126,7 @@ class UserTokenAuthenticationFilterTest {
     filter.doFilter(firstRequest, firstResponse, filterChain);
     SecurityContextHolder.clearContext();
 
-    MockHttpServletRequest limitedRequest =
-        new MockHttpServletRequest("GET", "/openapi/v1/apps");
+    MockHttpServletRequest limitedRequest = new MockHttpServletRequest("GET", "/openapi/v1/apps");
     MockHttpServletResponse limitedResponse = new MockHttpServletResponse();
     limitedRequest.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
 
