@@ -19,6 +19,7 @@ Apollo 3.0.0
 * [Change: complete Apollo Portal UI management OpenAPI migration](https://github.com/apolloconfig/apollo/pull/5618)
 * [Feature: allow explicitly authorized consumer tokens to manage portal users](https://github.com/apolloconfig/apollo/pull/5623)
 * [Feature: add user access tokens for AI agents and automation](https://github.com/apolloconfig/apollo/pull/5632)
+* [Fix: return 429 instead of redirecting to sign-in for OpenAPI user token rate limits](https://github.com/apolloconfig/apollo/pull/5637)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
