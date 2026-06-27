@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.portal.entity.po.UserToken;
 import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
+import java.util.UUID;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -111,11 +113,12 @@ class UserTokenAuthenticationFilterTest {
 
   @Test
   void rateLimitedUserTokenReturnsTooManyRequestsWithoutErrorDispatch() throws Exception {
-    String token = UserTokenService.TOKEN_PREFIX + "rate429_secret";
+    String tokenPrefix = "rate429_" + UUID.randomUUID();
+    String token = UserTokenService.TOKEN_PREFIX + tokenPrefix + "_secret";
     UserToken userToken = new UserToken();
     userToken.setId(1L);
     userToken.setUserId("apollo");
-    userToken.setTokenPrefix("rate429");
+    userToken.setTokenPrefix(tokenPrefix);
     userToken.setRateLimit(1);
     when(userTokenService.authenticate(org.mockito.ArgumentMatchers.eq(token),
         org.mockito.ArgumentMatchers.any())).thenReturn(userToken);
@@ -134,6 +137,9 @@ class UserTokenAuthenticationFilterTest {
 
     assertEquals(429, limitedResponse.getStatus());
     assertNull(limitedResponse.getErrorMessage());
+    assertEquals(MediaType.APPLICATION_JSON_VALUE, limitedResponse.getContentType());
+    assertEquals("{\"message\":\"Too Many Requests, the flow is limited\"}",
+        limitedResponse.getContentAsString());
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     verify(filterChain).doFilter(firstRequest, firstResponse);
     verify(filterChain, never()).doFilter(limitedRequest, limitedResponse);
