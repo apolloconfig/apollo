@@ -87,7 +87,7 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
 
     UserToken userToken = userTokenService.authenticate(token, request);
     if (userToken == null) {
-      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized user token");
+      writeOpenApiError(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized user token");
       return;
     }
 
@@ -96,12 +96,14 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
       try {
         RateLimiter rateLimiter = getOrCreateRateLimiter(userToken.getTokenPrefix(), rateLimit);
         if (!rateLimiter.tryAcquire()) {
-          response.sendError(TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
+          writeOpenApiError(response, TOO_MANY_REQUESTS,
+              "Too Many Requests, the flow is limited");
           return;
         }
       } catch (Exception e) {
         logger.error("UserTokenAuthenticationFilter ratelimit error", e);
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Rate limiting failed");
+        writeOpenApiError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            "Rate limiting failed");
         return;
       }
     }
@@ -123,6 +125,13 @@ public class UserTokenAuthenticationFilter extends OncePerRequestFilter {
       return null;
     }
     return token;
+  }
+
+  private void writeOpenApiError(HttpServletResponse response, int status, String message)
+      throws IOException {
+    response.setStatus(status);
+    response.setContentType("application/json;charset=UTF-8");
+    response.getWriter().write("{\"message\":\"" + message + "\"}");
   }
 
   private RateLimiter getOrCreateRateLimiter(String key, Integer limitCount) {
