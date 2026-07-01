@@ -90,6 +90,15 @@ public class AccessKeyUtilTest {
 
   @Test
   public void testExtractAppIdFromRequest4() {
+    when(request.getServletPath()).thenReturn("/configfiles/raw/someAppId/default/application");
+
+    String appId = accessKeyUtil.extractAppIdFromRequest(request);
+
+    assertThat(appId).isEqualTo("someAppId");
+  }
+
+  @Test
+  public void testExtractAppIdFromRequest5() {
     when(request.getServletPath()).thenReturn("/notifications/v2");
     when(request.getParameter("appId")).thenReturn("someAppId");
 
