@@ -17,13 +17,15 @@
 package com.ctrip.framework.apollo.biz.repository;
 
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -53,5 +55,9 @@ public interface ReleaseHistoryRepository extends JpaRepository<ReleaseHistory, 
 
   List<ReleaseHistory> findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
       String appId, String clusterName, String namespaceName, String branchName, long maxId);
+
+  @Modifying
+  @Query(value = "DELETE FROM `ReleaseHistory` WHERE `Id` IN (:ids)", nativeQuery = true)
+  int deletePhysicallyByIdIn(@Param("ids") Collection<Long> ids);
 
 }

@@ -201,14 +201,19 @@ public class ReleaseHistoryService {
       List<ReleaseHistory> cleanReleaseHistoryList = releaseHistoryRepository
           .findFirst100ByAppIdAndClusterNameAndNamespaceNameAndBranchNameAndIdLessThanEqualOrderByIdAsc(
               appId, clusterName, namespaceName, branchName, maxId.get());
+      if (cleanReleaseHistoryList.isEmpty()) {
+        break;
+      }
+      List<Long> releaseHistoryIds =
+          cleanReleaseHistoryList.stream().map(ReleaseHistory::getId).collect(Collectors.toList());
       Set<Long> releaseIds = cleanReleaseHistoryList.stream().map(ReleaseHistory::getReleaseId)
           .collect(Collectors.toSet());
 
       transactionManager.execute(new TransactionCallbackWithoutResult() {
         @Override
         protected void doInTransactionWithoutResult(TransactionStatus status) {
-          releaseHistoryRepository.deleteAll(cleanReleaseHistoryList);
-          releaseRepository.deleteAllById(releaseIds);
+          releaseHistoryRepository.deletePhysicallyByIdIn(releaseHistoryIds);
+          releaseRepository.deletePhysicallyByIdIn(releaseIds);
         }
       });
       hasMore = cleanReleaseHistoryList.size() == 100;

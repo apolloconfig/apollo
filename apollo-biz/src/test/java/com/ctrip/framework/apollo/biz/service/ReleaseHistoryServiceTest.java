@@ -43,6 +43,7 @@ import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.jdbc.Sql;
@@ -78,6 +79,8 @@ public class ReleaseHistoryServiceTest {
   private ReleaseHistoryRepository releaseHistoryRepository;
   @Autowired
   private ReleaseRepository releaseRepository;
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
 
   @Before
   public void setUp() throws Exception {
@@ -115,12 +118,16 @@ public class ReleaseHistoryServiceTest {
     ReflectionUtils.invokeMethod(method, service, mockReleaseHistory);
     Assert.assertEquals(6, releaseHistoryRepository.count());
     Assert.assertEquals(6, releaseRepository.count());
+    Assert.assertEquals(6, countReleaseHistoryRows());
+    Assert.assertEquals(6, countReleaseRows());
 
     when(bizConfig.releaseHistoryRetentionSize()).thenReturn(2);
     when(bizConfig.releaseHistoryRetentionSizeOverride()).thenReturn(Maps.newHashMap());
     ReflectionUtils.invokeMethod(method, service, mockReleaseHistory);
     Assert.assertEquals(2, releaseHistoryRepository.count());
     Assert.assertEquals(2, releaseRepository.count());
+    Assert.assertEquals(2, countReleaseHistoryRows());
+    Assert.assertEquals(2, countReleaseRows());
 
     when(bizConfig.releaseHistoryRetentionSize()).thenReturn(2);
     when(bizConfig.releaseHistoryRetentionSizeOverride())
@@ -128,6 +135,8 @@ public class ReleaseHistoryServiceTest {
     ReflectionUtils.invokeMethod(method, service, mockReleaseHistory);
     Assert.assertEquals(1, releaseHistoryRepository.count());
     Assert.assertEquals(1, releaseRepository.count());
+    Assert.assertEquals(1, countReleaseHistoryRows());
+    Assert.assertEquals(1, countReleaseRows());
 
     Iterable<ReleaseHistory> historyList = releaseHistoryRepository.findAll();
     historyList.forEach(history -> Assert.assertEquals(6, history.getId()));
@@ -153,18 +162,30 @@ public class ReleaseHistoryServiceTest {
     when(bizConfig.releaseHistoryRetentionSizeOverride()).thenReturn(Maps.newHashMap());
     ReflectionTestUtils.setField(releaseHistoryService, "releaseRepository", mockReleaseRepository);
     doThrow(new JDBCConnectionException("error", new SQLException("sql")))
-        .when(mockReleaseRepository).deleteAllById(any());
+        .when(mockReleaseRepository).deletePhysicallyByIdIn(any());
     Assert.assertThrows(JDBCConnectionException.class,
         () -> ReflectionUtils.invokeMethod(method, service, mockReleaseHistory));
 
     Assert.assertEquals(6, releaseHistoryRepository.count());
+    Assert.assertEquals(6, countReleaseHistoryRows());
 
     ReflectionTestUtils.setField(releaseHistoryService, "releaseRepository", releaseRepository);
     Assert.assertEquals(6, releaseRepository.count());
+    Assert.assertEquals(6, countReleaseRows());
 
     ReflectionUtils.invokeMethod(method, service, mockReleaseHistory);
     Assert.assertEquals(1, releaseHistoryRepository.count());
     Assert.assertEquals(1, releaseRepository.count());
+    Assert.assertEquals(1, countReleaseHistoryRows());
+    Assert.assertEquals(1, countReleaseRows());
+  }
+
+  private int countReleaseHistoryRows() {
+    return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM ReleaseHistory", Integer.class);
+  }
+
+  private int countReleaseRows() {
+    return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM \"Release\"", Integer.class);
   }
 
 }
