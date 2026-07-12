@@ -265,6 +265,14 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
     assertEquals(2, occurrences(readScript("04-purge-soft-deleted-rows.sql"), "LIMIT 1000"));
   }
 
+  @Test
+  public void scriptsForceReleaseHistoryReferenceIndexes() throws IOException {
+    assertReleaseHistoryIndexHints("01-precheck-releases-needing-restore.sql", 3);
+    assertReleaseHistoryIndexHints("02-precheck-soft-deleted-rows.sql", 1);
+    assertReleaseHistoryIndexHints("03-restore-referenced-releases.sql", 2);
+    assertReleaseHistoryIndexHints("04-purge-soft-deleted-rows.sql", 1);
+  }
+
   private void createSchema() {
     jdbcTemplate.execute(
         "CREATE TABLE `Namespace` (" + "`Id` BIGINT PRIMARY KEY, `AppId` VARCHAR(64) NOT NULL, "
@@ -377,8 +385,18 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
   private List<String> readStatements(Path script) throws IOException {
     String sql = Files.readAllLines(script, StandardCharsets.UTF_8).stream()
         .filter(line -> !line.trim().startsWith("--")).collect(Collectors.joining("\n"));
+    // H2's MySQL mode does not support MySQL index hints. The raw script hints are asserted
+    // separately, while H2 verifies the equivalent query behavior without optimizer directives.
+    sql = sql.replaceAll("(?i)\\s+FORCE\\s+INDEX\\s*\\(`[^`]+`\\)", "");
     return Arrays.stream(sql.split(";")).map(String::trim).filter(statement -> !statement.isEmpty())
         .collect(Collectors.toList());
+  }
+
+  private void assertReleaseHistoryIndexHints(String scriptName, int expectedPerIndex)
+      throws IOException {
+    String sql = readScript(scriptName);
+    assertEquals(expectedPerIndex, occurrences(sql, "FORCE INDEX (`IX_ReleaseId`)"));
+    assertEquals(expectedPerIndex, occurrences(sql, "FORCE INDEX (`IX_PreviousReleaseId`)"));
   }
 
   private String readScript(String scriptName) throws IOException {
@@ -386,7 +404,13 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
   }
 
   private int occurrences(String value, String token) {
-    return value.split(token, -1).length - 1;
+    int count = 0;
+    int offset = 0;
+    while ((offset = value.indexOf(token, offset)) >= 0) {
+      count++;
+      offset += token.length();
+    }
+    return count;
   }
 
   private List<Map<String, Object>> readRows(ResultSet resultSet) throws SQLException {

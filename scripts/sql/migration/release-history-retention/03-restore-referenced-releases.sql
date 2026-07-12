@@ -18,6 +18,7 @@
 -- restores releases from the current active Namespace incarnation, using the
 -- millisecond-resolution DeletedAt boundary. It restores at most 1000 releases
 -- per execution and is safe to rerun.
+-- ReleaseId and PreviousReleaseId checks are split so MySQL 5.7 can use both indexes.
 
 SET AUTOCOMMIT = FALSE;
 
@@ -46,9 +47,15 @@ WHERE r.`IsDeleted` = TRUE
   AND (
     EXISTS (
       SELECT 1
-      FROM `ReleaseHistory` h
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
       WHERE h.`IsDeleted` = FALSE
-        AND (h.`ReleaseId` = r.`Id` OR h.`PreviousReleaseId` = r.`Id`)
+        AND h.`ReleaseId` = r.`Id`
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
+      WHERE h.`IsDeleted` = FALSE
+        AND h.`PreviousReleaseId` = r.`Id`
     )
     OR EXISTS (
       SELECT 1
@@ -88,9 +95,15 @@ WHERE r.`IsDeleted` = TRUE
   AND (
     EXISTS (
       SELECT 1
-      FROM `ReleaseHistory` h
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
       WHERE h.`IsDeleted` = FALSE
-        AND (h.`ReleaseId` = r.`Id` OR h.`PreviousReleaseId` = r.`Id`)
+        AND h.`ReleaseId` = r.`Id`
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
+      WHERE h.`IsDeleted` = FALSE
+        AND h.`PreviousReleaseId` = r.`Id`
     )
     OR EXISTS (
       SELECT 1

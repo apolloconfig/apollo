@@ -19,6 +19,7 @@
 -- restored when an active release history or active gray release rule still
 -- references it. DeletedAt provides the millisecond-resolution incarnation
 -- boundary: namespace deletion soft-deletes releases before the Namespace row.
+-- ReleaseId and PreviousReleaseId checks are split so MySQL 5.7 can use both indexes.
 
 SELECT COUNT(*) AS `ReleasesNeedingRestore`,
        COALESCE(SUM(EXISTS (
@@ -50,9 +51,15 @@ WHERE r.`IsDeleted` = TRUE
   AND (
     EXISTS (
       SELECT 1
-      FROM `ReleaseHistory` h
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
       WHERE h.`IsDeleted` = FALSE
-        AND (h.`ReleaseId` = r.`Id` OR h.`PreviousReleaseId` = r.`Id`)
+        AND h.`ReleaseId` = r.`Id`
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
+      WHERE h.`IsDeleted` = FALSE
+        AND h.`PreviousReleaseId` = r.`Id`
     )
     OR EXISTS (
       SELECT 1
@@ -72,13 +79,13 @@ SELECT r.`Id`,
        r.`NamespaceName`,
        EXISTS (
          SELECT 1
-         FROM `ReleaseHistory` h
+         FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
          WHERE h.`IsDeleted` = FALSE
            AND h.`ReleaseId` = r.`Id`
        ) AS `ReferencedByReleaseHistory`,
        EXISTS (
          SELECT 1
-         FROM `ReleaseHistory` h
+         FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
          WHERE h.`IsDeleted` = FALSE
            AND h.`PreviousReleaseId` = r.`Id`
        ) AS `ReferencedAsPreviousRelease`,
@@ -118,9 +125,15 @@ WHERE r.`IsDeleted` = TRUE
   AND (
     EXISTS (
       SELECT 1
-      FROM `ReleaseHistory` h
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
       WHERE h.`IsDeleted` = FALSE
-        AND (h.`ReleaseId` = r.`Id` OR h.`PreviousReleaseId` = r.`Id`)
+        AND h.`ReleaseId` = r.`Id`
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
+      WHERE h.`IsDeleted` = FALSE
+        AND h.`PreviousReleaseId` = r.`Id`
     )
     OR EXISTS (
       SELECT 1

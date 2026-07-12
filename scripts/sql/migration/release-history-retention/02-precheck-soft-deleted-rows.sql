@@ -93,6 +93,7 @@ WHERE r.`IsDeleted` = TRUE;
 
 -- These retention-scoped release rows can be physically deleted now. More rows
 -- may become eligible after retention-generated release histories are purged.
+-- Separate index-forced checks avoid the MySQL 5.7 full scan caused by an OR predicate.
 SELECT COUNT(*) AS `RetentionReleaseRowsEligibleForDeletion`
 FROM `Release` r
 WHERE r.`IsDeleted` = TRUE
@@ -115,9 +116,13 @@ WHERE r.`IsDeleted` = TRUE
   )
   AND NOT EXISTS (
     SELECT 1
-    FROM `ReleaseHistory` h
+    FROM `ReleaseHistory` h FORCE INDEX (`IX_ReleaseId`)
     WHERE h.`ReleaseId` = r.`Id`
-       OR h.`PreviousReleaseId` = r.`Id`
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `ReleaseHistory` h FORCE INDEX (`IX_PreviousReleaseId`)
+    WHERE h.`PreviousReleaseId` = r.`Id`
   )
   AND NOT EXISTS (
     SELECT 1
