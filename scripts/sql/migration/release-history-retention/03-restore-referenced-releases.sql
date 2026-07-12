@@ -35,6 +35,7 @@ WHERE r.`IsDeleted` = TRUE
       SELECT 1
       FROM `GrayReleaseRule` g
       WHERE g.`IsDeleted` = FALSE
+        AND g.`BranchStatus` = 1
         AND g.`ReleaseId` = r.`Id`
     )
   )
@@ -59,6 +60,7 @@ WHERE r.`IsDeleted` = TRUE
       SELECT 1
       FROM `GrayReleaseRule` g
       WHERE g.`IsDeleted` = FALSE
+        AND g.`BranchStatus` = 1
         AND g.`ReleaseId` = r.`Id`
     )
   );

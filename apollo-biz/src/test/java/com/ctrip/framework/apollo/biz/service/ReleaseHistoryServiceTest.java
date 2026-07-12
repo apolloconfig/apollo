@@ -27,6 +27,7 @@ import com.ctrip.framework.apollo.biz.entity.Release;
 import com.ctrip.framework.apollo.biz.entity.ReleaseHistory;
 import com.ctrip.framework.apollo.biz.repository.ReleaseHistoryRepository;
 import com.ctrip.framework.apollo.biz.repository.ReleaseRepository;
+import com.ctrip.framework.apollo.common.constants.NamespaceBranchStatus;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.lang.reflect.Method;
@@ -178,15 +179,36 @@ public class ReleaseHistoryServiceTest {
       executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testCleanReleaseHistoryKeepsReleaseReferencedByActiveGrayReleaseRule() {
-    jdbcTemplate.update("INSERT INTO GrayReleaseRule "
-        + "(AppId, ClusterName, NamespaceName, BranchName, Rules, ReleaseId, BranchStatus) "
-        + "VALUES ('kl-app', 'default', 'application', 'default', '[]', 1, 1)");
+    jdbcTemplate.update(
+        "INSERT INTO GrayReleaseRule "
+            + "(AppId, ClusterName, NamespaceName, BranchName, Rules, ReleaseId, BranchStatus) "
+            + "VALUES ('kl-app', 'default', 'application', 'default', '[]', 1, ?)",
+        NamespaceBranchStatus.ACTIVE);
 
     invokeCleanReleaseHistory(1);
 
     Assert.assertEquals(1, countReleaseHistoryRows());
     Assert.assertEquals(3, countReleaseRows());
     Assert.assertTrue(releaseRepository.findById(1L).isPresent());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/release-history-test.sql",
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testCleanReleaseHistoryIgnoresInactiveGrayReleaseRules() {
+    jdbcTemplate.update(
+        "INSERT INTO GrayReleaseRule "
+            + "(AppId, ClusterName, NamespaceName, BranchName, Rules, ReleaseId, BranchStatus) "
+            + "VALUES ('kl-app', 'default', 'application', 'deleted', '[]', 1, ?), "
+            + "('kl-app', 'default', 'application', 'merged', '[]', 1, ?)",
+        NamespaceBranchStatus.DELETED, NamespaceBranchStatus.MERGED);
+
+    invokeCleanReleaseHistory(1);
+
+    Assert.assertEquals(1, countReleaseHistoryRows());
+    Assert.assertEquals(2, countReleaseRows());
+    Assert.assertFalse(releaseRepository.findById(1L).isPresent());
   }
 
   @Test

@@ -67,7 +67,8 @@ public interface ReleaseRepository extends JpaRepository<Release, Long> {
       + "AND NOT EXISTS (SELECT 1 FROM `ReleaseHistory` h "
       + "WHERE h.`PreviousReleaseId` = `Release`.`Id`) "
       + "AND NOT EXISTS (SELECT 1 FROM `GrayReleaseRule` g "
-      + "WHERE g.`IsDeleted` = false AND g.`ReleaseId` = `Release`.`Id`)", nativeQuery = true)
+      + "WHERE g.`IsDeleted` = false AND g.`BranchStatus` = 1 "
+      + "AND g.`ReleaseId` = `Release`.`Id`)", nativeQuery = true)
   int deletePhysicallyIfUnreferencedByIdIn(@Param("ids") Collection<Long> ids);
 
   // For release history conversion program, need to delete after conversion it done

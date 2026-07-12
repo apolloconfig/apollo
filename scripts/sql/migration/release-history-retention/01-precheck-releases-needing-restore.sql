@@ -39,6 +39,7 @@ WHERE r.`IsDeleted` = TRUE
       SELECT 1
       FROM `GrayReleaseRule` g
       WHERE g.`IsDeleted` = FALSE
+        AND g.`BranchStatus` = 1
         AND g.`ReleaseId` = r.`Id`
     )
   );
@@ -66,6 +67,7 @@ SELECT r.`Id`,
          SELECT 1
          FROM `GrayReleaseRule` g
          WHERE g.`IsDeleted` = FALSE
+           AND g.`BranchStatus` = 1
            AND g.`ReleaseId` = r.`Id`
        ) AS `ReferencedByGrayReleaseRule`,
        EXISTS (
@@ -88,6 +90,7 @@ WHERE r.`IsDeleted` = TRUE
       SELECT 1
       FROM `GrayReleaseRule` g
       WHERE g.`IsDeleted` = FALSE
+        AND g.`BranchStatus` = 1
         AND g.`ReleaseId` = r.`Id`
     )
   )

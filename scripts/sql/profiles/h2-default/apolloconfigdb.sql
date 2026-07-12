@@ -179,7 +179,8 @@ CREATE TABLE `GrayReleaseRule` (
   `DataChange_LastTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后修改时间',
   PRIMARY KEY (`Id`),
   KEY `GrayReleaseRule_DataChange_LastTime` (`DataChange_LastTime`),
-  KEY `GrayReleaseRule_IX_Namespace` (`AppId`,`ClusterName`,`NamespaceName`)
+  KEY `GrayReleaseRule_IX_Namespace` (`AppId`,`ClusterName`,`NamespaceName`),
+  KEY `GrayReleaseRule_IX_ReleaseId_BranchStatus_IsDeleted` (`ReleaseId`,`BranchStatus`,`IsDeleted`)
 )   COMMENT='灰度规则表';
 
 
