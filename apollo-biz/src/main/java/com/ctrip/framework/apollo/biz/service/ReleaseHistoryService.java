@@ -27,6 +27,7 @@ import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
 import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.common.collect.Queues;
 import com.google.gson.Gson;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
@@ -206,14 +207,23 @@ public class ReleaseHistoryService {
       }
       List<Long> releaseHistoryIds =
           cleanReleaseHistoryList.stream().map(ReleaseHistory::getId).collect(Collectors.toList());
-      Set<Long> releaseIds = cleanReleaseHistoryList.stream().map(ReleaseHistory::getReleaseId)
-          .collect(Collectors.toSet());
+      Set<Long> releaseIds = new HashSet<>();
+      for (ReleaseHistory releaseHistory : cleanReleaseHistoryList) {
+        if (releaseHistory.getReleaseId() > 0) {
+          releaseIds.add(releaseHistory.getReleaseId());
+        }
+        if (releaseHistory.getPreviousReleaseId() > 0) {
+          releaseIds.add(releaseHistory.getPreviousReleaseId());
+        }
+      }
 
       transactionManager.execute(new TransactionCallbackWithoutResult() {
         @Override
         protected void doInTransactionWithoutResult(TransactionStatus status) {
           releaseHistoryRepository.deletePhysicallyByIdIn(releaseHistoryIds);
-          releaseRepository.deletePhysicallyByIdIn(releaseIds);
+          if (!releaseIds.isEmpty()) {
+            releaseRepository.deletePhysicallyIfUnreferencedByIdIn(releaseIds);
+          }
         }
       });
       hasMore = cleanReleaseHistoryList.size() == 100;

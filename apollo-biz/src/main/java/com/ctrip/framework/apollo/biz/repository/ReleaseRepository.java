@@ -61,8 +61,14 @@ public interface ReleaseRepository extends JpaRepository<Release, Long> {
   int batchDelete(String appId, String clusterName, String namespaceName, String operator);
 
   @Modifying
-  @Query(value = "DELETE FROM `Release` WHERE `Id` IN (:ids)", nativeQuery = true)
-  int deletePhysicallyByIdIn(@Param("ids") Collection<Long> ids);
+  @Query(value = "DELETE FROM `Release` WHERE `Id` IN (:ids) "
+      + "AND NOT EXISTS (SELECT 1 FROM `ReleaseHistory` h "
+      + "WHERE h.`ReleaseId` = `Release`.`Id`) "
+      + "AND NOT EXISTS (SELECT 1 FROM `ReleaseHistory` h "
+      + "WHERE h.`PreviousReleaseId` = `Release`.`Id`) "
+      + "AND NOT EXISTS (SELECT 1 FROM `GrayReleaseRule` g "
+      + "WHERE g.`IsDeleted` = false AND g.`ReleaseId` = `Release`.`Id`)", nativeQuery = true)
+  int deletePhysicallyIfUnreferencedByIdIn(@Param("ids") Collection<Long> ids);
 
   // For release history conversion program, need to delete after conversion it done
   List<Release> findByAppIdAndClusterNameAndNamespaceNameOrderByIdAsc(String appId,
