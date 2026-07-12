@@ -4,10 +4,12 @@ These manual MySQL scripts repair data left by the old soft-delete retention beh
 physically purge it. They must be run against `ApolloConfigDB`; they are intentionally outside
 `scripts/sql/src` and are not executed as part of an automatic Apollo schema upgrade.
 
-The purge is deliberately limited to rows belonging to the current active `Namespace` incarnation
-and soft-deleted after that `Namespace` was created. This identifies rows produced by the old
-retention cleanup while excluding normal namespace-deletion rows and rows from a deleted and later
-recreated namespace. The precheck reports excluded rows separately; the purge never deletes them.
+The repair and purge are deliberately limited to rows belonging to the current active `Namespace`
+incarnation. The scripts use the millisecond-resolution `DeletedAt` values as the incarnation
+boundary: namespace deletion soft-deletes releases and release histories before soft-deleting the
+`Namespace` row, so rows whose `DeletedAt` is not later than a matching deleted `Namespace` are
+excluded. This remains unambiguous when deletion and recreation happen within the same second. The
+precheck reports excluded rows separately; the write scripts never modify them.
 
 Before running a write script, back up the database, stop Apollo Admin Service instances that can
 publish or clean releases, and confirm that replication and binary-log capacity can handle the

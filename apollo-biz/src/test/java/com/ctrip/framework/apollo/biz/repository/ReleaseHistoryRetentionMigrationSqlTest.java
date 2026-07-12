@@ -16,10 +16,10 @@
  */
 package com.ctrip.framework.apollo.biz.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,9 +39,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.sql.DataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -55,7 +55,7 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
   private JdbcTemplate jdbcTemplate;
   private Path scriptDirectory;
 
-  @Before
+  @BeforeEach
   public void setUp() throws SQLException {
     DriverManagerDataSource testDataSource = new DriverManagerDataSource();
     testDataSource.setDriverClassName("org.h2.Driver");
@@ -69,7 +69,7 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
     createSchema();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws SQLException {
     if (connection != null) {
       connection.close();
@@ -175,11 +175,12 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
   @Test
   public void purgeExcludesNamespaceDeletionAndPreviousNamespaceIncarnation() throws Exception {
     insertMigrationFixture();
-    insertNamespace(2, "deleted-namespace", true, "2026-01-01 00:00:00");
+    insertNamespace(2, "deleted-namespace", true, 7, "2026-01-01 00:00:00");
     insertRelease(7, "release-7", "deleted-namespace", true, 7, "2026-02-01 00:00:00");
     insertReleaseHistory(3, "deleted-namespace", 7, 0, true, "2026-02-01 00:00:00");
 
-    insertNamespace(3, "recreated-namespace", false, "2026-03-01 00:00:00");
+    insertNamespace(3, "recreated-namespace", true, 8, "2026-02-01 00:00:00");
+    insertNamespace(4, "recreated-namespace", false, 0, "2026-03-01 00:00:00");
     insertRelease(8, "release-8", "recreated-namespace", true, 8, "2026-02-01 00:00:00");
     insertReleaseHistory(4, "recreated-namespace", 8, 0, true, "2026-02-01 00:00:00");
 
@@ -201,6 +202,44 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
     assertTrue(releaseHistoryExists(4));
     assertTrue(releaseExists(7));
     assertTrue(releaseExists(8));
+  }
+
+  @Test
+  public void scriptsUseDeletedAtForSameSecondNamespaceRecreation() throws Exception {
+    insertMigrationFixture();
+    String sameSecond = "2026-04-01 00:00:00";
+    insertNamespace(2, "same-second", true, 1002, sameSecond);
+    insertNamespace(3, "same-second", false, 0, sameSecond);
+    insertRelease(7, "release-7", "same-second", true, 1001, sameSecond);
+    insertReleaseHistory(3, "same-second", 7, 0, true, 1001, sameSecond);
+    insertRelease(8, "release-8", "same-second", true, 1003, sameSecond);
+    insertReleaseHistory(4, "same-second", 8, 0, true, 1003, sameSecond);
+    insertRelease(9, "release-9", "same-second", true, 1001, sameSecond);
+    insertReleaseHistory(5, "same-second", 9, 0, false, 0, sameSecond);
+
+    List<List<Map<String, Object>>> restorePrecheck =
+        executeScript("01-precheck-releases-needing-restore.sql");
+    assertEquals(3, longValue(restorePrecheck.get(0).get(0), "ReleasesNeedingRestore"));
+    assertFalse(restorePrecheck.get(1).stream().anyMatch(row -> longValue(row, "Id") == 9));
+
+    List<List<Map<String, Object>>> precheck = executeScript("02-precheck-soft-deleted-rows.sql");
+    assertEquals(3, longValue(precheck.get(0).get(0), "SoftDeletedReleaseHistoryRows"));
+    assertEquals(2, longValue(precheck.get(0).get(0), "RetentionReleaseHistoryPurgeCandidates"));
+    assertEquals(1, longValue(precheck.get(0).get(0), "ExcludedSoftDeletedReleaseHistoryRows"));
+    assertEquals(8, longValue(precheck.get(1).get(0), "SoftDeletedReleaseRows"));
+    assertEquals(6, longValue(precheck.get(1).get(0), "RetentionScopedSoftDeletedReleaseRows"));
+    assertEquals(2, longValue(precheck.get(1).get(0), "ExcludedSoftDeletedReleaseRows"));
+
+    executeScript("03-restore-referenced-releases.sql");
+    assertTrue(isReleaseDeleted(9));
+    List<List<Map<String, Object>>> purgeResult = executeScript("04-purge-soft-deleted-rows.sql");
+    assertEquals(1, longValue(purgeResult.get(0).get(0), "ExcludedSoftDeletedReleaseHistoryRows"));
+    assertEquals(2, longValue(purgeResult.get(0).get(0), "ExcludedSoftDeletedReleaseRows"));
+    assertTrue(releaseHistoryExists(3));
+    assertFalse(releaseHistoryExists(4));
+    assertTrue(releaseExists(7));
+    assertFalse(releaseExists(8));
+    assertTrue(releaseExists(9));
   }
 
   @Test
@@ -230,7 +269,8 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
     jdbcTemplate.execute(
         "CREATE TABLE `Namespace` (" + "`Id` BIGINT PRIMARY KEY, `AppId` VARCHAR(64) NOT NULL, "
             + "`ClusterName` VARCHAR(32) NOT NULL, `NamespaceName` VARCHAR(32) NOT NULL, "
-            + "`IsDeleted` BOOLEAN NOT NULL, `DataChange_CreatedTime` TIMESTAMP NOT NULL)");
+            + "`IsDeleted` BOOLEAN NOT NULL, `DeletedAt` BIGINT NOT NULL, "
+            + "`DataChange_CreatedTime` TIMESTAMP NOT NULL)");
     jdbcTemplate.execute(
         "CREATE TABLE `Release` (" + "`Id` BIGINT PRIMARY KEY, `ReleaseKey` VARCHAR(64) NOT NULL, "
             + "`AppId` VARCHAR(64) NOT NULL, `ClusterName` VARCHAR(32) NOT NULL, "
@@ -242,7 +282,7 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
         + "`ClusterName` VARCHAR(32) NOT NULL, `NamespaceName` VARCHAR(32) NOT NULL, "
         + "`BranchName` VARCHAR(32) NOT NULL, `ReleaseId` BIGINT NOT NULL, "
         + "`PreviousReleaseId` BIGINT NOT NULL, `IsDeleted` BOOLEAN NOT NULL, "
-        + "`DataChange_LastTime` TIMESTAMP NOT NULL)");
+        + "`DeletedAt` BIGINT NOT NULL, `DataChange_LastTime` TIMESTAMP NOT NULL)");
     jdbcTemplate.execute("CREATE INDEX `IX_ReleaseId` ON `ReleaseHistory` (`ReleaseId`)");
     jdbcTemplate
         .execute("CREATE INDEX `IX_PreviousReleaseId` ON `ReleaseHistory` (`PreviousReleaseId`)");
@@ -252,7 +292,7 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
   }
 
   private void insertMigrationFixture() {
-    insertNamespace(1, "application", false, "2026-01-01 00:00:00");
+    insertNamespace(1, "application", false, 0, "2026-01-01 00:00:00");
     insertRelease(1, "release-1", true, 1);
     insertRelease(2, "release-2", true, 2);
     insertRelease(3, "release-3", true, 3);
@@ -279,24 +319,32 @@ public class ReleaseHistoryRetentionMigrationSqlTest {
 
   private void insertReleaseHistory(long id, long releaseId, long previousReleaseId,
       boolean deleted) {
-    insertReleaseHistory(id, "application", releaseId, previousReleaseId, deleted,
+    insertReleaseHistory(id, "application", releaseId, previousReleaseId, deleted, deleted ? id : 0,
         "2026-02-01 00:00:00");
   }
 
   private void insertReleaseHistory(long id, String namespaceName, long releaseId,
       long previousReleaseId, boolean deleted, String lastModifiedTime) {
+    insertReleaseHistory(id, namespaceName, releaseId, previousReleaseId, deleted, deleted ? id : 0,
+        lastModifiedTime);
+  }
+
+  private void insertReleaseHistory(long id, String namespaceName, long releaseId,
+      long previousReleaseId, boolean deleted, long deletedAt, String lastModifiedTime) {
     jdbcTemplate.update(
         "INSERT INTO `ReleaseHistory` (`Id`, `AppId`, `ClusterName`, "
             + "`NamespaceName`, `BranchName`, `ReleaseId`, `PreviousReleaseId`, `IsDeleted`, "
-            + "`DataChange_LastTime`) " + "VALUES (?, 'app', 'default', ?, 'default', ?, ?, ?, ?)",
-        id, namespaceName, releaseId, previousReleaseId, deleted, lastModifiedTime);
+            + "`DeletedAt`, `DataChange_LastTime`) "
+            + "VALUES (?, 'app', 'default', ?, 'default', ?, ?, ?, ?, ?)",
+        id, namespaceName, releaseId, previousReleaseId, deleted, deletedAt, lastModifiedTime);
   }
 
-  private void insertNamespace(long id, String namespaceName, boolean deleted, String createdTime) {
+  private void insertNamespace(long id, String namespaceName, boolean deleted, long deletedAt,
+      String createdTime) {
     jdbcTemplate.update(
         "INSERT INTO `Namespace` (`Id`, `AppId`, `ClusterName`, `NamespaceName`, `IsDeleted`, "
-            + "`DataChange_CreatedTime`) VALUES (?, 'app', 'default', ?, ?, ?)",
-        id, namespaceName, deleted, createdTime);
+            + "`DeletedAt`, `DataChange_CreatedTime`) VALUES (?, 'app', 'default', ?, ?, ?, ?)",
+        id, namespaceName, deleted, deletedAt, createdTime);
   }
 
   private void insertGrayReleaseRule(long id, long releaseId, int branchStatus) {

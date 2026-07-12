@@ -14,8 +14,10 @@
 -- limitations under the License.
 --
 
--- Run this script against ApolloConfigDB after the restore precheck.
--- It restores at most 1000 releases per execution and is safe to rerun.
+-- Run this script against ApolloConfigDB after the restore precheck. It only
+-- restores releases from the current active Namespace incarnation, using the
+-- millisecond-resolution DeletedAt boundary. It restores at most 1000 releases
+-- per execution and is safe to rerun.
 
 SET AUTOCOMMIT = FALSE;
 
@@ -24,6 +26,23 @@ SET `IsDeleted` = FALSE,
     `DeletedAt` = 0,
     `DataChange_LastModifiedBy` = 'release-history-retention-migration'
 WHERE r.`IsDeleted` = TRUE
+  AND EXISTS (
+    SELECT 1
+    FROM `Namespace` active_namespace
+    WHERE active_namespace.`AppId` = r.`AppId`
+      AND active_namespace.`ClusterName` = r.`ClusterName`
+      AND active_namespace.`NamespaceName` = r.`NamespaceName`
+      AND active_namespace.`IsDeleted` = FALSE
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `Namespace` deleted_namespace
+    WHERE deleted_namespace.`AppId` = r.`AppId`
+      AND deleted_namespace.`ClusterName` = r.`ClusterName`
+      AND deleted_namespace.`NamespaceName` = r.`NamespaceName`
+      AND deleted_namespace.`IsDeleted` = TRUE
+      AND deleted_namespace.`DeletedAt` >= r.`DeletedAt`
+  )
   AND (
     EXISTS (
       SELECT 1
@@ -49,6 +68,23 @@ SET AUTOCOMMIT = TRUE;
 SELECT COUNT(*) AS `RemainingReleasesNeedingRestore`
 FROM `Release` r
 WHERE r.`IsDeleted` = TRUE
+  AND EXISTS (
+    SELECT 1
+    FROM `Namespace` active_namespace
+    WHERE active_namespace.`AppId` = r.`AppId`
+      AND active_namespace.`ClusterName` = r.`ClusterName`
+      AND active_namespace.`NamespaceName` = r.`NamespaceName`
+      AND active_namespace.`IsDeleted` = FALSE
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `Namespace` deleted_namespace
+    WHERE deleted_namespace.`AppId` = r.`AppId`
+      AND deleted_namespace.`ClusterName` = r.`ClusterName`
+      AND deleted_namespace.`NamespaceName` = r.`NamespaceName`
+      AND deleted_namespace.`IsDeleted` = TRUE
+      AND deleted_namespace.`DeletedAt` >= r.`DeletedAt`
+  )
   AND (
     EXISTS (
       SELECT 1

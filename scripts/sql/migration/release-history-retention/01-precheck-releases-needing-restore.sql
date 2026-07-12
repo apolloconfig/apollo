@@ -15,8 +15,10 @@
 --
 
 -- Run this read-only precheck against ApolloConfigDB.
--- A soft-deleted release must be restored when an active release history or
--- active gray release rule still references it.
+-- A soft-deleted release from the current active Namespace incarnation must be
+-- restored when an active release history or active gray release rule still
+-- references it. DeletedAt provides the millisecond-resolution incarnation
+-- boundary: namespace deletion soft-deletes releases before the Namespace row.
 
 SELECT COUNT(*) AS `ReleasesNeedingRestore`,
        COALESCE(SUM(EXISTS (
@@ -28,6 +30,23 @@ SELECT COUNT(*) AS `ReleasesNeedingRestore`,
        )), 0) AS `ActiveReleaseKeyConflicts`
 FROM `Release` r
 WHERE r.`IsDeleted` = TRUE
+  AND EXISTS (
+    SELECT 1
+    FROM `Namespace` active_namespace
+    WHERE active_namespace.`AppId` = r.`AppId`
+      AND active_namespace.`ClusterName` = r.`ClusterName`
+      AND active_namespace.`NamespaceName` = r.`NamespaceName`
+      AND active_namespace.`IsDeleted` = FALSE
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `Namespace` deleted_namespace
+    WHERE deleted_namespace.`AppId` = r.`AppId`
+      AND deleted_namespace.`ClusterName` = r.`ClusterName`
+      AND deleted_namespace.`NamespaceName` = r.`NamespaceName`
+      AND deleted_namespace.`IsDeleted` = TRUE
+      AND deleted_namespace.`DeletedAt` >= r.`DeletedAt`
+  )
   AND (
     EXISTS (
       SELECT 1
@@ -79,6 +98,23 @@ SELECT r.`Id`,
        ) AS `ActiveReleaseKeyConflict`
 FROM `Release` r
 WHERE r.`IsDeleted` = TRUE
+  AND EXISTS (
+    SELECT 1
+    FROM `Namespace` active_namespace
+    WHERE active_namespace.`AppId` = r.`AppId`
+      AND active_namespace.`ClusterName` = r.`ClusterName`
+      AND active_namespace.`NamespaceName` = r.`NamespaceName`
+      AND active_namespace.`IsDeleted` = FALSE
+  )
+  AND NOT EXISTS (
+    SELECT 1
+    FROM `Namespace` deleted_namespace
+    WHERE deleted_namespace.`AppId` = r.`AppId`
+      AND deleted_namespace.`ClusterName` = r.`ClusterName`
+      AND deleted_namespace.`NamespaceName` = r.`NamespaceName`
+      AND deleted_namespace.`IsDeleted` = TRUE
+      AND deleted_namespace.`DeletedAt` >= r.`DeletedAt`
+  )
   AND (
     EXISTS (
       SELECT 1
