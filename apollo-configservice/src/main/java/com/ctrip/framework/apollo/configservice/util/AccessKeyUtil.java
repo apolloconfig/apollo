@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.configservice.util;
 
+import com.ctrip.framework.apollo.common.utils.InputValidator;
 import com.ctrip.framework.apollo.configservice.service.AccessKeyServiceWithCache;
 import com.ctrip.framework.apollo.core.signature.Signature;
 import com.google.common.base.Strings;
@@ -67,7 +68,7 @@ public class AccessKeyUtil {
       appId = request.getParameter("appId");
     }
 
-    return appId;
+    return validateAppId(appId);
   }
 
   public String buildSignature(String path, String query, String timestampString, String secret) {
@@ -77,5 +78,12 @@ public class AccessKeyUtil {
     }
 
     return Signature.signature(timestampString, pathWithQuery, secret);
+  }
+
+  private String validateAppId(String appId) {
+    if (!InputValidator.isValidClusterNamespace(appId)) {
+      return null;
+    }
+    return appId;
   }
 }
