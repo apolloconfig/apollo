@@ -21,6 +21,7 @@ Apollo 3.0.0
 * [Feature: add user access tokens for AI agents and automation](https://github.com/apolloconfig/apollo/pull/5632)
 * [Fix: return 429 instead of redirecting to sign-in for OpenAPI user token rate limits](https://github.com/apolloconfig/apollo/pull/5637)
 * [Fix: physically delete retained release history and unreferenced release rows](https://github.com/apolloconfig/apollo/pull/5641)
+* [Fix: preserve item type when revoking unpublished changes](https://github.com/apolloconfig/apollo/pull/5646)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)

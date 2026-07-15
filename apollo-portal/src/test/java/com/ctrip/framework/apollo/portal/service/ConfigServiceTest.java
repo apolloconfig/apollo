@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.service;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
+import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.core.ConfigConsts;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
@@ -33,6 +34,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -41,7 +43,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ConfigServiceTest extends AbstractUnitTest {
@@ -120,6 +124,77 @@ public class ConfigServiceTest extends AbstractUnitTest {
     when(resolver.resolve(someNamespaceId, model.getConfigText(), itemDTOs)).thenReturn(changeSets);
 
     configService.updateConfigItemByText(model, "test");
+  }
+
+  @Test
+  public void testRevokeItemShouldPreserveTypeWhenUpdatingPublishedItem() {
+    String appId = "6666";
+    Env env = Env.DEV;
+    String clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    String namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
+    long namespaceId = 123L;
+
+    NamespaceDTO namespace = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespace.setId(namespaceId);
+    ReleaseDTO release = new ReleaseDTO();
+    release.setConfigurations("{\"number\":\"42\"}");
+
+    ItemDTO currentItem = new ItemDTO("number", "41", "comment", 1);
+    currentItem.setId(1L);
+    currentItem.setNamespaceId(namespaceId);
+    currentItem.setType(1);
+
+    when(namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName)).thenReturn(namespace);
+    when(releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName)).thenReturn(release);
+    when(itemAPI.findItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.singletonList(currentItem));
+    when(itemAPI.findDeletedItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.emptyList());
+
+    configService.revokeItem(appId, env, clusterName, namespaceName, "test");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemAPI).updateItemsByChangeSet(eq(appId), eq(env), eq(clusterName), eq(namespaceName),
+        captor.capture());
+    ItemChangeSets changeSets = captor.getValue();
+    assertEquals(1, changeSets.getUpdateItems().size());
+    assertEquals("42", changeSets.getUpdateItems().get(0).getValue());
+    assertEquals(1, changeSets.getUpdateItems().get(0).getType());
+  }
+
+  @Test
+  public void testRevokeItemShouldRestoreTypeWhenRecreatingDeletedPublishedItem() {
+    String appId = "6666";
+    Env env = Env.DEV;
+    String clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    String namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
+    long namespaceId = 123L;
+
+    NamespaceDTO namespace = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespace.setId(namespaceId);
+    ReleaseDTO release = new ReleaseDTO();
+    release.setConfigurations("{\"flag\":\"true\"}");
+
+    ItemDTO deletedItem = new ItemDTO("flag", "true", "comment", 1);
+    deletedItem.setNamespaceId(namespaceId);
+    deletedItem.setType(2);
+
+    when(namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName)).thenReturn(namespace);
+    when(releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName)).thenReturn(release);
+    when(itemAPI.findItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.emptyList());
+    when(itemAPI.findDeletedItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.singletonList(deletedItem));
+
+    configService.revokeItem(appId, env, clusterName, namespaceName, "test");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemAPI).updateItemsByChangeSet(eq(appId), eq(env), eq(clusterName), eq(namespaceName),
+        captor.capture());
+    ItemChangeSets changeSets = captor.getValue();
+    assertEquals(1, changeSets.getCreateItems().size());
+    assertEquals("true", changeSets.getCreateItems().get(0).getValue());
+    assertEquals(2, changeSets.getCreateItems().get(0).getType());
   }
 
   /**

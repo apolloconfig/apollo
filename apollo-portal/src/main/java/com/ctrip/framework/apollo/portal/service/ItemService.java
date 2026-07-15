@@ -239,12 +239,12 @@ public class ItemService {
         ItemDTO deletedItemDto = deletedItemDTOs.computeIfAbsent(key, k -> new ItemDTO());
         int newLineNum =
             0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
-        changeSets.addCreateItem(
-            buildNormalItem(0L, namespaceId, key, value, deletedItemDto.getComment(), newLineNum));
+        changeSets.addCreateItem(buildNormalItem(0L, namespaceId, key, deletedItemDto.getType(),
+            value, deletedItemDto.getComment(), newLineNum));
       } else if (!StringUtils.equals(oldItem.getValue(), value)
           || lineNum.get() != oldItem.getLineNum()) {
-        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key, value,
-            oldItem.getComment(), oldItem.getLineNum()));
+        changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key,
+            oldItem.getType(), value, oldItem.getComment(), oldItem.getLineNum()));
       }
       oldKeyMapItem.remove(key);
       lineNum.set(lineNum.get() + 1);
@@ -348,11 +348,12 @@ public class ItemService {
     return createdItem;
   }
 
-  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, String value,
+  private ItemDTO buildNormalItem(Long id, Long namespaceId, String key, int type, String value,
       String comment, int lineNum) {
     ItemDTO item = new ItemDTO(key, value, comment, lineNum);
     item.setId(id);
     item.setNamespaceId(namespaceId);
+    item.setType(type);
     return item;
   }
 
