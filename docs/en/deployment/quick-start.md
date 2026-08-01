@@ -70,11 +70,13 @@ Quick Start is only for local testing, so generally users do not need to downloa
 #### Precautions
 1. The Apollo server process needs to use ports 8070, 8080, 8090 respectively, please ensure these three ports are not currently in use.
 2. The `github` in the SPRING_PROFILES_ACTIVE environment variable in the script is a required profile, `database-discovery` specifies the use of database service discovery, `auth` is a profile that provides simple authentication for the portal, it can be removed if authentication is not required or other authentication methods are used.
+3. Quick Start is only for local testing. Do not expose ports 8070, 8080, or 8090 to the public Internet. The following startup commands disable the H2 Console by default. If you need it for local debugging, adjust `SPRING_H2_CONSOLE_ENABLED` yourself and avoid allowing external network access.
 ## 2.1 Use H2 in-memory database, automatic initialization
 No configuration is required, just use the following command to start
 > Note: When using the in-memory database, any operation will be lost after the Apollo process restarts
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 unset SPRING_SQL_CONFIG_INIT_MODE
 unset SPRING_SQL_PORTAL_INIT_MODE
 java -jar apollo-all-in-one.jar
@@ -88,6 +90,7 @@ java -jar apollo-all-in-one.jar
 Use the SPRING_SQL_CONFIG_INIT_MODE="always" and SPRING_SQL_PORTAL_INIT_MODE="always" environment variable for initialization at the first startup
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -102,6 +105,7 @@ java -jar apollo-all-in-one.jar
 Remove the SPRING_SQL_CONFIG_INIT_MODE and SPRING_SQL_PORTAL_INIT_MODE environment variable to avoid repeated initialization at subsequent startup
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -121,6 +125,7 @@ java -jar apollo-all-in-one.jar
 Use the SPRING_SQL_INIT_MODE="always" environment variable for initialization at the first startup
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -139,6 +144,7 @@ java -jar apollo-all-in-one.jar
 Remove the SPRING_SQL_CONFIG_INIT_MODE and SPRING_SQL_PORTAL_INIT_MODE environment variable to avoid repeated initialization at subsequent startup
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -166,6 +172,7 @@ You can import [apolloportaldb.sql](https://github.com/apolloconfig/apollo/blob/
 
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
