@@ -53,6 +53,7 @@ public class ConfigServerEurekaServerConfigure {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+      http.antMatcher("/eureka/**");
       http.csrf().disable();
       http.httpBasic();
       if (eurekaSecurityEnabled) {
