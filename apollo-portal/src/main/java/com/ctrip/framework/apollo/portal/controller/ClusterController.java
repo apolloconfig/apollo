@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.portal.controller;
 import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
 import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
 import javax.validation.Valid;
 
 @RestController
@@ -50,6 +52,11 @@ public class ClusterController {
   @ApolloAuditLog(type = OpType.CREATE, name = "Cluster.create")
   public ClusterDTO createCluster(@PathVariable String appId, @PathVariable String env,
       @Valid @RequestBody ClusterDTO cluster) {
+    if (!Objects.equals(appId, cluster.getAppId())) {
+      throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s",
+          appId, cluster.getAppId());
+    }
+
     String operator = userInfoHolder.getUser().getUserId();
     cluster.setDataChangeLastModifiedBy(operator);
     cluster.setDataChangeCreatedBy(operator);

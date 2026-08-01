@@ -18,11 +18,13 @@ package com.ctrip.framework.apollo.portal.controller;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.ClusterDTO;
+import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
@@ -70,6 +72,21 @@ public class ClusterControllerTest {
     ClusterDTO captured = clusterCaptor.getValue();
     assertEquals("apollo", captured.getDataChangeCreatedBy());
     assertEquals("apollo", captured.getDataChangeLastModifiedBy());
+  }
+
+  @Test
+  public void shouldRejectCreateClusterWhenPathAppIdDiffersFromPayload() {
+    ClusterDTO toCreate = new ClusterDTO();
+    toCreate.setAppId("AnotherApp");
+    toCreate.setName("sampleCluster");
+
+    try {
+      clusterController.createCluster("SampleApp", "DEV", toCreate);
+      fail("Should throw");
+    } catch (BadRequestException e) {
+      assertEquals("AppId not equal. AppId in path = SampleApp, AppId in payload = AnotherApp",
+          e.getMessage());
+    }
   }
 
   @Test
