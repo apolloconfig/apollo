@@ -25,6 +25,11 @@ import org.junit.Test;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/**
+ * Tests resolution of the Apollo user id from the configurable OIDC/JWT claim, covering the
+ * unconfigured default (token subject), a configured-and-present claim, and the fallback to the
+ * subject when the configured claim is missing or blank.
+ */
 public class OidcUserInfoUtilTest {
 
   private static final String SUBJECT = "8f3a2c1e-uuid-subject";
