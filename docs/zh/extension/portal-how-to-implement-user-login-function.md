@@ -329,7 +329,31 @@ spring:
           issuer-uri: https://host:port/auth/realms/apollo
 ```
 
-#### 1.3 用户显示名配置
+#### 1.3 用户身份（用户名）配置
+
+Apollo 默认使用 token 的 subject（`sub`）作为 Apollo 用户身份（`Users.Username`）。很多企业 OpenID
+Connect 服务的 `sub` 是一个不透明的 UUID, 真正的登录名或工号在 `preferred_username` 等其他 claim 中。可以在
+`application-oidc.yml` 中配置作为 Apollo 用户身份的 claim。
+
+* oidc 交互式登录和 jwt 方式登录的用户身份配置项均为 `spring.security.oidc.user-id-claim-name`,
+  未配置的情况下默认取 token 的 subject（`sub`）
+* 该 claim 同时作用于 oidc 交互式登录和 jwt 登录, 保证两条路径解析出相同的 Apollo 用户身份
+* 当配置的 claim 缺失或为空时, Apollo 会回退到 subject, 避免创建出空的用户身份
+* 该改动是非破坏性的, 不配置该项即保持当前基于 `sub` 的行为
+
+##### 1.3.1 用户身份配置示例
+
+* 例如, 使用 `preferred_username` 作为 Apollo 用户身份的 claim
+
+```yml
+spring:
+  security:
+    oidc:
+      user-id-claim-name: "preferred_username"
+
+```
+
+#### 1.4 用户显示名配置
 
 用户的显示名支持自定义配置, 在 `application-oidc.yml` 添加配置项即可
 
@@ -341,7 +365,7 @@ spring:
 * oidc jwt 方式登录用户的显示名配置项为 `spring.security.oidc.jwt-user-display-name-claim-name`,
   无默认值
 
-##### 1.3.1 用户显示名配置示例
+##### 1.4.1 用户显示名配置示例
 
 * 例如在进行 oidc 交互式登录时使用 `name` 作为显示名, 则配置如下
 

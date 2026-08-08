@@ -34,12 +34,28 @@ public class OidcExtendProperties {
    */
   private String jwtUserDisplayNameClaimName;
 
+  /**
+   * claim name used as the Apollo user identity {@link UserPO#getUsername()} for both oidc
+   * (interactive) and jwt logins. default to the token subject ({@link StandardClaimNames#SUB}).
+   * When the configured claim is missing or blank, Apollo falls back to the subject so a user is
+   * never created with an empty id.
+   */
+  private String userIdClaimName;
+
   public String getUserDisplayNameClaimName() {
     return userDisplayNameClaimName;
   }
 
   public void setUserDisplayNameClaimName(String userDisplayNameClaimName) {
     this.userDisplayNameClaimName = userDisplayNameClaimName;
+  }
+
+  public String getUserIdClaimName() {
+    return userIdClaimName;
+  }
+
+  public void setUserIdClaimName(String userIdClaimName) {
+    this.userIdClaimName = userIdClaimName;
   }
 
   public String getJwtUserDisplayNameClaimName() {
