@@ -29,7 +29,7 @@ Apollo管理员在 `http://{portal_address}/open/manage.html` 页面可以查看
 #### 2.3 给已注册的第三方应用授权
 第三方应用不应该能操作任何Namespace的配置，所以需要给token绑定可以操作的Namespace。Apollo管理员在 `http://{portal_address}/open/add-consumer.html` 页面给token赋权。赋权之后，第三方应用就可以通过Apollo提供的Http REST接口来管理已授权的Namespace的配置了。
 
-从 Apollo 3.0.0 开始，如果管理员为该第三方应用勾选了**允许管理用户？**（`ManageUsers`），Consumer Token 也可以调用用户管理 Open API。未授予该权限时，用户查询/创建/更新/启用请求会返回 HTTP 403。使用 Consumer Token 调用用户管理或权限管理的写接口时，需要传入有效的 `operator` 查询参数（已存在的 Portal 用户）。
+从 Apollo 3.0.0 开始，如果管理员为该第三方应用勾选了**允许管理用户？**（`ManageUsers`），Consumer Token 也可以调用用户管理 Open API。未授予该权限时，用户查询/创建/更新/启用/禁用请求会返回 HTTP 403。使用 Consumer Token 调用用户管理或权限管理的写接口时，需要传入有效的 `operator` 查询参数（已存在的 Portal 用户）。
 
 #### 2.4 第三方应用调用Apollo Open API
 
@@ -136,6 +136,7 @@ Apollo 3.0.0 起用户管理与权限管理 Open API 的授权边界如下：
 
 * 使用 Consumer Token 调用用户管理接口时，需要该 Consumer 具备明确的 `ManageUsers` 权限。
 * 使用用户访问 Token 调用用户管理接口时，需要 Token 所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。
+* 使用 Consumer Token 调用权限管理（角色查询/授予/撤销）时，需要该 Consumer 对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）。鉴权在解析 `operator` 之前完成；`operator` 只用于标识写操作的审计操作人。
 * 使用用户访问 Token 调用权限管理（角色查询/授予/撤销）时，需要所属用户对目标应用有相应权限，并且 Token 操作范围包含 `app:manage-role`，同时满足对应的 AppId / 环境 / Namespace 资源范围。
 * Consumer Token 的写操作需要传入有效的 `operator` 查询参数；用户访问 Token 会忽略 `operator`，并以 Token 所属用户作为操作人。
 
@@ -180,8 +181,8 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.15 回滚 Namespace](#_3215-回滚已发布配置接口)
 - [3.2.16 分页获取配置项](#_3216-分页获取配置项接口) 
 - [3.2.17 创建App并获取管理员权限](#_3217-创建App并获取管理员权限)
-- [3.2.18 用户管理（Apollo 3.0.0 起）](#_3218-用户管理apollo-300-起)
-- [3.2.19 权限管理（Apollo 3.0.0 起）](#_3219-权限管理apollo-300-起)
+- [3.2.18 用户管理](#_3218-用户管理)
+- [3.2.19 权限管理](#_3219-权限管理)
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -728,7 +729,7 @@ size | false | int | 页大小，默认为 50
 
 * **返回值 Sample** ： 无返回值
 
-##### 3.2.18 用户管理（Apollo 3.0.0 起）
+##### 3.2.18 用户管理
 
 > 自 Apollo 3.0.0 起可用。本节为接入指南；完整路径、参数与 schema 请以规范合同 [`apollo-openapi` v0.3.10](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.10/apollo-openapi.yaml) 为准。
 
@@ -748,16 +749,16 @@ size | false | int | 页大小，默认为 50
 * **Method** : GET
 * **Request Params** :
 
-| 参数名               | 必选  | 类型    | 说明                               |
-| -------------------- | ----- | ------- | ---------------------------------- |
-| keyword              | true  | String  | 匹配用户名、显示名或邮箱           |
-| includeInactiveUsers | false | Boolean | 是否包含禁用用户，默认 `false`     |
-| offset               | false | Integer | 偏移量，默认 `0`                   |
-| limit                | false | Integer | 返回数量，默认 `10`                |
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+keyword | true | String | 匹配用户名、显示名或邮箱
+includeInactiveUsers | false | Boolean | 是否包含禁用用户，默认 `false`
+offset | false | Integer | 偏移量，默认 `0`
+limit | false | Integer | 返回数量，默认 `10`
 
 * **请求值 Sample** ：
 
-```
+```text
 http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=false&offset=0&limit=10
 ```
 
@@ -774,7 +775,7 @@ http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=fal
 ]
 ```
 
-##### 3.2.19 权限管理（Apollo 3.0.0 起）
+##### 3.2.19 权限管理
 
 > 自 Apollo 3.0.0 起可用。本节为接入指南；完整路径、参数与 schema（含 Namespace、环境 Namespace、集群 Namespace 等变体）请以规范合同 [`apollo-openapi` v0.3.10](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.10/apollo-openapi.yaml) 为准。
 
@@ -784,7 +785,7 @@ http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=fal
 * `POST /openapi/v1/apps/{appId}/roles/{roleType}`
 * `DELETE /openapi/v1/apps/{appId}/roles/{roleType}`
 
-用户访问 Token 需要所属用户对目标应用有相应权限，并包含 `app:manage-role` 操作范围及适用的资源范围。Consumer Token 的写操作需要有效的 `operator`。`roleType` 取值与参数 schema 以 OpenAPI 合同 / `RoleType` 为准；常见值包括 `Master`、`ModifyNamespace`、`ReleaseNamespace`、`ModifyNamespacesInCluster`、`ReleaseNamespacesInCluster`。
+Consumer Token 需要对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）；鉴权在解析 `operator` 之前完成，`operator` 只用于标识写操作的审计操作人。用户访问 Token 需要所属用户对目标应用有相应权限，并包含 `app:manage-role` 操作范围及适用的资源范围。`roleType` 取值与参数 schema 以 OpenAPI 合同 / `RoleType` 为准；常见值包括 `Master`、`ModifyNamespace`、`ReleaseNamespace`、`ModifyNamespacesInCluster`、`ReleaseNamespacesInCluster`。
 
 > **应用负责人 vs 角色：** 应用负责人属于应用元数据，通过 `PUT /openapi/v1/apps/{appId}` 更新。管理员（`Master`）、修改、发布等权限请使用上述权限管理 API —— 修改 owner 字段不会授予或撤销这些角色。
 
@@ -815,14 +816,14 @@ http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=fal
 * **Method** : POST
 * **Request Params** :
 
-| 参数名   | 必选  | 类型   | 说明                                                         |
-| -------- | ----- | ------ | ------------------------------------------------------------ |
-| userId   | true  | String | 被授予角色的用户                                             |
-| operator | false | String | Consumer Token 必填；用户访问 Token 忽略该参数（使用所属用户） |
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+userId | true | String | 被授予角色的用户
+operator | false | String | Consumer Token 必填；用户访问 Token 忽略该参数（使用所属用户）
 
 * **请求值 Sample** ：
 
-```
+```text
 http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
 ```
 
@@ -834,14 +835,14 @@ http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operat
 * **Method** : DELETE
 * **Request Params** :
 
-| 参数名   | 必选  | 类型   | 说明                                                         |
-| -------- | ----- | ------ | ------------------------------------------------------------ |
-| userId   | true  | String | 被移除角色的用户                                             |
-| operator | false | String | Consumer Token 必填；用户访问 Token 忽略该参数（使用所属用户） |
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+userId | true | String | 被移除角色的用户
+operator | false | String | Consumer Token 必填；用户访问 Token 忽略该参数（使用所属用户）
 
 * **请求值 Sample** ：
 
-```
+```text
 http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
 ```
 

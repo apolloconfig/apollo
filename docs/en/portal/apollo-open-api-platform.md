@@ -29,7 +29,7 @@ The modal box page of [View token and empower] is shown in the following figure:
 
 Third-party applications should not be able to manipulate any Namespace configuration, so you need to bind the token to a Namespace that can be manipulated. Apollo administrators assign rights to the token in the `http://{portal_address}/open/add-consumer.html` page. After the assignment, the third-party application can manage the configuration of the authorized Namespace through the Http REST interface provided by Apollo.
 
-Starting from Apollo 3.0.0, consumer tokens can also call User Management Open APIs when the administrator enables **Allow user management?** (`ManageUsers`) for that consumer. Without this permission, user search/create/update/enable requests return HTTP 403. Mutating User Management and Permission Management calls with a consumer token require a valid `operator` query parameter (an existing Portal user).
+Starting from Apollo 3.0.0, consumer tokens can also call User Management Open APIs when the administrator enables **Allow user management?** (`ManageUsers`) for that consumer. Without this permission, user search/create/update/enable/disable requests return HTTP 403. Mutating User Management and Permission Management calls with a consumer token require a valid `operator` query parameter (an existing Portal user).
 
 #### 2.4 Third-party application calls Apollo Open API
 
@@ -150,7 +150,8 @@ Authorization boundaries for the Apollo 3.0.0 User Management and Permission Man
 
 * User Management with a consumer token requires the explicit `ManageUsers` permission on that consumer.
 * User Management with a user access token requires the owning user's current `ManageUsers` permission plus the token operation `user:manage`.
-* Permission Management (role query / grant / revoke) with a user access token requires the owning user's app permission plus the token operation `app:manage-role` and the applicable AppId / environment / Namespace scopes.
+* Permission Management (role query / grant / revoke) with a consumer token requires the consumer's app-scoped Assign Role (`ASSIGN_ROLE`) authorization for the target app. Authorization is checked before `operator` is resolved; `operator` only identifies the audit operator on mutations.
+* Permission Management with a user access token requires the owning user's app permission plus the token operation `app:manage-role` and the applicable AppId / environment / Namespace scopes.
 * Consumer-token mutations require a valid `operator` query parameter. User-token requests ignore `operator` and attribute the change to the token owner.
 
 `config:release` only grants publish-related release actions, such as `release.create`,
@@ -763,7 +764,7 @@ Related paths (see the OpenAPI contract for details): `GET /openapi/v1/users/{us
 
 * **Request Sample** :
 
-```
+```text
 http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=false&offset=0&limit=10
 ```
 
@@ -790,7 +791,7 @@ Permission Management Open APIs query and change app / Namespace role assignment
 * `POST /openapi/v1/apps/{appId}/roles/{roleType}`
 * `DELETE /openapi/v1/apps/{appId}/roles/{roleType}`
 
-Authorization for user access tokens requires the owning user's app permission plus `app:manage-role` and the applicable resource scopes. Consumer-token mutations require a valid `operator`. `roleType` values and parameter schemas are defined in the OpenAPI contract / `RoleType`; common values include `Master`, `ModifyNamespace`, `ReleaseNamespace`, `ModifyNamespacesInCluster`, and `ReleaseNamespacesInCluster`.
+Authorization for consumer tokens requires app-scoped Assign Role (`ASSIGN_ROLE`) for the target app; authorization runs before `operator` is resolved, and `operator` only identifies the audit operator on mutations. User access tokens require the owning user's app permission plus `app:manage-role` and the applicable resource scopes. `roleType` values and parameter schemas are defined in the OpenAPI contract / `RoleType`; common values include `Master`, `ModifyNamespace`, `ReleaseNamespace`, `ModifyNamespacesInCluster`, and `ReleaseNamespacesInCluster`.
 
 > **App owner vs roles:** App owner is application metadata updated through `PUT /openapi/v1/apps/{appId}`. Administrator (`Master`), modify, and release permissions use the Permission Management APIs above — changing the owner field does not grant or revoke those roles.
 
@@ -828,7 +829,7 @@ Authorization for user access tokens requires the owning user's app permission p
 
 * **Request Sample** :
 
-```
+```text
 http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
 ```
 
@@ -847,7 +848,7 @@ http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operat
 
 * **Request Sample** :
 
-```
+```text
 http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
 ```
 
