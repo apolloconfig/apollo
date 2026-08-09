@@ -136,8 +136,11 @@ Apollo 3.0.0 起用户管理与权限管理 Open API 的授权边界如下：
 
 * 使用 Consumer Token 调用用户管理接口时，需要该 Consumer 具备明确的 `ManageUsers` 权限。
 * 使用用户访问 Token 调用用户管理接口时，需要 Token 所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。
-* 使用 Consumer Token 调用权限管理（角色查询/授予/撤销）时，需要该 Consumer 对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）。鉴权在解析 `operator` 之前完成；`operator` 只用于标识写操作的审计操作人。
-* 使用用户访问 Token 调用权限管理（角色查询/授予/撤销）时，需要所属用户对目标应用有相应权限，并且 Token 操作范围包含 `app:manage-role`，同时满足对应的 AppId / 环境 / Namespace 资源范围。
+* 使用 Consumer Token 调用权限管理时，当前 master 行为按接口区分：
+  * 角色查询（`GET .../role-users`）：有效的 Consumer Token 即可；当前不对这类读接口强制要求 `ASSIGN_ROLE`。
+  * Namespace / 环境 Namespace / 集群 Namespace 的授予与撤销：需要该 Consumer 对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）。鉴权在解析 `operator` 之前完成；`operator` 只用于标识写操作的审计操作人。
+  * 应用级授予与撤销（`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`，含 `Master`）：Consumer Token 当前不支持；请改用通过 manage-app-master 鉴权的用户访问 Token（或 Portal 用户流程）。
+* 使用用户访问 Token 调用权限管理时，需要所属用户对目标应用有相应权限，并且 Token 操作范围包含 `app:manage-role`，同时满足对应的 AppId / 环境 / Namespace 资源范围。角色查询额外要求对应资源上的分配角色权限；应用级授予/撤销额外要求 manage-app-master 权限。
 * Consumer Token 的写操作需要传入有效的 `operator` 查询参数；用户访问 Token 会忽略 `operator`，并以 Token 所属用户作为操作人。
 
 其中 `config:release` 只表示发布相关能力，例如 `release.create`、`release.gray-create`、
@@ -751,10 +754,10 @@ size | false | int | 页大小，默认为 50
 
 参数名 | 必选 | 类型 | 说明
 --- | --- | --- | ---
-keyword | true | String | 匹配用户名、显示名或邮箱
-includeInactiveUsers | false | Boolean | 是否包含禁用用户，默认 `false`
-offset | false | Integer | 偏移量，默认 `0`
-limit | false | Integer | 返回数量，默认 `10`
+keyword | true | String | 由当前配置的 `UserService` 匹配用户名 / 显示名；不保证匹配邮箱
+includeInactiveUsers | false | Boolean | 接口接受该参数（默认 `false`）。内置 Spring Security / OIDC local 会生效；LDAP 会忽略
+offset | false | Integer | 接口接受该参数（默认 `0`）；当前内置 `UserService` 实现不会按 offset 分页
+limit | false | Integer | 接口接受该参数（默认 `10`）；当前内置 `UserService` 实现不会按 limit 截断
 
 * **请求值 Sample** ：
 
@@ -779,13 +782,22 @@ http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=fal
 
 > 自 Apollo 3.0.0 起可用。本节为接入指南；完整路径、参数与 schema（含 Namespace、环境 Namespace、集群 Namespace 等变体）请以规范合同 [`apollo-openapi` v0.3.10](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.10/apollo-openapi.yaml) 为准。
 
-权限管理 Open API 用于在应用创建后查询与变更应用 / Namespace 角色授权。常用应用级接口：
+权限管理 Open API 用于在应用创建后查询与变更应用 / Namespace 角色授权。示例接口：
 
 * `GET /openapi/v1/apps/{appId}/role-users`
-* `POST /openapi/v1/apps/{appId}/roles/{roleType}`
-* `DELETE /openapi/v1/apps/{appId}/roles/{roleType}`
+* `POST /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* `DELETE /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* `POST /openapi/v1/apps/{appId}/roles/{roleType}` 与 `DELETE /openapi/v1/apps/{appId}/roles/{roleType}`（应用级，含 `Master`）——当前 master 仅支持用户访问 Token；见下方授权说明
 
-Consumer Token 需要对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）；鉴权在解析 `operator` 之前完成，`operator` 只用于标识写操作的审计操作人。用户访问 Token 需要所属用户对目标应用有相应权限，并包含 `app:manage-role` 操作范围及适用的资源范围。`roleType` 取值与参数 schema 以 OpenAPI 合同 / `RoleType` 为准；常见值包括 `Master`、`ModifyNamespace`、`ReleaseNamespace`、`ModifyNamespacesInCluster`、`ReleaseNamespacesInCluster`。
+当前 master 的授权行为：
+
+* Consumer Token：
+  * 角色查询（`GET .../role-users`）：有效的 Consumer Token 即可；当前不对这类读接口强制要求 `ASSIGN_ROLE`。
+  * Namespace / 环境 Namespace / 集群 Namespace 的授予与撤销：需要对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）。鉴权在解析 `operator` 之前完成；`operator` 只用于标识写操作的审计操作人。
+  * 应用级授予与撤销（`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`）：Consumer Token 当前不支持。
+* 用户访问 Token：需要所属用户对目标应用有相应权限，并包含 `app:manage-role` 操作范围及适用的资源范围。角色查询额外要求对应资源上的分配角色权限；应用级授予/撤销额外要求 manage-app-master 权限。
+
+`roleType` 取值与参数 schema 以 OpenAPI 合同 / `RoleType` 为准；常见值包括 `Master`、`ModifyNamespace`、`ReleaseNamespace`、`ModifyNamespacesInCluster`、`ReleaseNamespacesInCluster`。
 
 > **应用负责人 vs 角色：** 应用负责人属于应用元数据，通过 `PUT /openapi/v1/apps/{appId}` 更新。管理员（`Master`）、修改、发布等权限请使用上述权限管理 API —— 修改 owner 字段不会授予或撤销这些角色。
 
@@ -810,9 +822,11 @@ Consumer Token 需要对目标应用具备应用级分配角色权限（`ASSIGN_
 }
 ```
 
-###### 授予应用角色
+###### 授予 Namespace 角色
 
-* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/roles/{roleType}`
+Consumer Token 在具备应用级 `ASSIGN_ROLE` 时可使用 Namespace 级授予/撤销。应用级授予/撤销（含通过 `POST /openapi/v1/apps/{appId}/roles/{roleType}` 操作 `Master`）在当前 master 仅支持用户访问 Token。
+
+* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
 * **Method** : POST
 * **Request Params** :
 
@@ -824,14 +838,14 @@ operator | false | String | Consumer Token 必填；用户访问 Token 忽略该
 * **请求值 Sample** ：
 
 ```text
-http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
+http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/ModifyNamespace?userId=user2&operator=apollo
 ```
 
 * **返回值 Sample** ： 无返回值
 
-###### 撤销应用角色
+###### 撤销 Namespace 角色
 
-* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/roles/{roleType}`
+* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
 * **Method** : DELETE
 * **Request Params** :
 
@@ -843,7 +857,7 @@ operator | false | String | Consumer Token 必填；用户访问 Token 忽略该
 * **请求值 Sample** ：
 
 ```text
-http://{portal_address}/openapi/v1/apps/xxx-web/roles/Master?userId=user2&operator=apollo
+http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/ModifyNamespace?userId=user2&operator=apollo
 ```
 
 * **返回值 Sample** ： 无返回值
