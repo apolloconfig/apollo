@@ -150,10 +150,10 @@ Authorization boundaries for the Apollo 3.0.0 User Management and Permission Man
 
 * User Management with a consumer token requires the explicit `ManageUsers` permission on that consumer.
 * User Management with a user access token requires the owning user's current `ManageUsers` permission plus the token operation `user:manage`.
-* Permission Management with a consumer token depends on the endpoint on current master:
-  * Role query (`GET .../role-users`): a valid consumer token is enough; `ASSIGN_ROLE` is not required for these reads today.
+* Permission Management with a consumer token depends on the endpoint in Apollo 3.0.0:
+  * Role query (`GET .../role-users`): any authenticated consumer token can query role users for any `appId`; there is no app-scoped consumer check and `ASSIGN_ROLE` is not required for these reads. Treat this as current runtime behavior, not an app-bound security model.
   * Namespace / environment-Namespace / cluster-Namespace grant and revoke: requires the consumer's app-scoped Assign Role (`ASSIGN_ROLE`) for the target app. Authorization is checked before `operator` is resolved; `operator` only identifies the audit operator on mutations.
-  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`, including `Master`): not supported for consumer tokens; use a user access token (or Portal user flow) that passes manage-app-master authorization.
+  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`, including `Master`): not supported for consumer tokens (authorization fails with `UnsupportedOperationException`, typically as HTTP 500). Use a user access token (or Portal user flow) that passes manage-app-master authorization.
 * Permission Management with a user access token requires the owning user's app permission plus the token operation `app:manage-role` and the applicable AppId / environment / Namespace scopes. Role-query endpoints additionally require assign-role permission on the scoped resource. App-level grant/revoke additionally require manage-app-master permission.
 * Consumer-token mutations require a valid `operator` query parameter. User-token requests ignore `operator` and attribute the change to the token owner.
 
@@ -762,13 +762,13 @@ Related paths (see the OpenAPI contract for details): `GET /openapi/v1/users/{us
 | -------------------- | -------- | ------- | ------------------------------------------------ |
 | keyword              | true     | String  | Match username / display name via the configured `UserService`; email matching is not guaranteed |
 | includeInactiveUsers | false    | Boolean | Accepted (default `false`). Honored by built-in Spring Security / OIDC local services; ignored by LDAP |
-| offset               | false    | Integer | Accepted (default `0`); not applied by current built-in `UserService` implementations |
-| limit                | false    | Integer | Accepted (default `10`); not applied by current built-in `UserService` implementations |
+| offset               | false    | Integer | Accepted (default `0`); not applied by built-in `UserService` implementations in Apollo 3.0.0 |
+| limit                | false    | Integer | Accepted (default `10`); not applied by built-in `UserService` implementations in Apollo 3.0.0 |
 
 * **Request Sample** :
 
 ```text
-http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=false&offset=0&limit=10
+http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=false
 ```
 
 * **Response Sample** :
@@ -793,14 +793,14 @@ Permission Management Open APIs query and change app / Namespace role assignment
 * `GET /openapi/v1/apps/{appId}/role-users`
 * `POST /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
 * `DELETE /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
-* `POST /openapi/v1/apps/{appId}/roles/{roleType}` and `DELETE /openapi/v1/apps/{appId}/roles/{roleType}` (app-level, including `Master`) — user access token only on current master; see authorization below
+* `POST /openapi/v1/apps/{appId}/roles/{roleType}` and `DELETE /openapi/v1/apps/{appId}/roles/{roleType}` (app-level, including `Master`) — user access token only in Apollo 3.0.0; see authorization below
 
-Authorization on current master:
+Authorization in Apollo 3.0.0:
 
 * Consumer token:
-  * Role query (`GET .../role-users`): authenticated consumer token only; `ASSIGN_ROLE` is not required for these reads today.
+  * Role query (`GET .../role-users`): any authenticated consumer token can query role users for any `appId`; there is no app-scoped consumer check and `ASSIGN_ROLE` is not required for these reads. Treat this as current runtime behavior, not an app-bound security model.
   * Namespace / environment-Namespace / cluster-Namespace grant and revoke: requires app-scoped Assign Role (`ASSIGN_ROLE`) for the target app. Authorization runs before `operator` is resolved; `operator` only identifies the audit operator on mutations.
-  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`): not supported for consumer tokens.
+  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`): not supported for consumer tokens (authorization fails with `UnsupportedOperationException`, typically as HTTP 500).
 * User access token: requires the owning user's app permission plus `app:manage-role` and the applicable resource scopes. Role-query endpoints additionally require assign-role permission on the scoped resource. App-level grant/revoke additionally require manage-app-master permission.
 
 `roleType` values and parameter schemas are defined in the OpenAPI contract / `RoleType`; common values include `Master`, `ModifyNamespace`, `ReleaseNamespace`, `ModifyNamespacesInCluster`, and `ReleaseNamespacesInCluster`.
@@ -830,7 +830,7 @@ Authorization on current master:
 
 ###### Grant a Namespace role
 
-Consumer tokens can use Namespace-scoped grant/revoke when they have app-scoped `ASSIGN_ROLE`. App-level grant/revoke (including `Master` via `POST /openapi/v1/apps/{appId}/roles/{roleType}`) is user access token only on current master.
+Consumer tokens can use Namespace-scoped grant/revoke when they have app-scoped `ASSIGN_ROLE`. App-level grant/revoke (including `Master` via `POST /openapi/v1/apps/{appId}/roles/{roleType}`) is user access token only in Apollo 3.0.0; consumer calls are rejected with `UnsupportedOperationException` (typically HTTP 500).
 
 * **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
 * **Method** : POST
