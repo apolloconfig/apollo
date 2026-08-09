@@ -338,12 +338,19 @@ Connect 服务的 `sub` 是一个不透明的 UUID, 真正的登录名或工号�
 * oidc 交互式登录和 jwt 方式登录的用户身份配置项均为 `spring.security.oidc.user-id-claim-name`,
   未配置的情况下默认取 token 的 subject（`sub`）
 * 该 claim 同时作用于 oidc 交互式登录和 jwt 登录, 保证两条路径解析出相同的 Apollo 用户身份
-* 当配置的 claim 缺失或为空时, Apollo 会回退到 subject, 避免创建出空的用户身份
+* 当配置的 claim 在 token 中缺失或为空时, 登录会被拒绝, 而不是回退到 subject, 从而避免同一主体在 oidc 和 jwt
+  两条路径上被创建成两个不同的 Apollo 用户
 * 该改动是非破坏性的, 不配置该项即保持当前基于 `sub` 的行为
+
+该 claim 的值会成为 Apollo 的登录身份（`Users.Username`）并决定授权, 因此需要谨慎选择。所选 claim 必须由身份
+提供方控制, 且唯一、不可变、不可重新分配、不可由用户自行修改, 因为一旦其值与已有的 `Users.Username` 冲突,
+Apollo 会复用该账户及其角色乃至超级管理员权限。`Users.Username` 最长 64 个字符, 且 OpenID Connect 规范指出
+`preferred_username` 和 `email` 等 claim 并不保证稳定或唯一。只有当你的身份提供方能够保证上述属性时才使用此类
+claim, 并在启用前核对现有的用户名映射关系。
 
 ##### 1.3.1 用户身份配置示例
 
-* 例如, 使用 `preferred_username` 作为 Apollo 用户身份的 claim
+* 例如, 在确认身份提供方以稳定、唯一且不可变的方式签发该 claim 后, 使用 `preferred_username` 作为 Apollo 用户身份的 claim
 
 ```yml
 spring:

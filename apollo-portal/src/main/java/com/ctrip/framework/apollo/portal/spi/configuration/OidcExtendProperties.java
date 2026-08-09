@@ -37,8 +37,12 @@ public class OidcExtendProperties {
   /**
    * claim name used as the Apollo user identity {@link UserPO#getUsername()} for both oidc
    * (interactive) and jwt logins. default to the token subject ({@link StandardClaimNames#SUB}).
-   * When the configured claim is missing or blank, Apollo falls back to the subject so a user is
-   * never created with an empty id.
+   * <p>
+   * The value of this claim becomes the Apollo login identity and drives authorization, so when it
+   * is configured the claim must be IdP-controlled, unique, immutable, non-reassignable and not
+   * user-editable. If a configured claim is missing or blank in a token, login is rejected rather
+   * than falling back to the subject, so the same principal cannot be provisioned as two different
+   * Apollo users across the oidc and jwt paths.
    */
   private String userIdClaimName;
 

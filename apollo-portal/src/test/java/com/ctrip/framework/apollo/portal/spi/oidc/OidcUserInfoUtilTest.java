@@ -17,18 +17,21 @@
 package com.ctrip.framework.apollo.portal.spi.oidc;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.portal.spi.configuration.OidcExtendProperties;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 /**
  * Tests resolution of the Apollo user id from the configurable OIDC/JWT claim, covering the
- * unconfigured default (token subject), a configured-and-present claim, and the fallback to the
- * subject when the configured claim is missing or blank.
+ * unconfigured default (token subject), a configured-and-present claim, the fail-closed rejection
+ * when a configured claim is missing or blank, and cross-path consistency between the OIDC and JWT
+ * resolvers.
  */
 public class OidcUserInfoUtilTest {
 
@@ -63,25 +66,25 @@ public class OidcUserInfoUtilTest {
   }
 
   @Test
-  public void testGetOidcUserIdFallsBackToSubjectWhenConfiguredClaimBlank() {
+  public void testGetOidcUserIdRejectsWhenConfiguredClaimBlank() {
     OidcExtendProperties properties = new OidcExtendProperties();
     properties.setUserIdClaimName("preferred_username");
     OidcUser oidcUser = mock(OidcUser.class);
-    when(oidcUser.getSubject()).thenReturn(SUBJECT);
     when(oidcUser.getClaimAsString("preferred_username")).thenReturn(" ");
 
-    assertEquals(SUBJECT, OidcUserInfoUtil.getOidcUserId(oidcUser, properties));
+    assertThrows(BadCredentialsException.class,
+        () -> OidcUserInfoUtil.getOidcUserId(oidcUser, properties));
   }
 
   @Test
-  public void testGetOidcUserIdFallsBackToSubjectWhenConfiguredClaimMissing() {
+  public void testGetOidcUserIdRejectsWhenConfiguredClaimMissing() {
     OidcExtendProperties properties = new OidcExtendProperties();
     properties.setUserIdClaimName("preferred_username");
     OidcUser oidcUser = mock(OidcUser.class);
-    when(oidcUser.getSubject()).thenReturn(SUBJECT);
     when(oidcUser.getClaimAsString("preferred_username")).thenReturn(null);
 
-    assertEquals(SUBJECT, OidcUserInfoUtil.getOidcUserId(oidcUser, properties));
+    assertThrows(BadCredentialsException.class,
+        () -> OidcUserInfoUtil.getOidcUserId(oidcUser, properties));
   }
 
   @Test
@@ -100,10 +103,29 @@ public class OidcUserInfoUtilTest {
   }
 
   @Test
-  public void testGetJwtUserIdFallsBackToSubjectWhenConfiguredClaimMissing() {
+  public void testGetJwtUserIdRejectsWhenConfiguredClaimMissing() {
     OidcExtendProperties properties = new OidcExtendProperties();
     properties.setUserIdClaimName("preferred_username");
 
-    assertEquals(SUBJECT, OidcUserInfoUtil.getJwtUserId(jwtWith(null), properties));
+    assertThrows(BadCredentialsException.class,
+        () -> OidcUserInfoUtil.getJwtUserId(jwtWith(null), properties));
+  }
+
+  /**
+   * The same principal must resolve to the same Apollo user id, or be rejected, regardless of
+   * whether it arrives on the interactive OIDC path or the JWT path. When the configured claim is
+   * present on one path but absent on the other, failing closed on the absent path prevents the
+   * principal from being provisioned as two different Apollo accounts.
+   */
+  @Test
+  public void testCrossPathConsistencyWhenClaimPresentOnOidcButAbsentOnJwt() {
+    OidcExtendProperties properties = new OidcExtendProperties();
+    properties.setUserIdClaimName("preferred_username");
+    OidcUser oidcUser = mock(OidcUser.class);
+    when(oidcUser.getClaimAsString("preferred_username")).thenReturn("alice");
+
+    assertEquals("alice", OidcUserInfoUtil.getOidcUserId(oidcUser, properties));
+    assertThrows(BadCredentialsException.class,
+        () -> OidcUserInfoUtil.getJwtUserId(jwtWith(null), properties));
   }
 }

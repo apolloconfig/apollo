@@ -347,13 +347,24 @@ used as the Apollo user identity in the `application-oidc.yml`.
   `spring.security.oidc.user-id-claim-name`, default to the token subject (`sub`).
 * the same claim is applied to both the oidc (interactive) and jwt login paths so they resolve the
   same Apollo user id.
-* when the configured claim is missing or blank, Apollo falls back to the subject so a user is never
-  created with an empty id.
+* when the configured claim is missing or blank in a token, login is rejected rather than falling
+  back to the subject, so the same principal is never provisioned as two different Apollo users
+  across the oidc and jwt paths.
 * this is non-breaking: leaving the property unset keeps the current `sub` based behavior.
+
+The value of this claim becomes the Apollo login identity (`Users.Username`) and drives
+authorization, so choose it carefully. The claim must be controlled by the identity provider,
+unique, immutable, non-reassignable and not user-editable, because if its value collides with an
+existing `Users.Username` Apollo will reuse that account together with its roles and any
+super-admin status. `Users.Username` is limited to 64 characters, and the OpenID Connect
+specification warns that claims like `preferred_username` and `email` are not guaranteed to be
+stable or unique. Only use such a claim when your identity provider guarantees the properties above,
+and verify your existing username mappings before rolling this out.
 
 ##### 1.3.1 Example of user identity configure
 
-* for example, using `preferred_username` as the claim of the Apollo user identity.
+* for example, using `preferred_username` as the claim of the Apollo user identity, once you have
+  confirmed your identity provider issues it as a stable, unique and immutable value.
 
 ```yml
 spring:
