@@ -24,10 +24,14 @@ const directivePath = path.join(__dirname, '../../../../main/resources/static/sc
 const templatePath = path.join(__dirname, '../../../../main/resources/static/views/component',
     'show-text-modal.html');
 
+let jsonBigIntFilterFactory;
 const directiveModule = {
     directive: function () {
         return {
-            filter: function () {
+            filter: function (name, factory) {
+                if (name === 'jsonBigIntFilter') {
+                    jsonBigIntFilterFactory = factory;
+                }
                 return this;
             }
         };
@@ -41,6 +45,7 @@ vm.runInNewContext(fs.readFileSync(directivePath, 'utf8'), context, {
     filename: directivePath
 });
 
+const jsonBigIntFilter = jsonBigIntFilterFactory();
 const directiveDefinition = context.showTextModalDirective({
     prefixPath: function () {
         return '';
@@ -67,20 +72,47 @@ function createScope() {
 }
 
 function runTests() {
-    const formatted = createScope();
-    formatted.scope.text = '{\n  "a": "b"\n}';
-    formatted.refresh();
-    assert.strictEqual(formatted.scope.canFormat, true);
-    assert.strictEqual(formatted.scope.viewMode, 'formatted');
-    formatted.scope.setViewMode('raw');
-    assert.strictEqual(formatted.scope.viewMode, 'raw');
-    assert.strictEqual(formatted.scope.text, '{\n  "a": "b"\n}');
+    const validJsonValues = [
+        '{\n  "a": "b"\n}',
+        '[1, 2]',
+        '"hello"',
+        '"123"',
+        '123',
+        'true',
+        'false',
+        'null'
+    ];
+    validJsonValues.forEach(function (text) {
+        const formatted = createScope();
+        formatted.scope.text = text;
+        formatted.refresh();
+        assert.strictEqual(formatted.scope.canFormat, true);
+        assert.strictEqual(formatted.scope.viewMode, 'formatted');
+        formatted.scope.setViewMode('raw');
+        assert.strictEqual(formatted.scope.viewMode, 'raw');
+        assert.strictEqual(formatted.scope.text, text);
+    });
 
-    const plainText = createScope();
-    plainText.scope.text = '{"a":1,"a":2}';
-    plainText.refresh();
-    assert.strictEqual(plainText.scope.canFormat, false);
-    assert.strictEqual(plainText.scope.viewMode, 'raw');
+    assert.strictEqual(jsonBigIntFilter('"hello"'), '"hello"');
+    assert.strictEqual(jsonBigIntFilter('"123"'), '"123"');
+    assert.strictEqual(jsonBigIntFilter('123'), '123');
+    assert.strictEqual(jsonBigIntFilter('"|123|"'), '123');
+    assert.strictEqual(jsonBigIntFilter('true'), 'true');
+    assert.strictEqual(jsonBigIntFilter('false'), 'false');
+    assert.strictEqual(jsonBigIntFilter('null'), 'null');
+
+    const rawOnlyValues = [
+        '{"a":1,"a":2}',
+        '{"a":',
+        'not JSON'
+    ];
+    rawOnlyValues.forEach(function (text) {
+        const rawOnly = createScope();
+        rawOnly.scope.text = text;
+        rawOnly.refresh();
+        assert.strictEqual(rawOnly.scope.canFormat, false);
+        assert.strictEqual(rawOnly.scope.viewMode, 'raw');
+    });
 
     const template = fs.readFileSync(templatePath, 'utf8');
     assert.ok(template.includes('Component.ShowText.FormattedValue'));

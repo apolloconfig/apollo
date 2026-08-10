@@ -17,8 +17,12 @@
 directive_module.directive('showtextmodal', showTextModalDirective)
     .filter('jsonBigIntFilter', function () {
         return function (text) {
-            if (typeof(text) === "undefined" || typeof JSON.parse(text) !== "object"
-                || !text) {
+            if (typeof(text) === "undefined" || !text) {
+                return;
+            }
+            try {
+                JSON.parse(text);
+            } catch (e) {
                 return;
             }
 
@@ -102,7 +106,8 @@ function showTextModalDirective(AppUtil) {
 
             function isJsonText(text) {
                 try {
-                    return typeof JSON.parse(text) === "object";
+                    JSON.parse(text);
+                    return true;
                 } catch (e) {
                     return false;
                 }
@@ -135,4 +140,3 @@ function showTextModalDirective(AppUtil) {
         }
     }
 }
-
