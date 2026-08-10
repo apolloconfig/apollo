@@ -27,9 +27,12 @@ var revokeControls =
 
 var hasNonPropertiesRevokeControl = revokeControls.some(function (control) {
     return control.indexOf("namespace.viewType == 'text'") >= 0
+        && control.indexOf("namespace.displayControl.currentOperateBranch == 'master'") >= 0
         && control.indexOf("!namespace.isPropertiesFormat") >= 0
         && control.indexOf("!namespace.isTextEditing") >= 0
-        && control.indexOf("namespace.hasModifyPermission") >= 0;
+        && control.indexOf("namespace.hasModifyPermission") >= 0
+        && control.indexOf('aria-label=') >= 0
+        && control.indexOf('<button') === 0;
 });
 
 if (!hasNonPropertiesRevokeControl) {
