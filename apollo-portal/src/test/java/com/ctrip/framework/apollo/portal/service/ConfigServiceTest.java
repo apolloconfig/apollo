@@ -197,6 +197,79 @@ public class ConfigServiceTest extends AbstractUnitTest {
     assertEquals(2, changeSets.getCreateItems().get(0).getType());
   }
 
+  @Test
+  public void testRevokeItemShouldRestorePublishedFileContent() {
+    String appId = "6666";
+    Env env = Env.DEV;
+    String clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    String namespaceName = "application.yaml";
+    long namespaceId = 123L;
+    String publishedContent = "server:\n  port: 8080";
+
+    NamespaceDTO namespace = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespace.setId(namespaceId);
+    ReleaseDTO release = new ReleaseDTO();
+    release.setConfigurations("{\"content\":\"server:\\n  port: 8080\"}");
+
+    ItemDTO currentItem =
+        new ItemDTO(ConfigConsts.CONFIG_FILE_CONTENT_KEY, "server:\n  port: 9090", "", 1);
+    currentItem.setId(1L);
+    currentItem.setNamespaceId(namespaceId);
+
+    when(namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName)).thenReturn(namespace);
+    when(releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName)).thenReturn(release);
+    when(itemAPI.findItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.singletonList(currentItem));
+    when(itemAPI.findDeletedItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.emptyList());
+
+    configService.revokeItem(appId, env, clusterName, namespaceName, "test");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemAPI).updateItemsByChangeSet(eq(appId), eq(env), eq(clusterName), eq(namespaceName),
+        captor.capture());
+    ItemChangeSets changeSets = captor.getValue();
+    assertEquals(0, changeSets.getCreateItems().size());
+    assertEquals(1, changeSets.getUpdateItems().size());
+    assertEquals(0, changeSets.getDeleteItems().size());
+    assertEquals(ConfigConsts.CONFIG_FILE_CONTENT_KEY, changeSets.getUpdateItems().get(0).getKey());
+    assertEquals(publishedContent, changeSets.getUpdateItems().get(0).getValue());
+  }
+
+  @Test
+  public void testRevokeItemShouldRemoveUnpublishedFileContent() {
+    String appId = "6666";
+    Env env = Env.DEV;
+    String clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    String namespaceName = "application.json";
+    long namespaceId = 123L;
+
+    NamespaceDTO namespace = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespace.setId(namespaceId);
+    ItemDTO currentItem =
+        new ItemDTO(ConfigConsts.CONFIG_FILE_CONTENT_KEY, "{\"enabled\":true}", "", 1);
+    currentItem.setId(1L);
+    currentItem.setNamespaceId(namespaceId);
+
+    when(namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName)).thenReturn(namespace);
+    when(releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName)).thenReturn(null);
+    when(itemAPI.findItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.singletonList(currentItem));
+    when(itemAPI.findDeletedItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.emptyList());
+
+    configService.revokeItem(appId, env, clusterName, namespaceName, "test");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemAPI).updateItemsByChangeSet(eq(appId), eq(env), eq(clusterName), eq(namespaceName),
+        captor.capture());
+    ItemChangeSets changeSets = captor.getValue();
+    assertEquals(0, changeSets.getCreateItems().size());
+    assertEquals(0, changeSets.getUpdateItems().size());
+    assertEquals(1, changeSets.getDeleteItems().size());
+    assertEquals(ConfigConsts.CONFIG_FILE_CONTENT_KEY, changeSets.getDeleteItems().get(0).getKey());
+  }
+
   /**
    * a=b b=c c=d
    */
