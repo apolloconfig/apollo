@@ -84,10 +84,21 @@ function showTextModalDirective(AppUtil) {
 
             function init() {
                 scope.jsonObject = undefined;
+                scope.canFormat = false;
+                scope.viewMode = 'raw';
                 if (isJsonText(scope.text) && !AppUtil.hasDuplicateKeys(scope.text)) {
                     scope.jsonObject = parseBigInt(scope.text);
+                    scope.canFormat = true;
+                    scope.viewMode = 'formatted';
                 }
             }
+
+            scope.setViewMode = function (viewMode, event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                scope.viewMode = viewMode;
+            };
 
             function isJsonText(text) {
                 try {
@@ -124,5 +135,4 @@ function showTextModalDirective(AppUtil) {
         }
     }
 }
-
 

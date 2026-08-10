@@ -24,8 +24,25 @@
                 <h4 class="modal-title">{{'Component.ShowText.Title' | translate }}</h4>
             </div>
             <div ng-show="!enableTextDiff">
-                <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="!jsonObject" ng-bind="text"></pre>
-                <pre class="modal-body no-radius" style="margin-bottom: 0" ng-show="jsonObject" ng-bind="jsonObject | json:4 | jsonBigIntFilter"></pre>
+                <ul class="nav nav-tabs" ng-if="canFormat">
+                    <li ng-class="{active: viewMode == 'formatted'}">
+                        <a href="" role="tab" ng-click="setViewMode('formatted', $event)"
+                           ng-attr-aria-selected="{{viewMode == 'formatted'}}">
+                            {{'Component.ShowText.FormattedValue' | translate }}
+                        </a>
+                    </li>
+                    <li ng-class="{active: viewMode == 'raw'}">
+                        <a href="" role="tab" ng-click="setViewMode('raw', $event)"
+                           ng-attr-aria-selected="{{viewMode == 'raw'}}">
+                            {{'Component.ShowText.RawValue' | translate }}
+                        </a>
+                    </li>
+                </ul>
+                <pre class="modal-body no-radius" style="margin-bottom: 0"
+                      ng-show="!canFormat || viewMode == 'raw'" ng-bind="text"></pre>
+                <pre class="modal-body no-radius" style="margin-bottom: 0"
+                      ng-show="canFormat && viewMode == 'formatted'"
+                      ng-bind="jsonObject | json:4 | jsonBigIntFilter"></pre>
             </div>
             <span ng-show="enableTextDiff">
                 <apollodiff old-str="oldStr" new-str="newStr" apollo-id="'textDiff'"> </apollodiff>

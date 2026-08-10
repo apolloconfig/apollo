@@ -334,6 +334,8 @@
   "Component.Rollback.NoChange": "配置没有变化",
   "Component.Rollback.OpRollback": "回滚",
   "Component.ShowText.Title": "查看",
+  "Component.ShowText.FormattedValue": "格式化",
+  "Component.ShowText.RawValue": "原始值",
   "Login.Login": "登录",
   "Login.UserNameOrPasswordIncorrect": "用户名或密码错误",
   "Login.LogoutSuccessfully": "登出成功",
