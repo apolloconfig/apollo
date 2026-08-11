@@ -119,6 +119,8 @@ function runTests() {
     assert.ok(template.includes('Component.ShowText.RawValue'));
     assert.ok(template.includes("viewMode == 'formatted'"));
     assert.ok(template.includes("viewMode == 'raw'"));
+    assert.ok(template.includes('ng-bind="text"'));
+    assert.ok(template.includes('ng-bind="jsonObject | json:4 | jsonBigIntFilter"'));
 
     console.log('All show-text modal tests passed.');
 }
