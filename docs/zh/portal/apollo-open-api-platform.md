@@ -135,7 +135,7 @@ Portal 创建 Token 时展示的“操作范围”和 `actions.requiredOperation
 Apollo 3.0.0 起用户管理与权限管理 Open API 的授权边界如下：
 
 * 使用 Consumer Token 调用用户管理接口时，需要该 Consumer 具备明确的 `ManageUsers` 权限。
-* 使用用户访问 Token 调用用户管理接口时，需要 Token 所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。对用户访问 Token，创建/更新其他用户以及启用/禁用需要所属用户为 Portal 超级管理员，并且 Token 操作范围包含 `system:admin`（同时仍需 `user:manage`）。若没有 `system:admin`，即使所属用户是超级管理员、Token 仅有 `user:manage`，也会被当作非超级管理员，只能创建/更新 Token 所属用户本人。具备 `ManageUsers` 的 Consumer Token 不受这些额外用户 Token 限制。
+* 使用用户访问 Token 调用用户管理接口时，需要 Token 所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。对用户访问 Token，创建/更新其他用户以及启用/禁用需要所属用户为 Portal 超级管理员，并且 Token 操作范围包含 `system:admin`（同时仍需 `user:manage`）。若没有 `system:admin`，即使所属用户是超级管理员、Token 仅有 `user:manage`，也会被当作非超级管理员，只能创建/更新 Token 所属用户本人且必须保持用户为启用状态。具备 `ManageUsers` 的 Consumer Token 不受这些额外用户 Token 限制。
 * 使用 Consumer Token 调用权限管理时，Apollo 3.0.0 行为按接口区分：
   * 角色查询（`GET .../role-users`）：任意已认证的 Consumer Token 可查询任意 `appId` 的角色用户；没有应用级 Consumer 权限校验，也不要求 `ASSIGN_ROLE`。这是当前运行时行为，并不表示读接口按应用授权隔离。
   * Namespace / 环境 Namespace / 集群 Namespace 的授予与撤销：需要该 Consumer 对目标应用具备应用级分配角色权限（`ASSIGN_ROLE`）。鉴权在解析 `operator` 之前完成；`operator` 只用于标识写操作的审计操作人。
@@ -739,7 +739,7 @@ size | false | int | 页大小，默认为 50
 用户管理 Open API 覆盖 Portal 用户的搜索、查询、创建/更新以及启用/禁用，路径前缀为 `/openapi/v1/users`。授权规则：
 
 * Consumer Token：需要明确的 `ManageUsers` 权限（Portal **允许管理用户？**）。
-* 用户访问 Token：需要所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。对用户访问 Token，创建/更新其他用户以及启用/禁用需要所属用户为 Portal 超级管理员，并且 Token 操作范围包含 `system:admin`（同时仍需 `user:manage`）。若没有 `system:admin`，即使所属用户是超级管理员、Token 仅有 `user:manage`，也会被当作非超级管理员，只能创建/更新 Token 所属用户本人。具备 `ManageUsers` 的 Consumer Token 不受这些额外用户 Token 限制。
+* 用户访问 Token：需要所属用户当前具备 `ManageUsers` 权限，并且 Token 操作范围包含 `user:manage`。对用户访问 Token，创建/更新其他用户以及启用/禁用需要所属用户为 Portal 超级管理员，并且 Token 操作范围包含 `system:admin`（同时仍需 `user:manage`）。若没有 `system:admin`，即使所属用户是超级管理员、Token 仅有 `user:manage`，也会被当作非超级管理员，只能创建/更新 Token 所属用户本人且必须保持用户为启用状态。具备 `ManageUsers` 的 Consumer Token 不受这些额外用户 Token 限制。
 * Consumer Token 的写操作（`POST /openapi/v1/users`、`PUT /openapi/v1/users/enabled`）需要传入有效的 `operator` 查询参数；用户访问 Token 以 Token 所属用户作为操作人。
 
 `GET` 搜索/查询走当前配置的 `UserService`。创建 / 更新 / 启用 / 禁用仅在 Portal 使用内置 `SpringSecurityUserService` 时受支持。其他 `UserService` 实现（例如仅 LDAP）可支持搜索/查询，但会拒绝写操作。
