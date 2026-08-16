@@ -111,6 +111,15 @@ public class OidcUserInfoUtilTest {
         () -> OidcUserInfoUtil.getJwtUserId(jwtWith(null), properties));
   }
 
+  @Test
+  public void testGetJwtUserIdRejectsWhenConfiguredClaimBlank() {
+    OidcExtendProperties properties = new OidcExtendProperties();
+    properties.setUserIdClaimName("preferred_username");
+
+    assertThrows(BadCredentialsException.class,
+        () -> OidcUserInfoUtil.getJwtUserId(jwtWith(" "), properties));
+  }
+
   /**
    * The same principal must resolve to the same Apollo user id, or be rejected, regardless of
    * whether it arrives on the interactive OIDC path or the JWT path. When the configured claim is
