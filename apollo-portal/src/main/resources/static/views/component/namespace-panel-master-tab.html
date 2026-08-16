@@ -181,6 +181,16 @@
                          ng-click="goToDiffPage(namespace)"
                          ng-show="namespace.displayControl.currentOperateBranch == 'master' && !namespace.isPropertiesFormat && !namespace.isTextEditing">
                     &nbsp;
+                    <button type="button" class="ns_btn ns-icon-button cursor-pointer"
+                            data-tooltip="tooltip" data-placement="bottom"
+                            title="{{'Component.Namespace.Master.Items.RevokeItemTips' | translate }}"
+                            aria-label="{{'Component.Namespace.Master.Items.RevokeItem' | translate }}"
+                            ng-click="preRevokeItem(namespace)"
+                            ng-show="namespace.viewType == 'text' && namespace.displayControl.currentOperateBranch == 'master'
+                            && !namespace.isPropertiesFormat && !namespace.isTextEditing && namespace.hasModifyPermission">
+                        <img src="img/rollback.png" alt="">
+                    </button>
+                    &nbsp;
                     <img src="img/copy.png" class="ns_btn clipboard cursor-pointer"
                         data-clipboard-text="{{namespace.text}}" data-tooltip="tooltip" data-placement="bottom"
                         title="{{'Component.Namespace.Master.Items.CopyText' | translate }}"
