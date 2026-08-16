@@ -149,7 +149,7 @@ and `namespaces` to decide whether a concrete resource is in scope.
 Authorization boundaries for the Apollo 3.0.0 User Management and Permission Management Open APIs:
 
 * User Management with a consumer token requires the explicit `ManageUsers` permission on that consumer.
-* User Management with a user access token requires the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update is limited to the token owner (non–super-admin), and enable/disable requires a super-admin user; consumer tokens with `ManageUsers` are not subject to those extra limits.
+* User Management with a user access token requires the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update of another user and enable/disable require the owning user to be a Portal super-admin and the token operation `system:admin` (in addition to `user:manage`). Without `system:admin`, even a super-admin-owned token with only `user:manage` is treated as non-super-admin and can only create/update the token owner. Consumer tokens with `ManageUsers` are not subject to those extra user-token limits.
 * Permission Management with a consumer token depends on the endpoint in Apollo 3.0.0:
   * Role query (`GET .../role-users`): any authenticated consumer token can query role users for any `appId`; there is no app-scoped consumer check and `ASSIGN_ROLE` is not required for these reads. Treat this as current runtime behavior, not an app-bound security model.
   * Namespace / environment-Namespace / cluster-Namespace grant and revoke: requires the consumer's app-scoped Assign Role (`ASSIGN_ROLE`) for the target app. Authorization is checked before `operator` is resolved; `operator` only identifies the audit operator on mutations.
@@ -745,7 +745,7 @@ App can be created through this interface,
 User Management Open APIs cover Portal user search, get, create/update, and enable/disable under `/openapi/v1/users`. Authorization rules:
 
 * Consumer token: needs the explicit `ManageUsers` permission (Portal **Allow user management?**).
-* User access token: needs the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update is limited to the token owner (non–super-admin), and enable/disable requires a super-admin user; consumer tokens with `ManageUsers` are not subject to those extra limits.
+* User access token: needs the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update of another user and enable/disable require the owning user to be a Portal super-admin and the token operation `system:admin` (in addition to `user:manage`). Without `system:admin`, even a super-admin-owned token with only `user:manage` is treated as non-super-admin and can only create/update the token owner. Consumer tokens with `ManageUsers` are not subject to those extra user-token limits.
 * Consumer-token mutations (`POST /openapi/v1/users`, `PUT /openapi/v1/users/enabled`) require a valid `operator` query parameter. User-token requests derive the operator from the token owner.
 
 `GET` search/get uses the configured `UserService`. Create / update / enable / disable is only supported when Portal uses the built-in `SpringSecurityUserService`. Other `UserService` implementations (for example LDAP-only) support search/get but reject mutations.
