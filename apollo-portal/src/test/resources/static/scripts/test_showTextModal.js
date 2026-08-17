@@ -71,6 +71,13 @@ function createScope() {
     };
 }
 
+function formatForDisplay(text) {
+    const formatted = createScope();
+    formatted.scope.text = text;
+    formatted.refresh();
+    return jsonBigIntFilter(JSON.stringify(formatted.scope.jsonObject, null, 4));
+}
+
 function runTests() {
     const validJsonValues = [
         '{\n  "a": "b"\n}',
@@ -97,9 +104,12 @@ function runTests() {
     assert.strictEqual(jsonBigIntFilter('"123"'), '"123"');
     assert.strictEqual(jsonBigIntFilter('123'), '123');
     assert.strictEqual(jsonBigIntFilter('"|123|"'), '123');
+    assert.strictEqual(jsonBigIntFilter('"|-123|"'), '-123');
     assert.strictEqual(jsonBigIntFilter('true'), 'true');
     assert.strictEqual(jsonBigIntFilter('false'), 'false');
     assert.strictEqual(jsonBigIntFilter('null'), 'null');
+    assert.strictEqual(formatForDisplay('-9007199254740993'), '-9007199254740993');
+    assert.strictEqual(formatForDisplay('"|-9007199254740993|"'), '"|-9007199254740993|"');
 
     const rawOnlyValues = [
         '{"a":1,"a":2}',
