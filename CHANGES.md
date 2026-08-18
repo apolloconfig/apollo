@@ -25,6 +25,7 @@ Apollo 3.0.0
 * [Feature: support revoking unpublished changes for non-properties namespaces](https://github.com/apolloconfig/apollo/pull/5656)
 * [Feature: add formatted and raw JSON views in Portal](https://github.com/apolloconfig/apollo/pull/5657)
 * [Feature: support configurable OIDC username claim (`spring.security.oidc.user-id-claim-name`) for the Apollo user identity](https://github.com/apolloconfig/apollo/pull/5655)
+* [Fix: strict JSON/YAML well-formedness validation at the authoritative save path](https://github.com/apolloconfig/apollo/pull/5660)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
