@@ -336,7 +336,45 @@ spring:
           issuer-uri: https://host:port/auth/realms/apollo
 ```
 
-#### 1.3 Configure user display name
+#### 1.3 Configure user identity (username)
+
+By default Apollo uses the token subject (`sub`) as the Apollo user identity (`Users.Username`).
+For many enterprise OpenID Connect providers `sub` is an opaque UUID, while the real login name or
+employee id is carried in another claim such as `preferred_username`. You can configure the claim
+used as the Apollo user identity in the `application-oidc.yml`.
+
+* the configuration property name for the oidc (interactive) and jwt user identity is
+  `spring.security.oidc.user-id-claim-name`, default to the token subject (`sub`).
+* the same claim is applied to both the oidc (interactive) and jwt login paths so they resolve the
+  same Apollo user id.
+* when the configured claim is missing or blank in a token, login is rejected rather than falling
+  back to the subject, so the same principal is never provisioned as two different Apollo users
+  across the oidc and jwt paths.
+* this is non-breaking: leaving the property unset keeps the current `sub` based behavior.
+
+The value of this claim becomes the Apollo login identity (`Users.Username`) and drives
+authorization, so choose it carefully. The claim must be controlled by the identity provider,
+unique, immutable, non-reassignable and not user-editable, because if its value collides with an
+existing `Users.Username` Apollo will reuse that account together with its roles and any
+super-admin status. `Users.Username` is limited to 64 characters, and the OpenID Connect
+specification warns that claims like `preferred_username` and `email` are not guaranteed to be
+stable or unique. Only use such a claim when your identity provider guarantees the properties above,
+and verify your existing username mappings before rolling this out.
+
+##### 1.3.1 Example of user identity configure
+
+* for example, using `preferred_username` as the claim of the Apollo user identity, once you have
+  confirmed your identity provider issues it as a stable, unique and immutable value.
+
+```yml
+spring:
+  security:
+    oidc:
+      user-id-claim-name: "preferred_username"
+
+```
+
+#### 1.4 Configure user display name
 
 you can also configure a custom user display name in the `application-oidc.yml`
 
@@ -347,7 +385,7 @@ you can also configure a custom user display name in the `application-oidc.yml`
 * the configuration property name for oidc jwt user display name is `spring.security.oidc.jwt-user-display-name-claim-name`,
   has no default.
 
-##### 1.3.1 Example of user display name configure
+##### 1.4.1 Example of user display name configure
 
 * for example, using `name` as the claim of oidc (interactive) user display name.
 

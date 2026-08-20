@@ -34,12 +34,32 @@ public class OidcExtendProperties {
    */
   private String jwtUserDisplayNameClaimName;
 
+  /**
+   * claim name used as the Apollo user identity {@link UserPO#getUsername()} for both oidc
+   * (interactive) and jwt logins. default to the token subject ({@link StandardClaimNames#SUB}).
+   * <p>
+   * The value of this claim becomes the Apollo login identity and drives authorization, so when it
+   * is configured the claim must be IdP-controlled, unique, immutable, non-reassignable and not
+   * user-editable. If a configured claim is missing or blank in a token, login is rejected rather
+   * than falling back to the subject, so the same principal cannot be provisioned as two different
+   * Apollo users across the oidc and jwt paths.
+   */
+  private String userIdClaimName;
+
   public String getUserDisplayNameClaimName() {
     return userDisplayNameClaimName;
   }
 
   public void setUserDisplayNameClaimName(String userDisplayNameClaimName) {
     this.userDisplayNameClaimName = userDisplayNameClaimName;
+  }
+
+  public String getUserIdClaimName() {
+    return userIdClaimName;
+  }
+
+  public void setUserIdClaimName(String userIdClaimName) {
+    this.userIdClaimName = userIdClaimName;
   }
 
   public String getJwtUserDisplayNameClaimName() {
