@@ -23,6 +23,7 @@ Apollo 3.0.0
 * [Fix: physically delete retained release history and unreferenced release rows](https://github.com/apolloconfig/apollo/pull/5641)
 * [Fix: preserve item type when revoking unpublished changes](https://github.com/apolloconfig/apollo/pull/5646)
 * [Feature: support revoking unpublished changes for non-properties namespaces](https://github.com/apolloconfig/apollo/pull/5656)
+* [Feature: add formatted and raw JSON views in Portal](https://github.com/apolloconfig/apollo/pull/5657)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)

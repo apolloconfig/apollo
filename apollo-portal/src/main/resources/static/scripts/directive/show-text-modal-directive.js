@@ -17,16 +17,23 @@
 directive_module.directive('showtextmodal', showTextModalDirective)
     .filter('jsonBigIntFilter', function () {
         return function (text) {
-            if (typeof(text) === "undefined" || typeof JSON.parse(text) !== "object"
-                || !text) {
+            if (typeof(text) === "undefined" || !text) {
+                return;
+            }
+            try {
+                JSON.parse(text);
+            } catch (e) {
                 return;
             }
 
-            const numberRegex = /"\|+\d+\|+"/g;
-            const splitRegex = /"\|+\d+\|+"/;
+            const numberRegex =
+                /"\|+-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+\-]?\d+)?\|+"/g;
+            const splitRegex =
+                /"\|+-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+\-]?\d+)?\|+"/;
             const splitArray = text.split(splitRegex);
             const matchResult = text.match(numberRegex);
-            const borderRegex = /"\|\d+\|"/;
+            const borderRegex =
+                /"\|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+\-]?\d+)?\|"/;
             if (!matchResult || 0 === splitArray.length) {
                 return text;
             } else {
@@ -84,14 +91,26 @@ function showTextModalDirective(AppUtil) {
 
             function init() {
                 scope.jsonObject = undefined;
+                scope.canFormat = false;
+                scope.viewMode = 'raw';
                 if (isJsonText(scope.text) && !AppUtil.hasDuplicateKeys(scope.text)) {
                     scope.jsonObject = parseBigInt(scope.text);
+                    scope.canFormat = true;
+                    scope.viewMode = 'formatted';
                 }
             }
 
+            scope.setViewMode = function (viewMode, event) {
+                if (event) {
+                    event.preventDefault();
+                }
+                scope.viewMode = viewMode;
+            };
+
             function isJsonText(text) {
                 try {
-                    return typeof JSON.parse(text) === "object";
+                    JSON.parse(text);
+                    return true;
                 } catch (e) {
                     return false;
                 }
@@ -101,21 +120,23 @@ function showTextModalDirective(AppUtil) {
                 if (/\d+/.test(str)) {
                     let replaceMap = [];
                     let n = 0;
-                    str = str.replace(/"\|+\d+\|+"/g, function (match) {
-                        return match.replace('"\|', '"\||').replace('|"', '||"');
-                    })
+                    str = str.replace(
+                        /"\|+-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+\-]?\d+)?\|+"/g,
+                        function (match) {
+                            return match.replace('"\|', '"\||').replace('|"', '||"');
+                        })
                     .replace(/"(\\?[\s\S])*?"/g, function (match) {
                         if (/\d+/.test(match)) {
                             replaceMap.push(match);
                             return '"""';
                         }
                         return match;
-                    }).replace(/[+\-\d.eE]+/g, function (match) {
-                        if (/^\d+$/.test(match)) {
+                    }).replace(
+                        /-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+\-]?\d+)?/g,
+                        function (match) {
                             return '"|' + match + '|"';
-                        }
-                        return match;
-                    }).replace(/"""/g, function () {
+                        })
+                    .replace(/"""/g, function () {
                         return replaceMap[n++];
                     })
                 }
@@ -124,5 +145,3 @@ function showTextModalDirective(AppUtil) {
         }
     }
 }
-
-
