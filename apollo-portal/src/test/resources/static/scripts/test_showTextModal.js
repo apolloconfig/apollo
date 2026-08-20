@@ -109,7 +109,11 @@ function runTests() {
     assert.strictEqual(jsonBigIntFilter('false'), 'false');
     assert.strictEqual(jsonBigIntFilter('null'), 'null');
     assert.strictEqual(formatForDisplay('-9007199254740993'), '-9007199254740993');
+    assert.strictEqual(formatForDisplay('9007199254740993.0'), '9007199254740993.0');
+    assert.strictEqual(formatForDisplay('9.007199254740993e15'), '9.007199254740993e15');
     assert.strictEqual(formatForDisplay('"|-9007199254740993|"'), '"|-9007199254740993|"');
+    assert.strictEqual(formatForDisplay('"|9.007199254740993e15|"'),
+        '"|9.007199254740993e15|"');
 
     const rawOnlyValues = [
         '{"a":1,"a":2}',
