@@ -54,6 +54,23 @@ class NamespaceTextSyntaxCheckerTest {
   }
 
   @Test
+  void yamlWithMultipleDocumentsThrows() {
+    // Spring's YamlPropertiesFactoryBean (the portal's old syntax check) treats `---`-separated
+    // documents as valid, merged config - but the authoritative save path requires a single
+    // document, so this must be rejected here too, not just at save time
+    assertThrows(BadRequestException.class,
+        () -> NamespaceTextSyntaxChecker.check(model("yaml", "name: apollo\n---\nname: apollo2")));
+    assertThrows(BadRequestException.class,
+        () -> NamespaceTextSyntaxChecker.check(model("yml", "name: apollo\n---\nname: apollo2")));
+  }
+
+  @Test
+  void yamlWithDuplicateKeysThrows() {
+    assertThrows(BadRequestException.class,
+        () -> NamespaceTextSyntaxChecker.check(model("yaml", "name: apollo\nname: apollo2")));
+  }
+
+  @Test
   void validJsonPasses() {
     assertDoesNotThrow(() -> NamespaceTextSyntaxChecker
         .check(model("json", "{\"name\": \"apollo\", \"age\": 1}")));
