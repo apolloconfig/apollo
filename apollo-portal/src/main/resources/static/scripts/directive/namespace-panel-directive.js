@@ -293,7 +293,8 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 scope.showNamespaceBody = namespace.showNamespaceBody ? true : scope.showBody;
                 namespace.viewItems = namespace.items;
                 namespace.isPropertiesFormat = namespace.format == 'properties';
-                namespace.isSyntaxCheckable = namespace.format == 'yaml' || namespace.format == 'yml';
+                namespace.isSyntaxCheckable = namespace.format == 'yaml' || namespace.format == 'yml'
+                    || namespace.format == 'json';
                 namespace.isTextEditing = false;
                 namespace.isTextFullscreen = false;
                 namespace.instanceViewType = namespace_instance_view_type.LATEST_RELEASE;

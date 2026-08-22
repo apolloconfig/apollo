@@ -90,6 +90,40 @@ public class ItemControllerTest extends AbstractControllerTest {
   @Test
   @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void testCreateIgnoresNamespaceIdMismatchFromRequestBody() {
+    String appId = "someAppId";
+    AppDTO app = restTemplate.getForObject(appBaseUrl(), AppDTO.class, appId);
+    assert app != null;
+    ClusterDTO cluster =
+        restTemplate.getForObject(clusterBaseUrl(), ClusterDTO.class, app.getAppId(), "default");
+    assert cluster != null;
+    NamespaceDTO namespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "application");
+    NamespaceDTO otherNamespace = restTemplate.getForObject(namespaceBaseUrl(), NamespaceDTO.class,
+        app.getAppId(), cluster.getName(), "someNamespace");
+    assert namespace != null;
+    assert otherNamespace != null;
+
+    // posting to "application"'s URL, but with someNamespace's ID in the request body - the
+    // resolved namespace (from the URL) must win, not the caller-supplied ID
+    ItemDTO item = new ItemDTO("test-key", "test-value", "", 1);
+    item.setNamespaceId(otherNamespace.getId());
+    item.setDataChangeLastModifiedBy("apollo");
+
+    ResponseEntity<ItemDTO> response = restTemplate.postForEntity(itemBaseUrl(), item,
+        ItemDTO.class, app.getAppId(), cluster.getName(), namespace.getNamespaceName());
+    Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+    Assert.assertEquals(namespace.getId(),
+        Objects.requireNonNull(response.getBody()).getNamespaceId());
+
+    long itemId = response.getBody().getId();
+    itemRepository.findById(itemId)
+        .ifPresent(savedItem -> Assert.assertEquals(namespace.getId(), savedItem.getNamespaceId()));
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
   public void testUpdate() {
     this.testCreate();
 

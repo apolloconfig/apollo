@@ -76,7 +76,18 @@ public class ItemController {
   public ItemDTO create(@PathVariable("appId") String appId,
       @PathVariable("clusterName") String clusterName,
       @PathVariable("namespaceName") String namespaceName, @RequestBody ItemDTO dto) {
+    Namespace namespace = namespaceService.findOne(appId, clusterName, namespaceName);
+    if (namespace == null) {
+      throw NotFoundException.namespaceNotFound(appId, clusterName, namespaceName);
+    }
+
     Item entity = BeanUtils.transform(Item.class, dto);
+    // the namespace the item belongs to is resolved from the URL, not trusted from the request
+    // body - otherwise a caller could post to one namespace's URL while supplying another
+    // namespace's ID, saving the item under a different namespace than the one being called and,
+    // since ItemService looks up the format via namespaceId, bypassing that other namespace's
+    // syntax validation
+    entity.setNamespaceId(namespace.getId());
 
     Item managedEntity = itemService.findOne(appId, clusterName, namespaceName, entity.getKey());
     if (managedEntity != null) {

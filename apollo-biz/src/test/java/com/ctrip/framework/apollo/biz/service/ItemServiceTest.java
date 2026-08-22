@@ -47,6 +47,8 @@ public class ItemServiceTest extends AbstractIntegrationTest {
   @Autowired
   private NamespaceService namespaceService;
   @Autowired
+  private AppNamespaceService appNamespaceService;
+  @Autowired
   private AuditService auditService;
 
   @Mock
@@ -58,7 +60,8 @@ public class ItemServiceTest extends AbstractIntegrationTest {
   @Before
   public void setUp() throws Exception {
     mocks = MockitoAnnotations.openMocks(this);
-    itemService2 = new ItemService(itemRepository, namespaceService, auditService, bizConfig);
+    itemService2 = new ItemService(itemRepository, namespaceService, appNamespaceService,
+        auditService, bizConfig);
   }
 
   @After
@@ -176,6 +179,77 @@ public class ItemServiceTest extends AbstractIntegrationTest {
     Assert.assertEquals(itemInfoDTO.toString(),
         ExpectedItemInfoDTOSByValue.getContent().get(0).toString());
 
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-format-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testSaveItemRejectsMalformedJsonOnJsonNamespace() {
+    Item item = createItem(900001L, "content", "{\"name\": \"apollo\"", 0);
+    try {
+      itemService.save(item);
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof BadRequestException);
+      Assert.assertTrue(e.getMessage().contains("invalid json content"));
+    }
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-format-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testSaveItemRejectsJsonWithTrailingTokensOnJsonNamespace() {
+    Item item = createItem(900001L, "content", "{\"name\": \"apollo\"} garbage", 0);
+    try {
+      itemService.save(item);
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof BadRequestException);
+    }
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-format-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testSaveItemAcceptsWellFormedJsonOnJsonNamespace() {
+    Item item = createItem(900001L, "content", "{\"name\": \"apollo\", \"age\": 1}", 0);
+    Item dbItem = itemService.save(item);
+    Assert.assertEquals("{\"name\": \"apollo\", \"age\": 1}", dbItem.getValue());
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-format-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testUpdateItemRejectsMalformedJsonOnJsonNamespace() {
+    Item item = createItem(900001L, "content", "{\"name\": \"apollo\"}", 0);
+    Item dbItem = itemService.save(item);
+
+    Item update = createItem(900001L, "content", "not even json", 0);
+    update.setId(dbItem.getId());
+    update.setLineNum(dbItem.getLineNum());
+    try {
+      itemService.update(update);
+      Assert.fail();
+    } catch (Exception e) {
+      Assert.assertTrue(e instanceof BadRequestException);
+    }
+  }
+
+  @Test
+  @Sql(scripts = "/sql/namespace-blank-format-test.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/sql/clean.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testSaveItemOnNamespaceWithBlankFormatIsNotSyntaxChecked() {
+    // a namespace whose AppNamespace has no recognizable format (e.g. a fixture/row that never
+    // set one) must not crash formatAsEnum() - it's simply not json/yml/yaml, so any value is
+    // accepted the same way it always was
+    Item item = createItem(900002L, "content", "not valid json or yaml either: [", 0);
+    Item dbItem = itemService.save(item);
+    Assert.assertEquals("not valid json or yaml either: [", dbItem.getValue());
   }
 
   private Item createItem(long namespaceId, String key, String value, int type) {

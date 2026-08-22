@@ -17,20 +17,18 @@
 package com.ctrip.framework.apollo.portal.util;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
+import com.ctrip.framework.apollo.common.utils.NamespaceContentSyntaxValidator;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 import com.ctrip.framework.apollo.portal.entity.model.NamespaceTextModel;
-import java.nio.charset.StandardCharsets;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
-import org.springframework.core.io.ByteArrayResource;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.LoaderOptions;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
-import org.yaml.snakeyaml.representer.Representer;
 
 /**
- * Checks namespace text syntax shared by Portal WebAPI and OpenAPI controllers.
+ * Checks namespace text syntax shared by Portal WebAPI and OpenAPI controllers. This is fast,
+ * non-authoritative feedback for the UI - the actual save is authoritatively enforced in
+ * apollo-biz's {@code ItemService}. Both routes share {@link NamespaceContentSyntaxValidator} so
+ * a namespace can't pass this check with content the save path would then reject (e.g. a
+ * multi-document YAML stream, which Spring's YAML loader accepts but the single-document,
+ * authoritative check does not).
  */
 public final class NamespaceTextSyntaxChecker {
 
@@ -41,30 +39,11 @@ public final class NamespaceTextSyntaxChecker {
       return;
     }
 
-    if (model.getFormat() != ConfigFileFormat.YAML && model.getFormat() != ConfigFileFormat.YML) {
-      return;
-    }
-
-    TypeLimitedYamlPropertiesFactoryBean yamlPropertiesFactoryBean =
-        new TypeLimitedYamlPropertiesFactoryBean();
-    yamlPropertiesFactoryBean.setResources(
-        new ByteArrayResource(model.getConfigText().getBytes(StandardCharsets.UTF_8)));
+    ConfigFileFormat format = model.getFormat();
     try {
-      yamlPropertiesFactoryBean.getObject();
-    } catch (Exception ex) {
+      NamespaceContentSyntaxValidator.validate(format, model.getConfigText());
+    } catch (IllegalArgumentException ex) {
       throw new BadRequestException(ex.getMessage());
-    }
-  }
-
-  private static class TypeLimitedYamlPropertiesFactoryBean extends YamlPropertiesFactoryBean {
-
-    @Override
-    protected Yaml createYaml() {
-      LoaderOptions loaderOptions = new LoaderOptions();
-      loaderOptions.setAllowDuplicateKeys(false);
-      DumperOptions dumperOptions = new DumperOptions();
-      return new Yaml(new SafeConstructor(loaderOptions), new Representer(dumperOptions),
-          dumperOptions, loaderOptions);
     }
   }
 }
