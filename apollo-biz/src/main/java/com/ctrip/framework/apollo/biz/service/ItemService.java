@@ -23,9 +23,11 @@ import com.ctrip.framework.apollo.biz.entity.Item;
 import com.ctrip.framework.apollo.biz.entity.Namespace;
 import com.ctrip.framework.apollo.biz.repository.ItemRepository;
 import com.ctrip.framework.apollo.common.dto.ItemInfoDTO;
+import com.ctrip.framework.apollo.common.entity.AppNamespace;
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
+import com.ctrip.framework.apollo.common.utils.NamespaceContentSyntaxValidator;
 import com.ctrip.framework.apollo.core.utils.StringUtils;
 
 import org.springframework.context.annotation.Lazy;
@@ -45,14 +47,17 @@ public class ItemService {
 
   private final ItemRepository itemRepository;
   private final NamespaceService namespaceService;
+  private final AppNamespaceService appNamespaceService;
   private final AuditService auditService;
   private final BizConfig bizConfig;
 
   public ItemService(final ItemRepository itemRepository,
-      final @Lazy NamespaceService namespaceService, final AuditService auditService,
+      final @Lazy NamespaceService namespaceService,
+      final @Lazy AppNamespaceService appNamespaceService, final AuditService auditService,
       final BizConfig bizConfig) {
     this.itemRepository = itemRepository;
     this.namespaceService = namespaceService;
+    this.appNamespaceService = appNamespaceService;
     this.auditService = auditService;
     this.bizConfig = bizConfig;
   }
@@ -169,6 +174,7 @@ public class ItemService {
     checkItemKeyLength(entity.getKey());
     checkItemType(entity.getType());
     checkItemValueLength(entity.getNamespaceId(), entity.getValue());
+    checkItemValueSyntax(entity.getNamespaceId(), entity.getValue());
 
     entity.setId(0);// protection
 
@@ -210,6 +216,7 @@ public class ItemService {
   public Item update(Item item) {
     checkItemType(item.getType());
     checkItemValueLength(item.getNamespaceId(), item.getValue());
+    checkItemValueSyntax(item.getNamespaceId(), item.getValue());
     Item managedItem = itemRepository.findById(item.getId()).orElse(null);
     BeanUtils.copyEntityProperties(item, managedItem);
     managedItem = itemRepository.save(managedItem);
@@ -234,6 +241,31 @@ public class ItemService {
       throw new BadRequestException("value too long. length limit:" + limit);
     }
     return true;
+  }
+
+  /**
+   * Rejects a json/yml/yaml namespace's item value if it isn't well-formed. This is the single,
+   * authoritative enforcement point: every entry route (portal whole-text save, portal
+   * single-item edit, OpenAPI/AdminService callers) funnels through {@link #save(Item)}/
+   * {@link #update(Item)}.
+   */
+  private void checkItemValueSyntax(long namespaceId, String value) {
+    Namespace currentNamespace = namespaceService.findOne(namespaceId);
+    if (currentNamespace == null) {
+      return;
+    }
+    AppNamespace appNamespace = appNamespaceService.findOne(currentNamespace.getAppId(),
+        currentNamespace.getNamespaceName());
+    // a namespace with no recognizable format can't be json/yml/yaml anyway - and
+    // formatAsEnum() would throw on a blank value rather than treat it as "unknown"
+    if (appNamespace == null || StringUtils.isBlank(appNamespace.getFormat())) {
+      return;
+    }
+    try {
+      NamespaceContentSyntaxValidator.validate(appNamespace.formatAsEnum(), value);
+    } catch (IllegalArgumentException ex) {
+      throw new BadRequestException(ex.getMessage());
+    }
   }
 
   private int getGrayNamespaceItemValueLengthLimit(Namespace grayNamespace,

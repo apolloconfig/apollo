@@ -29,6 +29,8 @@ The modal box page of [View token and empower] is shown in the following figure:
 
 Third-party applications should not be able to manipulate any Namespace configuration, so you need to bind the token to a Namespace that can be manipulated. Apollo administrators assign rights to the token in the `http://{portal_address}/open/add-consumer.html` page. After the assignment, the third-party application can manage the configuration of the authorized Namespace through the Http REST interface provided by Apollo.
 
+Starting from Apollo 3.0.0, consumer tokens can also call User Management Open APIs when the administrator enables **Allow user management?** (`ManageUsers`) for that consumer. Without this permission, user search/create/update/enable/disable requests return HTTP 403. Mutating User Management and Permission Management calls with a consumer token require a valid `operator` query parameter (an existing Portal user).
+
 #### 2.4 Third-party application calls Apollo Open API
 
 ##### 2.4.1 Calling the Http REST Interface
@@ -140,9 +142,20 @@ discover the Open API surface available to the current token. Each action contai
 
 The operations shown in the Portal token form and `actions.requiredOperations` use the same
 operation strings, such as `config:read`, `config:modify`, `config:release`, `namespace:create`,
-`namespace:delete`, `cluster:create`, `app:manage-role`, and `app:create`. `actions` is already
+`namespace:delete`, `cluster:create`, `app:manage-role`, `user:manage`, and `app:create`. `actions` is already
 filtered by the current token's `operations`. Clients should still combine it with `appIds`, `envs`,
 and `namespaces` to decide whether a concrete resource is in scope.
+
+Authorization boundaries for the Apollo 3.0.0 User Management and Permission Management Open APIs:
+
+* User Management with a consumer token requires the explicit `ManageUsers` permission on that consumer.
+* User Management with a user access token requires the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update of another user and enable/disable require the owning user to be a Portal super-admin and the token operation `system:admin` (in addition to `user:manage`). Without `system:admin`, even a super-admin-owned token with only `user:manage` is treated as non-super-admin and can only create/update the token owner while keeping the user enabled. Consumer tokens with `ManageUsers` are not subject to those extra user-token limits.
+* Permission Management with a consumer token depends on the endpoint in Apollo 3.0.0:
+  * Role query (`GET .../role-users`): any authenticated consumer token can query role users for any `appId`; there is no app-scoped consumer check and `ASSIGN_ROLE` is not required for these reads. Treat this as current runtime behavior, not an app-bound security model.
+  * Namespace / environment-Namespace / cluster-Namespace grant and revoke: requires the consumer's app-scoped Assign Role (`ASSIGN_ROLE`) for the target app. Authorization is checked before `operator` is resolved; `operator` only identifies the audit operator on mutations.
+  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`, including `Master`): not supported for consumer tokens (authorization fails with `UnsupportedOperationException`, typically as HTTP 500). Use a user access token (or Portal user flow) that passes manage-app-master authorization.
+* Permission Management with a user access token requires the owning user's app permission plus the token operation `app:manage-role` and the applicable AppId / environment / Namespace scopes. Role-query endpoints additionally require assign-role permission on the scoped resource. App-level grant/revoke additionally require manage-app-master permission.
+* Consumer-token mutations require a valid `operator` query parameter. User-token requests ignore `operator` and attribute the change to the token owner.
 
 `config:release` only grants publish-related release actions, such as `release.create`,
 `release.gray-create`, `release.gray-delete`, and `release.rollback`. Reading release contents,
@@ -724,6 +737,136 @@ App can be created through this interface,
 ```
 
 * **Response Sample** ： None
+
+##### 3.2.18 User Management (available from Apollo 3.0.0)
+
+> Available starting with Apollo 3.0.0. This section is an integration guide. For the complete paths, parameters, and schemas, see the canonical [`apollo-openapi` v0.3.10 contract](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.10/apollo-openapi.yaml).
+
+User Management Open APIs cover Portal user search, get, create/update, and enable/disable under `/openapi/v1/users`. Authorization rules:
+
+* Consumer token: needs the explicit `ManageUsers` permission (Portal **Allow user management?**).
+* User access token: needs the owning user's current `ManageUsers` permission plus the token operation `user:manage`. For user access tokens, create/update of another user and enable/disable require the owning user to be a Portal super-admin and the token operation `system:admin` (in addition to `user:manage`). Without `system:admin`, even a super-admin-owned token with only `user:manage` is treated as non-super-admin and can only create/update the token owner while keeping the user enabled. Consumer tokens with `ManageUsers` are not subject to those extra user-token limits.
+* Consumer-token mutations (`POST /openapi/v1/users`, `PUT /openapi/v1/users/enabled`) require a valid `operator` query parameter. User-token requests derive the operator from the token owner.
+
+`GET` search/get uses the configured `UserService`. Create / update / enable / disable is only supported when Portal uses the built-in `SpringSecurityUserService`. Other `UserService` implementations (for example LDAP-only) support search/get but reject mutations.
+
+Related paths (see the OpenAPI contract for details): `GET /openapi/v1/users/{userId}`, `POST /openapi/v1/users`, `PUT /openapi/v1/users/enabled`.
+
+###### Search users
+
+* **URL** : `http://{portal_address}/openapi/v1/users`
+* **Method** : GET
+* **Request Params** :
+
+| Parameter Name       | Required | Type    | Description                                      |
+| -------------------- | -------- | ------- | ------------------------------------------------ |
+| keyword              | true     | String  | Match username / display name via the configured `UserService`; email matching is not guaranteed |
+| includeInactiveUsers | false    | Boolean | Accepted (default `false`). Honored by built-in Spring Security / OIDC local services; ignored by LDAP |
+| offset               | false    | Integer | Accepted (default `0`); not applied by built-in `UserService` implementations in Apollo 3.0.0 |
+| limit                | false    | Integer | Accepted (default `10`); not applied by built-in `UserService` implementations in Apollo 3.0.0 |
+
+* **Request Sample** :
+
+```text
+http://{portal_address}/openapi/v1/users?keyword=apollo&includeInactiveUsers=false
+```
+
+* **Response Sample** :
+
+```json
+[
+  {
+    "userId": "apollo",
+    "name": "apollo",
+    "email": "apollo@acme.com",
+    "enabled": 1
+  }
+]
+```
+
+##### 3.2.19 Permission Management (available from Apollo 3.0.0)
+
+> Available starting with Apollo 3.0.0. This section is an integration guide. For the complete paths, parameters, and schemas — including Namespace, environment-Namespace, and cluster-Namespace variants — see the canonical [`apollo-openapi` v0.3.10 contract](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.10/apollo-openapi.yaml).
+
+Permission Management Open APIs query and change app / Namespace role assignments after an app is created. Example endpoints:
+
+* `GET /openapi/v1/apps/{appId}/role-users`
+* `POST /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* `DELETE /openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* `POST /openapi/v1/apps/{appId}/roles/{roleType}` and `DELETE /openapi/v1/apps/{appId}/roles/{roleType}` (app-level, including `Master`) — user access token only in Apollo 3.0.0; see authorization below
+
+Authorization in Apollo 3.0.0:
+
+* Consumer token:
+  * Role query (`GET .../role-users`): any authenticated consumer token can query role users for any `appId`; there is no app-scoped consumer check and `ASSIGN_ROLE` is not required for these reads. Treat this as current runtime behavior, not an app-bound security model.
+  * Namespace / environment-Namespace / cluster-Namespace grant and revoke: requires app-scoped Assign Role (`ASSIGN_ROLE`) for the target app. Authorization runs before `operator` is resolved; `operator` only identifies the audit operator on mutations.
+  * App-level grant and revoke (`POST`/`DELETE /openapi/v1/apps/{appId}/roles/{roleType}`): not supported for consumer tokens (authorization fails with `UnsupportedOperationException`, typically as HTTP 500).
+* User access token: requires the owning user's app permission plus `app:manage-role` and the applicable resource scopes. Role-query endpoints additionally require assign-role permission on the scoped resource. App-level grant/revoke additionally require manage-app-master permission.
+
+`roleType` values and parameter schemas are defined in the OpenAPI contract / `RoleType`; common values include `Master`, `ModifyNamespace`, `ReleaseNamespace`, `ModifyNamespacesInCluster`, and `ReleaseNamespacesInCluster`.
+
+> **App owner vs roles:** App owner is application metadata updated through `PUT /openapi/v1/apps/{appId}`. Administrator (`Master`), modify, and release permissions use the Permission Management APIs above — changing the owner field does not grant or revoke those roles.
+
+###### Query app role users
+
+* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/role-users`
+* **Method** : GET
+* **Request Params** : None
+* **Response Sample** :
+
+```json
+{
+  "appId": "xxx-web",
+  "masterUsers": [
+    {
+      "userId": "user1",
+      "name": "user1",
+      "email": "user1@acme.com",
+      "enabled": 1
+    }
+  ]
+}
+```
+
+###### Grant a Namespace role
+
+Consumer tokens can use Namespace-scoped grant/revoke when they have app-scoped `ASSIGN_ROLE`. App-level grant/revoke (including `Master` via `POST /openapi/v1/apps/{appId}/roles/{roleType}`) is user access token only in Apollo 3.0.0; consumer calls are rejected with `UnsupportedOperationException` (typically HTTP 500).
+
+* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* **Method** : POST
+* **Request Params** :
+
+| Parameter Name | Required | Type   | Description                                                                 |
+| -------------- | -------- | ------ | --------------------------------------------------------------------------- |
+| userId         | true     | String | User to grant the role to                                                   |
+| operator       | false    | String | Required for consumer tokens; ignored for user access tokens (token owner) |
+
+* **Request Sample** :
+
+```text
+http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/ModifyNamespace?userId=user2&operator=apollo
+```
+
+* **Response Sample** : None
+
+###### Revoke a Namespace role
+
+* **URL** : `http://{portal_address}/openapi/v1/apps/{appId}/namespaces/{namespaceName}/roles/{roleType}`
+* **Method** : DELETE
+* **Request Params** :
+
+| Parameter Name | Required | Type   | Description                                                                 |
+| -------------- | -------- | ------ | --------------------------------------------------------------------------- |
+| userId         | true     | String | User to remove the role from                                                |
+| operator       | false    | String | Required for consumer tokens; ignored for user access tokens (token owner) |
+
+* **Request Sample** :
+
+```text
+http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/ModifyNamespace?userId=user2&operator=apollo
+```
+
+* **Response Sample** : None
 
 ### IV. Error code description
 

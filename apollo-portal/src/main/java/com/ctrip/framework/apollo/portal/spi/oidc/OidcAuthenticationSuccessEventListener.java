@@ -71,27 +71,27 @@ public class OidcAuthenticationSuccessEventListener
   }
 
   private void oidcUserLogin(OidcUser oidcUser) {
-    String subject = oidcUser.getSubject();
+    String userId = OidcUserInfoUtil.getOidcUserId(oidcUser, this.oidcExtendProperties);
     String userDisplayName =
         OidcUserInfoUtil.getOidcUserDisplayName(oidcUser, this.oidcExtendProperties);
     String email = oidcUser.getEmail();
 
-    this.logOidc(oidcUser, subject, userDisplayName, email);
+    this.logOidc(oidcUser, userId, userDisplayName, email);
 
     UserInfo newUserInfo = new UserInfo();
-    newUserInfo.setUserId(subject);
+    newUserInfo.setUserId(userId);
     newUserInfo.setName(userDisplayName);
     newUserInfo.setEmail(email);
-    if (this.contains(subject)) {
+    if (this.contains(userId)) {
       this.oidcLocalUserService.updateUserInfo(newUserInfo);
       return;
     }
     this.oidcLocalUserService.createLocalUser(newUserInfo);
   }
 
-  private void logOidc(OidcUser oidcUser, String subject, String userDisplayName, String email) {
-    oidcLog.debug("oidc authentication success, sub=[{}] userDisplayName=[{}] email=[{}]", subject,
-        userDisplayName, email);
+  private void logOidc(OidcUser oidcUser, String userId, String userDisplayName, String email) {
+    oidcLog.debug("oidc authentication success, userId=[{}] userDisplayName=[{}] email=[{}]",
+        userId, userDisplayName, email);
     if (oidcLog.isTraceEnabled()) {
       Map<String, Object> claims = oidcUser.getClaims();
       for (Entry<String, Object> entry : claims.entrySet()) {
@@ -113,22 +113,22 @@ public class OidcAuthenticationSuccessEventListener
   }
 
   private void jwtLogin(Jwt jwt) {
-    String subject = jwt.getSubject();
+    String userId = OidcUserInfoUtil.getJwtUserId(jwt, this.oidcExtendProperties);
     String userDisplayName = OidcUserInfoUtil.getJwtUserDisplayName(jwt, this.oidcExtendProperties);
 
-    this.logJwt(jwt, subject, userDisplayName);
+    this.logJwt(jwt, userId, userDisplayName);
 
-    if (this.contains(subject)) {
+    if (this.contains(userId)) {
       return;
     }
     UserInfo newUserInfo = new UserInfo();
-    newUserInfo.setUserId(subject);
+    newUserInfo.setUserId(userId);
     newUserInfo.setName(userDisplayName);
     this.oidcLocalUserService.createLocalUser(newUserInfo);
   }
 
-  private void logJwt(Jwt jwt, String subject, String userDisplayName) {
-    jwtLog.debug("jwt authentication success, sub=[{}] userDisplayName=[{}]", subject,
+  private void logJwt(Jwt jwt, String userId, String userDisplayName) {
+    jwtLog.debug("jwt authentication success, userId=[{}] userDisplayName=[{}]", userId,
         userDisplayName);
     if (jwtLog.isTraceEnabled()) {
       Map<String, Object> claims = jwt.getClaims();

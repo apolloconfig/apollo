@@ -130,6 +130,10 @@ public class ReleaseController {
 
   @GetMapping("/envs/{env}/releases/{releaseId}")
   public ReleaseDTO get(@PathVariable String env, @PathVariable long releaseId) {
+    return getReleaseWithPermissionCheck(env, releaseId);
+  }
+
+  private ReleaseDTO getReleaseWithPermissionCheck(String env, long releaseId) {
     ReleaseDTO release = releaseService.findReleaseById(Env.valueOf(env), releaseId);
 
     if (release == null) {
@@ -181,7 +185,12 @@ public class ReleaseController {
   public ReleaseCompareResult compareRelease(@PathVariable String env,
       @RequestParam long baseReleaseId, @RequestParam long toCompareReleaseId) {
 
-    return releaseService.compare(Env.valueOf(env), baseReleaseId, toCompareReleaseId);
+    ReleaseDTO baseRelease =
+        baseReleaseId == 0 ? null : getReleaseWithPermissionCheck(env, baseReleaseId);
+    ReleaseDTO toCompareRelease =
+        toCompareReleaseId == 0 ? null : getReleaseWithPermissionCheck(env, toCompareReleaseId);
+
+    return releaseService.compare(baseRelease, toCompareRelease);
   }
 
 

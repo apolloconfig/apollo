@@ -93,7 +93,8 @@ class ItemServiceGrayNamespaceLimitTest {
     // Create ItemService with mocked dependencies
     ItemService itemService = new ItemService(
         org.mockito.Mockito.mock(com.ctrip.framework.apollo.biz.repository.ItemRepository.class),
-        mockNamespaceService, org.mockito.Mockito.mock(AuditService.class), mockBizConfig);
+        mockNamespaceService, org.mockito.Mockito.mock(AppNamespaceService.class),
+        org.mockito.Mockito.mock(AuditService.class), mockBizConfig);
 
     // Act: Call the private method via reflection
     java.lang.reflect.Method method = ItemService.class
@@ -145,7 +146,8 @@ class ItemServiceGrayNamespaceLimitTest {
 
     ItemService itemService = new ItemService(
         org.mockito.Mockito.mock(com.ctrip.framework.apollo.biz.repository.ItemRepository.class),
-        mockNamespaceService, org.mockito.Mockito.mock(AuditService.class), mockBizConfig);
+        mockNamespaceService, org.mockito.Mockito.mock(AppNamespaceService.class),
+        org.mockito.Mockito.mock(AuditService.class), mockBizConfig);
 
     // Create a value that exceeds gray namespace's limit (20000) but fits in parent's limit (50000)
     String value = "x".repeat(30000);
