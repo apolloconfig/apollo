@@ -388,6 +388,17 @@ table th {
     border-top: solid 1px #ffffff;
 }
 
+.config-item-container .second-panel-heading .ns-icon-button {
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.config-item-container .second-panel-heading .ns-icon-button img {
+    width: 25px;
+    height: 25px;
+}
+
 .config-item-container .second-panel-heading .nav-tabs .node_active {
     border-bottom: 3px #1b6d85 solid;
 }

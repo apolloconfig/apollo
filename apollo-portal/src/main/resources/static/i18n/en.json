@@ -334,6 +334,8 @@
   "Component.Rollback.NoChange": "No configuration changes",
   "Component.Rollback.OpRollback": "Rollback",
   "Component.ShowText.Title": "View",
+  "Component.ShowText.FormattedValue": "Formatted",
+  "Component.ShowText.RawValue": "Raw",
   "Login.Login": "Login",
   "Login.UserNameOrPasswordIncorrect": "Incorrect username or password",
   "Login.LogoutSuccessfully": "Logout Successfully",

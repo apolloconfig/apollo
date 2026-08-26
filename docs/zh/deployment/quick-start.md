@@ -70,12 +70,14 @@ Quick Start只针对本地测试使用，所以一般用户不需要自己下载
 #### 注意事项
 1. apollo 服务端进程需要分别使用8070, 8080, 8090端口，请确保这3个端口当前没有被使用。
 2. 脚本中的 SPRING_PROFILES_ACTIVE 环境变量中的 `github` 是必须的 profile，`database-discovery` 指定使用数据库服务发现， `auth` 是 portal 提供简单认证的 profile，不需要认证或者使用其它认证方式时可以去掉
+3. Quick Start 仅用于本地测试，请勿将 8070, 8080, 8090 端口暴露到公网。以下启动命令默认关闭 H2 Console；如需本地调试打开，请自行调整 `SPRING_H2_CONSOLE_ENABLED`，并避免允许外部网络访问。
 
 ## 2.1 使用 H2 内存数据库，自动初始化
 无需任何配置，直接使用如下命令启动即可
 > 注：使用内存数据库时，任何操作都会在 apollo 进程重启后丢失
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 unset SPRING_SQL_CONFIG_INIT_MODE
 unset SPRING_SQL_PORTAL_INIT_MODE
 java -jar apollo-all-in-one.jar
@@ -90,6 +92,7 @@ java -jar apollo-all-in-one.jar
 首次启动使用 SPRING_SQL_CONFIG_INIT_MODE="always" 和 SPRING_SQL_PORTAL_INIT_MODE="always" 环境变量来进行初始化
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -104,6 +107,7 @@ java -jar apollo-all-in-one.jar
 后续启动去掉 SPRING_SQL_CONFIG_INIT_MODE 和 SPRING_SQL_PORTAL_INIT_MODE 环境变量来避免重复初始化
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:h2:file:~/apollo/apollo-config-db;mode=mysql;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE"
@@ -123,6 +127,7 @@ java -jar apollo-all-in-one.jar
 首次启动使用 SPRING_SQL_INIT_MODE="always" 环境变量来进行初始化
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 export SPRING_SQL_CONFIG_INIT_MODE="always"
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -141,6 +146,7 @@ java -jar apollo-all-in-one.jar
 后续启动去掉 SPRING_SQL_CONFIG_INIT_MODE 和 SPRING_SQL_PORTAL_INIT_MODE 环境变量来避免重复初始化
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
@@ -168,6 +174,7 @@ ApolloPortalDB 通过各种MySQL客户端导入[apolloportaldb.sql](https://gith
 
 ```bash
 export SPRING_PROFILES_ACTIVE="github,database-discovery,auth"
+export SPRING_H2_CONSOLE_ENABLED=false
 # config db
 unset SPRING_SQL_CONFIG_INIT_MODE
 export SPRING_CONFIG_DATASOURCE_URL="jdbc:mysql://your-mysql-server:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8"
