@@ -1,5 +1,6 @@
 {
   "name": "docs",
+  "type": "module",
   "scripts": {
     "dev": "clarify dev --content .",
     "build": "clarify build --content ."
