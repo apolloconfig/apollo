@@ -6,6 +6,6 @@
   },
 
   "devDependencies": {
-    "@clarify-labs/cli": "^0.11.9"
+    "@clarify-labs/cli": "^0.11.20"
   }
 }

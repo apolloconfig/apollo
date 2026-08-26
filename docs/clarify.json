@@ -3,22 +3,20 @@
   "description": "Apollo configuration center documentation",
   "siteUrl": "https://www.apolloconfig.com",
   "navigation": {
-    "links": [
+    "menus": [
       {
         "label": {
           "en": "GitHub",
           "zh": "GitHub"
         },
-        "href": "https://github.com/apolloconfig/apollo",
-        "external": true
+        "href": "https://github.com/apolloconfig/apollo"
       },
       {
         "label": {
           "en": "Official Site",
           "zh": "官网"
         },
-        "href": "https://www.apolloconfig.com/",
-        "external": true
+        "href": "https://www.apolloconfig.com/"
       }
     ],
     "tabs": [
@@ -379,16 +377,14 @@
           "en": "GitHub",
           "zh": "GitHub"
         },
-        "href": "https://github.com/apolloconfig/apollo",
-        "external": true
+        "href": "https://github.com/apolloconfig/apollo"
       },
       {
         "label": {
           "en": "Releases",
           "zh": "版本发布"
         },
-        "href": "https://github.com/apolloconfig/apollo/releases",
-        "external": true
+        "href": "https://github.com/apolloconfig/apollo/releases"
       }
     ],
     "copyright": {
