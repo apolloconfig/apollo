@@ -60,6 +60,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -157,10 +158,11 @@ public class NamespaceController {
     String operator = userInfoHolder.getUser().getUserId();
 
     for (NamespaceCreationModel model : models) {
-      String namespaceName = model.getNamespace().getNamespaceName();
+      NamespaceDTO namespace = model.getNamespace();
+      validatePathAndPayloadAppId(appId, namespace.getAppId());
+      String namespaceName = namespace.getNamespaceName();
       roleInitializationService.initNamespaceRoles(appId, namespaceName, operator);
       roleInitializationService.initNamespaceEnvRoles(appId, namespaceName, operator);
-      NamespaceDTO namespace = model.getNamespace();
       RequestPrecondition.checkArgumentsNotEmpty(model.getEnv(), namespace.getAppId(),
           namespace.getClusterName(), namespace.getNamespaceName());
 
@@ -237,6 +239,7 @@ public class NamespaceController {
   public AppNamespace createAppNamespace(@PathVariable String appId,
       @RequestParam(defaultValue = "true") boolean appendNamespacePrefix,
       @Valid @RequestBody AppNamespace appNamespace) {
+    validatePathAndPayloadAppId(appId, appNamespace.getAppId());
     if (!InputValidator.isValidAppNamespace(appNamespace.getName())) {
       throw BadRequestException
           .invalidNamespaceFormat(InputValidator.INVALID_CLUSTER_NAMESPACE_MESSAGE + " & "
@@ -307,6 +310,13 @@ public class NamespaceController {
     }
 
     return ResponseEntity.ok().build();
+  }
+
+  private void validatePathAndPayloadAppId(String pathAppId, String payloadAppId) {
+    if (!Objects.equals(pathAppId, payloadAppId)) {
+      throw new BadRequestException("AppId not equal. AppId in path = %s, AppId in payload = %s",
+          pathAppId, payloadAppId);
+    }
   }
 
   private Set<String> findMissingNamespaceNames(String appId, String env, String clusterName) {
