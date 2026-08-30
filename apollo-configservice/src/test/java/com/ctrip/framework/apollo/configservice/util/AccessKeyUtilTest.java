@@ -98,6 +98,24 @@ public class AccessKeyUtilTest {
   }
 
   @Test
+  public void testExtractAppIdFromConfigFileRequestWithRawAppId() {
+    when(request.getServletPath()).thenReturn("/configfiles/raw/default/application");
+
+    String appId = accessKeyUtil.extractAppIdFromRequest(request);
+
+    assertThat(appId).isEqualTo("raw");
+  }
+
+  @Test
+  public void testExtractAppIdFromConfigFileRequestWithJsonAppId() {
+    when(request.getServletPath()).thenReturn("/configfiles/json/default/application");
+
+    String appId = accessKeyUtil.extractAppIdFromRequest(request);
+
+    assertThat(appId).isEqualTo("json");
+  }
+
+  @Test
   public void testExtractAppIdFromRawConfigFileRequestShouldRejectAppIdWithTrailingSpace() {
     when(request.getServletPath()).thenReturn("/configfiles/raw/mysql.example.test /default/application");
 
@@ -107,7 +125,7 @@ public class AccessKeyUtilTest {
   }
 
   @Test
-  public void testExtractAppIdFromRequest4() {
+  public void testExtractAppIdFromNotificationRequest() {
     when(request.getServletPath()).thenReturn("/notifications/v2");
     when(request.getParameter("appId")).thenReturn("someAppId");
 
