@@ -33,10 +33,12 @@ public class AccessKeyUtil {
 
   private static final String URL_SEPARATOR = "/";
   private static final String URL_CONFIGS_PREFIX = "/configs/";
-  private static final String URL_CONFIGFILES_JSON_PREFIX = "/configfiles/json/";
-  private static final String URL_CONFIGFILES_RAW_PREFIX = "/configfiles/raw/";
   private static final String URL_CONFIGFILES_PREFIX = "/configfiles/";
   private static final String URL_NOTIFICATIONS_PREFIX = "/notifications";
+  private static final int GENERIC_CONFIG_FILE_PATH_SEGMENT_COUNT = 3;
+  private static final int SPECIAL_CONFIG_FILE_PATH_SEGMENT_COUNT = 4;
+  private static final String CONFIG_FILE_OUTPUT_FORMAT_JSON = "json";
+  private static final String CONFIG_FILE_OUTPUT_FORMAT_RAW = "raw";
 
   private final AccessKeyServiceWithCache accessKeyServiceWithCache;
 
@@ -58,12 +60,8 @@ public class AccessKeyUtil {
 
     if (StringUtils.startsWith(servletPath, URL_CONFIGS_PREFIX)) {
       appId = StringUtils.substringBetween(servletPath, URL_CONFIGS_PREFIX, URL_SEPARATOR);
-    } else if (StringUtils.startsWith(servletPath, URL_CONFIGFILES_JSON_PREFIX)) {
-      appId = StringUtils.substringBetween(servletPath, URL_CONFIGFILES_JSON_PREFIX, URL_SEPARATOR);
-    } else if (StringUtils.startsWith(servletPath, URL_CONFIGFILES_RAW_PREFIX)) {
-      appId = StringUtils.substringBetween(servletPath, URL_CONFIGFILES_RAW_PREFIX, URL_SEPARATOR);
     } else if (StringUtils.startsWith(servletPath, URL_CONFIGFILES_PREFIX)) {
-      appId = StringUtils.substringBetween(servletPath, URL_CONFIGFILES_PREFIX, URL_SEPARATOR);
+      appId = extractAppIdFromConfigFileRequest(servletPath);
     } else if (isNotificationRequest(servletPath)) {
       appId = request.getParameter("appId");
     }
@@ -85,6 +83,29 @@ public class AccessKeyUtil {
       return null;
     }
     return appId;
+  }
+
+  private String extractAppIdFromConfigFileRequest(String servletPath) {
+    String remainingPath = StringUtils.removeStart(servletPath, URL_CONFIGFILES_PREFIX);
+    String[] pathSegments = StringUtils.split(remainingPath, URL_SEPARATOR);
+
+    if (pathSegments == null || pathSegments.length < GENERIC_CONFIG_FILE_PATH_SEGMENT_COUNT) {
+      return null;
+    }
+
+    // "/configfiles/raw/default/application" hits the generic mapping with appId "raw",
+    // while "/configfiles/raw/someAppId/default/application" hits the dedicated raw endpoint.
+    if (pathSegments.length == SPECIAL_CONFIG_FILE_PATH_SEGMENT_COUNT
+        && isConfigFileFormatPathSegment(pathSegments[0])) {
+      return pathSegments[1];
+    }
+
+    return pathSegments[0];
+  }
+
+  private boolean isConfigFileFormatPathSegment(String pathSegment) {
+    return StringUtils.equals(pathSegment, CONFIG_FILE_OUTPUT_FORMAT_JSON)
+        || StringUtils.equals(pathSegment, CONFIG_FILE_OUTPUT_FORMAT_RAW);
   }
 
   private boolean isNotificationRequest(String servletPath) {
