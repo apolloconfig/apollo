@@ -26,6 +26,7 @@ Apollo 3.0.0
 * [Feature: add formatted and raw JSON views in Portal](https://github.com/apolloconfig/apollo/pull/5657)
 * [Feature: support configurable OIDC username claim (`spring.security.oidc.user-id-claim-name`) for the Apollo user identity](https://github.com/apolloconfig/apollo/pull/5655)
 * [Fix: strict JSON/YAML well-formedness validation at the authoritative save path](https://github.com/apolloconfig/apollo/pull/5660)
+* [Change: upgrade Apollo server baseline to Spring Boot 4.1.1 and Spring Cloud 2025.1.3](https://github.com/apolloconfig/apollo/pull/5671)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
