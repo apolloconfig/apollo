@@ -198,6 +198,48 @@ public class ConfigServiceTest extends AbstractUnitTest {
   }
 
   @Test
+  public void testRevokeItemShouldNotUpdateWhenOnlyLineNumbersDiffer() {
+    String appId = "6666";
+    Env env = Env.DEV;
+    String clusterName = ConfigConsts.CLUSTER_NAME_DEFAULT;
+    String namespaceName = ConfigConsts.NAMESPACE_APPLICATION;
+    long namespaceId = 123L;
+
+    NamespaceDTO namespace = generateNamespaceDTO(appId, clusterName, namespaceName);
+    namespace.setId(namespaceId);
+    ReleaseDTO release = new ReleaseDTO();
+    release.setConfigurations("{\"a\":\"1\",\"b\":\"2\",\"c\":\"3\"}");
+
+    // persisted items share the same values as the release but have sparse/misaligned line numbers
+    ItemDTO itemA = new ItemDTO("a", "1", "comment", 5);
+    itemA.setId(1L);
+    itemA.setNamespaceId(namespaceId);
+    ItemDTO itemB = new ItemDTO("b", "2", "comment", 9);
+    itemB.setId(2L);
+    itemB.setNamespaceId(namespaceId);
+    ItemDTO itemC = new ItemDTO("c", "3", "comment", 20);
+    itemC.setId(3L);
+    itemC.setNamespaceId(namespaceId);
+
+    when(namespaceAPI.loadNamespace(appId, env, clusterName, namespaceName)).thenReturn(namespace);
+    when(releaseAPI.loadLatestRelease(appId, env, clusterName, namespaceName)).thenReturn(release);
+    when(itemAPI.findItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Arrays.asList(itemA, itemB, itemC));
+    when(itemAPI.findDeletedItems(appId, env, clusterName, namespaceName))
+        .thenReturn(Collections.emptyList());
+
+    configService.revokeItem(appId, env, clusterName, namespaceName, "test");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemAPI).updateItemsByChangeSet(eq(appId), eq(env), eq(clusterName), eq(namespaceName),
+        captor.capture());
+    ItemChangeSets changeSets = captor.getValue();
+    assertEquals(0, changeSets.getCreateItems().size());
+    assertEquals(0, changeSets.getUpdateItems().size());
+    assertEquals(0, changeSets.getDeleteItems().size());
+  }
+
+  @Test
   public void testRevokeItemShouldRestorePublishedFileContent() {
     String appId = "6666";
     Env env = Env.DEV;

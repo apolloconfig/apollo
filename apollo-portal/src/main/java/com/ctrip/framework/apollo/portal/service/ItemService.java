@@ -241,8 +241,7 @@ public class ItemService {
             0 == deletedItemDto.getLineNum() ? lineNum.get() : deletedItemDto.getLineNum();
         changeSets.addCreateItem(buildNormalItem(0L, namespaceId, key, deletedItemDto.getType(),
             value, deletedItemDto.getComment(), newLineNum));
-      } else if (!StringUtils.equals(oldItem.getValue(), value)
-          || lineNum.get() != oldItem.getLineNum()) {
+      } else if (!StringUtils.equals(oldItem.getValue(), value)) {
         changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, key,
             oldItem.getType(), value, oldItem.getComment(), oldItem.getLineNum()));
       }
