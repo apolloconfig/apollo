@@ -868,6 +868,91 @@ http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/Mod
 
 * **Response Sample** : None
 
+##### 3.2.20 Batch create/update/delete configuration items
+
+> Available since Apollo 3.0.0. Contract: [`apollo-openapi` v0.3.11](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.11/apollo-openapi.yaml).
+
+Submit a list of configuration items to create, update, or delete in a single call, instead of calling the single-item APIs repeatedly. The three operations are independent — there is no cross-operation atomicity (e.g. "create these and delete those in one transaction" requires two calls, producing two Commit records). Authorization matches the single-item APIs: the caller must have modify permission on the target Namespace (`@unifiedPermissionValidator.hasModifyNamespacePermission`).
+
+###### Batch create configuration items
+
+* **URL** :  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create
+* **Method** : POST
+* **Request Params** :
+
+| Parameter Name | Required | Type   | Description                                                                                  |
+| --------------- | -------- | ------ | ---------------------------------------------------------------------------------------------- |
+| operator        | false    | String | Operator for the created items, domain account |
+
+* **Request Body (JSON)** : an array of `OpenItemDTO`, same fields as [3.2.10 New configuration interface](#3210-new-configuration-interface)
+
+* **Request body sample** :
+
+``` json
+[
+    {
+        "key":"timeout",
+        "value":"3000",
+        "comment":"timeout"
+    },
+    {
+        "key":"retries",
+        "value":"3",
+        "comment":"retry count"
+    }
+]
+```
+
+* **Response Sample** : None
+
+###### Batch update configuration items
+
+* **URL** :  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update
+* **Method** : PUT
+* **Request Params** :
+
+| Parameter Name | Required | Type   | Description                                |
+| --------------- | -------- | ------ | --------------------------------------------- |
+| operator        | false    | String | Operator for the updated items, domain account |
+
+* **Request Body (JSON)** : an array of `OpenItemDTO`; only `key`, `value`, `type`, and `comment` are used. Returns 404 if any `key` does not exist.
+
+* **Request body sample** :
+
+``` json
+[
+    {
+        "key":"timeout",
+        "value":"5000"
+    }
+]
+```
+
+* **Response Sample** : None
+
+###### Batch delete configuration items
+
+* **URL** :  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-delete
+* **Method** : POST
+* **Request Params** :
+
+| Parameter Name | Required | Type   | Description                                |
+| --------------- | -------- | ------ | --------------------------------------------- |
+| operator        | false    | String | Operator for the deleted items, domain account |
+
+* **Request Body (JSON)** : an array of item keys to delete. Returns 404 if any key does not exist.
+
+* **Request body sample** :
+
+``` json
+[
+    "timeout",
+    "retries"
+]
+```
+
+* **Response Sample** : None
+
 ### IV. Error code description
 
 Under normal circumstances, the Http status code returned by the interface is 200, the following lists the non-200 error code descriptions that Apollo will return.

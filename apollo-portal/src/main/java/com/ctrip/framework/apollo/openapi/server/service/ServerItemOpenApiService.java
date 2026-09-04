@@ -16,6 +16,7 @@
  */
 package com.ctrip.framework.apollo.openapi.server.service;
 
+import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
 import com.ctrip.framework.apollo.common.dto.PageDTO;
@@ -178,6 +179,72 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   public void revertItems(String appId, String env, String clusterName, String namespaceName,
       String operator) {
     itemService.revokeItem(appId, Env.valueOf(env), clusterName, namespaceName, operator);
+  }
+
+  @Override
+  public void batchCreateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator) {
+    NamespaceDTO namespace =
+        namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
+
+    ItemChangeSets changeSets = new ItemChangeSets();
+    for (OpenItemDTO item : items) {
+      ItemDTO toCreate = OpenApiModelConverters.toItemDTO(item);
+      // protect
+      toCreate.setLineNum(0);
+      toCreate.setId(0);
+      toCreate.setNamespaceId(namespace.getId());
+      toCreate.setDataChangeCreatedBy(operator);
+      toCreate.setDataChangeLastModifiedBy(operator);
+      toCreate.setDataChangeLastModifiedTime(null);
+      toCreate.setDataChangeCreatedTime(null);
+      changeSets.addCreateItem(toCreate);
+    }
+    changeSets.setDataChangeLastModifiedBy(operator);
+
+    itemService.updateItems(appId, Env.valueOf(env), clusterName, namespaceName, changeSets);
+  }
+
+  @Override
+  public void batchUpdateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator) {
+    ItemChangeSets changeSets = new ItemChangeSets();
+    for (OpenItemDTO item : items) {
+      ItemDTO toUpdateItem =
+          itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, item.getKey());
+      if (toUpdateItem == null) {
+        throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, item.getKey());
+      }
+      // protect. only value,type,comment,lastModifiedBy can be modified
+      toUpdateItem.setComment(item.getComment());
+      if (item.getType() != null) {
+        toUpdateItem.setType(item.getType());
+      }
+      toUpdateItem.setValue(item.getValue());
+      toUpdateItem.setDataChangeLastModifiedBy(operator);
+      changeSets.addUpdateItem(toUpdateItem);
+    }
+    changeSets.setDataChangeLastModifiedBy(operator);
+
+    itemService.updateItems(appId, Env.valueOf(env), clusterName, namespaceName, changeSets);
+  }
+
+  @Override
+  public void batchDeleteItems(String appId, String env, String clusterName, String namespaceName,
+      List<String> keys, String operator) {
+    ItemChangeSets changeSets = new ItemChangeSets();
+    for (String key : keys) {
+      ItemDTO toDeleteItem =
+          itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+      if (toDeleteItem == null) {
+        throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, key);
+      }
+      toDeleteItem.setDataChangeLastModifiedBy(operator);
+      changeSets.addDeleteItem(toDeleteItem);
+    }
+    changeSets.setDataChangeLastModifiedBy(operator);
+
+    itemService.updateItems(appId, Env.valueOf(env), clusterName, namespaceName, changeSets);
   }
 
   private boolean isItemAlreadyExists(RuntimeException ex, String key) {

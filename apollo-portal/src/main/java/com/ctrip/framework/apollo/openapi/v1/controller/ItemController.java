@@ -235,6 +235,69 @@ public class ItemController implements ItemManagementApi {
     return ResponseEntity.ok().build();
   }
 
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<Void> batchCreateItems(String appId, String env, String clusterName,
+      String namespaceName, List<OpenItemDTO> items, String operator) {
+    checkItemList(items);
+    for (OpenItemDTO item : items) {
+      RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
+      RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(item.getKey()),
+          "key should not be null or empty");
+      RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
+          "value should not be null");
+      checkCommentLength(item.getComment());
+    }
+
+    String resolvedOperator = resolveOperator(operator, null);
+    this.itemOpenApiService.batchCreateItems(appId, env, clusterName, namespaceName, items,
+        resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<Void> batchUpdateItems(String appId, String env, String clusterName,
+      String namespaceName, List<OpenItemDTO> items, String operator) {
+    checkItemList(items);
+    for (OpenItemDTO item : items) {
+      RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
+      RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(item.getKey()),
+          "key should not be null or empty");
+      RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
+          "value should not be null");
+      checkCommentLength(item.getComment());
+    }
+
+    String resolvedOperator = resolveOperator(operator, null);
+    this.itemOpenApiService.batchUpdateItems(appId, env, clusterName, namespaceName, items,
+        resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  @PreAuthorize(
+      value = "@unifiedPermissionValidator.hasModifyNamespacePermission(#appId, #env, #clusterName, #namespaceName)")
+  @Override
+  public ResponseEntity<Void> batchDeleteItems(String appId, String env, String clusterName,
+      String namespaceName, List<String> keys, String operator) {
+    RequestPrecondition.checkArguments(keys != null && !keys.isEmpty(), "keys can not be empty");
+    for (String key : keys) {
+      RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(key),
+          "key should not be null or empty");
+    }
+
+    String resolvedOperator = resolveOperator(operator, null);
+    this.itemOpenApiService.batchDeleteItems(appId, env, clusterName, namespaceName, keys,
+        resolvedOperator);
+    return ResponseEntity.ok().build();
+  }
+
+  private void checkItemList(List<OpenItemDTO> items) {
+    RequestPrecondition.checkArguments(items != null && !items.isEmpty(), "items can not be empty");
+  }
+
   private void updateItemInternal(String appId, String env, String clusterName,
       String namespaceName, String key, boolean createIfNotExists, OpenItemDTO item,
       String operator) {

@@ -52,6 +52,15 @@ public interface ItemOpenApiService {
   void batchUpdateItemsByText(String appId, String env, String clusterName, String namespaceName,
       OpenNamespaceTextModel model, String operator);
 
+  void batchCreateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator);
+
+  void batchUpdateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator);
+
+  void batchDeleteItems(String appId, String env, String clusterName, String namespaceName,
+      List<String> keys, String operator);
+
   List<OpenItemDiffDTO> compareItems(String appId, String env, String clusterName,
       String namespaceName, OpenNamespaceSyncDTO model);
 

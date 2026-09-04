@@ -186,6 +186,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.17 创建App并获取管理员权限](#_3217-创建App并获取管理员权限)
 - [3.2.18 用户管理](#_3218-用户管理)
 - [3.2.19 权限管理](#_3219-权限管理)
+- [3.2.20 批量新增/修改/删除配置项](#3220-批量新增修改删除配置项)
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -861,6 +862,91 @@ http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/Mod
 ```
 
 * **返回值 Sample** ： 无返回值
+
+##### 3.2.20 批量新增/修改/删除配置项
+
+> 自 Apollo 3.0.0 起可用。规范合同见 [`apollo-openapi` v0.3.11](https://github.com/apolloconfig/apollo-openapi/blob/v0.3.11/apollo-openapi.yaml)。
+
+用于一次性提交一批配置项进行创建、修改或删除，避免逐条调用单条配置项接口。三个接口各自独立，不提供跨接口的原子性（例如"新增一批同时删除另一批"需要调用两次，对应两条 Commit 记录）。鉴权与单条配置项接口一致：需要对目标 Namespace 具备修改权限（`@unifiedPermissionValidator.hasModifyNamespacePermission`）。
+
+###### 批量新增配置项
+
+* **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create
+* **Method** ： POST
+* **Request Params** ：
+
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+operator | false | String | 新增配置的操作者，域账号
+
+* **请求内容(Request Body, JSON格式)** ：`OpenItemDTO` 数组，每一项字段同 [3.2.10 新增配置接口](#3210-新增配置接口)
+
+* **Request body sample** :
+
+``` json
+[
+    {
+        "key":"timeout",
+        "value":"3000",
+        "comment":"超时时间"
+    },
+    {
+        "key":"retries",
+        "value":"3",
+        "comment":"重试次数"
+    }
+]
+```
+
+* **返回值** ：无
+
+###### 批量修改配置项
+
+* **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update
+* **Method** ： PUT
+* **Request Params** ：
+
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+operator | false | String | 修改配置的操作者，域账号
+
+* **请求内容(Request Body, JSON格式)** ：`OpenItemDTO` 数组，只有 `key`、`value`、`type`、`comment` 会被使用；`key` 对应的配置项不存在时返回 404
+
+* **Request body sample** :
+
+``` json
+[
+    {
+        "key":"timeout",
+        "value":"5000"
+    }
+]
+```
+
+* **返回值** ：无
+
+###### 批量删除配置项
+
+* **URL** ：  http://{portal_address}/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-delete
+* **Method** ： POST
+* **Request Params** ：
+
+参数名 | 必选 | 类型 | 说明
+--- | --- | --- | ---
+operator | false | String | 删除配置的操作者，域账号
+
+* **请求内容(Request Body, JSON格式)** ：待删除的配置项 key 数组；任意 key 不存在时返回 404
+
+* **Request body sample** :
+
+``` json
+[
+    "timeout",
+    "retries"
+]
+```
+
+* **返回值** ：无
 
 ### 四、错误码说明
 

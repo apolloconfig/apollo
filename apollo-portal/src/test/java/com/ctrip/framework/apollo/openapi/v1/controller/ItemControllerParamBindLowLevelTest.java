@@ -19,6 +19,7 @@ package com.ctrip.framework.apollo.openapi.v1.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +46,7 @@ import com.google.gson.Gson;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -452,5 +454,127 @@ public class ItemControllerParamBindLowLevelTest {
     request.setSyncToNamespaces(Collections.singletonList(namespaceIdentifier));
     request.setSyncItems(Collections.emptyList());
     return request;
+  }
+
+  @Test
+  public void batchCreateItemsShouldRejectEmptyList() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.emptyList()))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchCreateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchCreateItemsShouldRejectNullElement() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON).content("[null]"))
+        .andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchCreateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchCreateItemsShouldRejectMissingConsumerOperatorEvenWithPayloadCreator()
+      throws Exception {
+    OpenItemDTO item = new OpenItemDTO();
+    item.setKey("timeout");
+    item.setValue("100");
+    item.setDataChangeCreatedBy("payload-creator");
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.singletonList(item)))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchCreateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchCreateItemsShouldDelegateWithResolvedOperator() throws Exception {
+    OpenItemDTO item = new OpenItemDTO();
+    item.setKey("timeout");
+    item.setValue("100");
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).param("operator", "api-operator")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.singletonList(item)))).andExpect(status().isOk());
+
+    ArgumentCaptor<List<OpenItemDTO>> itemsCaptor = ArgumentCaptor.forClass(List.class);
+    verify(itemOpenApiService).batchCreateItems(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
+        itemsCaptor.capture(), eq("api-operator"));
+    assertThat(itemsCaptor.getValue()).extracting(OpenItemDTO::getKey).containsExactly("timeout");
+  }
+
+  @Test
+  public void batchUpdateItemsShouldRejectEmptyList() throws Exception {
+    mockMvc.perform(put(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.emptyList()))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchUpdateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchUpdateItemsShouldRejectNullElement() throws Exception {
+    mockMvc.perform(put(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON).content("[null]"))
+        .andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchUpdateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchUpdateItemsShouldDelegateWithResolvedOperator() throws Exception {
+    OpenItemDTO item = new OpenItemDTO();
+    item.setKey("timeout");
+    item.setValue("200");
+
+    mockMvc.perform(put(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update",
+        ENV, APP_ID, CLUSTER, NAMESPACE).param("operator", "api-operator")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.singletonList(item)))).andExpect(status().isOk());
+
+    ArgumentCaptor<List<OpenItemDTO>> itemsCaptor = ArgumentCaptor.forClass(List.class);
+    verify(itemOpenApiService).batchUpdateItems(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
+        itemsCaptor.capture(), eq("api-operator"));
+    assertThat(itemsCaptor.getValue()).extracting(OpenItemDTO::getKey).containsExactly("timeout");
+  }
+
+  @Test
+  public void batchDeleteItemsShouldRejectEmptyList() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-delete",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.emptyList()))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchDeleteItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchDeleteItemsShouldDelegateWithResolvedOperator() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-delete",
+        ENV, APP_ID, CLUSTER, NAMESPACE).param("operator", "api-operator")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.singletonList("timeout")))).andExpect(status().isOk());
+
+    ArgumentCaptor<List<String>> keysCaptor = ArgumentCaptor.forClass(List.class);
+    verify(itemOpenApiService).batchDeleteItems(eq(APP_ID), eq(ENV), eq(CLUSTER), eq(NAMESPACE),
+        keysCaptor.capture(), eq("api-operator"));
+    assertThat(keysCaptor.getValue()).containsExactly("timeout");
   }
 }
