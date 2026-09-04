@@ -242,6 +242,7 @@ public class ItemController implements ItemManagementApi {
       String namespaceName, List<OpenItemDTO> items, String operator) {
     checkItemList(items);
     for (OpenItemDTO item : items) {
+      RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(item.getKey()),
           "key should not be null or empty");
       RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
@@ -262,6 +263,7 @@ public class ItemController implements ItemManagementApi {
       String namespaceName, List<OpenItemDTO> items, String operator) {
     checkItemList(items);
     for (OpenItemDTO item : items) {
+      RequestPrecondition.checkArguments(item != null, "item payload can not be empty");
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(item.getKey()),
           "key should not be null or empty");
       RequestPrecondition.checkArguments(!Objects.isNull(item.getValue()),
@@ -280,8 +282,7 @@ public class ItemController implements ItemManagementApi {
   @Override
   public ResponseEntity<Void> batchDeleteItems(String appId, String env, String clusterName,
       String namespaceName, List<String> keys, String operator) {
-    RequestPrecondition.checkArguments(keys != null && !keys.isEmpty(),
-        "keys can not be empty");
+    RequestPrecondition.checkArguments(keys != null && !keys.isEmpty(), "keys can not be empty");
     for (String key : keys) {
       RequestPrecondition.checkArguments(!StringUtils.isContainEmpty(key),
           "key should not be null or empty");
@@ -294,8 +295,7 @@ public class ItemController implements ItemManagementApi {
   }
 
   private void checkItemList(List<OpenItemDTO> items) {
-    RequestPrecondition.checkArguments(items != null && !items.isEmpty(),
-        "items can not be empty");
+    RequestPrecondition.checkArguments(items != null && !items.isEmpty(), "items can not be empty");
   }
 
   private void updateItemInternal(String appId, String env, String clusterName,

@@ -182,8 +182,8 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   }
 
   @Override
-  public void batchCreateItems(String appId, String env, String clusterName,
-      String namespaceName, List<OpenItemDTO> items, String operator) {
+  public void batchCreateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator) {
     NamespaceDTO namespace =
         namespaceService.loadNamespaceBaseInfo(appId, Env.valueOf(env), clusterName, namespaceName);
 
@@ -206,18 +206,20 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   }
 
   @Override
-  public void batchUpdateItems(String appId, String env, String clusterName,
-      String namespaceName, List<OpenItemDTO> items, String operator) {
+  public void batchUpdateItems(String appId, String env, String clusterName, String namespaceName,
+      List<OpenItemDTO> items, String operator) {
     ItemChangeSets changeSets = new ItemChangeSets();
     for (OpenItemDTO item : items) {
-      ItemDTO toUpdateItem = itemService
-          .loadItem(Env.valueOf(env), appId, clusterName, namespaceName, item.getKey());
+      ItemDTO toUpdateItem =
+          itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, item.getKey());
       if (toUpdateItem == null) {
         throw NotFoundException.itemNotFound(appId, clusterName, namespaceName, item.getKey());
       }
       // protect. only value,type,comment,lastModifiedBy can be modified
       toUpdateItem.setComment(item.getComment());
-      toUpdateItem.setType(item.getType());
+      if (item.getType() != null) {
+        toUpdateItem.setType(item.getType());
+      }
       toUpdateItem.setValue(item.getValue());
       toUpdateItem.setDataChangeLastModifiedBy(operator);
       changeSets.addUpdateItem(toUpdateItem);
@@ -228,8 +230,8 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   }
 
   @Override
-  public void batchDeleteItems(String appId, String env, String clusterName,
-      String namespaceName, List<String> keys, String operator) {
+  public void batchDeleteItems(String appId, String env, String clusterName, String namespaceName,
+      List<String> keys, String operator) {
     ItemChangeSets changeSets = new ItemChangeSets();
     for (String key : keys) {
       ItemDTO toDeleteItem =

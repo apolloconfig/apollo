@@ -468,6 +468,34 @@ public class ItemControllerParamBindLowLevelTest {
   }
 
   @Test
+  public void batchCreateItemsShouldRejectNullElement() throws Exception {
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON).content("[null]"))
+        .andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchCreateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchCreateItemsShouldRejectMissingConsumerOperatorEvenWithPayloadCreator()
+      throws Exception {
+    OpenItemDTO item = new OpenItemDTO();
+    item.setKey("timeout");
+    item.setValue("100");
+    item.setDataChangeCreatedBy("payload-creator");
+
+    mockMvc.perform(post(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-create",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
+        .content(gson.toJson(Collections.singletonList(item)))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchCreateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
   public void batchCreateItemsShouldDelegateWithResolvedOperator() throws Exception {
     OpenItemDTO item = new OpenItemDTO();
     item.setKey("timeout");
@@ -491,6 +519,17 @@ public class ItemControllerParamBindLowLevelTest {
         "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update",
         ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON)
         .content(gson.toJson(Collections.emptyList()))).andExpect(status().isBadRequest());
+
+    verify(itemOpenApiService, never()).batchUpdateItems(anyString(), anyString(), anyString(),
+        anyString(), any(List.class), anyString());
+  }
+
+  @Test
+  public void batchUpdateItemsShouldRejectNullElement() throws Exception {
+    mockMvc.perform(put(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/batch-update",
+        ENV, APP_ID, CLUSTER, NAMESPACE).contentType(MediaType.APPLICATION_JSON).content("[null]"))
+        .andExpect(status().isBadRequest());
 
     verify(itemOpenApiService, never()).batchUpdateItems(anyString(), anyString(), anyString(),
         anyString(), any(List.class), anyString());

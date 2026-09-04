@@ -882,9 +882,9 @@ Submit a list of configuration items to create, update, or delete in a single ca
 
 | Parameter Name | Required | Type   | Description                                                                                  |
 | --------------- | -------- | ------ | ---------------------------------------------------------------------------------------------- |
-| operator        | false    | String | Operator for the created items, domain account; for consumer tokens falls back to each item's `dataChangeCreatedBy` when omitted |
+| operator        | false    | String | Operator for the created items, domain account |
 
-* **Request Body (JSON)** : an array of `OpenItemDTO`, same fields as [3.2.10 New configuration interface](#_3210-new-configuration-interface)
+* **Request Body (JSON)** : an array of `OpenItemDTO`, same fields as [3.2.10 New configuration interface](#3210-new-configuration-interface)
 
 * **Request body sample** :
 

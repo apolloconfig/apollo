@@ -186,7 +186,7 @@ namespaceName | 所管理的Namespace的名称，如果是非properties格式，
 - [3.2.17 创建App并获取管理员权限](#_3217-创建App并获取管理员权限)
 - [3.2.18 用户管理](#_3218-用户管理)
 - [3.2.19 权限管理](#_3219-权限管理)
-- [3.2.20 批量新增/修改/删除配置项](#_3220-批量新增修改删除配置项)
+- [3.2.20 批量新增/修改/删除配置项](#3220-批量新增修改删除配置项)
 
 ##### 3.2.1 获取App的环境，集群信息
 
@@ -877,9 +877,9 @@ http://{portal_address}/openapi/v1/apps/xxx-web/namespaces/application/roles/Mod
 
 参数名 | 必选 | 类型 | 说明
 --- | --- | --- | ---
-operator | false | String | 新增配置的操作者，域账号；Consumer Token 未传时取请求体中每一项的 `dataChangeCreatedBy`
+operator | false | String | 新增配置的操作者，域账号
 
-* **请求内容(Request Body, JSON格式)** ：`OpenItemDTO` 数组，每一项字段同 [3.2.10 新增配置接口](#_3210-新增配置接口)
+* **请求内容(Request Body, JSON格式)** ：`OpenItemDTO` 数组，每一项字段同 [3.2.10 新增配置接口](#3210-新增配置接口)
 
 * **Request body sample** :
 

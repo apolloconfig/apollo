@@ -205,8 +205,7 @@ class ServerItemOpenApiServiceTest {
     when(namespaceService.loadNamespaceBaseInfo(APP_ID, Env.valueOf(ENV), CLUSTER, NAMESPACE))
         .thenReturn(namespace);
 
-    List<OpenItemDTO> items =
-        List.of(openItem("timeout", "100"), openItem("retries", "3"));
+    List<OpenItemDTO> items = List.of(openItem("timeout", "100"), openItem("retries", "3"));
 
     service.batchCreateItems(APP_ID, ENV, CLUSTER, NAMESPACE, items, "operator");
 
@@ -214,8 +213,8 @@ class ServerItemOpenApiServiceTest {
     verify(itemService).updateItems(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER), eq(NAMESPACE),
         captor.capture());
     ItemChangeSets changeSets = captor.getValue();
-    assertThat(changeSets.getCreateItems()).extracting(ItemDTO::getKey)
-        .containsExactly("timeout", "retries");
+    assertThat(changeSets.getCreateItems()).extracting(ItemDTO::getKey).containsExactly("timeout",
+        "retries");
     assertThat(changeSets.getCreateItems()).allSatisfy(item -> {
       assertThat(item.getNamespaceId()).isEqualTo(88L);
       assertThat(item.getId()).isEqualTo(0);
@@ -250,6 +249,27 @@ class ServerItemOpenApiServiceTest {
     assertThat(delegated.getValue()).isEqualTo("200");
     assertThat(delegated.getComment()).isEqualTo("new comment");
     assertThat(delegated.getDataChangeLastModifiedBy()).isEqualTo("operator");
+  }
+
+  @Test
+  void batchUpdateItemsShouldPreserveExistingTypeWhenOmittedFromPayload() {
+    ItemDTO existing = item("timeout", "100");
+    existing.setType(5);
+    when(itemService.loadItem(Env.valueOf(ENV), APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .thenReturn(existing);
+
+    OpenItemDTO request = new OpenItemDTO();
+    request.setKey("timeout");
+    request.setValue("200");
+
+    service.batchUpdateItems(APP_ID, ENV, CLUSTER, NAMESPACE, List.of(request), "operator");
+
+    ArgumentCaptor<ItemChangeSets> captor = ArgumentCaptor.forClass(ItemChangeSets.class);
+    verify(itemService).updateItems(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER), eq(NAMESPACE),
+        captor.capture());
+    ItemDTO delegated = captor.getValue().getUpdateItems().get(0);
+    assertThat(delegated.getType()).isEqualTo(5);
+    assertThat(delegated.getValue()).isEqualTo("200");
   }
 
   @Test
