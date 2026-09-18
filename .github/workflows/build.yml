@@ -35,6 +35,8 @@ jobs:
         jdk: [17, 21]
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:

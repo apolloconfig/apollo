@@ -41,6 +41,8 @@ jobs:
         mode: [ ldap, oidc ]
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
