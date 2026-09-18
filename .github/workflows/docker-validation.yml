@@ -25,6 +25,9 @@ on:
       - 'apollo-portal/src/main/docker/Dockerfile'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   docker-smoke:
     runs-on: ubuntu-latest

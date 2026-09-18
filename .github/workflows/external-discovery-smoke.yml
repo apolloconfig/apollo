@@ -41,6 +41,9 @@ on:
           - consul
           - zookeeper
 
+permissions:
+  contents: read
+
 jobs:
   resolve-provider-matrix:
     runs-on: ubuntu-latest

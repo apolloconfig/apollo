@@ -4,6 +4,10 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   commitlint:
     runs-on: ubuntu-latest

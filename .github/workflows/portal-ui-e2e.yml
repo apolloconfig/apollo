@@ -28,6 +28,9 @@ on:
       - '.github/workflows/portal-ui-e2e.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   portal-ui-e2e:
     name: portal-ui-e2e

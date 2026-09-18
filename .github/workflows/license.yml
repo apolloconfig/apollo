@@ -24,9 +24,16 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   license:
     runs-on: ubuntu-latest
+    permissions:
+      # license-eye posts review comments when a header check fails
+      contents: read
+      pull-requests: write
     steps:
     - uses: actions/checkout@v4
     - name: Check License
