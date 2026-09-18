@@ -46,7 +46,7 @@ jobs:
           ${{ runner.os }}-maven-
     - name: JDK 17
       if: matrix.jdk == '17'
-      uses: nick-fields/retry@v3
+      uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
       with:
           timeout_minutes: 5
           max_attempts: 3
@@ -57,6 +57,6 @@ jobs:
       run: mvn -B clean compile -Dmaven.gitcommitid.skip=true
     - name: Upload coverage to Codecov
       if: matrix.jdk == '17'
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@29386c70ef20e286228c72b668a06fd0e8399192 # v1.5.2
       with:
         file: ${{ github.workspace }}/apollo-*/target/site/jacoco/jacoco.xml

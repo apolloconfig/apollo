@@ -56,16 +56,16 @@ jobs:
       - name: Build package
         run: ./scripts/build.sh
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
         with:
           username: ${{ secrets.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@2b82ce82d56a2a04d2637cd93a637ae1b359c0a7 # v2.2.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@885d1462b80bc1c1c7f0b00334ad271f09369c55 # v2.10.0
       - name: Build and push apollo-configservice
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3.3.1
         with:
           context: ./apollo-configservice/target
           platforms: linux/amd64,linux/arm64
@@ -74,7 +74,7 @@ jobs:
           build-args: VERSION=${{ github.event.inputs.version }}
           tags: ${{ needs.check.outputs.apollo-config-tags }}
       - name: Build and push apollo-adminservice
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3.3.1
         with:
           context: ./apollo-adminservice/target
           platforms: linux/amd64,linux/arm64
@@ -83,7 +83,7 @@ jobs:
           build-args: VERSION=${{ github.event.inputs.version }}
           tags: ${{ needs.check.outputs.apollo-admin-tags }}
       - name: Build and push apollo-portal
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@1104d471370f9806843c095c1db02b5a90c5f8b6 # v3.3.1
         with:
           context: ./apollo-portal/target
           platforms: linux/amd64,linux/arm64
