@@ -2,7 +2,7 @@
 
 Apollo提供了一套的Http REST接口，使第三方应用能够自己管理配置。虽然Apollo系统本身提供了Portal来管理配置，但是在有些情景下，应用需要通过程序去管理配置。
 
-> 📖 本文只覆盖了常用的核心接口（鉴权方式、Namespace/配置项等）。完整的、随规范自动更新的接口参考文档见：**https://apolloconfig.github.io/apollo-openapi/**（按版本号分开，包含所有接口的请求/响应字段说明）。
+> 📖 本文只覆盖了常用的核心接口（鉴权方式、Namespace/配置项等）。完整的、随规范自动更新的接口参考文档见：**https://apolloconfig.github.io/apollo-openapi/** （按版本号分开，包含所有接口的请求/响应字段说明）。
 
 ### 二、 第三方应用接入Apollo开放平台
 
