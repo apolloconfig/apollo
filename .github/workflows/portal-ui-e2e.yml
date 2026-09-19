@@ -26,6 +26,7 @@ on:
       - 'e2e/scripts/**'
       - 'scripts/sql/**'
       - '.github/workflows/portal-ui-e2e.yml'
+  workflow_dispatch:
 
 jobs:
   portal-ui-e2e:

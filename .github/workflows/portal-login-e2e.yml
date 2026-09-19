@@ -25,6 +25,7 @@ on:
       - 'e2e/portal-e2e/**'
       - 'e2e/scripts/**'
       - '.github/workflows/portal-login-e2e.yml'
+  workflow_dispatch:
 
 jobs:
   portal-login-e2e:
