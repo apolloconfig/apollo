@@ -30,6 +30,12 @@ Current cases:
 13. `text mode edit and publish are readable from config service @regression`
 14. `linked public namespace supports association and override @regression`
 15. `grayscale ui supports create rule publish merge and discard @regression`
+16. `user-token deletes a plain/slash/backslash key without affecting other keys @regression` (three cases)
+
+OpenAPI deletion coverage (via `portal-item-delete.spec.js`) uses real Portal and AdminService
+APIs with a scoped user token. Each case creates all three keys, deletes one without an
+`operator`, verifies a subsequent read returns 404, and confirms the other keys and values
+remain unchanged. Each case removes its test app and revokes its token on completion.
 
 High-priority user-guide coverage (via `portal-priority.spec.js`):
 
@@ -153,6 +159,13 @@ Run only Config Service full-chain regression:
 ```bash
 cd e2e/portal-e2e
 BASE_URL=http://127.0.0.1:8070 npm run test:e2e:ci -- tests/portal-configservice.spec.js
+```
+
+Run only OpenAPI user-token deletion regression (no CLI or browser is required):
+
+```bash
+cd e2e/portal-e2e
+BASE_URL=http://127.0.0.1:8070 npm run test:e2e:ci -- tests/portal-item-delete.spec.js
 ```
 
 Run Portal auth matrix in LDAP mode:

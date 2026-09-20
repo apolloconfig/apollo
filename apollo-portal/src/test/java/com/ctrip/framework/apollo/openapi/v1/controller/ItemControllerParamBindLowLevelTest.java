@@ -51,6 +51,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -62,6 +64,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 /**
  * Low-level MockMvc tests for ItemController parameter binding and identity handling.
@@ -231,14 +234,70 @@ public class ItemControllerParamBindLowLevelTest {
         anyString(), any(OpenItemDTO.class), anyString());
   }
 
-  @Test
-  public void deleteItemShouldRejectBlankConsumerOperator() throws Exception {
-    mockMvc.perform(delete(
-        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/items/{key}",
-        ENV, APP_ID, CLUSTER, NAMESPACE, "timeout")).andExpect(status().isBadRequest());
+  @ParameterizedTest
+  @ValueSource(strings = {"timeout", "logging/level", "logging\\level"})
+  public void deleteItemShouldRejectBlankConsumerOperator(String key) throws Exception {
+    mockMvc.perform(deleteItemRequest(key)).andExpect(status().isBadRequest());
 
     verify(itemOpenApiService, never()).removeItem(anyString(), anyString(), anyString(),
         anyString(), anyString(), anyString());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"timeout", "logging/level", "logging\\level"})
+  public void deleteItemShouldUseTokenOwnerWithoutOperator(String key) throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+
+    mockMvc.perform(deleteItemRequest(key)).andExpect(status().isOk());
+
+    verify(itemOpenApiService).removeItem(APP_ID, ENV, CLUSTER, NAMESPACE, key, "tester");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"timeout", "logging/level", "logging\\level"})
+  public void deleteItemShouldIgnoreSpoofedOperatorForUserToken(String key) throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+
+    mockMvc.perform(deleteItemRequest(key).param("operator", "spoofed-user"))
+        .andExpect(status().isOk());
+
+    verify(itemOpenApiService).removeItem(APP_ID, ENV, CLUSTER, NAMESPACE, key, "tester");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"timeout", "logging/level", "logging\\level"})
+  public void deleteItemShouldUseConsumerOperator(String key) throws Exception {
+    mockMvc.perform(deleteItemRequest(key).param("operator", "api-operator"))
+        .andExpect(status().isOk());
+
+    verify(itemOpenApiService).removeItem(APP_ID, ENV, CLUSTER, NAMESPACE, key, "api-operator");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"timeout", "logging/level", "logging\\level"})
+  public void deleteItemShouldRejectUserTokenWithoutModifyPermission(String key) throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.hasModifyNamespacePermission(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(false);
+
+    mockMvc.perform(deleteItemRequest(key)).andExpect(status().isForbidden());
+
+    verify(itemOpenApiService, never()).removeItem(anyString(), anyString(), anyString(),
+        anyString(), anyString(), anyString());
+  }
+
+  private MockHttpServletRequestBuilder deleteItemRequest(String key) {
+    boolean encoded = key.contains("/") || key.contains("\\");
+    String resource = encoded ? "encodedItems" : "items";
+    String pathKey =
+        encoded
+            ? Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(key.getBytes(StandardCharsets.UTF_8))
+            : key;
+    return delete(
+        "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}"
+            + "/namespaces/{namespaceName}/" + resource + "/{key}",
+        ENV, APP_ID, CLUSTER, NAMESPACE, pathKey);
   }
 
   @Test
