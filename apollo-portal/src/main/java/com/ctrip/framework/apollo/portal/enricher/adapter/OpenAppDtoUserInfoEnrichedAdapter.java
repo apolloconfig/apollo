@@ -19,7 +19,7 @@ package com.ctrip.framework.apollo.portal.enricher.adapter;
 import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 
 /**
- * Adapter for enriching OpenAPI app DTO owner display names.
+ * Adapter for enriching OpenAPI app DTO audit and owner display names.
  */
 public class OpenAppDtoUserInfoEnrichedAdapter implements UserInfoEnrichedAdapter {
 
@@ -31,11 +31,31 @@ public class OpenAppDtoUserInfoEnrichedAdapter implements UserInfoEnrichedAdapte
 
   @Override
   public String getFirstUserId() {
-    return this.dto.getOwnerName();
+    return this.dto.getDataChangeCreatedBy();
   }
 
   @Override
   public void setFirstUserDisplayName(String userDisplayName) {
+    this.dto.setDataChangeCreatedByDisplayName(userDisplayName);
+  }
+
+  @Override
+  public String getSecondUserId() {
+    return this.dto.getDataChangeLastModifiedBy();
+  }
+
+  @Override
+  public void setSecondUserDisplayName(String userDisplayName) {
+    this.dto.setDataChangeLastModifiedByDisplayName(userDisplayName);
+  }
+
+  @Override
+  public String getThirdUserId() {
+    return this.dto.getOwnerName();
+  }
+
+  @Override
+  public void setThirdUserDisplayName(String userDisplayName) {
     this.dto.setOwnerDisplayName(userDisplayName);
   }
 }

@@ -21,6 +21,7 @@ import com.ctrip.framework.apollo.common.dto.AccessKeyDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.common.dto.InstanceDTO;
+import com.ctrip.framework.apollo.common.dto.InstanceConfigDTO;
 import com.ctrip.framework.apollo.common.dto.ItemChangeSets;
 import com.ctrip.framework.apollo.common.dto.ItemDTO;
 import com.ctrip.framework.apollo.common.dto.NamespaceDTO;
@@ -41,6 +42,7 @@ import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenGrayReleaseRuleItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstanceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenInstanceConfigDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenInstancePageDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenItemDiffDTO;
@@ -84,11 +86,16 @@ import com.google.gson.Gson;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.Type;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,13 +107,23 @@ public final class OpenApiModelConverters {
 
   private static final Gson GSON = new Gson();
   private static final Type TYPE = new TypeToken<Map<String, String>>() {}.getType();
+  // Match the Date wire format used by HttpMessageConverterConfiguration.
+  private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter
+      .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).withZone(ZoneId.systemDefault());
 
   private OpenApiModelConverters() {}
+
+  private static String formatDate(Date date) {
+    return date == null ? null : DATE_FORMAT.format(date.toInstant());
+  }
 
   // region Item conversions
   public static OpenItemDTO fromItemDTO(ItemDTO item) {
     Preconditions.checkArgument(item != null);
-    return BeanUtils.transform(OpenItemDTO.class, item);
+    OpenItemDTO result = BeanUtils.transform(OpenItemDTO.class, item);
+    result.setDataChangeCreatedTime(formatDate(item.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(item.getDataChangeLastModifiedTime()));
+    return result;
   }
 
   public static ItemDTO toItemDTO(OpenItemDTO openItemDTO) {
@@ -174,6 +191,8 @@ public final class OpenApiModelConverters {
   public static OpenAppNamespaceDTO fromAppNamespace(AppNamespace appNamespace) {
     Preconditions.checkArgument(appNamespace != null);
     OpenAppNamespaceDTO result = BeanUtils.transform(OpenAppNamespaceDTO.class, appNamespace);
+    result.setDataChangeCreatedTime(formatDate(appNamespace.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(appNamespace.getDataChangeLastModifiedTime()));
     result.setIsPublic(appNamespace.isPublic());
     return result;
   }
@@ -194,7 +213,10 @@ public final class OpenApiModelConverters {
 
   public static OpenAppDTO fromApp(final App app) {
     Preconditions.checkArgument(app != null);
-    return BeanUtils.transform(OpenAppDTO.class, app);
+    OpenAppDTO result = BeanUtils.transform(OpenAppDTO.class, app);
+    result.setDataChangeCreatedTime(formatDate(app.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(app.getDataChangeLastModifiedTime()));
+    return result;
   }
   // endregion
 
@@ -202,6 +224,9 @@ public final class OpenApiModelConverters {
   public static OpenReleaseDTO fromReleaseDTO(ReleaseDTO release) {
     Preconditions.checkArgument(release != null);
     OpenReleaseDTO openReleaseDTO = BeanUtils.transform(OpenReleaseDTO.class, release);
+    openReleaseDTO.setDataChangeCreatedTime(formatDate(release.getDataChangeCreatedTime()));
+    openReleaseDTO
+        .setDataChangeLastModifiedTime(formatDate(release.getDataChangeLastModifiedTime()));
     Map<String, String> configs = GSON.fromJson(release.getConfigurations(), TYPE);
     openReleaseDTO.setConfigurations(configs);
     return openReleaseDTO;
@@ -244,8 +269,7 @@ public final class OpenApiModelConverters {
   // region Namespace conversions
   public static OpenNamespaceDTO fromNamespaceBO(NamespaceBO namespaceBO) {
     Preconditions.checkArgument(namespaceBO != null);
-    OpenNamespaceDTO openNamespaceDTO =
-        BeanUtils.transform(OpenNamespaceDTO.class, namespaceBO.getBaseInfo());
+    OpenNamespaceDTO openNamespaceDTO = fromNamespaceDTO(namespaceBO.getBaseInfo());
     openNamespaceDTO.setFormat(namespaceBO.getFormat());
     openNamespaceDTO.setComment(namespaceBO.getComment());
     openNamespaceDTO.setIsPublic(namespaceBO.isPublic());
@@ -301,7 +325,10 @@ public final class OpenApiModelConverters {
 
   public static OpenNamespaceDTO fromNamespaceDTO(NamespaceDTO namespaceDTO) {
     Preconditions.checkArgument(namespaceDTO != null);
-    return BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+    OpenNamespaceDTO result = BeanUtils.transform(OpenNamespaceDTO.class, namespaceDTO);
+    result.setDataChangeCreatedTime(formatDate(namespaceDTO.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(namespaceDTO.getDataChangeLastModifiedTime()));
+    return result;
   }
 
   public static List<OpenNamespaceDTO> fromNamespaceDTOs(List<NamespaceDTO> namespaces) {
@@ -378,7 +405,28 @@ public final class OpenApiModelConverters {
   public static OpenGrayReleaseRuleDTO fromGrayReleaseRuleDTO(
       GrayReleaseRuleDTO grayReleaseRuleDTO) {
     Preconditions.checkArgument(grayReleaseRuleDTO != null);
-    return BeanUtils.transform(OpenGrayReleaseRuleDTO.class, grayReleaseRuleDTO);
+    OpenGrayReleaseRuleDTO result =
+        BeanUtils.transform(OpenGrayReleaseRuleDTO.class, grayReleaseRuleDTO);
+    result.setDataChangeCreatedTime(formatDate(grayReleaseRuleDTO.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(
+        formatDate(grayReleaseRuleDTO.getDataChangeLastModifiedTime()));
+    if (!CollectionUtils.isEmpty(grayReleaseRuleDTO.getRuleItems())) {
+      result.setRuleItems(grayReleaseRuleDTO.getRuleItems().stream()
+          .map(OpenApiModelConverters::fromGrayReleaseRuleItemDTO)
+          .collect(Collectors.toCollection(LinkedHashSet::new)));
+    }
+    return result;
+  }
+
+  private static OpenGrayReleaseRuleItemDTO fromGrayReleaseRuleItemDTO(
+      GrayReleaseRuleItemDTO rule) {
+    OpenGrayReleaseRuleItemDTO result = new OpenGrayReleaseRuleItemDTO();
+    result.setClientAppId(rule.getClientAppId());
+    result.setClientIpList(rule.getClientIpList() == null ? new LinkedHashSet<>()
+        : new LinkedHashSet<>(rule.getClientIpList()));
+    result.setClientLabelList(rule.getClientLabelList() == null ? new LinkedHashSet<>()
+        : new LinkedHashSet<>(rule.getClientLabelList()));
+    return result;
   }
 
   public static GrayReleaseRuleDTO toGrayReleaseRuleDTO(
@@ -413,7 +461,10 @@ public final class OpenApiModelConverters {
   // region Cluster conversions
   public static OpenClusterDTO fromClusterDTO(ClusterDTO cluster) {
     Preconditions.checkArgument(cluster != null);
-    return BeanUtils.transform(OpenClusterDTO.class, cluster);
+    OpenClusterDTO result = BeanUtils.transform(OpenClusterDTO.class, cluster);
+    result.setDataChangeCreatedTime(formatDate(cluster.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(cluster.getDataChangeLastModifiedTime()));
+    return result;
   }
 
   public static ClusterDTO toClusterDTO(OpenClusterDTO openClusterDTO) {
@@ -441,7 +492,23 @@ public final class OpenApiModelConverters {
   // region Instance conversions
   public static OpenInstanceDTO fromInstanceDTO(final InstanceDTO instanceDTO) {
     Preconditions.checkArgument(instanceDTO != null);
-    return BeanUtils.transform(OpenInstanceDTO.class, instanceDTO);
+    OpenInstanceDTO result = BeanUtils.transform(OpenInstanceDTO.class, instanceDTO);
+    result.setDataChangeCreatedTime(formatDate(instanceDTO.getDataChangeCreatedTime()));
+    if (!CollectionUtils.isEmpty(instanceDTO.getConfigs())) {
+      result.setConfigs(instanceDTO.getConfigs().stream()
+          .map(OpenApiModelConverters::fromInstanceConfigDTO).collect(Collectors.toList()));
+    }
+    return result;
+  }
+
+  private static OpenInstanceConfigDTO fromInstanceConfigDTO(InstanceConfigDTO config) {
+    OpenInstanceConfigDTO result = new OpenInstanceConfigDTO();
+    if (config.getRelease() != null) {
+      result.setRelease(fromReleaseDTO(config.getRelease()));
+    }
+    result.setReleaseDeliveryTime(formatDate(config.getReleaseDeliveryTime()));
+    result.setDataChangeLastModifiedTime(formatDate(config.getDataChangeLastModifiedTime()));
+    return result;
   }
 
   // newly added
@@ -496,7 +563,10 @@ public final class OpenApiModelConverters {
   // region Permission and access key conversions
   public static OpenAccessKeyDTO fromAccessKeyDTO(final AccessKeyDTO accessKey) {
     Preconditions.checkArgument(accessKey != null);
-    return BeanUtils.transform(OpenAccessKeyDTO.class, accessKey);
+    OpenAccessKeyDTO result = BeanUtils.transform(OpenAccessKeyDTO.class, accessKey);
+    result.setDataChangeCreatedTime(formatDate(accessKey.getDataChangeCreatedTime()));
+    result.setDataChangeLastModifiedTime(formatDate(accessKey.getDataChangeLastModifiedTime()));
+    return result;
   }
 
   public static List<OpenAccessKeyDTO> fromAccessKeyDTOs(final List<AccessKeyDTO> accessKeys) {

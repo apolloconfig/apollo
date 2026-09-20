@@ -18,9 +18,8 @@ package com.ctrip.framework.apollo.openapi.server.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
@@ -30,12 +29,16 @@ import com.ctrip.framework.apollo.openapi.model.OpenAppDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenEnvClusterInfo;
 import com.ctrip.framework.apollo.openapi.model.OpenMissEnvDTO;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
+import com.ctrip.framework.apollo.portal.enricher.impl.UserDisplayNameEnricher;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
 import com.ctrip.framework.apollo.portal.entity.vo.EnvClusterInfo;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.AdditionalUserInfoEnrichService;
+import com.ctrip.framework.apollo.portal.service.AdditionalUserInfoEnrichServiceImpl;
 import com.ctrip.framework.apollo.portal.service.AppService;
 import com.ctrip.framework.apollo.portal.service.ClusterService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
+import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.common.collect.Lists;
 import java.util.Collections;
 import java.nio.charset.StandardCharsets;
@@ -75,15 +78,31 @@ class ServerAppOpenApiServiceTest {
   }
 
   @Test
-  void getAppsInfoShouldEnrichOwnerDisplayNameForPortalUi() {
+  void getAppsInfoShouldEnrichAllDisplayNamesForPortalUi() {
     App app = App.builder().appId("someApp").ownerName("owner").build();
+    app.setDataChangeCreatedBy("creator");
+    app.setDataChangeLastModifiedBy("modifier");
     when(appService.findByAppIds(Collections.singleton("someApp")))
         .thenReturn(Collections.singletonList(app));
+    UserService users = mock(UserService.class);
+    when(users.findByUserIds(anyList())).thenReturn(List.of(user("creator", "Created By"),
+        user("modifier", "Modified By"), user("owner", "Owned By")));
+    service = new ServerAppOpenApiService(portalSettings, clusterService, appService, publisher,
+        roleInitializationService,
+        new AdditionalUserInfoEnrichServiceImpl(users, List.of(new UserDisplayNameEnricher())));
 
     List<OpenAppDTO> result = service.getAppsInfo(Collections.singletonList("someApp"));
 
     assertEquals(1, result.size());
-    verify(additionalUserInfoEnrichService).enrichAdditionalUserInfo(eq(result), any());
+    assertEquals("Created By", result.get(0).getDataChangeCreatedByDisplayName());
+    assertEquals("Modified By", result.get(0).getDataChangeLastModifiedByDisplayName());
+    assertEquals("Owned By", result.get(0).getOwnerDisplayName());
+  }
+
+  private static UserInfo user(String id, String name) {
+    UserInfo user = new UserInfo(id);
+    user.setName(name);
+    return user;
   }
 
   @Test

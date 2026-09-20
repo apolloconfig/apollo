@@ -26,6 +26,13 @@ import static org.mockito.Mockito.when;
 
 import com.ctrip.framework.apollo.SkipAuthorizationConfiguration;
 import com.ctrip.framework.apollo.common.dto.ReleaseDTO;
+import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleDTO;
+import com.ctrip.framework.apollo.common.dto.GrayReleaseRuleItemDTO;
+import com.ctrip.framework.apollo.common.dto.InstanceDTO;
+import com.ctrip.framework.apollo.common.dto.InstanceConfigDTO;
+import com.ctrip.framework.apollo.common.dto.ItemDTO;
+import com.ctrip.framework.apollo.common.dto.PageDTO;
+import com.ctrip.framework.apollo.common.controller.HttpMessageConverterConfiguration;
 import com.ctrip.framework.apollo.common.exception.NotFoundException;
 import com.ctrip.framework.apollo.core.enums.ConfigFileFormat;
 import com.ctrip.framework.apollo.openapi.client.ApolloOpenApiClient;
@@ -47,6 +54,7 @@ import com.ctrip.framework.apollo.openapi.server.service.ItemOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.openapi.server.service.OrganizationOpenApiService;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
+import com.ctrip.framework.apollo.openapi.util.OpenApiModelConverters;
 import com.ctrip.framework.apollo.portal.PortalApplication;
 import com.ctrip.framework.apollo.portal.component.AdminServiceAddressLocator;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
@@ -64,10 +72,13 @@ import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Arrays;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -79,6 +90,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -443,6 +455,8 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     OpenReleaseDTO publishedRelease =
         client.publishNamespace(APP_ID, ENV, null, null, releaseRequest);
     assertThat(publishedRelease.getId()).isEqualTo(10L);
+    assertThat(publishedRelease.getDataChangeCreatedTime()).isEqualTo(auditCreatedTime());
+    assertThat(publishedRelease.getDataChangeLastModifiedTime()).isEqualTo(auditModifiedTime());
     ArgumentCaptor<NamespaceReleaseModel> releaseCaptor =
         ArgumentCaptor.forClass(NamespaceReleaseModel.class);
     verify(releaseService).publish(releaseCaptor.capture());
@@ -456,6 +470,7 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
         .thenReturn(releaseDTO(11L));
     OpenReleaseDTO latestRelease = client.getLatestActiveRelease(APP_ID, ENV, null, null);
     assertThat(latestRelease.getId()).isEqualTo(11L);
+    assertThat(latestRelease.getDataChangeCreatedTime()).isEqualTo(auditCreatedTime());
     verify(releaseService).loadLatestRelease(APP_ID, Env.DEV, CLUSTER, NAMESPACE);
 
     ReleaseDTO release = releaseDTO(12L);
@@ -468,6 +483,79 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     int instanceCount = client.getInstanceCountByNamespace(APP_ID, ENV, null, null);
     assertThat(instanceCount).isEqualTo(3);
     verify(instanceService).getInstanceCountByNamespace(APP_ID, Env.DEV, CLUSTER, NAMESPACE);
+  }
+
+  @Test
+  public void convertedItemTimestampsShouldRemainReadableByThePublishedClient() {
+    ItemDTO item = new ItemDTO("dated-key", "value", "comment", 1);
+    item.setDataChangeCreatedTime(auditCreatedTime());
+    item.setDataChangeLastModifiedTime(auditModifiedTime());
+    when(itemOpenApiService.getItem(APP_ID, ENV, CLUSTER, NAMESPACE, "dated-key"))
+        .thenReturn(OpenApiModelConverters.fromItemDTO(item));
+
+    OpenItemDTO result = client.getItem(APP_ID, ENV, CLUSTER, NAMESPACE, "dated-key");
+
+    assertThat(result.getDataChangeCreatedTime()).isEqualTo(auditCreatedTime());
+    assertThat(result.getDataChangeLastModifiedTime()).isEqualTo(auditModifiedTime());
+  }
+
+  @Test
+  public void grayRuleResponseShouldPreserveClientIpsAndLabels() {
+    GrayReleaseRuleDTO rules = new GrayReleaseRuleDTO(APP_ID, CLUSTER, NAMESPACE, "gray");
+    rules.addRuleItem(new GrayReleaseRuleItemDTO("client-a", Set.of("10.0.0.1"), Set.of("blue")));
+    rules.addRuleItem(new GrayReleaseRuleItemDTO("client-b", Set.of("*"), Set.of("*")));
+    when(namespaceBranchService.findBranchGrayRules(APP_ID, Env.DEV, CLUSTER, NAMESPACE, "gray"))
+        .thenReturn(rules);
+
+    JsonObject response = getJsonObject(
+        String.format("/openapi/v1/envs/%s/apps/%s/clusters/%s/namespaces/%s/branches/gray/rules",
+            ENV, APP_ID, CLUSTER, NAMESPACE));
+
+    JsonObject expected =
+        new HttpMessageConverterConfiguration().gson().toJsonTree(rules).getAsJsonObject();
+    assertThat(response.get("ruleItems")).isEqualTo(expected.get("ruleItems"));
+  }
+
+  @Test
+  public void instancePageResponseShouldKeepReleaseAndDeliveryMetadata() {
+    InstanceConfigDTO config = new InstanceConfigDTO();
+    config.setRelease(releaseDTO(123L));
+    config.setReleaseDeliveryTime(auditCreatedTime());
+    config.setDataChangeLastModifiedTime(auditModifiedTime());
+    InstanceDTO instance = new InstanceDTO();
+    instance.setId(456L);
+    instance.setAppId("client-app");
+    instance.setConfigs(List.of(config));
+    when(instanceService.getByNamespace(Env.DEV, APP_ID, CLUSTER, NAMESPACE, null, 0, 20))
+        .thenReturn(new PageDTO<>(List.of(instance), PageRequest.of(0, 20), 1L));
+
+    JsonObject response = getJsonObject(String.format(
+        "/openapi/v1/envs/%s/instances/by-namespace?appId=%s&clusterName=%s&namespaceName=%s&page=0&size=20",
+        ENV, APP_ID, CLUSTER, NAMESPACE));
+
+    assertThat(response.get("total").getAsLong()).isEqualTo(1L);
+    assertThat(response.get("page").getAsInt()).isZero();
+    assertThat(response.get("size").getAsInt()).isEqualTo(20);
+    JsonObject returnedInstance = response.getAsJsonArray("instances").get(0).getAsJsonObject();
+    assertThat(returnedInstance.getAsJsonArray("configs").size()).isEqualTo(1);
+    JsonObject returnedConfig = returnedInstance.getAsJsonArray("configs").get(0).getAsJsonObject();
+    JsonObject expectedConfig =
+        new HttpMessageConverterConfiguration().gson().toJsonTree(config).getAsJsonObject();
+    assertThat(returnedConfig.get("releaseDeliveryTime"))
+        .isEqualTo(expectedConfig.get("releaseDeliveryTime"));
+    assertThat(returnedConfig.get("dataChangeLastModifiedTime"))
+        .isEqualTo(expectedConfig.get("dataChangeLastModifiedTime"));
+    assertThat(returnedConfig.getAsJsonObject("release").get("id").getAsLong()).isEqualTo(123L);
+    assertThat(returnedConfig.getAsJsonObject("release").getAsJsonObject("configurations")
+        .get("timeout").getAsString()).isEqualTo("100");
+  }
+
+  private static Date auditCreatedTime() {
+    return Date.from(Instant.parse("2026-09-19T01:02:03.123Z"));
+  }
+
+  private static Date auditModifiedTime() {
+    return Date.from(Instant.parse("2026-09-20T04:05:06.789Z"));
   }
 
   private OpenAppDTO legacyApp(String appId) {
@@ -556,6 +644,8 @@ public class ApolloOpenApiJavaClientCompatibilityTest {
     release.setName("legacy-release");
     release.setComment("legacy release comment");
     release.setConfigurations("{\"timeout\":\"100\"}");
+    release.setDataChangeCreatedTime(auditCreatedTime());
+    release.setDataChangeLastModifiedTime(auditModifiedTime());
     return release;
   }
 

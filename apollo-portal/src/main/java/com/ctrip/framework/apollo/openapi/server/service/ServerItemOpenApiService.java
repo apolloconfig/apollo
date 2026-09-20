@@ -90,7 +90,9 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
     }
     // protect. only value,type,comment,lastModifiedBy can be modified
     toUpdateItem.setComment(itemDTO.getComment());
-    toUpdateItem.setType(itemDTO.getType());
+    if (itemDTO.getType() != null) {
+      toUpdateItem.setType(itemDTO.getType());
+    }
     toUpdateItem.setValue(itemDTO.getValue());
     toUpdateItem.setDataChangeLastModifiedBy(operator);
 

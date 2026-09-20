@@ -47,6 +47,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -320,6 +322,7 @@ class ServerItemOpenApiServiceTest {
   @Test
   void updateItemShouldLoadExistingItemAndPreserveIdentityFields() {
     ItemDTO existing = item("timeout", "100");
+    existing.setType(5);
     existing.setId(99);
     existing.setNamespaceId(10);
     existing.setLineNum(7);
@@ -339,8 +342,33 @@ class ServerItemOpenApiServiceTest {
     assertThat(delegated.getNamespaceId()).isEqualTo(10);
     assertThat(delegated.getLineNum()).isEqualTo(7);
     assertThat(delegated.getValue()).isEqualTo("200");
+    assertThat(delegated.getType()).isEqualTo(request.getType());
     assertThat(delegated.getComment()).isEqualTo("new comment");
     assertThat(delegated.getDataChangeLastModifiedBy()).isEqualTo("operator");
+  }
+
+  @ParameterizedTest
+  @CsvSource({"false, 0", "false, 5", "true, 0", "true, 5"})
+  void updateShouldPreserveExistingTypeWhenPayloadOmitsIt(boolean createIfMissing,
+      int existingType) {
+    ItemDTO existing = item("timeout", "100");
+    existing.setType(existingType);
+    when(itemService.loadItem(Env.valueOf(ENV), APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .thenReturn(existing);
+    OpenItemDTO request = new OpenItemDTO().key("timeout").value("200");
+
+    if (createIfMissing) {
+      service.createOrUpdateItem(APP_ID, ENV, CLUSTER, NAMESPACE, request, "operator");
+    } else {
+      service.updateItem(APP_ID, ENV, CLUSTER, NAMESPACE, request, "operator");
+    }
+
+    ArgumentCaptor<ItemDTO> captor = ArgumentCaptor.forClass(ItemDTO.class);
+    verify(itemService).updateItem(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER), eq(NAMESPACE),
+        captor.capture());
+    assertThat(captor.getValue().getType()).isEqualTo(existingType);
+    assertThat(captor.getValue().getValue()).isEqualTo("200");
+    assertThat(captor.getValue().getDataChangeLastModifiedBy()).isEqualTo("operator");
   }
 
   @Test
