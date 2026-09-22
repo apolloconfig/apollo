@@ -31,6 +31,7 @@ Apollo 3.0.0
 * [Fix: preserve last-modified metadata of unchanged items when revoking changes](https://github.com/apolloconfig/apollo/pull/5672)
 * [Fix: support user-token deletion of keys containing slashes or backslashes](https://github.com/apolloconfig/apollo/pull/5676)
 * [Fix: preserve Portal OpenAPI timestamps, gray rules, instance details and app audit names, and retain item types when omitted on update](https://github.com/apolloconfig/apollo/pull/5677)
+* [Docs: use the canonical OpenAPI reference domain in the English and Chinese guides](https://github.com/apolloconfig/apollo/pull/5679)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
