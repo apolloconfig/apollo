@@ -2,7 +2,7 @@
 
 Apollo provides a set of Http REST interfaces to enable third-party applications to manage their own configurations. Although Apollo system itself provides a Portal to manage the configuration, but in some scenarios, the application needs to manage the configuration through the program.
 
-> 📖 This page only covers the core, commonly used interfaces (authentication, Namespace/config items, etc.). For the full API reference — auto-generated from the spec and always up to date — see: **https://apolloconfig.github.io/apollo-openapi/** (versioned per release, with request/response field details for every endpoint).
+> 📖 This page only covers the core, commonly used interfaces (authentication, Namespace/config items, etc.). For the full API reference — auto-generated from the spec and always up to date — see: **https://openapi.apolloconfig.com/** (versioned per release, with request/response field details for every endpoint).
 
 ### II. Third-party application access to Apollo open-platform
 
