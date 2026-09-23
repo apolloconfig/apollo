@@ -30,7 +30,6 @@ import com.google.common.collect.MultimapBuilder.ListMultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -96,13 +95,13 @@ public class AccessKeyServiceWithCache implements InitializingBean, DisposableBe
   }
 
   public List<String> getSecrets(String appId, Predicate<AccessKey> filter) {
-    List<AccessKey> accessKeys = accessKeyCache.get(appId);
-    if (CollectionUtils.isEmpty(accessKeys)) {
-      return Collections.emptyList();
+    List<AccessKey> snapshot;
+    // Guava synchronized multimap requires locking the wrapper while copying the live view.
+    synchronized (accessKeyCache) {
+      snapshot = List.copyOf(accessKeyCache.get(appId));
     }
 
-    return accessKeys.stream().filter(filter).map(AccessKey::getSecret)
-        .collect(Collectors.toList());
+    return snapshot.stream().filter(filter).map(AccessKey::getSecret).collect(Collectors.toList());
   }
 
   @Override
@@ -196,12 +195,15 @@ public class AccessKeyServiceWithCache implements InitializingBean, DisposableBe
       AccessKey thatInCache = accessKeyIdCache.get(accessKey.getId());
 
       accessKeyIdCache.put(accessKey.getId(), accessKey);
-      accessKeyCache.put(accessKey.getAppId(), accessKey);
-
-      if (thatInCache != null && accessKey.getDataChangeLastModifiedTime()
-          .compareTo(thatInCache.getDataChangeLastModifiedTime()) >= 0) {
-        accessKeyCache.remove(accessKey.getAppId(), thatInCache);
-        logger.info("Found Accesskey changes, old: {}, new: {}", thatInCache, accessKey);
+      // Readers snapshot under this same lock; replace old+new as one mutation
+      // so they never see both keys (or a gap) for the same id.
+      synchronized (accessKeyCache) {
+        if (thatInCache != null && accessKey.getDataChangeLastModifiedTime()
+            .compareTo(thatInCache.getDataChangeLastModifiedTime()) >= 0) {
+          accessKeyCache.remove(accessKey.getAppId(), thatInCache);
+          logger.info("Found Accesskey changes, old: {}, new: {}", thatInCache, accessKey);
+        }
+        accessKeyCache.put(accessKey.getAppId(), accessKey);
       }
     }
   }
