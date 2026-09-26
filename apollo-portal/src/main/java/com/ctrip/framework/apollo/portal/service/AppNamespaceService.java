@@ -43,6 +43,7 @@ import org.springframework.util.CollectionUtils;
 public class AppNamespaceService {
 
   private static final int PRIVATE_APP_NAMESPACE_NOTIFICATION_COUNT = 5;
+  private static final int MAX_NAMESPACE_NAME_LENGTH = 32;
   private static final Joiner APP_NAMESPACE_JOINER = Joiner.on(",").skipNulls();
 
   private final AppNamespaceRepository appNamespaceRepository;
@@ -148,6 +149,7 @@ public class AppNamespaceService {
         .append(appNamespace.getName())
         .append(appNamespace.formatAsEnum() == ConfigFileFormat.Properties ? ""
             : "." + appNamespace.getFormat());
+    validateNamespaceNameLength(appNamespaceName.toString());
     appNamespace.setName(appNamespaceName.toString());
 
     if (appNamespace.getComment() == null) {
@@ -191,6 +193,7 @@ public class AppNamespaceService {
 
   @Transactional
   public AppNamespace importAppNamespaceInLocal(AppNamespace appNamespace) {
+    validateNamespaceNameLength(appNamespace.getName());
     // globally uniqueness check for public app namespace
     if (appNamespace.isPublic()) {
       checkAppNamespaceGlobalUniqueness(appNamespace);
@@ -215,6 +218,14 @@ public class AppNamespaceService {
         operator);
 
     return createdAppNamespace;
+  }
+
+  private void validateNamespaceNameLength(String namespaceName) {
+    if (namespaceName != null && namespaceName.length() > MAX_NAMESPACE_NAME_LENGTH) {
+      throw new BadRequestException(
+          "Namespace name must not exceed %s characters including the organization prefix and format suffix (actual: %s)",
+          MAX_NAMESPACE_NAME_LENGTH, namespaceName.length());
+    }
   }
 
   private void checkAppNamespaceGlobalUniqueness(AppNamespace appNamespace) {

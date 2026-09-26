@@ -44,12 +44,17 @@ import com.ctrip.framework.apollo.portal.service.AppNamespaceService;
 import com.ctrip.framework.apollo.portal.service.NamespaceLockService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
 import com.ctrip.framework.apollo.portal.service.RoleInitializationService;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -60,6 +65,7 @@ class ServerNamespaceManagementOpenApiServiceTest {
   private static final String APP_ID = "sample-app";
   private static final String ENV = "DEV";
   private static final String CLUSTER = "default";
+  private static final String PRIVATE_NAMESPACE = "application";
   private static final String LINKED_NAMESPACE = "linked-public";
   private static final String PUBLIC_NAMESPACE = "provider.public-namespace";
 
@@ -92,6 +98,62 @@ class ServerNamespaceManagementOpenApiServiceTest {
   @AfterEach
   void tearDown() {
     UserIdentityContextHolder.clear();
+  }
+
+  @ParameterizedTest
+  @CsvSource({"PRO,true", "PRO,false", "LOCAL,true", "LOCAL,false"})
+  void findNamespaceShouldPreserveMetadataAndHidePortalUserConfig(String env, boolean extendInfo) {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    NamespaceBO namespace = createNamespaceBO();
+    namespace.getBaseInfo().setNamespaceName(PRIVATE_NAMESPACE);
+    namespace.setPublic(false);
+    namespace.setItemModifiedCnt(1);
+    when(namespaceService.loadNamespaceBO(APP_ID, Env.valueOf(env), CLUSTER, PRIVATE_NAMESPACE,
+        true, extendInfo)).thenReturn(namespace);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, env, CLUSTER,
+        PRIVATE_NAMESPACE)).thenReturn(true);
+
+    OpenNamespaceDTO result =
+        service.findNamespace(APP_ID, env, CLUSTER, PRIVATE_NAMESPACE, true, extendInfo);
+
+    assertThat(result.getAppId()).isEqualTo(APP_ID);
+    assertThat(result.getClusterName()).isEqualTo(CLUSTER);
+    assertThat(result.getNamespaceName()).isEqualTo(PRIVATE_NAMESPACE);
+    assertThat(result.getFormat()).isEqualTo("properties");
+    assertThat(result.getItems()).isEmpty();
+    if (extendInfo) {
+      assertThat(result.getExtendInfo().getIsConfigHidden()).isTrue();
+      assertThat(result.getExtendInfo().getItemModifiedCnt()).isZero();
+    } else {
+      assertThat(result.getExtendInfo()).isNull();
+    }
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"PRO", "LOCAL"})
+  void findNamespacesShouldPreserveHiddenMetadataAndReadableConfig(String env) {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    NamespaceBO hiddenNamespace = createNamespaceBO();
+    hiddenNamespace.getBaseInfo().setNamespaceName(PRIVATE_NAMESPACE);
+    hiddenNamespace.setPublic(false);
+    hiddenNamespace.setItemModifiedCnt(1);
+    NamespaceBO publicNamespace = createNamespaceBO();
+    when(namespaceService.findNamespaceBOs(APP_ID, Env.valueOf(env), CLUSTER, true, true))
+        .thenReturn(Arrays.asList(hiddenNamespace, publicNamespace));
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, env, CLUSTER,
+        PRIVATE_NAMESPACE)).thenReturn(true);
+
+    List<OpenNamespaceDTO> result = service.findNamespaces(APP_ID, env, CLUSTER, true, true);
+
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getNamespaceName()).isEqualTo(PRIVATE_NAMESPACE);
+    assertThat(result.get(0).getItems()).isEmpty();
+    assertThat(result.get(0).getExtendInfo().getIsConfigHidden()).isTrue();
+    assertThat(result.get(0).getExtendInfo().getItemModifiedCnt()).isZero();
+    assertThat(result.get(1).getNamespaceName()).isEqualTo(PUBLIC_NAMESPACE);
+    assertThat(result.get(1).getItems()).hasSize(1);
+    assertThat(result.get(1).getItems().get(0).getValue()).isEqualTo("100");
+    assertThat(result.get(1).getExtendInfo().getIsConfigHidden()).isFalse();
   }
 
   @Test
@@ -179,7 +241,7 @@ class ServerNamespaceManagementOpenApiServiceTest {
     namespaceBO.setBaseInfo(baseInfo);
     namespaceBO.setPublic(true);
     namespaceBO.setFormat("properties");
-    namespaceBO.setItems(Collections.singletonList(itemBO));
+    namespaceBO.setItems(new ArrayList<>(Collections.singletonList(itemBO)));
     return namespaceBO;
   }
 

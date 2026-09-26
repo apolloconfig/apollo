@@ -20,10 +20,12 @@ import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import jakarta.servlet.Filter;
@@ -38,6 +40,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -45,6 +48,7 @@ import org.springframework.http.HttpHeaders;
 public class ConsumerAuthenticationFilter implements Filter {
 
   private static final Logger logger = LoggerFactory.getLogger(ConsumerAuthenticationFilter.class);
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private final ConsumerAuthUtil consumerAuthUtil;
   private final ConsumerAuditUtil consumerAuditUtil;
@@ -89,7 +93,7 @@ public class ConsumerAuthenticationFilter implements Filter {
     ConsumerToken consumerToken = consumerAuthUtil.getConsumerToken(token);
 
     if (null == consumerToken) {
-      response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+      writeOpenApiError(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
       return;
     }
 
@@ -101,12 +105,13 @@ public class ConsumerAuthenticationFilter implements Filter {
         long warmupToMillis = rateLimiterPair.getLeft() + WARMUP_MILLIS;
         if (System.currentTimeMillis() > warmupToMillis
             && !rateLimiterPair.getRight().tryAcquire()) {
-          response.sendError(TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
+          writeOpenApiError(response, TOO_MANY_REQUESTS, "Too Many Requests, the flow is limited");
           return;
         }
       } catch (Exception e) {
         logger.error("ConsumerAuthenticationFilter ratelimit error", e);
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Rate limiting failed");
+        writeOpenApiError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+            "Rate limiting failed");
         return;
       }
     }
@@ -121,6 +126,14 @@ public class ConsumerAuthenticationFilter implements Filter {
   @Override
   public void destroy() {
     // nothing
+  }
+
+  private void writeOpenApiError(HttpServletResponse response, int status, String message)
+      throws IOException {
+    // sendError dispatches to /error, where Portal security can redirect API callers to /signin.
+    response.setStatus(status);
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    OBJECT_MAPPER.writeValue(response.getWriter(), Map.of("message", message));
   }
 
   private ImmutablePair<Long, RateLimiter> getOrCreateRateLimiterPair(String key,

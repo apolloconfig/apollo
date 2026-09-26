@@ -121,7 +121,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 });
                 $window.removeEventListener('resize', on_window_resize);
 
-                if (getFullscreenElement() == getTextEditorContainer(scope.namespace)) {
+                if (isNamespaceFullscreen(scope.namespace)) {
                     exitFullscreen();
                 }
 
@@ -146,6 +146,12 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                     $window.document.msFullscreenElement;
             }
 
+            function isNamespaceFullscreen(namespace) {
+                var fullscreen_element = getFullscreenElement();
+                // The editor may not be mounted yet; two missing elements are not fullscreen.
+                return !!fullscreen_element && fullscreen_element === getTextEditorContainer(namespace);
+            }
+
             function requestFullscreen(element) {
                 var request_method = element.requestFullscreen ||
                     element.webkitRequestFullscreen ||
@@ -158,6 +164,9 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             }
 
             function exitFullscreen() {
+                if (!getFullscreenElement()) {
+                    return null;
+                }
                 var exit_method = $window.document.exitFullscreen ||
                     $window.document.webkitExitFullscreen ||
                     $window.document.mozCancelFullScreen ||
@@ -165,7 +174,16 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 if (!exit_method) {
                     return null;
                 }
-                return exit_method.call($window.document);
+                try {
+                    var fullscreen_exit = exit_method.call($window.document);
+                    if (fullscreen_exit && typeof fullscreen_exit.catch == 'function') {
+                        return fullscreen_exit.catch(syncFullscreenStatus);
+                    }
+                    return fullscreen_exit;
+                } catch (error) {
+                    syncFullscreenStatus();
+                    return null;
+                }
             }
 
             function isElementVisible(element) {
@@ -235,7 +253,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 if (scope.$$destroyed) {
                     return;
                 }
-                var is_current_namespace_fullscreen = getFullscreenElement() == getTextEditorContainer(scope.namespace);
+                var is_current_namespace_fullscreen = isNamespaceFullscreen(scope.namespace);
                 if (scope.namespace.isTextFullscreen !== is_current_namespace_fullscreen) {
                     if (scope.$$phase) {
                         scope.namespace.isTextFullscreen = is_current_namespace_fullscreen;
@@ -640,7 +658,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
             }
 
             function switchView(namespace, viewType) {
-                if (viewType != namespace_view_type.TEXT && getFullscreenElement() == getTextEditorContainer(namespace)) {
+                if (viewType != namespace_view_type.TEXT && isNamespaceFullscreen(namespace)) {
                     exitFullscreen();
                 }
                 namespace.viewType = viewType;
@@ -925,7 +943,7 @@ function directive($window, $translate, toastr, AppUtil, EventManager, Permissio
                 }
 
                 var fullscreen_request;
-                if (getFullscreenElement() == text_editor_container) {
+                if (isNamespaceFullscreen(namespace)) {
                     fullscreen_request = exitFullscreen();
                 } else {
                     fullscreen_request = requestFullscreen(text_editor_container);

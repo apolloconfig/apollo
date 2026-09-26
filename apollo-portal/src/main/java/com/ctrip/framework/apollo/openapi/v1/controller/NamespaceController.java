@@ -145,9 +145,6 @@ public class NamespaceController
   @Override
   public ResponseEntity<OpenNamespaceDTO> findNamespace(String appId, String env,
       String clusterName, String namespaceName, Boolean fillItemDetail, Boolean extendInfo) {
-    if (shouldHideConfigToPortalUser(appId, env, clusterName, namespaceName)) {
-      return ResponseEntity.ok().build();
-    }
     requireConfigReadForUserToken(appId, env, clusterName, namespaceName);
     return ResponseEntity.ok(namespaceOpenApiService.findNamespace(appId, env, clusterName,
         namespaceName, Boolean.TRUE.equals(fillItemDetail), Boolean.TRUE.equals(extendInfo)));
@@ -322,14 +319,14 @@ public class NamespaceController
     if (namespaces == null) {
       return Collections.emptyList();
     }
-    List<OpenNamespaceDTO> readableNamespaces = namespaces.stream()
-        .filter(namespace -> namespace != null && !shouldDenyConfigReadToCurrentIdentity(
+    // Portal users retain namespace metadata; the service hides their configuration items.
+    return namespaces.stream()
+        .filter(namespace -> namespace != null && !shouldDenyConfigReadToUserToken(
             StringUtils.isBlank(namespace.getAppId()) ? appId : namespace.getAppId(), env,
             StringUtils.isBlank(namespace.getClusterName()) ? clusterName
                 : namespace.getClusterName(),
             namespace.getNamespaceName()))
         .collect(Collectors.toList());
-    return readableNamespaces;
   }
 
   private boolean shouldHideConfigToPortalUser(String appId, String env, String clusterName,
@@ -339,20 +336,16 @@ public class NamespaceController
             namespaceName);
   }
 
-  private boolean shouldDenyConfigReadToCurrentIdentity(String appId, String env,
-      String clusterName, String namespaceName) {
-    String authType = UserIdentityContextHolder.getAuthType();
-    return (UserIdentityConstants.USER.equals(authType)
-        || UserIdentityConstants.USER_TOKEN.equals(authType))
+  private boolean shouldDenyConfigReadToUserToken(String appId, String env, String clusterName,
+      String namespaceName) {
+    return UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
         && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
             namespaceName);
   }
 
   private void requireConfigReadForUserToken(String appId, String env, String clusterName,
       String namespaceName) {
-    if (UserIdentityConstants.USER_TOKEN.equals(UserIdentityContextHolder.getAuthType())
-        && unifiedPermissionValidator.shouldHideConfigToCurrentUser(appId, env, clusterName,
-            namespaceName)) {
+    if (shouldDenyConfigReadToUserToken(appId, env, clusterName, namespaceName)) {
       throw new AccessDeniedException("Access is denied");
     }
   }

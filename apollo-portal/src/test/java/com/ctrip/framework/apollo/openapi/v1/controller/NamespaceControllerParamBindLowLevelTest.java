@@ -34,6 +34,7 @@ import com.ctrip.framework.apollo.audit.annotation.OpType;
 import com.ctrip.framework.apollo.openapi.model.OpenAppNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateNamespaceDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceDTO;
+import com.ctrip.framework.apollo.openapi.model.OpenNamespaceExtendDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenNamespaceLockDTO;
 import com.ctrip.framework.apollo.openapi.server.service.NamespaceOpenApiService;
 import com.ctrip.framework.apollo.portal.component.UnifiedPermissionValidator;
@@ -51,6 +52,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -351,6 +354,87 @@ public class NamespaceControllerParamBindLowLevelTest {
 
     verify(namespaceOpenApiService, never()).findNamespace(anyString(), anyString(), anyString(),
         anyString(), anyBoolean(), anyBoolean());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"PRO", "LOCAL"})
+  public void findNamespaceShouldPreserveHiddenPortalUserNamespace(String env) throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, env, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+    when(namespaceOpenApiService.findNamespace(APP_ID, env, CLUSTER, NAMESPACE, true, true))
+        .thenReturn(hiddenNamespace());
+
+    mockMvc
+        .perform(get(
+            "/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}",
+            env, APP_ID, CLUSTER, NAMESPACE).param("fillItemDetail", "true")
+            .param("extendInfo", "true"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.namespaceName").value(NAMESPACE))
+        .andExpect(jsonPath("$.items").isEmpty())
+        .andExpect(jsonPath("$.extendInfo.isConfigHidden").value(true));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"PRO", "LOCAL"})
+  public void findNamespacesShouldPreserveHiddenPortalUserNamespaces(String env) throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, env, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+    when(namespaceOpenApiService.findNamespaces(APP_ID, env, CLUSTER, true, true))
+        .thenReturn(Collections.singletonList(hiddenNamespace()));
+
+    mockMvc
+        .perform(get("/openapi/v1/envs/{env}/apps/{appId}/clusters/{clusterName}/namespaces", env,
+            APP_ID, CLUSTER).param("fillItemDetail", "true").param("extendInfo", "true"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE))
+        .andExpect(jsonPath("$[0].items").isEmpty())
+        .andExpect(jsonPath("$[0].extendInfo.isConfigHidden").value(true));
+  }
+
+  @Test
+  public void publicNamespaceInstancesShouldPreserveHiddenPortalUserNamespaceMetadata()
+      throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 0, 10))
+        .thenReturn(Collections.singletonList(hiddenNamespace()));
+
+    mockMvc
+        .perform(
+            get("/openapi/v1/envs/{env}/appnamespaces/{namespaceName}/instances", ENV, NAMESPACE)
+                .param("page", "0").param("size", "10"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].namespaceName").value(NAMESPACE));
+  }
+
+  @Test
+  public void publicNamespaceInstancesShouldFilterHiddenUserTokenNamespaces() throws Exception {
+    UserIdentityContextHolder.setAuthType(UserIdentityConstants.USER_TOKEN);
+    when(unifiedPermissionValidator.shouldHideConfigToCurrentUser(APP_ID, ENV, CLUSTER, NAMESPACE))
+        .thenReturn(true);
+    when(namespaceOpenApiService.getPublicAppNamespaceInstances(ENV, NAMESPACE, 0, 10))
+        .thenReturn(Collections.singletonList(hiddenNamespace()));
+
+    mockMvc
+        .perform(
+            get("/openapi/v1/envs/{env}/appnamespaces/{namespaceName}/instances", ENV, NAMESPACE)
+                .param("page", "0").param("size", "10"))
+        .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+  }
+
+  private OpenNamespaceDTO hiddenNamespace() {
+    OpenNamespaceDTO namespace = new OpenNamespaceDTO();
+    namespace.setAppId(APP_ID);
+    namespace.setClusterName(CLUSTER);
+    namespace.setNamespaceName(NAMESPACE);
+    namespace.setItems(Collections.emptyList());
+    OpenNamespaceExtendDTO extendInfo = new OpenNamespaceExtendDTO();
+    extendInfo.setIsConfigHidden(true);
+    namespace.setExtendInfo(extendInfo);
+    return namespace;
   }
 
   @Test
