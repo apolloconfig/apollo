@@ -17,6 +17,8 @@
 SERVICE_NAME=apollo-adminservice
 ## Adjust the directory for application, GC, and console logs if necessary
 LOG_DIR=${LOG_DIR:=/opt/logs}
+## Adjust application log path if necessary
+APP_LOG=${APP_LOG:=$LOG_DIR/$SERVICE_NAME.log}
 ## Adjust background console log path if necessary
 CONSOLE_LOG=${CONSOLE_LOG:=$LOG_DIR/$SERVICE_NAME.console.log}
 ## Adjust application log appenders (FILE, CONSOLE, or FILE,CONSOLE) if necessary
@@ -51,7 +53,7 @@ then
     export SPRING_DATASOURCE_USERNAME=$DS_USERNAME
     export SPRING_DATASOURCE_PASSWORD=$DS_PASSWORD
 fi
-export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$LOG_DIR/$SERVICE_NAME.log -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
+export JAVA_OPTS="$JAVA_OPTS -Dserver.port=$SERVER_PORT -Dlogging.file.name=$APP_LOG -XX:HeapDumpPath=$LOG_DIR/HeapDumpOnOutOfMemoryError/"
 export APP_NAME=$SERVICE_NAME
 
 PATH_TO_JAR=$SERVICE_NAME".jar"
@@ -87,12 +89,12 @@ function checkPidAlive() {
         fi
 
         printf '\npid - %s just quit unexpectedly!\n' "$pid"
-        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
+        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$APP_LOG"
         exit 1;
     fi
 
     printf '\nNo pid file found, startup may have failed.\n'
-    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
+    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$APP_LOG"
     exit 1;
 }
 
@@ -218,7 +220,7 @@ else
     if [[ $rc != 0 ]];
     then
         echo "$(date) Failed to start $SERVICE_NAME, return code: $rc"
-        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
+        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$APP_LOG"
         exit $rc;
     fi
 
@@ -241,6 +243,6 @@ else
         fi
     done
     printf "\n$(date) Server failed to start in $total_time seconds!\n"
-    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
+    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$APP_LOG"
     exit 1;
 fi
