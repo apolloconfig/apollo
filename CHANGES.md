@@ -33,5 +33,7 @@ Apollo 3.0.0
 * [Fix: preserve Portal OpenAPI timestamps, gray rules, instance details and app audit names, and retain item types when omitted on update](https://github.com/apolloconfig/apollo/pull/5677)
 * [Fix: handle encoded and literal-percent keys, preserve item types and audit display names, enforce full namespace name limits, report partial import failures and honor overwrite selections, restore token actions and audit filters, show gray-rule labels, and correct restricted namespace visibility, API error responses and namespace views](https://github.com/apolloconfig/apollo/pull/5681)
 
+* [Fix: restore service startup on JDK 26, recover background console logs, and consolidate startup log configuration](https://github.com/apolloconfig/apollo/pull/5682)
+
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
