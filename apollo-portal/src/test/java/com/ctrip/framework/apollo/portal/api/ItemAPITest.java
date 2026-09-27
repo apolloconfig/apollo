@@ -100,6 +100,7 @@ class ItemAPITest {
     return Stream.of(Arguments.of("a/b", "YS9i"), Arguments.of("a/?", "YS8_"),
         Arguments.of("a/>", "YS8-"), Arguments.of("a/", "YS8"),
         Arguments.of("path\\name", "cGF0aFxuYW1l"),
-        Arguments.of("path/中文\\name?", "cGF0aC_kuK3mlodcbmFtZT8"));
+        Arguments.of("path/中文\\name?", "cGF0aC_kuK3mlodcbmFtZT8"),
+        Arguments.of("qa3ui%2Fpath", "cWEzdWklMkZwYXRo"));
   }
 }

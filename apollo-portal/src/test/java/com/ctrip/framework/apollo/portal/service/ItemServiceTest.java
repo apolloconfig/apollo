@@ -29,6 +29,8 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -58,19 +60,19 @@ class ItemServiceTest {
         new ItemService(namespaceAPI, itemAPI, releaseAPI, fileTextResolver, propertyResolver);
   }
 
-  @Test
-  void loadItemShouldUseEncodedAdminEndpointForPathSeparatorKeys() {
+  @ParameterizedTest
+  @ValueSource(strings = {"feature/with-path", "feature\\with-path", "qa3ui%2Fpath", "qa3ui%5Cpath",
+      "literal%25key", "percent%key"})
+  void loadItemShouldUseEncodedEndpointForRawKeysWithPathSeparatorsOrPercentSigns(String key) {
     ItemDTO item = new ItemDTO();
-    item.setKey("feature/with-path");
-    when(itemAPI.loadItemByEncodeKey(Env.DEV, "app", "default", "application", "feature/with-path"))
+    item.setKey(key);
+    when(itemAPI.loadItemByEncodeKey(Env.DEV, "app", "default", "application", key))
         .thenReturn(item);
 
-    ItemDTO result =
-        itemService.loadItem(Env.DEV, "app", "default", "application", "feature/with-path");
+    ItemDTO result = itemService.loadItem(Env.DEV, "app", "default", "application", key);
 
     assertThat(result).isSameAs(item);
-    verify(itemAPI).loadItemByEncodeKey(Env.DEV, "app", "default", "application",
-        "feature/with-path");
+    verify(itemAPI).loadItemByEncodeKey(Env.DEV, "app", "default", "application", key);
   }
 
   @Test

@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.portal.AbstractUnitTest;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
 import com.ctrip.framework.apollo.portal.component.txtresolver.PropertyResolver;
 import com.ctrip.framework.apollo.portal.entity.bo.NamespaceBO;
+import com.ctrip.framework.apollo.portal.enricher.adapter.UserInfoEnrichedAdapter;
 
 import org.assertj.core.util.Lists;
 import org.junit.Before;
@@ -39,6 +40,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ctrip.framework.apollo.common.exception.BadRequestException;
@@ -50,6 +52,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -303,7 +306,9 @@ public class NamespaceServiceTest extends AbstractUnitTest {
 
     List<ItemDTO> deletedItemDTOList = Lists.newArrayList();
     ItemDTO deletedItemDTO = new ItemDTO();
-    deletedItemDTO.setKey("deleted-key");
+    deletedItemDTO.setKey("k3");
+    deletedItemDTO.setDataChangeCreatedBy("creator");
+    deletedItemDTO.setDataChangeLastModifiedBy("modifier");
     deletedItemDTOList.add(deletedItemDTO);
     when(itemService.findDeletedItems(testAppId, testEnv, testClusterName, testNamespaceName))
         .thenReturn(deletedItemDTOList);
@@ -312,6 +317,17 @@ public class NamespaceServiceTest extends AbstractUnitTest {
         .thenReturn(createNamespace(testAppId, testClusterName, testNamespaceName));
     when(appNamespaceService.findByAppIdAndName(testAppId, testNamespaceName))
         .thenReturn(createAppNamespace(testAppId, testNamespaceName, false));
+
+    doAnswer(invocation -> {
+      List<ItemDTO> items = invocation.getArgument(0);
+      Function<ItemDTO, UserInfoEnrichedAdapter> mapper = invocation.getArgument(1);
+      for (ItemDTO item : items) {
+        UserInfoEnrichedAdapter adapter = mapper.apply(item);
+        adapter.setFirstUserDisplayName("Creator Name");
+        adapter.setSecondUserDisplayName("Modifier Name");
+      }
+      return null;
+    }).when(additionalUserInfoEnrichService).enrichAdditionalUserInfo(any(), any());
 
     NamespaceBO namespaceBO = namespaceService.loadNamespaceBO(testAppId, testEnv, testClusterName,
         testNamespaceName, true, true);
@@ -323,7 +339,14 @@ public class NamespaceServiceTest extends AbstractUnitTest {
     assertEquals(3, namespaceBO.getItems().size());
     verify(itemService, times(1)).findDeletedItems(testAppId, testEnv, testClusterName,
         testNamespaceName);
-    verify(additionalUserInfoEnrichService, times(1)).enrichAdditionalUserInfo(any(), any());
+    ItemDTO deletedItem = namespaceBO.getItems().stream().filter(item -> item.isDeleted())
+        .findFirst().get().getItem();
+    assertEquals("k3", deletedItem.getKey());
+    assertEquals("creator", deletedItem.getDataChangeCreatedBy());
+    assertEquals("modifier", deletedItem.getDataChangeLastModifiedBy());
+    assertEquals("Creator Name", deletedItem.getDataChangeCreatedByDisplayName());
+    assertEquals("Modifier Name", deletedItem.getDataChangeLastModifiedByDisplayName());
+    verify(additionalUserInfoEnrichService, times(2)).enrichAdditionalUserInfo(any(), any());
   }
 
   @Test

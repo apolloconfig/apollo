@@ -26,7 +26,7 @@ config_export_module.controller('ConfigExportController',
                                            ClusterService,
                                            AppUtil) {
 
-                                     $scope.conflictAction = 'ignore';
+                                     $scope.importOptions = {conflictAction: 'ignore'};
                                      $scope.cluster = {};
                                      $scope.appConfigBtnDisabled = true;
 
@@ -98,7 +98,7 @@ config_export_module.controller('ConfigExportController',
                                          $http({
                                                    method: 'POST',
                                                    url: AppUtil.prefixPath() + '/openapi/v1/configs/import?envs=' + selectedEnvStr + "&conflictAction="
-                                                        + $scope.conflictAction,
+                                                        + $scope.importOptions.conflictAction,
                                                    data: form,
                                                    headers: {'Content-Type': undefined},
                                                    transformRequest: angular.identity
@@ -173,7 +173,7 @@ config_export_module.controller('ConfigExportController',
                                            $http({
                                                      method: 'POST',
                                                      url: AppUtil.prefixPath() + '/openapi/v1/apps/' + $scope.cluster.appId + '/envs/' + $scope.cluster.env +
-                                                     '/clusters/' + $scope.cluster.name + '/import?conflictAction=' + $scope.conflictAction,
+                                                     '/clusters/' + $scope.cluster.name + '/import?conflictAction=' + $scope.importOptions.conflictAction,
                                                      data: form,
                                                      headers: {'Content-Type': undefined},
                                                      transformRequest: angular.identity

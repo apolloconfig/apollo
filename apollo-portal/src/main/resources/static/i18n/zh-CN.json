@@ -525,7 +525,7 @@
   "Namespace.LoadingPublicNamespaceError": "加载公共 Namespace 错误",
   "Namespace.LoadingAppInfoError": "加载 App 信息出错",
   "Namespace.PleaseChooseCluster": "请选择集群",
-  "Namespace.CheckNamespaceNameLengthTip": "Namespace 名称不能大于 32 个字符。 部门前缀：'{{departmentLength}}' 个字符, 名称 {{namespaceLength}} 个字符",
+  "Namespace.CheckNamespaceNameLengthTip": "Namespace 完整名称不能大于 32 个字符。部门前缀 {{departmentLength}} 个字符，名称 {{namespaceLength}} 个字符，格式后缀 {{suffixLength}} 个字符",
   "ServiceConfig.Title": "应用配置",
   "ServiceConfig.PortalDB.Tips": "（维护 ApolloPortalDB.ServerConfig 表数据，编辑操作中如果已存在配置项则会覆盖，否则会创建配置项。配置更新后，一分钟后自动生效）",
   "ServiceConfig.ConfigDB.Tips": "（维护 ApolloConfigDB.ServerConfig 表数据，编辑操作中如果已存在配置项则会覆盖，否则会创建配置项。配置更新后，一分钟后自动生效）",

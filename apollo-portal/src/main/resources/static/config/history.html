@@ -244,12 +244,14 @@
                                     <tr>
                                         <th>{{'Config.History.GrayscaleAppId' | translate }}</th>
                                         <th>{{'Config.History.GrayscaleIp' | translate }}</th>
+                                        <th>{{'Component.GrayscalePublishRule.Label' | translate }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="rule in history.operationContext.rules">
                                         <td width="20%" ng-bind="rule.clientAppId"></td>
-                                        <td width="80%" ng-bind="rule.clientIpList.join(', ')"></td>
+                                        <td width="40%" ng-bind="rule.clientIpList.join(', ')"></td>
+                                        <td width="40%" ng-bind="(rule.clientLabelList || []).join(', ')"></td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -79,6 +79,9 @@ namespace_module.controller("LinkNamespaceController",
                     return '';
                 }
                 var appNamespaceName = $scope.appNamespace.name ? $scope.appNamespace.name : '';
+                if ($scope.appNamespace.format !== 'properties') {
+                    appNamespaceName += '.' + $scope.appNamespace.format;
+                }
                 if (shouldAppendNamespacePrefix()) {
                     return $scope.appBaseInfo.namespacePrefix + appNamespaceName;
                 }
@@ -153,8 +156,9 @@ namespace_module.controller("LinkNamespaceController",
                     var namespaceNameLength = $scope.concatNamespace().length;
                     if (namespaceNameLength > 32) {
                         var errorTip = $translate.instant('Namespace.CheckNamespaceNameLengthTip', {
-                            departmentLength: namespaceNameLength - $scope.appNamespace.name.length,
-                            namespaceLength: $scope.appNamespace.name.length
+                            departmentLength: shouldAppendNamespacePrefix() ? $scope.appBaseInfo.namespacePrefix.length : 0,
+                            namespaceLength: $scope.appNamespace.name.length,
+                            suffixLength: $scope.appNamespace.format === 'properties' ? 0 : $scope.appNamespace.format.length + 1
                         });
                         toastr.error(errorTip);
                         return;
@@ -193,4 +197,3 @@ namespace_module.controller("LinkNamespaceController",
                 $scope.type = type;
             };
         }]);
-
