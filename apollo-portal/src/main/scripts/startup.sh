@@ -15,17 +15,25 @@
 # limitations under the License.
 #
 SERVICE_NAME=apollo-portal
-## Adjust log dir if necessary
+## Adjust the directory for application, GC, and console logs if necessary
 LOG_DIR=${LOG_DIR:=/opt/logs}
+## Adjust background console log path if necessary
+CONSOLE_LOG=${CONSOLE_LOG:=$LOG_DIR/$SERVICE_NAME.console.log}
+## Adjust application log appenders (FILE, CONSOLE, or FILE,CONSOLE) if necessary
+if [[ "$APOLLO_RUN_MODE" == "Docker" ]]; then
+    export LOG_APPENDERS="${LOG_APPENDERS:-FILE,CONSOLE}"
+else
+    export LOG_APPENDERS="${LOG_APPENDERS:-FILE}"
+fi
 ## Adjust server port if necessary
 SERVER_PORT=${SERVER_PORT:=8070}
 ## Adjust context path if necessary
 CONTEXT_PATH=${CONTEXT_PATH:=/}
 
 ## Create log directory if not existed because JDK 8+ won't do that
-mkdir -p $LOG_DIR
+mkdir -p "$LOG_DIR" || exit 1
 # Create directory of -XX:HeapDumpPath
-mkdir -p $LOG_DIR/HeapDumpOnOutOfMemoryError/
+mkdir -p "$LOG_DIR/HeapDumpOnOutOfMemoryError/" || exit 1
 
 ## Adjust memory settings if necessary
 #export JAVA_OPTS="-Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=384m -XX:NewSize=1536m -XX:MaxNewSize=1536m -XX:SurvivorRatio=8"
@@ -34,7 +42,7 @@ mkdir -p $LOG_DIR/HeapDumpOnOutOfMemoryError/
 #export JAVA_OPTS="$JAVA_OPTS -server -XX:-ReduceInitialCardMarks"
 
 ########### The following is the same for configservice, adminservice, portal ###########
-export JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=4 -XX:MaxTenuringThreshold=9 -XX:+DisableExplicitGC -XX:+ScavengeBeforeFullGC -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -Duser.timezone=Asia/Shanghai -Dclient.encoding.override=UTF-8 -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom"
+export JAVA_OPTS="$JAVA_OPTS -XX:ParallelGCThreads=4 -XX:MaxTenuringThreshold=9 -XX:+DisableExplicitGC -XX:SoftRefLRUPolicyMSPerMB=0 -XX:+ExplicitGCInvokesConcurrent -XX:+HeapDumpOnOutOfMemoryError -XX:-OmitStackTraceInFastThrow -Duser.timezone=Asia/Shanghai -Dclient.encoding.override=UTF-8 -Dfile.encoding=UTF-8 -Djava.security.egd=file:/dev/./urandom"
 # DS_URL, DS_USERNAME, DS_PASSWORD are deprecated, please use SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD instead
 # DataSource URL USERNAME PASSWORD
 if [ "$DS_URL"x != x ]
@@ -78,16 +86,18 @@ function checkPidAlive() {
             return 0
         fi
 
-        printf "\npid - $pid just quit unexpectedly, please check logs under $LOG_DIR and /tmp for more information!\n"
+        printf '\npid - %s just quit unexpectedly!\n' "$pid"
+        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
         exit 1;
     fi
 
-    printf "\nNo pid file found, startup may have failed. Please check logs under $LOG_DIR and /tmp for more information!\n"
+    printf '\nNo pid file found, startup may have failed.\n'
+    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
     exit 1;
 }
 
 function existProcessUsePort() {
-    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head $SERVER_URL | grep "HTTP")" != "" ]; then
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 --head "$SERVER_URL" | grep "HTTP")" != "" ]; then
         true
     else
         false
@@ -95,7 +105,7 @@ function existProcessUsePort() {
 }
 
 function isServiceRunning() {
-    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 $SERVER_URL/health | grep "UP")" != "" ]; then
+    if [ "$(curl -X GET --silent --connect-timeout 1 --max-time 2 "$SERVER_URL/health" | grep "UP")" != "" ]; then
         true
     else
         false
@@ -148,11 +158,11 @@ if [[ "$javaexe" ]]; then
     fi
 fi
 
-cd `dirname $0`/..
+cd "$(dirname "$0")/.." || exit 1
 
-for i in `ls $SERVICE_NAME-*.jar 2>/dev/null`
+for i in "$SERVICE_NAME"-*.jar
 do
-    if [[ ! $i == *"-sources.jar" ]]
+    if [[ -f "$i" && ! $i == *"-sources.jar" ]]
     then
         PATH_TO_JAR=$i
         break
@@ -160,10 +170,10 @@ do
 done
 
 if [[ ! -f $PATH_TO_JAR && -d current ]]; then
-    cd current
-    for i in `ls $SERVICE_NAME-*.jar 2>/dev/null`
+    cd current || exit 1
+    for i in "$SERVICE_NAME"-*.jar
     do
-        if [[ ! $i == *"-sources.jar" ]]
+        if [[ -f "$i" && ! $i == *"-sources.jar" ]]
         then
             PATH_TO_JAR=$i
             break
@@ -173,7 +183,7 @@ fi
 
 # For Docker environment, start in foreground mode
 if [[ -n "$APOLLO_RUN_MODE" ]] && [[ "$APOLLO_RUN_MODE" == "Docker" ]]; then
-    exec $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR
+    exec "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar "$PATH_TO_JAR"
 else
     # before running check there is another process use port or not
     if existProcessUsePort; then
@@ -193,19 +203,22 @@ else
 
     printf "$(date) ==== $SERVICE_NAME Starting ==== \n"
 
-    mkdir -p $APP_NAME
-    rm -f $APP_NAME/$APP_NAME.pid
+    mkdir -p "$APP_NAME" || exit 1
+    rm -f "$PID_FILE"
 
-    nohup $javaexe -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar $PATH_TO_JAR >/dev/null 2>&1 &
+    mkdir -p "$(dirname "$CONSOLE_LOG")" || exit 1
+    touch "$CONSOLE_LOG" || exit 1
+    nohup "$javaexe" -Dsun.misc.URLClassPath.disableJarChecking=true $JAVA_OPTS -jar "$PATH_TO_JAR" >>"$CONSOLE_LOG" 2>&1 &
     rc=$?
     pid=$!
     if [[ $rc == 0 ]]; then
-        echo $pid > $APP_NAME/$APP_NAME.pid
+        echo "$pid" > "$PID_FILE"
     fi
 
     if [[ $rc != 0 ]];
     then
         echo "$(date) Failed to start $SERVICE_NAME, return code: $rc"
+        printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
         exit $rc;
     fi
 
@@ -228,5 +241,6 @@ else
         fi
     done
     printf "\n$(date) Server failed to start in $total_time seconds!\n"
+    printf 'Console log: %s\nApplication log: %s\n' "$CONSOLE_LOG" "$LOG_DIR/$SERVICE_NAME.log"
     exit 1;
 fi

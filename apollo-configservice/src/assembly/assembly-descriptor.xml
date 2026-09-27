@@ -36,14 +36,6 @@
 		</fileSet>
 		<fileSet>
 			<directory>target/classes</directory>
-			<outputDirectory>/</outputDirectory>
-			<includes>
-				<include>apollo-configservice.conf</include>
-			</includes>
-			<lineEnding>unix</lineEnding>
-		</fileSet>
-		<fileSet>
-			<directory>target/classes</directory>
 			<outputDirectory>/config</outputDirectory>
 			<includes>
 				<include>application-github.properties</include>
