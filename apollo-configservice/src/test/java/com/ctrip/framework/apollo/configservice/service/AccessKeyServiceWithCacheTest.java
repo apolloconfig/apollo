@@ -19,6 +19,9 @@ package com.ctrip.framework.apollo.configservice.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.awaitility.Awaitility.*;
 
@@ -34,10 +37,12 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.awaitility.Awaitility;
+import org.slf4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -218,6 +223,53 @@ public class AccessKeyServiceWithCacheTest {
       assertThat(overlaps.get()).isZero();
     } finally {
       stop.set(true);
+      pool.shutdownNow();
+      assertThat(pool.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
+    }
+  }
+
+  @Test
+  public void testGetSecretsIsNotBlockedByUpdateLogging() throws Exception {
+    Method mergeAccessKeys =
+        AccessKeyServiceWithCache.class.getDeclaredMethod("mergeAccessKeys", List.class);
+    mergeAccessKeys.setAccessible(true);
+
+    AccessKey initial = assembleAccessKey(1L, "appA", "secret-0", true, false, 1L);
+    mergeAccessKeys.invoke(accessKeyServiceWithCache, Lists.newArrayList(initial));
+
+    Field loggerField = AccessKeyServiceWithCache.class.getDeclaredField("logger");
+    loggerField.setAccessible(true);
+    Logger originalLogger = (Logger) loggerField.get(null);
+    Logger blockingLogger = mock(Logger.class);
+    CountDownLatch loggingStarted = new CountDownLatch(1);
+    CountDownLatch resumeLogging = new CountDownLatch(1);
+    doAnswer(invocation -> {
+      loggingStarted.countDown();
+      assertThat(resumeLogging.await(5, TimeUnit.SECONDS)).isTrue();
+      return null;
+    }).when(blockingLogger).info(eq("Found Accesskey changes, old: {}, new: {}"), any(), any());
+
+    loggerField.set(null, blockingLogger);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<?> update = pool.submit(() -> {
+        try {
+          AccessKey updated = assembleAccessKey(1L, "appA", "secret-1", true, false, 2L);
+          mergeAccessKeys.invoke(accessKeyServiceWithCache, Lists.newArrayList(updated));
+        } catch (Exception ex) {
+          throw new RuntimeException(ex);
+        }
+      });
+
+      assertThat(loggingStarted.await(5, TimeUnit.SECONDS)).isTrue();
+      Future<List<String>> otherAppRead =
+          pool.submit(() -> accessKeyServiceWithCache.getAvailableSecrets("appB"));
+      assertThat(otherAppRead.get(200, TimeUnit.MILLISECONDS)).isEmpty();
+      resumeLogging.countDown();
+      update.get(5, TimeUnit.SECONDS);
+    } finally {
+      resumeLogging.countDown();
+      loggerField.set(null, originalLogger);
       pool.shutdownNow();
       assertThat(pool.awaitTermination(5, TimeUnit.SECONDS)).isTrue();
     }
