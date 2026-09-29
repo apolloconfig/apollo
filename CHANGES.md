@@ -31,6 +31,8 @@ Apollo 3.0.0
 * [Fix: preserve last-modified metadata of unchanged items when revoking changes](https://github.com/apolloconfig/apollo/pull/5672)
 * [Fix: support user-token deletion of keys containing slashes or backslashes](https://github.com/apolloconfig/apollo/pull/5676)
 * [Fix: preserve Portal OpenAPI timestamps, gray rules, instance details and app audit names, and retain item types when omitted on update](https://github.com/apolloconfig/apollo/pull/5677)
+* [Fix: handle encoded and literal-percent keys, preserve item types and audit display names, enforce full namespace name limits, report partial import failures and honor overwrite selections, restore token actions and audit filters, show gray-rule labels, and correct restricted namespace visibility, API error responses and namespace views](https://github.com/apolloconfig/apollo/pull/5681)
+* [Fix: restore service startup on JDK 26, recover background console logs, and consolidate startup log configuration](https://github.com/apolloconfig/apollo/pull/5682)
 * [Fix: snapshot AccessKey cache under lock to avoid concurrent iteration failures](https://github.com/apolloconfig/apollo/pull/5678)
 
 ------------------

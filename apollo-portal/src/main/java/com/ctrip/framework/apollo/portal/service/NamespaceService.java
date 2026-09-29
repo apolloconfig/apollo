@@ -339,6 +339,9 @@ public class NamespaceService {
               .collect(Collectors.toMap(ItemDTO::getKey, v -> v, (v1, v2) -> v2));
 
       List<ItemBO> deletedItems = parseDeletedItems(items, releaseItems, deletedItemDTOs);
+      additionalUserInfoEnrichService.enrichAdditionalUserInfo(
+          deletedItems.stream().map(ItemBO::getItem).collect(Collectors.toList()),
+          BaseDtoUserInfoEnrichedAdapter::new);
       itemBOs.addAll(deletedItems);
       modifiedItemCnt += deletedItems.size();
     }

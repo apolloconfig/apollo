@@ -216,8 +216,8 @@ public class AdminServiceAPI {
         String namespaceName, String key) {
       return restTemplate.get(env,
           "apps/{appId}/clusters/{clusterName}/namespaces/{namespaceName}/encodedItems/{key}",
-          ItemDTO.class, appId, clusterName, namespaceName,
-          new String(Base64.getEncoder().encode(key.getBytes(StandardCharsets.UTF_8))));
+          ItemDTO.class, appId, clusterName, namespaceName, Base64.getUrlEncoder().withoutPadding()
+              .encodeToString(key.getBytes(StandardCharsets.UTF_8)));
     }
 
     public ItemDTO loadItemById(Env env, long itemId) {

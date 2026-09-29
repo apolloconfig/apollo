@@ -105,7 +105,7 @@ appService.service('UserTokenFormatterService', ['$translate', function ($transl
             return '';
         }
         if (token.status) {
-            return token.status;
+            return token.status.toLowerCase();
         }
         if (token.revokedAt) {
             return 'revoked';

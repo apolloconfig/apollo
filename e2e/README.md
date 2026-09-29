@@ -2,6 +2,15 @@
 
 This directory contains end-to-end (E2E) UI tests and related CI entrypoints.
 
+## Release-time Chrome regression
+
+The [Portal Chrome regression handbook](portal-e2e/release-regression/README.md) is the
+single source for 60 scenario groups and 160 checks, including setup, test data, Chrome
+actions, expected results, cleanup, and existing automated coverage. Ask Codex to follow
+it against the release candidate and verify every check through Chrome. Keep results
+and any screenshots locally; this manual regression has no CI or upload requirement.
+Maintain the cases directly in the handbook, which is written in Chinese.
+
 ## Test Suites
 
 ### Portal UI E2E

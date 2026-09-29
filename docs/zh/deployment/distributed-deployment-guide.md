@@ -493,7 +493,7 @@ export JAVA_OPTS="-server -Xms6144m -Xmx6144m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注1：如果需要修改JVM参数，可以修改scripts/startup.sh的`JAVA_OPTS`部分。
 
-> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-configservice.conf中的`LOG_DIR`。
+> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh中的`LOG_DIR`。
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。另外apollo-configservice同时承担meta server职责，如果要修改端口，需要同步更新apollo-portal和apollo-client中的meta server信息，详见：[2.2.1.1.2.4 配置apollo-portal的meta service信息](#_221124-配置apollo-portal的meta-service信息)和[1.2.2 Apollo Meta Server](zh/client/java-sdk-user-guide#_122-apollo-meta-server)。如果当前仍使用内置Eureka，还需要同时更新ApolloConfigDB.ServerConfig表中的`eureka.service.url`配置项。
 
@@ -513,7 +513,7 @@ export JAVA_OPTS="-server -Xms2560m -Xmx2560m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注1：如果需要修改JVM参数，可以修改scripts/startup.sh的`JAVA_OPTS`部分。
 
-> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-adminservice.conf中的`LOG_DIR`。
+> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh中的`LOG_DIR`。
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
 
@@ -529,7 +529,7 @@ export JAVA_OPTS="-server -Xms4096m -Xmx4096m -Xss256k -XX:MetaspaceSize=128m -X
 
 > 注1：如果需要修改JVM参数，可以修改scripts/startup.sh的`JAVA_OPTS`部分。
 
-> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh和apollo-portal.conf中的`LOG_DIR`。
+> 注2：如要调整服务的日志输出路径，可以修改scripts/startup.sh中的`LOG_DIR`。
 
 > 注3：如要调整服务的监听端口，可以修改scripts/startup.sh中的`SERVER_PORT`。
 

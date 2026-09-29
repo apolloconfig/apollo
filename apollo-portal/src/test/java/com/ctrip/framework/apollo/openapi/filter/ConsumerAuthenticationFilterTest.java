@@ -19,8 +19,12 @@ package com.ctrip.framework.apollo.openapi.filter;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuditUtil;
 import com.ctrip.framework.apollo.openapi.util.ConsumerAuthUtil;
+import com.google.common.util.concurrent.RateLimiter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -29,13 +33,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,6 +51,7 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -97,10 +106,15 @@ public class ConsumerAuthenticationFilterTest {
 
     when(request.getHeader(HttpHeaders.AUTHORIZATION)).thenReturn(someInvalidToken);
     when(consumerAuthUtil.getConsumerToken(someInvalidToken)).thenReturn(null);
+    StringWriter body = new StringWriter();
+    when(response.getWriter()).thenReturn(new PrintWriter(body));
 
     authenticationFilter.doFilter(request, response, filterChain);
 
-    verify(response, times(1)).sendError(eq(HttpServletResponse.SC_UNAUTHORIZED), anyString());
+    verify(response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
+    verify(response, never()).sendError(anyInt(), anyString());
+    assertEquals("{\"message\":\"Unauthorized\"}", body.toString());
     verify(consumerAuthUtil, never()).storeConsumerId(eq(request), anyLong());
     verify(consumerAuditUtil, never()).audit(eq(request), anyLong());
     verify(filterChain, never()).doFilter(request, response);
@@ -146,6 +160,7 @@ public class ConsumerAuthenticationFilterTest {
     int durationInSeconds = 3;
 
     setupRateLimitMocks(someToken, someConsumerId, qps);
+    when(response.getWriter()).thenAnswer(invocation -> new PrintWriter(new StringWriter()));
 
     Runnable task = () -> {
       try {
@@ -163,7 +178,9 @@ public class ConsumerAuthenticationFilterTest {
     int leastTimes = qps * durationInSeconds;
     int mostTimes = realQps * durationInSeconds;
 
-    verify(response, atLeastOnce()).sendError(eq(TOO_MANY_REQUESTS), anyString());
+    verify(response, atLeastOnce()).setStatus(TOO_MANY_REQUESTS);
+    verify(response, atLeastOnce()).setContentType(MediaType.APPLICATION_JSON_VALUE);
+    verify(response, never()).sendError(anyInt(), anyString());
 
     verify(consumerAuthUtil, atLeast(leastTimes)).storeConsumerId(request, someConsumerId);
     verify(consumerAuthUtil, atMost(mostTimes)).storeConsumerId(request, someConsumerId);
@@ -172,6 +189,28 @@ public class ConsumerAuthenticationFilterTest {
     verify(filterChain, atLeast(leastTimes)).doFilter(request, response);
     verify(filterChain, atMost(mostTimes)).doFilter(request, response);
 
+  }
+
+  @Test
+  public void testRateLimitFailureReturnsJsonWithoutErrorDispatch() throws Exception {
+    setupRateLimitMocks("rate-limit-error-" + UUID.randomUUID(), 1L, 1);
+    StringWriter body = new StringWriter();
+    when(response.getWriter()).thenReturn(new PrintWriter(body));
+
+    try (MockedStatic<RateLimiter> rateLimiter = mockStatic(RateLimiter.class)) {
+      rateLimiter.when(() -> RateLimiter.create(1))
+          .thenThrow(new IllegalStateException("Rate limiter unavailable"));
+
+      authenticationFilter.doFilter(request, response, filterChain);
+    }
+
+    verify(response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    verify(response).setContentType(MediaType.APPLICATION_JSON_VALUE);
+    verify(response, never()).sendError(anyInt(), anyString());
+    assertEquals("{\"message\":\"Rate limiting failed\"}", body.toString());
+    verify(consumerAuthUtil, never()).storeConsumerId(eq(request), anyLong());
+    verify(consumerAuditUtil, never()).audit(eq(request), anyLong());
+    verify(filterChain, never()).doFilter(request, response);
   }
 
 

@@ -49,7 +49,10 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -159,6 +162,8 @@ public class ConfigsImportService {
 
       doImport(importEnvs, toImportApps, toImportAppNSs, toImportClusters, toImportNSs, operator);
 
+    } catch (ServiceException e) {
+      throw e;
     } catch (Exception e) {
       LOGGER.error("import config error.", e);
       throw new ServiceException("import config error.", e);
@@ -214,6 +219,8 @@ public class ConfigsImportService {
       LOGGER.info("Import namespace. namespace = {}", toImportNSs.size());
       doImport(Lists.newArrayList(), Lists.newArrayList(), Lists.newArrayList(),
           Lists.newArrayList(), toImportNSs, operator);
+    } catch (ServiceException e) {
+      throw e;
     } catch (Exception e) {
       LOGGER.error("import app config error.", e);
       throw new ServiceException("import app config error.", e);
@@ -224,6 +231,7 @@ public class ConfigsImportService {
       List<String> toImportAppNSs, List<ImportClusterData> toImportClusters,
       List<ImportNamespaceData> toImportNSs, String operator) throws InterruptedException {
     LOGGER.info("Start to import app. size = {}", toImportApps.size());
+    Queue<String> failures = new ConcurrentLinkedQueue<>();
 
     long startTime = System.currentTimeMillis();
     CountDownLatch appLatch = new CountDownLatch(toImportApps.size());
@@ -232,11 +240,13 @@ public class ConfigsImportService {
         importApp(app, importEnvs, operator);
       } catch (Exception e) {
         LOGGER.error("import app error. app = {}", app, e);
+        failures.add("application metadata");
       } finally {
         appLatch.countDown();
       }
     });
     appLatch.await();
+    throwIfImportFailed(failures);
 
     LOGGER.info("Finish to import app. duration = {}", System.currentTimeMillis() - startTime);
     LOGGER.info("Start to import appnamespace. size = {}", toImportAppNSs.size());
@@ -248,11 +258,13 @@ public class ConfigsImportService {
         importAppNamespace(appNS, operator);
       } catch (Exception e) {
         LOGGER.error("import appnamespace error. appnamespace = {}", appNS, e);
+        failures.add("AppNamespace metadata");
       } finally {
         appNSLatch.countDown();
       }
     });
     appNSLatch.await();
+    throwIfImportFailed(failures);
 
     LOGGER.info("Finish to import appnamespace. duration = {}",
         System.currentTimeMillis() - startTime);
@@ -265,11 +277,13 @@ public class ConfigsImportService {
         importCluster(cluster, operator);
       } catch (Exception e) {
         LOGGER.error("import cluster error. cluster = {}", cluster, e);
+        failures.add("cluster metadata in " + cluster.getEnv());
       } finally {
         clusterLatch.countDown();
       }
     });
     clusterLatch.await();
+    throwIfImportFailed(failures);
 
     LOGGER.info("Finish to import cluster. duration = {}", System.currentTimeMillis() - startTime);
     LOGGER.info("Start to import namespace. size = {}", toImportNSs.size());
@@ -282,11 +296,14 @@ public class ConfigsImportService {
             namespace.isIgnoreConflictNamespace(), operator);
       } catch (Exception e) {
         LOGGER.error("import namespace error. namespace = {}", namespace, e);
+        String failure = "namespace " + namespace.getEnv() + "/" + namespace.getFileName();
+        failures.add(e instanceof ServiceException ? failure + ": " + e.getMessage() : failure);
       } finally {
         nsLatch.countDown();
       }
     });
     nsLatch.await();
+    throwIfImportFailed(failures);
 
     LOGGER.info("Finish to import namespace. duration = {}",
         System.currentTimeMillis() - startTime);
@@ -426,6 +443,7 @@ public class ConfigsImportService {
   private void importItems(String appId, Env env, String clusterName, String namespaceName,
       String configText, NamespaceDTO namespaceDTO, String operator) {
     List<ItemDTO> toImportItems = gson.fromJson(configText, GsonType.ITEM_DTOS);
+    Queue<String> failures = new ConcurrentLinkedQueue<>();
 
     toImportItems.parallelStream().forEach(newItem -> {
       String key = newItem.getKey();
@@ -435,30 +453,48 @@ public class ConfigsImportService {
       newItem.setDataChangeCreatedTime(new Date());
       newItem.setDataChangeLastModifiedTime(new Date());
 
-      if (StringUtils.hasText(key)) {
-        // create or update normal item
-        try {
-          ItemDTO oldItem = itemService.loadItem(env, appId, clusterName, namespaceName, key);
-          newItem.setId(oldItem.getId());
-          // existed
-          itemService.updateItem(appId, env, clusterName, namespaceName, newItem);
-        } catch (Exception e) {
-          if (e instanceof HttpStatusCodeException
-              && ((HttpStatusCodeException) e).getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-            // not existed
-            itemService.createItem(appId, env, clusterName, namespaceName, newItem);
-          } else {
-            LOGGER.error(
-                "Load or update item error. appId = {}, env = {}, cluster = {}, namespace = {}",
-                appId, env, clusterName, namespaceDTO, e);
-          }
-        }
-      } else if (StringUtils.hasText(newItem.getComment())) {
-        // create comment item
-        itemService.createCommentItem(appId, env, clusterName, namespaceName, newItem);
+      try {
+        importItem(appId, env, clusterName, namespaceName, newItem);
+      } catch (Exception e) {
+        LOGGER.error(
+            "Import item error. appId = {}, env = {}, cluster = {}, namespace = {}, key = {}",
+            appId, env, clusterName, namespaceName, key, e);
+        failures.add(StringUtils.hasText(key) ? "key '" + key + "'"
+            : "comment at line " + newItem.getLineNum());
       }
-
     });
+    throwIfImportFailed(failures);
+  }
+
+  private void importItem(String appId, Env env, String clusterName, String namespaceName,
+      ItemDTO newItem) {
+    String key = newItem.getKey();
+    if (StringUtils.hasText(key)) {
+      ItemDTO oldItem;
+      try {
+        oldItem = itemService.loadItem(env, appId, clusterName, namespaceName, key);
+      } catch (HttpStatusCodeException e) {
+        if (!e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+          throw e;
+        }
+        itemService.createItem(appId, env, clusterName, namespaceName, newItem);
+        return;
+      }
+      newItem.setId(oldItem.getId());
+      itemService.updateItem(appId, env, clusterName, namespaceName, newItem);
+    } else if (StringUtils.hasText(newItem.getComment())) {
+      itemService.createCommentItem(appId, env, clusterName, namespaceName, newItem);
+    }
+  }
+
+  private void throwIfImportFailed(Queue<String> failures) {
+    if (!failures.isEmpty()) {
+      String details = failures.stream().sorted().limit(20).collect(Collectors.joining("; "));
+      throw new ServiceException(
+          "Import failed for %s resource(s): %s. Some changes may have been applied. "
+              + "Check the target configuration before retrying.",
+          failures.size(), details);
+    }
   }
 
 

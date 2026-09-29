@@ -96,11 +96,11 @@
                             <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
                             <div class="col-sm-9">
                                 <div class="radio">
-                                    <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
+                                    <input type="radio" name="conflictAction" value="ignore" ng-model="importOptions.conflictAction">
                                     {{'ConfigExport.IgnoreExistedNamespace' | translate }}
                                 </div>
                                 <div class="radio">
-                                    <input type="radio" name="conflictAction" value="cover" ng-model="conflictAction">
+                                    <input type="radio" name="conflictAction" value="cover" ng-model="importOptions.conflictAction">
                                     {{'ConfigExport.OverwriteExistedNamespace' | translate }}
                                 </div>
                             </div>
@@ -185,11 +185,11 @@
                             <label class="col-sm-2 control-label">{{'ConfigExport.ImportConflictLabel' | translate }}</label>
                             <div class="col-sm-9">
                                 <div class="radio">
-                                    <input type="radio" name="conflictAction" value="ignore" checked ng-model="conflictAction">
+                                    <input type="radio" name="conflictAction" value="ignore" ng-model="importOptions.conflictAction">
                                     {{'ConfigExport.IgnoreExistedNamespace' | translate }}
                                 </div>
                                 <div class="radio">
-                                    <input type="radio" name="conflictAction" value="cover" ng-model="conflictAction">
+                                    <input type="radio" name="conflictAction" value="cover" ng-model="importOptions.conflictAction">
                                     {{'ConfigExport.OverwriteExistedNamespace' | translate }}
                                 </div>
                             </div>

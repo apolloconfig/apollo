@@ -38,7 +38,6 @@ import com.ctrip.framework.apollo.tracer.Tracer;
 import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -53,8 +52,6 @@ import java.util.stream.Collectors;
 @Service
 public class ItemService {
   private static final Gson GSON = new Gson();
-  private static final Pattern ITEM_KEY_PATH_SEPARATOR_PATTERN =
-      Pattern.compile("[/\\\\]+", Pattern.CASE_INSENSITIVE);
 
   private final AdminServiceAPI.NamespaceAPI namespaceAPI;
   private final AdminServiceAPI.ItemAPI itemAPI;
@@ -168,14 +165,17 @@ public class ItemService {
 
   public ItemDTO loadItem(Env env, String appId, String clusterName, String namespaceName,
       String key) {
-    if (hasPathSeparator(key)) {
+    if (shouldUseEncodedItemEndpoint(key)) {
       return itemAPI.loadItemByEncodeKey(env, appId, clusterName, namespaceName, key);
     }
     return itemAPI.loadItem(env, appId, clusterName, namespaceName, key);
   }
 
-  private boolean hasPathSeparator(String key) {
-    return key != null && ITEM_KEY_PATH_SEPARATOR_PATTERN.matcher(key).find();
+  private boolean shouldUseEncodedItemEndpoint(String rawKey) {
+    // Base64URL preserves these characters during HTTP path transport.
+    // Treat the raw key as literal text, including sequences such as "%2F".
+    return rawKey != null
+        && (rawKey.contains("/") || rawKey.contains("\\") || rawKey.contains("%"));
   }
 
   public ItemDTO loadItemById(Env env, long itemId) {

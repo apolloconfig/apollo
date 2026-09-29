@@ -19,10 +19,10 @@ export APP_NAME=$SERVICE_NAME
 PID_FILE="$APP_NAME/$APP_NAME.pid"
 EXPECTED_PATTERN="${SERVICE_NAME}(-[^[:space:]]+)?\\.jar"
 
-cd `dirname $0`/..
+cd "$(dirname "$0")/.." || exit 1
 
 if [[ ! -f $SERVICE_NAME".jar" && -d current ]]; then
-    cd current
+    cd current || exit 1
 fi
 
 matches_service_process() {

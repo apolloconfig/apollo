@@ -525,7 +525,7 @@
   "Namespace.LoadingPublicNamespaceError": "Failed to load public namespace",
   "Namespace.LoadingAppInfoError": "Failed to load App information",
   "Namespace.PleaseChooseCluster": "Select Cluster",
-  "Namespace.CheckNamespaceNameLengthTip": "The namespace name should not be longer than 32 characters. Department prefix:'{{departmentLength}}' characters, name {{namespaceLength}} characters",
+  "Namespace.CheckNamespaceNameLengthTip": "The full namespace name cannot exceed 32 characters. Department prefix: {{departmentLength}}, name: {{namespaceLength}}, format suffix: {{suffixLength}} characters",
   "ServiceConfig.Title": "System Configuration",
   "ServiceConfig.PortalDB.Tips": "(Maintain Apollo PortalDB.ServerConfig table data, will override configuration items if they already exist in the edit operation, or create configuration items. Configuration updates take effect automatically in a minute)",
   "ServiceConfig.ConfigDB.Tips": "(Maintain Apollo ConfigDB.ServerConfig table data, will override configuration items if they already exist in the edit operation, or create configuration items. Configuration updates take effect automatically in a minute)",

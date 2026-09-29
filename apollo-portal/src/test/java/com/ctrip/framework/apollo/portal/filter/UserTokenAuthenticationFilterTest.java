@@ -96,7 +96,7 @@ class UserTokenAuthenticationFilterTest {
   }
 
   @Test
-  void invalidApolloUserTokenReturnsUnauthorized() throws Exception {
+  void invalidApolloUserTokenReturnsUnauthorizedWithoutErrorDispatch() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/openapi/v1/apps");
     MockHttpServletResponse response = new MockHttpServletResponse();
     String token = UserTokenService.TOKEN_PREFIX + "abc_secret";
@@ -107,8 +107,11 @@ class UserTokenAuthenticationFilterTest {
 
     assertNull(SecurityContextHolder.getContext().getAuthentication());
     verify(filterChain, never()).doFilter(request, response);
-    org.junit.jupiter.api.Assertions.assertEquals(HttpServletResponse.SC_UNAUTHORIZED,
-        response.getStatus());
+    assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.getStatus());
+    assertNull(response.getErrorMessage());
+    assertNull(response.getHeader(HttpHeaders.LOCATION));
+    assertEquals(MediaType.APPLICATION_JSON_VALUE, response.getContentType());
+    assertEquals("{\"message\":\"Unauthorized user token\"}", response.getContentAsString());
   }
 
   @Test

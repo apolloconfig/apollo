@@ -17,7 +17,10 @@
 package com.ctrip.framework.apollo.portal.filter;
 
 import static org.hamcrest.Matchers.endsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -36,6 +39,11 @@ import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.spi.configuration.AuthFilterConfiguration;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuthUtil;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Date;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
@@ -44,16 +52,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.mock.web.MockFilterChain;
@@ -76,7 +91,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = PortalOpenApiAuthenticationScenariosTest.TestApplication.class)
+@SpringBootTest(classes = PortalOpenApiAuthenticationScenariosTest.TestApplication.class,
+    webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 // Restrict helper beans (controllers + security config) to a synthetic profile so other tests
 // scanning the same base package do not accidentally pick them up.
@@ -103,7 +119,8 @@ public class PortalOpenApiAuthenticationScenariosTest {
     @Order(0)
     public SecurityFilterChain testSecurityFilterChain(HttpSecurity http,
         UserTokenAuthenticationFilter userTokenAuthenticationFilter) throws Exception {
-      http.securityMatcher("/signin", "/apps/**", "/openapi/**");
+      // Production also protects /error; container error dispatches must exercise this chain.
+      http.securityMatcher("/signin", "/apps/**", "/openapi/**", "/error");
       http.csrf(csrf -> csrf.disable());
       http.addFilterBefore(userTokenAuthenticationFilter,
           UsernamePasswordAuthenticationFilter.class);
@@ -159,6 +176,12 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
   @Autowired
   private MockMvc mockMvc;
+
+  @Value("${local.server.port}")
+  private int port;
+
+  private final HttpClient httpClient = HttpClient.newBuilder()
+      .connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NEVER).build();
 
   @MockitoBean
   private ConsumerAuthUtil consumerAuthUtil;
@@ -260,6 +283,55 @@ public class PortalOpenApiAuthenticationScenariosTest {
 
     mockMvc.perform(get(OPEN_API_URI))
         .andExpect(status().isUnauthorized());
+  }
+
+  // MockMvc does not dispatch sendError responses through the container's /error endpoint.
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"invalid-consumer-token", "apollo_pat_invalid_secret"})
+  void openApiHttpRequestWithInvalidConsumerToken_shouldReturnJson401(String token)
+      throws Exception {
+    HttpResponse<String> response = httpGet(OPEN_API_URI, token);
+
+    assertJsonUnauthorized(response, "Unauthorized");
+    verify(consumerAuthUtil).getConsumerToken(token);
+    verify(consumerAuditUtil, never()).audit(any(), anyLong());
+  }
+
+  @Test
+  void openApiHttpRequestWithInvalidUserToken_shouldReturnJson401() throws Exception {
+    String token = UserTokenService.TOKEN_PREFIX + "invalid_secret";
+
+    HttpResponse<String> response = httpGet(OPEN_API_URI, "Bearer " + token);
+
+    assertJsonUnauthorized(response, "Unauthorized user token");
+    verify(userTokenService).authenticate(eq(token), any(HttpServletRequest.class));
+    verify(consumerAuthUtil, never()).getConsumerToken(any());
+  }
+
+  @Test
+  void portalHttpRequestWithoutSession_shouldStillRedirectToSignin() throws Exception {
+    HttpResponse<String> response = httpGet(PORTAL_URI, null);
+
+    assertEquals(HttpServletResponse.SC_FOUND, response.statusCode());
+    assertTrue(response.headers().firstValue(HttpHeaders.LOCATION).orElse("").endsWith("/signin"));
+  }
+
+  private HttpResponse<String> httpGet(String path, String token) throws Exception {
+    HttpRequest.Builder request = HttpRequest
+        .newBuilder(URI.create("http://localhost:" + port + path)).timeout(Duration.ofSeconds(10));
+    if (token != null) {
+      request.header(HttpHeaders.AUTHORIZATION, token);
+    }
+    return httpClient.send(request.GET().build(), HttpResponse.BodyHandlers.ofString());
+  }
+
+  private void assertJsonUnauthorized(HttpResponse<String> response, String message) {
+    assertEquals(HttpServletResponse.SC_UNAUTHORIZED, response.statusCode());
+    assertTrue(response.headers().firstValue(HttpHeaders.LOCATION).isEmpty());
+    assertTrue(response.headers().firstValue(HttpHeaders.CONTENT_TYPE).orElse("")
+        .startsWith(MediaType.APPLICATION_JSON_VALUE));
+    assertEquals("{\"message\":\"" + message + "\"}", response.body());
   }
 
   private void assertExpiredSessionHandling(String uri) throws Exception {

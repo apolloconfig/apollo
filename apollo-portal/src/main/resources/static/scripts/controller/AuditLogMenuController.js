@@ -78,14 +78,11 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
     }
 
     function searchByOpNameAndDate(opName, startDate, endDate) {
-        if (startDate !== null) {
-            $scope.startDateFmt = new Date(startDate).Format("yyyy-MM-dd hh:mm:ss.S");
-        }
-        if (endDate !== null) {
-            $scope.endDateFmt = new Date(endDate).Format("yyyy-MM-dd hh:mm:ss.S");
-        }
+        $scope.startDateFmt = startDate ? new Date(startDate).Format("yyyy-MM-dd hh:mm:ss.S") : null;
+        $scope.endDateFmt = endDate ? new Date(endDate).Format("yyyy-MM-dd hh:mm:ss.S") : null;
         $scope.auditLogList = [];
         $scope.page = 0;
+        $scope.hasLoadAll = false;
         $scope.opName = opName;
         $scope.startDate = startDate;
         $scope.endDate = endDate;
@@ -171,6 +168,5 @@ function auditLogMenuController($scope, $window, $translate, $document, toastr, 
         }
     });
 }
-
 
 

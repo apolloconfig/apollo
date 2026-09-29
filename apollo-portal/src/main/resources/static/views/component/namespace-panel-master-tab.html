@@ -179,7 +179,7 @@
                          data-tooltip="tooltip" data-placement="bottom"
                          title="{{'Component.Namespace.Master.Items.DiffItemTips' | translate }}"
                          ng-click="goToDiffPage(namespace)"
-                         ng-show="namespace.displayControl.currentOperateBranch == 'master' && !namespace.isPropertiesFormat && !namespace.isTextEditing">
+                         ng-show="namespace.viewType == 'text' && namespace.displayControl.currentOperateBranch == 'master' && !namespace.isPropertiesFormat && !namespace.isTextEditing">
                     &nbsp;
                     <button type="button" class="ns_btn ns-icon-button cursor-pointer"
                             data-tooltip="tooltip" data-placement="bottom"
@@ -233,7 +233,7 @@
 
                     <button type="button" class="btn btn-default btn-sm" data-tooltip="tooltip" data-placement="bottom"
                             title="{{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory.SortByKey' | translate }}" ng-show="namespace.viewType == 'history' && namespace.displayControl.currentOperateBranch == 'master'
-                        && !namespace.isLinkedNamespace" ng-click="toggleHistorySearchInput(namespace)">
+                        && namespace.isPropertiesFormat && !namespace.isLinkedNamespace" ng-click="toggleHistorySearchInput(namespace)">
                         <span class="glyphicon glyphicon-filter"></span>
                         {{'Component.Namespace.Master.Items.Body.HistoryView.FilterHistory' | translate }}
                     </button>
@@ -856,7 +856,7 @@
             <!--history view-->
             <div class="J_historyview history-view" ng-show="namespace.viewType == 'history'">
                 <!-- 过滤更改历史 -->
-                <div class="search-input" ng-show="namespace.displayControl.showHistorySearchInput">
+                <div class="search-input" ng-show="namespace.isPropertiesFormat && namespace.displayControl.showHistorySearchInput">
                     <input type="text" class="form-control"
                            placeholder="{{'Component.Namespace.Master.Items.Body.FilterByKey' | translate }}"
                            ng-model="namespace.HistorySearchKey" ng-change="searchHistory(namespace)">

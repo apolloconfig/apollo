@@ -189,8 +189,10 @@ public class PropertyResolver implements ConfigTextResolver {
       // update item
     } else if (!StringUtils.equals(newValue, oldItem.getValue())
         || lineCounter != oldItem.getLineNum()) {
-      changeSets.addUpdateItem(buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue,
-          oldItem.getComment(), lineCounter));
+      ItemDTO updatedItem = buildNormalItem(oldItem.getId(), namespaceId, newKey, newValue,
+          oldItem.getComment(), lineCounter);
+      updatedItem.setType(oldItem.getType());
+      changeSets.addUpdateItem(updatedItem);
     }
     keyMapOldItem.remove(newKey);
   }
