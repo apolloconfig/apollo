@@ -262,9 +262,14 @@ public class AccessKeyServiceWithCacheTest {
       });
 
       assertThat(loggingStarted.await(5, TimeUnit.SECONDS)).isTrue();
+      CountDownLatch readStarted = new CountDownLatch(1);
       Future<List<String>> otherAppRead =
-          pool.submit(() -> accessKeyServiceWithCache.getAvailableSecrets("appB"));
-      assertThat(otherAppRead.get(200, TimeUnit.MILLISECONDS)).isEmpty();
+          pool.submit(() -> {
+            readStarted.countDown();
+            return accessKeyServiceWithCache.getAvailableSecrets("appB");
+          });
+      assertThat(readStarted.await(5, TimeUnit.SECONDS)).isTrue();
+      assertThat(otherAppRead.get(1, TimeUnit.SECONDS)).isEmpty();
       resumeLogging.countDown();
       update.get(5, TimeUnit.SECONDS);
     } finally {
