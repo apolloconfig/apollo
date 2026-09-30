@@ -34,6 +34,7 @@ Apollo 3.0.0
 * [Fix: handle encoded and literal-percent keys, preserve item types and audit display names, enforce full namespace name limits, report partial import failures and honor overwrite selections, restore token actions and audit filters, show gray-rule labels, and correct restricted namespace visibility, API error responses and namespace views](https://github.com/apolloconfig/apollo/pull/5681)
 * [Fix: restore service startup on JDK 26, recover background console logs, and consolidate startup log configuration](https://github.com/apolloconfig/apollo/pull/5682)
 * [Fix: snapshot AccessKey cache under lock to avoid concurrent iteration failures](https://github.com/apolloconfig/apollo/pull/5678)
+* [Fix: support open-ended audit date filters and align release regression checks with supported Portal behavior](https://github.com/apolloconfig/apollo/pull/5684)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/18?closed=1)
