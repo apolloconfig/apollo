@@ -43,8 +43,8 @@ public interface ApolloAuditLogQueryApi {
    * Query AuditLogs by operator name and time limit and page
    *
    * @param opName    operation name of querying
-   * @param startDate expect result after or equal this time
-   * @param endDate   expect result before or equal this time
+   * @param startDate expect result after or equal this time, or null for no lower bound
+   * @param endDate   expect result before or equal this time, or null for no upper bound
    * @param page      index from 0
    * @param size      size of a page
    * @return List of ApolloAuditLogDTO

@@ -54,12 +54,24 @@ for (const cleared of [null, undefined, '']) {
     });
 }
 
-test('clearing one bound preserves the other bound', () => {
-    const { scope, requests } = controller();
-    const date = '2026-09-26T15:15:00.000Z';
-    scope.searchByOpNameAndDate('operation', date, date);
-    scope.searchByOpNameAndDate('operation', null, date);
-    assert.deepEqual(requests.at(-1), ['operation', null, date, 0, 10]);
-    scope.searchByOpNameAndDate('operation', date, null);
-    assert.deepEqual(requests.at(-1), ['operation', date, null, 0, 10]);
-});
+for (const cleared of [null, undefined, '']) {
+    for (const bound of ['start', 'end']) {
+        test('clearing ' + bound + ' preserves the other bound when paging: ' + String(cleared), () => {
+            const { scope, requests, respond } = controller();
+            const date = '2026-09-26T15:15:00.000Z';
+            scope.searchByOpNameAndDate('operation', date, date);
+            respond([{ id: 1 }]);
+            assert.equal(scope.hasLoadAll, true);
+            scope.searchByOpNameAndDate('operation',
+                bound === 'start' ? cleared : date, bound === 'end' ? cleared : date);
+            const start = bound === 'start' ? null : date;
+            const end = bound === 'end' ? null : date;
+            assert.deepEqual(requests.at(-1), ['operation', start, end, 0, 10]);
+            assert.equal(scope.auditLogList.length, 0);
+            assert.equal(scope.hasLoadAll, false);
+            respond(Array.from({ length: 10 }, (_, id) => ({ id })));
+            scope.getMoreAuditLogs();
+            assert.deepEqual(requests.at(-1), ['operation', start, end, 1, 10]);
+        });
+    }
+}

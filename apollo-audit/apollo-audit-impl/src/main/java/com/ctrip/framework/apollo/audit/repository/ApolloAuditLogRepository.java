@@ -28,6 +28,12 @@ public interface ApolloAuditLogRepository extends JpaRepository<ApolloAuditLog, 
 
   List<ApolloAuditLog> findByOpName(String opName, Pageable page);
 
+  List<ApolloAuditLog> findByOpNameAndDataChangeCreatedTimeGreaterThanEqual(String opName,
+      Date startDate, Pageable pageable);
+
+  List<ApolloAuditLog> findByOpNameAndDataChangeCreatedTimeLessThanEqual(String opName,
+      Date endDate, Pageable pageable);
+
   List<ApolloAuditLog> findByOpNameAndDataChangeCreatedTimeGreaterThanEqualAndDataChangeCreatedTimeLessThanEqual(
       String opName, Date startDate, Date endDate, Pageable pageable);
 

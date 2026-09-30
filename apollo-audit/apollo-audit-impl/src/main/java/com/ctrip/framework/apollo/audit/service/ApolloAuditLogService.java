@@ -66,6 +66,17 @@ public class ApolloAuditLogService {
   public List<ApolloAuditLog> findByOpNameAndTime(String opName, Date startDate, Date endDate,
       int page, int size) {
     Pageable pageable = pageSortByTime(page, size);
+    if (startDate == null && endDate == null) {
+      return logRepository.findByOpName(opName, pageable);
+    }
+    if (endDate == null) {
+      return logRepository.findByOpNameAndDataChangeCreatedTimeGreaterThanEqual(opName, startDate,
+          pageable);
+    }
+    if (startDate == null) {
+      return logRepository.findByOpNameAndDataChangeCreatedTimeLessThanEqual(opName, endDate,
+          pageable);
+    }
     return logRepository
         .findByOpNameAndDataChangeCreatedTimeGreaterThanEqualAndDataChangeCreatedTimeLessThanEqual(
             opName, startDate, endDate, pageable);
