@@ -217,8 +217,7 @@ CREATE TABLE `UserTokenAudit` (
   PRIMARY KEY (`Id`),
   KEY `IX_DataChange_LastTime` (`DataChange_LastTime`),
   KEY `IX_TokenId` (`TokenId`),
-  KEY `IX_UserId` (`UserId`),
-  CONSTRAINT `FK_UserTokenAudit_TokenId` FOREIGN KEY (`TokenId`) REFERENCES `UserToken` (`Id`) ON DELETE SET NULL
+  KEY `IX_UserId` (`UserId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户访问token审计表';
 
 -- Dump of table favorite
