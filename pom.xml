@@ -60,7 +60,7 @@
 	</developers>
 
 	<properties>
-		<revision>3.0.0</revision>
+		<revision>3.1.0-SNAPSHOT</revision>
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<apollo-java.version>2.5.0</apollo-java.version>
