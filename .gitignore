@@ -33,3 +33,6 @@ target
 *.orig
 .flattened-pom.xml
 
+docs/node_modules
+docs/output
+docs/.clarify.log
