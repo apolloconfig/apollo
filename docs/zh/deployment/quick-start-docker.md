@@ -34,25 +34,29 @@ docker -v
 
 > 如果使用的是 arm 架构的机器，例如 mac m1，执行 `docker-compose -f docker-compose-arm64.yml up`
 
-搜索所有`apollo-quick-start`开头的日志，看到以下日志说明启动成功：
+Apollo 3.0.0 及以后的 Quick Start 镜像在前台运行一个包含 Config Service、Admin Service 和 Portal 的 Java 进程，应用日志默认同时输出到控制台和 `/apollo-quick-start/apollo-service.log`。
+
+在 `apollo-quick-start` 的日志中，看到下面三个应用上下文的 `isActive: true`，说明三个服务都已完成启动；最后的 `portalContext` 日志出现后，可以访问 http://localhost:8070。
+
 ```log
-apollo-quick-start    | ==== starting service ====
-apollo-quick-start    | Service logging file is ./service/apollo-service.log
-apollo-quick-start    | Started [45]
-apollo-quick-start    | Waiting for config service startup.......
-apollo-quick-start    | Config service started. You may visit http://localhost:8080 for service status now!
-apollo-quick-start    | Waiting for admin service startup......
-apollo-quick-start    | Admin service started
-apollo-quick-start    | ==== starting portal ====
-apollo-quick-start    | Portal logging file is ./portal/apollo-portal.log
-apollo-quick-start    | Started [254]
-apollo-quick-start    | Waiting for portal startup.......
-apollo-quick-start    | Portal started. You can visit http://localhost:8070 now!
+apollo-quick-start | ... [starting:config] : configContext [application-1] isActive: true
+apollo-quick-start | ... [starting:admin] : adminContext [application-2] isActive: true
+apollo-quick-start | ... [starting:portal] : portalContext [application-3] isActive: true
 ```
+
+示例省略了时间、日志级别等前缀，应用上下文 ID 也可能不同。仅看到 Spring Boot 启动横幅不能确认服务已启动成功。后台启动容器时，可使用 `docker logs -f apollo-quick-start` 查看启动进度。
+
+如果使用尚未启用控制台应用日志的 3.0.0 镜像，或将 `LOG_APPENDERS` 设置为 `FILE`，可查看文件日志确认启动状态：
+
+```bash
+docker exec apollo-quick-start tail -n 100 /apollo-quick-start/apollo-service.log
+```
+
+可在 `docker-compose.yml` 的 `apollo-quick-start` 服务中配置 `LOG_APPENDERS: 'FILE,CONSOLE'`，同时输出到文件和控制台。修改环境变量后，需要重新创建容器才能生效。
 
 > 注1：数据库的端口映射为13306，所以如果希望在宿主机上访问数据库，可以通过localhost:13306，用户名是root，密码留空。
 
-> 注2：如要查看更多服务的日志，可以通过`docker exec -it apollo-quick-start bash`登录， 然后到`/apollo-quick-start/service`和`/apollo-quick-start/portal`下查看日志信息。
+> 注2：Config Service、Admin Service 和 Portal 的文件日志统一位于 `/apollo-quick-start/apollo-service.log`，可通过 `docker exec -it apollo-quick-start bash` 登录容器查看。
 
 ## 三、使用Apollo配置中心
 
