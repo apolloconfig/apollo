@@ -34,8 +34,6 @@ Execute `docker-compose up` in the docker-quick-start directory, the first execu
 
 > If you are using a machine with an ARM architecture, such as a Mac M1, execute `docker-compose -f docker-compose-arm64.yml up`
 
-Quick Start images for Apollo 3.0.0 and later run one foreground Java process containing Config Service, Admin Service, and Portal. Application logs are written to both the console and `/apollo-quick-start/apollo-service.log` by default.
-
 The following `isActive: true` messages in the `apollo-quick-start` logs indicate that all three application contexts have finished starting. After the final `portalContext` message, visit http://localhost:8070.
 
 ```log

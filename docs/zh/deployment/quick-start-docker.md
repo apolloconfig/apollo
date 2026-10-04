@@ -34,8 +34,6 @@ docker -v
 
 > 如果使用的是 arm 架构的机器，例如 mac m1，执行 `docker-compose -f docker-compose-arm64.yml up`
 
-Apollo 3.0.0 及以后的 Quick Start 镜像在前台运行一个包含 Config Service、Admin Service 和 Portal 的 Java 进程，应用日志默认同时输出到控制台和 `/apollo-quick-start/apollo-service.log`。
-
 在 `apollo-quick-start` 的日志中，看到下面三个应用上下文的 `isActive: true`，说明三个服务都已完成启动；最后的 `portalContext` 日志出现后，可以访问 http://localhost:8070。
 
 ```log
