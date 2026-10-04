@@ -34,25 +34,17 @@ Execute `docker-compose up` in the docker-quick-start directory, the first execu
 
 > If you are using a machine with an ARM architecture, such as a Mac M1, execute `docker-compose -f docker-compose-arm64.yml up`
 
-Search all the logs starting with `apollo-quick-start` and see the following logs indicating a successful start.
+The following `isActive: true` messages in the `apollo-quick-start` logs indicate that all three application contexts have finished starting. After the final `portalContext` message, visit http://localhost:8070.
+
 ```log
-apollo-quick-start | ==== starting service ====
-apollo-quick-start | Service logging file is . /service/apollo-service.log
-apollo-quick-start | Started [45]
-apollo-quick-start | Waiting for config service startup .......
-apollo-quick-start | Config service started. You may visit http://localhost:8080 for service status now!
-apollo-quick-start | Waiting for admin service startup......
-apollo-quick-start | Admin service started
-apollo-quick-start | ==== starting portal ====
-apollo-quick-start | Portal logging file is . /portal/apollo-portal.log
-apollo-quick-start | Started [254]
-apollo-quick-start | Waiting for portal startup .......
-apollo-quick-start | Portal started. You can visit http://localhost:8070 now!
+apollo-quick-start | ... [starting:config] : configContext [application-1] isActive: true
+apollo-quick-start | ... [starting:admin] : adminContext [application-2] isActive: true
+apollo-quick-start | ... [starting:portal] : portalContext [application-3] isActive: true
 ```
 
 > Note 1: The database port is mapped to 13306, so if you want to access the database on the host, you can do so via localhost:13306, username is root and password is left blank.
 
-> Note 2: If you want to view more service logs, you can log in via `docker exec -it apollo-quick-start bash`, then go to `/apollo-quick-start/service` and `/apollo-quick-start/portal` to view the log information.
+> Note 2: Config Service, Admin Service, and Portal share `/apollo-quick-start/apollo-service.log`. You can inspect it by opening a shell with `docker exec -it apollo-quick-start bash`.
 
 ## III. Using Apollo Configuration Center
 
