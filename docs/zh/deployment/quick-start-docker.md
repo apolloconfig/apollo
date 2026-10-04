@@ -44,16 +44,6 @@ apollo-quick-start | ... [starting:admin] : adminContext [application-2] isActiv
 apollo-quick-start | ... [starting:portal] : portalContext [application-3] isActive: true
 ```
 
-示例省略了时间、日志级别等前缀，应用上下文 ID 也可能不同。仅看到 Spring Boot 启动横幅不能确认服务已启动成功。后台启动容器时，可使用 `docker logs -f apollo-quick-start` 查看启动进度。
-
-如果使用尚未启用控制台应用日志的 3.0.0 镜像，或将 `LOG_APPENDERS` 设置为 `FILE`，可查看文件日志确认启动状态：
-
-```bash
-docker exec apollo-quick-start tail -n 100 /apollo-quick-start/apollo-service.log
-```
-
-可在 `docker-compose.yml` 的 `apollo-quick-start` 服务中配置 `LOG_APPENDERS: 'FILE,CONSOLE'`，同时输出到文件和控制台。修改环境变量后，需要重新创建容器才能生效。
-
 > 注1：数据库的端口映射为13306，所以如果希望在宿主机上访问数据库，可以通过localhost:13306，用户名是root，密码留空。
 
 > 注2：Config Service、Admin Service 和 Portal 的文件日志统一位于 `/apollo-quick-start/apollo-service.log`，可通过 `docker exec -it apollo-quick-start bash` 登录容器查看。

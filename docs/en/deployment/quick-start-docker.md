@@ -44,16 +44,6 @@ apollo-quick-start | ... [starting:admin] : adminContext [application-2] isActiv
 apollo-quick-start | ... [starting:portal] : portalContext [application-3] isActive: true
 ```
 
-The example omits timestamps, log levels, and other prefixes; context IDs may also differ. The Spring Boot banner alone does not confirm successful startup. If the containers run in the background, use `docker logs -f apollo-quick-start` to follow startup progress.
-
-For a 3.0.0 image that has not enabled console application logs, or when `LOG_APPENDERS` is set to `FILE`, check the file log for startup status:
-
-```bash
-docker exec apollo-quick-start tail -n 100 /apollo-quick-start/apollo-service.log
-```
-
-Set `LOG_APPENDERS: 'FILE,CONSOLE'` in the `apollo-quick-start` service's environment in `docker-compose.yml` to write application logs to both destinations. Recreate the container after changing its environment.
-
 > Note 1: The database port is mapped to 13306, so if you want to access the database on the host, you can do so via localhost:13306, username is root and password is left blank.
 
 > Note 2: Config Service, Admin Service, and Portal share `/apollo-quick-start/apollo-service.log`. You can inspect it by opening a shell with `docker exec -it apollo-quick-start bash`.
