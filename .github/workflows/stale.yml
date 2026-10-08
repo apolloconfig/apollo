@@ -1,0 +1,92 @@
+#
+# Copyright 2026 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+name: Mark stale issues and pull requests
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          days-before-issue-stale: 30
+          days-before-issue-close: 7
+          days-before-pr-stale: 30
+          days-before-pr-close: 14
+
+          stale-issue-label: stale
+          stale-pr-label: stale
+
+          exempt-issue-labels: >-
+            bug,
+            discussion,
+            enhancement,
+            feature,
+            feature request,
+            help wanted,
+            info,
+            need investigation,
+            tips
+          exempt-pr-labels: >-
+            bug,
+            discussion,
+            enhancement,
+            feature,
+            feature request,
+            help wanted,
+            info,
+            need investigation,
+            tips
+
+          exempt-all-milestones: true
+          exempt-all-assignees: true
+          remove-stale-when-updated: true
+
+          stale-issue-message: >-
+            This issue has been automatically marked as stale because it has not
+            had activity in the last 30 days. It will be closed in 7 days unless
+            it is tagged "help wanted" or other activity occurs. Thank you for
+            your contributions.
+          close-issue-message: >-
+            This issue has been automatically closed because it has not had
+            activity in the last 7 days. If this issue is still valid, please
+            ping a maintainer and ask them to label it as "help wanted".
+            Thank you for your contributions.
+
+          stale-pr-message: >-
+            This pull request has been automatically marked as stale because it
+            has not had activity in the last 30 days. It will be closed in 14
+            days if no further activity occurs. Please feel free to give a
+            status update now, ping for review, or re-open when it's ready.
+            Thank you for your contributions!
+          close-pr-message: >-
+            This pull request has been automatically closed because it has not
+            had activity in the last 14 days. Please feel free to give a status
+            update now, ping for review, or re-open when it's ready.
+            Thank you for your contributions!
+
+          close-issue-reason: completed
+          operations-per-run: 60
