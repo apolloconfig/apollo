@@ -1,0 +1,46 @@
+#
+# Copyright 2024 Apollo Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Lists which methods a pull request changes that can reach a data write, each with the call chain
+# that proves it, in the job summary. It posts no comments and fails nothing.
+# What counts as a write is in .github/skimit.policy. See https://github.com/PeterToulouras/skimit
+
+name: skimit
+
+on:
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+      - uses: PeterToulouras/skimit@594495967844bc2176db05d80c78a5fad182b83a # v0
+        # Report only: nothing here can fail the pull request.
+        continue-on-error: true
+        with:
+          version: 0.1.5
+          policy: .github/skimit.policy

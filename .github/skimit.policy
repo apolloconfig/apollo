@@ -1,0 +1,14 @@
+# What counts as critical for the skimit job (.github/workflows/skimit.yml): every write through a
+# repository, and every portal call that writes through the admin service over HTTP.
+sink DATA_WRITE *Repository#save*
+sink DATA_WRITE *Repository#insert*
+sink DATA_WRITE *Repository#update*
+sink DATA_WRITE *Repository#delete*
+sink DATA_WRITE *Repository#remove*
+sink DATA_WRITE *Repository#batchDelete*
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#create*
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#update*
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#delete*
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#rollback*
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#enable
+sink ADMIN_WRITE com.ctrip.framework.apollo.portal.api.AdminServiceAPI$*API#disable
