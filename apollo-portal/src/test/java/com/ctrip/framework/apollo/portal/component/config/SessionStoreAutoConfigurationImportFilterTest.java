@@ -17,8 +17,11 @@
 package com.ctrip.framework.apollo.portal.component.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.mock.env.MockEnvironment;
 
 /**
@@ -50,6 +53,13 @@ class SessionStoreAutoConfigurationImportFilterTest {
   @Test
   void shouldLeaveBootDefaultsWhenStoreTypeIsAbsent() {
     assertThat(matches(null)).containsOnly(true);
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"jbdc", "", "mongodb"})
+  void shouldRejectUnsupportedStoreTypes(String storeType) {
+    assertThatIllegalArgumentException().isThrownBy(() -> matches(storeType))
+        .withMessage("spring.session.store-type must be jdbc, redis or none");
   }
 
   private boolean[] matches(String storeType) {

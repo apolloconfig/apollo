@@ -20,6 +20,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationImportFilter;
 import org.springframework.boot.autoconfigure.AutoConfigurationMetadata;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import org.springframework.util.Assert;
 
 /**
  * Preserves Apollo's explicit Session store selection with Boot 4's modular auto-configuration.
@@ -29,10 +30,17 @@ public class SessionStoreAutoConfigurationImportFilter
 
   private Environment environment;
 
+  /**
+   * Selects only the configured store and rejects invalid values before local sessions can be used.
+   */
   @Override
   public boolean[] match(String[] autoConfigurationClasses,
       AutoConfigurationMetadata autoConfigurationMetadata) {
     String storeType = environment.getProperty("spring.session.store-type");
+    Assert.isTrue(
+        storeType == null || "jdbc".equalsIgnoreCase(storeType)
+            || "redis".equalsIgnoreCase(storeType) || "none".equalsIgnoreCase(storeType),
+        "spring.session.store-type must be jdbc, redis or none");
     boolean[] matches = new boolean[autoConfigurationClasses.length];
     for (int i = 0; i < autoConfigurationClasses.length; i++) {
       String candidate = autoConfigurationClasses[i];

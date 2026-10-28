@@ -78,6 +78,13 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-session-data-redis</artifactId>
+      <exclusions>
+        <!-- Preserve the existing opt-in Redis client instead of creating a default connection. -->
+        <exclusion>
+          <groupId>io.lettuce</groupId>
+          <artifactId>lettuce-core</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

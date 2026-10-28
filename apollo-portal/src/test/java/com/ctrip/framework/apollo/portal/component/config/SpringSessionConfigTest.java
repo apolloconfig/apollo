@@ -18,19 +18,31 @@ package com.ctrip.framework.apollo.portal.component.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.Duration;
 import java.util.UUID;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.availability.AvailabilityChangeEvent;
+import org.springframework.boot.availability.LivenessState;
+import org.springframework.boot.availability.ReadinessState;
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.health.contributor.HealthIndicator;
+import org.springframework.boot.health.contributor.Status;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
@@ -50,6 +62,73 @@ class SpringSessionConfigTest {
 
   private WebApplicationContextRunner contextRunner(String database) {
     return contextRunner(database, new WebApplicationContextRunner());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"jdbc", "none"})
+  void shouldNotCreateAnUnusedRedisConnectionOrHealthContributor(String storeType) {
+    contextRunner(UUID.randomUUID().toString()).withPropertyValues(
+        "spring.session.store-type=" + storeType, "management.endpoint.health.show-details=always",
+        "management.endpoint.health.show-components=always").run(context -> {
+          assertThat(context).hasNotFailed().doesNotHaveBean(RedisConnectionFactory.class)
+              .doesNotHaveBean("redisHealthContributor")
+              .doesNotHaveBean("redisReactiveHealthContributor");
+          // Context runners do not publish SpringApplication's availability events.
+          AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
+          AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
+          assertThat(context.getBean(HealthEndpoint.class).health().getStatus())
+              .as("Health response: %s",
+                  new ObjectMapper()
+                      .writeValueAsString(context.getBean(HealthEndpoint.class).health()))
+              .isEqualTo(Status.UP);
+        });
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"jdbc", "none", "redis"})
+  void shouldRetainHealthChecksForExplicitRedisConnections(String storeType) {
+    RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
+    when(connectionFactory.getConnection())
+        .thenThrow(new RedisConnectionFailureException("Redis is unavailable"));
+    contextRunner(UUID.randomUUID().toString())
+        .withPropertyValues("spring.session.store-type=" + storeType)
+        .withBean(RedisConnectionFactory.class, () -> connectionFactory).run(context -> {
+          assertThat(context).hasNotFailed().hasBean("redisHealthContributor");
+          assertThat(
+              context.getBean("redisHealthContributor", HealthIndicator.class).health().getStatus())
+              .isEqualTo(Status.DOWN);
+          AvailabilityChangeEvent.publish(context, LivenessState.CORRECT);
+          AvailabilityChangeEvent.publish(context, ReadinessState.ACCEPTING_TRAFFIC);
+          assertThat(context.getBean(HealthEndpoint.class).health().getStatus())
+              .isEqualTo(Status.DOWN);
+        });
+  }
+
+  @Test
+  void shouldRetainRedisHealthWithACustomRepositoryAndJdbcStoreType() {
+    RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
+    when(connectionFactory.getConnection())
+        .thenThrow(new RedisConnectionFailureException("Redis is unavailable"));
+    RedisSessionRepository repository = mock(RedisSessionRepository.class);
+    contextRunner(UUID.randomUUID().toString())
+        .withBean(RedisConnectionFactory.class, () -> connectionFactory)
+        .withBean(SessionRepository.class, () -> repository).run(context -> {
+          assertThat(context).hasNotFailed();
+          assertThat(context.getBean(SessionRepository.class)).isSameAs(repository);
+          assertThat(
+              context.getBean("redisHealthContributor", HealthIndicator.class).health().getStatus())
+              .isEqualTo(Status.DOWN);
+        });
+  }
+
+  @Test
+  void shouldFailStartupForAnUnsupportedStoreType() {
+    contextRunner(UUID.randomUUID().toString()).withPropertyValues("spring.session.store-type=jbdc")
+        .run(context -> {
+          assertThat(context).hasFailed();
+          assertThat(context.getStartupFailure())
+              .hasRootCauseMessage("spring.session.store-type must be jdbc, redis or none");
+        });
   }
 
   private WebApplicationContextRunner contextRunner(String database,
@@ -159,6 +238,12 @@ class SpringSessionConfigTest {
                 authorization, (HttpServletRequest) request,
                 (HttpServletResponse) servletResponse));
         assertThat(response.getCookie("SESSION")).isNotNull();
+        byte[] storedAttribute = new JdbcTemplate(first.getBean(DataSource.class))
+            .queryForObject("SELECT ATTRIBUTE_BYTES FROM SPRING_SESSION_ATTRIBUTES", byte[].class);
+        JsonNode storedJson = new ObjectMapper().readTree(storedAttribute);
+        assertThat(storedJson.path("@class").asText())
+            .isEqualTo(OAuth2AuthorizationRequest.class.getName());
+        assertThat(storedJson.path("state").asText()).isEqualTo(authorization.getState());
 
         MockHttpServletRequest callback = new MockHttpServletRequest();
         callback.setCookies(response.getCookie("SESSION"));
