@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+com.ctrip.framework.apollo.portal.component.config.SessionStoreAutoConfigurationImportFilter
