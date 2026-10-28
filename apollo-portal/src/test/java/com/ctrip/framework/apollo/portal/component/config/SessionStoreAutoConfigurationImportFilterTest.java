@@ -33,21 +33,22 @@ class SessionStoreAutoConfigurationImportFilterTest {
       "org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionAutoConfiguration",
       "org.springframework.boot.session.data.redis.autoconfigure.SessionDataRedisAutoConfiguration",
       "org.springframework.boot.session.autoconfigure.SessionAutoConfiguration",
-      "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration", null};
+      "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
+      "org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration", null};
 
   @Test
   void shouldSelectJdbc() {
-    assertThat(matches("jdbc")).containsExactly(true, false, true, true, true);
+    assertThat(matches("jdbc")).containsExactly(true, false, true, true, false, true);
   }
 
   @Test
   void shouldSelectRedisCaseInsensitively() {
-    assertThat(matches("REDIS")).containsExactly(false, true, true, true, true);
+    assertThat(matches("REDIS")).containsExactly(false, true, true, true, true, true);
   }
 
   @Test
   void shouldDisableAllSessionAutoConfiguration() {
-    assertThat(matches("none")).containsExactly(false, false, false, true, true);
+    assertThat(matches("none")).containsExactly(false, false, false, true, false, true);
   }
 
   @Test
@@ -71,5 +72,14 @@ class SessionStoreAutoConfigurationImportFilterTest {
     }
     filter.setEnvironment(environment);
     return filter.match(CANDIDATES, null);
+  }
+
+  @Test
+  void shouldRetainIndependentlyConfiguredRedisWithJdbcSessions() {
+    SessionStoreAutoConfigurationImportFilter filter =
+        new SessionStoreAutoConfigurationImportFilter();
+    filter.setEnvironment(new MockEnvironment().withProperty("spring.session.store-type", "jdbc")
+        .withProperty("spring.data.redis.host", "redis.example"));
+    assertThat(filter.match(CANDIDATES, null)).containsExactly(true, false, true, true, true, true);
   }
 }

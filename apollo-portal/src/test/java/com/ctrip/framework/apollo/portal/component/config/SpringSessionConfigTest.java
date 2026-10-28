@@ -44,6 +44,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -184,6 +185,30 @@ class SpringSessionConfigTest {
           assertThat(context).hasNotFailed().hasSingleBean(SessionRepository.class)
               .doesNotHaveBean(JdbcIndexedSessionRepository.class);
           assertThat(context.getBean(SessionRepository.class)).isSameAs(repository);
+        });
+  }
+
+  @Test
+  void shouldConfigureRedisSessionsWithoutASuppliedConnectionFactory() {
+    contextRunner(UUID.randomUUID().toString())
+        .withPropertyValues("spring.session.store-type=redis")
+        .run(context -> assertThat(context).hasNotFailed()
+            .hasSingleBean(LettuceConnectionFactory.class)
+            .hasSingleBean(RedisSessionRepository.class)
+            .hasSingleBean(SessionRepositoryFilter.class)
+            .doesNotHaveBean(JdbcIndexedSessionRepository.class));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"jdbc", "none"})
+  void shouldRetainIndependentRedisConfiguration(String storeType) {
+    contextRunner(UUID.randomUUID().toString())
+        .withPropertyValues("spring.session.store-type=" + storeType,
+            "spring.data.redis.host=127.0.0.1", "spring.data.redis.port=6389")
+        .run(context -> {
+          assertThat(context).hasNotFailed().hasSingleBean(LettuceConnectionFactory.class)
+              .hasBean("redisHealthContributor");
+          assertThat(context.getBean(LettuceConnectionFactory.class).getPort()).isEqualTo(6389);
         });
   }
 

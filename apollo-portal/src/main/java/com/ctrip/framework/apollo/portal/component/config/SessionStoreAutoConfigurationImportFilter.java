@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.portal.component.config;
 
 import org.springframework.boot.autoconfigure.AutoConfigurationImportFilter;
 import org.springframework.boot.autoconfigure.AutoConfigurationMetadata;
+import org.springframework.boot.context.properties.bind.Bindable;
+import org.springframework.boot.context.properties.bind.Binder;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 import org.springframework.util.Assert;
@@ -41,11 +43,20 @@ public class SessionStoreAutoConfigurationImportFilter
         storeType == null || "jdbc".equalsIgnoreCase(storeType)
             || "redis".equalsIgnoreCase(storeType) || "none".equalsIgnoreCase(storeType),
         "spring.session.store-type must be jdbc, redis or none");
+    boolean configureRedis = "redis".equalsIgnoreCase(storeType) || Binder.get(environment)
+        .bind("spring.data.redis", Bindable.mapOf(String.class, Object.class)).isBound();
     boolean[] matches = new boolean[autoConfigurationClasses.length];
     for (int i = 0; i < autoConfigurationClasses.length; i++) {
       String candidate = autoConfigurationClasses[i];
       if (storeType == null || candidate == null) {
         matches[i] = true;
+      } else if (candidate
+          .equals("org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration")
+          || candidate.equals(
+              "org.springframework.boot.data.redis.autoconfigure.DataRedisRepositoriesAutoConfiguration")) {
+        // Do not bootstrap unused Redis connections/repositories for JDBC/none. Independent Redis
+        // factories still retain health monitoring, which is deliberately not filtered here.
+        matches[i] = configureRedis;
       } else if (candidate.equals(
           "org.springframework.boot.session.jdbc.autoconfigure.JdbcSessionAutoConfiguration")) {
         matches[i] = "jdbc".equalsIgnoreCase(storeType);
