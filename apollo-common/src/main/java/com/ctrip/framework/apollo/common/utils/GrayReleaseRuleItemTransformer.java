@@ -16,6 +16,8 @@
  */
 package com.ctrip.framework.apollo.common.utils;
 
+import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -33,7 +35,11 @@ public class GrayReleaseRuleItemTransformer {
       new TypeToken<Set<GrayReleaseRuleItemDTO>>() {}.getType();
 
   public static Set<GrayReleaseRuleItemDTO> batchTransformFromJSON(String content) {
-    return gson.fromJson(content, grayReleaseRuleItemsType);
+    if (Strings.isNullOrEmpty(content)) {
+      return Sets.newHashSet();
+    }
+    Set<GrayReleaseRuleItemDTO> ruleItems = gson.fromJson(content, grayReleaseRuleItemsType);
+    return ruleItems == null ? Sets.newHashSet() : ruleItems;
   }
 
   public static String batchTransformToJSON(Set<GrayReleaseRuleItemDTO> ruleItems) {
