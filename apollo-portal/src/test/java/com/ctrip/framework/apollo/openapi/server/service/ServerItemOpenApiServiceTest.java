@@ -42,6 +42,7 @@ import com.ctrip.framework.apollo.portal.entity.vo.NamespaceIdentifier;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.service.ItemService;
 import com.ctrip.framework.apollo.portal.service.NamespaceService;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Unit tests for ServerItemOpenApiService item conversion and delegation behavior.
@@ -381,6 +385,34 @@ class ServerItemOpenApiServiceTest {
 
     verify(itemService).createItem(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER), eq(NAMESPACE),
         any(ItemDTO.class));
+  }
+
+  @Test
+  void createOrUpdateItemShouldCreateWhenLoadItemReportsNotFound() {
+    when(itemService.loadItem(Env.valueOf(ENV), APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .thenThrow(HttpClientErrorException.create(HttpStatus.NOT_FOUND, "Not Found",
+            HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8));
+    OpenItemDTO request = openItem("timeout", "100");
+
+    service.createOrUpdateItem(APP_ID, ENV, CLUSTER, NAMESPACE, request, "operator");
+
+    verify(itemService).createItem(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER), eq(NAMESPACE),
+        any(ItemDTO.class));
+  }
+
+  @Test
+  void createOrUpdateItemShouldPropagateLoadItemFailureOtherThanNotFound() {
+    when(itemService.loadItem(Env.valueOf(ENV), APP_ID, CLUSTER, NAMESPACE, "timeout"))
+        .thenThrow(HttpClientErrorException.create(HttpStatus.INTERNAL_SERVER_ERROR, "error",
+            HttpHeaders.EMPTY, new byte[0], StandardCharsets.UTF_8));
+    OpenItemDTO request = openItem("timeout", "100");
+
+    assertThatThrownBy(
+        () -> service.createOrUpdateItem(APP_ID, ENV, CLUSTER, NAMESPACE, request, "operator"))
+        .isInstanceOf(HttpClientErrorException.class);
+
+    verify(itemService, never()).createItem(eq(APP_ID), eq(Env.valueOf(ENV)), eq(CLUSTER),
+        eq(NAMESPACE), any(ItemDTO.class));
   }
 
   @Test

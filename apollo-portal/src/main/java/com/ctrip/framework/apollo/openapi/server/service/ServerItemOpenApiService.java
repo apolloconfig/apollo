@@ -102,8 +102,7 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
   @Override
   public void createOrUpdateItem(String appId, String env, String clusterName, String namespaceName,
       OpenItemDTO itemDTO, String operator) {
-    ItemDTO existing =
-        itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, itemDTO.getKey());
+    ItemDTO existing = loadItemOrNull(appId, env, clusterName, namespaceName, itemDTO.getKey());
     if (existing == null) {
       try {
         this.createItem(appId, env, clusterName, namespaceName, itemDTO, operator);
@@ -247,6 +246,22 @@ public class ServerItemOpenApiService implements ItemOpenApiService {
     changeSets.setDataChangeLastModifiedBy(operator);
 
     itemService.updateItems(appId, Env.valueOf(env), clusterName, namespaceName, changeSets);
+  }
+
+  /**
+   * AdminService responds with HTTP 404 when an item key is absent. Treat that as missing so
+   * create-or-update can create the item instead of failing the lookup.
+   */
+  private ItemDTO loadItemOrNull(String appId, String env, String clusterName, String namespaceName,
+      String key) {
+    try {
+      return itemService.loadItem(Env.valueOf(env), appId, clusterName, namespaceName, key);
+    } catch (HttpStatusCodeException ex) {
+      if (ex.getStatusCode().value() == HttpStatus.NOT_FOUND.value()) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   private boolean isItemAlreadyExists(RuntimeException ex, String key) {
