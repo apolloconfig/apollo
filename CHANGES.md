@@ -6,6 +6,8 @@ Apollo 3.1.0
 
 ------------------
 * [Change: migrate the deprecated stale bot to GitHub Actions](https://github.com/apolloconfig/apollo/pull/5690)
+* [Change: standardize Maven POM formatting with Spotless SortPom](https://github.com/apolloconfig/apollo/pull/5702)
+* [Docs: clarify consumer token salt configuration and existing-token rotation](https://github.com/apolloconfig/apollo/pull/5703)
 * [Fix: change GrayReleaseRule.Rules to TEXT to avoid utf8mb4 row-size 1118](https://github.com/apolloconfig/apollo/pull/5699)
 
 ------------------
