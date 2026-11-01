@@ -185,10 +185,13 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
         NamespaceService.checkAppNamespaceDeletion(appId, namespaceName).then(function (result) {
             var environments = [];
             var remainingEnvs = [];
+            var uncheckedEnvs = [];
             angular.forEach(result.environments || [], function (environment) {
                 var status = environment.status;
                 if (status === 'REMAINING') {
                     remainingEnvs.push(environment.env);
+                } else if (status === 'UNREACHABLE' || status === 'SKIPPED') {
+                    uncheckedEnvs.push(environment.env);
                 }
                 environments.push($translate.instant(ENV_DELETION_STATUS_KEYS[status], {
                     env: environment.env,
@@ -202,7 +205,8 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
                 namespaceName: namespaceName,
                 existsInPortal: !!result.existsInPortal,
                 environments: environments,
-                remainingEnvs: remainingEnvs
+                remainingEnvs: remainingEnvs,
+                uncheckedEnvs: uncheckedEnvs
             };
             $scope.cleanUpAppNamespaceBtnDisabled = !!result.existsInPortal || remainingEnvs.length === 0;
         }, function (result) {
@@ -212,10 +216,15 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
 
     function cleanUpAppNamespace() {
         var deletionCheck = $scope.appNamespace.deletionCheck;
-        var confirmTip = $translate.instant('Delete.ConfirmCleanUpAppNamespace', {
+        // the server checks every environment again, so the confirmation also names the
+        // environments that could not be checked, which are cleaned up if they recover meanwhile
+        var confirmKey = deletionCheck.uncheckedEnvs.length > 0
+            ? 'Delete.ConfirmCleanUpAppNamespaceWithUncheckedEnvs' : 'Delete.ConfirmCleanUpAppNamespace';
+        var confirmTip = $translate.instant(confirmKey, {
             appId: deletionCheck.appId,
             namespace: deletionCheck.namespaceName,
-            envs: deletionCheck.remainingEnvs.join(', ')
+            envs: deletionCheck.remainingEnvs.join(', '),
+            uncheckedEnvs: deletionCheck.uncheckedEnvs.join(', ')
         });
         if (confirm(confirmTip)) {
             NamespaceService.cleanUpAppNamespace(deletionCheck.appId, deletionCheck.namespaceName).then(function (result) {

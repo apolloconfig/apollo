@@ -73,6 +73,7 @@ test('reopening the page after a partial deletion offers the check and cleans up
     assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
 
     scope.cleanUpAppNamespace();
+    assert.equal(calls.confirms[0].key, 'Delete.ConfirmCleanUpAppNamespace');
     assert.equal(calls.confirms[0].args.envs, 'DEV');
     assert.deepEqual(calls.cleanUps, [['sample-app', 'db-config']]);
     assert.equal(calls.success.length, 1);
@@ -90,7 +91,7 @@ test('an AppNamespace recreated in the Portal is not offered for cleanup', () =>
     assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
 });
 
-test('unreachable and skipped environments are listed but not cleaned up', () => {
+test('unreachable and skipped environments are listed, and alone they do not enable the cleanup', () => {
     const { scope } = page({ lookup: settled(false, { status: 400 }), checks: [{ existsInPortal: false,
         environments: [{ env: 'DEV', status: 'UNREACHABLE', message: 'Admin servers are unresponsive.' },
             { env: 'PRO', status: 'SKIPPED' }] }] });
@@ -101,6 +102,22 @@ test('unreachable and skipped environments are listed but not cleaned up', () =>
         [['Delete.AppNamespaceEnvUnreachable', 'Admin servers are unresponsive.'],
             ['Delete.AppNamespaceEnvSkipped', undefined]]);
     assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
+});
+
+test('the confirmation also names the environments that could not be checked, which the cleanup checks again', () => {
+    const { scope, calls } = page({ lookup: settled(false, { status: 400 }), checks: [{ existsInPortal: false,
+        environments: [{ env: 'DEV', status: 'REMAINING' }, { env: 'FAT', status: 'ABSENT' },
+            { env: 'UAT', status: 'UNREACHABLE', message: 'Admin servers are unresponsive.' },
+            { env: 'PRO', status: 'SKIPPED' }] }, nothingRemains] });
+
+    scope.checkAppNamespaceDeletion();
+    assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
+    scope.cleanUpAppNamespace();
+
+    assert.equal(calls.confirms[0].key, 'Delete.ConfirmCleanUpAppNamespaceWithUncheckedEnvs');
+    assert.equal(calls.confirms[0].args.envs, 'DEV');
+    assert.equal(calls.confirms[0].args.uncheckedEnvs, 'UAT, PRO');
+    assert.deepEqual(calls.cleanUps, [['sample-app', 'db-config']]);
 });
 
 test('the cleanup acts on the checked AppNamespace even if the inputs change afterwards', () => {

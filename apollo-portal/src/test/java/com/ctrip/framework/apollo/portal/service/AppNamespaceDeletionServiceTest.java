@@ -477,6 +477,32 @@ class AppNamespaceDeletionServiceTest {
     assertThat(publishedAppNamespace()).isSameAs(appNamespace);
   }
 
+  @Test
+  void cleanUpShouldAlsoCleanEnvironmentsThatRecoverAfterTheCheck() {
+    givenEnvs(Env.DEV, Env.FAT, Env.PRO);
+    givenActive(Env.DEV, Env.FAT);
+    // FAT is unreachable and PRO is marked down when the page checks, and both recover before the
+    // cleanup, which checks every environment again
+    when(portalSettings.isEnvActive(Env.PRO)).thenReturn(false, true);
+    givenListed(Env.DEV, NAMESPACE);
+    when(namespaceAPI.getAppNamespaces(APP_ID, Env.FAT))
+        .thenThrow(new ServiceException(UNRESPONSIVE)).thenReturn(listing(NAMESPACE));
+    givenListed(Env.PRO, NAMESPACE);
+
+    assertThat(service.checkAppNamespaceDeletion(APP_ID, NAMESPACE).getEnvironments())
+        .extracting(AppNamespaceEnvDeletionStatusBO::getEnv,
+            AppNamespaceEnvDeletionStatusBO::getStatus)
+        .containsExactly(tuple(Env.DEV, Status.REMAINING), tuple(Env.FAT, Status.UNREACHABLE),
+            tuple(Env.PRO, Status.SKIPPED));
+
+    service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR);
+
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.FAT, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verifyNoInteractions(publisher);
+  }
+
   private AppNamespace givenPortalDeletion() {
     AppNamespace appNamespace = portalRow();
     when(appNamespaceService.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR))
