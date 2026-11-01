@@ -50,12 +50,14 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientProperties;
 import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
@@ -85,6 +87,21 @@ public class AuthConfiguration {
   private static final String[] BY_PASS_URLS =
       {"/prometheus/**", "/metrics/**", "/openapi/**", "/vendor/**", "/styles/**", "/scripts/**",
           "/views/**", "/img/**", "/i18n/**", "/prefix-path", "/health", "/signin", "/login.html"};
+
+  /**
+   * Rejects the placeholder identity after custom authentication beans have been registered.
+   */
+  @Bean
+  @Lazy(false)
+  public SmartInitializingSingleton portalAuthenticationValidator(UserInfoHolder userInfoHolder) {
+    return () -> {
+      if (userInfoHolder instanceof DefaultUserInfoHolder) {
+        throw new IllegalStateException("Portal authentication is not configured. "
+            + "Activate auth, ldap or oidc in spring.profiles.active, or configure a custom "
+            + "UserInfoHolder and authentication filter for SSO.");
+      }
+    };
+  }
 
   /**
    * spring.profiles.active = auth

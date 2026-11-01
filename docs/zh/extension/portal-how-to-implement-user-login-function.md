@@ -2,6 +2,12 @@ Apollo是配置管理系统，会提供权限管理（Authorization），理论�
 
 所以Apollo定义了一些SPI用来解耦，Apollo接入登录的关键就是实现这些SPI。
 
+> 从 3.1.0 开始，Portal 不再允许使用固定返回 `apollo` 用户的默认身份实现启动。
+> 如果遗漏认证 profile 或将其拼错，Portal 会启动失败并提示 `Portal authentication is not configured`。
+> 使用内置账号认证时，请设置 `spring.profiles.active=github,auth`（容器可设置 `SPRING_PROFILES_ACTIVE=github,auth`）；
+> 使用 LDAP、OIDC 或自定义 SSO 时，请配置对应认证方式。
+> 自定义 SSO 仍需提供 `UserInfoHolder`、`UserService`，并通过认证过滤器校验请求，不能依赖默认的固定用户身份。
+
 ## 实现方式一：使用Apollo提供的Spring Security简单认证
 可能很多公司并没有统一的登录认证系统，如果自己实现一套会比较麻烦。Apollo针对这种情况，从0.9.0开始提供了利用Spring Security实现的Http Basic简单认证版本。
 
