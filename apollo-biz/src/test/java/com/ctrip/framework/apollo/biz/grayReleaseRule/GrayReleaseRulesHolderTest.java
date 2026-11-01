@@ -174,16 +174,56 @@ public class GrayReleaseRulesHolderTest {
         anotherClientLabel, anotherNamespaceName));
   }
 
+  @Test
+  public void testScanGrayReleaseRulesWithNullRulesShouldBehaveLikeEmptyArray() throws Exception {
+    assertEmptyRulesDoNotMatchClients(null);
+  }
+
+  @Test
+  public void testScanGrayReleaseRulesWithEmptyArrayRulesShouldNotMatchClients() throws Exception {
+    assertEmptyRulesDoNotMatchClients("[]");
+  }
+
+  private void assertEmptyRulesDoNotMatchClients(String rules) throws Exception {
+    String someAppId = "someAppId";
+    String someClusterName = "someClusterName";
+    String someNamespaceName = "someNamespaceName";
+    String someClientAppId = "clientAppId1";
+    String someClientIp = "1.1.1.1";
+    String someClientLabel = "myLabel";
+    Long someReleaseId = 1L;
+
+    GrayReleaseRule someRule = assembleGrayReleaseRule(someAppId, someClusterName,
+        someNamespaceName, rules, someReleaseId, NamespaceBranchStatus.ACTIVE);
+
+    when(bizConfig.grayReleaseRuleScanInterval()).thenReturn(30);
+    when(grayReleaseRuleRepository.findFirst500ByIdGreaterThanOrderByIdAsc(0L))
+        .thenReturn(Lists.newArrayList(someRule));
+
+    grayReleaseRulesHolder.afterPropertiesSet();
+
+    assertNull(grayReleaseRulesHolder.findReleaseIdFromGrayReleaseRule(someClientAppId,
+        someClientIp, someClientLabel, someAppId, someClusterName, someNamespaceName));
+    assertFalse(grayReleaseRulesHolder.hasGrayReleaseRule(someClientAppId, someClientIp,
+        someClientLabel, someNamespaceName));
+  }
+
   private GrayReleaseRule assembleGrayReleaseRule(String appId, String clusterName,
       String namespaceName, List<GrayReleaseRuleItemDTO> ruleItems, long releaseId,
       int branchStatus) {
+    return assembleGrayReleaseRule(appId, clusterName, namespaceName, GSON.toJson(ruleItems),
+        releaseId, branchStatus);
+  }
+
+  private GrayReleaseRule assembleGrayReleaseRule(String appId, String clusterName,
+      String namespaceName, String rules, long releaseId, int branchStatus) {
     GrayReleaseRule rule = new GrayReleaseRule();
     rule.setId(idCounter.incrementAndGet());
     rule.setAppId(appId);
     rule.setClusterName(clusterName);
     rule.setNamespaceName(namespaceName);
     rule.setBranchName("someBranch");
-    rule.setRules(GSON.toJson(ruleItems));
+    rule.setRules(rules);
     rule.setReleaseId(releaseId);
     rule.setBranchStatus(branchStatus);
 

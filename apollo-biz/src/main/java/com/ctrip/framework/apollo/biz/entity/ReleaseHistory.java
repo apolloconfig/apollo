@@ -23,6 +23,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 /**
@@ -55,6 +56,7 @@ public class ReleaseHistory extends BaseEntity {
   @Column(name = "`Operation`")
   private int operation;
 
+  @Lob
   @Column(name = "`OperationContext`", nullable = false)
   private String operationContext;
 

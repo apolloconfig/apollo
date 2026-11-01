@@ -23,6 +23,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 @Entity
@@ -44,6 +45,7 @@ public class GrayReleaseRule extends BaseEntity {
   @Column(name = "`BranchName`", nullable = false)
   private String branchName;
 
+  @Lob
   @Column(name = "`Rules`")
   private String rules;
 
