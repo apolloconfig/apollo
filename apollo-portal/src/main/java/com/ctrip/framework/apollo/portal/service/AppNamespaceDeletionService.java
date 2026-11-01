@@ -65,12 +65,14 @@ public class AppNamespaceDeletionService {
 
   /**
    * Deletes the AppNamespace in the Portal and then in every environment that has it. The Portal
-   * deletion stays committed when an environment fails.
+   * deletion stays committed when an environment fails. The Portal is checked again right before
+   * each environment deletion and after one that failed, and the deletion stops when the
+   * AppNamespace was recreated there.
    *
    * @throws BadRequestException if the AppNamespace is not in the Portal, before any environment
    *     is called
    * @throws ServiceException if an environment failed or was skipped because the health check
-   *     marks it down
+   *     marks it down, or if the AppNamespace was recreated in the Portal during the deletion
    */
   public void deleteAppNamespace(String appId, String namespaceName, String operator) {
     AppNamespace appNamespace =
@@ -79,9 +81,16 @@ public class AppNamespaceDeletionService {
     appId = appNamespace.getAppId();
     namespaceName = appNamespace.getName();
 
-    EnvResults results = deleteInEnvs(appId, namespaceName, operator, false);
+    EnvResults results = deleteInEnvs(appId, namespaceName, operator);
     publisher.publishEvent(new AppNamespaceDeletionEvent(appNamespace));
 
+    if (results.isRecreated()) {
+      throw new ServiceException(
+          "Deleting AppNamespace %s:%s stopped because the AppNamespace was"
+              + " recreated in the Portal during the deletion, and some changes have already taken"
+              + " effect. It was removed from the Portal.%s",
+          appId, namespaceName, results.describe());
+    }
     if (!results.isComplete()) {
       throw new ServiceException("Deleting AppNamespace %s:%s is incomplete, and some changes have"
           + " already taken effect. It was removed from the Portal.%s After these environments"
@@ -106,8 +115,11 @@ public class AppNamespaceDeletionService {
       throw appNamespaceExistsInPortal(appId, namespaceName);
     }
 
-    EnvResults results = deleteInEnvs(appId, namespaceName, operator, true);
+    EnvResults results = deleteInEnvs(appId, namespaceName, operator);
 
+    if (results.isRecreated()) {
+      throw recreatedDuringCleanup(appId, namespaceName, results);
+    }
     if (results.isComplete()) {
       if (results.deletedEnvs.isEmpty()) {
         throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
@@ -134,28 +146,32 @@ public class AppNamespaceDeletionService {
     return new AppNamespaceDeletionCheckBO(appId, namespaceName, existsInPortal, environments);
   }
 
-  private EnvResults deleteInEnvs(String appId, String namespaceName, String operator,
-      boolean cleanup) {
+  private EnvResults deleteInEnvs(String appId, String namespaceName, String operator) {
     EnvResults results = new EnvResults();
-    for (Env env : portalSettings.getAllEnvs()) {
+    List<Env> envs = portalSettings.getAllEnvs();
+    for (int i = 0; i < envs.size(); i++) {
+      Env env = envs.get(i);
       EnvCheck check = checkEnv(env, appId, namespaceName);
       if (check.status == Status.SKIPPED) {
         results.skippedEnvs.add(env);
       } else if (check.status == Status.UNREACHABLE) {
         results.failedEnvs.add(env);
       } else if (check.status == Status.REMAINING) {
-        // a cleanup must not delete an AppNamespace that was recreated in the Portal meanwhile
-        if (cleanup && existsInPortal(appId, namespaceName)) {
-          throw recreatedDuringCleanup(appId, namespaceName, results.deletedEnvs);
+        // nothing is deleted once the AppNamespace was recreated in the Portal meanwhile
+        if (existsInPortal(appId, namespaceName)) {
+          results.remainingEnvs.addAll(envs.subList(i, envs.size()));
+          break;
         }
         // the environment deletes it only while it has the listed id, so it keeps an AppNamespace
         // recreated after the listing
         if (deleteInEnv(env, appId, check.storedName, check.storedId, operator)) {
           results.deletedEnvs.add(env);
-        } else if (cleanup && existsInPortal(appId, namespaceName)) {
+        } else if (existsInPortal(appId, namespaceName)) {
           // the environment may have refused the deletion because the AppNamespace was recreated
-          throw recreatedDuringCleanup(appId, namespaceName, results.deletedEnvs);
-        } else if (!isRemoved(check, checkEnv(env, appId, namespaceName))) {
+          results.remainingEnvs.addAll(envs.subList(i, envs.size()));
+          break;
+        } else if (checkEnv(env, appId, namespaceName).status != Status.ABSENT) {
+          // another deletion or cleanup may have removed it between the listing and the delete
           results.failedEnvs.add(env);
         }
       }
@@ -182,16 +198,6 @@ public class AppNamespaceDeletionService {
     }
   }
 
-  /**
-   * Whether the AppNamespace listed in an environment is gone there because another deletion or
-   * cleanup removed it after the listing. The environment may have one with the same name again,
-   * recreated with another id.
-   */
-  private static boolean isRemoved(EnvCheck listed, EnvCheck recheck) {
-    return recheck.status == Status.ABSENT
-        || (recheck.status == Status.REMAINING && recheck.storedId != listed.storedId);
-  }
-
   private boolean deleteInEnv(Env env, String appId, String namespaceName, long appNamespaceId,
       String operator) {
     try {
@@ -215,15 +221,13 @@ public class AppNamespaceDeletionService {
   }
 
   private static AbstractApolloHttpException recreatedDuringCleanup(String appId,
-      String namespaceName, List<Env> deletedEnvs) {
-    if (deletedEnvs.isEmpty()) {
+      String namespaceName, EnvResults results) {
+    if (results.deletedEnvs.isEmpty()) {
       return appNamespaceExistsInPortal(appId, namespaceName);
     }
-    return new ServiceException(
-        "Cleaning up AppNamespace %s:%s stopped because the AppNamespace"
-            + " was recreated in the Portal during the cleanup, and some changes may already have"
-            + " taken effect. Deleted in %s. The other environments were not changed.",
-        appId, namespaceName, deletedEnvs);
+    return new ServiceException("Cleaning up AppNamespace %s:%s stopped because the AppNamespace"
+        + " was recreated in the Portal during the cleanup, and some changes may already have"
+        + " taken effect.%s", appId, namespaceName, results.describe());
   }
 
   private static void logFailure(String action, Env env, String appId, String namespaceName,
@@ -253,13 +257,19 @@ public class AppNamespaceDeletionService {
   }
 
   /**
-   * The environments where a deletion or a cleanup deleted the AppNamespace, failed or was skipped.
+   * The environments where a deletion or a cleanup deleted the AppNamespace, failed or was skipped,
+   * and the ones it did not change because it stopped when the AppNamespace was recreated.
    */
   private static class EnvResults {
 
     private final List<Env> deletedEnvs = new ArrayList<>();
     private final List<Env> failedEnvs = new ArrayList<>();
     private final List<Env> skippedEnvs = new ArrayList<>();
+    private final List<Env> remainingEnvs = new ArrayList<>();
+
+    private boolean isRecreated() {
+      return !remainingEnvs.isEmpty();
+    }
 
     private boolean isComplete() {
       return failedEnvs.isEmpty() && skippedEnvs.isEmpty();
@@ -273,6 +283,7 @@ public class AppNamespaceDeletionService {
       append(message, "Deleted in", deletedEnvs);
       append(message, "Failed in", failedEnvs);
       append(message, "Skipped because the health check marks them down:", skippedEnvs);
+      append(message, "The remaining environments were not changed:", remainingEnvs);
       return message.toString();
     }
 

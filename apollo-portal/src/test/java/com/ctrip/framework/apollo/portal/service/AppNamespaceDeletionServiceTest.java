@@ -17,6 +17,7 @@
 package com.ctrip.framework.apollo.portal.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,8 +60,8 @@ import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Tests that deleting, cleaning up and checking an AppNamespace name the environments where the
- * work is not complete, that a cleanup never deletes an AppNamespace that is in the Portal, and
- * that no environment deletes one recreated after it was listed.
+ * work is not complete, that a deletion or a cleanup stops when the AppNamespace is in the Portal
+ * again, and that no environment deletes one recreated after it was listed.
  */
 @ExtendWith(MockitoExtension.class)
 class AppNamespaceDeletionServiceTest {
@@ -75,6 +77,9 @@ class AppNamespaceDeletionServiceTest {
       + "is incomplete, and some changes have already taken effect. It was removed from the Portal.";
   private static final String CHECK_AND_CLEAN_UP = " After these environments recover, check the "
       + "AppNamespace on the delete management page and clean up what remains.";
+  private static final String RECREATED_DURING_DELETION = "Deleting AppNamespace "
+      + "sample-app:db-config stopped because the AppNamespace was recreated in the Portal during "
+      + "the deletion, and some changes have already taken effect. It was removed from the Portal.";
   private static final String CLEANUP_INCOMPLETE = "Cleaning up AppNamespace sample-app:db-config "
       + "is incomplete, and some changes may already have taken effect.";
   private static final String CHECK_AGAIN = " Check it again after these environments recover.";
@@ -322,7 +327,8 @@ class AppNamespaceDeletionServiceTest {
     assertThat(error.getMessage()).isEqualTo(
         "Cleaning up AppNamespace sample-app:db-config stopped because the AppNamespace was "
             + "recreated in the Portal during the cleanup, and some changes may already have "
-            + "taken effect. Deleted in [DEV]. The other environments were not changed.");
+            + "taken effect. Deleted in [DEV]. The remaining environments were not changed: "
+            + "[FAT, PRO].");
     verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     verify(namespaceAPI, never()).deleteAppNamespace(eq(Env.FAT), anyString(), anyString(),
         anyLong(), anyString());
@@ -468,12 +474,46 @@ class AppNamespaceDeletionServiceTest {
     givenEnvs(Env.DEV);
     givenActive(Env.DEV);
     AtomicLong idInDev = givenDevRecreatesItWhenTheDeletionArrives();
+    // absent before the DEV deletion, recreated while the deletion is on its way
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null, portalRow());
 
-    service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
+    ServiceException error = assertThrows(ServiceException.class,
+        () -> service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR));
 
-    // the AppNamespace this deletion listed is gone from DEV, and the recreated one stays
+    assertThat(error.getMessage()).isEqualTo(
+        RECREATED_DURING_DELETION + " The remaining environments were not changed: [DEV].");
     assertThat(idInDev.get()).isEqualTo(RECREATED_ID);
     verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    assertThat(publishedAppNamespace()).isSameAs(appNamespace);
+  }
+
+  @Test
+  void deletionShouldStopWhenAppNamespaceIsRecreatedBeforeItReachesAnEnvironment() {
+    AppNamespace appNamespace = givenPortalDeletion();
+    givenEnvs(Env.DEV, Env.PRO);
+    givenActive(Env.DEV, Env.PRO);
+    givenListed(Env.DEV, NAMESPACE);
+    AtomicLong idInPro = new AtomicLong(LISTED_ID);
+    when(namespaceAPI.getAppNamespaces(APP_ID, Env.PRO))
+        .thenAnswer(invocation -> Collections.singletonList(listed(NAMESPACE, idInPro.get())));
+    AtomicReference<AppNamespace> inPortal = new AtomicReference<>();
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE))
+        .thenAnswer(invocation -> inPortal.get());
+    // while this slow deletion is busy in DEV, another user cleans up PRO and recreates the
+    // AppNamespace, in the Portal and in PRO with another id
+    doAnswer(invocation -> {
+      idInPro.set(RECREATED_ID);
+      inPortal.set(portalRow());
+      return null;
+    }).when(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+
+    Throwable error = catchThrowable(() -> service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    // PRO lists the recreated AppNamespace, and the deletion stops before deleting it
+    verify(namespaceAPI, never()).deleteAppNamespace(eq(Env.PRO), anyString(), anyString(),
+        anyLong(), anyString());
+    assertThat(error).isInstanceOf(ServiceException.class).hasMessage(RECREATED_DURING_DELETION
+        + " Deleted in [DEV]. The remaining environments were not changed: [PRO].");
     assertThat(publishedAppNamespace()).isSameAs(appNamespace);
   }
 
