@@ -40,7 +40,9 @@ import org.springframework.stereotype.Service;
  * Deletes an AppNamespace in the Portal and in every environment, cleans up what remains in the
  * environments after the Portal row is gone, and checks what remains without changing anything.
  * The methods are not transactional, so the changes that took effect stay when an environment
- * fails, and the deletion and the cleanup name the environments where they are not complete.
+ * fails, and the deletion and the cleanup name the environments where they are not complete. An
+ * environment deletes only the AppNamespace with the id listed there just before, so it keeps one
+ * recreated under the same name after that.
  */
 @Service
 public class AppNamespaceDeletionService {
@@ -90,8 +92,8 @@ public class AppNamespaceDeletionService {
 
   /**
    * Cleans up what remains of the AppNamespace in the environments after it was removed from the
-   * Portal. The Portal is checked again right before each environment deletion, and the cleanup
-   * stops when the AppNamespace was recreated there.
+   * Portal. The Portal is checked again right before each environment deletion and after one that
+   * failed, and the cleanup stops when the AppNamespace was recreated there.
    *
    * @throws BadRequestException if the AppNamespace is in the Portal before anything was deleted,
    *     or if every environment was checked and none has it
@@ -146,10 +148,14 @@ public class AppNamespaceDeletionService {
         if (cleanup && existsInPortal(appId, namespaceName)) {
           throw recreatedDuringCleanup(appId, namespaceName, results.deletedEnvs);
         }
-        if (deleteInEnv(env, appId, check.storedName, operator)) {
+        // the environment deletes it only while it has the listed id, so it keeps an AppNamespace
+        // recreated after the listing
+        if (deleteInEnv(env, appId, check.storedName, check.storedId, operator)) {
           results.deletedEnvs.add(env);
-        } else if (checkEnv(env, appId, namespaceName).status != Status.ABSENT) {
-          // another deletion or cleanup may have removed it between the listing and the delete
+        } else if (cleanup && existsInPortal(appId, namespaceName)) {
+          // the environment may have refused the deletion because the AppNamespace was recreated
+          throw recreatedDuringCleanup(appId, namespaceName, results.deletedEnvs);
+        } else if (!isRemoved(check, checkEnv(env, appId, namespaceName))) {
           results.failedEnvs.add(env);
         }
       }
@@ -159,23 +165,37 @@ public class AppNamespaceDeletionService {
 
   private EnvCheck checkEnv(Env env, String appId, String namespaceName) {
     if (!portalSettings.isEnvActive(env)) {
-      return new EnvCheck(Status.SKIPPED, null, null);
+      return new EnvCheck(Status.SKIPPED, null, 0, null);
     }
     try {
       // the databases compare names ignoring case, so the environment's own spelling is used
-      String storedName =
-          namespaceAPI.getAppNamespaces(appId, env).stream().map(AppNamespaceDTO::getName)
-              .filter(namespaceName::equalsIgnoreCase).findFirst().orElse(null);
-      return new EnvCheck(storedName == null ? Status.ABSENT : Status.REMAINING, storedName, null);
+      AppNamespaceDTO stored = namespaceAPI.getAppNamespaces(appId, env).stream()
+          .filter(appNamespace -> namespaceName.equalsIgnoreCase(appNamespace.getName()))
+          .findFirst().orElse(null);
+      if (stored == null) {
+        return new EnvCheck(Status.ABSENT, null, 0, null);
+      }
+      return new EnvCheck(Status.REMAINING, stored.getName(), stored.getId(), null);
     } catch (Throwable e) {
       logFailure("Check", env, appId, namespaceName, e);
-      return new EnvCheck(Status.UNREACHABLE, null, e.getMessage());
+      return new EnvCheck(Status.UNREACHABLE, null, 0, e.getMessage());
     }
   }
 
-  private boolean deleteInEnv(Env env, String appId, String namespaceName, String operator) {
+  /**
+   * Whether the AppNamespace listed in an environment is gone there because another deletion or
+   * cleanup removed it after the listing. The environment may have one with the same name again,
+   * recreated with another id.
+   */
+  private static boolean isRemoved(EnvCheck listed, EnvCheck recheck) {
+    return recheck.status == Status.ABSENT
+        || (recheck.status == Status.REMAINING && recheck.storedId != listed.storedId);
+  }
+
+  private boolean deleteInEnv(Env env, String appId, String namespaceName, long appNamespaceId,
+      String operator) {
     try {
-      namespaceAPI.deleteAppNamespace(env, appId, namespaceName, operator);
+      namespaceAPI.deleteAppNamespace(env, appId, namespaceName, appNamespaceId, operator);
       return true;
     } catch (Throwable e) {
       logFailure("Delete", env, appId, namespaceName, e);
@@ -215,17 +235,19 @@ public class AppNamespaceDeletionService {
   }
 
   /**
-   * The status of the AppNamespace in one environment, and the name that environment stores.
+   * The status of the AppNamespace in one environment, and the name and id that environment stores.
    */
   private static class EnvCheck {
 
     private final Status status;
     private final String storedName;
+    private final long storedId;
     private final String message;
 
-    private EnvCheck(Status status, String storedName, String message) {
+    private EnvCheck(Status status, String storedName, long storedId, String message) {
       this.status = status;
       this.storedName = storedName;
+      this.storedId = storedId;
       this.message = message;
     }
   }

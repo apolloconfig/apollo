@@ -20,8 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -43,7 +45,9 @@ import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -54,7 +58,8 @@ import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Tests that deleting, cleaning up and checking an AppNamespace name the environments where the
- * work is not complete, and that a cleanup never deletes an AppNamespace that is in the Portal.
+ * work is not complete, that a cleanup never deletes an AppNamespace that is in the Portal, and
+ * that no environment deletes one recreated after it was listed.
  */
 @ExtendWith(MockitoExtension.class)
 class AppNamespaceDeletionServiceTest {
@@ -62,6 +67,9 @@ class AppNamespaceDeletionServiceTest {
   private static final String APP_ID = "sample-app";
   private static final String NAMESPACE = "db-config";
   private static final String OPERATOR = "apollo";
+  // the id of the AppNamespace that an environment lists, unless a test sets another one
+  private static final long LISTED_ID = 7L;
+  private static final long RECREATED_ID = 8L;
   private static final String UNRESPONSIVE = "Admin servers are unresponsive.";
   private static final String DELETION_INCOMPLETE = "Deleting AppNamespace sample-app:db-config "
       + "is incomplete, and some changes have already taken effect. It was removed from the Portal.";
@@ -102,8 +110,8 @@ class AppNamespaceDeletionServiceTest {
     service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
 
     verify(appNamespaceService).deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
-    verify(namespaceAPI).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     assertThat(publishedAppNamespace()).isSameAs(appNamespace);
   }
 
@@ -120,7 +128,8 @@ class AppNamespaceDeletionServiceTest {
 
     assertThat(error.getMessage())
         .isEqualTo(DELETION_INCOMPLETE + " Failed in [DEV]." + CHECK_AND_CLEAN_UP);
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
     assertThat(publishedAppNamespace()).isSameAs(appNamespace);
   }
 
@@ -137,10 +146,10 @@ class AppNamespaceDeletionServiceTest {
 
     assertThat(error.getMessage()).isEqualTo(DELETION_INCOMPLETE + " Deleted in [DEV]."
         + " Skipped because the health check marks them down: [FAT]." + CHECK_AND_CLEAN_UP);
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.FAT);
     verify(namespaceAPI, never()).deleteAppNamespace(eq(Env.FAT), anyString(), anyString(),
-        anyString());
+        anyLong(), anyString());
   }
 
   @Test
@@ -152,7 +161,7 @@ class AppNamespaceDeletionServiceTest {
     givenListed(Env.DEV, NAMESPACE);
     givenListed(Env.PRO, NAMESPACE);
     doThrow(new ServiceException(UNRESPONSIVE)).when(namespaceAPI).deleteAppNamespace(Env.DEV,
-        APP_ID, NAMESPACE, OPERATOR);
+        APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
 
     ServiceException error = assertThrows(ServiceException.class,
         () -> service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR));
@@ -163,7 +172,7 @@ class AppNamespaceDeletionServiceTest {
             + "Skipped because the health check marks them down: [FAT]. After these environments "
             + "recover, check the AppNamespace on the delete management page and clean up what "
             + "remains.");
-    verify(namespaceAPI).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
   }
 
   @Test
@@ -204,8 +213,9 @@ class AppNamespaceDeletionServiceTest {
 
     service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR);
 
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
-    verify(namespaceAPI, times(1)).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verify(namespaceAPI, times(1)).deleteAppNamespace(Env.PRO, APP_ID, NAMESPACE, LISTED_ID,
+        OPERATOR);
     verify(appNamespaceService, times(1)).deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
     verify(publisher, times(1)).publishEvent(any(AppNamespaceDeletionEvent.class));
   }
@@ -222,7 +232,8 @@ class AppNamespaceDeletionServiceTest {
 
     assertThat(error.getMessage())
         .isEqualTo("appNamespace not exist for appId:sample-app namespaceName:db-config");
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
     verifyNoInteractions(publisher);
   }
 
@@ -239,7 +250,8 @@ class AppNamespaceDeletionServiceTest {
     assertThat(error.getMessage()).isEqualTo(CLEANUP_INCOMPLETE
         + " Skipped because the health check marks them down: [FAT]." + CHECK_AGAIN);
     verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.FAT);
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
   }
 
   @Test
@@ -255,7 +267,8 @@ class AppNamespaceDeletionServiceTest {
 
     assertThat(error.getMessage())
         .isEqualTo(CLEANUP_INCOMPLETE + " Failed in [DEV]." + CHECK_AGAIN);
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
   }
 
   @Test
@@ -265,9 +278,10 @@ class AppNamespaceDeletionServiceTest {
     when(portalSettings.isEnvActive(Env.UAT)).thenReturn(false);
     givenListed(Env.DEV, NAMESPACE);
     givenListed(Env.FAT, NAMESPACE);
-    doNothing().when(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+    doNothing().when(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID,
+        OPERATOR);
     doThrow(new ServiceException(UNRESPONSIVE)).when(namespaceAPI).deleteAppNamespace(Env.FAT,
-        APP_ID, NAMESPACE, OPERATOR);
+        APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
 
     ServiceException error = assertThrows(ServiceException.class,
         () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
@@ -276,7 +290,7 @@ class AppNamespaceDeletionServiceTest {
         "Cleaning up AppNamespace sample-app:db-config is incomplete, and some changes may already "
             + "have taken effect. Deleted in [DEV]. Failed in [FAT]. Skipped because the health "
             + "check marks them down: [UAT]. Check it again after these environments recover.");
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     verifyNoInteractions(publisher);
   }
 
@@ -309,9 +323,9 @@ class AppNamespaceDeletionServiceTest {
         "Cleaning up AppNamespace sample-app:db-config stopped because the AppNamespace was "
             + "recreated in the Portal during the cleanup, and some changes may already have "
             + "taken effect. Deleted in [DEV]. The other environments were not changed.");
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     verify(namespaceAPI, never()).deleteAppNamespace(eq(Env.FAT), anyString(), anyString(),
-        anyString());
+        anyLong(), anyString());
     verify(portalSettings, never()).isEnvActive(Env.PRO);
     verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.PRO);
     verifyNoInteractions(publisher);
@@ -328,7 +342,8 @@ class AppNamespaceDeletionServiceTest {
         () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
 
     assertThat(error.getMessage()).isEqualTo(EXISTS_IN_PORTAL);
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
     verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.PRO);
   }
 
@@ -347,9 +362,9 @@ class AppNamespaceDeletionServiceTest {
 
     service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR);
 
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
     verify(namespaceAPI, never()).deleteAppNamespace(eq(Env.PRO), anyString(), anyString(),
-        anyString());
+        anyLong(), anyString());
     verifyNoInteractions(publisher);
   }
 
@@ -375,7 +390,8 @@ class AppNamespaceDeletionServiceTest {
             tuple(Env.FAT, Status.ABSENT, null), tuple(Env.UAT, Status.UNREACHABLE, UNRESPONSIVE),
             tuple(Env.PRO, Status.SKIPPED, null));
     verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.PRO);
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
     verify(appNamespaceService, never()).deleteAppNamespace(anyString(), anyString(), anyString());
     verifyNoInteractions(publisher);
   }
@@ -394,7 +410,8 @@ class AppNamespaceDeletionServiceTest {
         .extracting(AppNamespaceEnvDeletionStatusBO::getEnv,
             AppNamespaceEnvDeletionStatusBO::getStatus)
         .containsExactly(tuple(Env.DEV, Status.REMAINING));
-    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyString());
+    verify(namespaceAPI, never()).deleteAppNamespace(any(), anyString(), anyString(), anyLong(),
+        anyString());
     verify(appNamespaceService, never()).deleteAppNamespace(anyString(), anyString(), anyString());
     verifyNoInteractions(publisher);
   }
@@ -407,7 +424,7 @@ class AppNamespaceDeletionServiceTest {
 
     service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR);
 
-    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, "DB-Config", OPERATOR);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, "DB-Config", LISTED_ID, OPERATOR);
   }
 
   @Test
@@ -418,13 +435,46 @@ class AppNamespaceDeletionServiceTest {
     when(namespaceAPI.getAppNamespaces(APP_ID, Env.DEV)).thenReturn(listing(NAMESPACE))
         .thenReturn(listing());
     doThrow(new BadRequestException("appNamespace not exist")).when(namespaceAPI)
-        .deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, OPERATOR);
+        .deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
 
     BadRequestException error = assertThrows(BadRequestException.class,
         () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
 
     assertThat(error.getMessage())
         .isEqualTo("appNamespace not exist for appId:sample-app namespaceName:db-config");
+  }
+
+  @Test
+  void cleanUpShouldNotDeleteAppNamespaceRecreatedAfterTheFinalLookup() {
+    givenEnvs(Env.DEV);
+    givenActive(Env.DEV);
+    AtomicLong idInDev = givenDevRecreatesItWhenTheDeletionArrives();
+    // absent at the start and before the DEV deletion, recreated while the deletion is on its way
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null, null,
+        portalRow());
+
+    BadRequestException error = assertThrows(BadRequestException.class,
+        () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    assertThat(error.getMessage()).isEqualTo(EXISTS_IN_PORTAL);
+    assertThat(idInDev.get()).isEqualTo(RECREATED_ID);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    verifyNoInteractions(publisher);
+  }
+
+  @Test
+  void deletionShouldKeepAppNamespaceRecreatedInAnEnvironmentAfterTheFinalLookup() {
+    AppNamespace appNamespace = givenPortalDeletion();
+    givenEnvs(Env.DEV);
+    givenActive(Env.DEV);
+    AtomicLong idInDev = givenDevRecreatesItWhenTheDeletionArrives();
+
+    service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR);
+
+    // the AppNamespace this deletion listed is gone from DEV, and the recreated one stays
+    assertThat(idInDev.get()).isEqualTo(RECREATED_ID);
+    verify(namespaceAPI).deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    assertThat(publishedAppNamespace()).isSameAs(appNamespace);
   }
 
   private AppNamespace givenPortalDeletion() {
@@ -459,15 +509,45 @@ class AppNamespaceDeletionServiceTest {
     when(namespaceAPI.getAppNamespaces(APP_ID, env)).thenReturn(listing(namespaceName));
   }
 
+  /**
+   * Makes DEV list the AppNamespace it has, and recreate it with RECREATED_ID when a deletion
+   * arrives, which is after the caller's final lookup, as if another cleanup removed it and someone
+   * created it again. DEV then deletes only the AppNamespace with the requested id, as the admin
+   * service does. The returned value is the id that DEV has, 0 when it has none.
+   */
+  private AtomicLong givenDevRecreatesItWhenTheDeletionArrives() {
+    AtomicLong idInDev = new AtomicLong(LISTED_ID);
+    when(namespaceAPI.getAppNamespaces(APP_ID, Env.DEV))
+        .thenAnswer(invocation -> Collections.singletonList(listed(NAMESPACE, idInDev.get())));
+    doAnswer(invocation -> {
+      idInDev.set(RECREATED_ID);
+      long requestedId = invocation.getArgument(3);
+      if (requestedId != idInDev.get()) {
+        throw new BadRequestException(
+            "appNamespace %s:%s has id %s instead of %s, it may have" + " been recreated", APP_ID,
+            NAMESPACE, idInDev.get(), requestedId);
+      }
+      idInDev.set(0);
+      return null;
+    }).when(namespaceAPI).deleteAppNamespace(eq(Env.DEV), eq(APP_ID), eq(NAMESPACE), anyLong(),
+        eq(OPERATOR));
+    return idInDev;
+  }
+
   private List<AppNamespaceDTO> listing(String... namespaceNames) {
     List<AppNamespaceDTO> appNamespaces = new ArrayList<>();
     for (String namespaceName : namespaceNames) {
-      AppNamespaceDTO appNamespace = new AppNamespaceDTO();
-      appNamespace.setAppId(APP_ID);
-      appNamespace.setName(namespaceName);
-      appNamespaces.add(appNamespace);
+      appNamespaces.add(listed(namespaceName, LISTED_ID));
     }
     return appNamespaces;
+  }
+
+  private AppNamespaceDTO listed(String namespaceName, long id) {
+    AppNamespaceDTO appNamespace = new AppNamespaceDTO();
+    appNamespace.setId(id);
+    appNamespace.setAppId(APP_ID);
+    appNamespace.setName(namespaceName);
+    return appNamespace;
   }
 
   private AppNamespace publishedAppNamespace() {

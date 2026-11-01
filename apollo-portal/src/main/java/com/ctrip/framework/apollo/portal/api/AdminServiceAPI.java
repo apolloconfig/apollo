@@ -166,9 +166,10 @@ public class AdminServiceAPI {
     }
 
     @ApolloAuditLog(type = OpType.RPC, name = "AppNamespace.deleteInRemote")
-    public void deleteAppNamespace(Env env, String appId, String namespaceName, String operator) {
-      restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}",
-          appId, namespaceName, operator);
+    public void deleteAppNamespace(Env env, String appId, String namespaceName, long appNamespaceId,
+        String operator) {
+      restTemplate.delete(env, "/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"
+          + "&appNamespaceId={appNamespaceId}", appId, namespaceName, operator, appNamespaceId);
     }
   }
 
