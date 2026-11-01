@@ -18,6 +18,8 @@ package com.ctrip.framework.apollo.portal;
 
 
 import com.ctrip.framework.apollo.SkipAuthorizationConfiguration;
+import com.ctrip.framework.apollo.portal.entity.bo.UserInfo;
+import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -25,6 +27,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -32,9 +39,30 @@ import org.springframework.web.client.RestTemplate;
 import jakarta.annotation.PostConstruct;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {PortalApplication.class, SkipAuthorizationConfiguration.class},
+@ActiveProfiles("portal-integration-test")
+@SpringBootTest(
+    classes = {PortalApplication.class, SkipAuthorizationConfiguration.class,
+        AbstractIntegrationTest.TestIdentityConfiguration.class},
     webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationTest {
+
+  /**
+   * Supplies an explicit test identity instead of relying on Portal's placeholder user.
+   */
+  @TestConfiguration
+  @Profile("portal-integration-test")
+  static class TestIdentityConfiguration {
+
+    @Bean
+    @Primary
+    UserInfoHolder testUserInfoHolder() {
+      return () -> {
+        UserInfo user = new UserInfo("apollo");
+        user.setName("apollo");
+        return user;
+      };
+    }
+  }
 
   protected RestTemplate restTemplate = new RestTemplate();
   private AutoCloseable mocks;

@@ -2,6 +2,12 @@ Apollo is a configuration management system and will provide authority managemen
 
 So Apollo defines some SPI's for decoupling and the key to Apollo access login is to implement these SPI's.
 
+> Starting with 3.1.0, Portal refuses to start with the default identity implementation that always returns the `apollo` user.
+> If the authentication profile is omitted or misspelled, startup fails with `Portal authentication is not configured`.
+> For built-in account authentication, set `spring.profiles.active=github,auth` (or `SPRING_PROFILES_ACTIVE=github,auth` in containers).
+> For LDAP, OIDC or custom SSO, configure the corresponding authentication mechanism.
+> Custom SSO must still provide `UserInfoHolder`, `UserService` and an authentication filter that validates requests; it must not rely on the default fixed identity.
+
 ## Implementation 1: Simple authentication using Spring Security provided by Apollo
 
 Apollo provides a simple authentication version of Http Basic using Spring Security since 0.9.0 for this situation.
