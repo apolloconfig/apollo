@@ -36,4 +36,4 @@ We provide template files [intellij-java-google-style.xml](https://github.com/ct
 
 * When crafting commit messages, please adhere to the following conventions: if your commit addresses an existing issue, append "Fixes #XXX" to the end of the commit message (where XXX is the issue number).
 
-* Before submitting a pull request, you need to run `mvn spotless:apply` locally to format the code; this is important for maintaining good coding style in the project.
+* Before submitting a pull request, you need to run `mvn spotless:apply` locally to format Java source files and Maven `pom.xml` files; this is important for maintaining good coding style in the project. POM formatting uses SortPom with two-space indentation and self-closing empty elements. Use Spotless as the formatting baseline for POM files to avoid differences caused by IDE XML formatting or rearrangement settings. Run `mvn spotless:check` to verify formatting; the same command is used by CI.

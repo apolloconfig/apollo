@@ -1393,7 +1393,15 @@ If you don't have access to your company's SSO system, you can use the default v
 
 ### 3.1.5 consumer.token.salt - consumer token salt
 
-You can set a token salt if you will use the open platform API, but ignore it if you don't.
+When using Open API consumer tokens, set `consumer.token.salt` to a random string unique to the installation. For example:
+
+```bash
+openssl rand -hex 32
+```
+
+Configure the generated value in `ApolloPortalDB.ServerConfig` or through `Administrator Tools - System Parameters`. Changes normally take effect in about one minute; wait for the refresh before generating tokens. You can ignore this setting if you do not use consumer tokens.
+
+Changing the salt does not affect existing tokens. To replace a token, a super administrator can delete and recreate its Consumer in Portal. Deletion invalidates the old token and removes the Consumer's role assignments, so record the required permissions beforehand, restore them after recreation, and update the calling applications with the new token.
 
 ### 3.1.6 wiki.address
 

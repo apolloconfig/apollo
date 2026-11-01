@@ -1,4 +1,4 @@
-<?xml version="1.0"  encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright 2024 Apollo Authors
   ~
@@ -15,69 +15,68 @@
   ~ limitations under the License.
   ~
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<parent>
-		<groupId>com.ctrip.framework.apollo</groupId>
-		<artifactId>apollo</artifactId>
-		<version>${revision}</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<modelVersion>4.0.0</modelVersion>
-	<artifactId>apollo-assembly</artifactId>
-	<name>Apollo Assembly</name>
-	<properties>
-		<github.path>${project.artifactId}</github.path>
-	</properties>
-	<dependencies>
-		<!-- apollo -->
-		<dependency>
-			<groupId>com.ctrip.framework.apollo</groupId>
-			<artifactId>apollo-configservice</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.ctrip.framework.apollo</groupId>
-			<artifactId>apollo-adminservice</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.ctrip.framework.apollo</groupId>
-			<artifactId>apollo-portal</artifactId>
-		</dependency>
-	</dependencies>
-	<build>
-		<plugins>
-			<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-resources-plugin</artifactId>
-			<version>3.2.0</version>
-			<executions>
-				<execution>
-					<id>copy-resources</id>
-					<phase>validate</phase>
-					<goals>
-						<goal>copy-resources</goal>
-					</goals>
-					<configuration>
-						<outputDirectory>${project.build.directory}/classes/META-INF/sql/profiles</outputDirectory>
-						<resources>
-							<resource>
-								<directory>${project.parent.basedir}/scripts/sql/profiles</directory>
-								<includes>
-									<include>h2-default/apolloconfigdb.sql</include>
-									<include>h2-default/apolloportaldb.sql</include>
-									<include>mysql-database-not-specified/apolloconfigdb.sql</include>
-									<include>mysql-database-not-specified/apolloportaldb.sql</include>
-								</includes>
-							</resource>
-						</resources>
-					</configuration>
-				</execution>
-			</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.ctrip.framework.apollo</groupId>
+    <artifactId>apollo</artifactId>
+    <version>${revision}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>apollo-assembly</artifactId>
+  <name>Apollo Assembly</name>
+  <properties>
+    <github.path>${project.artifactId}</github.path>
+  </properties>
+  <dependencies>
+    <!-- apollo -->
+    <dependency>
+      <groupId>com.ctrip.framework.apollo</groupId>
+      <artifactId>apollo-configservice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ctrip.framework.apollo</groupId>
+      <artifactId>apollo-adminservice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.ctrip.framework.apollo</groupId>
+      <artifactId>apollo-portal</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <phase>validate</phase>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes/META-INF/sql/profiles</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.parent.basedir}/scripts/sql/profiles</directory>
+                  <includes>
+                    <include>h2-default/apolloconfigdb.sql</include>
+                    <include>h2-default/apolloportaldb.sql</include>
+                    <include>mysql-database-not-specified/apolloconfigdb.sql</include>
+                    <include>mysql-database-not-specified/apolloportaldb.sql</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
