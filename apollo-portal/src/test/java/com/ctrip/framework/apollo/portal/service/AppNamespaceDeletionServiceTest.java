@@ -44,6 +44,7 @@ import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatus
 import com.ctrip.framework.apollo.portal.entity.bo.AppNamespaceEnvDeletionStatusBO.Status;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.listener.AppNamespaceDeletionEvent;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,6 +58,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 /**
  * Tests that deleting, cleaning up and checking an AppNamespace name the environments where the
@@ -488,6 +493,48 @@ class AppNamespaceDeletionServiceTest {
   }
 
   @Test
+  void cleanUpShouldNameEnvironmentThatMayHaveDeletedItWhenAppNamespaceIsRecreated() {
+    givenEnvs(Env.DEV, Env.PRO);
+    givenActive(Env.DEV);
+    givenListed(Env.DEV, NAMESPACE);
+    // DEV may have deleted it before the answer got lost, and someone created it again meanwhile
+    doThrow(new ResourceAccessException("Read timed out")).when(namespaceAPI)
+        .deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null, null,
+        portalRow());
+
+    ServiceException error = assertThrows(ServiceException.class,
+        () -> service.cleanUpAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    assertThat(error.getMessage()).isEqualTo(
+        "Cleaning up AppNamespace sample-app:db-config stopped because the AppNamespace was "
+            + "recreated in the Portal during the cleanup, and some changes may already have "
+            + "taken effect. May have been deleted in [DEV]. The remaining environments were "
+            + "not changed: [PRO].");
+    verify(namespaceAPI, never()).getAppNamespaces(APP_ID, Env.PRO);
+    verifyNoInteractions(publisher);
+  }
+
+  @Test
+  void deletionShouldNameEnvironmentThatMayHaveDeletedItWhenAppNamespaceIsRecreated() {
+    AppNamespace appNamespace = givenPortalDeletion();
+    givenEnvs(Env.DEV);
+    givenActive(Env.DEV);
+    givenListed(Env.DEV, NAMESPACE);
+    doThrow(new ResourceAccessException("Read timed out")).when(namespaceAPI)
+        .deleteAppNamespace(Env.DEV, APP_ID, NAMESPACE, LISTED_ID, OPERATOR);
+    // absent before the DEV deletion, recreated while its answer is on its way back
+    when(appNamespaceService.findByAppIdAndName(APP_ID, NAMESPACE)).thenReturn(null, portalRow());
+
+    ServiceException error = assertThrows(ServiceException.class,
+        () -> service.deleteAppNamespace(APP_ID, NAMESPACE, OPERATOR));
+
+    assertThat(error.getMessage())
+        .isEqualTo(RECREATED_DURING_DELETION + " May have been deleted in [DEV].");
+    assertThat(publishedAppNamespace()).isSameAs(appNamespace);
+  }
+
+  @Test
   void deletionShouldStopWhenAppNamespaceIsRecreatedBeforeItReachesAnEnvironment() {
     AppNamespace appNamespace = givenPortalDeletion();
     givenEnvs(Env.DEV, Env.PRO);
@@ -589,9 +636,10 @@ class AppNamespaceDeletionServiceTest {
       idInDev.set(RECREATED_ID);
       long requestedId = invocation.getArgument(3);
       if (requestedId != idInDev.get()) {
-        throw new BadRequestException(
-            "appNamespace %s:%s has id %s instead of %s, it may have" + " been recreated", APP_ID,
-            NAMESPACE, idInDev.get(), requestedId);
+        // the Portal's rest template reports the 400 of the admin service as a client error
+        throw HttpClientErrorException.create(HttpStatus.BAD_REQUEST,
+            "appNamespace has another id, it may have been recreated", HttpHeaders.EMPTY,
+            new byte[0], StandardCharsets.UTF_8);
       }
       idInDev.set(0);
       return null;

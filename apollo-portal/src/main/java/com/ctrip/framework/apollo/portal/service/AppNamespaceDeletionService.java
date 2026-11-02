@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 /**
  * Deletes an AppNamespace in the Portal and in every environment, cleans up what remains in the
@@ -108,7 +109,7 @@ public class AppNamespaceDeletionService {
    *     or if every environment was checked and none has it
    * @throws ServiceException if an environment failed or was skipped because the health check
    *     marks it down, or if the AppNamespace was recreated in the Portal after the cleanup had
-   *     deleted it somewhere
+   *     deleted it somewhere, or may have
    */
   public void cleanUpAppNamespace(String appId, String namespaceName, String operator) {
     if (existsInPortal(appId, namespaceName)) {
@@ -164,11 +165,18 @@ public class AppNamespaceDeletionService {
         }
         // the environment deletes it only while it has the listed id, so it keeps an AppNamespace
         // recreated after the listing
-        if (deleteInEnv(env, appId, check.storedName, check.storedId, operator)) {
+        Throwable failure = deleteInEnv(env, appId, check.storedName, check.storedId, operator);
+        if (failure == null) {
           results.deletedEnvs.add(env);
         } else if (existsInPortal(appId, namespaceName)) {
-          // the environment may have refused the deletion because the AppNamespace was recreated
-          results.remainingEnvs.addAll(envs.subList(i, envs.size()));
+          // a client error means the environment refused the deletion because the AppNamespace was
+          // recreated. After any other failure the deletion may have taken effect, and only its
+          // answer got lost
+          boolean refused = failure instanceof HttpClientErrorException;
+          if (!refused) {
+            results.maybeDeletedEnvs.add(env);
+          }
+          results.remainingEnvs.addAll(envs.subList(refused ? i : i + 1, envs.size()));
           break;
         } else if (checkEnv(env, appId, namespaceName).status != Status.ABSENT) {
           // another deletion or cleanup may have removed it between the listing and the delete
@@ -198,14 +206,17 @@ public class AppNamespaceDeletionService {
     }
   }
 
-  private boolean deleteInEnv(Env env, String appId, String namespaceName, long appNamespaceId,
+  /**
+   * Returns null when the environment deleted the AppNamespace, and otherwise the failure.
+   */
+  private Throwable deleteInEnv(Env env, String appId, String namespaceName, long appNamespaceId,
       String operator) {
     try {
       namespaceAPI.deleteAppNamespace(env, appId, namespaceName, appNamespaceId, operator);
-      return true;
+      return null;
     } catch (Throwable e) {
       logFailure("Delete", env, appId, namespaceName, e);
-      return false;
+      return e;
     }
   }
 
@@ -222,7 +233,7 @@ public class AppNamespaceDeletionService {
 
   private static AbstractApolloHttpException recreatedDuringCleanup(String appId,
       String namespaceName, EnvResults results) {
-    if (results.deletedEnvs.isEmpty()) {
+    if (results.deletedEnvs.isEmpty() && results.maybeDeletedEnvs.isEmpty()) {
       return appNamespaceExistsInPortal(appId, namespaceName);
     }
     return new ServiceException("Cleaning up AppNamespace %s:%s stopped because the AppNamespace"
@@ -258,17 +269,19 @@ public class AppNamespaceDeletionService {
 
   /**
    * The environments where a deletion or a cleanup deleted the AppNamespace, failed or was skipped,
-   * and the ones it did not change because it stopped when the AppNamespace was recreated.
+   * the ones where a failed deletion may have taken effect, and the ones it did not change because
+   * it stopped when the AppNamespace was recreated.
    */
   private static class EnvResults {
 
     private final List<Env> deletedEnvs = new ArrayList<>();
+    private final List<Env> maybeDeletedEnvs = new ArrayList<>();
     private final List<Env> failedEnvs = new ArrayList<>();
     private final List<Env> skippedEnvs = new ArrayList<>();
     private final List<Env> remainingEnvs = new ArrayList<>();
 
     private boolean isRecreated() {
-      return !remainingEnvs.isEmpty();
+      return !remainingEnvs.isEmpty() || !maybeDeletedEnvs.isEmpty();
     }
 
     private boolean isComplete() {
@@ -281,6 +294,7 @@ public class AppNamespaceDeletionService {
     private String describe() {
       StringBuilder message = new StringBuilder();
       append(message, "Deleted in", deletedEnvs);
+      append(message, "May have been deleted in", maybeDeletedEnvs);
       append(message, "Failed in", failedEnvs);
       append(message, "Skipped because the health check marks them down:", skippedEnvs);
       append(message, "The remaining environments were not changed:", remainingEnvs);
