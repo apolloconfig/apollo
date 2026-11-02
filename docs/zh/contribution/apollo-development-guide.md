@@ -87,6 +87,8 @@ mysql 数据库初始化脚本见 本项目 scripts/sql/profiles/mysql-default �
 >
 >-Dlogging.file.name=/your-path/apollo-assembly.log
 
+>注4：如果想用 Docker 在本地启动一个持久化的 MySQL，免去手动建库和导入脚本，见下文 2.1.6。
+
 ### 2.1.4 运行
 对新建的运行配置点击Run或Debug皆可。
 
@@ -122,6 +124,53 @@ mysql 数据库初始化脚本见 本项目 scripts/sql/profiles/mysql-default �
 为了更好的开发和调试，一般我们都会自己创建一个demo项目给自己使用。
 
 可以参考[一、普通应用接入指南](zh/portal/apollo-user-guide#一、普通应用接入指南)创建自己的demo项目。
+
+### 2.1.6 使用 Docker MySQL（可选）
+
+默认的 `github` profile 使用内存 H2，重启后数据会丢失。如果希望本地数据持久化，同时保持和线上一致的 MySQL 行为，可以用仓库根目录的 `docker-compose.local.yml` 启动一个本地 MySQL。
+
+前置条件：已安装并启动 Docker Engine / Docker Desktop，且包含 Docker Compose v2。
+
+```bash
+# 在仓库根目录执行
+docker compose -f docker-compose.local.yml up -d --wait
+
+# 查看容器状态，STATUS 为 healthy 即初始化完成
+docker compose -f docker-compose.local.yml ps
+```
+
+首次启动时，`apolloconfigdb.sql` 和 `apolloportaldb.sql` 会被挂载到 MySQL 的 `/docker-entrypoint-initdb.d`，由官方镜像在数据目录为空时自动执行。之后重启容器不会重复执行，数据保存在 `apollo-mysql-data` volume 中。
+
+初始化完成后，可以在 2.1.3 的 VM options 中使用下面的配置：
+
+```text
+-Dapollo_profile=github,auth
+-Dspring.config-datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloConfigDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.config-datasource.username=root
+-Dspring.config-datasource.password=apollo
+-Dspring.portal-datasource.url=jdbc:mysql://127.0.0.1:3306/ApolloPortalDB?useUnicode=true&characterEncoding=UTF8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+-Dspring.portal-datasource.username=root
+-Dspring.portal-datasource.password=apollo
+```
+
+说明：
+
+- `github` profile 里的初始化模式是 `spring.sql.*-init.mode=embedded`，对 MySQL 不生效，因此 Apollo 启动时不会重复执行建表脚本，建库由 Docker 完成。
+- 3306 端口被占用时，把 `docker-compose.local.yml` 里的 `"3306:3306"` 改成 `"3307:3306"`，再同步修改上面的 JDBC URL。
+- `mysql-default` 脚本里包含 `DROP TABLE IF EXISTS`，只会在空数据目录首次初始化时执行；不要把这些脚本直接导入已有数据的库。
+- 需要重建数据库（例如拉到了新的 schema 或 delta 脚本），或者希望每次启动都从干净环境开始时，执行：
+
+  ```bash
+  docker compose -f docker-compose.local.yml down -v
+  docker compose -f docker-compose.local.yml up -d --wait
+  ```
+
+  `down -v` 会删除 `apollo-mysql-data` volume，下次 `up` 时 Docker 会重新执行 `docker-entrypoint-initdb.d` 中的建库脚本。仅执行 `restart` 或 `down`（不带 `-v`）不会重新初始化。
+- 如果只是日常开发、每次都需要干净环境，且不需要验证 MySQL 特有行为，直接使用默认的 H2 内存模式即可，不必启动 MySQL；只有需要 MySQL 方言、字符集、索引、分页等生产一致性，或需要保留数据时，才使用这套 Docker MySQL。
+
+- 只想停止容器、保留数据时执行 `docker compose -f docker-compose.local.yml down`（不要加 `-v`）。
+- DBeaver 等客户端可以直接连接 `127.0.0.1:3306`，用户名 `root`，密码 `apollo`，不需要停止 Apollo。
+- 这套配置中的密码和端口仅用于本地开发，不要用于生产环境。
 
 ## 2.2 Java样例客户端启动
 
