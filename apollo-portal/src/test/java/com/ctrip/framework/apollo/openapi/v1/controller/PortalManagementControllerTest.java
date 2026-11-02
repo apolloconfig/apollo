@@ -40,6 +40,7 @@ import com.ctrip.framework.apollo.common.exception.BadRequestException;
 import com.ctrip.framework.apollo.common.http.SearchResponseEntity;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerRoleDTO;
 import com.ctrip.framework.apollo.openapi.service.ConsumerService;
 import com.ctrip.framework.apollo.portal.component.PortalSettings;
 import com.ctrip.framework.apollo.portal.component.RestTemplateFactory;
@@ -86,6 +87,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import com.ctrip.framework.apollo.audit.annotation.ApolloAuditLog;
+import com.ctrip.framework.apollo.audit.annotation.OpType;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -144,6 +161,7 @@ public class PortalManagementControllerTest {
   @AfterEach
   public void tearDown() {
     UserIdentityContextHolder.clear();
+    SecurityContextHolder.clearContext();
   }
 
   @Test
@@ -534,6 +552,113 @@ public class PortalManagementControllerTest {
     verify(unifiedPermissionValidator)
         .shouldHideConfigToCurrentUser("someApp", "DEV", "default", "application");
     verifyNoInteractions(namespaceService);
+  }
+
+  @Test
+  public void getConsumerRolesShouldReturnGeneratedModels() {
+    List<OpenConsumerRoleDTO> roles = Collections.singletonList(new OpenConsumerRoleDTO()
+        .type("NamespaceRole").appId("someApp").namespaceName("application").env("DEV"));
+    when(consumerService.findConsumerRoleDetailsByConsumerId(1L)).thenReturn(roles);
+
+    ResponseEntity<List<OpenConsumerRoleDTO>> response = controller.getConsumerRoles(1L);
+
+    assertEquals(200, response.getStatusCode().value());
+    assertSame(roles, response.getBody());
+  }
+
+  @Test
+  public void revokeConsumerRolesShouldUseCurrentPortalUserAsOperator() throws Exception {
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+
+    ResponseEntity<Void> response =
+        controller.revokeConsumerRoles(1L, "NamespaceRole", "someApp", "application", "DEV");
+
+    assertEquals(200, response.getStatusCode().value());
+    verify(consumerService).revokeConsumerRole(1L, "NamespaceRole", "someApp", "application",
+        "DEV", "operator");
+    ApolloAuditLog auditLog = PortalManagementController.class.getMethod("revokeConsumerRoles",
+        Long.class, String.class, String.class, String.class, String.class)
+        .getAnnotation(ApolloAuditLog.class);
+    assertNotNull(auditLog);
+    assertEquals(OpType.DELETE, auditLog.type());
+    assertEquals("ConsumerRole.revoke", auditLog.name());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {UserIdentityConstants.CONSUMER, UserIdentityConstants.USER_TOKEN})
+  public void consumerRoleManagementShouldRejectTokenIdentities(String authType) {
+    UserIdentityContextHolder.setAuthType(authType);
+
+    assertThrows(AccessDeniedException.class, () -> controller.getConsumerRoles(1L));
+    assertThrows(AccessDeniedException.class,
+        () -> controller.revokeConsumerRoles(1L, "AppRole", "someApp", null, null));
+    verifyNoInteractions(consumerService, userInfoHolder);
+  }
+
+  @Test
+  public void consumerRoleManagementShouldRequireSuperAdminThroughMethodSecurity() {
+    SecurityContextHolder.getContext().setAuthentication(
+        new UsernamePasswordAuthenticationToken("user", "password", Collections.emptyList()));
+    try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+      context.registerBean("unifiedPermissionValidator", UnifiedPermissionValidator.class,
+          () -> unifiedPermissionValidator);
+      context.registerBean(PortalManagementController.class, () -> controller);
+      context.register(MethodSecurityTestConfiguration.class);
+      context.refresh();
+      PortalManagementController securedController =
+          context.getBean(PortalManagementController.class);
+
+      when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(false);
+      assertThrows(AccessDeniedException.class, () -> securedController.getConsumerRoles(1L));
+      assertThrows(AccessDeniedException.class,
+          () -> securedController.revokeConsumerRoles(1L, "AppRole", "someApp", null, null));
+      verifyNoInteractions(consumerService);
+
+      when(unifiedPermissionValidator.isSuperAdmin()).thenReturn(true);
+      when(consumerService.findConsumerRoleDetailsByConsumerId(1L))
+          .thenReturn(Collections.emptyList());
+      when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+      assertEquals(200, securedController.getConsumerRoles(1L).getStatusCode().value());
+      assertEquals(200, securedController.revokeConsumerRoles(1L, "AppRole", "someApp", null, null)
+          .getStatusCode().value());
+      verify(consumerService).revokeConsumerRole(1L, "AppRole", "someApp", null, null, "operator");
+    }
+  }
+
+  @Test
+  public void consumerRoleEndpointsShouldBindGeneratedContractAndSerializePlainFields()
+      throws Exception {
+    HttpMessageConverterConfiguration configuration = new HttpMessageConverterConfiguration();
+    MockMvc mvc = MockMvcBuilders.standaloneSetup(controller)
+        .setMessageConverters(configuration.messageConverters(configuration.gson()).getConverters()
+            .toArray(new HttpMessageConverter<?>[0]))
+        .build();
+    List<OpenConsumerRoleDTO> roles =
+        List.of(new OpenConsumerRoleDTO().type("AppRole").appId("someApp"),
+            new OpenConsumerRoleDTO().type("NamespaceRole").appId("someApp")
+                .namespaceName("application").env("DEV"),
+            new OpenConsumerRoleDTO().type("NamespaceRole").appId("someApp")
+                .namespaceName("apollo.xml").env(null));
+    when(consumerService.findConsumerRoleDetailsByConsumerId(1L)).thenReturn(roles);
+    when(userInfoHolder.getUser()).thenReturn(new UserInfo("operator"));
+
+    mvc.perform(get("/openapi/v1/consumers/1/roles")).andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].type").value("AppRole"))
+        .andExpect(jsonPath("$[0].namespaceName").doesNotExist())
+        .andExpect(jsonPath("$[1].type").value("NamespaceRole"))
+        .andExpect(jsonPath("$[1].env").value("DEV"))
+        .andExpect(jsonPath("$[1].namespaceName").value("application"))
+        .andExpect(jsonPath("$[2].env").doesNotExist());
+    mvc.perform(delete("/openapi/v1/consumers/1/roles").param("type", "NamespaceRole")
+        .param("appId", "someApp").param("namespaceName", "application").param("env", "DEV"))
+        .andExpect(status().isOk());
+    verify(consumerService).revokeConsumerRole(1L, "NamespaceRole", "someApp", "application", "DEV",
+        "operator");
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  @EnableMethodSecurity(proxyTargetClass = true)
+  static class MethodSecurityTestConfiguration {
   }
 
   @Test

@@ -171,6 +171,7 @@
                   <useTags>true</useTags>
                   <dateLibrary>java8</dateLibrary>
                   <useSpringBoot4>true</useSpringBoot4>
+                  <openApiNullable>false</openApiNullable>
                 </configOptions>
                 <skipValidateSpec>true</skipValidateSpec>
               </configuration>
