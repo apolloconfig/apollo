@@ -32,6 +32,7 @@ import com.ctrip.framework.apollo.openapi.api.PortalManagementApi;
 import com.ctrip.framework.apollo.openapi.entity.Consumer;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerRole;
 import com.ctrip.framework.apollo.openapi.entity.ConsumerToken;
+import com.ctrip.framework.apollo.openapi.model.OpenConsumerRoleDTO;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateUserTokenRequest;
 import com.ctrip.framework.apollo.openapi.model.OpenCreateUserTokenResponse;
 import com.ctrip.framework.apollo.openapi.model.OpenRotateUserTokenResponse;
@@ -411,6 +412,24 @@ public class PortalManagementController implements PortalManagementApi {
     consumerRoles.addAll(consumerService.assignNamespaceRoleToConsumer(token, appId, namespaceName,
         currentUserId()));
     return ResponseEntity.ok(asObjects(consumerRoles));
+  }
+
+  @Override
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  public ResponseEntity<List<OpenConsumerRoleDTO>> getConsumerRoles(Long consumerId) {
+    requirePortalUserRequest();
+    return ResponseEntity.ok(consumerService.findConsumerRoleDetailsByConsumerId(consumerId));
+  }
+
+  @Override
+  @PreAuthorize(value = "@unifiedPermissionValidator.isSuperAdmin()")
+  @ApolloAuditLog(type = OpType.DELETE, name = "ConsumerRole.revoke")
+  public ResponseEntity<Void> revokeConsumerRoles(Long consumerId, String type, String appId,
+      String namespaceName, String env) {
+    requirePortalUserRequest();
+    consumerService.revokeConsumerRole(consumerId, type, appId, namespaceName, env,
+        currentUserId());
+    return ResponseEntity.ok().build();
   }
 
   @Override
