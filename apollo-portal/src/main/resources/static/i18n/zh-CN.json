@@ -695,7 +695,7 @@
   "Open.Manage.RevokePermission.Success": "撤销权限成功",
   "Open.Manage.RevokePermission.Failed": "撤销权限失败",
   "Open.Manage.ConsumerRole.App": "App",
-  "Open.Manage.ConsumerRole.Namespace": "Namespace（修改与发布）",
+  "Open.Manage.ConsumerRole.Namespace": "Namespace",
   "Open.Manage.ConsumerRole.AllEnvs": "所有环境",
   "Open.Manage.DeleteConsumer.Confirm": "您正在删除 <b>AppId='{{toOperationConsumer.appId}}',应用名称='{{toOperationConsumer.name}}'</b> 的第三方应用，<br>确定要删除吗?",
   "Open.Manage.DeleteConsumer.Success": "第三方应用删除成功",
