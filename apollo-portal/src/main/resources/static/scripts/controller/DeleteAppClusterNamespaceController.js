@@ -45,6 +45,9 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
         SKIPPED: 'Delete.AppNamespaceEnvSkipped'
     };
 
+    // numbers the deletion checks, so that only the answer to the latest one is shown
+    var latestDeletionCheck = 0;
+
     initPermission();
 
     function initPermission() {
@@ -150,6 +153,8 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
         $scope.appNamespace.notInPortal = false;
         $scope.appNamespace.deletionCheck = null;
         $scope.cleanUpAppNamespaceBtnDisabled = true;
+        // a check that is still running no longer belongs to this lookup
+        latestDeletionCheck++;
 
         NamespaceService.loadAppNamespace($scope.appNamespace.appId, $scope.appNamespace.name).then(function (result) {
             $scope.appNamespace.info = $translate.instant('Delete.AppNamespaceInfoContent', {
@@ -181,8 +186,12 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
     function loadAppNamespaceDeletionCheck(appId, namespaceName) {
         $scope.appNamespace.deletionCheck = null;
         $scope.cleanUpAppNamespaceBtnDisabled = true;
+        var check = ++latestDeletionCheck;
 
         NamespaceService.checkAppNamespaceDeletion(appId, namespaceName).then(function (result) {
+            if (check !== latestDeletionCheck) {
+                return;
+            }
             var environments = [];
             var remainingEnvs = [];
             var uncheckedEnvs = [];
@@ -210,6 +219,9 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
             };
             $scope.cleanUpAppNamespaceBtnDisabled = !!result.existsInPortal || remainingEnvs.length === 0;
         }, function (result) {
+            if (check !== latestDeletionCheck) {
+                return;
+            }
             AppUtil.showErrorMsg(result);
         });
     }

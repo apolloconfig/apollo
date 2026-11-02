@@ -23,6 +23,15 @@ const source = fs.readFileSync(path.resolve(__dirname,
 
 const settled = (ok, value) => ({ then: (onOk, onFail) => (ok ? onOk(value) : onFail(value)) });
 const pending = () => ({ then: () => {} });
+// an answer that the test delivers by itself, to answer a request after a later one
+const later = () => {
+    const waiting = [];
+    return {
+        then: (onOk, onFail) => { waiting.push({ onOk, onFail }); },
+        answer: value => waiting.forEach(({ onOk }) => onOk(value)),
+        fail: value => waiting.forEach(({ onFail }) => onFail(value))
+    };
+};
 
 function page({ lookup, checks = [], cleanUp = settled(true, {}), confirmed = true }) {
     const scope = {}, calls = { checks: [], cleanUps: [], errors: [], confirms: [], success: [] };
@@ -39,7 +48,8 @@ function page({ lookup, checks = [], cleanUp = settled(true, {}), confirmed = tr
             loadAppNamespace: () => lookup,
             checkAppNamespaceDeletion: (appId, namespaceName) => {
                 calls.checks.push([appId, namespaceName]);
-                return settled(true, checks.shift());
+                const next = checks.shift();
+                return next && next.then ? next : settled(true, next);
             },
             cleanUpAppNamespace: (appId, namespaceName) => {
                 calls.cleanUps.push([appId, namespaceName]);
@@ -129,6 +139,48 @@ test('the cleanup acts on the checked AppNamespace even if the inputs change aft
     scope.cleanUpAppNamespace();
 
     assert.deepEqual(calls.cleanUps, [['sample-app', 'db-config']]);
+});
+
+test('a check answered after a newer check does not replace the newer result', () => {
+    const older = later();
+    const { scope, calls } = page({ lookup: settled(false, { status: 400 }),
+        checks: [older, remainingInDev, nothingRemains] });
+
+    scope.checkAppNamespaceDeletion();
+    scope.appNamespace.name = 'another';
+    scope.checkAppNamespaceDeletion();
+    older.answer(nothingRemains);
+
+    assert.equal(scope.appNamespace.deletionCheck.namespaceName, 'another');
+    assert.deepEqual(Array.from(scope.appNamespace.deletionCheck.remainingEnvs), ['DEV']);
+    assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
+    scope.cleanUpAppNamespace();
+    assert.deepEqual(calls.cleanUps, [['sample-app', 'another']]);
+});
+
+test('a check that fails after a newer check shows no error', () => {
+    const older = later();
+    const { scope, calls } = page({ lookup: settled(false, { status: 400 }),
+        checks: [older, remainingInDev] });
+
+    scope.checkAppNamespaceDeletion();
+    scope.checkAppNamespaceDeletion();
+    older.fail({ status: 500, data: { message: 'boom' } });
+
+    assert.equal(calls.errors.length, 0);
+    assert.deepEqual(Array.from(scope.appNamespace.deletionCheck.remainingEnvs), ['DEV']);
+});
+
+test('a check answered after the lookup was repeated does not fill the panel again', () => {
+    const slow = later();
+    const { scope } = page({ lookup: settled(false, { status: 400 }), checks: [slow] });
+
+    scope.checkAppNamespaceDeletion();
+    scope.getAppNamespaceInfo();
+    slow.answer(remainingInDev);
+
+    assert.equal(scope.appNamespace.deletionCheck, null);
+    assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
 });
 
 test('a failed cleanup shows the server message and checks again', () => {
