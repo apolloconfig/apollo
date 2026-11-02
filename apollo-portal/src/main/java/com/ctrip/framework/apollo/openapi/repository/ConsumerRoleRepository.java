@@ -51,4 +51,12 @@ public interface ConsumerRoleRepository extends JpaRepository<ConsumerRole, Long
       + "dataChangeLastModifiedBy = :operator WHERE roleId in :roleIds and isDeleted = false")
   Integer batchDeleteByRoleIds(@Param("roleIds") List<Long> roleIds,
       @Param("operator") String operator);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query("UPDATE ConsumerRole SET isDeleted = true, "
+      + "deletedAt = :#{T(java.lang.System).currentTimeMillis()}, "
+      + "dataChangeLastModifiedBy = :operator, dataChangeLastModifiedTime = CURRENT_TIMESTAMP "
+      + "WHERE consumerId = :consumerId AND roleId in :roleIds AND isDeleted = false")
+  Integer batchDeleteByConsumerIdAndRoleIds(@Param("consumerId") long consumerId,
+      @Param("roleIds") List<Long> roleIds, @Param("operator") String operator);
 }
