@@ -11,6 +11,7 @@ Apollo 3.1.0
 * [Fix: change GrayReleaseRule.Rules to TEXT to avoid utf8mb4 row-size 1118](https://github.com/apolloconfig/apollo/pull/5699)
 * [Fix createOrUpdateItem failing when the item key does not exist](https://github.com/apolloconfig/apollo/pull/5707)
 * [Fix: reject Portal startup without configured authentication](https://github.com/apolloconfig/apollo/pull/5704)
+* [Add consumer permission viewing and revocation](https://github.com/apolloconfig/apollo/pull/5708)
 
 ------------------
 All issues and pull requests are [here](https://github.com/apolloconfig/apollo/milestone/22?closed=1)
