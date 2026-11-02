@@ -26,6 +26,7 @@ function viewPermissionsModalDirective($translate, toastr, AppUtil, ConsumerServ
         },
         link: function (scope) {
             var loadVersion = 0;
+            var revokeVersion = 0;
             scope.roles = [];
             scope.loading = false;
             scope.loadError = false;
@@ -34,6 +35,7 @@ function viewPermissionsModalDirective($translate, toastr, AppUtil, ConsumerServ
             scope.reloadRoles = loadRoles;
 
             scope.$watch('consumer', function () {
+                revokeVersion++;
                 scope.pendingRole = null;
                 scope.revoking = false;
                 loadRoles();
@@ -56,21 +58,24 @@ function viewPermissionsModalDirective($translate, toastr, AppUtil, ConsumerServ
                     return;
                 }
                 var consumerId = scope.consumer.consumerId;
+                var version = ++revokeVersion;
                 scope.revoking = true;
                 ConsumerService.revokeConsumerRoles(consumerId, scope.pendingRole)
                     .then(function () {
+                        if (version !== revokeVersion) {
+                            return;
+                        }
                         toastr.success($translate.instant('Open.Manage.RevokePermission.Success'));
-                        if (scope.consumer && scope.consumer.consumerId === consumerId) {
-                            scope.revoking = false;
-                            scope.pendingRole = null;
-                            loadRoles();
-                        }
+                        scope.revoking = false;
+                        scope.pendingRole = null;
+                        loadRoles();
                     }, function (response) {
-                        if (scope.consumer && scope.consumer.consumerId === consumerId) {
-                            scope.revoking = false;
-                            AppUtil.showErrorMsg(response,
-                                $translate.instant('Open.Manage.RevokePermission.Failed'));
+                        if (version !== revokeVersion) {
+                            return;
                         }
+                        scope.revoking = false;
+                        AppUtil.showErrorMsg(response,
+                            $translate.instant('Open.Manage.RevokePermission.Failed'));
                     });
             };
 
