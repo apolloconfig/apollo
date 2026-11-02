@@ -33,8 +33,8 @@ const later = () => {
     };
 };
 
-function page({ lookup, checks = [], cleanUp = settled(true, {}), confirmed = true }) {
-    const scope = {}, calls = { checks: [], cleanUps: [], errors: [], confirms: [], success: [] };
+function page({ lookup, checks = [], cleanUp = settled(true, {}), remove = settled(true, {}), confirmed = true }) {
+    const scope = {}, calls = { checks: [], cleanUps: [], deletes: [], errors: [], confirms: [], success: [] };
     let factory;
     vm.runInNewContext(source, {
         delete_app_cluster_namespace_module: { controller: (name, definition) => { factory = definition.at(-1); } },
@@ -54,6 +54,10 @@ function page({ lookup, checks = [], cleanUp = settled(true, {}), confirmed = tr
             cleanUpAppNamespace: (appId, namespaceName) => {
                 calls.cleanUps.push([appId, namespaceName]);
                 return cleanUp;
+            },
+            deleteAppNamespace: (appId, namespaceName) => {
+                calls.deletes.push([appId, namespaceName]);
+                return remove;
             }
         },
         { has_root_permission: pending });
@@ -66,6 +70,9 @@ const remainingInDev = { existsInPortal: false, environments: [
     { env: 'DEV', status: 'REMAINING' }, { env: 'PRO', status: 'ABSENT' }] };
 const nothingRemains = { existsInPortal: false, environments: [
     { env: 'DEV', status: 'ABSENT' }, { env: 'PRO', status: 'ABSENT' }] };
+const serverError = { status: 500, data: { message: 'incomplete' } };
+// a request that the test answers by itself can succeed or fail
+const outcomes = [['succeeds', request => request.answer({})], ['fails', request => request.fail(serverError)]];
 
 test('reopening the page after a partial deletion offers the check and cleans up what remains', () => {
     const { scope, calls } = page({ lookup: settled(false, { status: 400 }),
@@ -194,6 +201,70 @@ test('a failed cleanup shows the server message and checks again', () => {
     assert.deepEqual(calls.errors, [failure]);
     assert.equal(calls.checks.length, 2);
     assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
+});
+
+outcomes.forEach(([outcome, finish]) => {
+    test(`a cleanup that ${outcome} after a check for other inputs started leaves that check alone`, () => {
+        const cleanUp = later(), newer = later();
+        const { scope, calls } = page({ lookup: settled(false, { status: 400 }),
+            checks: [remainingInDev, newer, nothingRemains], cleanUp });
+
+        scope.checkAppNamespaceDeletion();
+        scope.cleanUpAppNamespace();
+        scope.appNamespace.name = 'another';
+        scope.checkAppNamespaceDeletion();
+        finish(cleanUp);
+        newer.answer(remainingInDev);
+
+        assert.deepEqual(calls.checks, [['sample-app', 'db-config'], ['sample-app', 'another']]);
+        assert.equal(scope.appNamespace.deletionCheck.namespaceName, 'another');
+        assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
+    });
+});
+
+test('a cleanup that finishes after the inputs changed no longer shows the cleaned AppNamespace', () => {
+    const cleanUp = later();
+    const { scope, calls } = page({ lookup: settled(false, { status: 400 }),
+        checks: [remainingInDev, nothingRemains], cleanUp });
+
+    scope.checkAppNamespaceDeletion();
+    scope.cleanUpAppNamespace();
+    scope.appNamespace.name = 'another';
+    cleanUp.answer({});
+
+    assert.equal(calls.checks.length, 1);
+    assert.equal(scope.appNamespace.deletionCheck, null);
+    assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
+});
+
+outcomes.forEach(([outcome, finish]) => {
+    test(`a deletion that ${outcome} clears the shown check`, () => {
+        const remove = later();
+        const { scope, calls } = page({ lookup: settled(false, { status: 400 }), checks: [remainingInDev], remove });
+
+        scope.checkAppNamespaceDeletion();
+        assert.equal(scope.cleanUpAppNamespaceBtnDisabled, false);
+        scope.deleteAppNamespace();
+        finish(remove);
+
+        assert.deepEqual(calls.deletes, [['sample-app', 'db-config']]);
+        assert.equal(scope.appNamespace.deletionCheck, null);
+        assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
+    });
+
+    test(`a check answered after a deletion that ${outcome} does not fill the panel`, () => {
+        const remove = later(), slow = later();
+        const { scope, calls } = page({ lookup: settled(false, { status: 400 }), checks: [slow], remove });
+
+        scope.checkAppNamespaceDeletion();
+        scope.deleteAppNamespace();
+        finish(remove);
+        slow.answer(remainingInDev);
+
+        assert.deepEqual(calls.deletes, [['sample-app', 'db-config']]);
+        assert.equal(scope.appNamespace.deletionCheck, null);
+        assert.equal(scope.cleanUpAppNamespaceBtnDisabled, true);
+    });
 });
 
 test('a declined confirmation cleans up nothing', () => {
