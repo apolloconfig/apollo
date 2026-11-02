@@ -191,6 +191,53 @@ async function testStaleResponsesDoNotReplaceAnotherConsumer() {
     assert.strictEqual(modal.scope.loading, false);
 }
 
+async function testStaleRevokeDoesNotClearNewerConfirmation() {
+    const modal = createModal();
+    const firstRole = {type: 'NamespaceRole', appId: 'app', namespaceName: 'application', env: null};
+    modal.loads[0].request.resolve([firstRole]);
+    await Promise.resolve();
+
+    modal.scope.preRevokeRole(firstRole);
+    modal.scope.revokeRole();
+    assert.strictEqual(modal.revokes.length, 1);
+    assert.strictEqual(modal.scope.revoking, true);
+
+    modal.scope.consumer = {consumerId: 2, appId: 'other-consumer'};
+    modal.changed();
+    const secondRole = {type: 'AppRole', appId: 'other-app'};
+    modal.loads[1].request.resolve([secondRole]);
+    await Promise.resolve();
+    modal.scope.preRevokeRole(secondRole);
+
+    modal.revokes[0].request.resolve();
+    await Promise.resolve();
+
+    assert.deepStrictEqual(modal.successes, []);
+    assert.strictEqual(modal.scope.pendingRole, secondRole);
+    assert.strictEqual(modal.scope.revoking, false);
+    assert.strictEqual(modal.loads.length, 2);
+}
+
+async function testReopeningConsumerInvalidatesInFlightRevoke() {
+    const modal = createModal();
+    const role = {type: 'AppRole', appId: 'app'};
+    modal.loads[0].request.resolve([role]);
+    await Promise.resolve();
+
+    modal.scope.preRevokeRole(role);
+    modal.scope.revokeRole();
+    modal.changed();
+    modal.loads[1].request.resolve([role]);
+    await Promise.resolve();
+
+    modal.revokes[0].request.resolve();
+    await Promise.resolve();
+
+    assert.deepStrictEqual(modal.successes, []);
+    assert.strictEqual(modal.scope.revoking, false);
+    assert.strictEqual(modal.loads.length, 2);
+}
+
 function testTemplateAndTranslations() {
     assert.ok(template.includes('ng-click="preRevokeRole(role)"'));
     assert.ok(template.includes('ng-if="pendingRole"'));
@@ -247,6 +294,8 @@ async function main() {
     await testConfirmationAndSuccessfulRevoke();
     await testFailuresAndRetry();
     await testStaleResponsesDoNotReplaceAnotherConsumer();
+    await testStaleRevokeDoesNotClearNewerConfirmation();
+    await testReopeningConsumerInvalidatesInFlightRevoke();
     console.log('Consumer permission viewing, confirmation, scoped revocation and translations passed.');
 }
 

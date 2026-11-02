@@ -695,7 +695,7 @@
   "Open.Manage.RevokePermission.Success": "Permission revoked successfully",
   "Open.Manage.RevokePermission.Failed": "Failed to revoke permission",
   "Open.Manage.ConsumerRole.App": "App",
-  "Open.Manage.ConsumerRole.Namespace": "Namespace (modify and release)",
+  "Open.Manage.ConsumerRole.Namespace": "Namespace",
   "Open.Manage.ConsumerRole.AllEnvs": "All environments",
   "Open.Manage.DeleteConsumer.Confirm": "You are deleting a third-party app with <b>AppId={{toOperationConsumer.appId}},AppName={{toOperationConsumer.name}}</b>,<br>Are you sure you want to delete?",
   "Open.Manage.DeleteConsumer.Success": "Third-party app deleted successfully",
