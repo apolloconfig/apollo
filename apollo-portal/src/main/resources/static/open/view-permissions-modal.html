@@ -1,0 +1,88 @@
+<!--
+  ~ Copyright 2026 Apollo Authors
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+-->
+<div id="viewConsumerPermissionsModal" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header panel-primary">
+                <button type="button" class="close" data-dismiss="modal" ng-disabled="revoking"
+                        aria-label="{{'Common.Cancel' | translate}}"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">{{'Open.Manage.ViewPermissions' | translate}}: {{consumer.appId}}</h4>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted">{{'Open.Manage.ViewPermissions.Tips' | translate}}</p>
+                <p ng-if="loading">{{'Open.Manage.ViewPermissions.Loading' | translate}}</p>
+                <div ng-if="loadError" class="alert alert-danger" role="alert">
+                    {{'Open.Manage.ViewPermissions.Failed' | translate}}
+                    <button type="button" class="btn btn-default btn-sm" ng-click="reloadRoles()">
+                        {{'Open.Manage.ViewPermissions.Retry' | translate}}
+                    </button>
+                </div>
+                <p ng-if="!loading && !loadError && !roles.length">
+                    {{'Open.Manage.ViewPermissions.Empty' | translate}}
+                </p>
+                <div class="table-responsive" ng-if="!loading && !loadError && roles.length">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>{{'Open.Manage.GrantType' | translate}}</th>
+                                <th>{{'Open.Manage.ManagedAppId' | translate}}</th>
+                                <th>{{'Open.Manage.ManagedNamespace' | translate}}</th>
+                                <th>{{'Open.Manage.GrantEnv' | translate}}</th>
+                                <th>{{'Common.Operation' | translate}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="role in roles">
+                                <td>{{(role.type === 'AppRole' ? 'Open.Manage.ConsumerRole.App' : 'Open.Manage.ConsumerRole.Namespace') | translate}}</td>
+                                <td>{{role.appId}}</td>
+                                <td>{{role.namespaceName || '-'}}</td>
+                                <td>{{role.env || ('Open.Manage.ConsumerRole.AllEnvs' | translate)}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            ng-click="preRevokeRole(role)" ng-disabled="revoking">
+                                        {{'Open.Manage.RevokePermission' | translate}}
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div ng-if="pendingRole" class="alert alert-warning" role="alert">
+                    <p>{{'Open.Manage.RevokePermission.Confirm' | translate}}</p>
+                    <p>
+                        <strong>{{(pendingRole.type === 'AppRole' ? 'Open.Manage.ConsumerRole.App' : 'Open.Manage.ConsumerRole.Namespace') | translate}}</strong>
+                        / {{pendingRole.appId}}
+                        <span ng-if="pendingRole.namespaceName">/ {{pendingRole.namespaceName}}</span>
+                        / {{pendingRole.env || ('Open.Manage.ConsumerRole.AllEnvs' | translate)}}
+                    </p>
+                    <p>{{'Open.Manage.RevokePermission.OverlapWarning' | translate}}</p>
+                    <button type="button" class="btn btn-danger" ng-click="revokeRole()" ng-disabled="revoking">
+                        {{'Common.Ok' | translate}}
+                    </button>
+                    <button type="button" class="btn btn-default" ng-click="cancelRevokeRole()" ng-disabled="revoking">
+                        {{'Common.Cancel' | translate}}
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="revoking">
+                    {{'Common.Cancel' | translate}}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

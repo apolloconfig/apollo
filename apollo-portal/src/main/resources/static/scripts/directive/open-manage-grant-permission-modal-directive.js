@@ -58,7 +58,7 @@ function grantPermissionModalDirective($translate, toastr, $sce, AppUtil, EnvSer
                         scope.envsChecked = [];
                     }
 
-                    scope.envsChecked.switchSelect = function (item) {
+                    scope.switchSelect = function (item) {
                         item.checked = !item.checked;
                         scope.envsChecked = [];
                         for (let iLoop = 0; iLoop < scope.envs.length; iLoop++) {
