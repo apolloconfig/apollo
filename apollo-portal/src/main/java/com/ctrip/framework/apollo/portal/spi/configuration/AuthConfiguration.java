@@ -29,6 +29,7 @@ import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultSsoHeartbeatHand
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserService;
 import com.ctrip.framework.apollo.portal.filter.UserTokenAuthenticationFilter;
+import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.spi.ldap.ApolloLdapAuthenticationProvider;
 import com.ctrip.framework.apollo.portal.spi.ldap.FilterLdapByGroupUserSearch;
 import com.ctrip.framework.apollo.portal.spi.ldap.LdapUserService;
@@ -76,6 +77,8 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -456,10 +459,21 @@ public class AuthConfiguration {
       // make jwt optional
       String jwtIssuerUri = this.oauth2ResourceServerProperties.getJwt().getIssuerUri();
       if (!StringUtils.isBlank(jwtIssuerUri)) {
-        http.oauth2ResourceServer(
-            oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+        http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+            .bearerTokenResolver(bearerTokenResolver()).jwt(Customizer.withDefaults()));
       }
       return http.build();
+    }
+
+    static BearerTokenResolver bearerTokenResolver() {
+      DefaultBearerTokenResolver defaultBearerTokenResolver = new DefaultBearerTokenResolver();
+      return request -> {
+        String token = defaultBearerTokenResolver.resolve(request);
+        if (token != null && token.startsWith(UserTokenService.TOKEN_PREFIX)) {
+          return null;
+        }
+        return token;
+      };
     }
   }
 

@@ -47,6 +47,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 /**
  * Verifies that Portal requires a configured identity provider before accepting requests.
@@ -146,6 +147,23 @@ class PortalAuthenticationConfigurationTest {
           assertThat(context.getBean(UserInfoHolder.class))
               .isSameAs(context.getBean("customUserInfoHolder"));
         });
+  }
+
+  @Test
+  void shouldIgnoreUserTokenInOidcBearerTokenResolver() {
+    BearerTokenResolver resolver =
+        AuthConfiguration.OidcWebSecurityConfigurerAdapter.bearerTokenResolver();
+
+    MockHttpServletRequest patRequest = new MockHttpServletRequest();
+    patRequest.addHeader("Authorization", "Bearer apollo_pat_test1234_mock_user_token_value");
+    assertThat(resolver.resolve(patRequest)).isNull();
+
+    MockHttpServletRequest jwtRequest = new MockHttpServletRequest();
+    jwtRequest.addHeader("Authorization", "Bearer mock-resource-server-jwt-token");
+    assertThat(resolver.resolve(jwtRequest)).isEqualTo("mock-resource-server-jwt-token");
+
+    MockHttpServletRequest emptyRequest = new MockHttpServletRequest();
+    assertThat(resolver.resolve(emptyRequest)).isNull();
   }
 
   @Test
