@@ -38,6 +38,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          persist-credentials: false
           ref: ${{ inputs.release_tag }}
 
       - name: Set up JDK 17
