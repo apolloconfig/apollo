@@ -80,7 +80,7 @@
     <spring-cloud-alibaba.version>2025.1.0.0</spring-cloud-alibaba.version>
     <!-- sort by alphabet -->
     <common-lang3.version>3.18.0</common-lang3.version>
-    <guava.version>32.0.0-jre</guava.version>
+    <guava.version>33.7.1-jre</guava.version>
     <httpclient4.version>4.5.14</httpclient4.version>
     <jakarta.mail.version>2.0.2</jakarta.mail.version>
     <jackson-databind-nullable.version>0.2.7</jackson-databind-nullable.version>
