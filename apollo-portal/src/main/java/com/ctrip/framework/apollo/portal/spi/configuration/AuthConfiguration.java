@@ -76,6 +76,8 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -427,11 +429,15 @@ public class AuthConfiguration {
 
     private final OAuth2ResourceServerProperties oauth2ResourceServerProperties;
 
+    private final ObjectProvider<BearerTokenResolver> bearerTokenResolverProvider;
+
     public OidcWebSecurityConfigurerAdapter(
         InMemoryClientRegistrationRepository clientRegistrationRepository,
-        OAuth2ResourceServerProperties oauth2ResourceServerProperties) {
+        OAuth2ResourceServerProperties oauth2ResourceServerProperties,
+        ObjectProvider<BearerTokenResolver> bearerTokenResolverProvider) {
       this.clientRegistrationRepository = clientRegistrationRepository;
       this.oauth2ResourceServerProperties = oauth2ResourceServerProperties;
+      this.bearerTokenResolverProvider = bearerTokenResolverProvider;
     }
 
     @Bean
@@ -456,10 +462,31 @@ public class AuthConfiguration {
       // make jwt optional
       String jwtIssuerUri = this.oauth2ResourceServerProperties.getJwt().getIssuerUri();
       if (!StringUtils.isBlank(jwtIssuerUri)) {
-        http.oauth2ResourceServer(
-            oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
+        BearerTokenResolver delegateResolver = resolveDelegateBearerTokenResolver();
+        http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer
+            .bearerTokenResolver(createBearerTokenResolver(delegateResolver))
+            .jwt(Customizer.withDefaults()));
       }
       return http.build();
+    }
+
+    BearerTokenResolver resolveDelegateBearerTokenResolver() {
+      BearerTokenResolver configured = this.bearerTokenResolverProvider.getIfAvailable();
+      return configured != null ? configured : new DefaultBearerTokenResolver();
+    }
+
+    /**
+     * Wraps the delegate {@link BearerTokenResolver} to bypass JWT resolution for OpenAPI requests
+     * carrying portal user access tokens (PAT), while preserving configured JWT extraction.
+     */
+    static BearerTokenResolver createBearerTokenResolver(BearerTokenResolver delegate) {
+      return request -> {
+        if (UserTokenAuthenticationFilter.isOpenApiRequest(request)
+            && UserTokenAuthenticationFilter.resolveUserToken(request) != null) {
+          return null;
+        }
+        return delegate.resolve(request);
+      };
     }
   }
 
