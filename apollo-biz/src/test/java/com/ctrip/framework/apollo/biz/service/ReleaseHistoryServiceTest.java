@@ -58,7 +58,10 @@ import org.springframework.util.ReflectionUtils;
  * @since 2023/3/24
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+// Hibernate drops this context's schema when it closes, so use a dedicated H2 database.
+@SpringBootTest(classes = BizTestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT,
+    properties = "spring.datasource.url=jdbc:h2:mem:release-history-service-test;mode=mysql;"
+        + "DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;BUILTIN_ALIAS_OVERRIDE=TRUE;DATABASE_TO_UPPER=FALSE")
 @DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 public class ReleaseHistoryServiceTest {
 
