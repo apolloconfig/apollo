@@ -17,7 +17,6 @@
 package com.ctrip.framework.apollo.portal.listener;
 
 import com.ctrip.framework.apollo.common.dto.AppDTO;
-import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.utils.BeanUtils;
 import com.ctrip.framework.apollo.portal.environment.Env;
 import com.ctrip.framework.apollo.portal.api.AdminServiceAPI;
@@ -37,13 +36,11 @@ public class DeletionListener {
 
   private final PortalSettings portalSettings;
   private final AdminServiceAPI.AppAPI appAPI;
-  private final AdminServiceAPI.NamespaceAPI namespaceAPI;
 
-  public DeletionListener(final PortalSettings portalSettings, final AdminServiceAPI.AppAPI appAPI,
-      final AdminServiceAPI.NamespaceAPI namespaceAPI) {
+  public DeletionListener(final PortalSettings portalSettings,
+      final AdminServiceAPI.AppAPI appAPI) {
     this.portalSettings = portalSettings;
     this.appAPI = appAPI;
-    this.namespaceAPI = namespaceAPI;
   }
 
   @EventListener
@@ -59,29 +56,6 @@ public class DeletionListener {
       } catch (Throwable e) {
         logger.error("Delete app failed. Env = {}, AppId = {}", env, appId, e);
         Tracer.logError(String.format("Delete app failed. Env = %s, AppId = %s", env, appId), e);
-      }
-    }
-  }
-
-  @EventListener
-  public void onAppNamespaceDeletionEvent(AppNamespaceDeletionEvent event) {
-    AppNamespaceDTO appNamespace =
-        BeanUtils.transform(AppNamespaceDTO.class, event.getAppNamespace());
-    List<Env> envs = portalSettings.getActiveEnvs();
-    String appId = appNamespace.getAppId();
-    String namespaceName = appNamespace.getName();
-    String operator = appNamespace.getDataChangeLastModifiedBy();
-
-    for (Env env : envs) {
-      try {
-        namespaceAPI.deleteAppNamespace(env, appId, namespaceName, operator);
-      } catch (Throwable e) {
-        logger.error("Delete appNamespace failed. appId = {}, namespace = {}, env = {}", appId,
-            namespaceName, env, e);
-        Tracer.logError(
-            String.format("Delete appNamespace failed. appId = %s, namespace = %s, env = %s", appId,
-                namespaceName, env),
-            e);
       }
     }
   }

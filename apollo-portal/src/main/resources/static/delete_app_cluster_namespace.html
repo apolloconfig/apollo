@@ -176,6 +176,14 @@
                                     {{'Delete.AppNamespaceInfo' | translate }}</label>
                             <div class="col-sm-5">
                                 <h5 ng-show="appNamespace.info" ng-bind="appNamespace.info"></h5>
+                                <button class="btn btn-info" ng-show="appNamespace.notInPortal"
+                                    ng-click="checkAppNamespaceDeletion()">{{'Delete.CheckAppNamespace' | translate }}</button>
+                                <div ng-show="appNamespace.deletionCheck">
+                                    <h5 ng-show="appNamespace.deletionCheck.existsInPortal">
+                                        {{'Delete.AppNamespaceExistsInPortal' | translate }}</h5>
+                                    <h5 ng-repeat="environment in appNamespace.deletionCheck.environments track by $index"
+                                        ng-bind="environment"></h5>
+                                </div>
                             </div>
                         </div>
 
@@ -184,6 +192,10 @@
                                 <button type="submit" class="btn btn-primary"
                                     ng-disabled="deleteAppNamespaceBtnDisabled" ng-click="deleteAppNamespace()">
                                     {{'Delete.DeleteNamespace' | translate }}
+                                </button>
+                                <button type="submit" class="btn btn-primary" ng-show="appNamespace.deletionCheck"
+                                    ng-disabled="cleanUpAppNamespaceBtnDisabled" ng-click="cleanUpAppNamespace()">
+                                    {{'Delete.CleanUpAppNamespace' | translate }}
                                 </button>
                             </div>
                         </div>

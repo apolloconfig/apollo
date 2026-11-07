@@ -76,10 +76,17 @@ public class AppNamespaceController {
 
   @DeleteMapping("/apps/{appId}/appnamespaces/{namespaceName:.+}")
   public void delete(@PathVariable("appId") String appId,
-      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator) {
+      @PathVariable("namespaceName") String namespaceName, @RequestParam String operator,
+      @RequestParam(required = false) Long appNamespaceId) {
     AppNamespace entity = appNamespaceService.findOne(appId, namespaceName);
     if (entity == null) {
       throw BadRequestException.appNamespaceNotExists(appId, namespaceName);
+    }
+    // a caller that read the id before does not delete an AppNamespace recreated since then
+    if (appNamespaceId != null && appNamespaceId != entity.getId()) {
+      throw new BadRequestException(
+          "appNamespace %s:%s has id %s instead of %s, it may have been recreated", appId,
+          namespaceName, entity.getId(), appNamespaceId);
     }
     appNamespaceService.deleteAppNamespace(entity, operator);
   }

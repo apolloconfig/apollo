@@ -32,8 +32,21 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
 
     $scope.appNamespace = {};
     $scope.deleteAppNamespaceBtnDisabled = true;
+    $scope.cleanUpAppNamespaceBtnDisabled = true;
     $scope.getAppNamespaceInfo = getAppNamespaceInfo;
     $scope.deleteAppNamespace = deleteAppNamespace;
+    $scope.checkAppNamespaceDeletion = checkAppNamespaceDeletion;
+    $scope.cleanUpAppNamespace = cleanUpAppNamespace;
+
+    var ENV_DELETION_STATUS_KEYS = {
+        REMAINING: 'Delete.AppNamespaceEnvRemaining',
+        ABSENT: 'Delete.AppNamespaceEnvAbsent',
+        UNREACHABLE: 'Delete.AppNamespaceEnvUnreachable',
+        SKIPPED: 'Delete.AppNamespaceEnvSkipped'
+    };
+
+    // numbers the deletion checks, so that only the answer to the latest one is shown
+    var latestDeletionCheck = 0;
 
     initPermission();
 
@@ -137,6 +150,9 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
         }
 
         $scope.appNamespace.info = "";
+        $scope.appNamespace.notInPortal = false;
+        // a check that is still running no longer belongs to this lookup
+        resetDeletionCheck();
 
         NamespaceService.loadAppNamespace($scope.appNamespace.appId, $scope.appNamespace.name).then(function (result) {
             $scope.appNamespace.info = $translate.instant('Delete.AppNamespaceInfoContent', {
@@ -147,8 +163,106 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
 
             $scope.deleteAppNamespaceBtnDisabled = false;
         }, function (result) {
+            if (result.status === 400) {
+                $scope.appNamespace.info = $translate.instant('Delete.AppNamespaceNotInPortal');
+                $scope.appNamespace.notInPortal = true;
+                $scope.deleteAppNamespaceBtnDisabled = true;
+                return;
+            }
             AppUtil.showErrorMsg(result);
         });
+    }
+
+    function checkAppNamespaceDeletion() {
+        if (!$scope.appNamespace.appId || !$scope.appNamespace.name) {
+            toastr.warning($translate.instant('Delete.PleaseEnterAppIdAndNamespace'));
+            return;
+        }
+        loadAppNamespaceDeletionCheck($scope.appNamespace.appId, $scope.appNamespace.name);
+    }
+
+    // clears the shown deletion check and ignores the answers of the checks that are still running
+    function resetDeletionCheck() {
+        $scope.appNamespace.deletionCheck = null;
+        $scope.cleanUpAppNamespaceBtnDisabled = true;
+        latestDeletionCheck++;
+    }
+
+    function loadAppNamespaceDeletionCheck(appId, namespaceName) {
+        resetDeletionCheck();
+        var check = latestDeletionCheck;
+
+        NamespaceService.checkAppNamespaceDeletion(appId, namespaceName).then(function (result) {
+            if (check !== latestDeletionCheck) {
+                return;
+            }
+            var environments = [];
+            var remainingEnvs = [];
+            var uncheckedEnvs = [];
+            angular.forEach(result.environments || [], function (environment) {
+                var status = environment.status;
+                if (status === 'REMAINING') {
+                    remainingEnvs.push(environment.env);
+                } else if (status === 'UNREACHABLE' || status === 'SKIPPED') {
+                    uncheckedEnvs.push(environment.env);
+                }
+                environments.push($translate.instant(ENV_DELETION_STATUS_KEYS[status], {
+                    env: environment.env,
+                    message: environment.message
+                }));
+            });
+
+            // the cleanup acts on the checked AppNamespace even if the inputs change later
+            $scope.appNamespace.deletionCheck = {
+                appId: appId,
+                namespaceName: namespaceName,
+                existsInPortal: !!result.existsInPortal,
+                environments: environments,
+                remainingEnvs: remainingEnvs,
+                uncheckedEnvs: uncheckedEnvs
+            };
+            $scope.cleanUpAppNamespaceBtnDisabled = !!result.existsInPortal || remainingEnvs.length === 0;
+        }, function (result) {
+            if (check !== latestDeletionCheck) {
+                return;
+            }
+            AppUtil.showErrorMsg(result);
+        });
+    }
+
+    function cleanUpAppNamespace() {
+        var deletionCheck = $scope.appNamespace.deletionCheck;
+        // the server checks every environment again, so the confirmation also names the
+        // environments that could not be checked, which are cleaned up if they recover meanwhile
+        var confirmKey = deletionCheck.uncheckedEnvs.length > 0
+            ? 'Delete.ConfirmCleanUpAppNamespaceWithUncheckedEnvs' : 'Delete.ConfirmCleanUpAppNamespace';
+        var confirmTip = $translate.instant(confirmKey, {
+            appId: deletionCheck.appId,
+            namespace: deletionCheck.namespaceName,
+            envs: deletionCheck.remainingEnvs.join(', '),
+            uncheckedEnvs: deletionCheck.uncheckedEnvs.join(', ')
+        });
+        if (confirm(confirmTip)) {
+            NamespaceService.cleanUpAppNamespace(deletionCheck.appId, deletionCheck.namespaceName).then(function (result) {
+                toastr.success($translate.instant('Delete.CleanedUp'));
+                refreshDeletionCheckAfterCleanUp(deletionCheck);
+            }, function (result) {
+                AppUtil.showErrorMsg(result);
+                refreshDeletionCheckAfterCleanUp(deletionCheck);
+            })
+        }
+    }
+
+    // reloads the check only while the inputs still name the cleaned AppNamespace, because the
+    // reload would end a check that was started for other inputs meanwhile
+    function refreshDeletionCheckAfterCleanUp(deletionCheck) {
+        if ($scope.appNamespace.appId === deletionCheck.appId
+            && $scope.appNamespace.name === deletionCheck.namespaceName) {
+            loadAppNamespaceDeletionCheck(deletionCheck.appId, deletionCheck.namespaceName);
+        } else if ($scope.appNamespace.deletionCheck === deletionCheck) {
+            // nothing newer is shown, and the cleaned AppNamespace does not match the inputs
+            resetDeletionCheck();
+        }
     }
 
     function deleteAppNamespace() {
@@ -164,8 +278,11 @@ function DeleteAppClusterNamespaceController($scope, $translate, toastr, AppUtil
             NamespaceService.deleteAppNamespace($scope.appNamespace.appId, $scope.appNamespace.name).then(function (result) {
                 toastr.success($translate.instant('Delete.Deleted'));
                 $scope.deleteAppNamespaceBtnDisabled = true;
+                // the deletion changed what a shown or running check reports
+                resetDeletionCheck();
             }, function (result) {
                 AppUtil.showErrorMsg(result);
+                resetDeletionCheck();
             })
         }
     }

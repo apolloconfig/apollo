@@ -17,18 +17,28 @@
 package com.ctrip.framework.apollo.adminservice.controller;
 
 import com.ctrip.framework.apollo.biz.repository.AppNamespaceRepository;
+import com.ctrip.framework.apollo.biz.service.NamespaceService;
 import com.ctrip.framework.apollo.common.dto.AppNamespaceDTO;
 import com.ctrip.framework.apollo.common.entity.AppNamespace;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
+import org.springframework.web.client.HttpClientErrorException;
 
 public class AppNamespaceControllerTest extends AbstractControllerTest {
 
+  // an AppNamespace with a namespace in the cluster, from test-itemset.sql
+  private static final String APP_ID = "someAppId";
+  private static final String CLUSTER = "default";
+  private static final String NAMESPACE = "someNamespace";
+
   @Autowired
   private AppNamespaceRepository namespaceRepository;
+  @Autowired
+  private NamespaceService namespaceService;
 
   @Test
   @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
@@ -56,5 +66,57 @@ public class AppNamespaceControllerTest extends AbstractControllerTest {
     Assert.assertNotNull(savedAppNs.getDataChangeLastModifiedTime());
     Assert.assertNotNull(savedAppNs.getDataChangeLastModifiedBy());
     Assert.assertNotNull(savedAppNs.getDataChangeCreatedBy());
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteWithoutAppNamespaceId() {
+    restTemplate.delete(url("/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"),
+        APP_ID, NAMESPACE, "apollo");
+
+    Assert.assertNull(namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE));
+    Assert.assertNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
+  }
+
+  @Test
+  @Sql(scripts = "/controller/test-itemset.sql",
+      executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "/controller/cleanup.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
+  public void testDeleteRefusesAppNamespaceRecreatedAfterItsIdWasRead() {
+    long readId = namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE).getId();
+    // another caller deletes the AppNamespace with that id, and it is created again
+    restTemplate.delete(deleteByIdUrl(), APP_ID, NAMESPACE, "apollo", readId);
+    Assert.assertNull(namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE));
+    AppNamespaceDTO dto = new AppNamespaceDTO();
+    dto.setAppId(APP_ID);
+    dto.setName(NAMESPACE);
+    dto.setDataChangeCreatedBy("apollo");
+    AppNamespaceDTO recreated = restTemplate
+        .postForEntity(url("/apps/{appId}/appnamespaces"), dto, AppNamespaceDTO.class, APP_ID)
+        .getBody();
+
+    try {
+      restTemplate.delete(deleteByIdUrl(), APP_ID, NAMESPACE, "apollo", readId);
+      Assert.fail("Should throw");
+    } catch (HttpClientErrorException e) {
+      Assert.assertEquals(HttpStatus.BAD_REQUEST, e.getStatusCode());
+      Assert.assertTrue(e.getResponseBodyAsString().contains("it may have been recreated"));
+    }
+
+    Assert.assertEquals(recreated.getId(),
+        namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE).getId());
+    Assert.assertNotNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
+
+    restTemplate.delete(deleteByIdUrl(), APP_ID, NAMESPACE, "apollo", recreated.getId());
+
+    Assert.assertNull(namespaceRepository.findByAppIdAndName(APP_ID, NAMESPACE));
+    Assert.assertNull(namespaceService.findOne(APP_ID, CLUSTER, NAMESPACE));
+  }
+
+  private String deleteByIdUrl() {
+    return url("/apps/{appId}/appnamespaces/{namespaceName}?operator={operator}"
+        + "&appNamespaceId={appNamespaceId}");
   }
 }
