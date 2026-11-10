@@ -34,6 +34,7 @@ import com.ctrip.framework.apollo.portal.service.UserTokenService;
 import com.ctrip.framework.apollo.portal.spi.UserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.UserService;
 import com.ctrip.framework.apollo.portal.spi.defaultimpl.DefaultUserInfoHolder;
+import com.ctrip.framework.apollo.portal.spi.oidc.OidcLocalUserService;
 import com.ctrip.framework.apollo.portal.spi.oidc.OidcUserInfoHolder;
 import com.ctrip.framework.apollo.portal.spi.springsecurity.SpringSecurityUserInfoHolder;
 import com.ctrip.framework.apollo.portal.util.UserTokenAuditUtil;
@@ -56,11 +57,15 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 
@@ -70,10 +75,11 @@ import org.springframework.security.oauth2.server.resource.web.DefaultBearerToke
 class PortalAuthenticationConfigurationTest {
 
   private final UserTokenService userTokenService = mock(UserTokenService.class);
+  private final JwtDecoder jwtDecoder = mock(JwtDecoder.class);
 
   @AfterEach
   void tearDown() {
-    reset(this.userTokenService);
+    reset(this.userTokenService, this.jwtDecoder);
   }
 
   private final WebApplicationContextRunner contextRunner =
@@ -83,7 +89,7 @@ class PortalAuthenticationConfigurationTest {
           .withBean(UserRepository.class, () -> mock(UserRepository.class))
           .withBean(AuthorityRepository.class, () -> mock(AuthorityRepository.class))
           .withBean(UserTokenService.class, () -> this.userTokenService)
-          .withBean(JwtDecoder.class, () -> mock(JwtDecoder.class))
+          .withBean(JwtDecoder.class, () -> this.jwtDecoder)
           .withBean(UserTokenAuthenticationFilter.class,
               () -> new UserTokenAuthenticationFilter(this.userTokenService,
                   new UserTokenAuthUtil(), mock(UserTokenAuditUtil.class)))
@@ -255,6 +261,67 @@ class PortalAuthenticationConfigurationTest {
           patRequest.addHeader(HttpHeaders.AUTHORIZATION,
               "bearer  " + UserTokenService.TOKEN_PREFIX + "test");
           assertThat(wrapped.resolve(patRequest)).isNull();
+        });
+  }
+
+  @Test
+  void shouldAuthenticateJwtThroughCustomHeaderAndAuthenticationConverterInOidcChain() {
+    Jwt mockJwt = Jwt.withTokenValue("mock-custom-jwt-token").header("alg", "none")
+        .subject("custom-header-user").claim("custom_principal", "custom-header-user")
+        .claim("scope", "read").build();
+
+    when(this.jwtDecoder.decode("mock-custom-jwt-token")).thenReturn(mockJwt);
+
+    BearerTokenResolver customResolver = request -> request.getHeader("X-Custom-Token");
+
+    JwtAuthenticationConverter customConverter = new JwtAuthenticationConverter();
+    customConverter.setPrincipalClaimName("custom_principal");
+
+    OidcLocalUserService localUserService = mock(OidcLocalUserService.class);
+    when(localUserService.findByUserId("custom-header-user"))
+        .thenReturn(new UserInfo("custom-header-user"));
+
+    withProfiles("github,oidc")
+        .withPropertyValues(
+            "spring.security.oauth2.resourceserver.jwt.issuer-uri=https://idp.example")
+        .withBean(BearerTokenResolver.class, () -> customResolver)
+        .withBean(JwtAuthenticationConverter.class, () -> customConverter)
+        .withBean(OidcLocalUserService.class, () -> localUserService).run(context -> {
+          Filter securityChain = context.getBean("springSecurityFilterChain", Filter.class);
+
+          // 1. Verify custom header JWT on non-OpenAPI endpoint (/user) authenticates through chain
+          MockHttpServletRequest portalRequest = new MockHttpServletRequest("GET", "/user");
+          portalRequest.setServletPath("/user");
+          portalRequest.addHeader("X-Custom-Token", "mock-custom-jwt-token");
+          MockHttpServletResponse portalResponse = new MockHttpServletResponse();
+          AtomicBoolean reachedPortal = new AtomicBoolean();
+
+          securityChain.doFilter(portalRequest, portalResponse, (req, res) -> {
+            reachedPortal.set(true);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            assertThat(auth).isInstanceOf(JwtAuthenticationToken.class);
+            assertThat(auth.getName()).isEqualTo("custom-header-user");
+          });
+          assertThat(reachedPortal).isTrue();
+          SecurityContextHolder.clearContext();
+
+          // 2. Verify custom header JWT on OpenAPI endpoint (/openapi/v1/apps) also authenticates
+          // through chain
+          MockHttpServletRequest openApiRequest =
+              new MockHttpServletRequest("GET", "/openapi/v1/apps");
+          openApiRequest.setServletPath("/openapi/v1/apps");
+          openApiRequest.addHeader("X-Custom-Token", "mock-custom-jwt-token");
+          MockHttpServletResponse openApiResponse = new MockHttpServletResponse();
+          AtomicBoolean reachedOpenApi = new AtomicBoolean();
+
+          securityChain.doFilter(openApiRequest, openApiResponse, (req, res) -> {
+            reachedOpenApi.set(true);
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            assertThat(auth).isInstanceOf(JwtAuthenticationToken.class);
+            assertThat(auth.getName()).isEqualTo("custom-header-user");
+          });
+          assertThat(reachedOpenApi).isTrue();
+          SecurityContextHolder.clearContext();
         });
   }
 
