@@ -28,7 +28,17 @@ INSERT INTO "Role" (Id, RoleName, DataChange_CreatedBy, DataChange_LastModifiedB
   (1005, 'ModifyNamespace+role-test-app+application+PRO', 'apollo', 'apollo'),
   (1006, 'ReleaseNamespace+role-test-app+application+PRO', 'apollo', 'apollo'),
   (1007, 'CreateApplication+SystemRole', 'apollo', 'apollo'),
-  (1008, 'ManageUsers+SystemRole', 'apollo', 'apollo');
+  (1008, 'ManageUsers+SystemRole', 'apollo', 'apollo'),
+  -- FAT 与 FWS 是两个不同的环境，角色按原始字符串创建，两者可以同时存在
+  (1009, 'ModifyNamespace+role-test-app+application+FAT', 'apollo', 'apollo'),
+  (1010, 'ReleaseNamespace+role-test-app+application+FAT', 'apollo', 'apollo'),
+  (1011, 'ModifyNamespace+role-test-app+application+FWS', 'apollo', 'apollo'),
+  (1012, 'ReleaseNamespace+role-test-app+application+FWS', 'apollo', 'apollo'),
+  -- namespace 名带前导空格：RoleName 拼接不 trim，前导空格被原样保留
+  (1013, 'ModifyNamespace+role-test-app+ application', 'apollo', 'apollo'),
+  (1014, 'ReleaseNamespace+role-test-app+ application', 'apollo', 'apollo'),
+  -- namespace 名本身含 env 片段，用于覆盖“指定 env”与“所有环境”不能混淆的场景
+  (1015, 'ModifyNamespace+role-test-app+application+DEV+extra', 'apollo', 'apollo');
 
 INSERT INTO "ConsumerRole" (Id, ConsumerId, RoleId, DataChange_CreatedBy, DataChange_LastModifiedBy) VALUES
   (1000, 1000, 1000, 'apollo', 'apollo'),
@@ -41,7 +51,14 @@ INSERT INTO "ConsumerRole" (Id, ConsumerId, RoleId, DataChange_CreatedBy, DataCh
   (1007, 1000, 1007, 'apollo', 'apollo'),
   (1008, 1000, 1008, 'apollo', 'apollo'),
   (1010, 1001, 1003, 'apollo', 'apollo'),
-  (1011, 1001, 1004, 'apollo', 'apollo');
+  (1011, 1001, 1004, 'apollo', 'apollo'),
+  (1012, 1000, 1009, 'apollo', 'apollo'),
+  (1013, 1000, 1010, 'apollo', 'apollo'),
+  (1014, 1000, 1011, 'apollo', 'apollo'),
+  (1015, 1000, 1012, 'apollo', 'apollo'),
+  (1016, 1000, 1013, 'apollo', 'apollo'),
+  (1017, 1000, 1014, 'apollo', 'apollo'),
+  (1018, 1000, 1015, 'apollo', 'apollo');
 
 INSERT INTO "Permission" (Id, PermissionType, TargetId, DataChange_CreatedBy, DataChange_LastModifiedBy)
   VALUES (1000, 'ModifyNamespace', 'role-test-app+application+DEV', 'apollo', 'apollo');
