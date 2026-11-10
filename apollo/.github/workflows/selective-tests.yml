@@ -1,0 +1,50 @@
+name: Selective Tests (Apollo)
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  selective-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout mold-repo
+        uses: actions/checkout@v4
+        with:
+          repository: residencia-iv-test/mold-repo
+          path: mold-repo
+
+      - name: Checkout Apollo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Run selective tests
+        shell: bash
+        run: |
+          # Calling run.sh directly from the cloned mold-repo
+          ./mold-repo/run.sh --base origin/master --root .
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selective-tests-report
+          path: |
+            .selective-tests/report.md
+            .selective-tests/report.json
+            .selective-tests/selection.json
+            .selective-tests/runner-*.log
+          include-hidden-files: true
