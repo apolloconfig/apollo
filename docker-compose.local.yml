@@ -36,7 +36,7 @@ services:
       - ./scripts/sql/profiles/mysql-default/apolloconfigdb.sql:/docker-entrypoint-initdb.d/01-apolloconfigdb.sql:ro
       - ./scripts/sql/profiles/mysql-default/apolloportaldb.sql:/docker-entrypoint-initdb.d/02-apolloportaldb.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1'"]
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" -e 'SELECT 1'"]
       interval: 5s
       timeout: 5s
       retries: 30
