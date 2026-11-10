@@ -221,21 +221,55 @@ async function testStaleRevokeDoesNotClearNewerConfirmation() {
 async function testReopeningConsumerInvalidatesInFlightRevoke() {
     const modal = createModal();
     const role = {type: 'AppRole', appId: 'app'};
-    modal.loads[0].request.resolve([role]);
+    const otherRole = {type: 'NamespaceRole', appId: 'app', namespaceName: 'other', env: 'DEV'};
+    modal.loads[0].request.resolve([role, otherRole]);
     await Promise.resolve();
 
     modal.scope.preRevokeRole(role);
     modal.scope.revokeRole();
     modal.changed();
-    modal.loads[1].request.resolve([role]);
+    // 重开时列表先于撤销返回，此时已撤销的授权仍会在列表中
+    modal.loads[1].request.resolve([role, otherRole]);
+    await Promise.resolve();
+    assert.deepStrictEqual(modal.scope.roles, [role, otherRole]);
+
+    modal.revokes[0].request.resolve();
+    await Promise.resolve();
+
+    // 仍然是旧的上下文，不弹成功提示，但要为同一个 consumer 重新拉一次列表
+    assert.deepStrictEqual(modal.successes, []);
+    assert.strictEqual(modal.scope.revoking, false);
+    assert.strictEqual(modal.loads.length, 3);
+    assert.strictEqual(modal.loads[2].consumerId, 1);
+
+    modal.loads[2].request.resolve([otherRole]);
+    await Promise.resolve();
+    assert.deepStrictEqual(modal.scope.roles, [otherRole]);
+    assert.ok(!modal.scope.roles.some(r => r === role));
+}
+
+async function testReopeningAnotherConsumerDoesNotRefresh() {
+    const modal = createModal();
+    const role = {type: 'AppRole', appId: 'app'};
+    modal.loads[0].request.resolve([role]);
+    await Promise.resolve();
+
+    modal.scope.preRevokeRole(role);
+    modal.scope.revokeRole();
+
+    modal.scope.consumer = {consumerId: 2, appId: 'other-consumer'};
+    modal.changed();
+    const otherRole = {type: 'AppRole', appId: 'other-app'};
+    modal.loads[1].request.resolve([otherRole]);
     await Promise.resolve();
 
     modal.revokes[0].request.resolve();
     await Promise.resolve();
 
+    // 列表已切换到另一个 consumer，旧撤销完成时不应再触发刷新
     assert.deepStrictEqual(modal.successes, []);
-    assert.strictEqual(modal.scope.revoking, false);
     assert.strictEqual(modal.loads.length, 2);
+    assert.deepStrictEqual(modal.scope.roles, [otherRole]);
 }
 
 function testTemplateAndTranslations() {
@@ -296,6 +330,7 @@ async function main() {
     await testStaleResponsesDoNotReplaceAnotherConsumer();
     await testStaleRevokeDoesNotClearNewerConfirmation();
     await testReopeningConsumerInvalidatesInFlightRevoke();
+    await testReopeningAnotherConsumerDoesNotRefresh();
     console.log('Consumer permission viewing, confirmation, scoped revocation and translations passed.');
 }
 
