@@ -62,13 +62,19 @@ function viewPermissionsModalDirective($translate, toastr, AppUtil, ConsumerServ
                 scope.revoking = true;
                 ConsumerService.revokeConsumerRoles(consumerId, scope.pendingRole)
                     .then(function () {
-                        if (version !== revokeVersion) {
-                            return;
+                        var stillSameConsumer = !!scope.consumer
+                            && scope.consumer.consumerId === consumerId;
+                        if (version === revokeVersion && stillSameConsumer) {
+                            toastr.success(
+                                $translate.instant('Open.Manage.RevokePermission.Success'));
+                            scope.revoking = false;
+                            scope.pendingRole = null;
                         }
-                        toastr.success($translate.instant('Open.Manage.RevokePermission.Success'));
-                        scope.revoking = false;
-                        scope.pendingRole = null;
-                        loadRoles();
+                        // 重新打开同一个 consumer 时列表可能先于撤销返回，导致已撤销的授权仍显示，
+                        // 因此只要列表仍展示该 consumer 就重新拉一次（不弹提示）
+                        if (stillSameConsumer) {
+                            loadRoles();
+                        }
                     }, function (response) {
                         if (version !== revokeVersion) {
                             return;
